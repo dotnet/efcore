@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -17,6 +18,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly bool _areJsonFunctionsSupported;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,6 +34,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     {
         _typeMappingSource = relationalDependencies.TypeMappingSource;
         _sqlExpressionFactory = relationalDependencies.SqlExpressionFactory;
+
+        _areJsonFunctionsSupported = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 38);
     }
 
     /// <summary>
@@ -46,6 +50,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     {
         _typeMappingSource = parentVisitor._typeMappingSource;
         _sqlExpressionFactory = parentVisitor._sqlExpressionFactory;
+
+        _areJsonFunctionsSupported = parentVisitor._areJsonFunctionsSupported;
     }
 
     /// <summary>
@@ -192,11 +198,20 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ShapedQueryExpression TranslateCollection(
+    protected override ShapedQueryExpression? TranslateCollection(
         SqlExpression sqlExpression,
         RelationalTypeMapping? elementTypeMapping,
         string tableAlias)
     {
+        // Support for JSON functions (e.g. json_each) was added in Sqlite 3.38.0 (2022-02-22, see https://www.sqlite.org/json1.html).
+        // This determines whether we have json_each, which is needed to query into JSON columns.
+        if (!_areJsonFunctionsSupported)
+        {
+            AddTranslationErrorDetails(SqliteStrings.QueryingIntoJsonCollectionsNotSupported(new SqliteConnection().ServerVersion));
+
+            return null;
+        }
+
         var elementClrType = sqlExpression.Type.GetSequenceType();
 
         var jsonEachExpression = new TableValuedFunctionExpression(tableAlias, "json_each", new[] { sqlExpression });

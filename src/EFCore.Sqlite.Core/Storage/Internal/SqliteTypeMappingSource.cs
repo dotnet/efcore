@@ -95,8 +95,6 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { TextTypeName, Text }
     };
 
-    private readonly bool _areJsonFunctionsSupported;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -108,9 +106,6 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         RelationalTypeMappingSourceDependencies relationalDependencies)
         : base(dependencies, relationalDependencies)
     {
-        // Support for JSON functions was added in Sqlite 3.38.0 (2022-02-22, see https://www.sqlite.org/json1.html).
-        // This determines whether we have json_each, which is needed to query into JSON columns.
-        _areJsonFunctionsSupported = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 38);
     }
 
     /// <summary>
@@ -210,28 +205,22 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping
                 .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
 
-            // json_each was introduced in SQLite 3.38.0; on older SQLite version we allow mapping the column, but don't set the element
-            // type mapping on the mapping, so that it isn't queryable. This causes us to go into the old translation path for Contains
-            // over parameter via IN with constants.
-            if (_areJsonFunctionsSupported)
+            switch (elementTypeMapping)
             {
-                switch (elementTypeMapping)
-                {
-                    // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
-                    // is 2023-01-01 12:30:00+02:00 (no T).
-                    // datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00' - converted to UTC, no timezone.
-                    case SqliteDateTimeOffsetTypeMapping:
-                    // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string)
-                    case SqliteDecimalTypeMapping:
-                    // The JSON representation for new[] { 1, 2 } is AQI= (base64?), our SQL literal representation is X'0102'
-                    case ByteArrayTypeMapping:
-                        break;
+                // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
+                // is 2023-01-01 12:30:00+02:00 (no T).
+                // datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00' - converted to UTC, no timezone.
+                case SqliteDateTimeOffsetTypeMapping:
+                // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string)
+                case SqliteDecimalTypeMapping:
+                // The JSON representation for new[] { 1, 2 } is AQI= (base64?), our SQL literal representation is X'0102'
+                case ByteArrayTypeMapping:
+                    break;
 
 
-                    default:
-                        stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
-                        break;
-                }
+                default:
+                    stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
+                    break;
             }
 
             return stringTypeMapping;

@@ -28,9 +28,18 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
 
     /// <summary>
     ///     Indicates that a <see cref="ConstantExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
-    ///     this will later be translated to a SQL <see cref="ValuesExpression" />.
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.VisitInlineQueryRoot" /> for
+    ///     translation to a SQL <see cref="ValuesExpression" />.
     /// </summary>
     protected override bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
+        => true;
+
+    /// <summary>
+    ///     Indicates that a <see cref="ParameterExpression" /> can be converted to a <see cref="ParameterQueryRootExpression" />;
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateCollection" /> for
+    ///     translation to a provider-specific SQL expansion mechanism, e.g. <c>OPENJSON</c> on SQL Server.
+    /// </summary>
+    protected override bool ShouldConvertToParameterQueryRoot(ParameterExpression constantExpression)
         => true;
 
     /// <inheritdoc />

@@ -75,7 +75,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <inheritdoc />
     public override Expression Translate(Expression expression)
     {
-        var visited = Visit(expression);
+        var visited = base.Translate(expression);
 
         if (!_subquery)
         {
@@ -256,25 +256,44 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var translated = base.VisitMethodCall(methodCallExpression);
 
-        // Attempt to translate access into a primitive collection property
-        if (translated == QueryCompilationContext.NotTranslatedExpression
-            && _sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var propertyAccessExpression)
-            && propertyAccessExpression is
-            {
-                TypeMapping.ElementTypeMapping: RelationalTypeMapping elementTypeMapping
-            } collectionPropertyAccessExpression)
+        if (translated == QueryCompilationContext.NotTranslatedExpression)
         {
-            var tableAlias = collectionPropertyAccessExpression switch
+            // Attempt to translate access into a primitive collection property (i.e. array column)
+            if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var propertyAccessExpression)
+                && propertyAccessExpression is
+                {
+                    TypeMapping.ElementTypeMapping: RelationalTypeMapping elementTypeMapping
+                } collectionPropertyAccessExpression)
             {
-                ColumnExpression c => c.Name[..1].ToLowerInvariant(),
-                JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName[..1].ToLowerInvariant(),
-                _ => "j"
-            };
+                var tableAlias = collectionPropertyAccessExpression switch
+                {
+                    ColumnExpression c => c.Name[..1].ToLowerInvariant(),
+                    JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName[..1].ToLowerInvariant(),
+                    _ => "j"
+                };
 
-            if (TranslateCollection(collectionPropertyAccessExpression, elementTypeMapping, tableAlias) is
-                { } primitiveCollectionTranslation)
+                if (TranslateCollection(collectionPropertyAccessExpression, elementTypeMapping, tableAlias) is
+                    { } primitiveCollectionTranslation)
+                {
+                    return primitiveCollectionTranslation;
+                }
+            }
+
+            // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
+            // Server), we need to fall back to the previous IN translation.
+            if (method.IsGenericMethod
+                && method.GetGenericMethodDefinition() == QueryableMethods.Contains
+                && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
+                && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
+                && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
             {
-                return primitiveCollectionTranslation;
+                var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
+                var selectExpression = new SelectExpression(inExpression);
+                var shaperExpression = Expression.Convert(
+                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool));
+                var shapedQueryExpression = new ShapedQueryExpression(selectExpression, shaperExpression)
+                    .UpdateResultCardinality(ResultCardinality.Single);
+                return shapedQueryExpression;
             }
         }
 

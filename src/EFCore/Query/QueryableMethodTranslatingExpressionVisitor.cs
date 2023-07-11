@@ -45,6 +45,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// </summary>
     protected virtual QueryableMethodTranslatingExpressionVisitorDependencies Dependencies { get; }
 
+    private Expression? _untranslatedExpression;
+
     /// <summary>
     ///     Detailed information about errors encountered during translation.
     /// </summary>
@@ -56,7 +58,29 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <param name="expression">An expression to translate.</param>
     /// <returns>A SQL translation of the given expression.</returns>
     public virtual Expression Translate(Expression expression)
-        => Visit(expression);
+    {
+        var translated = Visit(expression);
+
+        // Note that we only throw if a specific node is recognized as untranslatable; we need to otherwise not throw in order to allow
+        // for client evaluation.
+        if (translated == QueryCompilationContext.NotTranslatedExpression && _untranslatedExpression is not null)
+        {
+            if (_untranslatedExpression is QueryRootExpression)
+            {
+                throw new InvalidOperationException(
+                    TranslationErrorDetails is null
+                        ? CoreStrings.QueryUnhandledQueryRootExpression(_untranslatedExpression.GetType().ShortDisplayName())
+                        : CoreStrings.TranslationFailedWithDetails(_untranslatedExpression, TranslationErrorDetails));
+            }
+
+            throw new InvalidOperationException(
+                TranslationErrorDetails is null
+                    ? CoreStrings.TranslationFailed(_untranslatedExpression.Print())
+                    : CoreStrings.TranslationFailedWithDetails(_untranslatedExpression.Print(), TranslationErrorDetails));
+        }
+
+        return translated;
+    }
 
     /// <summary>
     ///     Adds detailed information about errors encountered during translation.
@@ -84,18 +108,15 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     {
         if (extensionExpression is QueryRootExpression queryRootExpression)
         {
-            // Query roots must be processed.
-            if (extensionExpression.GetType() == typeof(EntityQueryRootExpression)
-                && extensionExpression is EntityQueryRootExpression entityQueryRootExpression)
+            // This requires exact type match on query root to avoid processing query roots derived from EntityQueryRootExpression, e.g.
+            // SQL Server TemporalQueryRootExpression.
+            if (queryRootExpression.GetType() == typeof(EntityQueryRootExpression))
             {
-                // This requires exact type match on query root to avoid processing derived query roots.
-                return CreateShapedQueryExpression(entityQueryRootExpression.EntityType);
+                return CreateShapedQueryExpression(((EntityQueryRootExpression)extensionExpression).EntityType);
             }
 
-            throw new InvalidOperationException(
-                TranslationErrorDetails is null
-                    ? CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName())
-                    : CoreStrings.TranslationFailedWithDetails(queryRootExpression, TranslationErrorDetails));
+            _untranslatedExpression = queryRootExpression;
+            return QueryCompilationContext.NotTranslatedExpression;
         }
 
         return base.VisitExtension(extensionExpression);
@@ -104,15 +125,6 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        ShapedQueryExpression CheckTranslated(ShapedQueryExpression? translated)
-            => translated
-                ?? throw new InvalidOperationException(
-                    TranslationErrorDetails == null
-                        ? CoreStrings.TranslationFailed(methodCallExpression.Print())
-                        : CoreStrings.TranslationFailedWithDetails(
-                            methodCallExpression.Print(),
-                            TranslationErrorDetails));
-
         var method = methodCallExpression.Method;
         if (method.DeclaringType == typeof(Queryable)
             || method.DeclaringType == typeof(QueryableExtensions))
@@ -485,7 +497,23 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
 
                         LambdaExpression GetLambdaExpressionFromArgument(int argumentIndex)
                             => methodCallExpression.Arguments[argumentIndex].UnwrapLambdaFromQuote();
+
+                        Expression CheckTranslated(ShapedQueryExpression? translated)
+                        {
+                            if (translated is not null)
+                            {
+                                return translated;
+                            }
+
+                            _untranslatedExpression ??= methodCallExpression;
+
+                            return QueryCompilationContext.NotTranslatedExpression;
+                        }
                 }
+            }
+            else if (source == QueryCompilationContext.NotTranslatedExpression)
+            {
+                return source;
             }
         }
 

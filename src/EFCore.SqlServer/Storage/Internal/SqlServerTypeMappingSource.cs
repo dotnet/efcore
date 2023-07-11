@@ -493,16 +493,10 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping
             .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
 
-        // OPENJSON was introduced in SQL Server 2016 (compatibility level 130). If the user configures an older compatibility level,
-        // we allow mapping the column, but don't set the element type mapping on the mapping, so that it isn't queryable.
-        // This causes us to go into the old translation path for Contains over parameter via IN with constants.
-        if (_supportsOpenJson)
+        // The JSON representation for new[] { 1, 2 } is AQI= (base64), this cannot simply be cast to varbinary(max) (0x0102)
+        if (elementTypeMapping is not SqlServerByteArrayTypeMapping)
         {
-            // The JSON representation for new[] { 1, 2 } is AQI= (base64?), this cannot simply be cast to varbinary(max) (0x0102)
-            if (elementTypeMapping is not SqlServerByteArrayTypeMapping)
-            {
-                stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
-            }
+            stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
         }
 
         return stringTypeMapping;
