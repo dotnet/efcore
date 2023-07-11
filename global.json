@@ -1,9 +1,9 @@
 {
   "tools": {
-    "dotnet": "7.0.108"
+    "dotnet": "7.0.109"
   },
   "sdk": {
-    "version": "7.0.108",
+    "version": "7.0.109",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
