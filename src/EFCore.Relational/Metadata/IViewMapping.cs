@@ -48,7 +48,7 @@ public interface IViewMapping : ITableMappingBase
             builder.Append("ViewMapping: ");
         }
 
-        builder.Append(EntityType.Name).Append(" - ");
+        builder.Append(TypeBase.Name).Append(" - ");
 
         builder.Append(Table.Name);
 

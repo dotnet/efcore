@@ -96,7 +96,7 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
             }
         }
 
-        result = EntityTypeFullNameComparer.Instance.Compare(x.EntityType, y.EntityType);
+        result = TypeBaseNameComparer.Instance.Compare(x.TypeBase, y.TypeBase);
         if (result != 0)
         {
             return result;
@@ -139,7 +139,7 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
         => ReferenceEquals(x, y)
             || x is not null
             && y is not null
-            && (x.EntityType == y.EntityType
+            && (x.TypeBase == y.TypeBase
                 && x.Table == y.Table
                 && x.IncludesDerivedTypes == y.IncludesDerivedTypes
                 && x.ColumnMappings.SequenceEqual(y.ColumnMappings));
@@ -153,7 +153,7 @@ public sealed class TableMappingBaseComparer : IEqualityComparer<ITableMappingBa
     public int GetHashCode(ITableMappingBase obj)
     {
         var hashCode = new HashCode();
-        hashCode.Add(obj.EntityType, EntityTypeFullNameComparer.Instance);
+        hashCode.Add(obj.TypeBase, TypeBaseNameComparer.Instance);
         hashCode.Add(obj.Table.Name);
         hashCode.Add(obj.Table.Schema);
         foreach (var columnMapping in obj.ColumnMappings)

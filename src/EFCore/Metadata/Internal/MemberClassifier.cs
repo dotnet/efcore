@@ -167,16 +167,54 @@ public class MemberClassifier : IMemberClassifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCandidatePrimitiveProperty(PropertyInfo propertyInfo, IConventionModel model)
+    public virtual bool IsCandidatePrimitiveProperty(MemberInfo memberInfo, IConventionModel model)
     {
-        if (!propertyInfo.IsCandidateProperty())
+        if (!memberInfo.IsCandidateProperty())
         {
             return false;
         }
 
-        var configurationType = ((Model)model).Configuration?.GetConfigurationType(propertyInfo.PropertyType);
+        var configurationType = ((Model)model).Configuration?.GetConfigurationType(memberInfo.GetMemberType());
         return configurationType == TypeConfigurationType.Property
-            || (configurationType == null && _typeMappingSource.FindMapping(propertyInfo) != null);
+            || (configurationType == null && _typeMappingSource.FindMapping(memberInfo) != null);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsCandidateComplexProperty(MemberInfo memberInfo, IConventionModel model, out Type? elementType)
+    {
+        elementType = null;
+        if (!memberInfo.IsCandidateProperty())
+        {
+            return false;
+        }
+
+        var targetType = memberInfo.GetMemberType();
+        if (targetType.TryGetSequenceType() is Type sequenceType
+            && IsCandidateComplexType(sequenceType, model))
+        {
+            elementType = sequenceType;
+            return true;
+        }
+
+        return IsCandidateComplexType(targetType, model);
+    }
+
+    private static bool IsCandidateComplexType(Type targetType, IConventionModel model)
+    {
+        if (targetType.IsGenericType
+            && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+        {
+            return false;
+        }
+
+        var configurationType = ((Model)model).Configuration?.GetConfigurationType(targetType);
+        return configurationType == TypeConfigurationType.ComplexType
+            || configurationType == null;
     }
 
     /// <summary>

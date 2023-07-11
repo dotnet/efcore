@@ -66,7 +66,7 @@ public interface ITableMapping : ITableMappingBase
             }
 
             builder
-                .Append(EntityType.Name)
+                .Append(TypeBase.Name)
                 .Append(" - ")
                 .Append(Table.Name);
 

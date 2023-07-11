@@ -975,14 +975,26 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             }
         }
 
+        var model = Metadata.Model;
         InternalComplexPropertyBuilder builder;
-        using (Metadata.Model.DelayConventions())
+        using (model.DelayConventions())
         {
-            Metadata.Model.AddComplex(complexType!, configurationSource.Value);
-
-            foreach (var existingEntityType in Metadata.Model.FindEntityTypes(complexType!).ToList())
+            var existingComplexConfiguration = model.AddComplex(complexType!, configurationSource.Value);
+            if (existingComplexConfiguration == null)
             {
-                Metadata.Model.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
+                foreach (var existingEntityType in model.FindEntityTypes(complexType!).ToList())
+                {
+                    model.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
+                }
+
+                var properties = model.FindProperties(complexType!);
+                if (properties != null)
+                {
+                    foreach (var property in properties)
+                    {
+                        property.DeclaringType.Builder.RemoveProperty(property, ConfigurationSource.Convention);
+                    }
+                }
             }
 
             var detachedProperties = propertiesToDetach == null ? null : DetachProperties(propertiesToDetach);

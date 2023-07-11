@@ -265,8 +265,8 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     /// </summary>
     public virtual DebugView DebugView
         => new(
-            () => ((IReadOnlyEntityType)this).ToDebugString(),
-            () => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+            () => ((IReadOnlyComplexProperty)this).ToDebugString(),
+            () => ((IReadOnlyComplexProperty)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -3,7 +3,6 @@
 
 using System.Dynamic;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -29,6 +28,14 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar", complexProperty.ComplexType["foo"]);
             Assert.Equal("bar2", complexProperty["foo2"]);
             Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal("""
+Customer (Customer)
+  ComplexType: ComplexProperties.Customer#Customer
+    Properties: 
+      AlternateKey (Guid) Required
+      Id (int) Required
+      Name (string)
+""", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]
@@ -1447,6 +1454,46 @@ public abstract partial class ModelBuilderTest
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
             var property = Assert.Single(complexProperty.ComplexType.GetProperties());
             Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_properties_discovered_by_convention()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer);
+
+            modelBuilder
+                .Entity<ValueComplexProperties>()
+                .ComplexProperty(e => e.Label);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+
+            var valueType = model.FindEntityType(typeof(ValueComplexProperties));
+            var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label));
+            Assert.False(labelProperty.IsNullable);
+            Assert.Equal(typeof(ProductLabel), labelProperty.ClrType);
+            var labelType = labelProperty.ComplexType;
+            Assert.Equal(typeof(ProductLabel), labelType.ClrType);
+
+            var labelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
+            Assert.True(labelCustomerProperty.IsNullable);
+            Assert.Equal(typeof(Customer), labelCustomerProperty.ClrType);
+
+            var oldLabelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.OldLabel));
+            Assert.True(oldLabelProperty.IsNullable);
+            Assert.Equal(typeof(ProductLabel?), oldLabelProperty.ClrType);
+            var oldLabelType = oldLabelProperty.ComplexType;
+            Assert.Equal(typeof(ProductLabel), oldLabelType.ClrType);
+
+            var oldLabelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
+            Assert.True(oldLabelCustomerProperty.IsNullable);
+            Assert.Equal(typeof(Customer), oldLabelCustomerProperty.ClrType);
         }
     }
 }

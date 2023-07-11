@@ -696,5 +696,29 @@ public class CosmosTestStore : TestStore
 
         public IEnumerable<IReadOnlyComplexProperty> GetDerivedComplexProperties()
             => throw new NotImplementedException();
+
+        public IEnumerable<IPropertyBase> GetMembers()
+            => throw new NotImplementedException();
+
+        public IEnumerable<IPropertyBase> GetDeclaredMembers()
+            => throw new NotImplementedException();
+
+        public IPropertyBase FindMember(string name)
+            => throw new NotImplementedException();
+
+        public IEnumerable<IPropertyBase> FindMembersInHierarchy(string name)
+            => throw new NotImplementedException();
+
+        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetMembers()
+            => throw new NotImplementedException();
+
+        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetDeclaredMembers()
+            => throw new NotImplementedException();
+
+        IReadOnlyPropertyBase IReadOnlyTypeBase.FindMember(string name)
+            => throw new NotImplementedException();
+
+        IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
+            => throw new NotImplementedException();
     }
 }

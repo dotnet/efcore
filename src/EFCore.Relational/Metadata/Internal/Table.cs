@@ -142,7 +142,8 @@ public class Table : TableBase, ITable
 
     /// <inheritdoc />
     public virtual bool IsExcludedFromMigrations
-        => EntityTypeMappings.First().EntityType.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
+        => ((IEntityType)EntityTypeMappings.First().TypeBase)
+            .IsTableExcludedFromMigrations(StoreObjectIdentifier.Table(Name, Schema));
 
     /// <inheritdoc />
     public override IColumnBase? FindColumn(IProperty property)
@@ -220,7 +221,7 @@ public class Table : TableBase, ITable
     IEnumerable<ICheckConstraint> ITable.CheckConstraints
     {
         [DebuggerStepThrough]
-        get => EntityTypeMappings.First().EntityType is RuntimeEntityType
+        get => EntityTypeMappings.First().TypeBase is RuntimeEntityType
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
             : CheckConstraints.Values;
     }

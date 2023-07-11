@@ -45,6 +45,11 @@ public interface ITableBase : IAnnotatable
     IEnumerable<ITableMappingBase> EntityTypeMappings { get; }
 
     /// <summary>
+    ///     Gets the complex type mappings.
+    /// </summary>
+    IEnumerable<ITableMappingBase> ComplexTypeMappings { get; }
+
+    /// <summary>
     ///     Gets the columns defined for this table.
     /// </summary>
     IEnumerable<IColumnBase> Columns { get; }
@@ -72,7 +77,8 @@ public interface ITableBase : IAnnotatable
     /// <summary>
     ///     Gets the value indicating whether an entity of the given type might not be present in a row.
     /// </summary>
-    bool IsOptional(IEntityType entityType);
+    bool IsOptional(ITypeBase typeBase);
+
     /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.

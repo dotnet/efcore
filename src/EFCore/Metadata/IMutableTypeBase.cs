@@ -383,6 +383,34 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     IMutableComplexProperty? RemoveComplexProperty(IReadOnlyProperty property);
 
     /// <summary>
+    ///     Gets the members defined on this type and base types.
+    /// </summary>
+    /// <returns>Type members.</returns>
+    new IEnumerable<IMutablePropertyBase> GetMembers();
+
+    /// <summary>
+    ///     Gets the members declared on this type.
+    /// </summary>
+    /// <returns>Declared members.</returns>
+    new IEnumerable<IMutablePropertyBase> GetDeclaredMembers();
+
+    /// <summary>
+    ///     Gets the member with the given name. Returns <see langword="null" /> if no member with the given name is defined.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    new IMutablePropertyBase? FindMember(string name);
+
+    /// <summary>
+    ///    Gets the members with the given name on this type, base types or derived types..
+    /// </summary>
+    /// <returns>Type members.</returns>
+    new IEnumerable<IMutablePropertyBase> FindMembersInHierarchy(string name);
+
+    /// <summary>
     ///     Sets the change tracking strategy to use for this type. This strategy indicates how the
     ///     context detects changes to properties for an instance of the type.
     /// </summary>

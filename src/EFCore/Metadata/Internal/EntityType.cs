@@ -204,6 +204,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             }
         }
 
+        foreach (var property in Properties.Values)
+        {
+            Model.RemoveProperty(property);
+        }
+
         _builder = null;
         BaseType?.DirectlyDerivedTypes.Remove(this);
 
@@ -474,15 +479,6 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => (EntityType)((IReadOnlyEntityType)this).GetRootType();
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public override string ToString()
-        => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
-
-    /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
     /// </summary>
     /// <param name="name">The key of the set annotation.</param>
@@ -501,9 +497,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEnumerable<IConventionPropertyBase> GetMembers()
-        => GetProperties().Cast<IConventionPropertyBase>()
-            .Concat(GetComplexProperties())
+    public override IEnumerable<PropertyBase> GetMembers()
+        => GetProperties()
+            .Concat<PropertyBase>(GetComplexProperties())
             .Concat(GetServiceProperties())
             .Concat(GetNavigations())
             .Concat(GetSkipNavigations());
@@ -514,9 +510,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEnumerable<IConventionPropertyBase> GetDeclaredMembers()
-        => GetDeclaredProperties().Cast<IConventionPropertyBase>()
-            .Concat(GetDeclaredComplexProperties())
+    public override IEnumerable<PropertyBase> GetDeclaredMembers()
+        => GetDeclaredProperties()
+            .Concat<PropertyBase>(GetDeclaredComplexProperties())
             .Concat(GetDeclaredServiceProperties())
             .Concat(GetDeclaredNavigations())
             .Concat(GetDeclaredSkipNavigations());
@@ -527,9 +523,22 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override IEnumerable<IConventionPropertyBase> FindMembersInHierarchy(string name)
-        => FindPropertiesInHierarchy(name).Cast<IConventionPropertyBase>()
-            .Concat(FindComplexPropertiesInHierarchy(name))
+    public override PropertyBase? FindMember(string name)
+        => FindProperty(name)
+            ?? FindNavigation(name)
+            ?? FindComplexProperty(name)
+            ?? FindSkipNavigation(name)
+            ?? ((PropertyBase?)FindServiceProperty(name));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<PropertyBase> FindMembersInHierarchy(string name)
+        => FindPropertiesInHierarchy(name)
+            .Concat<PropertyBase>(FindComplexPropertiesInHierarchy(name))
             .Concat(FindServicePropertiesInHierarchy(name))
             .Concat(FindNavigationsInHierarchy(name))
             .Concat(FindSkipNavigationsInHierarchy(name));
@@ -4793,4 +4802,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => new(
             () => ((IReadOnlyEntityType)this).ToDebugString(),
             () => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override string ToString()
+        => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 }

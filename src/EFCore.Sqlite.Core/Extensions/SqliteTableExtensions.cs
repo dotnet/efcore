@@ -25,7 +25,7 @@ public static class SqliteTableExtensions
         }
 
         isSqlOutputClauseUsed = table.EntityTypeMappings.All(
-            e => e.EntityType.IsSqlReturningClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
+            e => ((IEntityType)e.TypeBase).IsSqlReturningClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
 
         table.SetRuntimeAnnotation(SqliteAnnotationNames.UseSqlReturningClause, isSqlOutputClauseUsed);
 

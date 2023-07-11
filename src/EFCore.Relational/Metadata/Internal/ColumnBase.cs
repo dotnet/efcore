@@ -131,10 +131,8 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     /// </summary>
     public virtual bool AddPropertyMapping(TColumnMappingBase columnMapping)
     {
-        if (PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) != -1)
-        {
-            return false;
-        }
+        Check.DebugAssert(PropertyMappings.IndexOf(columnMapping, ColumnMappingBaseComparer.Instance) == -1,
+            $"Duplicate mapping for column {Name}");
 
         PropertyMappings.Add(columnMapping);
         PropertyMappings.Sort(ColumnMappingBaseComparer.Instance);

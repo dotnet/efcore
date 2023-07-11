@@ -99,19 +99,29 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual IEnumerable<RuntimeTypeBase> GetDerivedTypes()
+    public virtual IEnumerable<RuntimeTypeBase> GetDerivedTypes()
+        => GetDerivedTypes<RuntimeTypeBase>();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IEnumerable<T> GetDerivedTypes<T>()
+        where T : RuntimeTypeBase
     {
         if (DirectlyDerivedTypes.Count == 0)
         {
-            return Enumerable.Empty<RuntimeTypeBase>();
+            return Enumerable.Empty<T>();
         }
 
-        var derivedTypes = new List<RuntimeTypeBase>();
-        var type = this;
+        var derivedTypes = new List<T>();
+        var type = (T)this;
         var currentTypeIndex = 0;
         while (type != null)
         {
-            derivedTypes.AddRange(type.DirectlyDerivedTypes);
+            derivedTypes.AddRange(type.DirectlyDerivedTypes.Cast<T>());
             type = derivedTypes.Count > currentTypeIndex
                 ? derivedTypes[currentTypeIndex]
                 : null;
@@ -235,7 +245,16 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             ? property
             : null;
 
-    private IEnumerable<RuntimeProperty> GetDeclaredProperties()
+    /// <summary>
+    ///     Gets all scalar properties declared on this type.
+    /// </summary>
+    /// <remarks>
+    ///     This method does not return properties declared on base types.
+    ///     It is useful when iterating over all types to avoid processing the same property more than once.
+    ///     Use <see cref="GetProperties" /> to also return properties declared on base types.
+    /// </remarks>
+    /// <returns>Declared scalar properties.</returns>
+    public virtual IEnumerable<RuntimeProperty> GetDeclaredProperties()
         => _properties.Values;
 
     private IEnumerable<RuntimeProperty> GetDerivedProperties()
@@ -266,6 +285,25 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
         }
 
         return properties;
+    }
+
+    /// <summary>
+    ///    Gets the properties with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type properties.</returns>
+    public virtual IEnumerable<RuntimeProperty> FindPropertiesInHierarchy(string propertyName)
+        => _directlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindProperty(propertyName))
+            : ToEnumerable(FindProperty(propertyName)).Concat(FindDerivedProperties(propertyName));
+
+    private IEnumerable<RuntimeProperty> FindDerivedProperties(string propertyName)
+    {
+        Check.NotNull(propertyName, nameof(propertyName));
+
+        return _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<RuntimeProperty>()
+            : (IEnumerable<RuntimeProperty>)GetDerivedTypes()
+                .Select(et => et.FindDeclaredProperty(propertyName)).Where(p => p != null);
     }
 
     /// <summary>
@@ -370,7 +408,11 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             ? property
             : null;
 
-    private IEnumerable<RuntimeComplexProperty> GetDeclaredComplexProperties()
+    /// <summary>
+    ///     Gets the complex properties declared on this type.
+    /// </summary>
+    /// <returns>Declared complex properties.</returns>
+    public virtual IEnumerable<RuntimeComplexProperty> GetDeclaredComplexProperties()
         => _complexProperties.Values;
 
     private IEnumerable<RuntimeComplexProperty> GetDerivedComplexProperties()
@@ -378,10 +420,80 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             ? Enumerable.Empty<RuntimeComplexProperty>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredComplexProperties());
 
-    private IEnumerable<RuntimeComplexProperty> GetComplexProperties()
+    /// <summary>
+    ///     Gets the complex properties defined on this type.
+    /// </summary>
+    /// <remarks>
+    ///     This API only returns complex properties and does not find navigation, scalar or service properties.
+    /// </remarks>
+    /// <returns>The complex properties defined on this type.</returns>
+    public virtual IEnumerable<RuntimeComplexProperty> GetComplexProperties()
         => BaseType != null
             ? BaseType.GetComplexProperties().Concat(_complexProperties.Values)
             : _complexProperties.Values;
+
+    /// <summary>
+    ///    Gets the complex properties with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type complex properties.</returns>
+    public virtual IEnumerable<RuntimeComplexProperty> FindComplexPropertiesInHierarchy(string propertyName)
+        => _directlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindComplexProperty(propertyName))
+            : ToEnumerable(FindComplexProperty(propertyName)).Concat(FindDerivedComplexProperties(propertyName));
+
+    private IEnumerable<RuntimeComplexProperty> FindDerivedComplexProperties(string propertyName)
+    {
+        Check.NotNull(propertyName, nameof(propertyName));
+
+        return _directlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<RuntimeComplexProperty>()
+            : (IEnumerable<RuntimeComplexProperty>)GetDerivedTypes()
+              .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract IEnumerable<RuntimePropertyBase> GetMembers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract IEnumerable<RuntimePropertyBase> GetDeclaredMembers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract RuntimePropertyBase? FindMember(string name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract IEnumerable<RuntimePropertyBase> FindMembersInHierarchy(string name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected static IEnumerable<T> ToEnumerable<T>(T? element)
+        where T : class
+        => element == null
+            ? Enumerable.Empty<T>()
+            : new[] { element };
 
     /// <inheritdoc />
     bool IReadOnlyTypeBase.HasSharedClrType
@@ -554,4 +666,44 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// <inheritdoc />
     ConfigurationSource? IRuntimeTypeBase.GetServiceOnlyConstructorBindingConfigurationSource()
         => throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IPropertyBase> ITypeBase.GetMembers()
+        => GetMembers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetMembers()
+        => GetMembers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetDeclaredMembers()
+        => GetDeclaredMembers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IPropertyBase> ITypeBase.GetDeclaredMembers()
+        => GetDeclaredMembers();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyPropertyBase? IReadOnlyTypeBase.FindMember(string name)
+        => FindMember(name);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IPropertyBase? ITypeBase.FindMember(string name)
+        => FindMember(name);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.FindMembersInHierarchy(string name)
+        => FindMembersInHierarchy(name);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IPropertyBase> ITypeBase.FindMembersInHierarchy(string name)
+        => FindMembersInHierarchy(name);
 }

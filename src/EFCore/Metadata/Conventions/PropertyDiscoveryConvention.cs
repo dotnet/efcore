@@ -75,7 +75,8 @@ public class PropertyDiscoveryConvention :
         var model = entityType.Model;
         foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
         {
-            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model))
+            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model)
+                || ((Model)model).FindIsComplexConfigurationSource(propertyInfo.GetMemberType().UnwrapNullableType()) != null)
             {
                 continue;
             }

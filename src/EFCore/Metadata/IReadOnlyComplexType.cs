@@ -20,6 +20,30 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
     IReadOnlyComplexProperty ComplexProperty { get; }
 
     /// <summary>
+    ///     Gets a value indicating whether given type is in the complex type declaration path for this type.
+    /// </summary>
+    /// <param name="targetType">Type to search for in declaration path.</param>
+    /// <returns>
+    ///     <see langword="true" /> if <paramref name="targetType" /> is in declaration path of this type,
+    ///     otherwise <see langword="false" />.
+    /// </returns>
+    bool IsInDeclarationPath(Type targetType)
+    {
+        var currentType = this;
+        while (currentType != null)
+        {
+            var declaringType = currentType.ComplexProperty.DeclaringType;
+            if (declaringType.ClrType.IsAssignableFrom(targetType))
+            {
+                return true;
+            }
+            currentType = declaringType as IReadOnlyComplexType;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -42,11 +66,6 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
                 .Append(indentString)
                 .Append("ComplexType: ")
                 .Append(DisplayName());
-
-            if (HasSharedClrType)
-            {
-                builder.Append(" CLR Type: ").Append(ClrType.ShortDisplayName());
-            }
 
             if (IsAbstract())
             {

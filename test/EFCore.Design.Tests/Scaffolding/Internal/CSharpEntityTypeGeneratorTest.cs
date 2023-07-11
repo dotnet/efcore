@@ -2957,7 +2957,7 @@ public partial class TestDbContext : DbContext
                 yield return annotation;
             }
 
-            var entityType = table.EntityTypeMappings.First().EntityType;
+            var entityType = table.EntityTypeMappings.First().TypeBase;
 
             foreach (var annotation in entityType.GetAnnotations().Where(a => a.Name == "Custom:EntityAnnotation"))
             {

@@ -19,17 +19,17 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TableMappingBase(
-        IEntityType entityType,
+        ITypeBase typeBase,
         TableBase table,
         bool includesDerivedTypes)
     {
-        EntityType = entityType;
+        TypeBase = typeBase;
         Table = table;
         IncludesDerivedTypes = includesDerivedTypes;
     }
 
     /// <inheritdoc />
-    public virtual IEntityType EntityType { get; }
+    public virtual ITypeBase TypeBase { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

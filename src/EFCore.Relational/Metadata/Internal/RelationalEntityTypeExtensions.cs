@@ -100,7 +100,7 @@ public static class RelationalEntityTypeExtensions
 
             var propertyMappings = column.PropertyMappings;
             if (propertyMappings.Count() > 1
-                && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
+                && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.TypeBase)))
             {
                 continue;
             }

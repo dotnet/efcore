@@ -55,7 +55,7 @@ public interface ISqlQueryMapping : ITableMappingBase
             builder.Append("SqlQueryMapping: ");
         }
 
-        builder.Append(EntityType.Name).Append(" - ");
+        builder.Append(TypeBase.Name).Append(" - ");
 
         builder.Append(Table.Name);
 

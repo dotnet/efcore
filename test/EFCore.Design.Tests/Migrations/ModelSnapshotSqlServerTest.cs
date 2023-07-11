@@ -1218,13 +1218,13 @@ namespace RootNamespace
                 var orderTable = relationalModel.FindTable(orderEntityType.GetTableName()!, orderEntityType.GetSchema());
                 Assert.Equal(
                     new[] { orderEntityType, shippingEntityType },
-                    orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+                    orderTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var fragment = orderEntityType.GetMappingFragments().Single();
                 var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
                 Assert.Equal(
                     new[] { billingEntityType, orderEntityType },
-                    splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+                    splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
                 Assert.Equal("bar", fragment["foo"]);
 
                 var trigger = orderEntityType.GetDeclaredTriggers().Single();
@@ -1236,13 +1236,13 @@ namespace RootNamespace
                 var billingTable = relationalModel.FindTable(billingFragment.StoreObject.Name, billingFragment.StoreObject.Schema);
                 Assert.Equal(
                     new[] { billingEntityType },
-                    billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+                    billingTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 var shippingFragment = shippingEntityType.GetMappingFragments().Single();
                 var shippingTable = relationalModel.FindTable(shippingFragment.StoreObject.Name, shippingFragment.StoreObject.Schema);
                 Assert.Equal(
                     new[] { shippingEntityType },
-                    shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.EntityType));
+                    shippingTable.FindColumn("ShippingShadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
 
                 Assert.Equal(new[] { "Id", "Shadow" }, orderTable.Columns.Select(c => c.Name));
                 Assert.Equal(new[] { "Id", "OrderBillingDetails_StreetAddress_City", "Shadow" }, splitTable.Columns.Select(c => c.Name));

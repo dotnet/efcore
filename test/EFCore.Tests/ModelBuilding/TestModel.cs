@@ -855,17 +855,35 @@ public abstract partial class ModelBuilderTest
     protected class ComplexProperties
     {
         public int Id { get; set; }
-        public Customer Customer { get; set; } = null!;
-        public DoubleProperty DoubleProperty { get; set; } = null!;
-        public IndexedClass IndexedClass { get; set; } = null!;
-        public Quarks Quarks { get; set; } = null!;
+        public Customer? Customer { get; set; }
+        public DoubleProperty? DoubleProperty { get; set; }
+        public IndexedClass? IndexedClass { get; set; }
+        public Quarks? Quarks { get; set; }
 
         [NotMapped]
-        public DynamicProperty DynamicProperty { get; set; } = null!;
+        public DynamicProperty? DynamicProperty { get; set; }
+
         [NotMapped]
-        public EntityWithFields EntityWithFields { get; set; } = null!;
+        public EntityWithFields? EntityWithFields { get; set; }
+
         [NotMapped]
-        public WrappedStringEntity WrappedStringEntity { get; set; } = null!;
+        public WrappedStringEntity? WrappedStringEntity { get; set; }
+    }
+
+    protected class ValueComplexProperties
+    {
+        public int Id { get; set; }
+        public ProductLabel Label { get; set; }
+        public ProductLabel? OldLabel { get; set; }
+    }
+
+    protected struct ProductLabel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public Customer? Customer { get; set; }
+        public ValueComplexProperties Parent { get; set; }
     }
 
     protected interface IWrapped<T>
