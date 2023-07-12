@@ -552,6 +552,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var complexTypeBuilderName = GenerateNestedBuilderName(builderName);
 
         stringBuilder
+            .AppendLine()
             .Append(builderName)
             .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
             .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")

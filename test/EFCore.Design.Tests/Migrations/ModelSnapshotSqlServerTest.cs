@@ -5350,6 +5350,7 @@ namespace RootNamespace
                         b.ComplexProperty(eo => eo.EntityWithTwoProperties, eb =>
                         {
                             eb.Property(e => e.AlternateId).HasColumnOrder(1);
+                            eb.ComplexProperty(e => e.EntityWithStringKey);
                         });
                     });
             },
@@ -5363,6 +5364,7 @@ namespace RootNamespace
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.ComplexProperty<Dictionary<string, object>>("EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
                         {
                             b1.Property<int>("AlternateId")
@@ -5371,6 +5373,12 @@ namespace RootNamespace
 
                             b1.Property<int>("Id")
                                 .HasColumnType("int");
+
+                            b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
+                                {
+                                    b2.Property<string>("Id")
+                                        .HasColumnType("nvarchar(max)");
+                                });
                         });
 
                     b.HasKey("Id");
@@ -5392,6 +5400,16 @@ namespace RootNamespace
                 Assert.Equal(nameof(EntityWithOneProperty), complexType.GetTableName());
                 var alternateIdProperty = complexType.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
                 Assert.Equal(1, alternateIdProperty.GetColumnOrder());
+
+                var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
+                Assert.False(nestedComplexProperty.IsCollection);
+                Assert.True(nestedComplexProperty.IsNullable);
+                var nestedComplexType = nestedComplexProperty.ComplexType;
+                Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", nestedComplexType.Name);
+                Assert.Equal("EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", nestedComplexType.DisplayName());
+                Assert.Equal(nameof(EntityWithOneProperty), nestedComplexType.GetTableName());
+                var nestedIdProperty = nestedComplexType.FindProperty(nameof(EntityWithStringKey.Id));
+                Assert.True(nestedIdProperty.IsNullable);
             });
 
     #endregion
