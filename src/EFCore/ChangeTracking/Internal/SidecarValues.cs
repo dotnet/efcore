@@ -9,9 +9,9 @@ public sealed partial class InternalEntityEntry
     {
         private readonly ISnapshot _values;
 
-        public SidecarValues(ISnapshot valuesFactory)
+        public SidecarValues(ISnapshot values)
         {
-            _values = valuesFactory;
+            _values = values;
         }
 
         public bool TryGetValue(int index, out object? value)

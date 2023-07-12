@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -185,8 +184,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        var adding = false;
-        await SetupAsync().ConfigureAwait(false);
+        bool adding = PrepareForAdd(entityState);
+        entityState = await PropagateToUnknownKeyAsync(
+            oldState, entityState, adding, forceStateWhenUnknownKey, cancellationToken).ConfigureAwait(false);
 
         if ((adding || oldState is EntityState.Detached)
             && await StateManager.ValueGenerationManager
@@ -194,17 +194,12 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             && fallbackState.HasValue)
         {
             entityState = fallbackState.Value;
-            await SetupAsync().ConfigureAwait(false);
-        }
-
-        SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
-
-        async Task SetupAsync()
-        {
             adding = PrepareForAdd(entityState);
             entityState = await PropagateToUnknownKeyAsync(
                 oldState, entityState, adding, forceStateWhenUnknownKey, cancellationToken).ConfigureAwait(false);
         }
+
+        SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
     }
 
     private EntityState PropagateToUnknownKey(
@@ -829,8 +824,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     internal static MethodInfo MakeReadOriginalValueMethod(Type type)
         => ReadOriginalValueMethod.MakeGenericMethod(type);
 
-    [UsedImplicitly]
-    private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
         => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
     private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
@@ -842,8 +842,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     internal static MethodInfo MakeReadRelationshipSnapshotValueMethod(Type type)
         => ReadRelationshipSnapshotValueMethod.MakeGenericMethod(type);
 
-    [UsedImplicitly]
-    private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
         => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
     [UnconditionalSuppressMessage(
@@ -855,12 +860,17 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private static readonly MethodInfo ReadStoreGeneratedValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue))!;
 
-    [UsedImplicitly]
-    private T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
         => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo ReadTemporaryValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue))!;
+        = typeof(InternalEntityEntry).GetMethod(nameof(ReadTemporaryValue))!;
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",
@@ -868,8 +878,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     internal static MethodInfo MakeReadTemporaryValueMethod(Type type)
         => ReadTemporaryValueMethod.MakeGenericMethod(type);
 
-    [UsedImplicitly]
-    private T ReadTemporaryValue<T>(int storeGeneratedIndex)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public T ReadTemporaryValue<T>(int storeGeneratedIndex)
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo GetCurrentValueMethod
@@ -942,7 +957,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
             var setter = forMaterialization
                 ? concretePropertyBase.MaterializationSetter
-                : concretePropertyBase.Setter;
+                : concretePropertyBase.GetSetter();
 
             setter.SetClrValue(Entity, value);
         }
@@ -1124,7 +1139,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_temporaryValues.IsEmpty)
         {
-            _temporaryValues = new SidecarValues(((IRuntimeEntityType)EntityType).TemporaryValuesFactory(this));
+            _temporaryValues = new SidecarValues(EntityType.TemporaryValuesFactory(this));
         }
     }
 
@@ -1138,7 +1153,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (_storeGeneratedValues.IsEmpty)
         {
-            _storeGeneratedValues = new SidecarValues(((IRuntimeEntityType)EntityType).StoreGeneratedValuesFactory());
+            _storeGeneratedValues = new SidecarValues(EntityType.StoreGeneratedValuesFactory());
         }
     }
 

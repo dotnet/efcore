@@ -93,11 +93,6 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     }
 
     /// <inheritdoc />
-    IClrPropertySetter IRuntimePropertyBase.Setter
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _setter, this, static property => new ClrPropertySetterFactory().Create(property));
-
-    /// <inheritdoc />
     IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _materializationSetter, this, static property =>
@@ -128,6 +123,49 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
         [DebuggerStepThrough]
         get => ClrType;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetAccessors(PropertyAccessors accessors)
+    {
+        _accessors = accessors;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
+        where TEntity : class
+    {
+        _setter = new ClrPropertySetter<TEntity, TValue>(setter);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetGetter<TEntity, TValue>(Func<TEntity, TValue> getter, Func<TEntity, bool> hasDefaultValue)
+        where TEntity : class
+    {
+        _getter = new ClrPropertyGetter<TEntity, TValue>(getter, hasDefaultValue);
+    }
+
+    /// <inheritdoc />
+    IClrPropertySetter IRuntimePropertyBase.GetSetter()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _setter, this, static property => new ClrPropertySetterFactory().Create(property));
 
     /// <inheritdoc />
     [DebuggerStepThrough]

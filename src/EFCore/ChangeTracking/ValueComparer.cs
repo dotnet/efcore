@@ -189,8 +189,28 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         Type type,
         bool favorStructuralComparisons)
+        => (ValueComparer)CreateDefaultMethod.MakeGenericMethod(type).Invoke(null, new object[] { favorStructuralComparisons })!;
+
+    private static readonly MethodInfo CreateDefaultMethod = typeof(ValueComparer).GetMethod(
+        nameof(CreateDefault),
+        genericParameterCount: 1,
+        BindingFlags.Static | BindingFlags.Public,
+        null,
+        new[] {typeof(bool)},
+        null )!;
+
+    /// <summary>
+    ///     Creates a default <see cref="ValueComparer{T}" /> for the given type.
+    /// </summary>
+    /// <param name="favorStructuralComparisons">
+    ///     If <see langword="true" />, then EF will use <see cref="IStructuralEquatable" /> if the type
+    ///     implements it. This is usually used when byte arrays act as keys.
+    /// </param>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <returns>The <see cref="ValueComparer{T}" />.</returns>
+    public static ValueComparer CreateDefault<T>(bool favorStructuralComparisons)
     {
-        var nonNullableType = type.UnwrapNullableType();
+        var nonNullableType = typeof(T).UnwrapNullableType();
 
         // The equality operator returns false for NaNs, but the Equals methods returns true
         if (nonNullableType == typeof(double))
@@ -208,7 +228,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             return new DefaultDateTimeOffsetValueComparer(favorStructuralComparisons);
         }
 
-        var comparerType = nonNullableType.IsInteger()
+        return nonNullableType.IsInteger()
             || nonNullableType == typeof(decimal)
             || nonNullableType == typeof(bool)
             || nonNullableType == typeof(string)
@@ -217,19 +237,8 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             || nonNullableType == typeof(Guid)
             || nonNullableType == typeof(TimeSpan)
             || nonNullableType == typeof(TimeOnly)
-                ? typeof(DefaultValueComparer<>)
-                : typeof(ValueComparer<>);
-
-        return CreateInstance();
-
-        [UnconditionalSuppressMessage(
-            "ReflectionAnalysis", "IL2055", Justification =
-                "We only create ValueComparer or DefaultValueComparer whose generic type parameter requires Methods/Properties, "
-                + "and our type argument is properly annotated for those.")]
-        ValueComparer CreateInstance()
-            => (ValueComparer)Activator.CreateInstance(
-                comparerType.MakeGenericType(type),
-                new object[] { favorStructuralComparisons })!;
+                ? new DefaultValueComparer<T>(favorStructuralComparisons)
+                : new ValueComparer<T>(favorStructuralComparisons);
     }
 
     // PublicMethods is required to preserve e.g. GetHashCode
