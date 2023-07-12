@@ -68,7 +68,7 @@ public static class TypeExtensions
                     pi =>
                         pi.Name == defaultPropertyAttribute.MemberName
                         && pi.IsIndexerProperty()
-                        && pi.SetMethod?.GetParameters() is ParameterInfo[] { Length: 2 } parameters
+                        && pi.SetMethod?.GetParameters() is { Length: 2 } parameters
                         && parameters[0].ParameterType == typeof(string));
     }
 }

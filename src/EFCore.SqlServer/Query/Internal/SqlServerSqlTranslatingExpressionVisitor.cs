@@ -142,7 +142,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (methodCallExpression is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } genericMethodCall
+        if (methodCallExpression is { Method: { IsGenericMethod: true } } genericMethodCall
             && genericMethodCall.Method.GetGenericMethodDefinition() == EnumerableMethods.ElementAt
             && genericMethodCall.Arguments[0].Type == typeof(byte[]))
         {

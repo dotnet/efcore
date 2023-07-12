@@ -74,6 +74,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
         => AssertQuery(
             async,
             // ReSharper disable once IsExpressionAlwaysTrue
+            // ReSharper disable once ConvertTypeCheckToNullCheck
             ss => ss.Set<Kiwi>().Where(a => a is Animal),
             entryCount: 1);
 

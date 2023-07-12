@@ -1776,6 +1776,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertCount(
             async,
             ss => ss.Set<Order>()
+                // ReSharper disable once ConvertTypeCheckToNullCheck
                 .Select(o => new { o.OrderID, Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null })
                 .Take(1));
 

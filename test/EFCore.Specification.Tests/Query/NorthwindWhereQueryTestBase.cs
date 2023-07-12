@@ -1641,6 +1641,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     public virtual Task Where_Is_on_same_type(bool async)
         => AssertQuery(
             async,
+            // ReSharper disable once ConvertTypeCheckToNullCheck
             ss => ss.Set<Customer>().Where(c => c is Customer),
             entryCount: 91);
 
@@ -1760,6 +1761,8 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
     public virtual Task Where_is_conditional(bool async)
         => AssertQuery(
             async,
+            // ReSharper disable once ConvertTypeCheckToNullCheck
+            // ReSharper disable once SimplifyConditionalTernaryExpression
             ss => ss.Set<Product>().Where(p => p is Product ? false : true));
 
     [ConditionalTheory]
