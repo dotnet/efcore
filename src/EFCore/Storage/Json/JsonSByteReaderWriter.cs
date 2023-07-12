@@ -20,7 +20,7 @@ public sealed class JsonSByteReaderWriter : JsonValueReaderWriter<sbyte>
     }
 
     /// <inheritdoc />
-    public override sbyte FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override sbyte FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetSByte();
 
     /// <inheritdoc />

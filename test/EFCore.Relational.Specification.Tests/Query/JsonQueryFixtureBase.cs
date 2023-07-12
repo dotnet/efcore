@@ -395,6 +395,41 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.TestNullableEnum, actual.TestNullableEnum);
         Assert.Equal(expected.TestNullableEnumWithIntConverter, actual.TestNullableEnumWithIntConverter);
         Assert.Equal(expected.TestNullableEnumWithConverterThatHandlesNulls, actual.TestNullableEnumWithConverterThatHandlesNulls);
+
+        AssertPrimitiveCollection(expected.TestDefaultStringCollection, actual.TestDefaultStringCollection);
+        AssertPrimitiveCollection(expected.TestMaxLengthStringCollection, actual.TestMaxLengthStringCollection);
+        AssertPrimitiveCollection(expected.TestBooleanCollection, actual.TestBooleanCollection);
+        AssertPrimitiveCollection(expected.TestCharacterCollection, actual.TestCharacterCollection);
+        AssertPrimitiveCollection(expected.TestDateTimeCollection, actual.TestDateTimeCollection);
+        AssertPrimitiveCollection(expected.TestDateTimeOffsetCollection, actual.TestDateTimeOffsetCollection);
+        AssertPrimitiveCollection(expected.TestDoubleCollection, actual.TestDoubleCollection);
+        AssertPrimitiveCollection(expected.TestGuidCollection, actual.TestGuidCollection);
+        AssertPrimitiveCollection(expected.TestInt16Collection, actual.TestInt16Collection);
+        AssertPrimitiveCollection(expected.TestInt32Collection, actual.TestInt32Collection);
+        AssertPrimitiveCollection(expected.TestInt64Collection, actual.TestInt64Collection);
+        AssertPrimitiveCollection(expected.TestSignedByteCollection, actual.TestSignedByteCollection);
+        AssertPrimitiveCollection(expected.TestSingleCollection, actual.TestSingleCollection);
+        AssertPrimitiveCollection(expected.TestTimeSpanCollection, actual.TestTimeSpanCollection);
+        AssertPrimitiveCollection(expected.TestUnsignedInt16Collection, actual.TestUnsignedInt16Collection);
+        AssertPrimitiveCollection(expected.TestUnsignedInt32Collection, actual.TestUnsignedInt32Collection);
+        AssertPrimitiveCollection(expected.TestUnsignedInt64Collection, actual.TestUnsignedInt64Collection);
+        AssertPrimitiveCollection(expected.TestNullableInt32Collection, actual.TestNullableInt32Collection);
+        AssertPrimitiveCollection(expected.TestEnumCollection, actual.TestEnumCollection);
+        AssertPrimitiveCollection(expected.TestEnumWithIntConverterCollection, actual.TestEnumWithIntConverterCollection);
+        AssertPrimitiveCollection(expected.TestNullableEnumCollection, actual.TestNullableEnumCollection);
+        AssertPrimitiveCollection(expected.TestNullableEnumWithIntConverterCollection, actual.TestNullableEnumWithIntConverterCollection);
+        AssertPrimitiveCollection(
+            expected.TestNullableEnumWithConverterThatHandlesNullsCollection,
+            actual.TestNullableEnumWithConverterThatHandlesNullsCollection);
+    }
+
+    public static void AssertPrimitiveCollection<T>(IList<T> expected, IList<T> actual)
+    {
+        Assert.Equal(expected?.Count, actual?.Count);
+        for (var i = 0; i < (expected?.Count ?? 0); i++)
+        {
+            Assert.Equal(expected![i], actual![i]);
+        }
     }
 
     public static void AssertConverters(JsonOwnedConverters expected, JsonOwnedConverters actual)

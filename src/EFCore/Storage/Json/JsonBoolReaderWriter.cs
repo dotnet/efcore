@@ -20,7 +20,7 @@ public sealed class JsonBoolReaderWriter : JsonValueReaderWriter<bool>
     }
 
     /// <inheritdoc />
-    public override bool FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override bool FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetBoolean();
 
     /// <inheritdoc />

@@ -21,7 +21,7 @@ public sealed class JsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeOnly>
     }
 
     /// <inheritdoc />
-    public override TimeOnly FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override TimeOnly FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => TimeOnly.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
 
     /// <inheritdoc />

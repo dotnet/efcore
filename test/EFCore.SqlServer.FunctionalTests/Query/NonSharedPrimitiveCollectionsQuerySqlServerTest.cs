@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using NetTopologySuite.Geometries;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
@@ -14,7 +12,7 @@ public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiv
         await base.Array_of_int();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -29,7 +27,7 @@ WHERE (
         await base.Array_of_long();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -44,7 +42,7 @@ WHERE (
         await base.Array_of_short();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -59,7 +57,7 @@ WHERE (
         await base.Array_of_double();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -74,7 +72,7 @@ WHERE (
         await base.Array_of_float();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -89,7 +87,7 @@ WHERE (
         await base.Array_of_decimal();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -104,7 +102,7 @@ WHERE (
         await base.Array_of_DateTime();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -119,7 +117,7 @@ WHERE (
         await base.Array_of_DateOnly();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -134,7 +132,7 @@ WHERE (
         await base.Array_of_TimeOnly();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -149,7 +147,7 @@ WHERE (
         await base.Array_of_DateTimeOffset();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -164,7 +162,7 @@ WHERE (
         await base.Array_of_bool();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -179,7 +177,7 @@ WHERE (
         await base.Array_of_Guid();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -190,15 +188,27 @@ WHERE (
     }
 
     // The JSON representation for new[] { 1, 2 } is AQI= (base64), this cannot simply be cast to varbinary(max) (0x0102). See #30727.
-    public override Task Array_of_byte_array()
-        => AssertTranslationFailed(() => base.Array_of_byte_array());
+    public override async Task Array_of_byte_array()
+    {
+        await base.Array_of_byte_array();
+
+        AssertSql(
+            """
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] varbinary(max) '$') AS [s]
+    WHERE [s].[value] = 0x0102) = 2
+""");
+    }
 
     public override async Task Array_of_enum()
     {
         await base.Array_of_enum();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -206,18 +216,6 @@ WHERE (
     FROM OPENJSON([t].[SomeArray]) WITH ([value] int '$') AS [s]
     WHERE [s].[value] = 0) = 2
 """);
-    }
-
-    [ConditionalFact] // #30630
-    public override async Task Array_of_geometry_is_not_supported()
-    {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => InitializeAsync<TestContext>(
-                onConfiguring: options => options.UseSqlServer(o => o.UseNetTopologySuite()),
-                addServices: s => s.AddEntityFrameworkSqlServerNetTopologySuite(),
-                onModelCreating: mb => mb.Entity<TestEntity>().Property<Point[]>("Points")));
-
-        Assert.Equal(CoreStrings.PropertyNotMapped("Point[]", "TestEntity", "Points"), exception.Message);
     }
 
     #endregion Support for specific element types
@@ -229,7 +227,7 @@ WHERE (
         await base.Constant_with_inferred_value_converter();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[PropertyWithValueConverter]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -244,7 +242,7 @@ WHERE (
         await base.Inline_collection_in_query_filter();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -259,7 +257,7 @@ WHERE (
         await base.Column_collection_inside_json_owned_entity();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
 WHERE (
@@ -267,7 +265,7 @@ WHERE (
     FROM OPENJSON(JSON_VALUE([t].[Owned], '$.Strings')) AS [s]) = 2
 """,
             //
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
 WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
@@ -297,7 +295,7 @@ WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
             .ToArrayAsync();
 
         AssertSql(
-"""
+            """
 @__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
 @__dateTimes_0_1='["2020-01-01T12:30:00","2020-01-02T12:30:00"]' (Size = 4000)
 
@@ -328,7 +326,7 @@ WHERE [t].[DateTime] IN (
             .ToArrayAsync();
 
         AssertSql(
-"""
+            """
 @__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
 
 SELECT [t].[Id], [t].[DateTime], [t].[Ints]

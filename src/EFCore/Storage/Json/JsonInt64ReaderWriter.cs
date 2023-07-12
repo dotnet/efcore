@@ -20,7 +20,7 @@ public sealed class JsonInt64ReaderWriter : JsonValueReaderWriter<long>
     }
 
     /// <inheritdoc />
-    public override long FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override long FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetInt64();
 
     /// <inheritdoc />

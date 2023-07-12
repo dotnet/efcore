@@ -16,6 +16,8 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
 {
     private Func<object?, object?>? _convertToProvider;
     private Func<object?, object?>? _convertFromProvider;
+    private Func<TModel, TProvider>? _convertToProviderTyped;
+    private Func<TProvider, TModel>? _convertFromProviderTyped;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueConverter{TModel,TProvider}" /> class.
@@ -72,17 +74,13 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     }
 
     private static Func<object?, object?> SanitizeConverter<TIn, TOut>(
-        Expression<Func<TIn, TOut>> convertExpression,
+        Func<TIn, TOut> convertFunc,
         bool convertsNulls)
-    {
-        var compiled = convertExpression.Compile();
-
-        return convertsNulls
-            ? v => compiled((TIn)v!)
+        => convertsNulls
+            ? v => convertFunc((TIn)v!)
             : v => v == null
                 ? null
-                : compiled(Sanitize<TIn>(v));
-    }
+                : convertFunc(Sanitize<TIn>(v));
 
     private static T Sanitize<T>(object value)
     {
@@ -102,7 +100,7 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// </remarks>
     public override Func<object?, object?> ConvertToProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderExpression, c.ConvertsNulls));
+            ref _convertToProvider, this, static c => SanitizeConverter(c.ConvertToProviderTyped, c.ConvertsNulls));
 
     /// <summary>
     ///     Gets the function to convert objects when reading data from the store,
@@ -113,7 +111,27 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// </remarks>
     public override Func<object?, object?> ConvertFromProvider
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderExpression, c.ConvertsNulls));
+            ref _convertFromProvider, this, static c => SanitizeConverter(c.ConvertFromProviderTyped, c.ConvertsNulls));
+
+    /// <summary>
+    ///     Gets the function to convert objects when writing data to the store.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public virtual Func<TModel, TProvider> ConvertToProviderTyped
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _convertToProviderTyped, this, static c => c.ConvertToProviderExpression.Compile());
+
+    /// <summary>
+    ///     Gets the function to convert objects when reading data from the store.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    public virtual Func<TProvider, TModel> ConvertFromProviderTyped
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _convertFromProviderTyped, this, static c => c.ConvertFromProviderExpression.Compile());
 
     /// <summary>
     ///     Gets the expression to convert objects when writing data to the store,

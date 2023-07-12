@@ -21,7 +21,7 @@ public sealed class JsonDateOnlyReaderWriter : JsonValueReaderWriter<DateOnly>
     }
 
     /// <inheritdoc />
-    public override DateOnly FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override DateOnly FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => DateOnly.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
 
     /// <inheritdoc />

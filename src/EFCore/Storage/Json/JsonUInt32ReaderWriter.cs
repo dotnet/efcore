@@ -20,7 +20,7 @@ public sealed class JsonUInt32ReaderWriter : JsonValueReaderWriter<uint>
     }
 
     /// <inheritdoc />
-    public override uint FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override uint FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetUInt32();
 
     /// <inheritdoc />

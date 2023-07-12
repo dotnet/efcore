@@ -20,7 +20,7 @@ public sealed class JsonInt16ReaderWriter : JsonValueReaderWriter<short>
     }
 
     /// <inheritdoc />
-    public override short FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override short FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetInt16();
 
     /// <inheritdoc />

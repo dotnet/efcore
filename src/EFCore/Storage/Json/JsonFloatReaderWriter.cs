@@ -20,7 +20,7 @@ public sealed class JsonFloatReaderWriter : JsonValueReaderWriter<float>
     }
 
     /// <inheritdoc />
-    public override float FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override float FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetSingle();
 
     /// <inheritdoc />

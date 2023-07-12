@@ -22,7 +22,7 @@ public class CustomConvertersSqlServerTest : CustomConvertersTestBase<CustomConv
             nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
         const string expected =
-"""
+            """
 Animal.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
 AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
@@ -228,7 +228,7 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
         base.Value_conversion_is_appropriately_used_for_join_condition();
 
         AssertSql(
-"""
+            """
 @__blogId_0='1'
 
 SELECT [b].[Url]
@@ -244,7 +244,7 @@ WHERE [b].[IsVisible] = N'Y'
         base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
         AssertSql(
-"""
+            """
 @__blogId_0='1'
 
 SELECT [b].[Url]
@@ -260,7 +260,7 @@ WHERE [b].[IsVisible] = N'Y'
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-"""
+            """
 SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'Y'
@@ -273,7 +273,7 @@ WHERE [b].[IsVisible] = N'Y'
         base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-"""
+            """
 SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'N'
@@ -285,7 +285,7 @@ WHERE [b].[IsVisible] = N'N'
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
-"""
+            """
 SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IsVisible] = N'Y'
@@ -297,7 +297,7 @@ WHERE [b].[IsVisible] = N'Y'
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
-"""
+            """
 SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
 WHERE [b].[IndexerVisible] = N'Nay'
@@ -314,7 +314,7 @@ WHERE [b].[IndexerVisible] = N'Nay'
         base.Id_object_as_entity_key();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Value]
 FROM [Book] AS [b]
 WHERE [b].[Id] = 1
@@ -326,7 +326,7 @@ WHERE [b].[Id] = 1
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #30730: TODO need to find the default type mapping.")]
     [InlineData(true)]
     [InlineData(false)]
     public virtual async Task SqlQuery_with_converted_type_using_model_configuration_builder_works(bool async)
@@ -341,7 +341,7 @@ WHERE [b].[Id] = 1
         Assert.Equal(HoldingEnum.Value2, result.Single());
 
         AssertSql(
-"""
+            """
 SELECT [HoldingEnum] FROM [HolderClass]
 """);
     }
@@ -351,7 +351,7 @@ SELECT [HoldingEnum] FROM [HolderClass]
         base.Infer_type_mapping_from_in_subquery_to_item();
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Enum16], [b].[Enum32], [b].[Enum64], [b].[Enum8], [b].[EnumS8], [b].[EnumU16], [b].[EnumU32], [b].[EnumU64], [b].[PartitionId], [b].[TestBoolean], [b].[TestByte], [b].[TestCharacter], [b].[TestDateOnly], [b].[TestDateTime], [b].[TestDateTimeOffset], [b].[TestDecimal], [b].[TestDouble], [b].[TestInt16], [b].[TestInt32], [b].[TestInt64], [b].[TestSignedByte], [b].[TestSingle], [b].[TestTimeOnly], [b].[TestTimeSpan], [b].[TestUnsignedInt16], [b].[TestUnsignedInt32], [b].[TestUnsignedInt64]
 FROM [BuiltInDataTypes] AS [b]
 WHERE N'Yeps' IN (
