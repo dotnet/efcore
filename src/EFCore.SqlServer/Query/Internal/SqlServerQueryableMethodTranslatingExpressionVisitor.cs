@@ -161,8 +161,17 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var elementClrType = sqlExpression.Type.GetSequenceType();
         var isColumnNullable = elementClrType.IsNullableType();
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
-            openJsonExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping, isColumnNullable);
+            openJsonExpression,
+            columnName: "value",
+            columnType: elementClrType,
+            columnTypeMapping: elementTypeMapping,
+            isColumnNullable,
+            identifierColumnName: "key",
+            identifierColumnType: typeof(string),
+            identifierColumnTypeMapping: _typeMappingSource.FindMapping("nvarchar(4000)"));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         // OPENJSON doesn't guarantee the ordering of the elements coming out; when using OPENJSON without WITH, a [key] column is returned
         // with the JSON array's ordering, which we can ORDER BY; this option doesn't exist with OPENJSON with WITH, unfortunately.
@@ -186,7 +195,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     _typeMappingSource.FindMapping(typeof(int))),
                 ascending: true));
 
-        var shaperExpression = new ProjectionBindingExpression(selectExpression, new ProjectionMember(), elementClrType);
+        var shaperExpression = (Expression)new ProjectionBindingExpression(selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
+        if (shaperExpression.Type != elementClrType)
+        {
+            Check.DebugAssert(
+                elementClrType.MakeNullable() == shaperExpression.Type,
+                "expression.Type must be nullable of targetType");
+
+            shaperExpression = Expression.Convert(shaperExpression, elementClrType);
+        }
 
         return new ShapedQueryExpression(selectExpression, shaperExpression);
     }

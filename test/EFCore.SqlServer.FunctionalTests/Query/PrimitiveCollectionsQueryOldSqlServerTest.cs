@@ -469,6 +469,12 @@ WHERE [p].[Ints] = N'[1,10]'
     public override Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async));
 
+    public override Task Parameter_collection_in_subquery_Union_column_collection(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection(async));
+
+    public override Task Parameter_collection_in_subquery_Union_column_collection_nested(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_nested(async));
+
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
         // Base implementation asserts that a different exception is thrown
@@ -479,6 +485,87 @@ WHERE [p].[Ints] = N'[1,10]'
 
     public override Task Column_collection_in_subquery_Union_parameter_collection(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_in_subquery_Union_parameter_collection(async));
+
+    public override Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async));
+
+    public override async Task Project_collection_of_ints_simple(bool async)
+    {
+        await base.Project_collection_of_ints_simple(async);
+
+        AssertSql(
+"""
+SELECT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override Task Project_collection_of_ints_ordered(bool async)
+        // we don't propagate error details from projection
+        => AssertTranslationFailed(() => base.Project_collection_of_ints_ordered(async));
+
+    public override Task Project_collection_of_datetimes_filtered(bool async)
+        // we don't propagate error details from projection
+        => AssertTranslationFailed(() => base.Project_collection_of_datetimes_filtered(async));
+
+    public override async Task Project_collection_of_ints_with_paging(bool async)
+    {
+        await base.Project_collection_of_ints_with_paging(async);
+
+        // client eval
+        AssertSql(
+"""
+SELECT [p].[NullableInts]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override Task Project_collection_of_ints_with_paging2(bool async)
+        // we don't propagate error details from projection
+        => AssertTranslationFailed(() => base.Project_collection_of_ints_with_paging2(async));
+
+    public override async Task Project_collection_of_ints_with_paging3(bool async)
+    {
+        await base.Project_collection_of_ints_with_paging3(async);
+
+        // client eval
+        AssertSql(
+"""
+SELECT [p].[NullableInts]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override async Task Project_collection_of_ints_with_distinct(bool async)
+    {
+        await base.Project_collection_of_ints_with_distinct(async);
+
+        // client eval
+        AssertSql(
+"""
+SELECT [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
+    public override async Task Project_collection_of_nullable_ints_with_distinct(bool async)
+    {
+        await base.Project_collection_of_nullable_ints_with_distinct(async);
+
+        AssertSql("");
+    }
+
+    public override Task Project_multiple_collections(bool async)
+        // we don't propagate error details from projection
+        => AssertTranslationFailed(() => base.Project_multiple_collections(async));
+
+    public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
+        // we don't propagate error details from projection
+        => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async));
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
