@@ -310,7 +310,7 @@
     <value>The runtime to use.</value>
   </data>
   <data name="SchemasDescription" xml:space="preserve">
-    <value>The schemas of tables to generate entity types for.</value>
+    <value>The schemas of tables and views to generate entity types for. All tables and views in the schemas will be included in the model, even if they are not explicitly included with the --table parameter.</value>
   </data>
   <data name="SelfContainedDescription" xml:space="preserve">
     <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
@@ -322,7 +322,7 @@
     <value>Don't generate DbContext.OnConfiguring.</value>
   </data>
   <data name="TablesDescription" xml:space="preserve">
-    <value>The tables to generate entity types for.</value>
+    <value>The tables and views to generate entity types for. Tables or views in a specific schema can be included using the 'schema.table' or 'schema.view' format.</value>
   </data>
   <data name="UnsupportedFramework" xml:space="preserve">
     <value>Startup project '{startupProject}' targets framework '{targetFramework}'. The Entity Framework Core .NET Command-line Tools don't support this framework. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
@@ -331,7 +331,7 @@
     <value>Startup project '{startupProject}' targets platform '{targetPlatform}'. The Entity Framework Core .NET Command-line Tools don't support this platform. See https://aka.ms/efcore-docs-cli-tfms for more information.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
-    <value>Use table and column names directly from the database.</value>
+    <value>Use table, view, sequence, and column names directly from the database.</value>
   </data>
   <data name="UsingProject" xml:space="preserve">
     <value>Using project '{project}'.</value>

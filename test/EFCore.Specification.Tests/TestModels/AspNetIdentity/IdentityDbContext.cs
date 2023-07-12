@@ -1,17 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity
-{
-    public class IdentityDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
-    {
-        public IdentityDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 
-        protected IdentityDbContext()
-        {
-        }
+public class IdentityDbContext : IdentityDbContext<IdentityUser, IdentityRole, string>
+{
+    public IdentityDbContext(DbContextOptions options)
+        : base(options)
+    {
+    }
+
+    protected IdentityDbContext()
+    {
     }
 }

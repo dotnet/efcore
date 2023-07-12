@@ -33,7 +33,7 @@ namespace Microsoft.EntityFrameworkCore
 <#
     var ordinal = new[] { "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth", "thirteenth", "fourteenth", "fifteenth", "sixteenth" };
 
-    var maxParameters = 15;
+    const int maxParameters = 15;
 
     for (var parameterCount = 0; parameterCount <= maxParameters; parameterCount++)
     {

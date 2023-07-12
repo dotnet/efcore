@@ -1,28 +1,24 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading.Tasks;
-
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore.Utilities
-{
-    internal static class DisposableExtensions
-    {
-        public static ValueTask DisposeAsyncIfAvailable(this IDisposable? disposable)
-        {
-            if (disposable != null)
-            {
-                if (disposable is IAsyncDisposable asyncDisposable)
-                {
-                    return asyncDisposable.DisposeAsync();
-                }
+namespace Microsoft.EntityFrameworkCore.Utilities;
 
-                disposable.Dispose();
+internal static class DisposableExtensions
+{
+    public static ValueTask DisposeAsyncIfAvailable(this IDisposable? disposable)
+    {
+        if (disposable != null)
+        {
+            if (disposable is IAsyncDisposable asyncDisposable)
+            {
+                return asyncDisposable.DisposeAsync();
             }
 
-            return default;
+            disposable.Dispose();
         }
+
+        return default;
     }
 }

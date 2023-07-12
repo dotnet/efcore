@@ -4,22 +4,21 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal partial class DatabaseUpdateCommand : ContextCommandBase
 {
-    internal partial class DatabaseUpdateCommand : ContextCommandBase
+    private CommandArgument? _migration;
+    private CommandOption? _connection;
+
+    public override void Configure(CommandLineApplication command)
     {
-        private CommandArgument? _migration;
-        private CommandOption? _connection;
+        command.Description = Resources.DatabaseUpdateDescription;
 
-        public override void Configure(CommandLineApplication command)
-        {
-            command.Description = Resources.DatabaseUpdateDescription;
+        _migration = command.Argument("<MIGRATION>", Resources.MigrationDescription);
 
-            _migration = command.Argument("<MIGRATION>", Resources.MigrationDescription);
+        _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
 
-            _connection = command.Option("--connection <CONNECTION>", Resources.DbContextConnectionDescription);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

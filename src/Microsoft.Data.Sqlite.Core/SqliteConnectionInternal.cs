@@ -122,6 +122,20 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
+            if (connectionOptions.ForeignKeys.HasValue)
+            {
+                ExecuteNonQuery(
+                    "PRAGMA foreign_keys = " + (connectionOptions.ForeignKeys.Value ? "1" : "0") + ";",
+                    connectionOptions.DefaultTimeout);
+            }
+
+            if (connectionOptions.RecursiveTriggers)
+            {
+                ExecuteNonQuery(
+                    "PRAGMA recursive_triggers = 1;",
+                    connectionOptions.DefaultTimeout);
+            }
+
             _pool = pool;
         }
 
@@ -219,8 +233,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static bool IsBusy(int rc)
-            => rc == SQLITE_LOCKED
-                || rc == SQLITE_BUSY
-                || rc == SQLITE_LOCKED_SHAREDCACHE;
+            => rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE;
     }
 }

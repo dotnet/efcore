@@ -7,6 +7,8 @@ on:
       - feature/*
       - release/*
 
+permissions: {}
+
 jobs:
   build:
     runs-on: windows-latest
@@ -15,7 +17,7 @@ jobs:
       - name: Start Cosmos Emulator
         run: |
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
-          Start-CosmosDbEmulator
+          Start-CosmosDbEmulator -Timeout 360
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -24,5 +26,17 @@ jobs:
         run: restore.cmd
         shell: cmd
 
+      - name: Build
+        run: build.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        shell: cmd
+
       - name: Test on Cosmos
-        run: .dotnet\dotnet test test\EFCore.Cosmos.FunctionalTests
+        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        shell: cmd
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: artifacts/log/Debug/*

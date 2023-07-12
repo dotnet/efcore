@@ -175,7 +175,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Gets or sets a value indicating whether to enable foreign key constraints. When true,
         ///     <c>PRAGMA foreign_keys = 1</c> is sent immediately after opening the connection. When false,
-        ///     <c>PRAGMA foreign_keys = 0</c> is sent. When null, no pragma is sent. There is no need enable foreign
+        ///     <c>PRAGMA foreign_keys = 0</c> is sent. When null, no pragma is sent. There is no need to enable foreign
         ///     keys if, like in e_sqlite3, SQLITE_DEFAULT_FOREIGN_KEYS was used to compile the native library.
         /// </summary>
         /// <value>A value indicating whether to enable foreign key constraints.</value>
@@ -311,15 +311,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static bool? ConvertToNullableBoolean(object value)
-        {
-            if (value == null
-                || (value is string stringValue && stringValue.Length == 0))
-            {
-                return null;
-            }
-
-            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
-        }
+            => value is null or string { Length: 0 }
+                ? null
+                : Convert.ToBoolean(value, CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Clears the contents of the builder.

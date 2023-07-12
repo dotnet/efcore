@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class SerializationInMemoryTest : SerializationTestBase<F1InMemoryFixture>
 {
-    public class SerializationInMemoryTest : SerializationTestBase<F1InMemoryFixture>
+    public SerializationInMemoryTest(F1InMemoryFixture fixture)
+        : base(fixture)
     {
-        public SerializationInMemoryTest(F1InMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
     }
 }

@@ -11,7 +11,6 @@ namespace Microsoft.Data.Sqlite
     {
         public static readonly SqliteConnectionFactory Instance = new();
 
-        private readonly bool _newLockingBehavior;
 #pragma warning disable IDE0052 // Remove unread private members
         private readonly Timer _pruneTimer;
 #pragma warning restore IDE0052 // Remove unread private members
@@ -23,13 +22,8 @@ namespace Microsoft.Data.Sqlite
 
         protected SqliteConnectionFactory()
         {
-            _newLockingBehavior = !AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26612", out var enabled) || !enabled;
-
-            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out enabled) || !enabled)
-            {
-                AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
-                AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
-            }
+            AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
 
             _pruneTimer = new Timer(PruneCallback, null, TimeSpan.FromMinutes(4), TimeSpan.FromSeconds(30));
         }
@@ -37,8 +31,7 @@ namespace Microsoft.Data.Sqlite
         public SqliteConnectionInternal GetConnection(SqliteConnection outerConnection)
         {
             var poolGroup = outerConnection.PoolGroup;
-            if (poolGroup.IsDisabled
-                && !poolGroup.IsNonPooled)
+            if (poolGroup is { IsDisabled: true, IsNonPooled: false })
             {
                 poolGroup = GetPoolGroup(poolGroup.ConnectionString);
                 outerConnection.PoolGroup = poolGroup;
@@ -56,10 +49,7 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionPoolGroup GetPoolGroup(string connectionString)
         {
-            if (_newLockingBehavior)
-            {
-                _lock.EnterUpgradeableReadLock();
-            }
+            _lock.EnterUpgradeableReadLock();
 
             try
             {
@@ -69,14 +59,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
 
-                    if (_newLockingBehavior)
-                    {
-                        _lock.EnterWriteLock();
-                    }
-                    else
-                    {
-                        Monitor.Enter(this);
-                    }
+                    _lock.EnterWriteLock();
 
                     try
                     {
@@ -93,14 +76,7 @@ namespace Microsoft.Data.Sqlite
                     }
                     finally
                     {
-                        if (_newLockingBehavior)
-                        {
-                            _lock.ExitWriteLock();
-                        }
-                        else
-                        {
-                            Monitor.Exit(this);
-                        }
+                        _lock.ExitWriteLock();
                     }
                 }
 
@@ -108,10 +84,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitUpgradeableReadLock();
-                }
+                _lock.ExitUpgradeableReadLock();
             }
         }
 
@@ -132,14 +105,7 @@ namespace Microsoft.Data.Sqlite
 
         public void ClearPools()
         {
-            if (_newLockingBehavior)
-            {
-                _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
+            _lock.EnterWriteLock();
 
             try
             {
@@ -150,14 +116,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitWriteLock();
-                }
-                else
-                {
-                    Monitor.Exit(this);
-                }
+                _lock.ExitWriteLock();
             }
         }
 
@@ -178,27 +137,21 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
-            {
-                var poolGroup = _idlePoolGroups[i];
-
-                if (!poolGroup.Clear())
-                {
-                    _idlePoolGroups.Remove(poolGroup);
-                }
-            }
-
-            if (_newLockingBehavior)
-            {
-                _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
+            _lock.EnterWriteLock();
 
             try
             {
+
+                for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
+                {
+                    var poolGroup = _idlePoolGroups[i];
+
+                    if (!poolGroup.Clear())
+                    {
+                        _idlePoolGroups.Remove(poolGroup);
+                    }
+                }
+
                 var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
                 foreach (var entry in _poolGroups)
                 {
@@ -218,14 +171,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitWriteLock();
-                }
-                else
-                {
-                    Monitor.Exit(this);
-                }
+                _lock.ExitWriteLock();
             }
         }
     }

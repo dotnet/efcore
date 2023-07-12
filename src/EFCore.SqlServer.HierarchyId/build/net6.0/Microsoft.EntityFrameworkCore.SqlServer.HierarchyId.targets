@@ -1,0 +1,46 @@
+﻿<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <EFCoreSqlServerHierarchyIdFile>$(IntermediateOutputPath)EFCoreSqlServerHierarchyId$(DefaultLanguageSourceExtension)</EFCoreSqlServerHierarchyIdFile>
+  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(Language)' == 'F#'">
+      <Choose>
+        <When Condition="'$(OutputType)' == 'Exe' OR '$(OutputType)' == 'WinExe'">
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileBefore</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </When>
+        <Otherwise>
+          <PropertyGroup>
+            <CodeFragmentItemGroup>CompileAfter</CodeFragmentItemGroup>
+          </PropertyGroup>
+        </Otherwise>
+      </Choose>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <CodeFragmentItemGroup>Compile</CodeFragmentItemGroup>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+  <Target Name="AddEFCoreSqlServerHierarchyId"
+          BeforeTargets="CoreCompile"
+          DependsOnTargets="PrepareForBuild"
+          Condition="'$(DesignTimeBuild)' != 'True'"
+          Inputs="$(MSBuildAllProjects)"
+          Outputs="$(EFCoreSqlServerHierarchyIdFile)">
+    <ItemGroup>
+      <EFCoreSqlServerHierarchyIdServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
+        <_Parameter1>Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerHierarchyIdDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.HierarchyId</_Parameter1>
+        <_Parameter2>Microsoft.EntityFrameworkCore.SqlServer</_Parameter2>
+      </EFCoreSqlServerHierarchyIdServices>
+    </ItemGroup>
+    <WriteCodeFragment AssemblyAttributes="@(EFCoreSqlServerHierarchyIdServices)"
+                       Language="$(Language)"
+                       OutputFile="$(EFCoreSqlServerHierarchyIdFile)">
+      <Output TaskParameter="OutputFile" ItemName="$(CodeFragmentItemGroup)" />
+      <Output TaskParameter="OutputFile" ItemName="FileWrites" />
+    </WriteCodeFragment>
+  </Target>
+</Project>

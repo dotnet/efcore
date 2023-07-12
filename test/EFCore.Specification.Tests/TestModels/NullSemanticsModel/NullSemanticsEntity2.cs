@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel
+namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
+
+public class NullSemanticsEntity2 : NullSemanticsEntityBase
 {
-    public class NullSemanticsEntity2 : NullSemanticsEntityBase
-    {
-    }
 }

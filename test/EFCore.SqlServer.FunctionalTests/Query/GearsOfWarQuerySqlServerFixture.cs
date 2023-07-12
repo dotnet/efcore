@@ -2,45 +2,36 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class GearsOfWarQuerySqlServerFixture : GearsOfWarQueryRelationalFixture
 {
-    public class GearsOfWarQuerySqlServerFixture : GearsOfWarQueryRelationalFixture
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
+        base.OnModelCreating(modelBuilder, context);
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
+        modelBuilder.Entity<City>().Property(g => g.Location).HasColumnType("varchar(100)");
 
-            modelBuilder.Entity<City>().Property(g => g.Location).HasColumnType("varchar(100)");
+        modelBuilder.Entity<Mission>(
+            b =>
+            {
+                // Full-text binary search
+                b.Property<byte[]>("BriefingDocument");
+                b.Property<string>("BriefingDocumentFileExtension").HasColumnType("nvarchar(16)");
+            });
+    }
 
-            modelBuilder.Entity<Mission>(
-                b =>
-                {
-                    // Full-text binary search
-                    b.Property<byte[]>("BriefingDocument");
-                    b.Property<string>("BriefingDocumentFileExtension").HasColumnType("nvarchar(16)");
-                });
+    protected override void Seed(GearsOfWarContext context)
+    {
+        base.Seed(context);
 
-            // No support yet for DateOnly/TimeOnly (#24507)
-            modelBuilder.Entity<Mission>(
-                b =>
-                {
-                    b.Ignore(m => m.Date);
-                    b.Ignore(m => m.Time);
-                });
-        }
-
-        protected override void Seed(GearsOfWarContext context)
-        {
-            base.Seed(context);
-
-            // Set up full-text search and add some full-text binary data
-            context.Database.ExecuteSqlRaw(
-                @"
+        // Set up full-text search and add some full-text binary data
+        context.Database.ExecuteSqlRaw(
+            @"
 UPDATE [Missions]
 SET
     [BriefingDocumentFileExtension] = '.html',
@@ -65,6 +56,5 @@ BEGIN
 
     WAITFOR DELAY '00:00:03';
 END");
-        }
     }
 }

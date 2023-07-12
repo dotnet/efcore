@@ -3,13 +3,12 @@
 
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+internal class WrappedXunitException : XunitException
 {
-    internal class WrappedXunitException : XunitException
+    public WrappedXunitException(WrappedException ex)
+        : base(ex.ToString(), "(See error message)")
     {
-        public WrappedXunitException(WrappedException ex)
-            : base(ex.ToString(), "(See error message)")
-        {
-        }
     }
 }

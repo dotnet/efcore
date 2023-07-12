@@ -322,7 +322,7 @@
     <value> (Pending)</value>
   </data>
   <data name="PendingUnknown" xml:space="preserve">
-    <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurrs while accessing the database.</value>
+    <value>Pending status not shown. Unable to determine which migrations have been applied. This can happen when your project uses a version of Entity Framework Core lower than 5.0.0 or when an error occurs while accessing the database.</value>
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>
@@ -346,7 +346,7 @@
     <value>The root namespace. Defaults to the target assembly name.</value>
   </data>
   <data name="SchemasDescription" xml:space="preserve">
-    <value>The schemas of tables to generate entity types for.</value>
+    <value>The schemas of tables and views to generate entity types for. All tables and views in the schemas will be included in the model, even if they are not explicitly included with the --table parameter.</value>
   </data>
   <data name="SelfContainedDescription" xml:space="preserve">
     <value>Also bundle the .NET runtime so it doesn't need to be installed on the machine.</value>
@@ -361,10 +361,10 @@
     <value>Don't generate DbContext.OnConfiguring.</value>
   </data>
   <data name="TablesDescription" xml:space="preserve">
-    <value>The tables to generate entity types for.</value>
+    <value>The tables and views to generate entity types for. Tables or views in a specific schema can be included using the 'schema.table' or 'schema.view' format.</value>
   </data>
   <data name="UseDatabaseNamesDescription" xml:space="preserve">
-    <value>Use table and column names directly from the database.</value>
+    <value>Use table, view, sequence, and column names directly from the database.</value>
   </data>
   <data name="UsingApplicationBase" xml:space="preserve">
     <value>Using application base '{appBase}'.</value>

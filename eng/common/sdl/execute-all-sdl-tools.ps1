@@ -35,6 +35,7 @@ Param(
   [string[]] $CrScanAdditionalRunConfigParams,                                                   # Optional: Additional Params to custom build a CredScan run config in the format @("xyz:abc","sdf:1")
   [string[]] $PoliCheckAdditionalRunConfigParams,                                                # Optional: Additional Params to custom build a Policheck run config in the format @("xyz:abc","sdf:1")
   [string[]] $CodeQLAdditionalRunConfigParams,                                                   # Optional: Additional Params to custom build a Semmle/CodeQL run config in the format @("xyz < abc","sdf < 1")
+  [string[]] $BinskimAdditionalRunConfigParams,                                                  # Optional: Additional Params to custom build a Binskim run config in the format @("xyz < abc","sdf < 1")
   [bool] $BreakOnFailure=$False                                                                  # Optional: Fail the build if there were errors during the run
 )
 
@@ -107,7 +108,8 @@ try {
           -GuardianLoggerLevel $GuardianLoggerLevel `
           -CrScanAdditionalRunConfigParams $CrScanAdditionalRunConfigParams `
           -PoliCheckAdditionalRunConfigParams $PoliCheckAdditionalRunConfigParams `
-          -CodeQLAdditionalRunConfigParams $CodeQLAdditionalRunConfigParams
+          -CodeQLAdditionalRunConfigParams $CodeQLAdditionalRunConfigParams `
+          -BinskimAdditionalRunConfigParams $BinskimAdditionalRunConfigParams
         if ($BreakOnFailure) {
           Exit-IfNZEC "Sdl"
         }
@@ -126,7 +128,7 @@ try {
   Exec-BlockVerbosely {
     & $(Join-Path $PSScriptRoot 'run-sdl.ps1') `
       -GuardianCliLocation $guardianCliLocation `
-      -WorkingDirectory $workingDirectory `
+      -WorkingDirectory $SourceDirectory `
       -UpdateBaseline $UpdateBaseline `
       -GdnFolder $gdnFolder
   }

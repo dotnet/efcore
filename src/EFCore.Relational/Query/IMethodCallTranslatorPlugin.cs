@@ -1,27 +1,22 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+/// <summary>
+///     Represents plugin for <see cref="IMethodCallTranslator" />.
+/// </summary>
+/// <remarks>
+///     The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
+///     are allowed. This means that each <see cref="DbContext" /> instance will use its own
+///     set of instances of this service.
+///     The implementations may depend on other services registered with any lifetime.
+///     The implementations do not need to be thread-safe.
+/// </remarks>
+public interface IMethodCallTranslatorPlugin
 {
     /// <summary>
-    ///     <para>
-    ///         Represents plugin for <see cref="IMethodCallTranslator" />.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Singleton" /> and multiple registrations
-    ///         are allowed. This means a single instance of each service is used by many <see cref="DbContext" />
-    ///         instances. The implementation must be thread-safe.
-    ///         This service cannot depend on services registered as <see cref="ServiceLifetime.Scoped" />.
-    ///     </para>
+    ///     Gets the method call translators.
     /// </summary>
-    public interface IMethodCallTranslatorPlugin
-    {
-        /// <summary>
-        ///     Gets the method call translators.
-        /// </summary>
-        IEnumerable<IMethodCallTranslator> Translators { get; }
-    }
+    IEnumerable<IMethodCallTranslator> Translators { get; }
 }

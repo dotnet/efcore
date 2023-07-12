@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -188,13 +189,14 @@ namespace Microsoft.Data.Sqlite
                     return "TEXT";
 
                 default:
-                    Debug.Assert(
-                        sqliteType == SQLITE_BLOB || sqliteType == SQLITE_NULL,
-                        "Unexpected column type: " + sqliteType);
+                    Debug.Assert(sqliteType is SQLITE_BLOB or SQLITE_NULL, "Unexpected column type: " + sqliteType);
                     return "BLOB";
             }
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         public virtual Type GetFieldType(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
@@ -211,6 +213,9 @@ namespace Microsoft.Data.Sqlite
             return GetFieldTypeFromSqliteType(sqliteType);
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         internal static Type GetFieldTypeFromSqliteType(int sqliteType)
         {
             switch (sqliteType)
@@ -225,13 +230,14 @@ namespace Microsoft.Data.Sqlite
                     return typeof(string);
 
                 default:
-                    Debug.Assert(
-                        sqliteType == SQLITE_BLOB || sqliteType == SQLITE_NULL,
-                        "Unexpected column type: " + sqliteType);
+                    Debug.Assert(sqliteType is SQLITE_BLOB or SQLITE_NULL, "Unexpected column type: " + sqliteType);
                     return typeof(byte[]);
             }
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         public static Type GetFieldType(string type)
         {
             switch (type)
@@ -246,7 +252,7 @@ namespace Microsoft.Data.Sqlite
                     return typeof(string);
 
                 default:
-                    Debug.Assert(type == "blob" || type == null, "Unexpected column type: " + type);
+                    Debug.Assert(type is "blob" or null, "Unexpected column type: " + type);
                     return typeof(byte[]);
             }
         }
@@ -377,7 +383,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt32(_rowidOrdinal.Value);
+            var rowid = GetInt64(_rowidOrdinal.Value);
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }

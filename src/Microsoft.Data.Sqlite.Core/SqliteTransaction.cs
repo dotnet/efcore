@@ -101,7 +101,7 @@ namespace Microsoft.Data.Sqlite
             RollbackInternal();
         }
 
-#if NET
+#if NET5_0_OR_GREATER
         /// <inheritdoc />
         public override bool SupportsSavepoints => true;
 #endif
@@ -111,7 +111,7 @@ namespace Microsoft.Data.Sqlite
         /// established to be rolled back, restoring the transaction state to what it was at the time of the savepoint.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to be created.</param>
-#if NET
+#if NET5_0_OR_GREATER
         public override void Save(string savepointName)
 #else
         public virtual void Save(string savepointName)
@@ -139,7 +139,7 @@ namespace Microsoft.Data.Sqlite
         /// Rolls back all commands that were executed after the specified savepoint was established.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to roll back to.</param>
-#if NET
+#if NET5_0_OR_GREATER
         public override void Rollback(string savepointName)
 #else
         public virtual void Rollback(string savepointName)
@@ -168,7 +168,7 @@ namespace Microsoft.Data.Sqlite
         /// reclaim some resources before the transaction ends.
         /// </summary>
         /// <param name="savepointName">The name of the savepoint to release.</param>
-#if NET
+#if NET5_0_OR_GREATER
         public override void Release(string savepointName)
 #else
         public virtual void Release(string savepointName)

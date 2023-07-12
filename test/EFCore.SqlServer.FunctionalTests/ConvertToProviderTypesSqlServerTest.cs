@@ -1,30 +1,27 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+[SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
+public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
+    ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
 {
-    [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-    public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
-        ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
+    public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
+        : base(fixture)
     {
-        public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        [ConditionalFact]
-        public virtual void Columns_have_expected_data_types()
-        {
-            var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
-                CreateContext(),
-                nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
+    [ConditionalFact]
+    public virtual void Columns_have_expected_data_types()
+    {
+        var actual = BuiltInDataTypesSqlServerTest.QueryForColumnTypes(
+            CreateContext(),
+            nameof(ObjectBackedDataTypes), nameof(NullableBackedDataTypes), nameof(NonNullableBackedDataTypes));
 
-            const string expected = @"Animal.Id ---> [int] [Precision = 10 Scale = 0]
+        const string expected =
+"""
+Animal.Id ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.AnimalId ---> [nullable int] [Precision = 10 Scale = 0]
 AnimalDetails.BoolField ---> [int] [Precision = 10 Scale = 0]
 AnimalDetails.Id ---> [int] [Precision = 10 Scale = 0]
@@ -48,6 +45,7 @@ BuiltInDataTypes.PartitionId ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestBoolean ---> [nvarchar] [MaxLength = 1]
 BuiltInDataTypes.TestByte ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypes.TestCharacter ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypes.TestDateOnly ---> [date] [Precision = 0]
 BuiltInDataTypes.TestDateTime ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestDateTimeOffset ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestDecimal ---> [varbinary] [MaxLength = 16]
@@ -57,6 +55,7 @@ BuiltInDataTypes.TestInt32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestInt64 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestSignedByte ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestSingle ---> [decimal] [Precision = 38 Scale = 17]
+BuiltInDataTypes.TestTimeOnly ---> [time] [Precision = 7]
 BuiltInDataTypes.TestTimeSpan ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypes.TestUnsignedInt16 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypes.TestUnsignedInt32 ---> [decimal] [Precision = 20 Scale = 0]
@@ -74,6 +73,7 @@ BuiltInDataTypesShadow.PartitionId ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestBoolean ---> [nvarchar] [MaxLength = 1]
 BuiltInDataTypesShadow.TestByte ---> [int] [Precision = 10 Scale = 0]
 BuiltInDataTypesShadow.TestCharacter ---> [bigint] [Precision = 19 Scale = 0]
+BuiltInDataTypesShadow.TestDateOnly ---> [date] [Precision = 0]
 BuiltInDataTypesShadow.TestDateTime ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestDateTimeOffset ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestDecimal ---> [varbinary] [MaxLength = 16]
@@ -83,6 +83,7 @@ BuiltInDataTypesShadow.TestInt32 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestInt64 ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestSignedByte ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestSingle ---> [decimal] [Precision = 38 Scale = 17]
+BuiltInDataTypesShadow.TestTimeOnly ---> [time] [Precision = 7]
 BuiltInDataTypesShadow.TestTimeSpan ---> [bigint] [Precision = 19 Scale = 0]
 BuiltInDataTypesShadow.TestUnsignedInt16 ---> [decimal] [Precision = 20 Scale = 0]
 BuiltInDataTypesShadow.TestUnsignedInt32 ---> [decimal] [Precision = 20 Scale = 0]
@@ -101,6 +102,7 @@ BuiltInNullableDataTypes.TestByteArray ---> [nullable varbinary] [MaxLength = -1
 BuiltInNullableDataTypes.TestNullableBoolean ---> [nullable nvarchar] [MaxLength = 1]
 BuiltInNullableDataTypes.TestNullableByte ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypes.TestNullableCharacter ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypes.TestNullableDateOnly ---> [nullable date] [Precision = 0]
 BuiltInNullableDataTypes.TestNullableDateTime ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableDateTimeOffset ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableDecimal ---> [nullable varbinary] [MaxLength = 16]
@@ -110,6 +112,7 @@ BuiltInNullableDataTypes.TestNullableInt32 ---> [nullable bigint] [Precision = 1
 BuiltInNullableDataTypes.TestNullableInt64 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableSignedByte ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableSingle ---> [nullable decimal] [Precision = 38 Scale = 17]
+BuiltInNullableDataTypes.TestNullableTimeOnly ---> [nullable time] [Precision = 7]
 BuiltInNullableDataTypes.TestNullableTimeSpan ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypes.TestNullableUnsignedInt16 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypes.TestNullableUnsignedInt32 ---> [nullable decimal] [Precision = 20 Scale = 0]
@@ -129,6 +132,7 @@ BuiltInNullableDataTypesShadow.TestByteArray ---> [nullable varbinary] [MaxLengt
 BuiltInNullableDataTypesShadow.TestNullableBoolean ---> [nullable nvarchar] [MaxLength = 1]
 BuiltInNullableDataTypesShadow.TestNullableByte ---> [nullable int] [Precision = 10 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableCharacter ---> [nullable bigint] [Precision = 19 Scale = 0]
+BuiltInNullableDataTypesShadow.TestNullableDateOnly ---> [nullable date] [Precision = 0]
 BuiltInNullableDataTypesShadow.TestNullableDateTime ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableDateTimeOffset ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableDecimal ---> [nullable varbinary] [MaxLength = 16]
@@ -138,6 +142,7 @@ BuiltInNullableDataTypesShadow.TestNullableInt32 ---> [nullable bigint] [Precisi
 BuiltInNullableDataTypesShadow.TestNullableInt64 ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableSignedByte ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableSingle ---> [nullable decimal] [Precision = 38 Scale = 17]
+BuiltInNullableDataTypesShadow.TestNullableTimeOnly ---> [nullable time] [Precision = 7]
 BuiltInNullableDataTypesShadow.TestNullableTimeSpan ---> [nullable bigint] [Precision = 19 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt16 ---> [nullable decimal] [Precision = 20 Scale = 0]
 BuiltInNullableDataTypesShadow.TestNullableUnsignedInt32 ---> [nullable decimal] [Precision = 20 Scale = 0]
@@ -152,6 +157,7 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable nvarchar] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable varbinary] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable varbinary] [MaxLength = -1]
+MaxLengthDataTypes.StringUnbounded ---> [nullable varbinary] [MaxLength = -1]
 StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
 StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]
@@ -163,57 +169,57 @@ UnicodeDataTypes.StringAnsi3 ---> [nullable varchar] [MaxLength = 3]
 UnicodeDataTypes.StringAnsi9000 ---> [nullable varchar] [MaxLength = -1]
 UnicodeDataTypes.StringDefault ---> [nullable nvarchar] [MaxLength = -1]
 UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
-";
 
-            Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
-        }
+""";
 
-        public override void Object_to_string_conversion()
+        Assert.Equal(expected, actual, ignoreLineEndingDifferences: true);
+    }
+
+    public override void Object_to_string_conversion()
+    {
+        // Return values are not string
+    }
+
+    public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
+    {
+        public override bool StrictEquality
+            => true;
+
+        public override bool SupportsAnsi
+            => true;
+
+        public override bool SupportsUnicodeToAnsiConversion
+            => true;
+
+        public override bool SupportsLargeStringComparisons
+            => true;
+
+        protected override ITestStoreFactory TestStoreFactory
+            => SqlServerTestStoreFactory.Instance;
+
+        public override bool SupportsBinaryKeys
+            => true;
+
+        public override bool SupportsDecimalComparisons
+            => true;
+
+        public override DateTime DefaultDateTime
+            => new();
+
+        public override bool PreservesDateTimeKind
+            => false;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base
+                .AddOptions(builder)
+                .ConfigureWarnings(
+                    c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
-            // Return values are not string
-        }
+            base.OnModelCreating(modelBuilder, context);
 
-        public class ConvertToProviderTypesSqlServerFixture : ConvertToProviderTypesFixtureBase
-        {
-            public override bool StrictEquality
-                => true;
-
-            public override bool SupportsAnsi
-                => true;
-
-            public override bool SupportsUnicodeToAnsiConversion
-                => true;
-
-            public override bool SupportsLargeStringComparisons
-                => true;
-
-            protected override ITestStoreFactory TestStoreFactory
-                => SqlServerTestStoreFactory.Instance;
-
-            public override bool SupportsBinaryKeys
-                => true;
-
-            public override bool SupportsDecimalComparisons
-                => true;
-
-            public override DateTime DefaultDateTime
-                => new();
-
-            public override bool PreservesDateTimeKind
-                => false;
-
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base
-                    .AddOptions(builder)
-                    .ConfigureWarnings(
-                        c => c.Log(SqlServerEventId.DecimalTypeDefaultWarning));
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            {
-                base.OnModelCreating(modelBuilder, context);
-
-                modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Enum8).IsFixedLength();
-            }
+            modelBuilder.Entity<BuiltInDataTypes>().Property(e => e.Enum8).IsFixedLength();
         }
     }
 }
