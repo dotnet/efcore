@@ -5163,7 +5163,7 @@ namespace TestNamespace
         }
     }
 }
-""", c),                        
+""", c),
                         c => AssertFileContents(
                             "PrincipalBaseEntityType.cs",
                             """
@@ -5517,7 +5517,7 @@ namespace TestNamespace
                 model =>
                 {
                     var principalBase = model.FindEntityType(typeof(PrincipalBase));
-                    
+
                     var complexProperty = principalBase.GetComplexProperties().Single();
                     Assert.Equal(
                         new[] { "goo" },
@@ -5534,7 +5534,8 @@ namespace TestNamespace
 
                     var complexType = complexProperty.ComplexType;
                     Assert.Equal(
-                        new[] {
+                        new[]
+                        {
                             RelationalAnnotationNames.FunctionName,
                             RelationalAnnotationNames.Schema,
                             RelationalAnnotationNames.SqlQuery,
@@ -5560,7 +5561,8 @@ namespace TestNamespace
 
                     var detailsProperty = complexType.FindProperty(nameof(OwnedType.Details));
                     Assert.Equal(
-                        new[] {
+                        new[]
+                        {
                             CoreAnnotationNames.MaxLength,
                             CoreAnnotationNames.Precision,
                             RelationalAnnotationNames.ColumnName,
@@ -5645,14 +5647,10 @@ namespace TestNamespace
                     Assert.Same(dbFunction, principalBaseFunctionMapping.DbFunction);
 
                     var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>));
-                    Assert.Equal(principalBase, principalDerived.BaseType);                    
+                    Assert.Equal(principalBase, principalDerived.BaseType);
 
                     Assert.Equal(
-                        new[]
-                        {
-                            principalBase,
-                            principalDerived
-                        },
+                        new[] { principalBase, principalDerived },
                         model.GetEntityTypes());
                 },
                 null,
@@ -5858,7 +5856,8 @@ namespace TestNamespace
                 modelBuilder.Entity<PrincipalBase>(
                     eb =>
                     {
-                        eb.ComplexProperty(e => e.Owned, eb =>
+                        eb.ComplexProperty(
+                            e => e.Owned, eb =>
                             {
                                 eb.IsRequired()
                                     .HasField("_ownedField")
@@ -5883,7 +5882,8 @@ namespace TestNamespace
                                     .IsRowVersion()
                                     .HasAnnotation("foo", "bar");
                                 eb.Ignore(e => e.Context);
-                                eb.ComplexProperty(o => o.Principal);
+                                eb.ComplexProperty(o => o.Principal)
+                                    ;
                             });
 
                         eb.ToTable("PrincipalBase");
@@ -5912,7 +5912,6 @@ namespace TestNamespace
                             s => s
                                 .HasRowsAffectedReturnValue()
                                 .HasOriginalValueParameter(p => p.Id));
-
                     });
 
                 modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
@@ -5927,9 +5926,7 @@ namespace TestNamespace
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder options)
-            {
-                SqlServerTestStore.Create("RuntimeModelTest" + GetType().Name).AddProviderOptions(options);
-            }
+                => SqlServerTestStore.Create("RuntimeModelTest" + GetType().Name).AddProviderOptions(options);
         }
 
         [ConditionalFact]
@@ -7336,7 +7333,7 @@ namespace TestNamespace
 
         public sealed class MyJsonGuidReaderWriter : JsonValueReaderWriter<Guid>
         {
-            public override Guid FromJsonTyped(ref Utf8JsonReaderManager manager)
+            public override Guid FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
                 => manager.CurrentReader.GetGuid();
 
             public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
@@ -7415,9 +7412,9 @@ namespace TestNamespace
 
             [NotMapped]
             public PrincipalBase Principal { get; set; }
-            
 
             private string _details;
+
             public string Details
             {
                 get => _details;

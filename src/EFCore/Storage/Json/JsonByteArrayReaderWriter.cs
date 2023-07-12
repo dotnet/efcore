@@ -20,7 +20,7 @@ public sealed class JsonByteArrayReaderWriter : JsonValueReaderWriter<byte[]>
     }
 
     /// <inheritdoc />
-    public override byte[] FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override byte[] FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetBytesFromBase64();
 
     /// <inheritdoc />

@@ -20,7 +20,7 @@ public sealed class JsonStringReaderWriter : JsonValueReaderWriter<string>
     }
 
     /// <inheritdoc />
-    public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetString()!;
 
     /// <inheritdoc />

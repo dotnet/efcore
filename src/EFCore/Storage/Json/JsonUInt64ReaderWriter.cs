@@ -20,7 +20,7 @@ public sealed class JsonUInt64ReaderWriter : JsonValueReaderWriter<ulong>
     }
 
     /// <inheritdoc />
-    public override ulong FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override ulong FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetUInt64();
 
     /// <inheritdoc />

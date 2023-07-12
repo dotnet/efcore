@@ -20,7 +20,7 @@ public sealed class JsonDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
     }
 
     /// <inheritdoc />
-    public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override DateTime FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetDateTime();
 
     /// <inheritdoc />

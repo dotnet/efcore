@@ -182,7 +182,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             case SqlQueryRootExpression sqlQueryRootExpression:
             {
-                var typeMapping = RelationalDependencies.TypeMappingSource.FindMapping(sqlQueryRootExpression.ElementType);
+                var typeMapping = RelationalDependencies.TypeMappingSource.FindMapping(
+                    sqlQueryRootExpression.ElementType, RelationalDependencies.Model);
+
                 if (typeMapping == null)
                 {
                     throw new InvalidOperationException(
@@ -190,7 +192,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
 
                 var selectExpression = new SelectExpression(
-                    new FromSqlExpression("t", sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument), SqlQuerySingleColumnAlias, sqlQueryRootExpression.Type, typeMapping);
+                    new FromSqlExpression("t", sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument), SqlQuerySingleColumnAlias,
+                    sqlQueryRootExpression.Type, typeMapping);
 
                 Expression shaperExpression = new ProjectionBindingExpression(
                     selectExpression, new ProjectionMember(), sqlQueryRootExpression.ElementType.MakeNullable());
@@ -334,7 +337,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var rowExpressions = new List<RowValueExpression>();
         var encounteredNull = false;
-        var intTypeMapping = _typeMappingSource.FindMapping(typeof(int));
+        var intTypeMapping = _typeMappingSource.FindMapping(typeof(int), RelationalDependencies.Model);
 
         for (var i = 0; i < inlineQueryRootExpression.Values.Count; i++)
         {
@@ -353,13 +356,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             encounteredNull |=
                 translatedValue is not SqlConstantExpression { Value: not null } and not ColumnExpression { IsNullable: false };
 
-            rowExpressions.Add(new RowValueExpression(new[]
-            {
-                // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
-                _sqlExpressionFactory.Constant(i, intTypeMapping),
-                // Note that for the actual value, we must leave the type mapping null to allow it to get inferred later based on usage
-                translatedValue
-            }));
+            rowExpressions.Add(
+                new RowValueExpression(
+                    new[]
+                    {
+                        // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
+                        _sqlExpressionFactory.Constant(i, intTypeMapping),
+                        // Note that for the actual value, we must leave the type mapping null to allow it to get inferred later based on usage
+                        translatedValue
+                    }));
         }
 
         if (rowExpressions.Count == 0)
@@ -693,7 +698,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             // This could be group by entity type
             if (remappedKeySelector is not EntityShaperExpression
-                { ValueBufferExpression: ProjectionBindingExpression pbe } ese)
+                {
+                    ValueBufferExpression: ProjectionBindingExpression pbe
+                } ese)
             {
                 // ValueBufferExpression can be JsonQuery, ProjectionBindingExpression, EntityProjection
                 // We only allow ProjectionBindingExpression which represents a regular entity
@@ -1319,7 +1326,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 {
                     var typeBase = entityTypeMapping.TypeBase;
                     if ((entityTypeMapping.IsSharedTablePrincipal == true
-                        && typeBase != rootType)
+                            && typeBase != rootType)
                         || (entityTypeMapping.IsSharedTablePrincipal == false
                             && typeBase is IEntityType entityType
                             && entityType.GetRootType() != rootType
@@ -1838,19 +1845,20 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </summary>
     /// <param name="expression">The query expression to process.</param>
     /// <param name="inferredTypeMappings">
-    /// Inferred type mappings for queryable constants/parameters collected during translation. These will be applied to the appropriate
-    /// nodes in the tree.
+    ///     Inferred type mappings for queryable constants/parameters collected during translation. These will be applied to the appropriate
+    ///     nodes in the tree.
     /// </param>
     protected virtual Expression ApplyInferredTypeMappings(
         Expression expression,
         IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-        => new RelationalInferredTypeMappingApplier(_sqlExpressionFactory, inferredTypeMappings).Visit(expression);
+        => new RelationalInferredTypeMappingApplier(
+            RelationalDependencies.Model, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
     /// </summary>
     /// <param name="selectExpression">The <see cref="SelectExpression" /> to check for ordering.</param>
-    /// <returns>Whether <paramref name="selectExpression"/> is ordered.</returns>
+    /// <returns>Whether <paramref name="selectExpression" /> is ordered.</returns>
     protected virtual bool IsOrdered(SelectExpression selectExpression)
         => selectExpression.Orderings.Count > 0;
 
@@ -2753,15 +2761,23 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalInferredTypeMappingApplier" /> class.
         /// </summary>
+        /// <param name="model">The model.</param>
         /// <param name="sqlExpressionFactory">The SQL expression factory.</param>
         /// <param name="inferredTypeMappings">The inferred type mappings to be applied back on their query roots.</param>
         public RelationalInferredTypeMappingApplier(
+            IModel model,
             ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
         {
+            Model = model;
             _sqlExpressionFactory = sqlExpressionFactory;
             _inferredTypeMappings = inferredTypeMappings;
         }
+
+        /// <summary>
+        ///     The model.
+        /// </summary>
+        protected virtual IModel Model { get; }
 
         /// <summary>
         ///     Attempts to find an inferred type mapping for the given table column.
@@ -2883,7 +2899,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 newRowValues[i] = new RowValueExpression(newValues);
             }
 
-            return new(valuesExpression.Alias, newRowValues, newColumnNames, valuesExpression.GetAnnotations());
+            return new ValuesExpression(valuesExpression.Alias, newRowValues, newColumnNames, valuesExpression.GetAnnotations());
         }
     }
 }

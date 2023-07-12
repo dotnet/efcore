@@ -78,6 +78,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     States scoped to SelectExpression
         /// </summary>
         private readonly SelectExpression _selectExpression;
+
         private readonly ParameterExpression _dataReaderParameter;
         private readonly ParameterExpression _resultContextParameter;
         private readonly ParameterExpression? _indexMapParameter;
@@ -109,6 +110,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     If there is collection shaper then we need to construct ValuesArray to store values temporarily in ResultContext
         /// </summary>
         private List<Expression>? _collectionPopulatingExpressions;
+
         private Expression? _valuesArrayExpression;
         private List<Expression>? _valuesArrayInitializers;
 
@@ -118,12 +120,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     Since identifiers for collection are not part of larger lambda they don't cannot use caching to materialize only once.
         /// </summary>
         private bool _inline;
+
         private int _collectionId;
 
         /// <summary>
         ///     States to convert code to data reader read
         /// </summary>
         private readonly Dictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings = new();
+
         private readonly Dictionary<ParameterExpression, object> _entityTypeIdentifyingExpressionInfo = new();
         private readonly Dictionary<ProjectionBindingExpression, string> _singleEntityTypeDiscriminatorValues = new();
 
@@ -242,13 +246,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _dataReaderParameter);
 
             keyIdentifier = Lambda(
-                    Visit(relationalGroupByResultExpression.KeyIdentifier),
-                    QueryCompilationContext.QueryContextParameter,
-                    _dataReaderParameter);
+                Visit(relationalGroupByResultExpression.KeyIdentifier),
+                QueryCompilationContext.QueryContextParameter,
+                _dataReaderParameter);
 
             _inline = false;
 
-            return ProcessShaper(relationalGroupByResultExpression.ElementShaper,
+            return ProcessShaper(
+                relationalGroupByResultExpression.ElementShaper,
                 out relationalCommandCache!,
                 out readerColumns,
                 out relatedDataLoaders,
@@ -476,7 +481,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             switch (extensionExpression)
             {
                 case RelationalEntityShaperExpression entityShaperExpression
-                    when !_inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                    when !_inline
+                    && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
                 {
                     // we can't cache ProjectionBindingExpression results for non-tracking queries
                     // JSON entities must be read and re-shaped every time (streaming)
@@ -714,9 +720,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 Constant(parentIdentifierLambda.Compile()),
                                 Constant(outerIdentifierLambda.Compile()),
                                 Constant(navigation),
-                                Constant(navigation.IsShadowProperty()
-                                    ? null
-                                    : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
+                                Constant(
+                                    navigation.IsShadowProperty()
+                                        ? null
+                                        : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
                                 Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                                 Constant(includeExpression.SetLoaded)));
@@ -1178,7 +1185,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var valueBufferParameter = Parameter(typeof(ValueBuffer));
 
-            _jsonValueBufferToJsonReaderDataAndKeyValuesParameterMapping[valueBufferParameter] = (jsonReaderDataShaperLambdaParameter, keyValuesShaperLambdaParameter);
+            _jsonValueBufferToJsonReaderDataAndKeyValuesParameterMapping[valueBufferParameter] =
+                (jsonReaderDataShaperLambdaParameter, keyValuesShaperLambdaParameter);
 
             var entityShaperExpression = new RelationalEntityShaperExpression(
                 entityType,
@@ -1190,7 +1198,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var innerShapersMap = new Dictionary<string, Expression>();
             var innerFixupMap = new Dictionary<string, LambdaExpression>();
             foreach (var ownedNavigation in entityType.GetNavigations().Where(
-                n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
+                         n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
             {
                 // we need to build entity shapers and fixup separately
                 // we don't know the order in which data comes, so we need to read through everything
@@ -1215,7 +1223,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (!ownedNavigation.IsShadowProperty())
                     {
                         expressions.Add(
-                            shaperEntityParameter.MakeMemberAccess(ownedNavigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(shaperCollectionParameter));
+                            shaperEntityParameter.MakeMemberAccess(ownedNavigation.GetMemberInfo(forMaterialization: true, forSet: true))
+                                .Assign(shaperCollectionParameter));
                     }
 
                     if (ownedNavigation.Inverse is INavigation inverseNavigation
@@ -1235,8 +1244,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     innerFixupCollectionElementParameter,
                                     innerFixupParentParameter,
                                     inverseNavigation)),
-                                    innerFixupCollectionElementParameter,
-                                    innerFixupParentParameter);
+                            innerFixupCollectionElementParameter,
+                            innerFixupParentParameter);
 
                         expressions.Add(
                             Call(
@@ -1424,7 +1433,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     && onlyValue.Value == _entityType
                     && body.Expressions.Count > 0)
                 {
-                    var valueBufferTryReadValueMethodsToProcess = new ValueBufferTryReadValueMethodsFinder(_entityType).FindValueBufferTryReadValueMethods(body);
+                    var valueBufferTryReadValueMethodsToProcess =
+                        new ValueBufferTryReadValueMethodsFinder(_entityType).FindValueBufferTryReadValueMethods(body);
 
                     BlockExpression jsonEntityTypeInitializerBlock;
                     //sometimes we have shadow value buffer and sometimes not, but type initializer always comes last
@@ -1463,29 +1473,29 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     Debug.Assert(jsonEntityTypeVariable.Type == _entityType.ClrType);
 
                     var finalBlockVariables = new List<ParameterExpression>
-                        {
-                            managerVariable, tokenTypeVariable,
-                        };
+                    {
+                        managerVariable, tokenTypeVariable,
+                    };
 
                     finalBlockVariables.AddRange(jsonEntityTypeInitializerBlock.Variables);
 
                     var finalBlockExpressions = new List<Expression>
-                        {
-                            // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
-                            Assign(
-                                managerVariable,
-                                New(
-                                    JsonReaderManagerConstructor,
-                                    _jsonReaderDataParameter)),
-                            // tokenType = jsonReaderManager.CurrentReader.TokenType
-                            Assign(
-                                tokenTypeVariable,
-                                Property(
-                                    Field(
-                                        managerVariable,
-                                        Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderTokenTypeProperty)),
-                        };
+                    {
+                        // jsonReaderManager = new Utf8JsonReaderManager(jsonReaderData))
+                        Assign(
+                            managerVariable,
+                            New(
+                                JsonReaderManagerConstructor,
+                                _jsonReaderDataParameter)),
+                        // tokenType = jsonReaderManager.CurrentReader.TokenType
+                        Assign(
+                            tokenTypeVariable,
+                            Property(
+                                Field(
+                                    managerVariable,
+                                    Utf8JsonReaderManagerCurrentReaderField),
+                                Utf8JsonReaderTokenTypeProperty)),
+                    };
 
                     var (loop, propertyAssignmentMap) = GenerateJsonPropertyReadLoop(
                         managerVariable,
@@ -1716,16 +1726,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         // entityType = EntityType;
                         ifFalseBlock.Expressions[1],
-
                         IfThen(
                             testBinaryExpression,
                             Block(
                                 ifTrueBlock.Variables,
-                                ifTrueBlock.Expressions.Concat(new Expression[]
-                                {
-                                    Assign(entityAlreadyTrackedVariable, Constant(true)),
-                                    Default(typeof(void))
-                                })))
+                                ifTrueBlock.Expressions.Concat(
+                                    new Expression[] { Assign(entityAlreadyTrackedVariable, Constant(true)), Default(typeof(void)) })))
                     };
 
                     resultBlockVariables.AddRange(ifFalseBlock.Variables.ToList());
@@ -1752,10 +1758,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         newInstanceAssignmentExpressions.Add(
                             instanceAssignmentBody.Expressions[i].Type == typeof(ValueBuffer)
-                            ? IfThen(
-                                Not(entityAlreadyTrackedVariable),
-                                instanceAssignmentBody.Expressions[i])
-                            : instanceAssignmentBody.Expressions[i]);
+                                ? IfThen(
+                                    Not(entityAlreadyTrackedVariable),
+                                    instanceAssignmentBody.Expressions[i])
+                                : instanceAssignmentBody.Expressions[i]);
                     }
 
                     // from now on we have entity construction and property assignments
@@ -1771,7 +1777,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // all expressions except first 5 (that we already added)
                     // final variable being returned is also omitted but we generate Express.Default(typeof(void)) instead
                     var createAndPopulateInstanceIfFalseBlockExpressionsCount = instanceAssignmentBody.Expressions.Count - 5;
-                    var createAndPopulateInstanceIfFalseBlockExpressions = new Expression[createAndPopulateInstanceIfFalseBlockExpressionsCount];
+                    var createAndPopulateInstanceIfFalseBlockExpressions =
+                        new Expression[createAndPopulateInstanceIfFalseBlockExpressionsCount];
 
                     Array.Copy(
                         instanceAssignmentBody.Expressions.ToArray()[5..^1],
@@ -1795,7 +1802,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     var startTrackingAssignment = ifFalseBlock.Expressions
                         .OfType<BinaryExpression>()
-                        .Single(e => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression } && instance.Type == typeof(InternalEntityEntry));
+                        .Single(
+                            e => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression }
+                                && instance.Type == typeof(InternalEntityEntry));
 
                     var startTrackingExpression =
                         IfThen(
@@ -1840,7 +1849,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition() == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                        && methodCallExpression.Method.GetGenericMethodDefinition()
+                        == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
                         && ((ConstantExpression)methodCallExpression.Arguments[2]).Value is IProperty property
                         && _nonKeyProperties.Contains(property))
                     {
@@ -1866,7 +1876,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.GetGenericMethodDefinition() == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
+                        && methodCallExpression.Method.GetGenericMethodDefinition()
+                        == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
                         && ((ConstantExpression)methodCallExpression.Arguments[2]).Value is IProperty property
                         && _propertyAssignmentMap.TryGetValue(property, out var parameter))
                     {
@@ -2248,84 +2259,37 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             var nullable = property.IsNullable;
             var typeMapping = property.GetTypeMapping();
-            var providerClrType = (typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType).UnwrapNullableType();
 
-            var jsonReaderWriterExpression = Constant(property.GetJsonValueReaderWriter()!);
+            var jsonReaderWriterExpression = Constant(
+                property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!);
 
             var fromJsonMethod = jsonReaderWriterExpression.Type.GetMethod(
-                nameof(JsonValueReaderWriter.FromJson), new[] { typeof(Utf8JsonReaderManager).MakeByRefType() })!;
+                nameof(JsonValueReaderWriter.FromJson), new[] { typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object) })!;
 
             Expression resultExpression = Convert(
-                Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter),
-                providerClrType);
+                Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),
+                typeMapping.ClrType);
 
-            if (property.GetTypeMapping().Converter is ValueConverter converter)
+            if (nullable)
             {
-                if (!property.IsNullable || converter.ConvertsNulls)
+                // in case of null value we can't just use the JsonReader method, but rather check the current token type
+                // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
+
+                if (resultExpression.Type != property.ClrType)
                 {
-                    resultExpression = Convert(
-                        Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter),
-                        providerClrType);
-
-                    resultExpression = ReplacingExpressionVisitor.Replace(
-                        converter.ConvertFromProviderExpression.Parameters.Single(),
-                        resultExpression,
-                        converter.ConvertFromProviderExpression.Body);
-
-                    if (resultExpression.Type != property.ClrType)
-                    {
-                        resultExpression = Convert(resultExpression, property.ClrType);
-                    }
+                    resultExpression = Convert(resultExpression, property.ClrType);
                 }
-                else
-                {
-                    // property is nullable and the converter can't handle nulls
-                    // we need to peek into the JSON value and only pass it thru converter if it's not null
-                    resultExpression = Convert(
-                        Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter),
-                        providerClrType);
 
-                    resultExpression = ReplacingExpressionVisitor.Replace(
-                        converter.ConvertFromProviderExpression.Parameters.Single(),
-                        resultExpression,
-                        converter.ConvertFromProviderExpression.Body);
-
-                    if (resultExpression.Type != property.ClrType)
-                    {
-                        resultExpression = Convert(resultExpression, property.ClrType);
-                    }
-
-                    resultExpression = Condition(
-                        Equal(
-                            Property(
-                                Field(jsonReaderManagerParameter, Utf8JsonReaderManagerCurrentReaderField),
-                                Utf8JsonReaderTokenTypeProperty),
-                            Constant(JsonTokenType.Null)),
-                        Default(property.ClrType),
-                        resultExpression);
-                }
-            }
-            else
-            {
-                if (nullable)
-                {
-                    // in case of null value we can't just use the JsonReader method, but rather check the current token type
-                    // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-
-                    if (resultExpression.Type != property.ClrType)
-                    {
-                        resultExpression = Convert(resultExpression, property.ClrType);
-                    }
-
-                    resultExpression = Condition(
-                        Equal(
-                            Property(
-                                Field(jsonReaderManagerParameter, Utf8JsonReaderManagerCurrentReaderField),
-                                Utf8JsonReaderTokenTypeProperty),
-                            Constant(JsonTokenType.Null)),
-                        Default(property.ClrType),
-                        resultExpression);
-                }
+                resultExpression = Condition(
+                    Equal(
+                        Property(
+                            Field(
+                                jsonReaderManagerParameter,
+                                Utf8JsonReaderManagerCurrentReaderField),
+                            Utf8JsonReaderTokenTypeProperty),
+                        Constant(JsonTokenType.Null)),
+                    Default(property.ClrType),
+                    resultExpression);
             }
 
             if (_detailedErrorsEnabled)

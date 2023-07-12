@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -86,7 +87,7 @@ public readonly record struct RelationalTypeMappingInfo
         DbType = (mappingHints as RelationalConverterMappingHints)?.DbType;
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
-     }
+    }
 
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
@@ -164,6 +165,23 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="RelationalTypeMapping" />. for collection
+    ///     elements.
+    /// </summary>
+    /// <param name="source">The source info.</param>
+    /// <param name="elementMapping">The element mapping to use.</param>
+    public RelationalTypeMappingInfo(
+        in RelationalTypeMappingInfo source,
+        RelationalTypeMapping elementMapping)
+    {
+        _coreTypeMappingInfo = source._coreTypeMappingInfo.WithElementTypeMapping(elementMapping);
+        StoreTypeName = source.StoreTypeName;
+        StoreTypeNameBase = source.StoreTypeNameBase;
+        IsFixedLength = source.IsFixedLength;
+        DbType = source.DbType;
+    }
+
+    /// <summary>
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
@@ -194,6 +212,12 @@ public readonly record struct RelationalTypeMappingInfo
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
     }
+
+    /// <summary>
+    ///     The core type mapping info.
+    /// </summary>
+    public TypeMappingInfo CoreTypeMappingInfo
+        => _coreTypeMappingInfo;
 
     /// <summary>
     ///     The provider-specific relational type name for which mapping is needed.
@@ -238,7 +262,7 @@ public readonly record struct RelationalTypeMappingInfo
     public bool? IsFixedLength { get; init; }
 
     /// <summary>
-    ///     The <see cref="DbType"/> of the mapping.
+    ///     The <see cref="DbType" /> of the mapping.
     /// </summary>
     public DbType? DbType { get; init; }
 
@@ -279,10 +303,36 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
-    ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
+    ///     The element type mapping, if the mapping is for a collection of primitives, or <see langword="null" /> otherwise.
+    /// </summary>
+    public CoreTypeMapping? ElementTypeMapping
+    {
+        get => _coreTypeMappingInfo.ElementTypeMapping;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ElementTypeMapping = value };
+    }
+
+    /// <summary>
+    ///     The JSON reader/writer, if one has been provided, or <see langword="null" /> otherwise.
+    /// </summary>
+    public JsonValueReaderWriter? JsonValueReaderWriter
+    {
+        get => _coreTypeMappingInfo.JsonValueReaderWriter;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { JsonValueReaderWriter = value };
+    }
+
+    /// <summary>
+    ///     Returns a new <see cref="RelationalTypeMappingInfo" /> with the given converter applied.
     /// </summary>
     /// <param name="converterInfo">The converter to apply.</param>
     /// <returns>The new mapping info.</returns>
     public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
         => new(this, converterInfo);
+
+    /// <summary>
+    ///     Returns a new <see cref="RelationalTypeMappingInfo" /> with the given converter applied.
+    /// </summary>
+    /// <param name="elementMapping">The element mapping to use.</param>
+    /// <returns>The new mapping info.</returns>
+    public RelationalTypeMappingInfo WithElementTypeMapping(in RelationalTypeMapping elementMapping)
+        => new(this, elementMapping);
 }

@@ -20,7 +20,7 @@ public sealed class JsonNullReaderWriter : JsonValueReaderWriter<object?>
     }
 
     /// <inheritdoc />
-    public override object? FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override object? FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => null;
 
     /// <inheritdoc />

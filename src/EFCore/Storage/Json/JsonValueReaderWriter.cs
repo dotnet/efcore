@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
@@ -21,7 +22,7 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     Reads the value from JSON.
+    ///     Reads the value from a UTF8 JSON stream or buffer.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -38,8 +39,9 @@ public abstract class JsonValueReaderWriter
     ///     </para>
     /// </remarks>
     /// <param name="manager">The <see cref="Utf8JsonReaderManager" /> for the JSON being read.</param>
+    /// <param name="existingObject">Can be used to update an existing object, rather than create a new one.</param>
     /// <returns>The read value.</returns>
-    public abstract object FromJson(ref Utf8JsonReaderManager manager);
+    public abstract object FromJson(ref Utf8JsonReaderManager manager, object? existingObject = null);
 
     /// <summary>
     ///     Writes the value to JSON.
@@ -52,4 +54,34 @@ public abstract class JsonValueReaderWriter
     ///     The type of the value being read/written.
     /// </summary>
     public abstract Type ValueType { get; }
+
+    /// <summary>
+    ///     Reads the value from JSON in a string.
+    /// </summary>
+    /// <param name="json">The JSON to parse.</param>
+    /// <param name="existingObject">Can be used to update an existing object, rather than create a new one.</param>
+    /// <returns>The read value.</returns>
+    public virtual object FromJsonString(string json, object? existingObject = null)
+    {
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)));
+        return FromJson(ref readerManager);
+    }
+
+    /// <summary>
+    ///     Writes the value to a JSON string.
+    /// </summary>
+    /// <param name="value">The value to write.</param>
+    /// <returns>The JSON representation of the given value.</returns>
+    public virtual string ToJsonString(object value)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new Utf8JsonWriter(stream);
+
+        ToJson(writer, value);
+
+        writer.Flush();
+        var buffer = stream.ToArray();
+
+        return Encoding.UTF8.GetString(buffer);
+    }
 }

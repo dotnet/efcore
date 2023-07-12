@@ -146,9 +146,15 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var openJsonExpression = elementTypeMapping is null
             ? new SqlServerOpenJsonExpression(tableAlias, sqlExpression)
             : new SqlServerOpenJsonExpression(
-                tableAlias, sqlExpression, columnInfos: new[]
+                tableAlias, sqlExpression,
+                columnInfos: new[]
                 {
-                    new SqlServerOpenJsonExpression.ColumnInfo { Name = "value", StoreType = elementTypeMapping.StoreType, Path = "$" }
+                    new SqlServerOpenJsonExpression.ColumnInfo
+                    {
+                        Name = "value",
+                        StoreType = elementTypeMapping.StoreType,
+                        Path = "$"
+                    }
                 });
 
         // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
@@ -251,7 +257,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     // If the inner expression happens to itself be a JsonScalarExpression, simply append the two paths to avoid creating
                     // JSON_VALUE within JSON_VALUE.
                     var (json, path) = jsonArrayColumn is JsonScalarExpression innerJsonScalarExpression
-                        ? (innerJsonScalarExpression.Json, innerJsonScalarExpression.Path.Append(new(translatedIndex)).ToArray())
+                        ? (innerJsonScalarExpression.Json,
+                            innerJsonScalarExpression.Path.Append(new PathSegment(translatedIndex)).ToArray())
                         : (jsonArrayColumn, new PathSegment[] { new(translatedIndex) });
 
                     var translation = new JsonScalarExpression(
@@ -385,7 +392,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     protected override Expression ApplyInferredTypeMappings(
         Expression expression,
         IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-        => new SqlServerInferredTypeMappingApplier(_typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
+        => new SqlServerInferredTypeMappingApplier(
+            RelationalDependencies.Model, _typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -404,11 +412,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqlServerInferredTypeMappingApplier(
+            IModel model,
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-            : base(sqlExpressionFactory, inferredTypeMappings)
-            => _typeMappingSource = typeMappingSource;
+            : base(model, sqlExpressionFactory, inferredTypeMappings)
+        {
+            _typeMappingSource = typeMappingSource;
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -456,23 +467,12 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             // and on the WITH clause determining the conversion out on the SQL Server side
 
             // First, find the collection type mapping and apply it to the parameter
-
-            // TODO: We shouldn't need to manually construct the JSON string type mapping this way; we need to be able to provide the
-            // TODO: element's store type mapping as input to _typeMappingSource.FindMapping.
-            // TODO: When this is done, revert converter equality check in QuerySqlGenerator.VisitSqlParameter back to reference equality,
-            // since we'll always have the same instance of the type mapping returned from the type mapping source. Also remove
-            // CollectionToJsonStringConverter.Equals etc.
-            // TODO: Note: NpgsqlTypeMappingSource exposes FindContainerMapping() for this purpose.
-            // #30730
-            if (_typeMappingSource.FindMapping(typeof(string)) is not SqlServerStringTypeMapping parameterTypeMapping)
+            if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, elementTypeMapping) is not SqlServerStringTypeMapping
+                parameterTypeMapping)
             {
+                // TODO: Message
                 throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqlServerStringTypeMapping");
             }
-
-            parameterTypeMapping = (SqlServerStringTypeMapping)parameterTypeMapping
-                .Clone(new CollectionToJsonStringConverter(parameterExpression.Type, elementTypeMapping));
-
-            parameterTypeMapping = (SqlServerStringTypeMapping)parameterTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
 
             return openJsonExpression.Update(
                 parameterExpression.ApplyTypeMapping(parameterTypeMapping),

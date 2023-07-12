@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -104,6 +106,8 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
+        ElementTypeMapping = null; // TODO: set from property
+        JsonValueReaderWriter = property.GetJsonValueReaderWriter();
     }
 
     /// <summary>
@@ -185,6 +189,30 @@ public readonly record struct TypeMappingInfo
         Precision = precision ?? source.Precision ?? mappingHints?.Precision;
 
         ClrType = converter.ProviderClrType.UnwrapNullableType();
+
+        ElementTypeMapping = source.ElementTypeMapping;
+        JsonValueReaderWriter = source.JsonValueReaderWriter;
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="CoreTypeMapping" />. for collection
+    ///     elements.
+    /// </summary>
+    /// <param name="source">The source info.</param>
+    /// <param name="elementMapping">The element mapping to use.</param>
+    public TypeMappingInfo(
+        TypeMappingInfo source,
+        CoreTypeMapping elementMapping)
+    {
+        IsRowVersion = source.IsRowVersion;
+        IsKeyOrIndex = source.IsKeyOrIndex;
+        Size = source.Size;
+        IsUnicode = source.IsUnicode;
+        Scale = source.Scale;
+        Precision = source.Precision;
+        ClrType = source.ClrType;
+        ElementTypeMapping = elementMapping;
+        JsonValueReaderWriter = source.JsonValueReaderWriter;
     }
 
     /// <summary>
@@ -194,6 +222,14 @@ public readonly record struct TypeMappingInfo
     /// <returns>The new mapping info.</returns>
     public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
         => new(this, converterInfo);
+
+    /// <summary>
+    ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
+    /// </summary>
+    /// <param name="elementMapping">The element mapping to use.</param>
+    /// <returns>The new mapping info.</returns>
+    public TypeMappingInfo WithElementTypeMapping(in CoreTypeMapping elementMapping)
+        => new(this, elementMapping);
 
     /// <summary>
     ///     Indicates whether or not the mapping is part of a key or index.
@@ -230,4 +266,14 @@ public readonly record struct TypeMappingInfo
     ///     (e.g. the store name in a relational type mapping info)
     /// </summary>
     public Type? ClrType { get; init; }
+
+    /// <summary>
+    ///     The element type mapping, if the mapping is for a collection of primitives, or <see langword="null" /> otherwise.
+    /// </summary>
+    public CoreTypeMapping? ElementTypeMapping { get; init; }
+
+    /// <summary>
+    ///     The JSON reader/writer, if one has been provided, or <see langword="null" /> otherwise.
+    /// </summary>
+    public JsonValueReaderWriter? JsonValueReaderWriter { get; init; }
 }

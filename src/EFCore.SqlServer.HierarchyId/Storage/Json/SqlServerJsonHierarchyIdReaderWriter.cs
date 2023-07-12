@@ -21,7 +21,7 @@ public sealed class SqlServerJsonHierarchyIdReaderWriter : JsonValueReaderWriter
     }
 
     /// <inheritdoc />
-    public override HierarchyId FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override HierarchyId FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => new(manager.CurrentReader.GetString()!);
 
     /// <inheritdoc />

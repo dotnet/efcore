@@ -5,7 +5,6 @@ using System.Collections;
 using System.Data;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -324,7 +323,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var navigation = finalUpdatePathElement.Navigation;
                 var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
                 var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
-                var jsonPathString = string.Join(".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
+                var jsonPathString = string.Join(
+                    ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
                 if (updateInfo.Property is IProperty property)
                 {
                     var columnModificationParameters = new ColumnModificationParameters(
@@ -388,19 +388,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         ? Encoding.UTF8.GetString(stream.ToArray())
                         : null;
 
-                    columnModifications.Add(new ColumnModification(new ColumnModificationParameters(
-                            jsonColumn.Name,
-                            value: value,
-                            property: updateInfo.Property,
-                            columnType: jsonColumnTypeMapping.StoreType,
-                            jsonColumnTypeMapping,
-                            jsonPath: jsonPathString,
-                            read: false,
-                            write: true,
-                            key: false,
-                            condition: false,
-                            _sensitiveLoggingEnabled)
-                        { GenerateParameterName = _generateParameterName }));
+                    columnModifications.Add(
+                        new ColumnModification(
+                            new ColumnModificationParameters(
+                                jsonColumn.Name,
+                                value: value,
+                                property: updateInfo.Property,
+                                columnType: jsonColumnTypeMapping.StoreType,
+                                jsonColumnTypeMapping,
+                                jsonPath: jsonPathString,
+                                read: false,
+                                write: true,
+                                key: false,
+                                condition: false,
+                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
                 }
             }
         }
@@ -731,47 +732,30 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     protected virtual void ProcessSinglePropertyJsonUpdate(ref ColumnModificationParameters parameters)
     {
         var property = parameters.Property!;
-        var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var mapping = property.GetRelationalTypeMapping();
+        var propertyProviderClrType = (mapping.Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+        var value = parameters.Value;
 
         // On most databases, the function which patches a JSON document (e.g. SQL Server JSON_MODIFY) accepts relational string, numeric
         // and bool types directly, without serializing it to a JSON string. So by default, for those cases simply return the value as-is,
         // with the property's type mapping which will take care of sending the parameter with the relational value.
         // Note that we haven't yet applied a value converter if one is configured, in order to allow for it to get applied later with
         // the regular parameter flow.
-        if (propertyProviderClrType == typeof(string)
+        if (value == null
+            || propertyProviderClrType == typeof(string)
             || propertyProviderClrType == typeof(bool)
             || propertyProviderClrType.IsNumeric())
         {
-            parameters = parameters with { TypeMapping = property.GetRelationalTypeMapping() };
-            return;
-        }
-
-        // Other, non-JSON-native types need to be serialized to a JSON string.
-
-        // First, apply value conversion to get the provider value
-        var value = property.GetTypeMapping().Converter is ValueConverter converter
-            ? converter.ConvertToProvider(parameters.Value)
-            : parameters.Value;
-
-        var stream = new MemoryStream();
-        var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false });
-
-        if (value is null)
-        {
-            writer.WriteNullValue();
+            parameters = parameters with { Value = value, TypeMapping = mapping };
         }
         else
         {
-            property.GetJsonValueReaderWriter()!.ToJson(writer, value);
+            var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
+            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1]
+                ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
+
+            parameters = parameters with { Value = value };
         }
-
-        writer.Flush();
-
-        // The JSON string contains enclosing quotes (JSON string representation), remove these.
-        parameters = parameters with
-        {
-            Value = Encoding.UTF8.GetString(stream.ToArray())[1..^1]
-        };
     }
 
     private void WriteJson(
@@ -832,12 +816,12 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             // jsonPropertyName can only be null for key properties
             var jsonPropertyName = property.GetJsonPropertyName()!;
-            var value = entry.GetCurrentProviderValue(property);
+            var value = entry.GetCurrentValue(property);
             writer.WritePropertyName(jsonPropertyName);
 
             if (value is not null)
             {
-                property.GetJsonValueReaderWriter()!.ToJson(writer, value);
+                (property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter)!.ToJson(writer, value);
             }
             else
             {

@@ -20,7 +20,7 @@ public sealed class JsonDecimalReaderWriter : JsonValueReaderWriter<decimal>
     }
 
     /// <inheritdoc />
-    public override decimal FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override decimal FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetDecimal();
 
     /// <inheritdoc />
