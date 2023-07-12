@@ -260,14 +260,15 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     ///     Adds a property to this type.
     /// </summary>
     /// <param name="memberInfo">The corresponding member on the type.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="collection">Indicates whether the property represents a collection.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
     [RequiresUnreferencedCode("Currently used only in tests")]
-    IConventionComplexProperty? AddComplexProperty(MemberInfo memberInfo, bool collection = false, bool fromDataAnnotation = false)
+    IConventionComplexProperty? AddComplexProperty(MemberInfo memberInfo, string? complexTypeName = null, bool collection = false, bool fromDataAnnotation = false)
         => AddComplexProperty(
             memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
-            memberInfo, memberInfo.GetMemberType(), collection, fromDataAnnotation);
+            memberInfo, memberInfo.GetMemberType(), complexTypeName, collection, fromDataAnnotation);
 
     /// <summary>
     ///     Adds a property to this type.
@@ -284,6 +285,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// <param name="name">The name of the property to add.</param>
     /// <param name="propertyType">The property type.</param>
     /// <param name="complexType">The type of value the property will hold.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="collection">Indicates whether the property represents a collection.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
@@ -291,6 +293,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type complexType,
+        string? complexTypeName = null,
         bool collection = false,
         bool fromDataAnnotation = false);
 
@@ -308,6 +311,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     ///     </para>
     /// </param>
     /// <param name="complexType">The type of value the property will hold.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="collection">Indicates whether the property represents a collection.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
@@ -316,6 +320,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo memberInfo,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type complexType,
+        string? complexTypeName = null,
         bool collection = false,
         bool fromDataAnnotation = false);
 
@@ -325,6 +330,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// <param name="name">The name of the property to add.</param>
     /// <param name="propertyType">The property type.</param>
     /// <param name="complexType">The type of value the property will hold.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
     /// <param name="collection">Indicates whether the property represents a collection.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
@@ -332,6 +338,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type complexType,
+        string? complexTypeName = null,
         bool collection = false,
         bool fromDataAnnotation = false)
     {
@@ -342,7 +349,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
                 CoreStrings.NonIndexerEntityType(name, DisplayName(), typeof(string).ShortDisplayName()));
         }
 
-        return AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, fromDataAnnotation);
+        return AddComplexProperty(name, propertyType, indexerPropertyInfo, complexType, complexTypeName, fromDataAnnotation);
     }
 
     /// <summary>

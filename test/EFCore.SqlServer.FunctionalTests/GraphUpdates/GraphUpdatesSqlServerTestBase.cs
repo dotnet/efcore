@@ -58,7 +58,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
                 });
 
             modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
-            modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);;
+            modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);
         }
     }
 }

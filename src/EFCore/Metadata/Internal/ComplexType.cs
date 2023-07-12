@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -64,6 +63,8 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
 
         ComplexProperty = property;
         _builder = new InternalComplexTypeBuilder(this, property.DeclaringType.Model.Builder);
+
+        Model.AddComplexType(this);
     }
 
     /// <summary>
@@ -131,6 +132,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     public virtual void SetRemovedFromModel()
     {
         _builder = null;
+        Model.RemoveComplexType(this);
         BaseType?.DirectlyDerivedTypes.Remove(this);
     }
 
@@ -496,7 +498,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InstantiationBinding? ConstructorBinding
+    public override InstantiationBinding? ConstructorBinding
     {
         get => IsReadOnly && !ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(

@@ -120,6 +120,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(string) }),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string) }),
+            typeof(ComplexPropertyBuilder).GetMethod(
+                nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string) , typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
@@ -156,6 +158,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
+            typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Complex)),
             typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
             typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),

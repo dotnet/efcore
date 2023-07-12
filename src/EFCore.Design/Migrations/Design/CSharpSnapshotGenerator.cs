@@ -16,7 +16,16 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 {
     private static readonly MethodInfo HasAnnotationMethodInfo
-        = typeof(ModelBuilder).GetRuntimeMethod(nameof(ModelBuilder.HasAnnotation), new[] { typeof(string), typeof(string) })!;
+        = typeof(ModelBuilder).GetRuntimeMethod(nameof(ModelBuilder.HasAnnotation),
+            new[] { typeof(string), typeof(string) })!;
+
+    private static readonly MethodInfo HasPropertyAnnotationMethodInfo
+        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(nameof(ComplexPropertyBuilder.HasPropertyAnnotation),
+            new[] { typeof(string), typeof(string) })!;
+
+    private static readonly MethodInfo HasTypeAnnotationMethodInfo
+        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(nameof(ComplexPropertyBuilder.HasTypeAnnotation),
+            new[] { typeof(string), typeof(string) })!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.
@@ -102,11 +111,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <summary>
     ///     Generates code for an <see cref="IEntityType" />.
     /// </summary>
-    /// <param name="modelBuilderName">The name of the builder variable.</param>
+    /// <param name="builderName">The name of the builder variable.</param>
     /// <param name="entityType">The entity type.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
     protected virtual void GenerateEntityType(
-        string modelBuilderName,
+        string builderName,
         IEntityType entityType,
         IndentedStringBuilder stringBuilder)
     {
@@ -121,10 +130,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             entityTypeName = entityType.ClrType.DisplayName();
         }
 
-        var entityTypeBuilderName = GenerateEntityTypeBuilderName();
+        var entityTypeBuilderName = GenerateNestedBuilderName(builderName);
 
         stringBuilder
-            .Append(modelBuilderName)
+            .Append(builderName)
             .Append(
                 ownerNavigation != null
                     ? ownership!.IsUnique ? ".OwnsOne(" : ".OwnsMany("
@@ -153,6 +162,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 GenerateProperties(entityTypeBuilderName, entityType.GetDeclaredProperties(), stringBuilder);
 
+                GenerateComplexProperties(entityTypeBuilderName, entityType.GetDeclaredComplexProperties(), stringBuilder);
+
                 GenerateKeys(
                     entityTypeBuilderName,
                     entityType.GetDeclaredKeys(),
@@ -178,24 +189,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             stringBuilder
                 .AppendLine("});");
-        }
-
-        string GenerateEntityTypeBuilderName()
-        {
-            if (modelBuilderName.StartsWith("b", StringComparison.Ordinal))
-            {
-                // ReSharper disable once InlineOutVariableDeclaration
-                var counter = 1;
-                if (modelBuilderName.Length > 1
-                    && int.TryParse(modelBuilderName[1..], out counter))
-                {
-                    counter++;
-                }
-
-                return "b" + (counter == 0 ? "" : counter.ToString());
-            }
-
-            return "b";
         }
     }
 
@@ -526,6 +519,114 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         => property.GetValueConverter()
             ?? (property.FindTypeMapping()
                 ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+
+    /// <summary>
+    ///     Generates code for <see cref="IComplexProperty" /> objects.
+    /// </summary>
+    /// <param name="typeBuilderName">The name of the builder variable.</param>
+    /// <param name="properties">The properties.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateComplexProperties(
+        string typeBuilderName,
+        IEnumerable<IComplexProperty> properties,
+        IndentedStringBuilder stringBuilder)
+    {
+        foreach (var property in properties)
+        {
+            GenerateComplexProperty(typeBuilderName, property, stringBuilder);
+        }
+    }
+
+    /// <summary>
+    ///     Generates code for an <see cref="IComplexProperty" />.
+    /// </summary>
+    /// <param name="builderName">The name of the builder variable.</param>
+    /// <param name="complexProperty">The entity type.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateComplexProperty(
+        string builderName,
+        IComplexProperty complexProperty,
+        IndentedStringBuilder stringBuilder)
+    {
+        var complexType = complexProperty.ComplexType;
+        var complexTypeBuilderName = GenerateNestedBuilderName(builderName);
+
+        stringBuilder
+            .AppendLine()
+            .Append(builderName)
+            .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
+            .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")
+            .Append(complexTypeBuilderName)
+            .AppendLine(" =>");
+
+        using (stringBuilder.Indent())
+        {
+            stringBuilder.Append("{");
+
+            using (stringBuilder.Indent())
+            {
+                if (complexProperty.IsNullable != complexProperty.ClrType.IsNullableType())
+                {
+                    stringBuilder
+                        .AppendLine()
+                        .Append(".IsRequired()");
+                }
+
+                GenerateProperties(complexTypeBuilderName, complexType.GetDeclaredProperties(), stringBuilder);
+
+                GenerateComplexProperties(complexTypeBuilderName, complexType.GetDeclaredComplexProperties(), stringBuilder);
+
+                GenerateComplexPropertyAnnotations(complexTypeBuilderName, complexProperty, stringBuilder);
+            }
+
+            stringBuilder
+                .AppendLine("});");
+        }
+    }
+
+    private static string GenerateNestedBuilderName(string builderName)
+    {
+        if (builderName.StartsWith("b", StringComparison.Ordinal))
+        {
+            // ReSharper disable once InlineOutVariableDeclaration
+            var counter = 1;
+            if (builderName.Length > 1
+                && int.TryParse(builderName[1..], out counter))
+            {
+                counter++;
+            }
+
+            return "b" + (counter == 0 ? "" : counter.ToString());
+        }
+
+        return "b";
+    }
+
+    /// <summary>
+    ///     Generates code for the annotations on an <see cref="IProperty" />.
+    /// </summary>
+    /// <param name="propertyBuilderName">The name of the builder variable.</param>
+    /// <param name="property">The property.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateComplexPropertyAnnotations(
+        string propertyBuilderName,
+        IComplexProperty property,
+        IndentedStringBuilder stringBuilder)
+    {
+        var propertyAnnotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(property.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        var typeAnnotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        GenerateAnnotations(propertyBuilderName, property, stringBuilder, propertyAnnotations,
+            inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
+
+        GenerateAnnotations(propertyBuilderName, property, stringBuilder, typeAnnotations,
+            inChainedCall: false, hasAnnotationMethodInfo: HasTypeAnnotationMethodInfo);
+    }
 
     /// <summary>
     ///     Generates code for <see cref="IKey" /> objects.
@@ -1763,7 +1864,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder,
         Dictionary<string, IAnnotation> annotations,
         bool inChainedCall,
-        bool leadingNewline = true)
+        bool leadingNewline = true,
+        MethodInfo? hasAnnotationMethodInfo = null)
     {
         var fluentApiCalls = Dependencies.AnnotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations);
 
@@ -1789,7 +1891,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Append remaining raw annotations which did not get generated as Fluent API calls
         foreach (var annotation in annotations.Values.OrderBy(a => a.Name))
         {
-            var call = new MethodCallCodeFragment(HasAnnotationMethodInfo, annotation.Name, annotation.Value);
+            var call = new MethodCallCodeFragment(hasAnnotationMethodInfo ?? HasAnnotationMethodInfo,
+                annotation.Name, annotation.Value);
             chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
         }
 

@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 
 /// <summary>
@@ -171,9 +174,16 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
     /// <returns>The namespaces.</returns>
     protected virtual IEnumerable<string> GetNamespaces(IModel model)
         => model.GetEntityTypes().SelectMany(
-                e => e.GetDeclaredProperties()
-                    .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces()))
+                e => GetNamespaces(e)
+                    .Concat(e.GetDeclaredComplexProperties().Any()
+                        ? Model.DefaultPropertyBagType.GetNamespaces()
+                        : Enumerable.Empty<string>()))
             .Concat(GetAnnotationNamespaces(GetAnnotatables(model)));
+
+    private IEnumerable<string> GetNamespaces(ITypeBase typeBase)
+        => typeBase.GetDeclaredProperties()
+                .SelectMany(p => (FindValueConverter(p)?.ProviderClrType ?? p.ClrType).GetNamespaces())
+                .Concat(typeBase.GetDeclaredComplexProperties().SelectMany(p => GetNamespaces(p.ComplexType)));
 
     private static IEnumerable<IAnnotatable> GetAnnotatables(IModel model)
     {

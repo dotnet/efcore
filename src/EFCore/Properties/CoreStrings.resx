@@ -282,6 +282,15 @@
   <data name="ComplexCollectionWrongClrType" xml:space="preserve">
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
+  <data name="ComplexPropertyCollection" xml:space="preserve">
+    <value>Adding the collection complex property '{type}.{property}' isn't supported.</value>
+  </data>
+  <data name="ComplexPropertyIndexer" xml:space="preserve">
+    <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported.</value>
+  </data>
+  <data name="ComplexPropertyShadow" xml:space="preserve">
+    <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.</value>
+  </data>
   <data name="ComplexPropertyWrongClrType" xml:space="preserve">
     <value>The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
@@ -296,6 +305,9 @@
   </data>
   <data name="ConflictingBackingFields" xml:space="preserve">
     <value>Property '{1_entityType}.{0_property}' matches both '{field1}' and '{field2}' by convention. Explicitly specify the backing field to use with 'HasField' in 'OnModelCreating'.</value>
+  </data>
+  <data name="ConflictingFieldProperty" xml:space="preserve">
+    <value>The member '{type}.{property}' cannot use field '{field}' because it is already used by '{conflictingType}.{conflictingProperty}'.</value>
   </data>
   <data name="ConflictingForeignKeyAttributes" xml:space="preserve">
     <value>There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.</value>
@@ -399,6 +411,9 @@
   <data name="DuplicateAnnotation" xml:space="preserve">
     <value>The annotation '{annotation}' cannot be added because an annotation with the same name already exists on the object {annotatable}</value>
   </data>
+  <data name="DuplicateComplexType" xml:space="preserve">
+    <value>The complex type '{complexType}' cannot be added to the model because a complex type with the same name already exists.</value>
+  </data>
   <data name="DuplicateDiscriminatorValue" xml:space="preserve">
     <value>The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique discriminator value.</value>
   </data>
@@ -431,6 +446,9 @@
   </data>
   <data name="DuplicateTrigger" xml:space="preserve">
     <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
+  </data>
+  <data name="EmptyComplexType" xml:space="preserve">
+    <value>Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.</value>
   </data>
   <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
     <value>Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
@@ -1094,6 +1112,9 @@
   </data>
   <data name="NavigationNotAddedAdHoc" xml:space="preserve">
     <value>The property '{entityType}.{navigation}' of type '{propertyType}' appears to be a navigation to another entity type. Navigations are not supported when using 'SqlQuery". Either include this type in the model and use 'FromSql' for the query, or ignore this property using the '[NotMapped]' attribute.</value>
+  </data>
+  <data name="NavigationNotAddedComplexType" xml:space="preserve">
+    <value>Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
   <data name="NavigationSingleWrongClrType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>

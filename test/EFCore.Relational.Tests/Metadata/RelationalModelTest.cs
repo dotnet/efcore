@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using NameSpace1;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -3116,7 +3115,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<SameEntityType>().HasNoKey().ToTable((string)null);
+            modelBuilder.Entity<NameSpace1.SameEntityType>().HasNoKey().ToTable((string)null);
             modelBuilder.Entity<NameSpace2.SameEntityType>().HasNoKey().ToTable((string)null);
 
             var model = Finalize(modelBuilder);
@@ -3127,7 +3126,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(model.Functions);
             Assert.Empty(model.Queries);
 
-            var entityType1 = model.Model.FindEntityType(typeof(SameEntityType));
+            var entityType1 = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
             var entityType2 = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
 
             var defaultMapping1 = Assert.Single(entityType1.GetDefaultMappings());

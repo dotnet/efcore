@@ -23,6 +23,11 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
         => (IEntityType)this;
 
     /// <summary>
+    ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
+    /// </summary>
+    InstantiationBinding? ConstructorBinding { get; }
+
+    /// <summary>
     ///     Gets a property on the given type. Returns <see langword="null" /> if no property is found.
     /// </summary>
     /// <remarks>

@@ -875,6 +875,7 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
         public ProductLabel Label { get; set; }
         public ProductLabel? OldLabel { get; set; }
+        public (string, int) Tuple { get; set; }
     }
 
     protected struct ProductLabel
@@ -919,6 +920,7 @@ public abstract partial class ModelBuilderTest
         }
     }
 
+    [ComplexType]
     protected class IndexedClass
     {
         private int _required;

@@ -228,6 +228,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             Builder.ComplexProperty(
                 propertyType: null,
                 Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -250,6 +251,33 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             Builder.ComplexProperty(
                 typeof(TProperty),
                 Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
+                collection: false,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        string propertyName,
+        string complexTypeName)
+        => new(
+            Builder.ComplexProperty(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -272,6 +300,34 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
             Builder.ComplexProperty(
                 Check.NotNull(propertyType, nameof(propertyType)),
                 Check.NotEmpty(propertyName, nameof(propertyName)),
+                complexTypeName: null,
+                collection: false,
+                ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Configures a complex property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexPropertyBuilder ComplexProperty(
+        Type propertyType,
+        string propertyName,
+        string complexTypeName)
+        => new(
+            Builder.ComplexProperty(
+                Check.NotNull(propertyType, nameof(propertyType)),
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
 
@@ -322,6 +378,34 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
+    ///     Configures a complex property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder ComplexProperty<TProperty>(
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexProperty<TProperty>(propertyName, complexTypeName));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Returns an object that can be used to configure a complex property of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
@@ -341,6 +425,35 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NotNull(buildAction, nameof(buildAction));
 
         buildAction(ComplexProperty(propertyType, propertyName));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="complexTypeName">The name of the complex type.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder ComplexProperty(
+        Type propertyType,
+        string propertyName,
+        string complexTypeName,
+        Action<ComplexPropertyBuilder> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexProperty(propertyType, propertyName, complexTypeName));
 
         return this;
     }

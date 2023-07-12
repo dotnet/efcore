@@ -55,8 +55,10 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         var conventionSet = new ConventionSet();
 
         conventionSet.Add(new ModelCleanupConvention(Dependencies));
+
         conventionSet.Add(new NotMappedTypeAttributeConvention(Dependencies));
         conventionSet.Add(new OwnedAttributeConvention(Dependencies));
+        conventionSet.Add(new ComplexTypeAttributeConvention(Dependencies));
         conventionSet.Add(new KeylessAttributeConvention(Dependencies));
         conventionSet.Add(new EntityTypeConfigurationAttributeConvention(Dependencies));
         conventionSet.Add(new NotMappedMemberAttributeConvention(Dependencies));
@@ -73,8 +75,9 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new InversePropertyAttributeConvention(Dependencies));
         conventionSet.Add(new DeleteBehaviorAttributeConvention(Dependencies));
         conventionSet.Add(new NavigationBackingFieldAttributeConvention(Dependencies));
-        conventionSet.Add(new NavigationEagerLoadingConvention(Dependencies));
         conventionSet.Add(new RequiredNavigationAttributeConvention(Dependencies));
+
+        conventionSet.Add(new NavigationEagerLoadingConvention(Dependencies));
         conventionSet.Add(new DbSetFindingConvention(Dependencies));
         conventionSet.Add(new BaseTypeDiscoveryConvention(Dependencies));
         conventionSet.Add(new ManyToManyJoinEntityTypeConvention(Dependencies));

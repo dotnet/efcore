@@ -6,7 +6,6 @@
 namespace System.Reflection;
 
 internal static class EntityFrameworkMemberInfoExtensions
-
 {
     public static Type GetMemberType(this MemberInfo memberInfo)
         => (memberInfo as PropertyInfo)?.PropertyType ?? ((FieldInfo)memberInfo).FieldType;

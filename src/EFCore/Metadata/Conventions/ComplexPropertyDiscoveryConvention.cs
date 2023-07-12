@@ -56,7 +56,8 @@ public class ComplexPropertyDiscoveryConvention :
             || typeBase.IsIgnored(candidateMember.Name)
             || typeBase.FindMember(candidateMember.Name) != null
             || (candidateMember is PropertyInfo propertyInfo && propertyInfo.GetIndexParameters().Length != 0)
-            || !Dependencies.MemberClassifier.IsCandidateComplexProperty(candidateMember, typeBase.Model, out var elementType))
+            || !Dependencies.MemberClassifier.IsCandidateComplexProperty(
+                candidateMember, typeBase.Model, out var elementType, out var explicitlyConfigured))
         {
             return false;
         }
@@ -64,13 +65,14 @@ public class ComplexPropertyDiscoveryConvention :
         var model = (Model)typeBase.Model;
         var targetClrType = (elementType ?? candidateMember.GetMemberType()).UnwrapNullableType();
         if (typeBase.Model.Builder.IsIgnored(targetClrType)
-            || (typeBase is ComplexType complexType
-                && ((IReadOnlyComplexType)complexType).IsInDeclarationPath(targetClrType)))
+            || (typeBase is IReadOnlyComplexType complexType
+                && complexType.IsInDeclarationPath(targetClrType)))
         {
             return false;
         }
 
-        if (model.FindIsComplexConfigurationSource(targetClrType) == null)
+        if (!explicitlyConfigured
+            && model.FindIsComplexConfigurationSource(targetClrType) == null)
         {
             AddComplexCandidate(candidateMember, typeBase.Builder);
             return false;

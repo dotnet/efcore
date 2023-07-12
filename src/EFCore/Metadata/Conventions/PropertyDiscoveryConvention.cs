@@ -52,6 +52,21 @@ public class PropertyDiscoveryConvention :
 
             complexType.Builder.Property(propertyInfo);
         }
+
+        if (!complexType.ClrType.IsValueType)
+        {
+            return;
+        }
+
+        foreach (var fieldInfo in complexType.GetRuntimeFields().Values)
+        {
+            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(fieldInfo, model))
+            {
+                continue;
+            }
+
+            complexType.Builder.Property(fieldInfo);
+        }
     }
 
     /// <inheritdoc />

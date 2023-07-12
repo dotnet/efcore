@@ -30,7 +30,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
     private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
     private Dictionary<string, ConfigurationSource>? _ownedTypes;
-    private Dictionary<Type, ConfigurationSource>? _complexTypes;
+    private Dictionary<Type, ConfigurationSource>? _configuredComplexTypes;
+    private SortedDictionary<string, ComplexType>? _complexTypes;
     private Dictionary<Type, HashSet<Property>>? _propertiesByType;
 
     private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
@@ -738,7 +739,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// </summary>
     public virtual ConfigurationSource? FindIsComplexConfigurationSource(Type type)
     {
-        if (_complexTypes == null)
+        if (_configuredComplexTypes == null)
         {
             return null;
         }
@@ -746,7 +747,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         var currentType = type;
         while (currentType != null)
         {
-            if (_complexTypes.TryGetValue(currentType, out var configurationSource))
+            if (_configuredComplexTypes.TryGetValue(currentType, out var configurationSource))
             {
                 return configurationSource;
             }
@@ -766,15 +767,15 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     public virtual ConfigurationSource? AddComplex(Type type, ConfigurationSource configurationSource)
     {
         EnsureMutable();
-        _complexTypes ??= new Dictionary<Type, ConfigurationSource>();
 
-        if (_complexTypes.TryGetValue(type, out var oldConfigurationSource))
+        _configuredComplexTypes ??= new Dictionary<Type, ConfigurationSource>();
+        if (_configuredComplexTypes.TryGetValue(type, out var oldConfigurationSource))
         {
-            _complexTypes[type] = configurationSource.Max(oldConfigurationSource);
+            _configuredComplexTypes[type] = configurationSource.Max(oldConfigurationSource);
             return oldConfigurationSource;
         }
 
-        _complexTypes.Add(type, configurationSource);
+        _configuredComplexTypes.Add(type, configurationSource);
         return null;
     }
 
@@ -784,27 +785,38 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Type? RemoveComplex(Type type)
+    public virtual ComplexType? FindComplexType(string name)
+        => _complexTypes?.GetValueOrDefault(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddComplexType(ComplexType complexType)
     {
         EnsureMutable();
 
-        if (_complexTypes == null)
+        _complexTypes ??= new(StringComparer.Ordinal);
+
+        if (!_complexTypes.TryAdd(complexType.Name, complexType))
         {
-            return null;
+            throw new InvalidOperationException(CoreStrings.DuplicateComplexType(complexType.Name));
         }
+    }
 
-        var currentType = type;
-        while (currentType != null)
-        {
-            if (_complexTypes.Remove(type))
-            {
-                return type;
-            }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void RemoveComplexType(ComplexType complexType)
+    {
+        EnsureMutable();
 
-            currentType = currentType.BaseType;
-        }
-
-        return null;
+        _complexTypes?.Remove(complexType.Name);
     }
 
     /// <summary>

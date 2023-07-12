@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
@@ -875,6 +876,50 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_collection_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Ignore(typeof(Order));
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType(typeof(Customer));
+        customerEntity.AddComplexProperty(nameof(Customer.Orders), collection: true);
+
+        VerifyError(
+            CoreStrings.ComplexPropertyCollection(nameof(Customer), nameof(Customer.Orders)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_shadow_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Ignore(typeof(Order));
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType(typeof(Customer));
+        customerEntity.AddComplexProperty("CustomerDetails", typeof(SponsorDetails), typeof(SponsorDetails));
+
+        VerifyError(
+            CoreStrings.ComplexPropertyShadow(nameof(Customer), "CustomerDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_indexer_complex_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        var model = modelBuilder.Model;
+        var customerEntity = model.AddEntityType("Customer");
+        customerEntity.AddComplexProperty("CustomerDetails", typeof(SponsorDetails), customerEntity.FindIndexerPropertyInfo()!, typeof(SponsorDetails));
+
+        VerifyError(
+            CoreStrings.ComplexPropertyIndexer("Customer (Dictionary<string, object>)", "CustomerDetails"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Passes_on_valid_owned_entity_types()
     {
         var builder = CreateConventionlessModelBuilder();
@@ -1444,6 +1489,31 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
                     "{'SampleEntityId'}"),
             modelBuilder,
             sensitiveDataLoggingEnabled);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_on_two_properties_sharing_a_field()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().Property(c => c.PartitionId).HasField("_name");
+
+        VerifyError(
+            CoreStrings.ConflictingFieldProperty(
+                nameof(Customer), nameof(Customer.PartitionId), "_name", nameof(Customer), nameof(Customer.Name)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_on_property_using_a_field_mapped_as_another_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Customer>().Property(c => c.PartitionId).HasField("OtherName");
+        modelBuilder.Entity<Customer>().Property(c => c.OtherName);
+
+        VerifyError(
+            CoreStrings.ConflictingFieldProperty(
+                nameof(Customer), nameof(Customer.PartitionId), nameof(Customer.OtherName), nameof(Customer), nameof(Customer.OtherName)),
+            modelBuilder);
     }
 
     [ConditionalFact]

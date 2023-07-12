@@ -101,7 +101,7 @@ public abstract partial class ModelBuilderTest
 
         protected abstract TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure);
+            Action<ModelConfigurationBuilder>? configure = null);
     }
 
     public abstract class TestModelBuilder : IInfrastructure<ModelBuilder>
@@ -203,13 +203,22 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> Property<TProperty>(string propertyName);
         public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+
+        public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
@@ -359,13 +368,22 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexTypePropertyBuilder<TProperty> Property<TProperty>(string propertyName);
         public abstract TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression);
 
-        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
+        public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+
+        public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction);

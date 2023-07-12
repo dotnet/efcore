@@ -484,6 +484,11 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public abstract IEnumerable<RuntimePropertyBase> FindMembersInHierarchy(string name);
 
     /// <summary>
+    ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
+    /// </summary>
+    public abstract InstantiationBinding? ConstructorBinding { get; set; }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that

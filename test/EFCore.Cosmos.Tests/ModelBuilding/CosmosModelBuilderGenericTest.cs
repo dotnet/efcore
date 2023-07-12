@@ -255,6 +255,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>(
                     b =>
                     {

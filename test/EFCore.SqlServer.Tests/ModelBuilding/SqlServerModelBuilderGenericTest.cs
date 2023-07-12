@@ -16,7 +16,7 @@ public class SqlServerModelBuilderGenericTest : SqlServerModelBuilderTestBase
             => new ModelBuilderGenericTest.GenericTestModelBuilder(testHelpers, configure);
     }
 
-    public class SqlServerGenericComplexTypeTestBase : SqlServerComplexType
+    public class SqlServerGenericComplexType: SqlServerComplexType
     {
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,

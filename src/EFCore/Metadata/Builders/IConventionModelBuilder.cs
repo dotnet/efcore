@@ -182,6 +182,18 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Marks a type as complex. All references to this type will be configured as complex properties.
+    /// </summary>
+    /// <param name="type">The type to be configured.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An <see cref="IConventionModelBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionModelBuilder? Complex(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Indicates whether the given entity type name is ignored for the current configuration source.
     /// </summary>
     /// <param name="type">The name of the entity type that might be ignored.</param>

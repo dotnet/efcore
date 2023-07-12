@@ -217,7 +217,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Null(typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
+        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
         Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
@@ -240,7 +240,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(3, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
+        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
         Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
@@ -567,7 +567,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Null(typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
+        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
         Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
@@ -586,7 +586,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(3, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
+        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
         Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
