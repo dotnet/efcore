@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -148,14 +149,20 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
                     // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
                     // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
-                    // TODO: Need to pass through the type mapping API for converting the JSON value (nvarchar) to the relational store type
-                    // (e.g. datetime2), see #30677
                     foreach (var column in openJsonExpression.ColumnInfos)
                     {
                         var typeMapping = _typeMappingSource.FindMapping(column.StoreType);
                         Check.DebugAssert(
                             typeMapping is not null,
                             $"Could not find mapping for store type {column.StoreType} when converting OPENJSON/WITH");
+
+                        // Binary data (varbinary) is stored in JSON as base64, which OPENJSON knows how to decode as long the type is
+                        // specified in the WITH clause. We're now removing the WITH and applying a relational CAST, but that doesn't work
+                        // for base64 data.
+                        if (typeMapping is SqlServerByteArrayTypeMapping)
+                        {
+                            throw new InvalidOperationException(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported);
+                        }
 
                         _castsToApply.Add((newOpenJsonExpression, column.Name), typeMapping);
                     }

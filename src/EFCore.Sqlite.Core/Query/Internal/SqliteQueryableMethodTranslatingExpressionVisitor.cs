@@ -222,12 +222,15 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var selectExpression = new SelectExpression(
             jsonEachExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping, isColumnNullable);
 
-        // TODO: SQLite does have REAL and BLOB types, which JSON does not. Need to possibly cast to that.
-        if (elementTypeMapping is not null)
-        {
-            // TODO: In any case, we still ned to pass through the type mapping API for doing any conversions (e.g. for datetime, from JSON
-            // ISO8601 to SQLite's format without the T), see #30677. Do this here.
-        }
+        // If we have a collection column, we know the type mapping at this point (as opposed to parameters, whose type mapping will get
+        // inferred later based on usage in SqliteInferredTypeMappingApplier); we should be able to apply any SQL logic needed to convert
+        // the JSON value out to its relational counterpart (e.g. datetime() for timestamps, see ApplyJsonSqlConversion).
+        //
+        // However, doing it here would interfere with pattern matching in e.g. TranslateElementAtOrDefault, where we specifically check
+        // for a bare column being projected out out of the table - if the user composed any operators over the collection, it's no longer
+        // possible to apply a specialized translation via the -> operator. We could add a way to recognize the special conversions we
+        // compose on top, but instead of going into that complexity, we'll just apply the SQL conversion later, in
+        // SqliteInferredTypeMappingApplier, as if we had a parameter collection.
 
         // Append an ordering for the json_each 'key' column.
         selectExpression.AppendOrdering(
@@ -311,7 +314,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 // conversions.
                 if (projectionColumn.TypeMapping is not null)
                 {
-                    translation = ApplyTypeMappingOnColumn(translation, projectionColumn.TypeMapping, projectionColumn.IsNullable);
+                    translation = ApplyJsonSqlConversion(translation, projectionColumn.TypeMapping, projectionColumn.IsNullable);
                 }
 
                 return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation));
@@ -405,10 +408,15 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     return visited;
                 }
 
+                // Note that we match also ColumnExpressions which already have a type mapping, i.e. coming out of column collections (as
+                // opposed to parameter collections, where the type mapping needs to be inferred). This is in order to apply SQL conversion
+                // logic later in the process, see note in TranslateCollection.
                 case ColumnExpression { Name: "value" } columnExpression
-                    when _currentSelectInferredTypeMappings is not null
-                    && _currentSelectInferredTypeMappings.TryGetValue(columnExpression.Table, out var inferredTypeMapping):
-                    return ApplyTypeMappingOnColumn(columnExpression, inferredTypeMapping, columnExpression.IsNullable);
+                    when _currentSelectInferredTypeMappings?.TryGetValue(columnExpression.Table, out var inferredTypeMapping) is true:
+                    return ApplyJsonSqlConversion(
+                        columnExpression.ApplyTypeMapping(inferredTypeMapping),
+                        inferredTypeMapping,
+                        columnExpression.IsNullable);
 
                 default:
                     return base.VisitExtension(expression);
@@ -448,18 +456,36 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
     }
 
-    private static SqlExpression ApplyTypeMappingOnColumn(SqlExpression expression, RelationalTypeMapping typeMapping, bool isNullable)
+    /// <summary>
+    /// Wraps the given expression with any SQL logic necessary to convert a value coming out of a JSON document into the relational value
+    /// represented by the given type mapping.
+    /// </summary>
+    private static SqlExpression ApplyJsonSqlConversion(SqlExpression expression, RelationalTypeMapping typeMapping, bool isNullable)
         => typeMapping switch
         {
-            // TODO: These server-side conversions need to be managed on the type mapping, #30677
-
             // The "standard" JSON timestamp representation is ISO8601, with a T between date and time; but SQLite's representation has
             // no T. Apply a conversion on the value coming out of json_each.
-            SqliteDateTimeTypeMapping => new SqlFunctionExpression(
-                "datetime", new[] { expression }, isNullable, new[] { true }, typeof(DateTime), typeMapping),
+            SqliteDateTimeTypeMapping
+                => new SqlFunctionExpression("datetime", new[] { expression }, isNullable, new[] { true }, typeof(DateTime), typeMapping),
 
-            SqliteGuidTypeMapping => new SqlFunctionExpression(
-                "upper", new[] { expression }, isNullable, new[] { true }, typeof(Guid), typeMapping),
+            SqliteGuidTypeMapping
+                => new SqlFunctionExpression("upper", new[] { expression }, isNullable, new[] { true }, typeof(Guid), typeMapping),
+
+            // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string).
+            // We can cast the 1 to TEXT, but we'd still get "1" not "1.0".
+            SqliteDecimalTypeMapping
+                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("decimal")),
+
+            // The JSON representation for new[] { 1, 2 } is AQI= (base64), and SQLite has no built-in base64 conversion function.
+            ByteArrayTypeMapping
+                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("byte[]")),
+
+            // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
+            // is 2023-01-01 12:30:00+02:00 (no T).
+            // Note that datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00', converting to UTC (removing the timezone), so
+            // we can't use that.
+            SqliteDateTimeOffsetTypeMapping
+                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("DateTimeOffset")),
 
             _ => expression
         };

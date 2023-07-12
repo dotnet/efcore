@@ -205,23 +205,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping
                 .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
 
-            switch (elementTypeMapping)
-            {
-                // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
-                // is 2023-01-01 12:30:00+02:00 (no T).
-                // datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00' - converted to UTC, no timezone.
-                case SqliteDateTimeOffsetTypeMapping:
-                // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string)
-                case SqliteDecimalTypeMapping:
-                // The JSON representation for new[] { 1, 2 } is AQI= (base64?), our SQL literal representation is X'0102'
-                case ByteArrayTypeMapping:
-                    break;
-
-
-                default:
-                    stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
-                    break;
-            }
+            stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
 
             return stringTypeMapping;
         }
