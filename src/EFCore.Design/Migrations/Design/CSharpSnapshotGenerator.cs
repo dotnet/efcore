@@ -548,19 +548,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IComplexProperty complexProperty,
         IndentedStringBuilder stringBuilder)
     {
-        var complexTypeName = complexProperty.Name;
         var complexType = complexProperty.ComplexType;
-        if (complexTypeName == complexProperty.DeclaringType.GetOwnedName(complexType.ClrType.ShortDisplayName(), complexType.Name))
-        {
-            complexTypeName = complexType.ClrType.ShortDisplayName();
-        }
-
         var complexTypeBuilderName = GenerateNestedBuilderName(builderName);
 
         stringBuilder
             .Append(builderName)
             .Append($".ComplexProperty<{Code.Reference(Model.DefaultPropertyBagType)}>(")
-            .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexTypeName)}, ")
+            .Append($"{Code.Literal(complexProperty.Name)}, {Code.Literal(complexType.Name)}, ")
             .Append(complexTypeBuilderName)
             .AppendLine(" =>");
 

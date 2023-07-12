@@ -40,7 +40,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
         DeclaringType = declaringType;
         IsCollection = collection;
         ComplexType = new ComplexType(
-            declaringType.GetOwnedName(targetTypeName ?? targetType.ShortDisplayName(), name),
+            targetTypeName ?? declaringType.GetOwnedName(targetType.ShortDisplayName(), name),
             targetType, this, configurationSource);
         _builder = new InternalComplexPropertyBuilder(this, declaringType.Model.Builder);
     }

@@ -5363,7 +5363,7 @@ namespace RootNamespace
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-                    b.ComplexProperty<Dictionary<string, object>>("EntityWithTwoProperties", "EntityWithTwoProperties", b1 =>
+                    b.ComplexProperty<Dictionary<string, object>>("EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
                         {
                             b1.Property<int>("AlternateId")
                                 .HasColumnType("int")

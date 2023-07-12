@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Numerics;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
