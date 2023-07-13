@@ -164,6 +164,7 @@ internal class Project
 
         args.Add("/verbosity:quiet");
         args.Add("/nologo");
+        args.Add("/p:PublishAot=false"); // Avoid NativeAOT warnings
 
         var exitCode = Exe.Run("dotnet", args, interceptOutput: true);
         if (exitCode != 0)

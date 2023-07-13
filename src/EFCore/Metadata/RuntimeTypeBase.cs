@@ -484,6 +484,67 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public abstract IEnumerable<RuntimePropertyBase> FindMembersInHierarchy(string name);
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetOriginalValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
+    {
+        _originalValuesFactory = factory;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
+    {
+        _storeGeneratedValuesFactory = factory;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetTemporaryValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
+    {
+        _temporaryValuesFactory = factory;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetShadowValuesFactory(Func<ValueBuffer, ISnapshot> factory)
+    {
+        _shadowValuesFactory = factory;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+
+    [EntityFrameworkInternal]
+    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
+    {
+        _emptyShadowValuesFactory = factory;
+    }
+
+    /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
