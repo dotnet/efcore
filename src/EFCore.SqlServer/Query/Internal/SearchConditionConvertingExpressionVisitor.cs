@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 {
+    private static readonly bool UseOldBehavior29572
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29572", out var enabled29572) && enabled29572;
+
     private bool _isSearchCondition;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -764,5 +767,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
-        => jsonScalarExpression;
+        => !UseOldBehavior29572
+            ? ApplyConversion(jsonScalarExpression, condition: false)
+            : jsonScalarExpression;
 }
