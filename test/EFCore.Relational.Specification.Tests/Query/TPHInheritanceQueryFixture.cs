@@ -5,10 +5,14 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class InheritanceQueryRelationalFixture : InheritanceQueryFixtureBase
+public abstract class TPHInheritanceQueryFixture : InheritanceQueryFixtureBase
 {
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    // #31378
+    public override bool EnableComplexTypes
+        => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

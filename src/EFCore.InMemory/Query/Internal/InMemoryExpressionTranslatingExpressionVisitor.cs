@@ -185,7 +185,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 {
                     var projection = translatedSubquery.ShaperExpression;
                     if (projection is NewExpression
-                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false }
+                        || RemoveConvert(projection) is StructuralTypeShaperExpression { IsNullable: false }
                         || RemoveConvert(projection) is CollectionResultShaperExpression)
                     {
                         var anySubquery = Expression.Call(
@@ -270,15 +270,14 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             binaryExpression.Method,
             binaryExpression.Conversion);
 
-        Expression ProcessGetType(EntityReferenceExpression entityReferenceExpression, Type comparisonType, bool match)
+        Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
         {
-            var entityType = entityReferenceExpression.EntityType;
-
-            if (entityType.BaseType == null
-                && !entityType.GetDirectlyDerivedTypes().Any())
+            if (typeReference.StructuralType is not IEntityType entityType
+                || (entityType.BaseType == null
+                    && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return Expression.Constant((entityType.ClrType == comparisonType) == match);
+                return Expression.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
             }
 
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
@@ -300,7 +299,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 // Or add predicate for matching that particular type discriminator value
                 // All hierarchies have discriminator property
                 var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
-                var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
+                var boundProperty = BindProperty(typeReference, discriminatorProperty, discriminatorProperty.ClrType);
                 // KeyValueComparer is not null at runtime
                 var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
@@ -314,17 +313,17 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        bool IsGetTypeMethodCall(Expression expression, out EntityReferenceExpression? entityReferenceExpression)
+        bool IsGetTypeMethodCall(Expression expression, out StructuralTypeReferenceExpression? typeReference)
         {
-            entityReferenceExpression = null;
+            typeReference = null;
             if (expression is not MethodCallExpression methodCallExpression
                 || methodCallExpression.Method != GetTypeMethodInfo)
             {
                 return false;
             }
 
-            entityReferenceExpression = Visit(methodCallExpression.Object) as EntityReferenceExpression;
-            return entityReferenceExpression != null;
+            typeReference = Visit(methodCallExpression.Object) as StructuralTypeReferenceExpression;
+            return typeReference != null;
         }
 
         static bool IsTypeConstant(Expression expression, out Type? type)
@@ -486,11 +485,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         switch (extensionExpression)
         {
             case EntityProjectionExpression:
-            case EntityReferenceExpression:
+            case StructuralTypeReferenceExpression:
                 return extensionExpression;
 
-            case EntityShaperExpression entityShaperExpression:
-                return new EntityReferenceExpression(entityShaperExpression);
+            case StructuralTypeShaperExpression shaper:
+                return new StructuralTypeReferenceExpression(shaper);
 
             case ProjectionBindingExpression projectionBindingExpression:
                 return ((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
@@ -684,11 +683,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 innerExpression = unaryExpression.Operand;
             }
 
-            if (innerExpression is EntityShaperExpression entityShaperExpression
+            if (innerExpression is StructuralTypeShaperExpression shaper
                 && (convertedType == null
-                    || convertedType.IsAssignableFrom(entityShaperExpression.Type)))
+                    || convertedType.IsAssignableFrom(shaper.Type)))
             {
-                return new EntityReferenceExpression(subqueryTranslation.UpdateShaperExpression(innerExpression));
+                return new StructuralTypeReferenceExpression(subqueryTranslation.UpdateShaperExpression(innerExpression));
             }
 
             if (!(innerExpression is ProjectionBindingExpression projectionBindingExpression
@@ -1009,9 +1008,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinaryExpression)
     {
         if (typeBinaryExpression.NodeType == ExpressionType.TypeIs
-            && Visit(typeBinaryExpression.Expression) is EntityReferenceExpression entityReferenceExpression)
+            && Visit(typeBinaryExpression.Expression) is StructuralTypeReferenceExpression typeReference)
         {
-            var entityType = entityReferenceExpression.EntityType;
+            if (typeReference.StructuralType is not IEntityType entityType)
+            {
+                return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+            }
 
             if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
             {
@@ -1023,7 +1025,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             {
                 // All hierarchies have discriminator property
                 var discriminatorProperty = entityType.FindDiscriminatorProperty()!;
-                var boundProperty = BindProperty(entityReferenceExpression, discriminatorProperty, discriminatorProperty.ClrType);
+                var boundProperty = BindProperty(typeReference, discriminatorProperty, discriminatorProperty.ClrType);
                 // KeyValueComparer is not null at runtime
                 var valueComparer = discriminatorProperty.GetKeyValueComparer();
 
@@ -1061,10 +1063,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        if (newOperand is EntityReferenceExpression entityReferenceExpression
+        if (newOperand is StructuralTypeReferenceExpression typeReference
             && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
-            return entityReferenceExpression.Convert(unaryExpression.Type);
+            return typeReference.Convert(unaryExpression.Type);
         }
 
         if (unaryExpression.NodeType == ExpressionType.Convert
@@ -1107,12 +1109,12 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
     private Expression? TryBindMember(Expression? source, MemberIdentity member, Type type)
     {
-        if (source is not EntityReferenceExpression entityReferenceExpression)
+        if (source is not StructuralTypeReferenceExpression typeReference)
         {
             return null;
         }
 
-        var entityType = entityReferenceExpression.EntityType;
+        var entityType = typeReference.StructuralType;
 
         var property = member.MemberInfo != null
             ? entityType.FindProperty(member.MemberInfo)
@@ -1120,22 +1122,22 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
         if (property != null)
         {
-            return BindProperty(entityReferenceExpression, property, type);
+            return BindProperty(typeReference, property, type);
         }
 
         AddTranslationErrorDetails(
             CoreStrings.QueryUnableToTranslateMember(
                 member.Name,
-                entityReferenceExpression.EntityType.DisplayName()));
+                typeReference.StructuralType.DisplayName()));
 
         return null;
     }
 
-    private Expression? BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property, Type type)
+    private Expression? BindProperty(StructuralTypeReferenceExpression typeReference, IProperty property, Type type)
     {
-        if (entityReferenceExpression.ParameterEntity != null)
+        if (typeReference.Parameter != null)
         {
-            var valueBufferExpression = Visit(entityReferenceExpression.ParameterEntity.ValueBufferExpression);
+            var valueBufferExpression = Visit(typeReference.Parameter.ValueBufferExpression);
             if (valueBufferExpression == QueryCompilationContext.NotTranslatedExpression)
             {
                 return null;
@@ -1153,10 +1155,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                     : result;
         }
 
-        if (entityReferenceExpression.SubqueryEntity != null)
+        if (typeReference.Subquery != null)
         {
-            var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-            var inMemoryQueryExpression = (InMemoryQueryExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+            var entityShaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
+            var inMemoryQueryExpression = (InMemoryQueryExpression)typeReference.Subquery.QueryExpression;
 
             var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
             var entityProjectionExpression = (EntityProjectionExpression)inMemoryQueryExpression.GetProjection(
@@ -1255,12 +1257,11 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     {
         result = null;
 
-        if (item is not EntityReferenceExpression itemEntityReference)
+        if (item is not StructuralTypeReferenceExpression { StructuralType: IEntityType entityType })
         {
             return false;
         }
 
-        var entityType = itemEntityReference.EntityType;
         var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
         if (primaryKeyProperties == null)
         {
@@ -1332,8 +1333,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         bool equalsMethod,
         [NotNullWhen(true)] out Expression? result)
     {
-        var leftEntityReference = left as EntityReferenceExpression;
-        var rightEntityReference = right as EntityReferenceExpression;
+        var leftEntityReference = left is StructuralTypeReferenceExpression { StructuralType: IEntityType } l ? l : null;
+        var rightEntityReference = right is StructuralTypeReferenceExpression { StructuralType: IEntityType } r ? r : null;
 
         if (leftEntityReference == null
             && rightEntityReference == null)
@@ -1346,7 +1347,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             || IsNullConstantExpression(right))
         {
             var nonNullEntityReference = (IsNullConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
-            var entityType1 = nonNullEntityReference.EntityType;
+            var entityType1 = (IEntityType)nonNullEntityReference.StructuralType;
             var primaryKeyProperties1 = entityType1.FindPrimaryKey()?.Properties;
             if (primaryKeyProperties1 == null)
             {
@@ -1371,8 +1372,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return true;
         }
 
-        var leftEntityType = leftEntityReference?.EntityType;
-        var rightEntityType = rightEntityReference?.EntityType;
+        var leftEntityType = (IEntityType?)leftEntityReference?.StructuralType;
+        var rightEntityType = (IEntityType?)rightEntityReference?.StructuralType;
         var entityType = leftEntityType ?? rightEntityType;
 
         Check.DebugAssert(entityType != null, "At least either side should be entityReference so entityType should be non-null.");
@@ -1399,8 +1400,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         if (primaryKeyProperties.Count > 1
-            && (leftEntityReference?.SubqueryEntity != null
-                || rightEntityReference?.SubqueryEntity != null))
+            && (leftEntityReference?.Subquery != null
+                || rightEntityReference?.Subquery != null))
         {
             throw new InvalidOperationException(
                 CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
@@ -1562,7 +1563,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     [DebuggerStepThrough]
     private static bool TranslationFailed(Expression? original, Expression? translation)
         => original != null
-            && (translation == QueryCompilationContext.NotTranslatedExpression || translation is EntityReferenceExpression);
+            && (translation == QueryCompilationContext.NotTranslatedExpression || translation is StructuralTypeReferenceExpression);
 
     private static bool InMemoryLike(string matchExpression, string pattern, string escapeCharacter)
     {
@@ -1666,7 +1667,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return expression;
             }
 
-            if (expression is EntityReferenceExpression)
+            if (expression is StructuralTypeReferenceExpression)
             {
                 _found = true;
                 return expression;
@@ -1676,33 +1677,33 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private sealed class EntityReferenceExpression : Expression
+    private sealed class StructuralTypeReferenceExpression : Expression
     {
-        public EntityReferenceExpression(EntityShaperExpression parameter)
+        public StructuralTypeReferenceExpression(StructuralTypeShaperExpression parameter)
         {
-            ParameterEntity = parameter;
-            EntityType = parameter.EntityType;
+            Parameter = parameter;
+            StructuralType = parameter.StructuralType;
         }
 
-        public EntityReferenceExpression(ShapedQueryExpression subquery)
+        public StructuralTypeReferenceExpression(ShapedQueryExpression subquery)
         {
-            SubqueryEntity = subquery;
-            EntityType = ((EntityShaperExpression)subquery.ShaperExpression).EntityType;
+            Subquery = subquery;
+            StructuralType = ((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType;
         }
 
-        private EntityReferenceExpression(EntityReferenceExpression entityReferenceExpression, IEntityType entityType)
+        private StructuralTypeReferenceExpression(StructuralTypeReferenceExpression typeReference, IEntityType type)
         {
-            ParameterEntity = entityReferenceExpression.ParameterEntity;
-            SubqueryEntity = entityReferenceExpression.SubqueryEntity;
-            EntityType = entityType;
+            Parameter = typeReference.Parameter;
+            Subquery = typeReference.Subquery;
+            StructuralType = type;
         }
 
-        public EntityShaperExpression? ParameterEntity { get; }
-        public ShapedQueryExpression? SubqueryEntity { get; }
-        public IEntityType EntityType { get; }
+        public new StructuralTypeShaperExpression? Parameter { get; }
+        public ShapedQueryExpression? Subquery { get; }
+        public ITypeBase StructuralType { get; }
 
         public override Type Type
-            => EntityType.ClrType;
+            => StructuralType.ClrType;
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
@@ -1715,11 +1716,10 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return this;
             }
 
-            var derivedEntityType = EntityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type);
-
-            return derivedEntityType == null
-                ? QueryCompilationContext.NotTranslatedExpression
-                : new EntityReferenceExpression(this, derivedEntityType);
+            return StructuralType is IEntityType entityType
+                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is IEntityType derivedEntityType
+                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+                    : QueryCompilationContext.NotTranslatedExpression;
         }
     }
 }

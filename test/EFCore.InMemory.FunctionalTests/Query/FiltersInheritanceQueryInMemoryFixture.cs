@@ -5,6 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class FiltersInheritanceQueryInMemoryFixture : InheritanceQueryInMemoryFixture
 {
-    protected override bool EnableFilters
+    public override bool EnableFilters
         => true;
 }

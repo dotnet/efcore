@@ -8,6 +8,6 @@ public class TPCInheritanceBulkUpdatesSqlServerFixture : TPCInheritanceBulkUpdat
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
-    protected override bool UseGeneratedKeys
+    public override bool UseGeneratedKeys
         => false;
 }

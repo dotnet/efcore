@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceQuerySqlServerFixture : InheritanceQueryRelationalFixture
+public class TPHFiltersInheritanceQuerySqliteFixture : TPHInheritanceQuerySqliteFixture
 {
-    protected override ITestStoreFactory TestStoreFactory
-        => SqlServerTestStoreFactory.Instance;
+    public override bool EnableFilters
+        => true;
 }

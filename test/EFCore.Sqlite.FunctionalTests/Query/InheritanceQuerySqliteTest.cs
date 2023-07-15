@@ -3,13 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceQuerySqliteTest : InheritanceRelationalQueryTestBase<InheritanceQuerySqliteFixture>
+public class InheritanceQuerySqliteTest : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqliteFixture>
 {
-    public InheritanceQuerySqliteTest(InheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+    public InheritanceQuerySqliteTest(TPHInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

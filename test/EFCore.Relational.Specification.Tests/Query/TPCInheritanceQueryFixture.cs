@@ -13,7 +13,7 @@ public abstract class TPCInheritanceQueryFixture : InheritanceQueryFixtureBase
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override bool HasDiscriminator
+    public override bool HasDiscriminator
         => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

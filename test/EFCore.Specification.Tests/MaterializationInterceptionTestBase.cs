@@ -421,7 +421,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 this,
                 typeof(TestBindingInterceptor).GetTypeInfo().GetDeclaredMethod(nameof(BookFactory))!,
                 new List<ParameterBinding>(),
-                interceptionData.EntityType.ClrType);
+                interceptionData.TypeBase.ClrType);
         }
     }
 

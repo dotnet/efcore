@@ -6,10 +6,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class TPCInheritanceQuerySqlServerTestBase<TFixture> : TPCInheritanceQueryTestBase<TFixture>
     where TFixture : TPCInheritanceQuerySqlServerFixtureBase, new()
 {
-    protected TPCInheritanceQuerySqlServerTestBase(TFixture fixture)
-        : base(fixture)
+    protected TPCInheritanceQuerySqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
     }
 
     [ConditionalFact]
@@ -135,15 +134,27 @@ ORDER BY [t].[Species]
 
         AssertSql(
 """
-SELECT [t].[Species], [t].[CountryId], [t].[Genus], [t].[Name], [t].[HasThorns], [t].[Discriminator]
+SELECT [t].[Species], [t].[CountryId], [t].[Genus], [t].[Name], [t].[HasThorns], [t].[AdditionalInfo_Nickname], [t].[AdditionalInfo_LeafStructure_AreLeavesBig], [t].[AdditionalInfo_LeafStructure_NumLeaves], [t].[Discriminator]
 FROM (
-    SELECT [d].[Species], [d].[CountryId], [d].[Genus], [d].[Name], NULL AS [HasThorns], N'Daisy' AS [Discriminator]
+    SELECT [d].[Species], [d].[CountryId], [d].[Genus], [d].[Name], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves], NULL AS [HasThorns], N'Daisy' AS [Discriminator]
     FROM [Daisies] AS [d]
     UNION ALL
-    SELECT [r].[Species], [r].[CountryId], [r].[Genus], [r].[Name], [r].[HasThorns], N'Rose' AS [Discriminator]
+    SELECT [r].[Species], [r].[CountryId], [r].[Genus], [r].[Name], NULL AS [AdditionalInfo_Nickname], NULL AS [AdditionalInfo_LeafStructure_AreLeavesBig], NULL AS [AdditionalInfo_LeafStructure_NumLeaves], [r].[HasThorns], N'Rose' AS [Discriminator]
     FROM [Roses] AS [r]
 ) AS [t]
 ORDER BY [t].[Species]
+""");
+    }
+
+    public override async Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
+    {
+        await base.Filter_on_property_inside_complex_type_on_derived_type(async);
+
+        AssertSql(
+"""
+SELECT [d].[Species], [d].[CountryId], [d].[Genus], [d].[Name], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves]
+FROM [Daisies] AS [d]
+WHERE [d].[AdditionalInfo_LeafStructure_AreLeavesBig] = CAST(1 AS bit)
 """);
     }
 

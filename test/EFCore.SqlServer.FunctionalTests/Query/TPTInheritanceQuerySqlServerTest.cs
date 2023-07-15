@@ -8,10 +8,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class TPTInheritanceQuerySqlServerTest : TPTInheritanceQueryTestBase<TPTInheritanceQuerySqlServerFixture>
 {
     public TPTInheritanceQuerySqlServerTest(TPTInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -147,7 +145,7 @@ ORDER BY [a].[Species]
 
         AssertSql(
 """
-SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
+SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves], CASE
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
     WHEN [d].[Species] IS NOT NULL THEN N'Daisy'
 END AS [Discriminator]
@@ -155,6 +153,20 @@ FROM [Plants] AS [p]
 LEFT JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
 LEFT JOIN [Roses] AS [r] ON [p].[Species] = [r].[Species]
 ORDER BY [p].[Species]
+""");
+    }
+
+    public override async Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
+    {
+        await base.Filter_on_property_inside_complex_type_on_derived_type(async);
+
+        AssertSql(
+"""
+SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves]
+FROM [Plants] AS [p]
+INNER JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
+INNER JOIN [Daisies] AS [d] ON [p].[Species] = [d].[Species]
+WHERE [d].[AdditionalInfo_LeafStructure_AreLeavesBig] = CAST(1 AS bit)
 """);
     }
 

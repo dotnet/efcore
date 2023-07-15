@@ -62,12 +62,28 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, rootEntityType);
 
         /// <summary>
+        ///     You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.
+        /// </summary>
+        public static string CannotProjectNullableComplexType(object? complexType)
+            => string.Format(
+                GetString("CannotProjectNullableComplexType", nameof(complexType)),
+                complexType);
+
+        /// <summary>
         ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
         /// </summary>
         public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
             => string.Format(
                 GetString("CannotTranslateNonConstantNewArrayExpression", nameof(newArrayExpression)),
                 newArrayExpression);
+
+        /// <summary>
+        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
+        /// </summary>
+        public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
+            => string.Format(
+                GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
+                complexType);
 
         /// <summary>
         ///     Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
@@ -1530,10 +1546,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationsNotAllowedAfterClientEvaluation");
 
         /// <summary>
-        ///     Unable to translate set operation when matching columns on both sides have different store types.
+        ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
         /// </summary>
-        public static string SetOperationsOnDifferentStoreTypes
-            => GetString("SetOperationsOnDifferentStoreTypes");
+        public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)
+            => string.Format(
+                GetString("SetOperationOverDifferentStructuralTypes", nameof(type1), nameof(type2)),
+                type1, type2);
 
         /// <summary>
         ///     A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.
@@ -1844,6 +1862,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.
+        /// </summary>
+        public static string SubqueryOverComplexTypesNotSupported(object? complexType)
+            => string.Format(
+                GetString("SubqueryOverComplexTypesNotSupported", nameof(complexType)),
+                complexType);
+
+        /// <summary>
         ///     Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.
         /// </summary>
         public static string TableExpressionBaseWithoutCloningLogic(object? expressionType, object? tableExpressionBase, object? clonableTableExpressionBase, object? cloningExpressionVisitor, object? selectExpression)
@@ -2022,7 +2048,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

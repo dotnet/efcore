@@ -31,9 +31,15 @@ public class EntityTypeParameterBinding : ServiceParameterBinding
     public override Expression BindToParameter(
         Expression materializationExpression,
         Expression bindingInfoExpression)
-        => bindingInfoExpression.Type == typeof(IEntityType)
+    {
+        var result = bindingInfoExpression.Type == typeof(IEntityType) || bindingInfoExpression.Type == typeof(IComplexType)
             ? bindingInfoExpression
-            : Expression.Property(bindingInfoExpression, nameof(ParameterBindingInfo.EntityType));
+            : Expression.Property(bindingInfoExpression, nameof(ParameterBindingInfo.StructuralType));
+
+        return ServiceType != typeof(ITypeBase)
+            ? Expression.Convert(result, ServiceType)
+            : result;
+    }
 
     /// <summary>
     ///     Creates a copy that contains the given consumed properties.

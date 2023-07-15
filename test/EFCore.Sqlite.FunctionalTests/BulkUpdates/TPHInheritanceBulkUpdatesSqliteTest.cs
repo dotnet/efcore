@@ -3,10 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class FiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpdatesTestBase<FiltersInheritanceBulkUpdatesSqliteFixture>
+public class TPHInheritanceBulkUpdatesSqliteTest : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqliteFixture>
 {
-    public FiltersInheritanceBulkUpdatesSqliteTest(
-        FiltersInheritanceBulkUpdatesSqliteFixture fixture,
+    public TPHInheritanceBulkUpdatesSqliteTest(
+        TPHInheritanceBulkUpdatesSqliteFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -25,7 +25,7 @@ public class FiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpd
         AssertSql(
 """
 DELETE FROM "Animals" AS "a"
-WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+WHERE "a"."Name" = 'Great spotted kiwi'
 """);
     }
 
@@ -42,7 +42,7 @@ DELETE FROM "Animals" AS "a"
 WHERE "a"."Id" IN (
     SELECT "a0"."Id"
     FROM "Animals" AS "a0"
-    WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
+    WHERE "a0"."Name" = 'Great spotted kiwi'
     ORDER BY "a0"."Name"
     LIMIT @__p_1 OFFSET @__p_0
 )
@@ -56,7 +56,7 @@ WHERE "a"."Id" IN (
         AssertSql(
 """
 DELETE FROM "Animals" AS "a"
-WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+WHERE "a"."Discriminator" = 'Kiwi' AND "a"."Name" = 'Great spotted kiwi'
 """);
     }
 
@@ -70,7 +70,7 @@ DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
+    WHERE "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
 
@@ -84,7 +84,7 @@ DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
+    WHERE "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
 """);
     }
 
@@ -116,14 +116,13 @@ WHERE (
         AssertSql(
 """
 DELETE FROM "Animals" AS "a"
-WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
+WHERE "a"."Id" IN (
     SELECT (
         SELECT "a1"."Id"
         FROM "Animals" AS "a1"
-        WHERE "a1"."CountryId" = 1 AND "a0"."CountryId" = "a1"."CountryId"
+        WHERE "a0"."CountryId" = "a1"."CountryId"
         LIMIT 1)
     FROM "Animals" AS "a0"
-    WHERE "a0"."CountryId" = 1
     GROUP BY "a0"."CountryId"
     HAVING COUNT(*) < 3
 )
@@ -138,7 +137,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
 """
 UPDATE "Animals" AS "a"
 SET "Name" = 'Animal'
-WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+WHERE "a"."Name" = 'Great spotted kiwi'
 """);
     }
 
@@ -150,7 +149,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """
 UPDATE "Animals" AS "a"
 SET "Name" = 'NewBird'
-WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
+WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
 
@@ -169,7 +168,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
 """
 UPDATE "Animals" AS "a"
 SET "Name" = 'SomeOtherKiwi'
-WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
+WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
 
@@ -181,7 +180,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0
-WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
+WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
 
@@ -196,7 +195,7 @@ SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
+    WHERE "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
 
@@ -209,7 +208,7 @@ WHERE (
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0,
     "Name" = 'Kiwi'
-WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
+WHERE "a"."Discriminator" = 'Kiwi'
 """);
     }
 
@@ -224,7 +223,7 @@ SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
     FROM "Animals" AS "a"
-    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
+    WHERE "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
 """);
     }
 
@@ -233,6 +232,30 @@ WHERE (
         await base.Update_where_keyless_entity_mapped_to_sql_query(async);
 
         AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_with_interface_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE "Drinks" AS "d"
+SET "SugarGrams" = 0
+WHERE "d"."Discriminator" = 1
+""");
+    }
+
+    public override async Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_EF_Property_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE "Drinks" AS "d"
+SET "SugarGrams" = 0
+WHERE "d"."Discriminator" = 1
+""");
     }
 
     protected override void ClearLog()

@@ -5,10 +5,17 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public abstract class InheritanceBulkUpdatesRelationalFixture : InheritanceBulkUpdatesFixtureBase
+public abstract class TPHInheritanceBulkUpdatesFixture : InheritanceBulkUpdatesFixtureBase
 {
+    protected override string StoreName
+        => "TPHInheritanceBulkUpdatesTest";
+
     public TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    // #31378
+    public override bool EnableComplexTypes
+        => false;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

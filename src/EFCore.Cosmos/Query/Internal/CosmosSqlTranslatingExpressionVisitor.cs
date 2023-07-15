@@ -349,7 +349,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             case SqlExpression:
                 return extensionExpression;
 
-            case EntityShaperExpression entityShaperExpression:
+            case StructuralTypeShaperExpression entityShaperExpression:
                 var result = Visit(entityShaperExpression.ValueBufferExpression);
 
                 if (result.NodeType == ExpressionType.Convert

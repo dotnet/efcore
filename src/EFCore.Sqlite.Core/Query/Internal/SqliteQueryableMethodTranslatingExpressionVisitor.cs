@@ -405,7 +405,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         return new ShapedQueryExpression(
             newOuterSelectExpression,
-            new RelationalEntityShaperExpression(
+            new RelationalStructuralTypeShaperExpression(
                 jsonQueryExpression.EntityType,
                 new ProjectionBindingExpression(
                     newOuterSelectExpression,

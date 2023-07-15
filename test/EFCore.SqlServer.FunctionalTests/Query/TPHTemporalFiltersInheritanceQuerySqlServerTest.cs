@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
-public class TemporalFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<
-    TemporalFiltersInheritanceQuerySqlServerFixture>
+public class TPHTemporalFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<
+    TPHTemporalFiltersInheritanceQuerySqlServerFixture>
 {
-    public TemporalFiltersInheritanceQuerySqlServerTest(
-        TemporalFiltersInheritanceQuerySqlServerFixture fixture,
+    public TPHTemporalFiltersInheritanceQuerySqlServerTest(
+        TPHTemporalFiltersInheritanceQuerySqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {

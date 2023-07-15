@@ -3,12 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class InheritanceBulkUpdatesSqlServerTest : InheritanceBulkUpdatesTestBase<InheritanceBulkUpdatesSqlServerFixture>
+public class TPHInheritanceBulkUpdatesSqlServerTest : TPHInheritanceBulkUpdatesTestBase<TPHInheritanceBulkUpdatesSqlServerFixture>
 {
-    public InheritanceBulkUpdatesSqlServerTest(
-        InheritanceBulkUpdatesSqlServerFixture fixture,
+    public TPHInheritanceBulkUpdatesSqlServerTest(
+        TPHInheritanceBulkUpdatesSqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
-
         : base(fixture)
     {
         ClearLog();
