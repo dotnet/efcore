@@ -14,6 +14,16 @@ public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySq
     protected override bool CanExecuteQueryString
         => true;
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Foo(bool async)
+        => AssertQuery(async, ss => ss.Set<OwnedPerson>()
+            .OrderBy(o => o.Id)
+            .Skip(1)
+            .Distinct()
+            .Where(p => p.PersonAddress.PlaceType == "sdf"));
+        // => AssertQuery(async, ss => ss.Set<OwnedPerson>().Where(p => p.PersonAddress.PlaceType == "sdf"));
+
     public override async Task Query_with_owned_entity_equality_operator(bool async)
     {
         await base.Query_with_owned_entity_equality_operator(async);

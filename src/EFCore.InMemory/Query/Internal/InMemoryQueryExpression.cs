@@ -656,7 +656,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityShaperExpression AddNavigationToWeakEntityType(
+    public virtual StructuralTypeShaperExpression AddNavigationToWeakEntityType(
         EntityProjectionExpression entityProjectionExpression,
         INavigation navigation,
         InMemoryQueryExpression innerQueryExpression,
@@ -709,7 +709,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             Constant(new ValueBuffer(Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())),
             Constant(null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
 
-        var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
+        var entityShaper = new StructuralTypeShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
         entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
 
         return entityShaper;
@@ -869,7 +869,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
                 return memberInitExpression.Update(updatedNewExpression, memberBindings);
 
-            case EntityShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } entityShaperExpression:
+            case StructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } shaper:
                 var entityProjectionExpression =
                     (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                     .GetProjection(projectionBindingExpression);
@@ -882,7 +882,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                         groupingKeyAccessExpression);
                 }
 
-                return entityShaperExpression.Update(
+                return shaper.Update(
                     new EntityProjectionExpression(entityProjectionExpression.EntityType, readExpressions));
 
             default:

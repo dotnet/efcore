@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceQuerySqliteFixture : InheritanceQueryRelationalFixture
+public class TPHInheritanceQuerySqliteFixture : TPHInheritanceQueryFixture
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

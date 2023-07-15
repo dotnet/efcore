@@ -7,98 +7,108 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         An expression that represents creation of an entity instance in <see cref="ShapedQueryExpression.ShaperExpression" />.
+///         An expression that represents creation of a structural type instance in <see cref="ShapedQueryExpression.ShaperExpression" />.
 ///     </para>
 ///     <para>
-///         This type is typically used by database providers (and other extensions). It is generally
-///         not used in application code.
+///         This type is typically used by database providers (and other extensions). It is generally not used in application code.
 ///     </para>
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public class EntityShaperExpression : Expression, IPrintableExpression
+[DebuggerDisplay("{DebuggerDisplay(),nq}")]
+public class StructuralTypeShaperExpression : Expression, IPrintableExpression
 {
     private static readonly MethodInfo CreateUnableToDiscriminateExceptionMethod
-        = typeof(EntityShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(CreateUnableToDiscriminateException))!;
+        = typeof(StructuralTypeShaperExpression).GetTypeInfo().GetDeclaredMethod(nameof(CreateUnableToDiscriminateException))!;
 
     [UsedImplicitly]
-    private static Exception CreateUnableToDiscriminateException(IEntityType entityType, object discriminator)
-        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(entityType.DisplayName(), discriminator.ToString()));
+    private static Exception CreateUnableToDiscriminateException(ITypeBase type, object discriminator)
+        => new InvalidOperationException(CoreStrings.UnableToDiscriminate(type.DisplayName(), discriminator.ToString()));
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="EntityShaperExpression" /> class.
+    ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
-    /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
-    /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
-    public EntityShaperExpression(
-        IEntityType entityType,
+    /// <param name="type">The entity or complex type to shape.</param>
+    /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the type.</param>
+    /// <param name="nullable">A bool value indicating whether this instance can be null.</param>
+    public StructuralTypeShaperExpression(
+        ITypeBase type,
         Expression valueBufferExpression,
         bool nullable)
-        : this(entityType, valueBufferExpression, nullable, null)
+        : this(type, valueBufferExpression, nullable, null)
     {
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="EntityShaperExpression" /> class.
+    ///     Creates a new instance of the <see cref="StructuralTypeShaperExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
-    /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
-    /// <param name="nullable">Whether this entity instance can be null.</param>
+    /// <param name="type">The entity or complex type to shape.</param>
+    /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the type.</param>
+    /// <param name="nullable">Whether this instance can be null.</param>
     /// <param name="materializationCondition">
-    ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> to determine which entity type to
-    ///     materialize.
+    ///     An expression of <see cref="Func{ValueBuffer, ITypeBase}" /> to determine which structural type to materialize.
     /// </param>
-    protected EntityShaperExpression(
-        IEntityType entityType,
+    protected StructuralTypeShaperExpression(
+        ITypeBase type,
         Expression valueBufferExpression,
         bool nullable,
         LambdaExpression? materializationCondition)
     {
         if (materializationCondition == null)
         {
-            materializationCondition = GenerateMaterializationCondition(entityType, nullable);
+            materializationCondition = GenerateMaterializationCondition(type, nullable);
         }
         else if (materializationCondition.Parameters.Count != 1
                  || materializationCondition.Parameters[0].Type != typeof(ValueBuffer)
-                 || materializationCondition.ReturnType != typeof(IEntityType))
+                 || materializationCondition.ReturnType != (type is IEntityType ? typeof(IEntityType) : typeof(IComplexType)))
         {
-            throw new InvalidOperationException(CoreStrings.QueryEntityMaterializationConditionWrongShape(entityType.DisplayName()));
+            throw new InvalidOperationException(CoreStrings.QueryEntityMaterializationConditionWrongShape(type.DisplayName()));
         }
 
-        EntityType = entityType;
+        StructuralType = type;
         ValueBufferExpression = valueBufferExpression;
         IsNullable = nullable;
-        MaterializationCondition = materializationCondition;
+        MaterializationCondition = materializationCondition!;
     }
 
     /// <summary>
-    ///     Creates an expression to throw an exception when unable to determine entity type
-    ///     to materialize based on discriminator value.
+    ///     Creates an expression to throw an exception when we're unable to determine the structural type to materialize based on
+    ///     discriminator value.
     /// </summary>
-    /// <param name="entityType">The entity type for which materialization was requested.</param>
+    /// <param name="type">The entity type for which materialization was requested.</param>
     /// <param name="discriminatorValue">The expression containing value of discriminator.</param>
-    /// <returns>An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.</returns>
-    protected static Expression CreateUnableToDiscriminateExceptionExpression(IEntityType entityType, Expression discriminatorValue)
+    /// <returns>
+    /// An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.
+    /// </returns>
+    protected static Expression CreateUnableToDiscriminateExceptionExpression(ITypeBase type, Expression discriminatorValue)
         => Block(
             Throw(
                 Call(
                     CreateUnableToDiscriminateExceptionMethod,
-                    Constant(entityType),
+                    Constant(type),
                     Convert(discriminatorValue, typeof(object)))),
             Constant(null, typeof(IEntityType)));
 
     /// <summary>
-    ///     Creates an expression of <see cref="Func{ValueBuffer, IEntityType}" /> to determine which entity type to materialize.
+    ///     Creates an expression of <see cref="Func{ValueBuffer, ITypeBase}" /> to determine which type to materialize.
     /// </summary>
-    /// <param name="entityType">The entity type to create materialization condition for.</param>
-    /// <param name="nullable">Whether this entity instance can be null.</param>
-    /// <returns>An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.</returns>
-    protected virtual LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
+    /// <param name="type">The type to create materialization condition for.</param>
+    /// <param name="nullable">Whether this instance can be null.</param>
+    /// <returns>
+    ///     An expression of <see cref="Func{ValueBuffer, ITypeBase}" /> representing materialization condition for the type.
+    /// </returns>
+    protected virtual LambdaExpression GenerateMaterializationCondition(ITypeBase type, bool nullable)
     {
         var valueBufferParameter = Parameter(typeof(ValueBuffer));
+
+        if (type is IComplexType complexType)
+        {
+            return Lambda(Constant(complexType, typeof(IComplexType)), valueBufferParameter);
+        }
+
+        var entityType = (IEntityType)type;
         Expression body;
         var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
         var discriminatorProperty = entityType.FindDiscriminatorProperty();
@@ -155,6 +165,8 @@ public class EntityShaperExpression : Expression, IPrintableExpression
         if (entityType.FindPrimaryKey() == null
             && nullable)
         {
+            // If there's no nullable key and we're generating a nullable shaper, generate checks for any non-null property; if all are
+            // null, return null for the entity instance.
             body = Condition(
                 entityType.GetProperties()
                     .Select(
@@ -169,23 +181,32 @@ public class EntityShaperExpression : Expression, IPrintableExpression
         return Lambda(body, valueBufferParameter);
     }
 
+    // TODO: Temporary, remove
     /// <summary>
     ///     The entity type being shaped.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
+    public virtual IEntityType EntityType
+        => StructuralType is IEntityType entityType
+            ? entityType
+            : throw new InvalidOperationException("Type isn't an entity type: " + StructuralType.DisplayName());
 
     /// <summary>
-    ///     The expression representing a <see cref="ValueBuffer" /> to get values from that are used to create the entity instance.
+    ///     The entity or complex type being shaped.
+    /// </summary>
+    public virtual ITypeBase StructuralType { get; }
+
+    /// <summary>
+    ///     The expression representing a <see cref="ValueBuffer" /> to get values from that are used to create the instance.
     /// </summary>
     public virtual Expression ValueBufferExpression { get; }
 
     /// <summary>
-    ///     A value indicating whether this entity instance can be null.
+    ///     A value indicating whether this instance can be null.
     /// </summary>
     public virtual bool IsNullable { get; }
 
     /// <summary>
-    ///     The materilization condition to use for shaping this entity.
+    ///     The materialization condition to use for shaping this structural type.
     /// </summary>
     public virtual LambdaExpression MaterializationCondition { get; }
 
@@ -198,24 +219,24 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     }
 
     /// <summary>
-    ///     Changes the entity type being shaped by this entity shaper.
+    ///     Changes the structural type being shaped by this shaper.
     /// </summary>
-    /// <param name="entityType">The new entity type to use.</param>
-    /// <returns>This expression if entity type not changed, or an expression with updated entity type.</returns>
-    public virtual EntityShaperExpression WithEntityType(IEntityType entityType)
-        => entityType != EntityType
-            ? new EntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
+    /// <param name="type">The new type to use.</param>
+    /// <returns>This expression if the type was not changed, or a new expression with the updated type.</returns>
+    public virtual StructuralTypeShaperExpression WithType(ITypeBase type)
+        => type != StructuralType
+            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable)
             : this;
 
     /// <summary>
-    ///     Assigns nullability for this shaper, indicating whether it can shape null entity instances or not.
+    ///     Assigns nullability for this shaper, indicating whether it can shape null instances or not.
     /// </summary>
     /// <param name="nullable">A value indicating if the shaper is nullable.</param>
     /// <returns>This expression if nullability not changed, or an expression with updated nullability.</returns>
-    public virtual EntityShaperExpression MakeNullable(bool nullable = true)
+    public virtual StructuralTypeShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of materialization condition
-            ? new EntityShaperExpression(EntityType, ValueBufferExpression, nullable)
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable)
             : this;
 
     /// <summary>
@@ -224,14 +245,14 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     /// </summary>
     /// <param name="valueBufferExpression">The <see cref="ValueBufferExpression" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual EntityShaperExpression Update(Expression valueBufferExpression)
+    public virtual StructuralTypeShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new EntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new StructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition)
             : this;
 
     /// <inheritdoc />
     public override Type Type
-        => EntityType.ClrType;
+        => StructuralType.ClrType;
 
     /// <inheritdoc />
     public sealed override ExpressionType NodeType
@@ -240,10 +261,10 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.AppendLine(nameof(EntityShaperExpression) + ": ");
+        expressionPrinter.AppendLine(nameof(StructuralTypeShaperExpression) + ": ");
         using (expressionPrinter.Indent())
         {
-            expressionPrinter.AppendLine(EntityType.Name);
+            expressionPrinter.AppendLine(StructuralType.Name);
             expressionPrinter.AppendLine(nameof(ValueBufferExpression) + ": ");
             using (expressionPrinter.Indent())
             {
@@ -255,4 +276,13 @@ public class EntityShaperExpression : Expression, IPrintableExpression
             expressionPrinter.AppendLine(IsNullable.ToString());
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public string DebuggerDisplay()
+        => $"{StructuralType.DisplayName()} ({(IsNullable ? "nullable" : "required")})";
 }

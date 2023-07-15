@@ -225,7 +225,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     private static ShapedQueryExpression CreateShapedQueryExpression(IEntityType entityType, Expression queryExpression)
         => new(
             queryExpression,
-            new EntityShaperExpression(
+            new StructuralTypeShaperExpression(
                 entityType,
                 new ProjectionBindingExpression(queryExpression, new ProjectionMember(), typeof(ValueBuffer)),
                 false));
@@ -616,7 +616,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression TranslateOfType(ShapedQueryExpression source, Type resultType)
     {
-        if (source.ShaperExpression is EntityShaperExpression entityShaperExpression)
+        if (source.ShaperExpression is StructuralTypeShaperExpression entityShaperExpression)
         {
             var entityType = entityShaperExpression.EntityType;
             if (entityType.ClrType == resultType)
@@ -642,7 +642,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             var baseType = entityType.GetAllBaseTypes().SingleOrDefault(et => et.ClrType == resultType);
             if (baseType != null)
             {
-                return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(baseType));
+                return source.UpdateShaperExpression(entityShaperExpression.WithType(baseType));
             }
 
             var derivedType = entityType.GetDerivedTypes().Single(et => et.ClrType == resultType);
@@ -658,7 +658,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     { projectionMember, entityProjectionExpression.UpdateEntityType(derivedType) }
                 });
 
-            return source.UpdateShaperExpression(entityShaperExpression.WithEntityType(derivedType));
+            return source.UpdateShaperExpression(entityShaperExpression.WithType(derivedType));
         }
 
         return null;
@@ -916,7 +916,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     protected override ShapedQueryExpression TranslateWhere(ShapedQueryExpression source, LambdaExpression predicate)
     {
-        if (source.ShaperExpression is EntityShaperExpression entityShaperExpression
+        if (source.ShaperExpression is StructuralTypeShaperExpression entityShaperExpression
             && entityShaperExpression.EntityType.GetPartitionKeyPropertyName() != null
             && TryExtractPartitionKey(predicate.Body, entityShaperExpression.EntityType, out var newPredicate) is Expression
                 partitionKeyValue)

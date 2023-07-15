@@ -92,8 +92,8 @@ FROM [Blogs] AS [b]
 
     public override async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
     {
-        // #28643
-        await Assert.ThrowsAsync<InvalidOperationException>(
+        // #31407
+        await Assert.ThrowsAsync<UnreachableException>(
             () => base.Update_non_main_table_in_entity_with_entity_splitting(async));
 
         AssertSql();

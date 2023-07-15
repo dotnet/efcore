@@ -491,19 +491,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             switch (extensionExpression)
             {
-                case RelationalEntityShaperExpression entityShaperExpression
-                    when !_inline
-                    && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                case RelationalStructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } shaper
+                    when !_inline:
                 {
                     // we can't cache ProjectionBindingExpression results for non-tracking queries
                     // JSON entities must be read and re-shaped every time (streaming)
                     // as part of the process we do fixup to the parents, so those JSON entities would be potentially fixed up multiple times
                     // it's ok for references (overwrite) but for collections they would be added multiple times if we were to cache the parent
                     // by creating every entity every time we guarantee this doesn't happen
-                    if (!_isTracking || !_variableShaperMapping.TryGetValue(entityShaperExpression.ValueBufferExpression, out var accessor))
+                    if (!_isTracking || !_variableShaperMapping.TryGetValue(projectionBindingExpression, out var accessor))
                     {
                         if (GetProjectionIndex(projectionBindingExpression) is JsonProjectionInfo jsonProjectionInfo)
                         {
+                            Check.DebugAssert(shaper.StructuralType is IEntityType, "JsonProjectionInfo over a complex type");
+                            var entityType = (IEntityType)shaper.StructuralType;
+
                             if (_isTracking)
                             {
                                 throw new InvalidOperationException(
@@ -513,12 +515,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             // json entity at the root
                             var (jsonReaderDataVariable, keyValuesParameter) = JsonShapingPreProcess(
                                 jsonProjectionInfo,
-                                entityShaperExpression.EntityType,
+                                entityType,
                                 isCollection: false);
 
                             var shaperResult = CreateJsonShapers(
-                                entityShaperExpression.EntityType,
-                                entityShaperExpression.IsNullable,
+                                entityType,
+                                shaper.IsNullable,
                                 jsonReaderDataVariable,
                                 keyValuesParameter,
                                 parentEntityExpression: null,
@@ -531,63 +533,63 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             accessor = CompensateForCollectionMaterialization(
                                 visitedShaperResultParameter,
-                                entityShaperExpression.Type);
+                                shaper.Type);
                         }
                         else
                         {
-                            var entityParameter = Parameter(entityShaperExpression.Type);
+                            var entityParameter = Parameter(shaper.Type);
                             _variables.Add(entityParameter);
-                            if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+                            if (shaper.StructuralType is IEntityType entityType
+                                && entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                             {
-                                var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract())
-                                    .ToArray();
+                                var concreteTypes = entityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
                                 // Single concrete TPC entity type won't have discriminator column.
                                 // We store the value here and inject it directly rather than reading from server.
                                 if (concreteTypes.Length == 1)
                                 {
                                     _singleEntityTypeDiscriminatorValues[
-                                            (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
+                                            projectionBindingExpression]
                                         = concreteTypes[0].ShortName();
                                 }
                             }
 
-                            var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
+                            var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(shaper);
                             entityMaterializationExpression = Visit(entityMaterializationExpression);
 
                             _expressions.Add(Assign(entityParameter, entityMaterializationExpression));
 
                             accessor = CompensateForCollectionMaterialization(
                                 entityParameter,
-                                entityShaperExpression.Type);
+                                shaper.Type);
                         }
 
                         if (_isTracking)
                         {
-                            _variableShaperMapping[entityShaperExpression.ValueBufferExpression] = accessor;
+                            _variableShaperMapping[projectionBindingExpression] = accessor;
                         }
                     }
 
                     return accessor;
                 }
 
-                case RelationalEntityShaperExpression entityShaperExpression
-                    when _inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression:
+                case RelationalStructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression } shaper
+                    when _inline:
                 {
-                    if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+                    if (shaper.StructuralType is IEntityType entityType
+                        && entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                     {
-                        var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract())
-                            .ToArray();
+                        var concreteTypes = entityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract()).ToArray();
                         // Single concrete TPC entity type won't have discriminator column.
                         // We store the value here and inject it directly rather than reading from server.
                         if (concreteTypes.Length == 1)
                         {
                             _singleEntityTypeDiscriminatorValues[
-                                    (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
+                                    (ProjectionBindingExpression)shaper.ValueBufferExpression]
                                 = concreteTypes[0].ShortName();
                         }
                     }
 
-                    var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
+                    var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(shaper);
                     entityMaterializationExpression = Visit(entityMaterializationExpression);
 
                     return entityMaterializationExpression;
@@ -874,7 +876,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         var projectionBindingExpression = (includeExpression.NavigationExpression as CollectionResultExpression)
                             ?.ProjectionBindingExpression
-                            ?? (includeExpression.NavigationExpression as RelationalEntityShaperExpression)?.ValueBufferExpression as
+                            ?? (includeExpression.NavigationExpression as RelationalStructuralTypeShaperExpression)?.ValueBufferExpression as
                             ProjectionBindingExpression;
 
                         // json include case
@@ -1214,7 +1216,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _jsonValueBufferToJsonReaderDataAndKeyValuesParameterMapping[valueBufferParameter] =
                 (jsonReaderDataShaperLambdaParameter, keyValuesShaperLambdaParameter);
 
-            var entityShaperExpression = new RelationalEntityShaperExpression(
+            var entityShaperExpression = new RelationalStructuralTypeShaperExpression(
                 entityType,
                 valueBufferParameter,
                 nullable);
@@ -1303,7 +1305,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             var rewrittenEntityShaperMaterializer = new JsonEntityMaterializerRewriter(
-                entityShaperExpression.EntityType,
+                entityType,
                 _isTracking,
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,

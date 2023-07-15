@@ -5,9 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TPCInheritanceQueryHiLoSqlServerTest : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQueryHiLoSqlServerFixture>
 {
-    public TPCInheritanceQueryHiLoSqlServerTest(TPCInheritanceQueryHiLoSqlServerFixture fixture)
-        : base(fixture)
+    public TPCInheritanceQueryHiLoSqlServerTest(TPCInheritanceQueryHiLoSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
     }
 }

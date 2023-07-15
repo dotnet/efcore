@@ -20,10 +20,5 @@ public static class ComplexTypeExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool UseEagerSnapshots(this IReadOnlyComplexType complexType)
-    {
-        var changeTrackingStrategy = complexType.GetChangeTrackingStrategy();
-
-        return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
-            || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
-    }
+        => complexType.GetChangeTrackingStrategy() is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
 }

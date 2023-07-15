@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class FiltersInheritanceBulkUpdatesSqliteFixture : InheritanceBulkUpdatesSqliteFixture
+public class TPHFiltersInheritanceBulkUpdatesSqliteFixture : TPHInheritanceBulkUpdatesSqliteFixture
 {
-    protected override bool EnableFilters
+    public override bool EnableFilters
         => true;
 }

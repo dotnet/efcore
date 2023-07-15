@@ -39,14 +39,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         QueryableMethods.ElementAtOrDefault
     };
 
-    private static readonly List<MethodInfo> PredicateAggregateMethodInfos = new()
-    {
-        QueryableMethods.CountWithPredicate,
-        QueryableMethods.CountWithoutPredicate,
-        QueryableMethods.LongCountWithPredicate,
-        QueryableMethods.LongCountWithoutPredicate
-    };
-
     private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
 
@@ -125,10 +117,37 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression, applyDefaultTypeMapping);
+        return TranslateInternal(expression, applyDefaultTypeMapping) as SqlExpression;
     }
 
-    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual Expression? TranslateProjection(Expression expression, bool applyDefaultTypeMapping = true)
+    {
+        TranslationErrorDetails = null;
+
+        return TranslateInternal(expression, applyDefaultTypeMapping) switch
+        {
+            // This is the case of a structural type getting projected out via Select (possibly also an owned entity one day, if we stop
+            // expanding them in pre-visitation)
+            StructuralTypeReferenceExpression { Parameter: StructuralTypeShaperExpression shaper }
+                => shaper,
+
+            StructuralTypeReferenceExpression { Subquery: not null }
+                => null, // TODO: think about this - probably unsupported (if so, message)
+
+            SqlExpression s => s,
+
+            _ => null
+        };
+    }
+
+    private Expression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
 
@@ -154,7 +173,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return translation;
         }
 
-        return null;
+        return result;
     }
 
     /// <summary>
@@ -372,7 +391,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 {
                     var projection = translatedSubquery.ShaperExpression;
                     if (projection is NewExpression
-                        || RemoveConvert(projection) is EntityShaperExpression { IsNullable: false }
+                        || RemoveConvert(projection) is StructuralTypeShaperExpression { IsNullable: false }
                         || RemoveConvert(projection) is CollectionResultExpression)
                     {
                         var anySubquery = Expression.Call(
@@ -398,7 +417,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             // Visited expression could be null, We need to pass MemberInitExpression
-            && TryRewriteEntityEquality(
+            && TryRewriteStructuralTypeEquality(
                 binaryExpression.NodeType,
                 visitedLeft == QueryCompilationContext.NotTranslatedExpression ? left : visitedLeft,
                 visitedRight == QueryCompilationContext.NotTranslatedExpression ? right : visitedRight,
@@ -427,15 +446,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         null)
                     ?? QueryCompilationContext.NotTranslatedExpression;
 
-        Expression ProcessGetType(EntityReferenceExpression entityReferenceExpression, Type comparisonType, bool match)
+        Expression ProcessGetType(StructuralTypeReferenceExpression typeReference, Type comparisonType, bool match)
         {
-            var entityType = entityReferenceExpression.EntityType;
-
-            if (entityType.BaseType == null
-                && !entityType.GetDirectlyDerivedTypes().Any())
+            if (typeReference.StructuralType is not IEntityType entityType
+                || (entityType.BaseType == null
+                    && !entityType.GetDirectlyDerivedTypes().Any()))
             {
                 // No hierarchy
-                return _sqlExpressionFactory.Constant((entityType.ClrType == comparisonType) == match);
+                return _sqlExpressionFactory.Constant((typeReference.StructuralType.ClrType == comparisonType) == match);
             }
 
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
@@ -463,13 +481,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 // TPT or TPC
                 var discriminatorValue = derivedType.ShortName();
-                if (entityReferenceExpression.SubqueryEntity != null)
+                if (typeReference.Subquery != null)
                 {
-                    var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-                    var entityProjection = (EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression);
-                    var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+                    var shaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
+                    var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
+                    var subSelectExpression = (SelectExpression)typeReference.Subquery.QueryExpression;
 
-                    var predicate = GeneratePredicateTpt(entityProjection);
+                    var predicate = GeneratePredicateTpt(projection);
 
                     subSelectExpression.ApplyPredicate(predicate);
                     subSelectExpression.ReplaceProjection(new List<Expression>());
@@ -483,17 +501,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     return _sqlExpressionFactory.Exists(subSelectExpression);
                 }
 
-                if (entityReferenceExpression.ParameterEntity != null)
+                if (typeReference.Parameter != null)
                 {
-                    var entityProjection = (EntityProjectionExpression)Visit(
-                        entityReferenceExpression.ParameterEntity.ValueBufferExpression);
-
-                    return GeneratePredicateTpt(entityProjection);
+                    var projection = (StructuralTypeProjectionExpression)Visit(typeReference.Parameter.ValueBufferExpression);
+                    return GeneratePredicateTpt(projection);
                 }
 
-                SqlExpression GeneratePredicateTpt(EntityProjectionExpression entityProjectionExpression)
+                SqlExpression GeneratePredicateTpt(StructuralTypeProjectionExpression projection)
                 {
-                    if (entityProjectionExpression.DiscriminatorExpression is CaseExpression caseExpression)
+                    if (projection.DiscriminatorExpression is CaseExpression caseExpression)
                     {
                         // TPT case
                         // Most root type doesn't have matching case
@@ -521,16 +537,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                     return match
                         ? _sqlExpressionFactory.Equal(
-                            entityProjectionExpression.DiscriminatorExpression!,
+                            projection.DiscriminatorExpression!,
                             _sqlExpressionFactory.Constant(discriminatorValue))
                         : _sqlExpressionFactory.NotEqual(
-                            entityProjectionExpression.DiscriminatorExpression!,
+                            projection.DiscriminatorExpression!,
                             _sqlExpressionFactory.Constant(discriminatorValue));
                 }
             }
             else
             {
-                var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
+                var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
                 if (discriminatorColumn != null)
                 {
                     return match
@@ -546,17 +562,17 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        bool IsGetTypeMethodCall(Expression expression, out EntityReferenceExpression? entityReferenceExpression)
+        bool IsGetTypeMethodCall(Expression expression, out StructuralTypeReferenceExpression? typeReference)
         {
-            entityReferenceExpression = null;
+            typeReference = null;
             if (expression is not MethodCallExpression methodCallExpression
                 || methodCallExpression.Method != GetTypeMethodInfo)
             {
                 return false;
             }
 
-            entityReferenceExpression = Visit(methodCallExpression.Object) as EntityReferenceExpression;
-            return entityReferenceExpression != null;
+            typeReference = Visit(methodCallExpression.Object) as StructuralTypeReferenceExpression;
+            return typeReference != null;
         }
 
         static bool IsTypeConstant(Expression expression, out Type? type)
@@ -608,15 +624,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityProjectionExpression:
-            case EntityReferenceExpression:
+            case StructuralTypeProjectionExpression:
+            case StructuralTypeReferenceExpression:
             case SqlExpression:
             case EnumerableExpression:
             case JsonQueryExpression:
                 return extensionExpression;
 
-            case EntityShaperExpression entityShaperExpression:
-                return new EntityReferenceExpression(entityShaperExpression);
+            case StructuralTypeShaperExpression shaper:
+                return new StructuralTypeReferenceExpression(shaper);
 
             case ProjectionBindingExpression projectionBindingExpression:
                 return Visit(
@@ -640,11 +656,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     innerExpression = unaryExpression.Operand;
                 }
 
-                if (innerExpression is EntityShaperExpression ese
+                if (innerExpression is StructuralTypeShaperExpression ese
                     && (convertedType == null
                         || convertedType.IsAssignableFrom(ese.Type)))
                 {
-                    return new EntityReferenceExpression(shapedQueryExpression.UpdateShaperExpression(innerExpression));
+                    return new StructuralTypeReferenceExpression(shapedQueryExpression.UpdateShaperExpression(innerExpression));
                 }
 
                 if (innerExpression is ProjectionBindingExpression pbe
@@ -744,19 +760,19 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual bool TryTranslatePropertyAccess(Expression expression, [NotNullWhen(true)] out SqlExpression? propertyAccessExpression)
+    public virtual bool TryTranslatePropertyAccess(Expression expression, [NotNullWhen(true)] out Expression? propertyAccessExpression)
     {
         if (expression is MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is { } result)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression result)
             {
                 propertyAccessExpression = result;
                 return true;
             }
 
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is { } indexerResult)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression indexerResult)
             {
                 propertyAccessExpression = indexerResult;
                 return true;
@@ -773,7 +789,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         // EF.Property case
         if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
         {
-            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is SqlExpression result)
+            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression result)
             {
                 return result;
             }
@@ -791,7 +807,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         // EF Indexer property
         if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
-            && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is SqlExpression indexerResult)
+            && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression indexerResult)
         {
             return indexerResult;
         }
@@ -810,7 +826,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var left = Visit(methodCallExpression.Object);
             var right = Visit(RemoveObjectConvert(arguments[0]));
 
-            if (TryRewriteEntityEquality(
+            if (TryRewriteStructuralTypeEquality(
                     ExpressionType.Equal,
                     left == QueryCompilationContext.NotTranslatedExpression ? methodCallExpression.Object : left,
                     right == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : right,
@@ -846,7 +862,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var left = Visit(RemoveObjectConvert(arguments[0]));
             var right = Visit(RemoveObjectConvert(arguments[1]));
 
-            if (TryRewriteEntityEquality(
+            if (TryRewriteStructuralTypeEquality(
                     ExpressionType.Equal,
                     left == QueryCompilationContext.NotTranslatedExpression ? arguments[0] : left,
                     right == QueryCompilationContext.NotTranslatedExpression ? arguments[1] : right,
@@ -1022,11 +1038,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         var innerExpression = Visit(typeBinaryExpression.Expression);
 
         if (typeBinaryExpression.NodeType != ExpressionType.TypeIs
-            || innerExpression is not EntityReferenceExpression entityReferenceExpression)
+            || innerExpression is not StructuralTypeReferenceExpression typeReference)
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
-        var entityType = entityReferenceExpression.EntityType;
+
+        if (typeReference.StructuralType is not IEntityType entityType)
+        {
+            return Expression.Constant(typeReference.StructuralType.ClrType == typeBinaryExpression.TypeOperand);
+        }
+
         if (entityType.GetAllBaseTypesInclusive().Any(et => et.ClrType == typeBinaryExpression.TypeOperand))
         {
             return _sqlExpressionFactory.Constant(true);
@@ -1037,6 +1058,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             return QueryCompilationContext.NotTranslatedExpression;
         }
+
         var discriminatorProperty = entityType.FindDiscriminatorProperty();
         if (discriminatorProperty == null)
         {
@@ -1049,13 +1071,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             // TPT or TPC
             var discriminatorValues = derivedType.GetConcreteDerivedTypesInclusive()
                 .Select(e => (string)e.GetDiscriminatorValue()!).ToList();
-            if (entityReferenceExpression.SubqueryEntity != null)
+            if (typeReference.Subquery != null)
             {
-                var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-                var entityProjection = (EntityProjectionExpression)Visit(entityShaper.ValueBufferExpression);
-                var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+                var shaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
+                var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
+                var subSelectExpression = (SelectExpression)typeReference.Subquery.QueryExpression;
 
-                var predicate = GeneratePredicateTpt(entityProjection);
+                var predicate = GeneratePredicateTpt(projection);
 
                 subSelectExpression.ApplyPredicate(predicate);
                 subSelectExpression.ReplaceProjection(new List<Expression>());
@@ -1069,15 +1091,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return _sqlExpressionFactory.Exists(subSelectExpression);
             }
 
-            if (entityReferenceExpression.ParameterEntity != null)
+            if (typeReference.Parameter != null)
             {
-                var entityProjection = (EntityProjectionExpression)Visit(
-                    entityReferenceExpression.ParameterEntity.ValueBufferExpression);
+                var typeProjection = (StructuralTypeProjectionExpression)Visit(typeReference.Parameter.ValueBufferExpression);
 
-                return GeneratePredicateTpt(entityProjection);
+                return GeneratePredicateTpt(typeProjection);
             }
 
-            SqlExpression GeneratePredicateTpt(EntityProjectionExpression entityProjectionExpression)
+            SqlExpression GeneratePredicateTpt(StructuralTypeProjectionExpression entityProjectionExpression)
             {
                 if (entityProjectionExpression.DiscriminatorExpression is CaseExpression caseExpression)
                 {
@@ -1107,7 +1128,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     .All(e => (e == derivedType || e.IsAbstract()) && !HasSiblings(e)))
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
-                var discriminatorColumn = BindProperty(entityReferenceExpression, discriminatorProperty);
+                var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
                 if (discriminatorColumn != null)
                 {
                     return concreteEntityTypes.Count == 1
@@ -1136,10 +1157,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         var operand = Visit(unaryExpression.Operand);
 
-        if (operand is EntityReferenceExpression entityReferenceExpression
+        if (operand is StructuralTypeReferenceExpression typeReference
             && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
-            return entityReferenceExpression.Convert(unaryExpression.Type);
+            return typeReference.Convert(unaryExpression.Type);
         }
 
         if (TranslationFailed(unaryExpression.Operand, operand, out var sqlOperand))
@@ -1186,46 +1207,56 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return QueryCompilationContext.NotTranslatedExpression;
     }
 
-    private SqlExpression? TryBindMember(Expression? source, MemberIdentity member)
+    private Expression? TryBindMember(Expression? source, MemberIdentity member)
     {
-        if (source is not EntityReferenceExpression entityReferenceExpression)
+        if (source is not StructuralTypeReferenceExpression typeReference)
         {
             return null;
         }
 
-        var entityType = entityReferenceExpression.EntityType;
+        var structuralType = typeReference.StructuralType;
+
         var property = member.MemberInfo != null
-            ? entityType.FindProperty(member.MemberInfo)
-            : entityType.FindProperty(member.Name!);
+            ? structuralType.FindProperty(member.MemberInfo)
+            : structuralType.FindProperty(member.Name!);
 
         if (property != null)
         {
-            return BindProperty(entityReferenceExpression, property);
+            return BindProperty(typeReference, property);
+        }
+
+        var complexProperty = member.MemberInfo != null
+            ? structuralType.FindComplexProperty(member.MemberInfo)
+            : structuralType.FindComplexProperty(member.Name!);
+
+        if (complexProperty is not null)
+        {
+            return BindComplexProperty(typeReference, complexProperty);
         }
 
         AddTranslationErrorDetails(
             CoreStrings.QueryUnableToTranslateMember(
                 member.Name,
-                entityReferenceExpression.EntityType.DisplayName()));
+                typeReference.StructuralType.DisplayName()));
 
         return null;
     }
 
-    private SqlExpression? BindProperty(EntityReferenceExpression entityReferenceExpression, IProperty property)
+    private SqlExpression? BindProperty(StructuralTypeReferenceExpression typeReference, IProperty property)
     {
-        if (entityReferenceExpression.ParameterEntity != null)
+        if (typeReference.Parameter != null)
         {
-            var valueBufferExpression = Visit(entityReferenceExpression.ParameterEntity.ValueBufferExpression);
+            var valueBufferExpression = Visit(typeReference.Parameter.ValueBufferExpression);
             if (valueBufferExpression is JsonQueryExpression jsonQueryExpression)
             {
                 return jsonQueryExpression.BindProperty(property);
             }
 
-            var entityProjectionExpression = (EntityProjectionExpression)valueBufferExpression;
-            var propertyAccess = entityProjectionExpression.BindProperty(property);
+            var projection = (StructuralTypeProjectionExpression)valueBufferExpression;
+            var propertyAccess = projection.BindProperty(property);
 
-            var entityType = entityReferenceExpression.EntityType;
-            if (entityType.FindDiscriminatorProperty() != null
+            if (typeReference.StructuralType is not IEntityType entityType
+                || entityType.FindDiscriminatorProperty() != null
                 || entityType.FindPrimaryKey() == null
                 || entityType.GetRootType() != entityType
                 || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
@@ -1254,7 +1285,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
             if (allRequiredNonPkProperties.Count > 0)
             {
-                condition = allRequiredNonPkProperties.Select(p => entityProjectionExpression.BindProperty(p))
+                condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
                     .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
                     .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
             }
@@ -1264,7 +1295,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 // If all non principal shared properties are nullable then we need additional condition
                 var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                    .Select(p => entityProjectionExpression.BindProperty(p))
+                    .Select(p => projection.BindProperty(p))
                     .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
                     .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
 
@@ -1287,14 +1318,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             // single result so either it is regular entity or a collection which always have their own table.
         }
 
-        if (entityReferenceExpression.SubqueryEntity != null)
+        if (typeReference.Subquery != null)
         {
-            var entityShaper = (EntityShaperExpression)entityReferenceExpression.SubqueryEntity.ShaperExpression;
-            var subSelectExpression = (SelectExpression)entityReferenceExpression.SubqueryEntity.QueryExpression;
+            var entityShaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
+            var subSelectExpression = (SelectExpression)typeReference.Subquery.QueryExpression;
 
             var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
-            var entityProjectionExpression = (EntityProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-            var innerProjection = entityProjectionExpression.BindProperty(property);
+            var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
+            var innerProjection = projection.BindProperty(property);
             subSelectExpression.ReplaceProjection(new List<Expression> { innerProjection });
             subSelectExpression.ApplyProjection();
 
@@ -1302,6 +1333,27 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         return null;
+    }
+
+    private StructuralTypeReferenceExpression? BindComplexProperty(
+        StructuralTypeReferenceExpression typeReference,
+        IComplexProperty complexProperty)
+    {
+        switch (typeReference)
+        {
+            case { Parameter: StructuralTypeShaperExpression shaper }:
+                var projection = (StructuralTypeProjectionExpression)Visit(shaper.ValueBufferExpression);
+
+                // TODO: Move all this logic into StructuralTypeProjectionExpression
+                Check.DebugAssert(projection.IsNullable == shaper.IsNullable, "Nullability mismatch");
+                return new StructuralTypeReferenceExpression(projection.BindComplexProperty(complexProperty));
+
+            case { Subquery: ShapedQueryExpression }:
+                throw new InvalidOperationException(); // TODO: Figure this out; do we support it?
+
+            default:
+                return null;
+        }
     }
 
     private bool TryTranslateAggregateMethodCall(
@@ -1416,8 +1468,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.Distinct)
                         when genericMethod == QueryableMethods.Distinct:
-                        if (enumerableSource.Selector is EntityShaperExpression entityShaperExpression
-                            && entityShaperExpression.EntityType.FindPrimaryKey() != null)
+                        if (enumerableSource.Selector is StructuralTypeShaperExpression { StructuralType: IEntityType entityType }
+                            && entityType.FindPrimaryKey() != null)
                         {
                             enumerableExpression = enumerableSource;
                             return true;
@@ -1480,7 +1532,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         _throwForNotTranslatedEfProperty = false;
         var selector = TranslateInternal(enumerableExpression.Selector);
         _throwForNotTranslatedEfProperty = true;
-        if (selector != null)
+        if (selector is SqlExpression)
         {
             enumerableExpression = enumerableExpression.ApplySelector(selector);
         }
@@ -1502,8 +1554,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         bool ascending)
     {
         var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
-        var keySelector = TranslateInternal(lambdaBody);
-        if (keySelector == null)
+        if (TranslateInternal(lambdaBody) is not SqlExpression keySelector)
         {
             return null;
         }
@@ -1515,11 +1566,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     private EnumerableExpression? ProcessPredicate(EnumerableExpression enumerableExpression, LambdaExpression lambdaExpression)
-    {
-        var lambdaBody = RemapLambda(enumerableExpression, lambdaExpression);
-        var predicate = TranslateInternal(lambdaBody);
-        return predicate == null ? null : enumerableExpression.ApplyPredicate(predicate);
-    }
+        => TranslateInternal(RemapLambda(enumerableExpression, lambdaExpression)) is SqlExpression predicate
+            ? enumerableExpression.ApplyPredicate(predicate)
+            : null;
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
     {
@@ -1587,12 +1636,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         result = null;
 
-        if (item is not EntityReferenceExpression itemEntityReference)
+        if (item is not StructuralTypeReferenceExpression { StructuralType: IEntityType entityType })
         {
             return false;
         }
 
-        var entityType = itemEntityReference.EntityType;
         var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
         if (primaryKeyProperties == null)
         {
@@ -1655,30 +1703,130 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return true;
     }
 
-    private bool TryRewriteEntityEquality(
+    private bool TryRewriteStructuralTypeEquality(
         ExpressionType nodeType,
         Expression left,
         Expression right,
         bool equalsMethod,
         [NotNullWhen(true)] out Expression? result)
     {
-        var leftEntityReference = left as EntityReferenceExpression;
-        var rightEntityReference = right as EntityReferenceExpression;
+        var leftReference = left as StructuralTypeReferenceExpression;
+        var rightReference = right as StructuralTypeReferenceExpression;
 
-        if (leftEntityReference == null
-            && rightEntityReference == null)
+        switch ((leftEntityReference: leftReference, rightEntityReference: rightReference))
         {
-            result = null;
-            return false;
+            case ({ StructuralType: IEntityType }, { StructuralType: IEntityType } or null):
+            case ({ StructuralType: IEntityType } or null, { StructuralType: IEntityType }):
+                return TryRewriteEntityEquality(out result);
+
+            case ({ StructuralType: IComplexType }, { StructuralType: IComplexType } or null):
+            case ({ StructuralType: IComplexType } or null, { StructuralType: IComplexType }):
+                return TryRewriteComplexTypeEquality(out result);
+
+            default:
+                result = null;
+                return false;
         }
 
-        if (IsNullSqlConstantExpression(left)
-            || IsNullSqlConstantExpression(right))
+        bool TryRewriteEntityEquality([NotNullWhen(true)] out Expression? result)
         {
-            var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightEntityReference : leftEntityReference)!;
-            var nullComparedEntityType = nonNullEntityReference.EntityType;
-            var nullComparedEntityTypePrimaryKeyProperties = nullComparedEntityType.FindPrimaryKey()?.Properties;
-            if (nullComparedEntityTypePrimaryKeyProperties == null)
+            if (IsNullSqlConstantExpression(left)
+                || IsNullSqlConstantExpression(right))
+            {
+                var nonNullEntityReference = (IsNullSqlConstantExpression(left) ? rightReference : leftReference)!;
+                var nullComparedEntityType = (IEntityType)nonNullEntityReference.StructuralType;
+                var nullComparedEntityTypePrimaryKeyProperties = nullComparedEntityType.FindPrimaryKey()?.Properties;
+                if (nullComparedEntityTypePrimaryKeyProperties == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
+                            nodeType == ExpressionType.Equal
+                                ? equalsMethod ? nameof(object.Equals) : "=="
+                                : equalsMethod
+                                    ? "!" + nameof(object.Equals)
+                                    : "!=",
+                            nullComparedEntityType.DisplayName()));
+                }
+
+                if (nullComparedEntityType.GetRootType() == nullComparedEntityType
+                    && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
+                {
+                    var table = nullComparedEntityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                        ?? nullComparedEntityType.GetDefaultMappings().Single().Table;
+                    if (table.IsOptional(nullComparedEntityType))
+                    {
+                        Expression? condition = null;
+                        // Optional dependent sharing table
+                        var requiredNonPkProperties = nullComparedEntityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey())
+                            .ToList();
+                        if (requiredNonPkProperties.Count > 0)
+                        {
+                            condition = requiredNonPkProperties.Select(
+                                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                        CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                        Expression.Constant(null, p.ClrType.MakeNullable()),
+                                        nodeType != ExpressionType.Equal))
+                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                        }
+
+                        var allNonPrincipalSharedNonPkProperties = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table);
+                        // We don't need condition for nullable property if there exist at least one required property which is non shared.
+                        if (allNonPrincipalSharedNonPkProperties.Count != 0
+                            && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                        {
+                            var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
+                                .Select(
+                                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                        CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                        Expression.Constant(null, p.ClrType.MakeNullable()),
+                                        nodeType != ExpressionType.Equal))
+                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+
+                            condition = condition == null
+                                ? atLeastOneNonNullValueInNullablePropertyCondition
+                                : nodeType == ExpressionType.Equal
+                                    ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
+                                    : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                        }
+
+                        if (condition != null)
+                        {
+                            result = Visit(condition);
+                            return true;
+                        }
+
+                        result = null;
+                        return false;
+                    }
+                }
+
+                result = Visit(
+                    nullComparedEntityTypePrimaryKeyProperties.Select(
+                            p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                Expression.Constant(null, p.ClrType.MakeNullable()),
+                                nodeType != ExpressionType.Equal))
+                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+
+                return true;
+            }
+
+            var leftEntityType = leftReference?.StructuralType as IEntityType;
+            var rightEntityType = rightReference?.StructuralType as IEntityType;
+            var entityType = leftEntityType ?? rightEntityType;
+
+            Check.DebugAssert(entityType != null, "We checked that at least one side is an entity type before calling this function");
+
+            if (leftEntityType != null
+                && rightEntityType != null
+                && leftEntityType.GetRootType() != rightEntityType.GetRootType())
+            {
+                result = _sqlExpressionFactory.Constant(false);
+                return true;
+            }
+
+            var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
+            if (primaryKeyProperties == null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
@@ -1687,131 +1835,132 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             : equalsMethod
                                 ? "!" + nameof(object.Equals)
                                 : "!=",
-                        nullComparedEntityType.DisplayName()));
+                        entityType.DisplayName()));
             }
 
-            if (nullComparedEntityType.GetRootType() == nullComparedEntityType
-                && nullComparedEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
+            if (primaryKeyProperties.Count > 1
+                && (leftReference?.Subquery != null
+                    || rightReference?.Subquery != null))
             {
-                var table = nullComparedEntityType.GetViewOrTableMappings().SingleOrDefault()?.Table
-                    ?? nullComparedEntityType.GetDefaultMappings().Single().Table;
-                if (table.IsOptional(nullComparedEntityType))
-                {
-                    Expression? condition = null;
-                    // Optional dependent sharing table
-                    var requiredNonPkProperties = nullComparedEntityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-                    if (requiredNonPkProperties.Count > 0)
-                    {
-                        condition = requiredNonPkProperties.Select(
-                                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
-                                    Expression.Constant(null, p.ClrType.MakeNullable()),
-                                    nodeType != ExpressionType.Equal))
-                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
-                    }
-
-                    var allNonPrincipalSharedNonPkProperties = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table);
-                    // We don't need condition for nullable property if there exist at least one required property which is non shared.
-                    if (allNonPrincipalSharedNonPkProperties.Count != 0
-                        && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
-                    {
-                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
-                            .Select(
-                                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
-                                    Expression.Constant(null, p.ClrType.MakeNullable()),
-                                    nodeType != ExpressionType.Equal))
-                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
-
-                        condition = condition == null
-                            ? atLeastOneNonNullValueInNullablePropertyCondition
-                            : nodeType == ExpressionType.Equal
-                                ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
-                                : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
-                    }
-
-                    if (condition != null)
-                    {
-                        result = Visit(condition);
-                        return true;
-                    }
-
-                    result = null;
-                    return false;
-                }
+                throw new InvalidOperationException(
+                    CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
+                        nodeType == ExpressionType.Equal
+                            ? equalsMethod ? nameof(object.Equals) : "=="
+                            : equalsMethod
+                                ? "!" + nameof(object.Equals)
+                                : "!=",
+                        entityType.DisplayName()));
             }
 
             result = Visit(
-                nullComparedEntityTypePrimaryKeyProperties.Select(
+                primaryKeyProperties.Select(
                         p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                            CreatePropertyAccessExpression(nonNullEntityReference, p),
-                            Expression.Constant(null, p.ClrType.MakeNullable()),
+                            CreatePropertyAccessExpression(left, p),
+                            CreatePropertyAccessExpression(right, p),
                             nodeType != ExpressionType.Equal))
-                    .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r)));
+                    .Aggregate(
+                        (l, r) => nodeType == ExpressionType.Equal
+                            ? Expression.AndAlso(l, r)
+                            : Expression.OrElse(l, r)));
 
             return true;
         }
 
-        var leftEntityType = leftEntityReference?.EntityType;
-        var rightEntityType = rightEntityReference?.EntityType;
-        var entityType = leftEntityType ?? rightEntityType;
-
-        Check.DebugAssert(entityType != null, "At least one side should be entityReference so entityType should be non-null.");
-
-        if (leftEntityType != null
-            && rightEntityType != null
-            && leftEntityType.GetRootType() != rightEntityType.GetRootType())
+        bool TryRewriteComplexTypeEquality([NotNullWhen(true)] out Expression? result)
         {
-            result = _sqlExpressionFactory.Constant(false);
+            if (IsNullSqlConstantExpression(left)
+                || IsNullSqlConstantExpression(right))
+            {
+                // TODO: when we support optional complex types - or projecting required complex types via optional navigations - we'll
+                // be able to translate this.
+                throw new InvalidOperationException(); // TODO: Message
+            }
+
+            var leftComplexType = leftReference?.StructuralType as IComplexType;
+            var rightComplexType = rightReference?.StructuralType as IComplexType;
+            var complexType = leftComplexType ?? rightComplexType;
+
+            Check.DebugAssert(complexType != null, "We checked that at least one side is a complex type before calling this function");
+
+            // If a complex type is the result of a subquery, then comparing its columns would mean duplicating the subquery, which would
+            // be potentially very inefficient.
+            // TODO: Enable this by extracting the subquery out to a common table expressions (WITH)
+            if (leftReference is { Subquery: not null } || rightReference is { Subquery: not null })
+            {
+                throw new InvalidOperationException(RelationalStrings.SubqueryOverComplexTypesNotSupported(complexType.DisplayName()));
+            }
+
+            // Generate an expression that compares each property on the left to the same property on the right; this needs to recursively
+            // include all properties in nested complex types.
+            Expression? comparisons = null;
+            GenerateComparisons(complexType, left, right);
+
+            // Indicates failure to bind to a complex property while generating the comparisons
+            if (comparisons is null)
+            {
+                result = null;
+                return false;
+            }
+
+            result = Visit(comparisons);
             return true;
+
+            void GenerateComparisons(IComplexType type, Expression left, Expression right)
+            {
+                foreach (var property in type.GetProperties())
+                {
+                    var comparison = Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                        CreatePropertyAccessExpression(left, property),
+                        CreatePropertyAccessExpression(right, property),
+                        nodeType != ExpressionType.Equal);
+
+                    comparisons = comparisons is null
+                        ? comparison
+                        : nodeType == ExpressionType.Equal
+                            ? Expression.AndAlso(comparisons, comparison)
+                            : Expression.OrElse(comparisons, comparison);
+                }
+
+                foreach (var complexProperty in type.GetComplexProperties())
+                {
+                    Check.DebugAssert(
+                        left is not StructuralTypeReferenceExpression { Subquery: not null }
+                        && right is not StructuralTypeReferenceExpression { Subquery: not null },
+                        "Subquery complex type references are not supported");
+
+                    // TODO: Implement/test non-entity binding (i.e. with a constant instance)
+                    var nestedLeft = left is StructuralTypeReferenceExpression leftReference
+                        ? BindComplexProperty(leftReference, complexProperty)
+                        : CreateComplexPropertyAccessExpression(left, complexProperty);
+                    var nestedRight = right is StructuralTypeReferenceExpression rightReference
+                        ? BindComplexProperty(rightReference, complexProperty)
+                        : CreateComplexPropertyAccessExpression(right, complexProperty);
+
+                    if (nestedLeft is null || nestedRight is null)
+                    {
+                        comparisons = null;
+                        return;
+                    }
+
+                    GenerateComparisons(complexProperty.ComplexType, nestedLeft, nestedRight);
+                }
+            }
         }
-
-        var primaryKeyProperties = entityType.FindPrimaryKey()?.Properties;
-        if (primaryKeyProperties == null)
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityEqualityOnKeylessEntityNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod
-                            ? "!" + nameof(object.Equals)
-                            : "!=",
-                    entityType.DisplayName()));
-        }
-
-        if (primaryKeyProperties.Count > 1
-            && (leftEntityReference?.SubqueryEntity != null
-                || rightEntityReference?.SubqueryEntity != null))
-        {
-            throw new InvalidOperationException(
-                CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(
-                    nodeType == ExpressionType.Equal
-                        ? equalsMethod ? nameof(object.Equals) : "=="
-                        : equalsMethod
-                            ? "!" + nameof(object.Equals)
-                            : "!=",
-                    entityType.DisplayName()));
-        }
-
-        result = Visit(
-            primaryKeyProperties.Select(
-                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                        CreatePropertyAccessExpression(left, p),
-                        CreatePropertyAccessExpression(right, p),
-                        nodeType != ExpressionType.Equal))
-                .Aggregate(
-                    (l, r) => nodeType == ExpressionType.Equal
-                        ? Expression.AndAlso(l, r)
-                        : Expression.OrElse(l, r)));
-
-        return true;
     }
 
     private Expression CreatePropertyAccessExpression(Expression target, IProperty property)
     {
         switch (target)
         {
+            // TODO: Cleanup, why do we need both SqlConstantExpression and ConstantExpression
             case SqlConstantExpression sqlConstantExpression:
+                return Expression.Constant(
+                    sqlConstantExpression.Value is null
+                        ? null
+                        : property.GetGetter().GetStructuralTypeClrValue(sqlConstantExpression.Value),
+                    property.ClrType.MakeNullable());
+
+            case ConstantExpression sqlConstantExpression:
                 return Expression.Constant(
                     sqlConstantExpression.Value is null
                         ? null
@@ -1820,11 +1969,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
             case SqlParameterExpression sqlParameterExpression
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
+            {
                 var lambda = Expression.Lambda(
                     Expression.Call(
                         ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
                         QueryCompilationContext.QueryContextParameter,
                         Expression.Constant(sqlParameterExpression.Name, typeof(string)),
+                        Expression.Constant(null, typeof(List<IComplexProperty>)),
                         Expression.Constant(property, typeof(IProperty))),
                     QueryCompilationContext.QueryContextParameter);
 
@@ -1833,6 +1984,25 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     + $"{sqlParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
 
                 return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+            }
+
+            case ParameterBasedComplexPropertyChainExpression chainExpression:
+            {
+                var lambda = Expression.Lambda(
+                    Expression.Call(
+                        ParameterValueExtractorMethod.MakeGenericMethod(property.ClrType.MakeNullable()),
+                        QueryCompilationContext.QueryContextParameter,
+                        Expression.Constant(chainExpression.ParameterExpression.Name, typeof(string)),
+                        Expression.Constant(chainExpression.ComplexPropertyChain, typeof(List<IComplexProperty>)),
+                        Expression.Constant(property, typeof(IProperty))),
+                    QueryCompilationContext.QueryContextParameter);
+
+                var newParameterName =
+                    $"{RuntimeParameterPrefix}"
+                    + $"{chainExpression.ParameterExpression.Name[QueryCompilationContext.QueryParameterPrefix.Length..]}_{property.Name}";
+
+                return _queryCompilationContext.RegisterRuntimeParameter(newParameterName, lambda);
+            }
 
             case MemberInitExpression memberInitExpression
                 when memberInitExpression.Bindings.SingleOrDefault(
@@ -1844,10 +2014,50 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
     }
 
-    private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
+    private Expression CreateComplexPropertyAccessExpression(Expression target, IComplexProperty complexProperty)
+        => target switch
+        {
+            SqlConstantExpression constant => Expression.Constant(
+                constant.Value is null ? null : complexProperty.GetGetter().GetStructuralTypeClrValue(constant.Value),
+                complexProperty.ClrType.MakeNullable()),
+
+            SqlParameterExpression sqlParameterExpression
+                when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal)
+                => new ParameterBasedComplexPropertyChainExpression(sqlParameterExpression, complexProperty),
+
+            MemberInitExpression memberInitExpression
+                when memberInitExpression.Bindings.SingleOrDefault(mb => mb.Member.Name == complexProperty.Name) is MemberAssignment
+                    memberAssignment
+                => memberAssignment.Expression,
+
+            // For non-constant/parameter complex property accesses, BindComplexProperty is called instead of this method
+            // TODO: possibly refactor, folding this method into BindComplexProperty to have it handle the constant/parameter cases as well
+            // (but consider the non-complex property case as well)
+            _ => throw new UnreachableException()
+        };
+
+    private static T? ParameterValueExtractor<T>(
+        QueryContext context,
+        string baseParameterName,
+        List<IComplexProperty>? complexPropertyChain,
+        IProperty property)
     {
-        var baseParameter = context.ParameterValues[baseParameterName];
-        return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetStructuralTypeClrValue(baseParameter);
+        var baseValue = context.ParameterValues[baseParameterName];
+
+        if (complexPropertyChain is not null)
+        {
+            foreach (var complexProperty in complexPropertyChain)
+            {
+                if (baseValue is null)
+                {
+                    break;
+                }
+
+                baseValue = complexProperty.GetGetter().GetStructuralTypeClrValue(baseValue);
+            }
+        }
+
+        return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetStructuralTypeClrValue(baseValue);
     }
 
     private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
@@ -1862,6 +2072,20 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         var getter = property.GetGetter();
         return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetStructuralTypeClrValue(e) : (TProperty?)(object?)null).ToList();
+    }
+
+    private class ParameterBasedComplexPropertyChainExpression : Expression
+    {
+        public ParameterBasedComplexPropertyChainExpression(
+            SqlParameterExpression parameterExpression,
+            IComplexProperty firstComplexProperty)
+        {
+            ParameterExpression = parameterExpression;
+            ComplexPropertyChain = new List<IComplexProperty> { firstComplexProperty };
+        }
+
+        public SqlParameterExpression ParameterExpression { get; }
+        public List<IComplexProperty> ComplexPropertyChain { get; }
     }
 
     private static bool CanEvaluate(Expression expression)
@@ -1892,33 +2116,34 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return false;
     }
 
-    private sealed class EntityReferenceExpression : Expression
+    [DebuggerDisplay("{DebuggerDisplay(),nq}")]
+    private sealed class StructuralTypeReferenceExpression : Expression
     {
-        public EntityReferenceExpression(EntityShaperExpression parameter)
+        public StructuralTypeReferenceExpression(StructuralTypeShaperExpression parameter)
         {
-            ParameterEntity = parameter;
-            EntityType = parameter.EntityType;
+            Parameter = parameter;
+            StructuralType = parameter.StructuralType;
         }
 
-        public EntityReferenceExpression(ShapedQueryExpression subquery)
+        public StructuralTypeReferenceExpression(ShapedQueryExpression subquery)
         {
-            SubqueryEntity = subquery;
-            EntityType = ((EntityShaperExpression)subquery.ShaperExpression).EntityType;
+            Subquery = subquery;
+            StructuralType = ((StructuralTypeShaperExpression)subquery.ShaperExpression).StructuralType;
         }
 
-        private EntityReferenceExpression(EntityReferenceExpression entityReferenceExpression, IEntityType entityType)
+        private StructuralTypeReferenceExpression(StructuralTypeReferenceExpression typeReference, ITypeBase structuralType)
         {
-            ParameterEntity = entityReferenceExpression.ParameterEntity;
-            SubqueryEntity = entityReferenceExpression.SubqueryEntity;
-            EntityType = entityType;
+            Parameter = typeReference.Parameter;
+            Subquery = typeReference.Subquery;
+            StructuralType = structuralType;
         }
 
-        public EntityShaperExpression? ParameterEntity { get; }
-        public ShapedQueryExpression? SubqueryEntity { get; }
-        public IEntityType EntityType { get; }
+        public new StructuralTypeShaperExpression? Parameter { get; }
+        public ShapedQueryExpression? Subquery { get; }
+        public ITypeBase StructuralType { get; }
 
         public override Type Type
-            => EntityType.ClrType;
+            => StructuralType.ClrType;
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;
@@ -1931,11 +2156,18 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return this;
             }
 
-            var derivedEntityType = EntityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type);
-
-            return derivedEntityType == null
-                ? QueryCompilationContext.NotTranslatedExpression
-                : new EntityReferenceExpression(this, derivedEntityType);
+            return StructuralType is IEntityType entityType
+                && entityType.GetDerivedTypes().FirstOrDefault(et => et.ClrType == type) is IEntityType derivedEntityType
+                    ? new StructuralTypeReferenceExpression(this, derivedEntityType)
+                    : QueryCompilationContext.NotTranslatedExpression;
         }
+
+        private string DebuggerDisplay()
+            => this switch
+            {
+                { Parameter: not null } => Parameter.DebuggerDisplay(),
+                { Subquery: not null } => ExpressionPrinter.Print(Subquery!),
+                _ => throw new UnreachableException()
+            };
     }
 }

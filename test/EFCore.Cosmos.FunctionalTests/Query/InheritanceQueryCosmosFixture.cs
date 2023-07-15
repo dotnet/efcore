@@ -13,4 +13,7 @@ public class InheritanceQueryCosmosFixture : InheritanceQueryFixtureBase
 
     protected override bool UseGeneratedKeys
         => false;
+
+    protected override bool EnableComplexTypes
+        => false;
 }

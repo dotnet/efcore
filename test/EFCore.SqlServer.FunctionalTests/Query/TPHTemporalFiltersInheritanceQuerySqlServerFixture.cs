@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TemporalFiltersInheritanceQuerySqlServerFixture : FiltersInheritanceQuerySqlServerFixture
+public class TPHTemporalFiltersInheritanceQuerySqlServerFixture : TPHFiltersInheritanceQuerySqlServerFixture
 {
     protected override string StoreName
         => "TemporalFiltersInheritanceQueryTest";

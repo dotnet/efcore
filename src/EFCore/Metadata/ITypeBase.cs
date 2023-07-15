@@ -36,7 +36,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <param name="memberInfo">The member on the CLR type.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     new IProperty? FindProperty(MemberInfo memberInfo)
-        => (IProperty?)((IReadOnlyEntityType)this).FindProperty(memberInfo);
+        => (IProperty?)((IReadOnlyTypeBase)this).FindProperty(memberInfo);
 
     /// <summary>
     ///     Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
@@ -58,7 +58,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <returns>The properties, or <see langword="null" /> if any property is not found.</returns>
     new IReadOnlyList<IProperty>? FindProperties(
         IReadOnlyList<string> propertyNames)
-        => (IReadOnlyList<IProperty>?)((IReadOnlyEntityType)this).FindProperties(propertyNames);
+        => (IReadOnlyList<IProperty>?)((IReadOnlyTypeBase)this).FindProperties(propertyNames);
 
     /// <summary>
     ///     Gets a property with the given name.
@@ -69,7 +69,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <param name="name">The property name.</param>
     /// <returns>The property.</returns>
     new IProperty GetProperty(string name)
-        => (IProperty)((IReadOnlyEntityType)this).GetProperty(name);
+        => (IProperty)((IReadOnlyTypeBase)this).GetProperty(name);
 
     /// <summary>
     ///     Finds a property declared on the type with the given name.
@@ -78,7 +78,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <param name="name">The property name.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     new IProperty? FindDeclaredProperty(string name)
-        => (IProperty?)((IReadOnlyEntityType)this).FindDeclaredProperty(name);
+        => (IProperty?)((IReadOnlyTypeBase)this).FindDeclaredProperty(name);
 
     /// <summary>
     ///     Gets all non-navigation properties declared on this type.
@@ -101,7 +101,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// </remarks>
     /// <returns>Derived non-navigation properties.</returns>
     new IEnumerable<IProperty> GetDerivedProperties()
-        => ((IReadOnlyEntityType)this).GetDerivedProperties().Cast<IProperty>();
+        => ((IReadOnlyTypeBase)this).GetDerivedProperties().Cast<IProperty>();
 
     /// <summary>
     ///     Gets the properties defined on this type.
@@ -131,7 +131,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <param name="memberInfo">The member on the entity class.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     new IComplexProperty? FindComplexProperty(MemberInfo memberInfo)
-        => (IComplexProperty?)((IReadOnlyEntityType)this).FindComplexProperty(memberInfo);
+        => (IComplexProperty?)((IReadOnlyTypeBase)this).FindComplexProperty(memberInfo);
 
     /// <summary>
     ///     Finds a property declared on the type with the given name.
@@ -143,7 +143,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// <param name="name">The property name.</param>
     /// <returns>The property, or <see langword="null" /> if none is found.</returns>
     new IComplexProperty? FindDeclaredComplexProperty(string name)
-        => (IComplexProperty?)((IReadOnlyEntityType)this).FindDeclaredComplexProperty(name);
+        => (IComplexProperty?)((IReadOnlyTypeBase)this).FindDeclaredComplexProperty(name);
 
     /// <summary>
     ///     Gets the complex properties defined on this entity type.
@@ -170,7 +170,7 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     /// </remarks>
     /// <returns>Derived complex properties.</returns>
     new IEnumerable<IComplexProperty> GetDerivedComplexProperties()
-        => ((IReadOnlyEntityType)this).GetDerivedComplexProperties().Cast<IComplexProperty>();
+        => ((IReadOnlyTypeBase)this).GetDerivedComplexProperties().Cast<IComplexProperty>();
 
     /// <summary>
     ///     Gets the members defined on this type and base types.
@@ -211,25 +211,31 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
             yield return property;
         }
 
-        foreach (var property in ReturnComplexProperties(GetComplexProperties()))
+        foreach (var complexProperty in GetComplexProperties())
+        {
+            foreach (var property in complexProperty.ComplexType.GetFlattenedProperties())
+            {
+                yield return property;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Returns all declared properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> GetFlattenedDeclaredProperties()
+    {
+        foreach (var property in GetDeclaredProperties())
         {
             yield return property;
         }
 
-        IEnumerable<IProperty> ReturnComplexProperties(IEnumerable<IComplexProperty> complexProperties)
+        foreach (var complexProperty in GetDeclaredComplexProperties())
         {
-            foreach (var complexProperty in complexProperties)
+            foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
             {
-                var complexType = complexProperty.ComplexType;
-                foreach (var property in complexType.GetProperties())
-                {
-                    yield return property;
-                }
-
-                foreach (var property in ReturnComplexProperties(complexType.GetComplexProperties()))
-                {
-                    yield return property;
-                }
+                yield return property;
             }
         }
     }

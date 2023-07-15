@@ -694,7 +694,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 || !entityType.GetAllBaseTypesInclusiveAscending()
                     .All(e => (e == entityType || e.IsAbstract()) && !HasSiblings(e))))
         {
-            var discriminatorColumn = GetMappedEntityProjectionExpression(selectExpression).BindProperty(discriminatorProperty);
+            var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
             var predicate = concreteEntityTypes.Count == 1
                 ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
@@ -725,11 +725,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         if (table.IsOptional(entityType))
         {
             SqlExpression? predicate = null;
-            var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);
+            var projection = GetMappedProjection(selectExpression);
             var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
             if (requiredNonPkProperties.Count > 0)
             {
-                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression))
+                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, projection))
                     .Aggregate(AndAlso);
             }
 
@@ -739,7 +739,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 && allNonSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
-                    .Select(e => IsNotNull(e, entityProjectionExpression))
+                    .Select(e => IsNotNull(e, projection))
                     .Aggregate(OrElse);
 
                 predicate = predicate == null
@@ -757,10 +757,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             => entityType.BaseType?.GetDirectlyDerivedTypes().Any(i => i != entityType) == true;
     }
 
-    private static EntityProjectionExpression GetMappedEntityProjectionExpression(SelectExpression selectExpression)
-        => (EntityProjectionExpression)selectExpression.GetProjection(
+    private static StructuralTypeProjectionExpression GetMappedProjection(SelectExpression selectExpression)
+        => (StructuralTypeProjectionExpression)selectExpression.GetProjection(
             new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(ValueBuffer)));
 
-    private SqlExpression IsNotNull(IProperty property, EntityProjectionExpression entityProjection)
-        => IsNotNull(entityProjection.BindProperty(property));
+    private SqlExpression IsNotNull(IProperty property, StructuralTypeProjectionExpression projection)
+        => IsNotNull(projection.BindProperty(property));
 }
