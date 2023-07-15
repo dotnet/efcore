@@ -3,7 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels;
 
-namespace Microsoft.EntityFrameworkCore.NativeAotTests;
+namespace Microsoft.EntityFrameworkCore.NativeAotTests.Models;
 
 public class NativeAotContext : DbContext
 {

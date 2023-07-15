@@ -4,7 +4,7 @@
 using System.IO;
 using Microsoft.Extensions.Configuration;
 
-namespace EFCore.Trimming.Tests;
+namespace Microsoft.EntityFrameworkCore.TrimmingTests.TestUtilities;
 
 public static class TestEnvironment
 {

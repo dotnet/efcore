@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.NativeAotTests.Models;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -15,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
-                "Microsoft.EntityFrameworkCore.NativeAotTests.User",
+                "Microsoft.EntityFrameworkCore.NativeAotTests.Models.User",
                 typeof(User),
                 baseEntityType);
 

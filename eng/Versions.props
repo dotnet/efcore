@@ -10,6 +10,7 @@
     -->
     <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
     <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
+    <DefaultNetCoreTargetFramework>net8.0</DefaultNetCoreTargetFramework>
   </PropertyGroup>
   <PropertyGroup Label="Arcade settings">
     <UsingToolXliff>False</UsingToolXliff>

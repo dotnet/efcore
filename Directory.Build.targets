@@ -1,5 +1,6 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.DotNet.Arcade.Sdk" />
+  <Import Project="eng\testing\linker\trimmingTests.targets" Condition="'$(IsPublishedAppTestProject)' == 'true'" />
 
   <Target Name="GetCustomAssemblyAttributes"
           BeforeTargets="GetAssemblyAttributes"
