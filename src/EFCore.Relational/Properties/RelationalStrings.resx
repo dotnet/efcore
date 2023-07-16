@@ -576,7 +576,7 @@
     <comment>Debug RelationalEventId.BatchExecutorFailedToReleaseSavepoint</comment>
   </data>
   <data name="LogBatchExecutorFailedToRollbackToSavepoint" xml:space="preserve">
-    <value>An error occurred while rolling back the transaction to a savepoint, after an exception occured during `SaveChanges`.</value>
+    <value>An error occurred while rolling back the transaction to a savepoint, after an exception occurred during `SaveChanges`.</value>
     <comment>Debug RelationalEventId.BatchExecutorFailedToRollbackToSavepoint</comment>
   </data>
   <data name="LogBatchReadyForExecution" xml:space="preserve">
