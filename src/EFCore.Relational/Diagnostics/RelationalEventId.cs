@@ -990,7 +990,7 @@ public static class RelationalEventId
     public static readonly EventId BatchSmallerThanMinBatchSize = MakeUpdateId(Id.BatchSmallerThanMinBatchSize);
 
     /// <summary>
-    ///     An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occured.
+    ///     An error occurred while the batch executor was rolling back the transaction to a savepoint, after an exception occurred.
     /// </summary>
     /// <remarks>
     ///     This event is in the <see cref="DbLoggerCategory.Update" /> category.
