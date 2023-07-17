@@ -90,6 +90,14 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_DateOnly_ToString(bool async)
+    => AssertQuery(
+       async,
+     ss => ss.Set<Mission>().Where(m => m.Date.ToString() == new DateOnly(2020, 1, 1).ToString()).AsTracking(),
+       entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => AssertQuery(async, ss => ss.Set<Weapon>().Include(w => w.Owner.Weapons)));

@@ -66,6 +66,18 @@ public class SqlServerDateOnlyMethodTranslator : IMethodCallTranslator
             return _sqlExpressionFactory.Convert(arguments[0], typeof(DateOnly));
         }
 
+
+        if (instance?.Type == typeof(DateOnly)
+            && method.Name == nameof(DateOnly.ToString))
+        {
+            return _sqlExpressionFactory.Function(
+                "FORMAT",
+                new[] { instance, _sqlExpressionFactory.Constant("M/d/yyyy") },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true, true },
+                returnType: method.ReturnType);
+        }
+
         return null;
     }
 }

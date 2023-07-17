@@ -12583,6 +12583,18 @@ FROM [Weapons] AS [w]
 """);
     }
 
+    public override async Task Where_DateOnly_ToString(bool async)
+    {
+        await base.Where_DateOnly_ToString(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE FORMAT([m].[Date], N'M/d/yyyy') = N'1/1/2020'
+""");
+    }
+
     public override async Task Include_on_derived_entity_with_cast(bool async)
     {
         await base.Include_on_derived_entity_with_cast(async);
