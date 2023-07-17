@@ -166,17 +166,40 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                             typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
                     }
 
+                    var typeToInstantiate = FindTypeToInstantiate();
+
                     collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                         ?? (JsonValueReaderWriter?)Activator.CreateInstance(
                             (elementType.IsNullableValueType()
-                                ? typeof(JsonNullStructsCollectionReaderWriter<,>)
+                                ? typeof(JsonNullStructsCollectionReaderWriter<,,>)
                                 : elementType.IsValueType
-                                    ? typeof(JsonNoNullsCollectionReaderWriter<,>)
-                                    : typeof(JsonNullRefsCollectionReaderWriter<,>))
-                            .MakeGenericType(modelClrType, elementType.UnwrapNullableType()),
+                                    ? typeof(JsonNoNullsCollectionReaderWriter<,,>)
+                                    : typeof(JsonNullRefsCollectionReaderWriter<,,>))
+                            .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
                             elementReader);
 
                     return true;
+
+                    Type FindTypeToInstantiate()
+                    {
+                        if (modelClrType.IsArray)
+                        {
+                            return modelClrType;
+                        }
+
+                        if (!modelClrType.IsAbstract)
+                        {
+                            var constructor = modelClrType.GetDeclaredConstructor(null);
+                            if (constructor?.IsPublic == true)
+                            {
+                                return modelClrType;
+                            }
+                        }
+
+                        var listOfT = typeof(List<>).MakeGenericType(elementType);
+
+                        return modelClrType.IsAssignableFrom(listOfT) ? listOfT : modelClrType;
+                    }
                 }
             }
         }

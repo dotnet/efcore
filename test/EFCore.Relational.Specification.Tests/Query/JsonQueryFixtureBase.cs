@@ -324,6 +324,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
     {
         Assert.Equal(expected.Name, actual.Name);
         Assert.Equal(expected.Number, actual.Number);
+        Assert.Equal(expected.Names, actual.Names);
+        Assert.Equal(expected.Numbers, actual.Numbers);
 
         AssertOwnedBranch(expected.OwnedReferenceBranch, actual.OwnedReferenceBranch);
         Assert.Equal(expected.OwnedCollectionBranch.Count, actual.OwnedCollectionBranch.Count);
@@ -339,6 +341,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.Fraction, actual.Fraction);
         Assert.Equal(expected.Enum, actual.Enum);
         Assert.Equal(expected.NullableEnum, actual.NullableEnum);
+        Assert.Equal(expected.Enums, actual.Enums);
+        Assert.Equal(expected.NullableEnums, actual.NullableEnums);
 
         AssertOwnedLeaf(expected.OwnedReferenceLeaf, actual.OwnedReferenceLeaf);
         Assert.Equal(expected.OwnedCollectionLeaf.Count, actual.OwnedCollectionLeaf.Count);
