@@ -30,7 +30,7 @@
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
     <!-- The trimming and NativeAOT test projects are console programs -->
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.TrimmingTests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.NativeAotTests/*.csproj"/>
   </ItemGroup>
 
@@ -64,7 +64,7 @@
   <PropertyGroup>
     <XUnitPublishTargetFramework>net7.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
-    <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
+    <XUnitRunnerVersion>2.4.2</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
     <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>

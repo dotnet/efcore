@@ -1,0 +1,3 @@
+When `dotnet test` is executed on this project a temporary project will be generated for each file directly in this folder. The new projects will be published and executed with return code 100 signaling success. Source files in subfolders will be added to all temporary projects. All the references will be copied to the temporary projects.
+
+It is possible to change which projects are created and what additional files are added to them, for example see https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.HttpListener/tests/TrimmingTests/System.Net.HttpListener.TrimmingTests.proj

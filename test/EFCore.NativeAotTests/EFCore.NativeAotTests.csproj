@@ -2,14 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <Nullable>enable</Nullable>
     <PublishAot>true</PublishAot>
-    <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636;SA0001;SA1402;SA1027;SA1309;SA1201;SA1200;SA1512;SA1101</WarningsNotAsErrors>
-    <!-- These test projects cannot be run in helix, since there is nothing to publish. -->
-    <BuildHelixPayload>false</BuildHelixPayload>
-    <IsPublishable>false</IsPublishable>
+    <RootNamespace>Microsoft.EntityFrameworkCore.NativeAotTests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.NativeAotTests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
