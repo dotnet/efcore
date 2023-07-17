@@ -152,7 +152,8 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             stringBuilder.Append(columnModification.JsonPath);
             stringBuilder.Append("', ");
 
-            if (columnModification.Property != null)
+            if (columnModification.Property != null
+                && columnModification.Property.GetTypeMapping().ElementTypeMapping == null)
             {
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
             }

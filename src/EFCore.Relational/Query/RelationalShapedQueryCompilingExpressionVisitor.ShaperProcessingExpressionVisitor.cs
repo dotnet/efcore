@@ -1517,7 +1517,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // - entity construction / property assignments
                     // - navigation fixups
                     // - entity instance variable that is returned as end result
-                    var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(propertyAssignmentMap);
+                    var propertyAssignmentReplacer = new ValueBufferTryReadValueMethodsReplacer(
+                        jsonEntityTypeVariable, propertyAssignmentMap);
 
                     if (body.Expressions[0] is BinaryExpression
                         {
@@ -1866,25 +1867,88 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             private sealed class ValueBufferTryReadValueMethodsReplacer : ExpressionVisitor
             {
+                private static readonly MethodInfo PopulateListMethod
+                    = typeof(ValueBufferTryReadValueMethodsReplacer).GetMethod(
+                        nameof(PopulateList), BindingFlags.NonPublic | BindingFlags.Static)!;
+
+                private readonly Expression _instance;
                 private readonly Dictionary<IProperty, ParameterExpression> _propertyAssignmentMap;
 
-                public ValueBufferTryReadValueMethodsReplacer(Dictionary<IProperty, ParameterExpression> propertyAssignmentMap)
+                public ValueBufferTryReadValueMethodsReplacer(
+                    Expression instance,
+                    Dictionary<IProperty, ParameterExpression> propertyAssignmentMap)
                 {
+                    _instance = instance;
                     _propertyAssignmentMap = propertyAssignmentMap;
                 }
 
+                protected override Expression VisitBinary(BinaryExpression node)
+                {
+                    if (node.Right is MethodCallExpression methodCallExpression
+                        && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
+                    {
+                        if (property!.GetTypeMapping().ElementTypeMapping != null
+                            && !property.ClrType.IsArray)
+                        {
+                            var currentVariable = Variable(parameter!.Type);
+                            return Block(
+                                new[] { currentVariable },
+                                Assign(
+                                    currentVariable,
+                                    MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                                IfThenElse(
+                                    OrElse(
+                                        ReferenceEqual(currentVariable, Constant(null)),
+                                        ReferenceEqual(parameter, Constant(null))),
+                                    MakeBinary(node.NodeType, node.Left, parameter),
+                                    Call(
+                                        PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
+                                        parameter,
+                                        currentVariable)
+                                ));
+                        }
+
+                        return MakeBinary(node.NodeType, Visit(node.Left), parameter!);
+                    }
+
+                    return base.VisitBinary(node);
+                }
+
                 protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+                    => IsPropertyAssignment(methodCallExpression, out _, out var parameter)
+                        ? parameter!
+                        : base.VisitMethodCall(methodCallExpression);
+
+                private bool IsPropertyAssignment(
+                    MethodCallExpression methodCallExpression,
+                    out IProperty? property,
+                    out Expression? parameter)
                 {
                     if (methodCallExpression.Method.IsGenericMethod
                         && methodCallExpression.Method.GetGenericMethodDefinition()
                         == Infrastructure.ExpressionExtensions.ValueBufferTryReadValueMethod
-                        && ((ConstantExpression)methodCallExpression.Arguments[2]).Value is IProperty property
-                        && _propertyAssignmentMap.TryGetValue(property, out var parameter))
+                        && ((ConstantExpression)methodCallExpression.Arguments[2]).Value is IProperty prop
+                        && _propertyAssignmentMap.TryGetValue(prop, out var param))
                     {
-                        return parameter;
+                        property = prop;
+                        parameter = param;
+                        return true;
                     }
 
-                    return base.VisitMethodCall(methodCallExpression);
+                    property = null;
+                    parameter = null;
+                    return false;
+                }
+
+                private static IList<T> PopulateList<T>(IList<T> buffer, IList<T> target)
+                {
+                    target.Clear();
+                    foreach (var value in buffer)
+                    {
+                        target.Add(value);
+                    }
+
+                    return target;
                 }
             }
         }
@@ -2264,7 +2328,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!);
 
             var fromJsonMethod = jsonReaderWriterExpression.Type.GetMethod(
-                nameof(JsonValueReaderWriter.FromJson), new[] { typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object) })!;
+                nameof(JsonValueReaderWriter<object>.FromJsonTyped),
+                new[] { typeof(Utf8JsonReaderManager).MakeByRefType(), typeof(object) })!;
 
             Expression resultExpression = Convert(
                 Call(jsonReaderWriterExpression, fromJsonMethod, jsonReaderManagerParameter, Default(typeof(object))),

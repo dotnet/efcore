@@ -1292,7 +1292,8 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
                 1,
                 ulong.MaxValue
             },
-            "{\"Prop\":[0,1,18446744073709551615]}");
+            "{\"Prop\":[0,1,18446744073709551615]}",
+            new ObservableCollection<ulong>());
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_float_JSON_values()
@@ -1352,7 +1353,8 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
                 new(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
             },
-            "{\"Prop\":[\"00:00:00.0000000\",\"11:05:02.0030040\",\"23:59:59.9999999\"]}");
+            "{\"Prop\":[\"00:00:00.0000000\",\"11:05:02.0030040\",\"23:59:59.9999999\"]}",
+            new List<TimeOnly>());
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_DateTime_JSON_values()
@@ -1584,7 +1586,8 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
                 EnumU32.One,
                 (EnumU32)8
             },
-            "{\"Prop\":[0,4294967295,0,1,8]}");
+            "{\"Prop\":[0,4294967295,0,1,8]}",
+            new ObservableCollection<EnumU32>());
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_ulong_enum_JSON_values()
@@ -2320,7 +2323,11 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
             },
             "{\"Prop\":\"[0,null,18446744073709551615,0,1,8]\"}");
 
-    protected virtual void Can_read_and_write_JSON_value<TModel>(IProperty property, TModel value, string json)
+    protected virtual void Can_read_and_write_JSON_value<TModel>(
+        IProperty property,
+        TModel value,
+        string json,
+        object? existingObject = null)
     {
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);
@@ -2353,12 +2360,20 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
         readerManager.MoveNext();
         readerManager.MoveNext();
 
-        Assert.Equal(
-            value,
-            property.IsNullable
-            && readerManager.CurrentReader.TokenType == JsonTokenType.Null
-                ? default!
-                : jsonReaderWriter.FromJson(ref readerManager));
+        if (readerManager.CurrentReader.TokenType == JsonTokenType.Null)
+        {
+            Assert.Null(value);
+        }
+        else
+        {
+            var fromJson = jsonReaderWriter.FromJson(ref readerManager, existingObject);
+            if (existingObject != null)
+            {
+                Assert.Same(fromJson, existingObject);
+            }
+
+            Assert.Equal(value, fromJson);
+        }
     }
 
     protected class Types
@@ -2901,7 +2916,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
             modelBuilder.Entity<GeometryTypesAsGeoJson>(
                 b =>
                 {
-                    b.HasNoKey();
                     b.Property(e => e.Point).Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter));
                     b.Property(e => e.PointZ).Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter));
                     b.Property(e => e.PointM).Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter));

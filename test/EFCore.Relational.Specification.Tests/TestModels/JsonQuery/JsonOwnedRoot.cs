@@ -7,6 +7,8 @@ public class JsonOwnedRoot
 {
     public string Name { get; set; }
     public int Number { get; set; }
+    public string[] Names { get; set; }
+    public int[] Numbers { get; set; }
 
     public JsonOwnedBranch OwnedReferenceBranch { get; set; }
     public List<JsonOwnedBranch> OwnedCollectionBranch { get; set; }

@@ -9,9 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a nullable value type.
 /// </summary>
 /// <typeparam name="TCollection">The collection type.</typeparam>
+/// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonNullStructsCollectionReaderWriter<TCollection, TElement> : JsonValueReaderWriter<IEnumerable<TElement?>>
+public class
+    JsonNullStructsCollectionReaderWriter<TCollection, TConcreteCollection, TElement> : JsonValueReaderWriter<IEnumerable<TElement?>>
     where TElement : struct
+    where TCollection : IEnumerable<TElement?>
+    where TConcreteCollection : IList<TElement?>
 {
     private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
 
@@ -27,7 +31,20 @@ public class JsonNullStructsCollectionReaderWriter<TCollection, TElement> : Json
     /// <inheritdoc />
     public override IEnumerable<TElement?> FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
     {
-        var value = new List<TElement?>();
+        IList<TElement?> collection;
+        if (typeof(TCollection).IsArray)
+        {
+            collection = new List<TElement?>();
+        }
+        else if (existingObject == null)
+        {
+            collection = Activator.CreateInstance<TConcreteCollection>();
+        }
+        else
+        {
+            collection = (IList<TElement?>)existingObject;
+            collection.Clear();
+        }
 
         while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
         {
@@ -39,15 +56,15 @@ public class JsonNullStructsCollectionReaderWriter<TCollection, TElement> : Json
                 case JsonTokenType.Number:
                 case JsonTokenType.True:
                 case JsonTokenType.False:
-                    value.Add(_elementReaderWriter.FromJsonTyped(ref manager));
+                    collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
                     break;
                 case JsonTokenType.Null:
-                    value.Add(null);
+                    collection.Add(null);
                     break;
             }
         }
 
-        return typeof(TCollection).IsArray ? value.ToArray() : value;
+        return typeof(TCollection).IsArray ? collection.ToArray() : collection;
     }
 
     /// <inheritdoc />
