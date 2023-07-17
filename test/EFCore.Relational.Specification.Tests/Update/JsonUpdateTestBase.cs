@@ -2372,6 +2372,641 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.False(result.Collection[0].NewCollectionSet);
             });
 
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_bool()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestBooleanCollection = new[] { true, true, false };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { true, true, false }, result.TestBooleanCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_byte()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestByteCollection = new byte[] { 25, 26 };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new byte[] { 25, 26 }, result.TestByteCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_char()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestCharacterCollection = new ObservableCollection<char>
+                {
+                    'E',
+                    'F',
+                    'C',
+                    'ö',
+                    'r',
+                    'E',
+                    '\"',
+                    '\\'
+                };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { 'E', 'F', 'C', 'ö', 'r', 'E', '\"', '\\' }, result.TestCharacterCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_datetime()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestDateTimeCollection.Add(DateTime.Parse("01/01/3000 12:34:56"));
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestDateTimeCollection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new[]
+                    {
+                        DateTime.Parse("01/01/2000 12:34:56"),
+                        DateTime.Parse("01/01/3000 12:34:56"),
+                        DateTime.Parse("01/01/3000 12:34:56")
+                    }, result.TestDateTimeCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_datetimeoffset()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestDateTimeOffsetCollection = new List<DateTimeOffset>
+                {
+                    new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0))
+                };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new List<DateTimeOffset> { new(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-4.0)) },
+                    result.TestDateTimeOffsetCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_decimal()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestDecimalCollection = new[] { -13579.01M };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { -13579.01M }, result.TestDecimalCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_double()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestDoubleCollection.Add(-1.23579);
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestDoubleCollection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { -1.23456789, 1.23456789, 0.0, -1.23579 }, result.TestDoubleCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_guid()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestGuidCollection = new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") }, result.TestGuidCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_int16()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestInt16Collection = new short[] { -3234 };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new short[] { -3234 }, result.TestInt16Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_int32()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestInt32Collection = new[] { -3234 };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { -3234 }, result.TestInt32Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_int64()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestInt64Collection.Clear();
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestInt64Collection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Empty(result.TestInt64Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_signed_byte()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestSignedByteCollection = new sbyte[] { -108 };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new sbyte[] { -108 }, result.TestSignedByteCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_single()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestSingleCollection.RemoveAt(0);
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestSingleCollection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { 0.0F, -1.234F }, result.TestSingleCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_timespan()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestTimeSpanCollection[0] = new TimeSpan(0, 10, 1, 1, 7);
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestTimeSpanCollection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new[] { new TimeSpan(0, 10, 1, 1, 7), new TimeSpan(0, 7, 9, 8, 7) }, result.TestTimeSpanCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_uint16()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestUnsignedInt16Collection = new List<ushort> { 1534 };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new List<ushort> { 1534 }, result.TestUnsignedInt16Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_uint32()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestUnsignedInt32Collection = new[] { 1237775789U };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { 1237775789U }, result.TestUnsignedInt32Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_uint64()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestUnsignedInt64Collection = new ObservableCollection<ulong> { 1234555555123456789UL };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { 1234555555123456789UL }, result.TestUnsignedInt64Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_int32()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableInt32Collection.Add(77);
+                entity.TestNullableInt32Collection.Add(null);
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestNullableInt32Collection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new int?[] { null, int.MinValue, 0, null, int.MaxValue, null, 77, null }, result.TestNullableInt32Collection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_int32_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableInt32Collection = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(null, result.TestNullableInt32Collection);
+
+                Assert.True(result.NewCollectionSet); // Set to null.
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_enum()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestEnumCollection = new[] { JsonEnum.Three };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { JsonEnum.Three }, result.TestEnumCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_enum_with_int_converter()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestEnumWithIntConverterCollection = new[] { JsonEnum.Three };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { JsonEnum.Three }, result.TestEnumWithIntConverterCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestEnumCollection = new[] { JsonEnum.Three };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new[] { JsonEnum.Three }, result.TestEnumCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableEnumCollection = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(null, result.TestNullableEnumCollection);
+
+                Assert.True(result.NewCollectionSet); // Set to null.
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableEnumWithIntConverterCollection.Add(JsonEnum.Two);
+                entity.TestNullableEnumWithIntConverterCollection.RemoveAt(1);
+                // TODO: This should be change-detected.
+                context.Entry(entity).Property(e => e.TestNullableEnumWithIntConverterCollection).IsModified = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new JsonEnum?[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7), JsonEnum.Two },
+                    result.TestNullableEnumWithIntConverterCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_int_converter_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableEnumWithIntConverterCollection = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(null, result.TestNullableEnumWithIntConverterCollection);
+
+                Assert.True(result.NewCollectionSet); // Set to null.
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableEnumWithConverterThatHandlesNullsCollection = new JsonEnum?[] { JsonEnum.One };
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new JsonEnum?[] { JsonEnum.One }, result.TestNullableEnumWithConverterThatHandlesNullsCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_relational_collection_of_nullable_enum_with_converter_that_handles_nulls_set_to_null()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.TestNullableEnumWithConverterThatHandlesNullsCollection = null;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(null, result.TestNullableEnumWithConverterThatHandlesNullsCollection);
+
+                Assert.False(result.NewCollectionSet);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

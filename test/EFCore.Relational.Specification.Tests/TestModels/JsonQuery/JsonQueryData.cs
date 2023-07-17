@@ -1089,13 +1089,165 @@ public class JsonQueryData : ISetSource
             {
                 Id = 1,
                 Reference = r1,
-                Collection = new List<JsonOwnedAllTypes> { c1 }
+                Collection = new List<JsonOwnedAllTypes> { c1 },
+                TestDefaultStringCollection = new[] { "S1", "\"S2\"", "S3" },
+                TestMaxLengthStringCollection = new List<string>
+                {
+                    "S1",
+                    "S2",
+                    "S3"
+                },
+                TestBooleanCollection = new[] { true, false },
+                TestCharacterCollection = new ObservableCollection<char>
+                {
+                    'A',
+                    'B',
+                    '\"'
+                },
+                TestDateTimeCollection =
+                    new List<DateTime> { DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56") },
+                TestDateTimeOffsetCollection =
+                    new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
+                TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+                TestDecimalCollection = new[] { -1234567890.01M },
+                TestGuidCollection = new List<Guid> { new("12345678-1234-4321-7777-987654321000") },
+                TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+                TestInt32Collection = new[] { int.MinValue, 0, int.MaxValue },
+                TestInt64Collection = new List<long>
+                {
+                    long.MinValue,
+                    0,
+                    long.MaxValue
+                },
+                TestSignedByteCollection = new[] { sbyte.MinValue, (sbyte)0, sbyte.MaxValue },
+                TestSingleCollection = new List<float>
+                {
+                    -1.234F,
+                    0.0F,
+                    -1.234F
+                },
+                TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, 7, 9, 8, 7) },
+                TestUnsignedInt16Collection = new List<ushort>
+                {
+                    ushort.MinValue,
+                    0,
+                    ushort.MaxValue
+                },
+                TestUnsignedInt32Collection = new[] { uint.MinValue, (uint)0, uint.MaxValue },
+                TestUnsignedInt64Collection = new ObservableCollection<ulong>
+                {
+                    ulong.MinValue,
+                    0,
+                    ulong.MaxValue
+                },
+                TestNullableInt32Collection = new ObservableCollection<int?>
+                {
+                    null,
+                    int.MinValue,
+                    0,
+                    null,
+                    int.MaxValue,
+                    null
+                },
+                TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestEnumWithIntConverterCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestNullableEnumCollection = new Collection<JsonEnum?>
+                {
+                    JsonEnum.One,
+                    null,
+                    JsonEnum.Three,
+                    (JsonEnum)(-7)
+                },
+                TestNullableEnumWithIntConverterCollection = new Collection<JsonEnum?>
+                {
+                    JsonEnum.One,
+                    null,
+                    JsonEnum.Three,
+                    (JsonEnum)(-7)
+                },
+                TestNullableEnumWithConverterThatHandlesNullsCollection = new JsonEnum?[] { JsonEnum.One, null, (JsonEnum)(-7) }
             },
             new()
             {
                 Id = 2,
                 Reference = r2,
-                Collection = new List<JsonOwnedAllTypes> { c2 }
+                Collection = new List<JsonOwnedAllTypes> { c2 },
+                TestDefaultStringCollection = new[] { "S1", "\"S2\"", "S3" },
+                TestMaxLengthStringCollection = new List<string>
+                {
+                    "S1",
+                    "S2",
+                    "S3"
+                },
+                TestBooleanCollection = new[] { true, false },
+                TestCharacterCollection = new ObservableCollection<char>
+                {
+                    'A',
+                    'B',
+                    '\"'
+                },
+                TestDateTimeCollection =
+                    new List<DateTime> { DateTime.Parse("01/01/2000 12:34:56"), DateTime.Parse("01/01/3000 12:34:56") },
+                TestDateTimeOffsetCollection =
+                    new[] { new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)) },
+                TestDoubleCollection = new[] { -1.23456789, 1.23456789, 0.0 },
+                TestDecimalCollection = new[] { -1234567890.01M },
+                TestGuidCollection = new List<Guid> { new("12345678-1234-4321-7777-987654321000") },
+                TestInt16Collection = new[] { short.MinValue, (short)0, short.MaxValue },
+                TestInt32Collection = new[] { int.MinValue, 0, int.MaxValue },
+                TestInt64Collection = new List<long>
+                {
+                    long.MinValue,
+                    0,
+                    long.MaxValue
+                },
+                TestSignedByteCollection = new[] { sbyte.MinValue, (sbyte)0, sbyte.MaxValue },
+                TestSingleCollection = new List<float>
+                {
+                    -1.234F,
+                    0.0F,
+                    -1.234F
+                },
+                TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, 7, 9, 8, 7) },
+                TestUnsignedInt16Collection = new List<ushort>
+                {
+                    ushort.MinValue,
+                    0,
+                    ushort.MaxValue
+                },
+                TestUnsignedInt32Collection = new[] { uint.MinValue, (uint)0, uint.MaxValue },
+                TestUnsignedInt64Collection = new ObservableCollection<ulong>
+                {
+                    ulong.MinValue,
+                    0,
+                    ulong.MaxValue
+                },
+                TestNullableInt32Collection = new ObservableCollection<int?>
+                {
+                    null,
+                    int.MinValue,
+                    0,
+                    null,
+                    int.MaxValue,
+                    null
+                },
+                TestEnumCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestEnumWithIntConverterCollection = new[] { JsonEnum.One, JsonEnum.Three, (JsonEnum)(-7) },
+                TestNullableEnumCollection = new Collection<JsonEnum?>
+                {
+                    JsonEnum.One,
+                    null,
+                    JsonEnum.Three,
+                    (JsonEnum)(-7)
+                },
+                TestNullableEnumWithIntConverterCollection = new Collection<JsonEnum?>
+                {
+                    JsonEnum.One,
+                    null,
+                    JsonEnum.Three,
+                    (JsonEnum)(-7)
+                },
+                TestNullableEnumWithConverterThatHandlesNullsCollection = new JsonEnum?[] { JsonEnum.One, null, (JsonEnum)(-7) }
             }
         };
     }
