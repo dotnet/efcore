@@ -206,7 +206,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 IsDistinct: false,
                 Limit: null,
                 Offset: null,
-                // We can only applying the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
+                // We can only apply the indexing if the JSON array is ordered by its natural ordered, i.e. by the "key" column that
                 // we created in TranslateCollection. For example, if another ordering has been applied (e.g. by the JSON elements
                 // themselves), we can no longer simply index into the original array.
                 Orderings:
@@ -396,7 +396,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     protected class SqlServerInferredTypeMappingApplier : RelationalInferredTypeMappingApplier
     {
         private readonly IRelationalTypeMappingSource _typeMappingSource;
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -409,7 +408,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
             : base(sqlExpressionFactory, inferredTypeMappings)
-            => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+            => _typeMappingSource = typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -480,18 +479,5 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 path: null,
                 new[] { new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping.StoreType, "$") });
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SqlExpression ApplyTypeMappingOnColumn(ColumnExpression columnExpression, RelationalTypeMapping typeMapping)
-            // TODO: this should be part of #30677
-            // OPENJSON's value column has type nvarchar(max); apply a CAST() unless that's the inferred element type mapping
-            => typeMapping.StoreType is "nvarchar(max)"
-                ? columnExpression
-                : _sqlExpressionFactory.Convert(columnExpression, typeMapping.ClrType, typeMapping);
     }
 }

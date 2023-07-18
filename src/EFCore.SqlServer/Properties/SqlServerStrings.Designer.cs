@@ -228,6 +228,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoSavepointRelease");
 
         /// <summary>
+        ///     The query is attempting to query a JSON collection of binary data in a context that requires preserving the ordering of the collection; this isn't supported by SQL Server.
+        /// </summary>
+        public static string QueryingOrderedBinaryJsonCollectionsNotSupported
+            => GetString("QueryingOrderedBinaryJsonCollectionsNotSupported");
+
+        /// <summary>
         ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.
         /// </summary>
         public static string SaveChangesFailedBecauseOfComputedColumnWithFunction
