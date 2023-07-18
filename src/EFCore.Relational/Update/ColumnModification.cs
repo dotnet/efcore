@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
@@ -127,8 +128,8 @@ public class ColumnModification : IColumnModification
         get => Entry == null
             ? _originalValue
             : Entry.SharedIdentityEntry == null
-                ? Entry.GetOriginalValue(Property!)
-                : Entry.SharedIdentityEntry.GetOriginalValue(Property!);
+                ? GetOriginalValue(Entry, Property!)
+                : GetOriginalValue(Entry.SharedIdentityEntry, Property!);
         set
         {
             if (Entry == null)
@@ -137,7 +138,7 @@ public class ColumnModification : IColumnModification
             }
             else
             {
-                Entry.SetOriginalValue(Property!, value);
+                SetOriginalValue(value);
                 if (_sharedColumnModifications != null)
                 {
                     foreach (var sharedModification in _sharedColumnModifications)
@@ -156,7 +157,7 @@ public class ColumnModification : IColumnModification
             ? _value
             : Entry.EntityState == EntityState.Deleted
                 ? null
-                : Entry.GetCurrentValue(Property!);
+                : GetCurrentValue(Entry, Property!);
         set
         {
             if (Entry == null)
@@ -165,7 +166,7 @@ public class ColumnModification : IColumnModification
             }
             else
             {
-                Entry.SetStoreGeneratedValue(Property!, value);
+                SetStoreGeneratedValue(Entry, Property!, value);
                 if (_sharedColumnModifications != null)
                 {
                     foreach (var sharedModification in _sharedColumnModifications)
@@ -176,6 +177,85 @@ public class ColumnModification : IColumnModification
             }
         }
     }
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static object? GetOriginalValue(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).GetOriginalValue(property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static object? GetOriginalProviderValue(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).GetOriginalProviderValue(property);
+
+    private void SetOriginalValue(object? value)
+        => GetEntry((IInternalEntry)Entry!, Property!).SetOriginalValue(Property!, value);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static object? GetCurrentValue(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).GetCurrentValue(property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static object? GetCurrentProviderValue(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).GetCurrentProviderValue(property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void SetStoreGeneratedValue(IUpdateEntry entry, IProperty property, object? value)
+        => GetEntry((IInternalEntry)entry, property).SetStoreGeneratedValue(property, value);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static bool IsModified(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).IsModified(property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static bool IsStoreGenerated(IUpdateEntry entry, IProperty property)
+        => GetEntry((IInternalEntry)entry, property).IsStoreGenerated(property);
+
+    private static IInternalEntry GetEntry(IInternalEntry entry, IPropertyBase property)
+    {
+        if (property.DeclaringType.IsAssignableFrom(entry.StructuralType))
+        {
+            return entry;
+        }
+
+        var complexProperty = ((IComplexType)property.DeclaringType).ComplexProperty;
+        return GetEntry(entry, complexProperty).GetComplexPropertyEntry(complexProperty);
+    }
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
     /// <inheritdoc />
     public virtual string? JsonPath { get; }
@@ -192,47 +272,54 @@ public class ColumnModification : IColumnModification
 
         if (UseCurrentValueParameter
             && !Property.GetProviderValueComparer().Equals(
-                Entry.GetCurrentProviderValue(Property),
-                modification.Entry.GetCurrentProviderValue(modification.Property)))
+                GetCurrentProviderValue(Entry, Property),
+                GetCurrentProviderValue(modification.Entry, modification.Property)))
         {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            var existingEntry = GetEntry((IInternalEntry)Entry!, Property);
+            var newEntry = GetEntry((IInternalEntry)modification.Entry, modification.Property);
+
             if (_sensitiveLoggingEnabled)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.ConflictingRowValuesSensitive(
-                        Entry.EntityType.DisplayName(),
-                        modification.Entry!.EntityType.DisplayName(),
+                        existingEntry.StructuralType.DisplayName(),
+                        newEntry.StructuralType.DisplayName(),
                         Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
-                        Entry.BuildCurrentValuesString(new[] { Property }),
-                        modification.Entry.BuildCurrentValuesString(new[] { modification.Property }),
+                        GetEntry((IInternalEntry)Entry!, Property).BuildCurrentValuesString(new[] { Property }),
+                        newEntry.BuildCurrentValuesString(new[] { modification.Property }),
                         ColumnName));
             }
 
             throw new InvalidOperationException(
                 RelationalStrings.ConflictingRowValues(
-                    Entry.EntityType.DisplayName(),
-                    modification.Entry.EntityType.DisplayName(),
+                    existingEntry.StructuralType.DisplayName(),
+                    newEntry.StructuralType.DisplayName(),
                     new[] { Property }.Format(),
                     new[] { modification.Property }.Format(),
                     ColumnName));
+#pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
-        if (UseOriginalValueParameter
-            && !Property.GetProviderValueComparer().Equals(
-                Entry.SharedIdentityEntry == null
-                    ? Entry.GetOriginalProviderValue(Property)
-                    : Entry.SharedIdentityEntry.GetOriginalProviderValue(Property),
-                modification.Entry.SharedIdentityEntry == null
-                    ? modification.Entry.GetOriginalProviderValue(modification.Property)
-                    : modification.Entry.SharedIdentityEntry.GetOriginalProviderValue(modification.Property)))
+        if (UseOriginalValueParameter)
         {
+            var originalValue = Entry.SharedIdentityEntry == null
+                    ? GetOriginalProviderValue(Entry, Property)
+                    : GetOriginalProviderValue(Entry.SharedIdentityEntry, Property);
+            if (Property.GetProviderValueComparer().Equals(
+                    originalValue,
+                    modification.Entry.SharedIdentityEntry == null
+                    ? GetOriginalProviderValue(modification.Entry, modification.Property)
+                    : GetOriginalProviderValue(modification.Entry.SharedIdentityEntry, modification.Property)))
+            {
+                _sharedColumnModifications.Add(modification);
+                return;
+            }
+
             if (Entry.EntityState == EntityState.Modified
                 && modification.Entry.EntityState == EntityState.Added
                 && modification.Entry.SharedIdentityEntry == null)
             {
-                var originalValue = Entry.SharedIdentityEntry == null
-                    ? Entry.GetOriginalProviderValue(Property)
-                    : Entry.SharedIdentityEntry.GetOriginalProviderValue(Property);
-
                 var typeMapping = modification.Property.GetTypeMapping();
                 var converter = typeMapping.Converter;
                 if (converter != null)
@@ -244,25 +331,29 @@ public class ColumnModification : IColumnModification
             }
             else
             {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                var existingEntry = GetEntry((IInternalEntry)Entry!, Property);
+                var newEntry = GetEntry((IInternalEntry)modification.Entry, modification.Property);
                 if (_sensitiveLoggingEnabled)
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.ConflictingOriginalRowValuesSensitive(
-                            Entry.EntityType.DisplayName(),
-                            modification.Entry.EntityType.DisplayName(),
+                            existingEntry.StructuralType.DisplayName(),
+                            newEntry.StructuralType.DisplayName(),
                             Entry.BuildCurrentValuesString(Entry.EntityType.FindPrimaryKey()!.Properties),
-                            Entry.BuildOriginalValuesString(new[] { Property }),
-                            modification.Entry.BuildOriginalValuesString(new[] { modification.Property }),
+                            existingEntry.BuildOriginalValuesString(new[] { Property }),
+                            newEntry.BuildOriginalValuesString(new[] { modification.Property }),
                             ColumnName));
                 }
 
                 throw new InvalidOperationException(
                     RelationalStrings.ConflictingOriginalRowValues(
-                        Entry.EntityType.DisplayName(),
-                        modification.Entry.EntityType.DisplayName(),
+                        existingEntry.StructuralType.DisplayName(),
+                        newEntry.StructuralType.DisplayName(),
                         new[] { Property }.Format(),
                         new[] { modification.Property }.Format(),
                         ColumnName));
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
 

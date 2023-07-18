@@ -315,13 +315,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         if (sequence.Type != Sequence.DefaultClrType)
         {
             sequenceBuilderNameBuilder
-                .Append("<")
+                .Append('<')
                 .Append(Code.Reference(sequence.Type))
-                .Append(">");
+                .Append('>');
         }
 
         sequenceBuilderNameBuilder
-            .Append("(")
+            .Append('(')
             .Append(Code.Literal(sequence.Name));
 
         if (!string.IsNullOrEmpty(sequence.ModelSchema))
@@ -331,7 +331,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(Code.Literal(sequence.ModelSchema));
         }
 
-        sequenceBuilderNameBuilder.Append(")");
+        sequenceBuilderNameBuilder.Append(')');
         var sequenceBuilderName = sequenceBuilderNameBuilder.ToString();
 
         stringBuilder
@@ -347,7 +347,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(".StartsAt(")
                 .Append(Code.Literal(sequence.StartValue))
-                .Append(")");
+                .Append(')');
         }
 
         if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
@@ -356,7 +356,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(".IncrementsBy(")
                 .Append(Code.Literal(sequence.IncrementBy))
-                .Append(")");
+                .Append(')');
         }
 
         if (sequence.MinValue != Sequence.DefaultMinValue)
@@ -374,7 +374,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(".HasMax(")
                 .Append(Code.Literal(sequence.MaxValue))
-                .Append(")");
+                .Append(')');
         }
 
         if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
@@ -586,7 +586,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
     private static string GenerateNestedBuilderName(string builderName)
     {
-        if (builderName.StartsWith("b", StringComparison.Ordinal))
+        if (builderName.StartsWith('b'))
         {
             // ReSharper disable once InlineOutVariableDeclaration
             var counter = 1;
@@ -876,7 +876,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             stringBuilder
                 .AppendLine()
                 .Append(entityTypeBuilderName)
-                .Append(".")
+                .Append('.')
                 .Append("HasDiscriminator");
 
             if (discriminatorPropertyAnnotation?.Value != null)
@@ -886,11 +886,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                         .MakeNullable(discriminatorProperty.IsNullable)
                     ?? discriminatorProperty.ClrType;
                 stringBuilder
-                    .Append("<")
+                    .Append('<')
                     .Append(Code.Reference(propertyClrType))
                     .Append(">(")
                     .Append(Code.Literal((string)discriminatorPropertyAnnotation.Value))
-                    .Append(")");
+                    .Append(')');
             }
             else
             {
@@ -903,11 +903,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 var value = (bool)discriminatorMappingCompleteAnnotation.Value;
 
                 stringBuilder
-                    .Append(".")
+                    .Append('.')
                     .Append("IsComplete")
-                    .Append("(")
+                    .Append('(')
                     .Append(Code.Literal(value))
-                    .Append(")");
+                    .Append(')');
             }
 
             if (discriminatorValueAnnotation?.Value != null)
@@ -924,11 +924,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 }
 
                 stringBuilder
-                    .Append(".")
+                    .Append('.')
                     .Append("HasValue")
-                    .Append("(")
+                    .Append('(')
                     .Append(Code.UnknownLiteral(value))
-                    .Append(")");
+                    .Append(')');
             }
 
             stringBuilder.AppendLine(";");

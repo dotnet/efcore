@@ -172,6 +172,7 @@ public static class EntityTypeExtensions
         {
             propertyIndex = baseCounts.PropertyCount;
             navigationIndex = baseCounts.NavigationCount;
+            complexPropertyIndex = baseCounts.ComplexPropertyCount;
             originalValueIndex = baseCounts.OriginalValueCount;
             shadowIndex = baseCounts.ShadowCount;
             relationshipIndex = baseCounts.RelationshipCount;

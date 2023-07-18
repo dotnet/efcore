@@ -4,8 +4,6 @@
 #nullable enable
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using static Microsoft.EntityFrameworkCore.ModelBuilding.ModelBuilderTest;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;

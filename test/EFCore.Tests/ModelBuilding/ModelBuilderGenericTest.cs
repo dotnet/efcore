@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using System.Numerics;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming

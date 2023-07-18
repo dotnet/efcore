@@ -1256,7 +1256,6 @@ public class ChangeDetectorTest
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
 
-        var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
 
         var category = new NotifyingCategory { Id = -1, PrincipalId = 77 };
@@ -1682,7 +1681,6 @@ public class ChangeDetectorTest
     {
         var contextServices = CreateContextServices(BuildNotifyingModel());
 
-        var changeDetector = contextServices.GetRequiredService<IChangeDetector>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
 
         var product1 = new NotifyingProduct { Id = Guid.NewGuid(), DependentId = 77 };
