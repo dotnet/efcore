@@ -303,7 +303,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        [ConditionalTheory]
+        [ConditionalTheory(Skip = "https://github.com/dotnet/runtime/issues/89109")]
         [InlineData(false)]
         [InlineData(true)]
         public void Resolve_scoped_application_service(bool autoResolve)
