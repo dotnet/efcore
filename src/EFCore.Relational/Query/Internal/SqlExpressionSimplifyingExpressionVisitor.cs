@@ -282,7 +282,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                     {
                         ExpressionType.Equal => inExpression,
                         ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
-                        _ => throw new InvalidOperationException("IMPOSSIBLE")
+                        _ => throw new UnreachableException()
                     };
                 }
             }

@@ -2700,7 +2700,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         => subquery.Projection.FirstOrDefault(p => p.Alias == columnExpression.Name) is { Expression.TypeMapping: null },
 
                     JoinExpressionBase
-                        => throw new InvalidOperationException("Impossible: nested join"),
+                        => throw new UnreachableException("Impossible: nested join"),
 
                     // Any other table expression is considered a root (TableValuedFunctionExpression, ValuesExpression...) which *may* be
                     // untyped, so we record the possible inference (note that TableValuedFunctionExpression may be typed, or not)

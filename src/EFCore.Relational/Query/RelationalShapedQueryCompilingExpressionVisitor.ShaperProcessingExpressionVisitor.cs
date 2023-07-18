@@ -1453,7 +1453,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 newInstanceVariable);
                             break;
                         default:
-                            throw new InvalidOperationException("IMPOSSIBLE");
+                            throw new UnreachableException();
                     }
 
                     var managerVariable = Variable(typeof(Utf8JsonReaderManager), "jsonReaderManager");

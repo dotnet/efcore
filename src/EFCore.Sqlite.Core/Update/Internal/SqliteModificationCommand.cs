@@ -61,7 +61,7 @@ public class SqliteModificationCommand : ModificationCommand
                 {
                     true => "true",
                     false => "false",
-                    _ => throw new Exception("IMPOSSIBLE")
+                    _ => throw new UnreachableException()
                 }
             };
 

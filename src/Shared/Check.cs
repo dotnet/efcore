@@ -112,12 +112,12 @@ internal static class Check
     {
         if (!condition)
         {
-            throw new Exception($"Check.DebugAssert failed: {message}");
+            throw new UnreachableException($"Check.DebugAssert failed: {message}");
         }
     }
 
     [Conditional("DEBUG")]
     [DoesNotReturn]
     public static void DebugFail(string message)
-        => throw new Exception($"Check.DebugFail failed: {message}");
+        => throw new UnreachableException($"Check.DebugFail failed: {message}");
 }

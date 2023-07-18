@@ -72,7 +72,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
 
                     default:
-                        throw new InvalidOperationException("IMPOSSIBLE");
+                        throw new UnreachableException();
                 }
 
                 var updatedInExpression = inValues.Count > 0
