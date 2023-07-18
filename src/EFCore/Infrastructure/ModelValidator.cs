@@ -245,7 +245,7 @@ public class ModelValidator : IModelValidator
 
                     if (typeBase is not IConventionEntityType entityType)
                     {
-                        if (!((IReadOnlyComplexType)typeBase).IsInDeclarationPath(targetType))
+                        if (!((IReadOnlyComplexType)typeBase).IsContainedBy(targetType))
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.NavigationNotAddedComplexType(

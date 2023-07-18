@@ -5883,8 +5883,7 @@ namespace TestNamespace
                                     .IsRowVersion()
                                     .HasAnnotation("foo", "bar");
                                 eb.Ignore(e => e.Context);
-                                eb.ComplexProperty(o => o.Principal)
-                                  .Property(p => p.AlternateId);
+                                eb.ComplexProperty(o => o.Principal);
                             });
 
                         eb.ToTable("PrincipalBase");

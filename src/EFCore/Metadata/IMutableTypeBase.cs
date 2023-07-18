@@ -29,7 +29,7 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     /// <summary>
     ///     Gets this entity type or the one on which the complex property chain is declared.
     /// </summary>
-    new IMutableEntityType FundamentalEntityType
+    new IMutableEntityType ContainingEntityType
         => (IMutableEntityType)this;
 
     /// <summary>

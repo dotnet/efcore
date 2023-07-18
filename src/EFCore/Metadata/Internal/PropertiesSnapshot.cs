@@ -105,7 +105,7 @@ public class PropertiesSnapshot
         }
 
         var entityTypeBuilder = typeBaseBuilder as InternalEntityTypeBuilder
-            ?? ((InternalComplexTypeBuilder)typeBaseBuilder).Metadata.FundamentalEntityType.Builder;
+            ?? ((InternalComplexTypeBuilder)typeBaseBuilder).Metadata.ContainingEntityType.Builder;
 
         if (Keys != null)
         {

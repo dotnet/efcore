@@ -86,7 +86,7 @@ public static class RelationalPropertyExtensions
             }
             else 
             {
-                var declaringEntityType = property.DeclaringType.FundamentalEntityType;
+                var declaringEntityType = property.DeclaringType.ContainingEntityType;
                 if (declaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
                     var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType);

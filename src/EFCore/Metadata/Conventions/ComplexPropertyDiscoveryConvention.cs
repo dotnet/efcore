@@ -66,7 +66,7 @@ public class ComplexPropertyDiscoveryConvention :
         var targetClrType = (elementType ?? candidateMember.GetMemberType()).UnwrapNullableType();
         if (typeBase.Model.Builder.IsIgnored(targetClrType)
             || (typeBase is IReadOnlyComplexType complexType
-                && complexType.IsInDeclarationPath(targetClrType)))
+                && complexType.IsContainedBy(targetClrType)))
         {
             return false;
         }

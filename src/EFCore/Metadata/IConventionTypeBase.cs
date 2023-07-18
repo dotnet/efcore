@@ -34,7 +34,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// <summary>
     ///     Gets this entity type or the one on which the complex property chain is declared.
     /// </summary>
-    new IConventionEntityType FundamentalEntityType
+    new IConventionEntityType ContainingEntityType
         => (IConventionEntityType)this;
 
     /// <summary>

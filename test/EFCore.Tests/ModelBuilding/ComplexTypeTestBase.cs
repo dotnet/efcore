@@ -1481,7 +1481,7 @@ Customer (Customer)
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            Assert.Equal(1, complexType.GetProperties().Count());
+            Assert.Equal(3, complexType.GetProperties().Count());
             var property = complexType.FindProperty(nameof(EntityWithFields.Id));
             Assert.Null(property.PropertyInfo);
             Assert.NotNull(property.FieldInfo);
@@ -1503,7 +1503,7 @@ Customer (Customer)
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            Assert.Equal(1, complexProperty.ComplexType.GetProperties().Count());
+            Assert.Equal(2, complexProperty.ComplexType.GetProperties().Count());
         }
 
         [ConditionalFact]

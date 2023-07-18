@@ -20,20 +20,20 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
     IReadOnlyComplexProperty ComplexProperty { get; }
 
     /// <summary>
-    ///     Gets a value indicating whether given type is in the complex type declaration path for this type.
+    ///     Gets a value indicating whether given type is one of the containing types for this complex type.
     /// </summary>
-    /// <param name="targetType">Type to search for in declaration path.</param>
+    /// <param name="type">Type to search for in declaration path.</param>
     /// <returns>
-    ///     <see langword="true" /> if <paramref name="targetType" /> is in declaration path of this type,
+    ///     <see langword="true" /> if <paramref name="type" /> is one of the containing types for this complex type,
     ///     otherwise <see langword="false" />.
     /// </returns>
-    bool IsInDeclarationPath(Type targetType)
+    bool IsContainedBy(Type type)
     {
         var currentType = this;
         while (currentType != null)
         {
             var declaringType = currentType.ComplexProperty.DeclaringType;
-            if (declaringType.ClrType.IsAssignableFrom(targetType))
+            if (declaringType.ClrType.IsAssignableFrom(type))
             {
                 return true;
             }
