@@ -189,7 +189,7 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     /// <returns>
     ///     An <see cref="IConventionModelBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
     /// </returns>
-    IConventionModelBuilder? Complex(
+    IConventionModelBuilder? ComplexType(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         bool fromDataAnnotation = false);
 

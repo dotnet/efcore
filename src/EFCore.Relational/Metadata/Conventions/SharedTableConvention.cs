@@ -211,12 +211,12 @@ public class SharedTableConvention : IModelFinalizingConvention
     }
 
     private static void TryUniquifyColumnNames(
-        IConventionEntityType entityType,
-        Dictionary<string, IConventionProperty> properties,
+        IConventionTypeBase type,
+        Dictionary<string, IConventionProperty> columns,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
-        foreach (var property in entityType.GetDeclaredProperties())
+        foreach (var property in type.GetDeclaredProperties())
         {
             var columnName = property.GetColumnName(storeObject);
             if (columnName == null)
@@ -224,9 +224,9 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            if (!properties.TryGetValue(columnName, out var otherProperty))
+            if (!columns.TryGetValue(columnName, out var otherProperty))
             {
-                properties[columnName] = property;
+                columns[columnName] = property;
                 continue;
             }
 
@@ -256,10 +256,10 @@ public class SharedTableConvention : IModelFinalizingConvention
                     && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
                 || (property.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
-                var newColumnName = TryUniquify(property, columnName, properties, storeObject, usePrefix, maxLength);
+                var newColumnName = TryUniquify(property, columnName, columns, storeObject, usePrefix, maxLength);
                 if (newColumnName != null)
                 {
-                    properties[newColumnName] = property;
+                    columns[newColumnName] = property;
                     continue;
                 }
             }
@@ -269,13 +269,18 @@ public class SharedTableConvention : IModelFinalizingConvention
                     && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
                 || (otherProperty.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
-                var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, storeObject, usePrefix, maxLength);
+                var newOtherColumnName = TryUniquify(otherProperty, columnName, columns, storeObject, usePrefix, maxLength);
                 if (newOtherColumnName != null)
                 {
-                    properties[columnName] = property;
-                    properties[newOtherColumnName] = otherProperty;
+                    columns[columnName] = property;
+                    columns[newOtherColumnName] = otherProperty;
                 }
             }
+        }
+
+        foreach (var complexPropery in type.GetDeclaredComplexProperties())
+        {
+            TryUniquifyColumnNames(complexPropery.ComplexType, columns, storeObject, maxLength);
         }
     }
 

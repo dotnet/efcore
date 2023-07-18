@@ -855,19 +855,19 @@ public abstract partial class ModelBuilderTest
     protected class ComplexProperties
     {
         public int Id { get; set; }
-        public Customer? Customer { get; set; }
-        public DoubleProperty? DoubleProperty { get; set; }
-        public IndexedClass? IndexedClass { get; set; }
-        public Quarks? Quarks { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public DoubleProperty DoubleProperty { get; set; } = null!;
+        public IndexedClass IndexedClass { get; set; } = null!;
+        public Quarks Quarks { get; set; } = null!;
 
         [NotMapped]
-        public DynamicProperty? DynamicProperty { get; set; }
+        public DynamicProperty DynamicProperty { get; set; } = null!;
 
         [NotMapped]
-        public EntityWithFields? EntityWithFields { get; set; }
+        public EntityWithFields EntityWithFields { get; set; } = null!;
 
         [NotMapped]
-        public WrappedStringEntity? WrappedStringEntity { get; set; }
+        public WrappedStringEntity WrappedStringEntity { get; set; } = null!;
     }
 
     protected class ValueComplexProperties

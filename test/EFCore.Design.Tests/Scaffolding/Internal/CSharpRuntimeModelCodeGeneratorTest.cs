@@ -5322,8 +5322,7 @@ namespace TestNamespace
                         "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase.Owned#OwnedType.Principal#PrincipalBase",
                         typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
                         propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Principal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                        nullable: true);
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
                     var complexType = complexProperty.ComplexType;
                     var alternateId = complexType.AddProperty(
@@ -5882,8 +5881,7 @@ namespace TestNamespace
                                     .IsRowVersion()
                                     .HasAnnotation("foo", "bar");
                                 eb.Ignore(e => e.Context);
-                                eb.ComplexProperty(o => o.Principal)
-                                    ;
+                                eb.ComplexProperty(o => o.Principal).IsRequired();
                             });
 
                         eb.ToTable("PrincipalBase");

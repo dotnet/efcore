@@ -33,7 +33,7 @@ public class ComplexTypeAttributeConvention : TypeAttributeConventionBase<Comple
         ComplexTypeAttribute attribute,
         IConventionContext<IConventionEntityTypeBuilder> context)
     {
-        entityTypeBuilder.Metadata.Model.Builder.Complex(entityTypeBuilder.Metadata.ClrType);
+        entityTypeBuilder.Metadata.Model.Builder.ComplexType(entityTypeBuilder.Metadata.ClrType);
 
         if (!entityTypeBuilder.Metadata.IsInModel)
         {

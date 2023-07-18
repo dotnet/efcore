@@ -481,6 +481,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
+        ///     Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'.
+        /// </summary>
+        public static string ComplexPropertyOptional(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyOptional", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     Configuring the complex property '{type}.{property}' in shadow state isn't supported.
         /// </summary>
         public static string ComplexPropertyShadow(object? type, object? property)
@@ -2970,6 +2978,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ValueCannotBeNull", "0_property", "1_entityType", nameof(propertyType)),
                 property, entityType, propertyType);
+
+        /// <summary>
+        ///     Adding the complex property '{type}.{property}' isn't supported because it's of a value type '{propertyType}'.
+        /// </summary>
+        public static string ValueComplexType(object? type, object? property, object? propertyType)
+            => string.Format(
+                GetString("ValueComplexType", nameof(type), nameof(property), nameof(propertyType)),
+                type, property, propertyType);
 
         /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.

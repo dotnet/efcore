@@ -176,6 +176,19 @@ public class ModelValidator : IModelValidator
                         CoreStrings.ComplexPropertyCollection(typeBase.DisplayName(), complexProperty.Name));
                 }
 
+                if (complexProperty.IsNullable)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyOptional(typeBase.DisplayName(), complexProperty.Name));
+                }
+
+                if (complexProperty.ComplexType.ClrType.IsValueType)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ValueComplexType(
+                            typeBase.DisplayName(), complexProperty.Name, complexProperty.ComplexType.ClrType.ShortDisplayName()));
+                }
+
                 if (complexProperty.ComplexType.GetMembers().Count() == 0)
                 {
                     throw new InvalidOperationException(
