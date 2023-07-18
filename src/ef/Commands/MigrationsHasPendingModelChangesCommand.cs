@@ -9,7 +9,7 @@ internal partial class MigrationsHasPendingModelChangesCommand
     {
         using var executor = CreateExecutor(args);
 
-        executor.CheckPendingMigrations(Context!.Value());
+        executor.HasPendingModelChanges(Context!.Value());
 
         return base.Execute(args);
     }

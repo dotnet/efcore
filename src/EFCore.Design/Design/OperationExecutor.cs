@@ -686,10 +686,10 @@ public class OperationExecutor : MarshalByRefObject
     /// <summary>
     ///     Represents an operation to check if there are any pending migrations.
     /// </summary>
-    public class CheckPendingMigrations : OperationBase
+    public class HasPendingModelChanges : OperationBase
     {
         /// <summary>
-        ///     Initializes a new instance of the <see cref="CheckPendingMigrations" /> class.
+        ///     Initializes a new instance of the <see cref="HasPendingModelChanges" /> class.
         /// </summary>
         /// <remarks>
         ///     <para>The arguments supported by <paramref name="args" /> are:</para>
@@ -698,7 +698,7 @@ public class OperationExecutor : MarshalByRefObject
         /// <param name="executor">The operation executor.</param>
         /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
         /// <param name="args">The operation arguments.</param>
-        public CheckPendingMigrations(
+        public HasPendingModelChanges(
             OperationExecutor executor,
             IOperationResultHandler resultHandler,
             IDictionary args)
@@ -709,12 +709,12 @@ public class OperationExecutor : MarshalByRefObject
 
             var contextType = (string?)args["contextType"];
 
-            Execute(() => executor.CheckPendingMigrationsImpl(contextType));
+            Execute(() => executor.HasPendingModelChangesImpl(contextType));
         }
     }
 
-    private void CheckPendingMigrationsImpl(string? contextType)
-        => MigrationsOperations.CheckPendingMigrations(contextType);
+    private void HasPendingModelChangesImpl(string? contextType)
+        => MigrationsOperations.HasPendingModelChanges(contextType);
 
 
     /// <summary>

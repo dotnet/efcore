@@ -955,10 +955,10 @@ public static class RelationalDatabaseFacadeExtensions
     /// <summary>
     ///     Returns <see langword="true" /> if the model has pending changes to be applied.
     /// </summary>
-    /// <param name="databaseFacade">Tbe facade from <see cref="DbContext.Database"/>.</param>
+    /// <param name="databaseFacade">The facade from <see cref="DbContext.Database"/>.</param>
     /// <returns>
-    ///     <see langword="true"/> if the database model has pending changes.
-    ///     <see langword="false"/> if a new migration has to be added.
+    ///     <see langword="true"/> if the database model has pending changes
+    ///     and a new migration has to be added.
     /// </returns>
     public static bool HasPendingModelChanges(this DatabaseFacade databaseFacade)
     {

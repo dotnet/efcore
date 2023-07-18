@@ -3,7 +3,6 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -275,14 +274,11 @@ public class RelationalDatabaseFacadeExtensionsTest
     {
         var fakeModelSnapshot = new FakeModelSnapshot(builder =>
         {
-            // TODO: This seems fragile, what should I do?
-            builder.HasAnnotation("ProductVersion", "8.0.0-dev");
-
             builder.Entity("Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
             {
                 b.Property<int>("Id")
                     .ValueGeneratedOnAdd()
-                    .HasColumnType("int");
+                    .HasColumnType("default_int_mapping");
 
                 b.HasKey("Id");
 
@@ -291,7 +287,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         });
         var migrationsAssembly = new FakeIMigrationsAssembly
         {
-            ModelSnapshot = null,
+            ModelSnapshot = fakeModelSnapshot,
             Migrations = new Dictionary<string, TypeInfo>(),
         };
 
@@ -302,7 +298,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         var testContext = new TestDbContext(contextOptions);
 
-        Assert.True(testContext.Database.HasPendingModelChanges());
+        Assert.False(testContext.Database.HasPendingModelChanges());
     }
 
     private class TestDbContext : DbContext
