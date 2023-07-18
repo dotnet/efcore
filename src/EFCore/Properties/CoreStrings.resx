@@ -168,6 +168,9 @@
   <data name="BadDependencyRegistration" xml:space="preserve">
     <value>The service dependencies type '{dependenciesType}' has been registered incorrectly in the service collection. Service dependencies types must only be registered by Entity Framework or database providers.</value>
   </data>
+  <data name="BadEnumValue" xml:space="preserve">
+    <value>The value '{enumValue}' could not be parsed as a value of enum {enumType}.</value>
+  </data>
   <data name="BadFilterDerivedType" xml:space="preserve">
     <value>The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.</value>
   </data>
@@ -1023,6 +1026,10 @@
   <data name="LogSkipCollectionChangeDetectedSensitive" xml:space="preserve">
     <value>{addedCount} entities were added and {removedCount} entities were removed from skip navigation '{entityType}.{property}' on entity with key '{keyValues}'.</value>
     <comment>Debug CoreEventId.SkipCollectionChangeDetected int int string string string</comment>
+  </data>
+  <data name="LogStringEnumValueInJson" xml:space="preserve">
+    <value>A string value was read from JSON for enum '{enumType}'. Starting with EF Core 8, a breaking change was made to store enum values in JSON as numbers by default. See https://aka.ms/efcore-docs-jsonenums for details.</value>
+    <comment>Warning CoreEventId.StringEnumValueInJson</comment>
   </data>
   <data name="LogStartedTracking" xml:space="preserve">
     <value>Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>

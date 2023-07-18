@@ -44,7 +44,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             = typeof(JsonReaderData).GetConstructor(new[] { typeof(Stream) })!;
 
         private static readonly ConstructorInfo JsonReaderManagerConstructor
-            = typeof(Utf8JsonReaderManager).GetConstructor(new[] { typeof(JsonReaderData) })!;
+            = typeof(Utf8JsonReaderManager).GetConstructor(
+                new[] { typeof(JsonReaderData), typeof(IDiagnosticsLogger<DbLoggerCategory.Query>) })!;
 
         private static readonly MethodInfo Utf8JsonReaderManagerMoveNextMethod
             = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), Array.Empty<Type>())!;
@@ -64,6 +65,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly PropertyInfo Utf8JsonReaderTokenTypeProperty
             = typeof(Utf8JsonReader).GetProperty(nameof(Utf8JsonReader.TokenType))!;
 
+        private static readonly MethodInfo Utf8JsonReaderGetStringMethod
+            = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.GetString), Array.Empty<Type>())!;
+
+        private static readonly MethodInfo EnumParseMethodInfo
+            = typeof(Enum).GetMethod(nameof(Enum.Parse), new[] { typeof(Type), typeof(string) })!;
+
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
         private readonly ISet<string>? _tags;
         private readonly bool _isTracking;
@@ -73,6 +80,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly bool _generateCommandCache;
         private readonly ParameterExpression _resultCoordinatorParameter;
         private readonly ParameterExpression? _executionStrategyParameter;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
 
         /// <summary>
         ///     States scoped to SelectExpression
@@ -154,6 +162,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool indexMap)
         {
             _parentVisitor = parentVisitor;
+            _queryLogger = parentVisitor.QueryCompilationContext.Logger;
             _resultCoordinatorParameter = Parameter(
                 splitQuery ? typeof(SplitQueryResultCoordinator) : typeof(SingleQueryResultCoordinator), "resultCoordinator");
             _executionStrategyParameter = splitQuery ? Parameter(typeof(IExecutionStrategy), "executionStrategy") : null;
@@ -187,6 +196,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ReaderColumn?[]? readerColumns)
         {
             _parentVisitor = parentVisitor;
+            _queryLogger = parentVisitor.QueryCompilationContext.Logger;
             _resultCoordinatorParameter = resultCoordinatorParameter;
 
             _selectExpression = selectExpression;
@@ -209,6 +219,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ISet<string> tags)
         {
             _parentVisitor = parentVisitor;
+            _queryLogger = parentVisitor.QueryCompilationContext.Logger;
             _resultCoordinatorParameter = resultCoordinatorParameter;
             _executionStrategyParameter = executionStrategyParameter;
 
@@ -1295,7 +1306,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 entityShaperExpression.EntityType,
                 _isTracking,
                 jsonReaderDataShaperLambdaParameter,
-                innerShapersMap, innerFixupMap).Rewrite(entityShaperMaterializer);
+                innerShapersMap,
+                innerFixupMap,
+                _queryLogger).Rewrite(entityShaperMaterializer);
 
             var entityShaperMaterializerVariable = Variable(
                 entityShaperMaterializer.Type,
@@ -1413,6 +1426,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             private readonly ParameterExpression _jsonReaderDataParameter;
             private readonly IDictionary<string, Expression> _innerShapersMap;
             private readonly IDictionary<string, LambdaExpression> _innerFixupMap;
+            private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
 
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
                 = typeof(JsonEncodedText).GetProperty(nameof(JsonEncodedText.EncodedUtf8Bytes))!;
@@ -1426,13 +1440,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 bool isTracking,
                 ParameterExpression jsonReaderDataParameter,
                 IDictionary<string, Expression> innerShapersMap,
-                IDictionary<string, LambdaExpression> innerFixupMap)
+                IDictionary<string, LambdaExpression> innerFixupMap,
+                IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
             {
                 _entityType = entityType;
                 _isTracking = isTracking;
                 _jsonReaderDataParameter = jsonReaderDataParameter;
                 _innerShapersMap = innerShapersMap;
                 _innerFixupMap = innerFixupMap;
+                _queryLogger = queryLogger;
             }
 
             public BlockExpression Rewrite(BlockExpression jsonEntityShaperMaterializer)
@@ -1501,7 +1517,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             managerVariable,
                             New(
                                 JsonReaderManagerConstructor,
-                                _jsonReaderDataParameter)),
+                                _jsonReaderDataParameter,
+                                Constant(_queryLogger))),
                         // tokenType = jsonReaderManager.CurrentReader.TokenType
                         Assign(
                             tokenTypeVariable,
@@ -1657,7 +1674,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         var moveNext = Call(managerVariable, Utf8JsonReaderManagerMoveNextMethod);
                         var captureState = Call(managerVariable, Utf8JsonReaderManagerCaptureStateMethod);
                         var assignment = Assign(propertyVariable, innerShaperMapElement.Value);
-                        var managerRecreation = Assign(managerVariable, New(JsonReaderManagerConstructor, _jsonReaderDataParameter));
+                        var managerRecreation = Assign(
+                            managerVariable, New(JsonReaderManagerConstructor, _jsonReaderDataParameter, Constant(_queryLogger)));
 
                         readExpressions.Add(
                             Block(
@@ -2011,7 +2029,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         jsonReaderDataVariable,
                         Default(typeof(JsonReaderData))),
                     Block(
-                        Assign(jsonReaderManagerVariable, New(JsonReaderManagerConstructor, jsonReaderDataVariable)),
+                        Assign(
+                            jsonReaderManagerVariable, New(JsonReaderManagerConstructor, jsonReaderDataVariable, Constant(_queryLogger))),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerMoveNextMethod),
                         Call(jsonReaderManagerVariable, Utf8JsonReaderManagerCaptureStateMethod)));
 
@@ -2373,7 +2392,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 // in case of null value we can't just use the JsonReader method, but rather check the current token type
                 // if it's JsonTokenType.Null means value is null, only if it's not we are safe to read the value
-
                 if (resultExpression.Type != property.ClrType)
                 {
                     resultExpression = Convert(resultExpression, property.ClrType);

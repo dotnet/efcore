@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -52,10 +54,17 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
     {
         foreach (var jsonEntityType in modelBuilder.Metadata.GetEntityTypes().Where(e => e.IsMappedToJson()))
         {
-            foreach (var enumProperty in jsonEntityType.GetDeclaredProperties().Where(p => p.ClrType.UnwrapNullableType().IsEnum))
+            foreach (var enumProperty in jsonEntityType
+                         .GetDeclaredProperties()
+                         .Where(p => p.ClrType.UnwrapNullableType().IsEnum))
             {
-                // by default store enums as strings - values should be human-readable
-                enumProperty.Builder.HasConversion(typeof(string));
+                // If the enum is mapped with no conversion, then use the reader/writer that handles legacy string values and warns.
+                if (enumProperty.GetValueConverter() == null
+                    && enumProperty.GetProviderClrType() == null)
+                {
+                    enumProperty.SetJsonValueReaderWriterType(
+                        typeof(JsonWarningEnumReaderWriter<>).MakeGenericType(enumProperty.ClrType.UnwrapNullableType()));
+                }
             }
         }
     }

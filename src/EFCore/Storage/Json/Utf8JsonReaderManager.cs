@@ -29,8 +29,13 @@ public ref struct Utf8JsonReaderManager
     ///     captured in the given <see cref="JsonReaderData" />
     /// </summary>
     /// <param name="data">The data.</param>
-    public Utf8JsonReaderManager(JsonReaderData data)
+    /// <param name="queryLogger">
+    ///     Logger for logging events that happen when reading/writing JSON values, or <see langword="null" /> if logging is
+    ///     not available.
+    /// </param>
+    public Utf8JsonReaderManager(JsonReaderData data, IDiagnosticsLogger<DbLoggerCategory.Query>? queryLogger)
     {
+        QueryLogger = queryLogger;
         Data = data;
         CurrentReader = data.CreateReader();
     }
@@ -56,4 +61,9 @@ public ref struct Utf8JsonReaderManager
     /// </summary>
     public void CaptureState()
         => Data.CaptureState(ref this);
+
+    /// <summary>
+    ///     Logger for logging events that happen when reading/writing JSON values, or <see langword="null" /> if logging is not available.
+    /// </summary>
+    public IDiagnosticsLogger<DbLoggerCategory.Query>? QueryLogger { get; }
 }

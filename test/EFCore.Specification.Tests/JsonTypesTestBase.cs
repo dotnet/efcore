@@ -3505,7 +3505,7 @@ public abstract class JsonTypesTestBase
     protected object? FromJsonPropertyString(JsonValueReaderWriter jsonReaderWriter, string value, object? existingValue = null)
     {
         var buffer = Encoding.UTF8.GetBytes(value);
-        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer));
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer), null);
         readerManager.MoveNext();
         readerManager.MoveNext();
         readerManager.MoveNext();

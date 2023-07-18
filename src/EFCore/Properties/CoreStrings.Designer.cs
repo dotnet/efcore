@@ -163,6 +163,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 dependenciesType);
 
         /// <summary>
+        ///     The value '{enumValue}' could not be parsed as a value of enum {enumType}.
+        /// </summary>
+        public static string BadEnumValue(object? enumValue, object? enumType)
+            => string.Format(
+                GetString("BadEnumValue", nameof(enumValue), nameof(enumType)),
+                enumValue, enumType);
+
+        /// <summary>
         ///     The filter expression '{filter}' cannot be specified for entity type '{entityType}'. A filter may only be applied to the root entity type '{rootType}'.
         /// </summary>
         public static string BadFilterDerivedType(object? filter, object? entityType, object? rootType)
@@ -4824,6 +4832,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<int, int, string, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     A string value was read from JSON for enum '{enumType}'. Starting with EF Core 8, a breaking change was made to store enum values in JSON as numbers by default. See https://aka.ms/efcore-docs-jsonenums for details.
+        /// </summary>
+        public static EventDefinition<string> LogStringEnumValueInJson(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.StringEnumValueInJson,
+                        LogLevel.Warning,
+                        "CoreEventId.StringEnumValueInJson",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.StringEnumValueInJson,
+                            _resourceManager.GetString("LogStringEnumValueInJson")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

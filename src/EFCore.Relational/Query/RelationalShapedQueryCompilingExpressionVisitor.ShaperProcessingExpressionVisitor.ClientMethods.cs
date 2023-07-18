@@ -877,7 +877,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
             }
 
-            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
             if (tokenType == JsonTokenType.Null)
@@ -914,7 +914,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return default;
             }
 
-            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
             if (tokenType == JsonTokenType.Null)
@@ -946,7 +946,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     manager.CaptureState();
                     var entity = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
                     result.Add(entity);
-                    manager = new Utf8JsonReaderManager(manager.Data);
+                    manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
 
                     if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
                     {
@@ -1003,7 +1003,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return;
             }
 
-            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
             var tokenType = manager.CurrentReader.TokenType;
 
             if (tokenType != JsonTokenType.StartArray)
@@ -1032,7 +1032,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         fixup(entity, resultElement);
                     }
 
-                    manager = new Utf8JsonReaderManager(manager.Data);
+                    manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
                     if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
                     {
                         throw new InvalidOperationException(

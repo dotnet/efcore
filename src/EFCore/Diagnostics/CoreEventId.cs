@@ -75,6 +75,7 @@ public static class CoreEventId
         NavigationBaseIncludeIgnored,
         DistinctAfterOrderByWithoutRowLimitingOperatorWarning,
         QueryCanceled,
+        StringEnumValueInJson,
 
         // Infrastructure events
         SensitiveDataLoggingEnabledWarning = CoreBaseId + 400,
@@ -325,6 +326,16 @@ public static class CoreEventId
     /// </remarks>
     public static readonly EventId QueryCanceled
         = MakeQueryId(Id.QueryCanceled);
+
+    /// <summary>
+    ///     A string value for an enum was read from JSON. Starting with EF Core 8, a breaking change was made to store enum
+    ///     values in JSON as numbers by default. See https://aka.ms/efcore-docs-jsonenums for details.
+    /// </summary>
+    /// <remarks>
+    ///     This event is in the <see cref="DbLoggerCategory.Query" /> category.
+    /// </remarks>
+    public static readonly EventId StringEnumValueInJson
+        = MakeQueryId(Id.StringEnumValueInJson);
 
     private static readonly string _infraPrefix = DbLoggerCategory.Infrastructure.Name + ".";
 
