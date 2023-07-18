@@ -144,6 +144,12 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
     public override Task Where_math_truncate(bool async)
         => AssertTranslationFailed(() => base.Where_math_truncate(async));
 
+    public override Task Where_math_degrees(bool async)
+        => AssertTranslationFailed(() => base.Where_math_degrees(async));
+
+    public override Task Where_math_radians(bool async)
+        => AssertTranslationFailed(() => base.Where_math_radians(async));
+
     public override Task Where_mathf_acos(bool async)
         => AssertTranslationFailed(() => base.Where_mathf_acos(async));
 
@@ -206,6 +212,12 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
 
     public override Task Where_mathf_truncate(bool async)
         => AssertTranslationFailed(() => base.Where_mathf_truncate(async));
+
+    public override Task Where_mathf_degrees(bool async)
+        => AssertTranslationFailed(() => base.Where_mathf_degrees(async));
+
+    public override Task Where_mathf_radians(bool async)
+        => AssertTranslationFailed(() => base.Where_mathf_radians(async));
 
     public override async Task String_StartsWith_Literal(bool async)
     {

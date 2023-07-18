@@ -573,6 +573,22 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SI
         AssertSql();
     }
 
+    public override async Task Where_math_degrees(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_degrees(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_math_radians(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_radians(async));
+
+        AssertSql();
+    }
+
     public override async Task Where_mathf_abs1(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
@@ -794,6 +810,30 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (TA
 SELECT c
 FROM root c
 WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SIGN(c["Discount"]) > 0))
+""");
+    }
+
+    public override async Task Where_mathf_degrees(bool async)
+    {
+        await base.Where_mathf_degrees(async);
+
+        AssertSql(
+"""
+SELECT c
+FROM root c
+WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (DEGREES(c["Discount"]) > 0.0))
+""");
+    }
+
+    public override async Task Where_mathf_radians(bool async)
+    {
+        await base.Where_mathf_radians(async);
+
+        AssertSql(
+"""
+SELECT c
+FROM root c
+WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (RADIANS(c["Discount"]) > 0.0))
 """);
     }
 

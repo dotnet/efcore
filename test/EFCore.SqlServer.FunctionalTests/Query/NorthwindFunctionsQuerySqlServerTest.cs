@@ -1323,6 +1323,30 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0
         AssertSql();
     }
 
+    public override async Task Where_math_degrees(bool async)
+    {
+        await base.Where_math_degrees(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND DEGREES(CAST([o].[Discount] AS float)) > 0.0E0
+""");
+    }
+
+    public override async Task Where_math_radians(bool async)
+    {
+        await base.Where_math_radians(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND RADIANS(CAST([o].[Discount] AS float)) > 0.0E0
+""");
+    }
+
     public override async Task Where_mathf_abs1(bool async)
     {
         await base.Where_mathf_abs1(async);
@@ -1596,6 +1620,30 @@ WHERE [o].[OrderID] = 11077 AND TAN([o].[Discount]) > CAST(0 AS real)
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0
+""");
+    }
+
+    public override async Task Where_mathf_degrees(bool async)
+    {
+        await base.Where_mathf_degrees(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND DEGREES([o].[Discount]) > CAST(0 AS real)
+""");
+    }
+
+    public override async Task Where_mathf_radians(bool async)
+    {
+        await base.Where_mathf_radians(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND RADIANS([o].[Discount]) > CAST(0 AS real)
 """);
     }
 

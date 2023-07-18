@@ -48,6 +48,8 @@ public class CosmosMathTranslator : IMethodCallTranslator
         { typeof(Math).GetRuntimeMethod(nameof(Math.Truncate), new[] { typeof(double) })!, "TRUNC" },
         { typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(decimal) })!, "ROUND" },
         { typeof(Math).GetRuntimeMethod(nameof(Math.Round), new[] { typeof(double) })!, "ROUND" },
+        { typeof(double).GetRuntimeMethod(nameof(double.DegreesToRadians), new[] { typeof(double) })!, "RADIANS" },
+        { typeof(double).GetRuntimeMethod(nameof(double.RadiansToDegrees), new[] { typeof(double) })!, "DEGREES" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Abs), new[] { typeof(float) })!, "ABS" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Ceiling), new[] { typeof(float) })!, "CEILING" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Floor), new[] { typeof(float) })!, "FLOOR" },
@@ -66,7 +68,9 @@ public class CosmosMathTranslator : IMethodCallTranslator
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Tan), new[] { typeof(float) })!, "TAN" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sign), new[] { typeof(float) })!, "SIGN" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Truncate), new[] { typeof(float) })!, "TRUNC" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), new[] { typeof(float) })!, "ROUND" }
+        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Round), new[] { typeof(float) })!, "ROUND" },
+        { typeof(float).GetRuntimeMethod(nameof(float.DegreesToRadians), new[] { typeof(float) })!, "RADIANS" },
+        { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), new[] { typeof(float) })!, "DEGREES" },
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;

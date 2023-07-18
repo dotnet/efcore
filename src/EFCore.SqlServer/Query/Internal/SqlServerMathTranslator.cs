@@ -47,6 +47,8 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(long) })!, "SIGN" },
         { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(sbyte) })!, "SIGN" },
         { typeof(Math).GetRuntimeMethod(nameof(Math.Sign), new[] { typeof(short) })!, "SIGN" },
+        { typeof(double).GetRuntimeMethod(nameof(double.DegreesToRadians), new[] { typeof(double) })!, "RADIANS" },
+        { typeof(double).GetRuntimeMethod(nameof(double.RadiansToDegrees), new[] { typeof(double) })!, "DEGREES" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Abs), new[] { typeof(float) })!, "ABS" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Ceiling), new[] { typeof(float) })!, "CEILING" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Floor), new[] { typeof(float) })!, "FLOOR" },
@@ -63,7 +65,9 @@ public class SqlServerMathTranslator : IMethodCallTranslator
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Cos), new[] { typeof(float) })!, "COS" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sin), new[] { typeof(float) })!, "SIN" },
         { typeof(MathF).GetRuntimeMethod(nameof(MathF.Tan), new[] { typeof(float) })!, "TAN" },
-        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sign), new[] { typeof(float) })!, "SIGN" }
+        { typeof(MathF).GetRuntimeMethod(nameof(MathF.Sign), new[] { typeof(float) })!, "SIGN" },
+        { typeof(float).GetRuntimeMethod(nameof(float.DegreesToRadians), new[] { typeof(float) })!, "RADIANS" },
+        { typeof(float).GetRuntimeMethod(nameof(float.RadiansToDegrees), new[] { typeof(float) })!, "DEGREES" }
     };
 
     private static readonly IEnumerable<MethodInfo> TruncateMethodInfos = new[]
