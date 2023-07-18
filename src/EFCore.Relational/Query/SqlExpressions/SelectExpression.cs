@@ -3256,7 +3256,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             ExpressionType.GreaterThan => ExpressionType.LessThan,
                             ExpressionType.GreaterThanOrEqual => ExpressionType.LessThanOrEqual,
 
-                            _ => throw new InvalidOperationException("IMPOSSIBLE")
+                            _ => throw new UnreachableException()
                         };
 
                         return new SqlBinaryExpression(
