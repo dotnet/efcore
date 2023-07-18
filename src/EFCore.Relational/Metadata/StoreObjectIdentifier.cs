@@ -38,7 +38,7 @@ public readonly struct StoreObjectIdentifier : IComparable<StoreObjectIdentifier
                 return viewName == null ? null : View(viewName, typeBase.GetViewSchema());
             case StoreObjectType.SqlQuery:
                 var query = typeBase.GetSqlQuery();
-                return query == null ? null : SqlQuery(typeBase.FundamentalEntityType);
+                return query == null ? null : SqlQuery(typeBase.ContainingEntityType);
             case StoreObjectType.Function:
                 var functionName = typeBase.GetFunctionName();
                 return functionName == null ? null : DbFunction(functionName);

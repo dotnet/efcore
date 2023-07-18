@@ -21,7 +21,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// <summary>
     ///     Gets this entity type or the one on which the complex property chain is declared.
     /// </summary>
-    IReadOnlyEntityType FundamentalEntityType
+    IReadOnlyEntityType ContainingEntityType
         => (IReadOnlyEntityType)this;
 
     /// <summary>

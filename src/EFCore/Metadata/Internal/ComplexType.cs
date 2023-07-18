@@ -105,11 +105,11 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual EntityType FundamentalEntityType
+    public virtual EntityType ContainingEntityType
         => ComplexProperty.DeclaringType switch
         {
             EntityType entityType => entityType,
-            ComplexType declaringComplexType => declaringComplexType.FundamentalEntityType,
+            ComplexType declaringComplexType => declaringComplexType.ContainingEntityType,
             _ => throw new NotImplementedException()
         };
 
@@ -739,10 +739,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IReadOnlyEntityType IReadOnlyTypeBase.FundamentalEntityType
+    IReadOnlyEntityType IReadOnlyTypeBase.ContainingEntityType
     {
         [DebuggerStepThrough]
-        get => FundamentalEntityType;
+        get => ContainingEntityType;
     }
 
     /// <summary>
@@ -751,10 +751,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IMutableEntityType IMutableTypeBase.FundamentalEntityType
+    IMutableEntityType IMutableTypeBase.ContainingEntityType
     {
         [DebuggerStepThrough]
-        get => FundamentalEntityType;
+        get => ContainingEntityType;
     }
 
     /// <summary>
@@ -763,10 +763,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionEntityType IConventionTypeBase.FundamentalEntityType
+    IConventionEntityType IConventionTypeBase.ContainingEntityType
     {
         [DebuggerStepThrough]
-        get => FundamentalEntityType;
+        get => ContainingEntityType;
     }
 
     /// <summary>
@@ -775,10 +775,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IEntityType ITypeBase.FundamentalEntityType
+    IEntityType ITypeBase.ContainingEntityType
     {
         [DebuggerStepThrough]
-        get => FundamentalEntityType;
+        get => ContainingEntityType;
     }
 
     #endregion

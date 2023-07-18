@@ -19,6 +19,6 @@ public interface IComplexType : IReadOnlyComplexType, ITypeBase
     /// <summary>
     ///     Gets the entity type on which the complex property chain is declared.
     /// </summary>
-    IEntityType ITypeBase.FundamentalEntityType
-        => (IEntityType)((IReadOnlyComplexType)this).FundamentalEntityType;
+    IEntityType ITypeBase.ContainingEntityType
+        => (IEntityType)((IReadOnlyComplexType)this).ContainingEntityType;
 }

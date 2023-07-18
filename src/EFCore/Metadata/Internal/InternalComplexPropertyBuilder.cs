@@ -66,7 +66,7 @@ public class InternalComplexPropertyBuilder
         propertyBuilder.IsRequired(null, ConfigurationSource.Convention);
 
         List<RelationshipSnapshot>? detachedRelationships = null;
-        foreach (var relationshipToBeDetached in complexType.FundamentalEntityType.GetDeclaredForeignKeys().ToList())
+        foreach (var relationshipToBeDetached in complexType.ContainingEntityType.GetDeclaredForeignKeys().ToList())
         {
             if (!relationshipToBeDetached.Properties.Any(p => p.DeclaringType == complexType))
             {
@@ -84,7 +84,7 @@ public class InternalComplexPropertyBuilder
         }
 
         List<(InternalKeyBuilder, ConfigurationSource?)>? detachedKeys = null;
-        foreach (var keyToDetach in complexType.FundamentalEntityType.GetDeclaredKeys().ToList())
+        foreach (var keyToDetach in complexType.ContainingEntityType.GetDeclaredKeys().ToList())
         {
             if (!keyToDetach.Properties.Any(p => p.DeclaringType == complexType))
             {
@@ -125,7 +125,7 @@ public class InternalComplexPropertyBuilder
         }
 
         List<InternalIndexBuilder>? detachedIndexes = null;
-        foreach (var indexToBeDetached in complexType.FundamentalEntityType.GetDeclaredIndexes().ToList())
+        foreach (var indexToBeDetached in complexType.ContainingEntityType.GetDeclaredIndexes().ToList())
         {
             if (!indexToBeDetached.Properties.Any(p => p.DeclaringType == complexType))
             {
