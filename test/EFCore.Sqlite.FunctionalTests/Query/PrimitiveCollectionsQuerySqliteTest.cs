@@ -305,7 +305,7 @@ WHERE EXISTS (
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."DateTime" IN (
-    SELECT datetime("d"."value") AS "value"
+    SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "d"."value"), '0'), '.') AS "value"
     FROM json_each(@__dateTimes_0) AS "d"
 )
 """);
@@ -491,7 +491,7 @@ WHERE "p"."Strings" ->> 1 = '10'
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE datetime("p"."DateTimes" ->> 1) = '2020-01-10 12:30:00'
+WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "p"."DateTimes" ->> 1), '0'), '.') = '2020-01-10 12:30:00'
 """);
     }
 

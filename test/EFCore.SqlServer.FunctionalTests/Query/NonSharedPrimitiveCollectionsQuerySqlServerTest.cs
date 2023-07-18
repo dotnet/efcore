@@ -136,6 +136,36 @@ WHERE (
 """);
     }
 
+    public override async Task Array_of_DateTime_with_milliseconds()
+    {
+        await base.Array_of_DateTime_with_milliseconds();
+
+        AssertSql(
+"""
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] datetime2 '$') AS [s]
+    WHERE [s].[value] = '2023-01-01T12:30:00.1230000') = 2
+""");
+    }
+
+    public override async Task Array_of_DateTime_with_microseconds()
+    {
+        await base.Array_of_DateTime_with_microseconds();
+
+        AssertSql(
+            """
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] datetime2 '$') AS [s]
+    WHERE [s].[value] = '2023-01-01T12:30:00.1234560') = 2
+""");
+    }
+
     public override async Task Array_of_DateOnly()
     {
         await base.Array_of_DateOnly();
@@ -163,6 +193,36 @@ WHERE (
     SELECT COUNT(*)
     FROM OPENJSON([t].[SomeArray]) WITH ([value] time '$') AS [s]
     WHERE [s].[value] = '12:30:00') = 2
+""");
+    }
+
+    public override async Task Array_of_TimeOnly_with_milliseconds()
+    {
+        await base.Array_of_TimeOnly_with_milliseconds();
+
+        AssertSql(
+"""
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] time '$') AS [s]
+    WHERE [s].[value] = '12:30:00.123') = 2
+""");
+    }
+
+    public override async Task Array_of_TimeOnly_with_microseconds()
+    {
+        await base.Array_of_TimeOnly_with_microseconds();
+
+        AssertSql(
+"""
+SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
+FROM [TestEntity] AS [t]
+WHERE (
+    SELECT COUNT(*)
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] time '$') AS [s]
+    WHERE [s].[value] = '12:30:00.123456') = 2
 """);
     }
 

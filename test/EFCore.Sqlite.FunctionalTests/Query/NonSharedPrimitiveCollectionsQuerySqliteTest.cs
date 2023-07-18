@@ -110,10 +110,31 @@ FROM "TestEntity" AS "t"
 WHERE (
     SELECT COUNT(*)
     FROM json_each("t"."SomeArray") AS "s"
-    WHERE datetime("s"."value") = '2023-01-01 12:30:00') = 2
+    WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "s"."value"), '0'), '.') = '2023-01-01 12:30:00') = 2
 LIMIT 2
 """);
     }
+
+    public override async Task Array_of_DateTime_with_milliseconds()
+    {
+        await base.Array_of_DateTime_with_milliseconds();
+
+        AssertSql(
+"""
+SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("t"."SomeArray") AS "s"
+    WHERE rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "s"."value"), '0'), '.') = '2023-01-01 12:30:00.123') = 2
+LIMIT 2
+""");
+    }
+
+    // SQLite strftime, which we use to convert JSON strings to a relational representation (essentially strip the T in the middle) does
+    // not support microsecond precision.
+    public override Task Array_of_DateTime_with_microseconds()
+        => Assert.ThrowsAsync<InvalidOperationException>(() => base.Array_of_DateTime_with_microseconds());
 
     public override async Task Array_of_DateOnly()
     {
@@ -143,6 +164,38 @@ WHERE (
     SELECT COUNT(*)
     FROM json_each("t"."SomeArray") AS "s"
     WHERE "s"."value" = '12:30:00') = 2
+LIMIT 2
+""");
+    }
+
+    public override async Task Array_of_TimeOnly_with_milliseconds()
+    {
+        await base.Array_of_TimeOnly_with_milliseconds();
+
+        AssertSql(
+"""
+SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("t"."SomeArray") AS "s"
+    WHERE "s"."value" = '12:30:00.1230000') = 2
+LIMIT 2
+""");
+    }
+
+    public override async Task Array_of_TimeOnly_with_microseconds()
+    {
+        await base.Array_of_TimeOnly_with_microseconds();
+
+        AssertSql(
+"""
+SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
+FROM "TestEntity" AS "t"
+WHERE (
+    SELECT COUNT(*)
+    FROM json_each("t"."SomeArray") AS "s"
+    WHERE "s"."value" = '12:30:00.1234560') = 2
 LIMIT 2
 """);
     }

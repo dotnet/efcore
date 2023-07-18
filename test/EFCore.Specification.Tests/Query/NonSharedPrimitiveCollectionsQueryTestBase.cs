@@ -46,12 +46,28 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         => TestArray(new DateTime(2023, 1, 1, 12, 30, 0), new DateTime(2023, 1, 2, 12, 30, 0));
 
     [ConditionalFact]
+    public virtual Task Array_of_DateTime_with_milliseconds()
+        => TestArray(new DateTime(2023, 1, 1, 12, 30, 0, 123), new DateTime(2023, 1, 1, 12, 30, 0, 124));
+
+    [ConditionalFact]
+    public virtual Task Array_of_DateTime_with_microseconds()
+        => TestArray(new DateTime(2023, 1, 1, 12, 30, 0, 123, 456), new DateTime(2023, 1, 1, 12, 30, 0, 123, 457));
+
+    [ConditionalFact]
     public virtual Task Array_of_DateOnly()
         => TestArray(new DateOnly(2023, 1, 1), new DateOnly(2023, 1, 2));
 
     [ConditionalFact]
     public virtual Task Array_of_TimeOnly()
         => TestArray(new TimeOnly(12, 30, 0), new TimeOnly(12, 30, 1));
+
+    [ConditionalFact]
+    public virtual Task Array_of_TimeOnly_with_milliseconds()
+        => TestArray(new TimeOnly(12, 30, 0, 123), new TimeOnly(12, 30, 0, 124));
+
+    [ConditionalFact]
+    public virtual Task Array_of_TimeOnly_with_microseconds()
+        => TestArray(new TimeOnly(12, 30, 0, 123, 456), new TimeOnly(12, 30, 0, 124, 457));
 
     [ConditionalFact]
     public virtual Task Array_of_DateTimeOffset()
