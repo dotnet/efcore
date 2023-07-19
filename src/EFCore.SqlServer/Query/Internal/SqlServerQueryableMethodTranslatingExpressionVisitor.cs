@@ -474,6 +474,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqlServerStringTypeMapping");
             }
 
+            Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
+
             return openJsonExpression.Update(
                 parameterExpression.ApplyTypeMapping(parameterTypeMapping),
                 path: null,

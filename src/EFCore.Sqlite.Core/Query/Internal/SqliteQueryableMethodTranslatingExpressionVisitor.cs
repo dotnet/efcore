@@ -368,7 +368,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
             : base(model, sqlExpressionFactory, inferredTypeMappings)
         {
-            (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory)
+            (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
         }
 
         /// <summary>
@@ -453,6 +453,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             {
                 throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");
             }
+
+            Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
 
             return jsonEachExpression.Update(new[] { parameterExpression.ApplyTypeMapping(parameterTypeMapping) });
         }

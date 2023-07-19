@@ -16,7 +16,7 @@ public class JsonTypesSqlServerTest : JsonTypesTestBase<JsonTypesSqlServerTest.J
     {
         if (value == EnumU64.Max)
         {
-            json = "{\"Prop\":-1}"; // Because ulong is converted to long on SQL Server
+            json = """{"Prop":-1}"""; // Because ulong is converted to long on SQL Server
         }
 
         base.Can_read_write_ulong_enum_JSON_values(value, json);
@@ -26,7 +26,7 @@ public class JsonTypesSqlServerTest : JsonTypesTestBase<JsonTypesSqlServerTest.J
     {
         if (Equals(value, ulong.MaxValue))
         {
-            json = "{\"Prop\":-1}"; // Because ulong is converted to long on SQL Server
+            json = """{"Prop":-1}"""; // Because ulong is converted to long on SQL Server
         }
 
         base.Can_read_write_nullable_ulong_enum_JSON_values(value, json);
@@ -43,7 +43,7 @@ public class JsonTypesSqlServerTest : JsonTypesTestBase<JsonTypesSqlServerTest.J
                 EnumU64.One,
                 (EnumU64)8
             },
-            "{\"Prop\":[0,-1,0,1,8]}"); // Because ulong is converted to long on SQL Server
+            """{"Prop":[0,-1,0,1,8]}"""); // Because ulong is converted to long on SQL Server
 
     public override void Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
         => Can_read_and_write_JSON_value(
@@ -57,7 +57,7 @@ public class JsonTypesSqlServerTest : JsonTypesTestBase<JsonTypesSqlServerTest.J
                 EnumU64.One,
                 (EnumU64)8
             },
-            "{\"Prop\":[0,null,-1,0,1,8]}"); // Because ulong is converted to long on SQL Server
+            """{"Prop":[0,null,-1,0,1,8]}"""); // Because ulong is converted to long on SQL Server
 
     public class JsonTypesSqlServerFixture : JsonTypesFixtureBase
     {

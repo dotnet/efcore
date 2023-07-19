@@ -130,7 +130,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
 
     /// <summary>
-    ///     Attempts to find a type mapping for a collection of primitive types.
+    ///     Attempts to find a JSON-based type mapping for a collection of primitive types.
     /// </summary>
     /// <param name="mappingInfo">The mapping info being used.</param>
     /// <param name="modelClrType">The model CLR type.</param>
@@ -138,68 +138,62 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <param name="elementMapping">The type mapping for elements of the collection.</param>
     /// <param name="collectionReaderWriter">The reader/writer for the collection.</param>
     /// <returns><see langword="true" /> if a collection mapping was found; <see langword="false" /> otherwise.</returns>
-    protected virtual bool TryFindMappingForPrimitiveCollection(
+    protected virtual bool TryFindJsonCollectionMapping(
         TypeMappingInfo mappingInfo,
         Type modelClrType,
         Type? providerClrType,
         out CoreTypeMapping? elementMapping,
         out JsonValueReaderWriter? collectionReaderWriter)
     {
-        if (providerClrType == null
-            || providerClrType == typeof(string))
+        if ((providerClrType == null || providerClrType == typeof(string))
+            && modelClrType.TryGetElementType(typeof(IEnumerable<>)) is { } elementType
+            && elementType != modelClrType
+            && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
         {
-            var elementType = modelClrType.TryGetElementType(typeof(IEnumerable<>));
-            if (elementType != null
-                && elementType != modelClrType
-                && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
+            elementMapping = mappingInfo.ElementTypeMapping
+                ?? FindMapping(elementType);
+
+            if (elementMapping is { ElementTypeMapping: null, JsonValueReaderWriter: not null })
             {
-                elementMapping = mappingInfo.ElementTypeMapping
-                    ?? FindMapping(elementType);
+                var elementReader = elementMapping.JsonValueReaderWriter!;
 
-                if (elementMapping is { ElementTypeMapping: null, JsonValueReaderWriter: not null })
+                if (!elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType()))
                 {
-                    var elementReader = elementMapping.JsonValueReaderWriter!;
+                    elementReader = (JsonValueReaderWriter)Activator.CreateInstance(
+                        typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
+                }
 
-                    if (!elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType()))
+                var typeToInstantiate = FindTypeToInstantiate();
+
+                collectionReaderWriter = mappingInfo.JsonValueReaderWriter
+                    ?? (JsonValueReaderWriter?)Activator.CreateInstance(
+                        (elementType.IsNullableValueType()
+                            ? typeof(JsonNullableStuctsCollectionReaderWriter<,,>)
+                            : typeof(JsonCollectionReaderWriter<,,>))
+                        .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
+                        elementReader);
+
+                return true;
+
+                Type FindTypeToInstantiate()
+                {
+                    if (modelClrType.IsArray)
                     {
-                        elementReader = (JsonValueReaderWriter)Activator.CreateInstance(
-                            typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
+                        return modelClrType;
                     }
 
-                    var typeToInstantiate = FindTypeToInstantiate();
-
-                    collectionReaderWriter = mappingInfo.JsonValueReaderWriter
-                        ?? (JsonValueReaderWriter?)Activator.CreateInstance(
-                            (elementType.IsNullableValueType()
-                                ? typeof(JsonNullStructsCollectionReaderWriter<,,>)
-                                : elementType.IsValueType
-                                    ? typeof(JsonNoNullsCollectionReaderWriter<,,>)
-                                    : typeof(JsonNullRefsCollectionReaderWriter<,,>))
-                            .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
-                            elementReader);
-
-                    return true;
-
-                    Type FindTypeToInstantiate()
+                    if (!modelClrType.IsAbstract)
                     {
-                        if (modelClrType.IsArray)
+                        var constructor = modelClrType.GetDeclaredConstructor(null);
+                        if (constructor?.IsPublic == true)
                         {
                             return modelClrType;
                         }
-
-                        if (!modelClrType.IsAbstract)
-                        {
-                            var constructor = modelClrType.GetDeclaredConstructor(null);
-                            if (constructor?.IsPublic == true)
-                            {
-                                return modelClrType;
-                            }
-                        }
-
-                        var listOfT = typeof(List<>).MakeGenericType(elementType);
-
-                        return modelClrType.IsAssignableFrom(listOfT) ? listOfT : modelClrType;
                     }
+
+                    var listOfT = typeof(List<>).MakeGenericType(elementType);
+
+                    return modelClrType.IsAssignableFrom(listOfT) ? listOfT : modelClrType;
                 }
             }
         }

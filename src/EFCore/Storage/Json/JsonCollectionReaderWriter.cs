@@ -6,13 +6,12 @@ using System.Text.Json;
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
-///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a nullable reference type.
+///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable"/>.
 /// </summary>
 /// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonNullRefsCollectionReaderWriter<TCollection, TConcreteCollection, TElement> : JsonValueReaderWriter<IEnumerable<TElement?>>
-    where TElement : class
+public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TElement> : JsonValueReaderWriter<IEnumerable<TElement?>>
     where TCollection : IEnumerable<TElement?>
     where TConcreteCollection : IList<TElement?>
 {
@@ -22,7 +21,7 @@ public class JsonNullRefsCollectionReaderWriter<TCollection, TConcreteCollection
     ///     Creates a new instance of this collection reader/writer, using the given reader/writer for its elements.
     /// </summary>
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
-    public JsonNullRefsCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
+    public JsonCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
     {
         _elementReaderWriter = elementReaderWriter;
     }
@@ -58,7 +57,7 @@ public class JsonNullRefsCollectionReaderWriter<TCollection, TConcreteCollection
                     collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
                     break;
                 case JsonTokenType.Null:
-                    collection.Add(null);
+                    collection.Add(default);
                     break;
             }
         }

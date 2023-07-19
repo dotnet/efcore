@@ -751,7 +751,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         else
         {
             var jsonValueReaderWriter = mapping.JsonValueReaderWriter;
-            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1]
+            value = jsonValueReaderWriter?.ToJsonString(value)[1..^1] // The JSON string contains enclosing quotes, remove these.
                 ?? (mapping.Converter == null ? value : mapping.Converter.ConvertToProvider(value));
 
             parameters = parameters with { Value = value };

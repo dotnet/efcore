@@ -51,14 +51,14 @@ public class TypeMappingTests
         => Convert_to_and_from_JSON(
             SqlServerJsonHierarchyIdReaderWriter.Instance,
             HierarchyId.GetRoot(), new HierarchyId("/1/"), new HierarchyId("/1/3/"),
-            "{\"Prop1\":\"/\",\"Prop2\":\"/1/\",\"Prop3\":\"/1/3/\"}");
+            """{"Prop1":"/","Prop2":"/1/","Prop3":"/1/3/"}""");
 
     [ConditionalFact]
     public void Convert_SqlHierarchyId_to_and_from_JSON()
         => Convert_to_and_from_JSON(
             SqlServerJsonSqlHierarchyIdReaderWriter.Instance,
             SqlHierarchyId.GetRoot(), SqlHierarchyId.Parse("/1/"), SqlHierarchyId.Parse("/1/3/"),
-            "{\"Prop1\":\"/\",\"Prop2\":\"/1/\",\"Prop3\":\"/1/3/\"}");
+            """{"Prop1":"/","Prop2":"/1/","Prop3":"/1/3/"}""");
 
     private void Convert_to_and_from_JSON<TValue>(
         JsonValueReaderWriter<TValue> jsonReaderWriter,

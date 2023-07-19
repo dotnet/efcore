@@ -133,19 +133,9 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                             }
                         }
 
-                        if (mapping == null
-                            && self.TryFindMappingForPrimitiveCollection(
-                                info, sourceType, providerType, out var elementMapping,
-                                out var collectionReaderWriter))
+                        if (mapping == null)
                         {
-                            mapping = self.FindMapping(
-                                    info.WithConverter(new ValueConverterInfo(sourceType, typeof(string), _ => null!)))!
-                                .Clone(
-                                    (ValueConverter)Activator.CreateInstance(
-                                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementMapping!.ClrType),
-                                        collectionReaderWriter!)!,
-                                    elementMapping,
-                                    collectionReaderWriter);
+                            mapping = self.TryFindCollectionMapping(info, sourceType, providerType);
                         }
                     }
                 }
@@ -162,6 +152,33 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 return mapping;
             },
             this);
+
+    /// <summary>
+    ///     Attempts to find a type mapping for a collection of primitive types.
+    /// </summary>
+    /// <param name="info">The mapping info being used.</param>
+    /// <param name="modelType">The model type.</param>
+    /// <param name="providerType">The provider type.</param>
+    /// <returns>The type mapping, or <see langword="null"/> if none was found.</returns>
+    protected virtual CoreTypeMapping? TryFindCollectionMapping(
+        TypeMappingInfo info,
+        Type modelType,
+        Type? providerType)
+        => TryFindJsonCollectionMapping(
+            info, modelType, providerType, out var elementMapping,
+            out var collectionReaderWriter)
+            ? FindMapping(
+                    info.WithConverter(
+                        // Note that the converter info is only used temporarily here and never creates an instance.
+                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
+                .Clone(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!),
+                        collectionReaderWriter!)!,
+                    elementMapping,
+                    collectionReaderWriter)
+            : null;
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.
