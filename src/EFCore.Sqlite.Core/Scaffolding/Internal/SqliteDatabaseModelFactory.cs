@@ -402,21 +402,13 @@ ORDER BY "cid"
                 continue;
             }
 
-            var type = (Type?)column["ClrType"];
+            var typeHint = (Type?)column["ClrType"];
+            var type = typeHint is null
+                ? _typeMappingSource.FindMapping(column.StoreType!)?.ClrType
+                : _typeMappingSource.FindMapping(typeHint, column.StoreType)?.ClrType;
             if (type == null)
             {
-                if (string.Equals(column.StoreType, "REAL", StringComparison.OrdinalIgnoreCase))
-                {
-                    type = typeof(double);
-                }
-                else
-                {
-                    type = _typeMappingSource.FindMapping(column.StoreType!)?.ClrType;
-                    if (type == null)
-                    {
-                        continue;
-                    }
-                }
+                continue;
             }
 
             Unwrap();
@@ -431,7 +423,9 @@ ORDER BY "cid"
             {
                 column.DefaultValue = intValue != 0;
             }
-            else if (type.IsNumeric())
+            else if (type.IsInteger()
+                || type == typeof(float)
+                || type == typeof(double))
             {
                 try
                 {
@@ -450,11 +444,6 @@ ORDER BY "cid"
                 if (type == typeof(string))
                 {
                     column.DefaultValue = defaultValueSql;
-                }
-                else if (type == typeof(bool)
-                         && bool.TryParse(defaultValueSql, out var boolValue))
-                {
-                    column.DefaultValue = boolValue;
                 }
                 else if (type == typeof(Guid)
                          && Guid.TryParse(defaultValueSql, out var guid))
@@ -480,6 +469,11 @@ ORDER BY "cid"
                          && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
                 {
                     column.DefaultValue = dateTimeOffset;
+                }
+                else if (type == typeof(decimal)
+                    && decimal.TryParse(defaultValueSql, out var decimalValue))
+                {
+                    column.DefaultValue = decimalValue;
                 }
             }
 
