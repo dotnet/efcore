@@ -227,10 +227,15 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
         /// <param name="converter">The converter.</param>
+        /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
+        /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
-        public RelationalTypeMappingParameters WithComposedConverter(ValueConverter? converter)
+        public RelationalTypeMappingParameters WithComposedConverter(
+            ValueConverter? converter,
+            CoreTypeMapping? elementMapping,
+            JsonValueReaderWriter? jsonValueReaderWriter)
             => new(
-                CoreParameters.WithComposedConverter(converter),
+                CoreParameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter),
                 StoreType,
                 StoreTypePostfix,
                 DbType,
@@ -424,14 +429,12 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     public virtual RelationalTypeMapping Clone(int? precision, int? scale)
         => Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
-    /// <summary>
-    ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
-    ///     added.
-    /// </summary>
-    /// <param name="converter">The converter to use.</param>
-    /// <returns>A new type mapping</returns>
-    public override CoreTypeMapping Clone(ValueConverter? converter)
-        => Clone(Parameters.WithComposedConverter(converter));
+    /// <inheritdoc />
+    public override CoreTypeMapping Clone(
+        ValueConverter? converter,
+        CoreTypeMapping? elementMapping = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null)
+        => Clone(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     Clones the type mapping to update facets from the mapping info, if needed.

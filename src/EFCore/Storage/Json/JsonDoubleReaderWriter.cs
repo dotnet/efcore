@@ -20,7 +20,7 @@ public sealed class JsonDoubleReaderWriter : JsonValueReaderWriter<double>
     }
 
     /// <inheritdoc />
-    public override double FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override double FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => manager.CurrentReader.GetDouble();
 
     /// <inheritdoc />

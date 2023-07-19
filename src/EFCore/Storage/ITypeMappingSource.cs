@@ -54,7 +54,7 @@ public interface ITypeMappingSource
     /// <remarks>
     ///     Note: Only call this method if there is no <see cref="IProperty" />
     ///     or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-    ///     or <see cref="FindMapping(Type, IModel)" />
+    ///     or <see cref="FindMapping(Type, IModel, CoreTypeMapping)" />
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
@@ -69,6 +69,7 @@ public interface ITypeMappingSource
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <param name="model">The model.</param>
+    /// <param name="elementMapping">The element mapping to use, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    CoreTypeMapping? FindMapping(Type type, IModel model);
+    CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 }

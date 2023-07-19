@@ -20,7 +20,7 @@ public sealed class JsonSignedEnumReaderWriter<TEnum> : JsonValueReaderWriter<TE
     }
 
     /// <inheritdoc />
-    public override TEnum FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override TEnum FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => (TEnum)Convert.ChangeType(manager.CurrentReader.GetInt64(), typeof(TEnum).GetEnumUnderlyingType());
 
     /// <inheritdoc />

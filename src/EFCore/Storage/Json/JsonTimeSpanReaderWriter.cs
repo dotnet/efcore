@@ -21,7 +21,7 @@ public sealed class JsonTimeSpanReaderWriter : JsonValueReaderWriter<TimeSpan>
     }
 
     /// <inheritdoc />
-    public override TimeSpan FromJsonTyped(ref Utf8JsonReaderManager manager)
+    public override TimeSpan FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         => TimeSpan.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
 
     /// <inheritdoc />

@@ -143,7 +143,6 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     public override string GenerateNextSequenceValueOperation(string name, string? schema)
         => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
-
     /// <inheritdoc />
     protected override void AppendUpdateColumnValue(
         ISqlGenerationHelper updateSqlGeneratorHelper,
@@ -160,7 +159,8 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
             stringBuilder.Append(columnModification.JsonPath);
             stringBuilder.Append("', ");
 
-            if (columnModification.Property != null)
+            if (columnModification.Property != null
+                && columnModification.Property.GetTypeMapping().ElementTypeMapping == null)
             {
                 var providerClrType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
                     ?? columnModification.Property.ClrType).UnwrapNullableType();

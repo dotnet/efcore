@@ -533,7 +533,7 @@ public class PropertyTest
 
     private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -544,7 +544,7 @@ public class PropertyTest
     {
         private static JasonValueReaderWriterWithPrivateInstance Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -555,7 +555,7 @@ public class PropertyTest
     {
         public static object Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -566,7 +566,7 @@ public class PropertyTest
     {
         public static SimpleJasonValueReaderWriterWithInstance Instance { get; } = new();
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -581,7 +581,7 @@ public class PropertyTest
         {
         }
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -594,7 +594,7 @@ public class PropertyTest
 
     private class NonGenericJsonValueReaderWriter : JsonValueReaderWriter
     {
-        public override object FromJson(ref Utf8JsonReaderManager manager)
+        public override object FromJson(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJson(Utf8JsonWriter writer, object value)
@@ -614,7 +614,7 @@ public class PropertyTest
         {
         }
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)
@@ -627,7 +627,7 @@ public class PropertyTest
         {
         }
 
-        public override string FromJsonTyped(ref Utf8JsonReaderManager manager)
+        public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 
         public override void ToJsonTyped(Utf8JsonWriter writer, string value)

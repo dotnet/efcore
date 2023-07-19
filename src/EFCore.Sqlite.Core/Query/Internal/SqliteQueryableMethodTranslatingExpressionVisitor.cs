@@ -63,7 +63,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // Simplify x.Array.Any() => json_array_length(x.Array) > 0 instead of WHERE EXISTS (SELECT 1 FROM json_each(x.Array))
-        if (predicate is null && source.QueryExpression is SelectExpression
+        if (predicate is null
+            && source.QueryExpression is SelectExpression
             {
                 Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
                 GroupBy: [],
@@ -169,7 +170,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // Simplify x.Array.Count() => json_array_length(x.Array) instead of SELECT COUNT(*) FROM json_each(x.Array)
-        if (predicate is null && source.QueryExpression is SelectExpression
+        if (predicate is null
+            && source.QueryExpression is SelectExpression
             {
                 Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
                 GroupBy: [],
@@ -213,7 +215,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
 
         var elementClrType = sqlExpression.Type.GetSequenceType();
-
         var jsonEachExpression = new TableValuedFunctionExpression(tableAlias, "json_each", new[] { sqlExpression });
 
         // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
@@ -339,7 +340,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected override Expression ApplyInferredTypeMappings(
         Expression expression,
         IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-        => new SqliteInferredTypeMappingApplier(_typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
+        => new SqliteInferredTypeMappingApplier(
+            RelationalDependencies.Model, _typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -360,11 +362,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public SqliteInferredTypeMappingApplier(
+            IModel model,
             IRelationalTypeMappingSource typeMappingSource,
             SqliteSqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-            : base(sqlExpressionFactory, inferredTypeMappings)
-            => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+            : base(model, sqlExpressionFactory, inferredTypeMappings)
+        {
+            (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+        }
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -396,7 +401,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                             if (previousSelectInferredTypeMappings is null)
                             {
                                 previousSelectInferredTypeMappings = _currentSelectInferredTypeMappings;
-                                _currentSelectInferredTypeMappings = new();
+                                _currentSelectInferredTypeMappings = new Dictionary<TableExpressionBase, RelationalTypeMapping>();
                             }
 
                             _currentSelectInferredTypeMappings![jsonEachExpression] = inferredTypeMapping;
@@ -443,17 +448,13 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 return jsonEachExpression;
             }
 
-            // TODO: We shouldn't need to manually construct the JSON string type mapping this way; we need to be able to provide the
-            // TODO: element's store type mapping as input to _typeMappingSource.FindMapping. #30730
-            if (_typeMappingSource.FindMapping(typeof(string)) is not SqliteStringTypeMapping parameterTypeMapping)
+            if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, inferredTypeMapping) is not SqliteStringTypeMapping
+                parameterTypeMapping)
             {
                 throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");
             }
 
-            parameterTypeMapping = (SqliteStringTypeMapping)parameterTypeMapping
-                .Clone(new CollectionToJsonStringConverter(parameterExpression.Type, inferredTypeMapping));
-
-            parameterTypeMapping = (SqliteStringTypeMapping)parameterTypeMapping.CloneWithElementTypeMapping(inferredTypeMapping);
+            Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
 
             return jsonEachExpression.Update(new[] { parameterExpression.ApplyTypeMapping(parameterTypeMapping) });
         }

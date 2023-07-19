@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
-using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -126,8 +125,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
     {
         var mapping = base.FindMapping(mappingInfo)
-            ?? FindRawMapping(mappingInfo)
-            ?? FindCollectionMapping(mappingInfo);
+            ?? FindRawMapping(mappingInfo);
 
         return mapping != null
             && mappingInfo.StoreTypeName != null
@@ -172,47 +170,6 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         return null;
     }
 
-    private RelationalTypeMapping? FindCollectionMapping(RelationalTypeMappingInfo mappingInfo)
-    {
-        // Make sure the element type is mapped and isn't itself a collection (nested collections not supported)
-        if (mappingInfo is { StoreTypeName: TextTypeName or null }
-            && mappingInfo.ClrType?.TryGetElementType(typeof(IEnumerable<>)) is { } elementClrType
-            && FindMapping(elementClrType) is { ElementTypeMapping: null } elementTypeMapping)
-        {
-            var stringMappingInfo = new RelationalTypeMappingInfo(
-                typeof(string),
-                mappingInfo.StoreTypeName,
-                mappingInfo.StoreTypeNameBase,
-                mappingInfo.IsKeyOrIndex,
-                mappingInfo.IsUnicode,
-                mappingInfo.Size,
-                mappingInfo.IsRowVersion,
-                mappingInfo.IsFixedLength,
-                mappingInfo.Precision,
-                mappingInfo.Scale);
-
-            if (FindMapping(stringMappingInfo) is not SqliteStringTypeMapping stringTypeMapping)
-            {
-                return null;
-            }
-
-            // Specifically exclude collections over Geometry, since there's a dedicated GeometryCollection type for that (see #30630)
-            if (elementClrType.Namespace == "NetTopologySuite.Geometries")
-            {
-                return null;
-            }
-
-            stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping
-                .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
-
-            stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
-
-            return stringTypeMapping;
-        }
-
-        return null;
-    }
-
     private readonly Func<string, RelationalTypeMapping?>[] _typeRules =
     {
         name => Contains(name, "INT")
@@ -224,8 +181,8 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
                 ? Text
                 : null,
         name => Contains(name, "BLOB")
-                ? Blob
-                : null,
+            ? Blob
+            : null,
         name => Contains(name, "REAL")
             || Contains(name, "FLOA")
             || Contains(name, "DOUB")

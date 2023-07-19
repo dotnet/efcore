@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -310,8 +311,11 @@ public class ChangeDetectorTest
         {
         }
 
-        public override CoreTypeMapping Clone(ValueConverter converter)
-            => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter));
+        public override CoreTypeMapping Clone(
+            ValueConverter converter,
+            CoreTypeMapping elementMapping = null,
+            JsonValueReaderWriter jsonValueReaderWriter = null)
+            => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
     }
 
     private class BaxterContext : DbContext

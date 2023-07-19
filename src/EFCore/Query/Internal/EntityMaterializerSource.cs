@@ -23,6 +23,10 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
     private readonly IMaterializationInterceptor? _materializationInterceptor;
 
+    private static readonly MethodInfo PopulateListMethod
+        = typeof(EntityMaterializerSource).GetMethod(
+            nameof(PopulateList), BindingFlags.NonPublic | BindingFlags.Static)!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -146,12 +150,47 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         }
 
         static Expression CreateMemberAssignment(Expression parameter, MemberInfo memberInfo, IPropertyBase property, Expression value)
-            => property.IsIndexerProperty()
+        {
+            if (property is IProperty prop
+                && prop.GetTypeMapping().ElementTypeMapping != null
+                && !prop.ClrType.IsArray)
+            {
+                var currentVariable = Expression.Variable(property.ClrType);
+                return Expression.Block(
+                    new[] { currentVariable },
+                    Expression.Assign(
+                        currentVariable,
+                        Expression.MakeMemberAccess(parameter, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                    Expression.IfThenElse(
+                        Expression.OrElse(
+                            Expression.ReferenceEqual(currentVariable, Expression.Constant(null)),
+                            Expression.ReferenceEqual(value, Expression.Constant(null))),
+                        Expression.MakeMemberAccess(parameter, memberInfo).Assign(value),
+                        Expression.Call(
+                            PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
+                            value,
+                            currentVariable)
+                    ));
+            }
+
+            return property.IsIndexerProperty()
                 ? Expression.Assign(
                     Expression.MakeIndex(
                         parameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(property.Name) }),
                     value)
                 : Expression.MakeMemberAccess(parameter, memberInfo).Assign(value);
+        }
+    }
+
+    private static IList<T> PopulateList<T>(IList<T> buffer, IList<T> target)
+    {
+        target.Clear();
+        foreach (var value in buffer)
+        {
+            target.Add(value);
+        }
+
+        return target;
     }
 
     private static void AddAttachServiceExpressions(

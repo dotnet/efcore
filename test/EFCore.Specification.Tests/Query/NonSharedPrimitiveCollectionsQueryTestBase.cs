@@ -95,11 +95,6 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
 
     private enum MyEnum { Label1, Label2 }
 
-    // This ensures that collections of Geometry (e.g. Geometry[]) aren't mapped; NTS has GeometryCollection for that.
-    // See SQL Server/SQLite for a sample implementation.
-    [ConditionalFact] // #30630
-    public abstract Task Array_of_geometry_is_not_supported();
-
     [ConditionalFact]
     public virtual async Task Array_of_array_is_not_supported()
     {
@@ -110,8 +105,9 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     [ConditionalFact]
     public virtual async Task Multidimensional_array_is_not_supported()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => InitializeAsync<TestContext>(
+                onModelCreating: mb => mb.Entity<TestEntity>().Property(typeof(int[,]), "MultidimensionalArray")));
         Assert.Equal(CoreStrings.PropertyNotMapped("int[,]", "TestEntity", "MultidimensionalArray"), exception.Message);
     }
 
@@ -145,7 +141,9 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         await AssertTranslationFailed(() => context.Set<TestEntity>().SingleAsync(m => m.Ints.Length == 2));
     }
 
-    [ConditionalFact(Skip = "Currently fails because we don't use the element mapping when serializing to JSON, but just do JsonSerializer.Serialize, #30677")]
+    [ConditionalFact(
+        Skip =
+            "Currently fails because we don't use the element mapping when serializing to JSON, but just do JsonSerializer.Serialize, #30677")]
     public virtual async Task Parameter_with_inferred_value_converter()
     {
         var contextFactory = await InitializeAsync<TestContext>(
@@ -195,12 +193,14 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         Assert.Equal(1, result.Id);
     }
 
-    class IntWrapper
+    private class IntWrapper
     {
         public IntWrapper(int value)
-            => Value = value;
+        {
+            Value = value;
+        }
 
-        public int Value { get; set; }
+        public int Value { get; }
     }
 
     [ConditionalFact]
@@ -268,8 +268,9 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 Call(
                     EnumerableMethods.CountWithPredicate.MakeGenericMethod(typeof(TElement)),
                     efPropertyCall,
-                    Lambda(Equal(elementParam, Constant(value1)), elementParam)),
-            Constant(2)),
+                    Lambda(Equal(elementParam, Constant(value1)),
+                        elementParam)),
+                Constant(2)),
             entityParam);
 
         // context.Set<TestEntity>().SingleAsync(m => EF.Property<int[]>(m, "SomeArray").Count(a => a == <value1>) == 2)

@@ -114,7 +114,10 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                                     if (mapping != null)
                                     {
-                                        mapping = mapping.Clone(secondConverterInfo.Create());
+                                        mapping = mapping.Clone(
+                                            secondConverterInfo.Create(),
+                                            info.ElementTypeMapping,
+                                            jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
                                         break;
                                     }
                                 }
@@ -122,9 +125,17 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                             if (mapping != null)
                             {
-                                mapping = mapping.Clone(converterInfo.Create());
+                                mapping = mapping.Clone(
+                                    converterInfo.Create(),
+                                    info.ElementTypeMapping,
+                                    jsonValueReaderWriter: info.JsonValueReaderWriter);
                                 break;
                             }
+                        }
+
+                        if (mapping == null)
+                        {
+                            mapping = self.TryFindCollectionMapping(info, sourceType, providerType);
                         }
                     }
                 }
@@ -132,12 +143,42 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 if (mapping != null
                     && converter != null)
                 {
-                    mapping = mapping.Clone(converter);
+                    mapping = mapping.Clone(
+                        converter,
+                        info.ElementTypeMapping,
+                        jsonValueReaderWriter: info.JsonValueReaderWriter);
                 }
 
                 return mapping;
             },
             this);
+
+    /// <summary>
+    ///     Attempts to find a type mapping for a collection of primitive types.
+    /// </summary>
+    /// <param name="info">The mapping info being used.</param>
+    /// <param name="modelType">The model type.</param>
+    /// <param name="providerType">The provider type.</param>
+    /// <returns>The type mapping, or <see langword="null"/> if none was found.</returns>
+    protected virtual CoreTypeMapping? TryFindCollectionMapping(
+        TypeMappingInfo info,
+        Type modelType,
+        Type? providerType)
+        => TryFindJsonCollectionMapping(
+            info, modelType, providerType, out var elementMapping,
+            out var collectionReaderWriter)
+            ? FindMapping(
+                    info.WithConverter(
+                        // Note that the converter info is only used temporarily here and never creates an instance.
+                        new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
+                .Clone(
+                    (ValueConverter)Activator.CreateInstance(
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!),
+                        collectionReaderWriter!)!,
+                    elementMapping,
+                    collectionReaderWriter)
+            : null;
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.
@@ -160,7 +201,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     ///     <para>
     ///         Note: Only call this method if there is no <see cref="IProperty" />
     ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-    ///         or <see cref="FindMapping(Type, IModel)" />
+    ///         or <see cref="FindMapping(Type, IModel, CoreTypeMapping)" />
     ///     </para>
     ///     <para>
     ///         Note: providers should typically not need to override this method.
@@ -180,8 +221,9 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <param name="model">The model.</param>
+    /// <param name="elementMapping">The element mapping to use, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    public override CoreTypeMapping? FindMapping(Type type, IModel model)
+    public override CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null)
     {
         type = type.UnwrapNullableType();
         var typeConfiguration = model.FindTypeMappingConfiguration(type);
@@ -202,6 +244,11 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 size: typeConfiguration.GetMaxLength(),
                 precision: typeConfiguration.GetPrecision(),
                 scale: typeConfiguration.GetScale());
+        }
+
+        if (elementMapping != null)
+        {
+            mappingInfo = mappingInfo.WithElementTypeMapping(elementMapping);
         }
 
         return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
