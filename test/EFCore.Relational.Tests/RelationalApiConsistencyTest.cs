@@ -295,9 +295,9 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 {
                     typeof(IReadOnlyDbFunction),
                     (
-                        typeof(RelationalDbFunctionExtensions),
-                        typeof(RelationalDbFunctionExtensions),
-                        typeof(RelationalDbFunctionExtensions),
+                        typeof(RelationalDbFunctionsExtensions),
+                        typeof(RelationalDbFunctionsExtensions),
+                        typeof(RelationalDbFunctionsExtensions),
                         null,
                         null
                     )

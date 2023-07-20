@@ -143,6 +143,18 @@ public abstract class AnnotatableBuilder<TMetadata, TModelBuilder> : IConvention
     /// <param name="name">The name of the annotation to remove.</param>
     /// <param name="configurationSource">The configuration source of the annotation to be set.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
+    [Obsolete("Use HasNoAnnotation instead")]
+    public virtual AnnotatableBuilder<TMetadata, TModelBuilder>? RemoveAnnotation(
+        string name,
+        ConfigurationSource configurationSource)
+        => HasNoAnnotation(name, configurationSource);
+
+    /// <summary>
+    ///     Removes any annotation with the given name.
+    /// </summary>
+    /// <param name="name">The name of the annotation to remove.</param>
+    /// <param name="configurationSource">The configuration source of the annotation to be set.</param>
+    /// <returns>The same builder so that multiple calls can be chained.</returns>
     public virtual AnnotatableBuilder<TMetadata, TModelBuilder>? HasNoAnnotation(
         string name,
         ConfigurationSource configurationSource)
