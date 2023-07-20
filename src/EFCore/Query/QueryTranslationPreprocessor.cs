@@ -52,6 +52,7 @@ public class QueryTranslationPreprocessor
     {
         query = new InvocationExpressionRemovingExpressionVisitor().Visit(query);
         query = NormalizeQueryableMethod(query);
+        query = new CallForwardingExpressionVisitor().Visit(query);
         query = new NullCheckRemovingExpressionVisitor().Visit(query);
         query = new SubqueryMemberPushdownExpressionVisitor(QueryCompilationContext.Model).Visit(query);
         query = new NavigationExpandingExpressionVisitor(
