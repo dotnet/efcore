@@ -15,7 +15,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 [RequiresUnreferencedCode(
     "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
-public class ObservableBackedBindingList<T> : SortableBindingList<T>
+[RequiresDynamicCode("Requires calling MakeGenericType on the property descriptor's type")]
+public class ObservableBackedBindingList<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)] T> : SortableBindingList<T>
 {
     private bool _addingNewInstance;
     private T? _addNewInstance;
