@@ -76,12 +76,16 @@ public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListS
     /// </returns>
     [RequiresUnreferencedCode(
         "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
+    [RequiresDynamicCode("Requires calling MakeGenericType on the property descriptor's type")]
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis",
         "IL2046",
         Justification =
             "This method is an interface implementation, and the interface method isn't annotated with RequiresUnreferencedCode. "
             + "The entire type is marked with RequiresUnreferencedCode.")]
+    [SuppressMessage("AOT", "IL3051:'RequiresDynamicCodeAttribute' annotations must match across all interface implementations or overrides.",
+        Justification = "This method is an override, and the base method isn't annotated with RequiresDynamicCode. "
+            + "The entire type is marked with RequiresDynamicCode.")]
     IList IListSource.GetList()
         => _bindingList ??= this.ToBindingList();
 }

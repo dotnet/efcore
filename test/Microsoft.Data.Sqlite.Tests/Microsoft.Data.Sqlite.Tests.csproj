@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net462</TargetFrameworks>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants);E_SQLITE3</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
