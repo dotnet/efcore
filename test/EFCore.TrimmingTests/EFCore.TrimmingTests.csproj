@@ -4,12 +4,14 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <Nullable>enable</Nullable>
-    <AssemblyName>Microsoft.EntityFrameworkCore.TrimmingTests</AssemblyName>
+    <ImplicitUsings>true</ImplicitUsings>
+    <PublishAot>false</PublishAot>
     <RootNamespace>Microsoft.EntityFrameworkCore.TrimmingTests</RootNamespace>
+    <AssemblyName>Microsoft.EntityFrameworkCore.TrimmingTests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.SqlServer/EFCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Data.Sqlite.Core\Microsoft.Data.Sqlite.Core.csproj" />
   </ItemGroup>
 

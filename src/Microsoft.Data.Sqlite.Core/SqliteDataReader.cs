@@ -315,7 +315,7 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The data type of the column.</returns>
-#if NET6_0_OR_GREATER
+#if NET8_0_OR_GREATER
         [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
 #endif
         public override Type GetFieldType(int ordinal)
@@ -623,75 +623,74 @@ namespace Microsoft.Data.Sqlite
 
             var schemaTable = new DataTable("SchemaTable");
 
-            var ColumnName = new DataColumn(SchemaTableColumn.ColumnName, typeof(string));
-            var ColumnOrdinal = new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(int));
-            var ColumnSize = new DataColumn(SchemaTableColumn.ColumnSize, typeof(int));
-            var NumericPrecision = new DataColumn(SchemaTableColumn.NumericPrecision, typeof(short));
-            var NumericScale = new DataColumn(SchemaTableColumn.NumericScale, typeof(short));
+            var columnNameColumn = new DataColumn(SchemaTableColumn.ColumnName, typeof(string));
+            var columnOrdinalColumn = new DataColumn(SchemaTableColumn.ColumnOrdinal, typeof(int));
+            var columnSizeColumn = new DataColumn(SchemaTableColumn.ColumnSize, typeof(int));
+            var numericPrecisionColumn = new DataColumn(SchemaTableColumn.NumericPrecision, typeof(short));
+            var numericScaleColumn = new DataColumn(SchemaTableColumn.NumericScale, typeof(short));
+            var dataTypeColumn = CreateDataTypeColumn();
+            var dataTypeNameColumn = new DataColumn("DataTypeName", typeof(string));
 
-            var DataType = new DataColumn(SchemaTableColumn.DataType, typeof(Type));
-            var DataTypeName = new DataColumn("DataTypeName", typeof(string));
+            var isLongColumn = new DataColumn(SchemaTableColumn.IsLong, typeof(bool));
+            var allowDBNullColumn = new DataColumn(SchemaTableColumn.AllowDBNull, typeof(bool));
 
-            var IsLong = new DataColumn(SchemaTableColumn.IsLong, typeof(bool));
-            var AllowDBNull = new DataColumn(SchemaTableColumn.AllowDBNull, typeof(bool));
+            var isUniqueColumn = new DataColumn(SchemaTableColumn.IsUnique, typeof(bool));
+            var isKeyColumn = new DataColumn(SchemaTableColumn.IsKey, typeof(bool));
+            var isAutoIncrementColumn = new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool));
 
-            var IsUnique = new DataColumn(SchemaTableColumn.IsUnique, typeof(bool));
-            var IsKey = new DataColumn(SchemaTableColumn.IsKey, typeof(bool));
-            var IsAutoIncrement = new DataColumn(SchemaTableOptionalColumn.IsAutoIncrement, typeof(bool));
+            var baseCatalogNameColumn = new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(string));
+            var baseSchemaNameColumn = new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(string));
+            var baseTableNameColumn = new DataColumn(SchemaTableColumn.BaseTableName, typeof(string));
+            var baseColumnNameColumn = new DataColumn(SchemaTableColumn.BaseColumnName, typeof(string));
 
-            var BaseCatalogName = new DataColumn(SchemaTableOptionalColumn.BaseCatalogName, typeof(string));
-            var BaseSchemaName = new DataColumn(SchemaTableColumn.BaseSchemaName, typeof(string));
-            var BaseTableName = new DataColumn(SchemaTableColumn.BaseTableName, typeof(string));
-            var BaseColumnName = new DataColumn(SchemaTableColumn.BaseColumnName, typeof(string));
-
-            var BaseServerName = new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(string));
-            var IsAliased = new DataColumn(SchemaTableColumn.IsAliased, typeof(bool));
-            var IsExpression = new DataColumn(SchemaTableColumn.IsExpression, typeof(bool));
+            var baseServerNameColumn = new DataColumn(SchemaTableOptionalColumn.BaseServerName, typeof(string));
+            var isAliasedColumn = new DataColumn(SchemaTableColumn.IsAliased, typeof(bool));
+            var isExpressionColumn = new DataColumn(SchemaTableColumn.IsExpression, typeof(bool));
 
             var columns = schemaTable.Columns;
 
-            columns.Add(ColumnName);
-            columns.Add(ColumnOrdinal);
-            columns.Add(ColumnSize);
-            columns.Add(NumericPrecision);
-            columns.Add(NumericScale);
-            columns.Add(IsUnique);
-            columns.Add(IsKey);
-            columns.Add(BaseServerName);
-            columns.Add(BaseCatalogName);
-            columns.Add(BaseColumnName);
-            columns.Add(BaseSchemaName);
-            columns.Add(BaseTableName);
-            columns.Add(DataType);
-            columns.Add(DataTypeName);
-            columns.Add(AllowDBNull);
-            columns.Add(IsAliased);
-            columns.Add(IsExpression);
-            columns.Add(IsAutoIncrement);
-            columns.Add(IsLong);
+            columns.Add(columnNameColumn);
+            columns.Add(columnOrdinalColumn);
+            columns.Add(columnSizeColumn);
+            columns.Add(numericPrecisionColumn);
+            columns.Add(numericScaleColumn);
+            columns.Add(isUniqueColumn);
+            columns.Add(isKeyColumn);
+            columns.Add(baseServerNameColumn);
+            columns.Add(baseCatalogNameColumn);
+            columns.Add(baseColumnNameColumn);
+            columns.Add(baseSchemaNameColumn);
+            columns.Add(baseTableNameColumn);
+            columns.Add(dataTypeColumn);
+            columns.Add(dataTypeNameColumn);
+            columns.Add(allowDBNullColumn);
+            columns.Add(isAliasedColumn);
+            columns.Add(isExpressionColumn);
+            columns.Add(isAutoIncrementColumn);
+            columns.Add(isLongColumn);
 
             for (var i = 0; i < FieldCount; i++)
             {
                 var schemaRow = schemaTable.NewRow();
-                schemaRow[ColumnName] = GetName(i);
-                schemaRow[ColumnOrdinal] = i;
-                schemaRow[ColumnSize] = -1;
-                schemaRow[NumericPrecision] = DBNull.Value;
-                schemaRow[NumericScale] = DBNull.Value;
-                schemaRow[BaseServerName] = _command.Connection!.DataSource;
+                schemaRow[columnNameColumn] = GetName(i);
+                schemaRow[columnOrdinalColumn] = i;
+                schemaRow[columnSizeColumn] = -1;
+                schemaRow[numericPrecisionColumn] = DBNull.Value;
+                schemaRow[numericScaleColumn] = DBNull.Value;
+                schemaRow[baseServerNameColumn] = _command.Connection!.DataSource;
                 var databaseName = sqlite3_column_database_name(_record.Handle, i).utf8_to_string();
-                schemaRow[BaseCatalogName] = databaseName;
+                schemaRow[baseCatalogNameColumn] = databaseName;
                 var columnName = sqlite3_column_origin_name(_record.Handle, i).utf8_to_string();
-                schemaRow[BaseColumnName] = columnName;
-                schemaRow[BaseSchemaName] = DBNull.Value;
+                schemaRow[baseColumnNameColumn] = columnName;
+                schemaRow[baseSchemaNameColumn] = DBNull.Value;
                 var tableName = sqlite3_column_table_name(_record.Handle, i).utf8_to_string();
-                schemaRow[BaseTableName] = tableName;
-                schemaRow[DataType] = GetFieldType(i);
+                schemaRow[baseTableNameColumn] = tableName;
+                schemaRow[dataTypeColumn] = GetFieldType(i);
                 var dataTypeName = GetDataTypeName(i);
-                schemaRow[DataTypeName] = dataTypeName;
-                schemaRow[IsAliased] = columnName != GetName(i);
-                schemaRow[IsExpression] = columnName == null;
-                schemaRow[IsLong] = DBNull.Value;
+                schemaRow[dataTypeNameColumn] = dataTypeName;
+                schemaRow[isAliasedColumn] = columnName != GetName(i);
+                schemaRow[isExpressionColumn] = columnName == null;
+                schemaRow[isLongColumn] = DBNull.Value;
 
                 var eponymousVirtualTable = false;
                 if (tableName != null
@@ -708,7 +707,7 @@ namespace Microsoft.Data.Sqlite
                         command.Parameters.AddWithValue("$column", columnName);
 
                         var cnt = (long)command.ExecuteScalar()!;
-                        schemaRow[IsUnique] = cnt != 0;
+                        schemaRow[isUniqueColumn] = cnt != 0;
 
                         command.Parameters.Clear();
                         var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
@@ -721,7 +720,7 @@ namespace Microsoft.Data.Sqlite
                             .AppendLine("LIMIT 1;").ToString();
 
                         var type = (string?)command.ExecuteScalar();
-                        schemaRow[DataType] =
+                        schemaRow[dataTypeColumn] =
                             (type != null)
                                 ? SqliteDataRecord.GetFieldType(type)
                                 : SqliteDataRecord.GetFieldTypeFromSqliteType(
@@ -741,9 +740,9 @@ namespace Microsoft.Data.Sqlite
                             out var notNull, out var primaryKey, out var autoInc);
                         SqliteException.ThrowExceptionForRC(rc, _command.Connection.Handle);
 
-                        schemaRow[IsKey] = primaryKey != 0;
-                        schemaRow[AllowDBNull] = notNull == 0;
-                        schemaRow[IsAutoIncrement] = autoInc != 0;
+                        schemaRow[isKeyColumn] = primaryKey != 0;
+                        schemaRow[allowDBNullColumn] = notNull == 0;
+                        schemaRow[isAutoIncrementColumn] = autoInc != 0;
                     }
                 }
 
@@ -751,6 +750,19 @@ namespace Microsoft.Data.Sqlite
             }
 
             return schemaTable;
+
+#if NET6_0_OR_GREATER
+            [UnconditionalSuppressMessage("Trimming", "IL2111:Method with parameters or return value with `DynamicallyAccessedMembersAttribute`"
+                + " is accessed via reflection. Trimmer can't guarantee availability of the requirements of the method.",
+                Justification = "This is about System.Type.TypeInitializer.get. It is accessed via reflection"
+                + " as the type parameter in DataColumn is annotated with DynamicallyAccessedMemberTypes.PublicFields | DynamicallyAccessedMemberTypes.PublicProperties" +
+                " However, reflection is only used for nullable columns.")]
+#endif
+            static DataColumn CreateDataTypeColumn()
+                => new(SchemaTableColumn.DataType, typeof(Type))
+                {
+                    AllowDBNull = false
+                };
         }
     }
 }

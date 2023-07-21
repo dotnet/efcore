@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
@@ -85,7 +86,9 @@ public class DbContextServices : IDbContextServices
 
             return modelFromOptions == null
                 || (designTime && modelFromOptions is not Metadata.Internal.Model)
-                    ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
+                    ? RuntimeFeature.IsDynamicCodeSupported
+                        ? dependencies.ModelSource.GetModel(_currentContext!.Context, dependencies, designTime)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)
                     : dependencies.ModelRuntimeInitializer.Initialize(modelFromOptions, designTime, dependencies.ValidationLogger);
         }
         finally

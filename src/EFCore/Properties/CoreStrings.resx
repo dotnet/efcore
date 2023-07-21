@@ -1083,6 +1083,9 @@
   <data name="NamedIndexWrongType" xml:space="preserve">
     <value>The index with name {indexName} cannot be removed from the entity type '{entityType}' because no such index exists on that entity type.</value>
   </data>
+  <data name="NativeAotNoCompiledModel" xml:space="preserve">
+    <value>Model building is not supported when publishing with NativeAOT. Use a compiled model.</value>
+  </data>
   <data name="NavigationArray" xml:space="preserve">
     <value>The type of navigation '{1_entityType}.{0_navigation}' is '{foundType}' which is an array type. Collection navigations cannot be arrays.</value>
   </data>

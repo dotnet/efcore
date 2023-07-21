@@ -70,7 +70,7 @@
     <PropertyGroup>
       <_additionalProjectReferencesString>@(_additionalProjectReference, '%0a    ')</_additionalProjectReferencesString>
     </PropertyGroup>
-	
+
     <ItemGroup Condition="'@(PackageReference)' != ''">
       <PackageReference Condition="'%(PackageReference.PrivateAssets)' == ''">
         <PrivateAssets>contentfiles;analyzers;build</PrivateAssets>
@@ -150,7 +150,7 @@
           Outputs="_unused">
 
     <Message Text="[Trimming Tests] Running test: %(TestConsoleApps.ProjectCompileItems) ..." />
-    <Exec IgnoreExitCode="true" Command="%(TestConsoleApps.TestCommand)" StandardOutputImportance="Low" WorkingDirectory="%(TestConsoleApps.TestExecutionDirectory)">
+    <Exec IgnoreExitCode="true" Command="%(TestConsoleApps.TestCommand)" StandardOutputImportance="Normal" WorkingDirectory="%(TestConsoleApps.TestExecutionDirectory)">
       <Output TaskParameter="ExitCode" PropertyName="ExecutionExitCode" />
     </Exec>
 
