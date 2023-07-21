@@ -1516,6 +1516,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationsOnDifferentStoreTypes");
 
         /// <summary>
+        ///     A set operation 'setOperationType' requires valid type mapping for at least one of its sides.
+        /// </summary>
+        public static string SetOperationsRequireAtLeastOneSideWithValidTypeMapping(object? setOperationType)
+        => string.Format(
+            GetString("SetOperationsRequireAtLeastOneSideWithValidTypeMapping", nameof(setOperationType)),
+            setOperationType);
+
+        /// <summary>
         ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
         /// </summary>
         public static string SetPropertyMethodInvoked

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -575,7 +576,7 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT 1
+        SELECT "i"."key"
         FROM json_each("p"."Ints") AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
@@ -817,7 +818,7 @@ WHERE "p"."Ints" = '[1,10]'
         await base.Parameter_collection_in_subquery_Count_as_compiled_query(async);
 
         AssertSql(
-            """
+"""
 @__ints='[10,111]' (Size = 8)
 
 SELECT COUNT(*)
@@ -834,12 +835,20 @@ WHERE (
 """);
     }
 
+    public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async))).Message;
+
+        Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
+    }
+
     public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
     {
         await base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async);
 
         AssertSql(
-            """
+"""
 @__ints='[10,111]' (Size = 8)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
@@ -849,7 +858,7 @@ WHERE (
     FROM (
         SELECT "t"."value"
         FROM (
-            SELECT "i"."value"
+            SELECT "i"."value", "i"."key"
             FROM json_each(@__ints) AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
@@ -858,6 +867,63 @@ WHERE (
         SELECT "i0"."value"
         FROM json_each("p"."Ints") AS "i0"
     ) AS "t0") = 3
+""");
+    }
+
+    public override async Task Parameter_collection_in_subquery_Union_column_collection(bool async)
+    {
+        await base.Parameter_collection_in_subquery_Union_column_collection(async);
+
+        AssertSql(
+"""
+@__Skip_0='[111]' (Size = 5)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT "s"."value"
+        FROM json_each(@__Skip_0) AS "s"
+        UNION
+        SELECT "i"."value"
+        FROM json_each("p"."Ints") AS "i"
+    ) AS "t") = 3
+""");
+    }
+
+    public override async Task Parameter_collection_in_subquery_Union_column_collection_nested(bool async)
+    {
+        await base.Parameter_collection_in_subquery_Union_column_collection_nested(async);
+
+        AssertSql(
+"""
+@__Skip_0='[111]' (Size = 5)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT "s"."value"
+        FROM json_each(@__Skip_0) AS "s"
+        UNION
+        SELECT "t1"."value"
+        FROM (
+            SELECT "t0"."value"
+            FROM (
+                SELECT DISTINCT "t2"."value"
+                FROM (
+                    SELECT "i"."value", "i"."key"
+                    FROM json_each("p"."Ints") AS "i"
+                    ORDER BY "i"."value"
+                    LIMIT -1 OFFSET 1
+                ) AS "t2"
+            ) AS "t0"
+            ORDER BY "t0"."value" DESC
+            LIMIT 20
+        ) AS "t1"
+    ) AS "t") = 3
 """);
     }
 
@@ -883,7 +949,7 @@ WHERE (
     FROM (
         SELECT "t"."value"
         FROM (
-            SELECT "i"."value"
+            SELECT "i"."value", "i"."key"
             FROM json_each("p"."Ints") AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
@@ -894,6 +960,72 @@ WHERE (
     ) AS "t0") = 3
 """);
     }
+
+    public override async Task Project_collection_of_ints_simple(bool async)
+    {
+        await base.Project_collection_of_ints_simple(async);
+
+        AssertSql(
+"""
+SELECT "p"."Ints"
+FROM "PrimitiveCollectionsEntity" AS "p"
+ORDER BY "p"."Id"
+""");
+    }
+
+    public override async Task Project_collection_of_ints_ordered(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_ordered(async))).Message);
+
+    public override async Task Project_collection_of_datetimes_filtered(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_datetimes_filtered(async))).Message);
+
+    public override async Task Project_collection_of_ints_with_paging(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_paging(async))).Message);
+
+    public override async Task Project_collection_of_ints_with_paging2(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_paging2(async))).Message);
+
+    public override async Task Project_collection_of_ints_with_paging3(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_paging3(async))).Message);
+
+    public override async Task Project_collection_of_ints_with_distinct(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_distinct(async))).Message);
+
+    public override async Task Project_collection_of_nullable_ints_with_distinct(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_nullable_ints_with_distinct(async))).Message);
+
+    public override async Task Project_multiple_collections(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_multiple_collections(async))).Message);
+
+    public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async))).Message);
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

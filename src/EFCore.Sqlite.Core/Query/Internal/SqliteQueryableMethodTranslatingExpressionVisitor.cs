@@ -220,8 +220,17 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
         var isColumnNullable = elementClrType.IsNullableType();
 
+#pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
-            jsonEachExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping, isColumnNullable);
+            jsonEachExpression,
+            columnName: "value",
+            columnType: elementClrType,
+            columnTypeMapping: elementTypeMapping,
+            isColumnNullable,
+            identifierColumnName: "key",
+            identifierColumnType: typeof(int),
+            identifierColumnTypeMapping: _typeMappingSource.FindMapping(typeof(int)));
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         // If we have a collection column, we know the type mapping at this point (as opposed to parameters, whose type mapping will get
         // inferred later based on usage in SqliteInferredTypeMappingApplier); we should be able to apply any SQL logic needed to convert

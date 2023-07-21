@@ -101,20 +101,21 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="SelectExpression" /> class given a <see cref="TableExpressionBase" />, with a single
-    ///     column projection.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="tableExpression">The table expression.</param>
-    /// <param name="columnName">The name of the column to add as the projection.</param>
-    /// <param name="columnType">The type of the column to add as the projection.</param>
-    /// <param name="columnTypeMapping">The type mapping of the column to add as the projection.</param>
-    /// <param name="isColumnNullable">Whether the column projected out is nullable.</param>
+    [EntityFrameworkInternal]
     public SelectExpression(
         TableExpressionBase tableExpression,
         string columnName,
         Type columnType,
         RelationalTypeMapping? columnTypeMapping,
-        bool? isColumnNullable = null)
+        bool? isColumnNullable = null,
+        string? identifierColumnName = null,
+        Type? identifierColumnType = null,
+        RelationalTypeMapping? identifierColumnTypeMapping = null)
         : base(null)
     {
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
@@ -128,6 +129,24 @@ public sealed partial class SelectExpression : TableExpressionBase
             isColumnNullable ?? columnType.IsNullableType());
 
         _projectionMapping[new ProjectionMember()] = columnExpression;
+
+        if (identifierColumnName != null && identifierColumnType != null && identifierColumnTypeMapping != null)
+        {
+            var identifierColumn = new ConcreteColumnExpression(
+                identifierColumnName,
+                tableReferenceExpression,
+                identifierColumnType.UnwrapNullableType(),
+                identifierColumnTypeMapping,
+                identifierColumnType.IsNullableType());
+
+            _identifier.Add((identifierColumn, identifierColumnTypeMapping!.Comparer));
+        }
+        else
+        {
+            Debug.Assert(
+                identifierColumnName == null && identifierColumnType == null && identifierColumnTypeMapping == null,
+                "Either provide all identity information (column name, type and type mapping), or don't provide any.");
+        }
     }
 
     internal SelectExpression(IEntityType entityType, ISqlExpressionFactory sqlExpressionFactory)
@@ -2205,7 +2224,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             : Array.Empty<ColumnExpression?>();
         var entityProjectionIdentifiers = new List<ColumnExpression>();
         var entityProjectionValueComparers = new List<ValueComparer>();
-        var otherExpressions = new List<SqlExpression>();
+        var otherExpressions = new List<(SqlExpression Expression, ValueComparer Comparer)>();
 
         // Push down into a subquery if limit/offset are defined. If not, any orderings can be discarded as set operations don't preserve
         // them.
@@ -2308,7 +2327,19 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
                 }
 
-                otherExpressions.Add(outerProjection);
+                // we need comparer (that we get from type mapping) for identifiers
+                // it may happen that one side of the set operation comes from collection parameter
+                // and therefore doesn't have type mapping (yet - we infer those after the translation is complete)
+                // but for set operation at least one side should have type mapping, otherwise whole thing would have been parameterized out
+                // this can only happen in compiled query, since we always parameterize parameters there - if this happens we throw
+                var outerTypeMapping = innerProjection1.Expression.TypeMapping ?? innerProjection2.Expression.TypeMapping;
+                if (outerTypeMapping == null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping(setOperationType));
+                }
+
+                otherExpressions.Add((outerProjection, outerTypeMapping.KeyComparer));
             }
         }
 
@@ -2349,10 +2380,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                     // If there are no other expressions then we can use all entityProjectionIdentifiers
                     _identifier.AddRange(entityProjectionIdentifiers.Zip(entityProjectionValueComparers));
                 }
-                else if (otherExpressions.All(e => e is ColumnExpression))
+                else if (otherExpressions.All(e => e.Expression is ColumnExpression))
                 {
                     _identifier.AddRange(entityProjectionIdentifiers.Zip(entityProjectionValueComparers));
-                    _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e, e.TypeMapping!.KeyComparer)));
+                    _identifier.AddRange(otherExpressions.Select(e => ((ColumnExpression)e.Expression, e.Comparer)));
                 }
             }
         }
