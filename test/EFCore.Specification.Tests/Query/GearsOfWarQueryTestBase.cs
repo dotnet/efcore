@@ -91,10 +91,22 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_DateOnly_ToString(bool async)
-    => AssertQuery(
-       async,
-     ss => ss.Set<Mission>().Where(m => m.Date.ToString() == new DateOnly(2020, 1, 1).ToString()).AsTracking(),
-       entryCount: 1);
+    {
+        //Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("ru-Ru");
+
+        return AssertQuery(
+           async,
+         ss => ss.Set<Mission>().Where(m => m.Date.ToString() == new DateOnly(2020, 1, 1).ToString()).AsTracking(),
+           entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_TimeOnly_ToString(bool async)
+   => AssertQuery(
+      async,
+    ss => ss.Set<Mission>().Where(m => m.Time.ToString() == new TimeOnly(15, 30, 10).ToString()).AsTracking(),
+      entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -655,7 +667,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Select(
                     b => new
                     {
-                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                     }));
 
     [ConditionalTheory]
@@ -1099,11 +1112,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => from g in ss.Set<Gear>()
                   from o in ss.Set<Gear>().OfType<Officer>()
                   where new
-                      {
-                          Name = g.LeaderNickname,
-                          Squad = g.LeaderSquadId,
-                          Five = 5
-                      }
+                  {
+                      Name = g.LeaderNickname,
+                      Squad = g.LeaderSquadId,
+                      Five = 5
+                  }
                       == new
                       {
                           Name = o.Nickname,
@@ -2804,7 +2817,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => from g1 in ss.Set<Gear>()
                   from g2 in ss.Set<Gear>()
-                  // ReSharper disable once PossibleUnintendedReferenceComparison
+                      // ReSharper disable once PossibleUnintendedReferenceComparison
                   where g1.Weapons == g2.Weapons
                   orderby g1.Nickname
                   select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname },

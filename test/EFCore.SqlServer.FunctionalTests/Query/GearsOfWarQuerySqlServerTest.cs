@@ -4052,6 +4052,18 @@ WHERE FORMAT([m].[Date], N'M/d/yyyy') = N'1/1/2020'
 """);
     }
 
+    public override async Task Where_TimeOnly_ToString(bool async)
+    {
+        await base.Where_TimeOnly_ToString(async);
+
+        AssertSql(
+            """
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE FORMAT([m].[Time], N'HH:mm:ss') = N'1/1/2020'
+""");
+    }
+
     public override async Task Correlated_collections_naked_navigation_with_ToList(bool async)
     {
         await base.Correlated_collections_naked_navigation_with_ToList(async);
