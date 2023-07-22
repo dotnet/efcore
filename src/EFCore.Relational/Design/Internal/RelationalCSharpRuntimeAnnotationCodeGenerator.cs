@@ -1128,7 +1128,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             mainBuilder
                 .Append($"RelationalModel.CreateColumnMapping(")
-                .Append($"(ColumnBase<ColumnMappingBase>){tableVariable}.FindColumn({code.Literal(columnMapping.Column.Name)})!, ")
+                .Append($"(ColumnBase<ColumnMappingBase>){metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(tableMappingVariable).AppendLine(");");
         }
@@ -1175,7 +1175,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
             mainBuilder
-                .Append($"RelationalModel.CreateColumnMapping({tableVariable}.FindColumn({code.Literal(columnMapping.Column.Name)})!, ")
+                .Append($"RelationalModel.CreateColumnMapping({metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(tableMappingVariable).AppendLine(");");
         }
@@ -1221,7 +1221,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var columnMapping in viewMapping.ColumnMappings)
         {
             mainBuilder
-                .Append($"RelationalModel.CreateViewColumnMapping({viewVariable}.FindColumn({code.Literal(columnMapping.Column.Name)})!, ")
+                .Append($"RelationalModel.CreateViewColumnMapping({metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(viewMappingVariable).AppendLine(");");
         }
@@ -1273,7 +1273,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var columnMapping in sqlQueryMapping.ColumnMappings)
         {
             mainBuilder
-                .Append($"RelationalModel.CreateSqlQueryColumnMapping({sqlQueryVariable}.FindColumn({code.Literal(columnMapping.Column.Name)})!, ")
+                .Append($"RelationalModel.CreateSqlQueryColumnMapping({metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(sqlQueryMappingVariable).AppendLine(");");
         }
@@ -1327,7 +1327,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var columnMapping in functionMapping.ColumnMappings)
         {
             mainBuilder
-                .Append($"RelationalModel.CreateFunctionColumnMapping({functionVariable}.FindColumn({code.Literal(columnMapping.Column.Name)})!, ")
+                .Append($"RelationalModel.CreateFunctionColumnMapping({metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(functionMappingVariable).AppendLine(");");
         }

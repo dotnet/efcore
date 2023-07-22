@@ -1752,6 +1752,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NativeAotNoCompiledModel");
 
         /// <summary>
+        ///     Migration operations are not supported when publishing with NativeAOT. Use a migration bundle or an alternate way of executing migration operations.
+        /// </summary>
+        public static string NativeAotNoMigrations
+            => GetString("NativeAotNoMigrations");
+
+        /// <summary>
         ///     The type of navigation '{1_entityType}.{0_navigation}' is '{foundType}' which is an array type. Collection navigations cannot be arrays.
         /// </summary>
         public static string NavigationArray(object? navigation, object? entityType, object? foundType)

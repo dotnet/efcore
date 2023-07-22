@@ -1086,6 +1086,9 @@
   <data name="NativeAotNoCompiledModel" xml:space="preserve">
     <value>Model building is not supported when publishing with NativeAOT. Use a compiled model.</value>
   </data>
+  <data name="NativeAotNoMigrations" xml:space="preserve">
+    <value>Migration operations are not supported when publishing with NativeAOT. Use a migration bundle or an alternate way of executing migration operations.</value>
+  </data>
   <data name="NavigationArray" xml:space="preserve">
     <value>The type of navigation '{1_entityType}.{0_navigation}' is '{foundType}' which is an array type. Collection navigations cannot be arrays.</value>
   </data>

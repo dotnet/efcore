@@ -16,25 +16,67 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// </summary>
 public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 {
-    private readonly RelationalTypeMapping _sqlVariant
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly RelationalTypeMapping SqlVariant
         = new SqlServerSqlVariantTypeMapping("sql_variant");
 
-    private readonly FloatTypeMapping _real
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly FloatTypeMapping Real
         = new SqlServerFloatTypeMapping("real");
 
-    private readonly FloatTypeMapping _realAlias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly FloatTypeMapping RealAlias
         = new SqlServerFloatTypeMapping("placeholder", storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly ByteTypeMapping _byte
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly ByteTypeMapping Byte
         = new SqlServerByteTypeMapping("tinyint");
 
-    private readonly ShortTypeMapping _short
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly ShortTypeMapping Short
         = new SqlServerShortTypeMapping("smallint");
 
-    private readonly LongTypeMapping _long
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly LongTypeMapping Long
         = new SqlServerLongTypeMapping("bigint");
 
-    private readonly SqlServerByteArrayTypeMapping _rowversion
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerByteArrayTypeMapping Rowversion
         = new(
             "rowversion",
             size: 8,
@@ -44,7 +86,13 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 v => v.ToArray()),
             storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerLongTypeMapping _longRowversion
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerLongTypeMapping LongRowversion
         = new(
             "rowversion",
             converter: new NumberToBytesConverter<long>(),
@@ -54,7 +102,13 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 v => v.ToArray()),
             dbType: DbType.Binary);
 
-    private readonly SqlServerLongTypeMapping _ulongRowversion
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerLongTypeMapping UlongRowversion
         = new(
             "rowversion",
             converter: new NumberToBytesConverter<ulong>(),
@@ -64,110 +118,320 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 v => v.ToArray()),
             dbType: DbType.Binary);
 
-    private readonly IntTypeMapping _int
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly IntTypeMapping Int
         = new("int");
 
-    private readonly BoolTypeMapping _bool
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly BoolTypeMapping Bool
         = new SqlServerBoolTypeMapping("bit");
 
-    private readonly SqlServerStringTypeMapping _fixedLengthUnicodeString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping FixedLengthUnicodeString
         = new(unicode: true, fixedLength: true);
 
-    private readonly SqlServerStringTypeMapping _textUnicodeString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping TextUnicodeString
         = new("ntext", unicode: true, sqlDbType: SqlDbType.NText, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerStringTypeMapping _variableLengthUnicodeString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping VariableLengthUnicodeString
         = new(unicode: true);
 
-    private readonly SqlServerStringTypeMapping _variableLengthMaxUnicodeString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping VariableLengthMaxUnicodeString
         = new("nvarchar(max)", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerStringTypeMapping _fixedLengthAnsiString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping FixedLengthAnsiString
         = new(fixedLength: true);
 
-    private readonly SqlServerStringTypeMapping _textAnsiString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping TextAnsiString
         = new("text", sqlDbType: SqlDbType.Text, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerStringTypeMapping _variableLengthAnsiString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping VariableLengthAnsiString
         = new();
 
-    private readonly SqlServerStringTypeMapping _variableLengthMaxAnsiString
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping VariableLengthMaxAnsiString
         = new("varchar(max)", storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerByteArrayTypeMapping _variableLengthBinary
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerByteArrayTypeMapping VariableLengthBinary
         = new();
 
-    private readonly SqlServerByteArrayTypeMapping _imageBinary
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerByteArrayTypeMapping ImageBinary
         = new("image", sqlDbType: SqlDbType.Image);
 
-    private readonly SqlServerByteArrayTypeMapping _variableLengthMaxBinary
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerByteArrayTypeMapping VariableLengthMaxBinary
         = new("varbinary(max)", storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerByteArrayTypeMapping FixedLengthBinary
         = new(fixedLength: true);
 
-    private readonly SqlServerDateOnlyTypeMapping _dateAsDateOnly
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateOnlyTypeMapping DateAsDateOnly
         = new("date");
 
-    private readonly SqlServerDateTimeTypeMapping _dateAsDateTime
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeTypeMapping DateAsDateTime
         = new("date", DbType.Date);
 
-    private readonly SqlServerDateTimeTypeMapping _smallDatetime
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeTypeMapping SmallDatetime
         = new("smalldatetime", DbType.DateTime, SqlDbType.SmallDateTime);
 
-    private readonly SqlServerDateTimeTypeMapping _datetime
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeTypeMapping Datetime
         = new("datetime", DbType.DateTime);
 
-    private readonly SqlServerDateTimeTypeMapping _datetime2
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeTypeMapping Datetime2
         = new("datetime2", DbType.DateTime2);
 
-    private readonly SqlServerDateTimeTypeMapping _datetime2Alias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeTypeMapping Datetime2Alias
         = new("placeholder", DbType.DateTime2, null, StoreTypePostfix.None);
 
-    private readonly DoubleTypeMapping _double
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DoubleTypeMapping Double
         = new SqlServerDoubleTypeMapping("float");
 
-    private readonly DoubleTypeMapping _doubleAlias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DoubleTypeMapping DoubleAlias
         = new SqlServerDoubleTypeMapping("placeholder", storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffset
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeOffsetTypeMapping Datetimeoffset
         = new("datetimeoffset");
 
-    private readonly SqlServerDateTimeOffsetTypeMapping _datetimeoffsetAlias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerDateTimeOffsetTypeMapping DatetimeoffsetAlias
         = new("placeholder", DbType.DateTimeOffset, StoreTypePostfix.None);
 
-    private readonly GuidTypeMapping _uniqueidentifier
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly GuidTypeMapping Uniqueidentifier
         = new("uniqueidentifier");
 
-    private readonly DecimalTypeMapping _decimal
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DecimalTypeMapping Decimal
         = new SqlServerDecimalTypeMapping("decimal", precision: 18, scale: 0);
 
-    private readonly DecimalTypeMapping _decimalAlias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DecimalTypeMapping DecimalAlias
         = new SqlServerDecimalTypeMapping("placeholder", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly DecimalTypeMapping _decimal182
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DecimalTypeMapping Decimal182
         = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
-    private readonly DecimalTypeMapping _money
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DecimalTypeMapping Money
         = new SqlServerDecimalTypeMapping("money", DbType.Currency, sqlDbType: SqlDbType.Money, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly DecimalTypeMapping _smallMoney
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly DecimalTypeMapping SmallMoney
         = new SqlServerDecimalTypeMapping(
             "smallmoney", DbType.Currency, sqlDbType: SqlDbType.SmallMoney, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly TimeSpanTypeMapping _timeAsTimeSpan
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly TimeSpanTypeMapping TimeAsTimeSpan
         = new SqlServerTimeSpanTypeMapping("time");
 
-    private readonly TimeOnlyTypeMapping _timeAsTimeOnly
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly TimeOnlyTypeMapping TimeAsTimeOnly
         = new SqlServerTimeOnlyTypeMapping("time");
 
-    private readonly TimeOnlyTypeMapping _timeAlias
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly TimeOnlyTypeMapping TimeAlias
         = new SqlServerTimeOnlyTypeMapping("placeholder", StoreTypePostfix.None);
 
-    private readonly SqlServerStringTypeMapping _xml
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerStringTypeMapping Xml
         = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly SqlServerJsonTypeMapping _json
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly SqlServerJsonTypeMapping Json
         = new("nvarchar(max)");
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
@@ -191,85 +455,85 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         _clrTypeMappings
             = new Dictionary<Type, RelationalTypeMapping>
             {
-                { typeof(int), _int },
-                { typeof(long), _long },
-                { typeof(DateOnly), _dateAsDateOnly },
-                { typeof(DateTime), _datetime2 },
-                { typeof(Guid), _uniqueidentifier },
-                { typeof(bool), _bool },
-                { typeof(byte), _byte },
-                { typeof(double), _double },
-                { typeof(DateTimeOffset), _datetimeoffset },
-                { typeof(short), _short },
-                { typeof(float), _real },
-                { typeof(decimal), _decimal182 },
-                { typeof(TimeOnly), _timeAsTimeOnly },
-                { typeof(TimeSpan), _timeAsTimeSpan },
-                { typeof(JsonElement), _json }
+                { typeof(int), Int },
+                { typeof(long), Long },
+                { typeof(DateOnly), DateAsDateOnly },
+                { typeof(DateTime), Datetime2 },
+                { typeof(Guid), Uniqueidentifier },
+                { typeof(bool), Bool },
+                { typeof(byte), Byte },
+                { typeof(double), Double },
+                { typeof(DateTimeOffset), Datetimeoffset },
+                { typeof(short), Short },
+                { typeof(float), Real },
+                { typeof(decimal), Decimal182 },
+                { typeof(TimeOnly), TimeAsTimeOnly },
+                { typeof(TimeSpan), TimeAsTimeSpan },
+                { typeof(JsonElement), Json }
             };
 
         _clrNoFacetTypeMappings
             = new Dictionary<Type, RelationalTypeMapping>
             {
-                { typeof(DateTime), _datetime2Alias },
-                { typeof(DateTimeOffset), _datetimeoffsetAlias },
-                { typeof(TimeOnly), _timeAlias },
-                { typeof(double), _doubleAlias },
-                { typeof(float), _realAlias },
-                { typeof(decimal), _decimalAlias }
+                { typeof(DateTime), Datetime2Alias },
+                { typeof(DateTimeOffset), DatetimeoffsetAlias },
+                { typeof(TimeOnly), TimeAlias },
+                { typeof(double), DoubleAlias },
+                { typeof(float), RealAlias },
+                { typeof(decimal), DecimalAlias }
             };
 
         // ReSharper disable CoVariantArrayConversion
         _storeTypeMappings
             = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
             {
-                { "bigint", new[] { _long } },
-                { "binary varying", new[] { _variableLengthBinary } },
-                { "binary", new[] { _fixedLengthBinary } },
-                { "bit", new[] { _bool } },
-                { "char varying", new[] { _variableLengthAnsiString } },
-                { "char varying(max)", new[] { _variableLengthMaxAnsiString } },
-                { "char", new[] { _fixedLengthAnsiString } },
-                { "character varying", new[] { _variableLengthAnsiString } },
-                { "character varying(max)", new[] { _variableLengthMaxAnsiString } },
-                { "character", new[] { _fixedLengthAnsiString } },
-                { "date", new RelationalTypeMapping[] { _dateAsDateOnly, _dateAsDateTime } },
-                { "datetime", new[] { _datetime } },
-                { "datetime2", new[] { _datetime2 } },
-                { "datetimeoffset", new[] { _datetimeoffset } },
-                { "dec", new[] { _decimal } },
-                { "decimal", new[] { _decimal } },
-                { "double precision", new[] { _double } },
-                { "float", new[] { _double } },
-                { "image", new[] { _imageBinary } },
-                { "int", new[] { _int } },
-                { "money", new[] { _money } },
-                { "national char varying", new[] { _variableLengthUnicodeString } },
-                { "national char varying(max)", new[] { _variableLengthMaxUnicodeString } },
-                { "national character varying", new[] { _variableLengthUnicodeString } },
-                { "national character varying(max)", new[] { _variableLengthMaxUnicodeString } },
-                { "national character", new[] { _fixedLengthUnicodeString } },
-                { "nchar", new[] { _fixedLengthUnicodeString } },
-                { "ntext", new[] { _textUnicodeString } },
-                { "numeric", new[] { _decimal } },
-                { "nvarchar", new[] { _variableLengthUnicodeString } },
-                { "nvarchar(max)", new[] { _variableLengthMaxUnicodeString } },
-                { "real", new[] { _real } },
-                { "rowversion", new[] { _rowversion } },
-                { "smalldatetime", new[] { _smallDatetime } },
-                { "smallint", new[] { _short } },
-                { "smallmoney", new[] { _smallMoney } },
-                { "sql_variant", new[] { _sqlVariant } },
-                { "text", new[] { _textAnsiString } },
-                { "time", new RelationalTypeMapping[] { _timeAsTimeOnly, _timeAsTimeSpan } },
-                { "timestamp", new[] { _rowversion } },
-                { "tinyint", new[] { _byte } },
-                { "uniqueidentifier", new[] { _uniqueidentifier } },
-                { "varbinary", new[] { _variableLengthBinary } },
-                { "varbinary(max)", new[] { _variableLengthMaxBinary } },
-                { "varchar", new[] { _variableLengthAnsiString } },
-                { "varchar(max)", new[] { _variableLengthMaxAnsiString } },
-                { "xml", new[] { _xml } }
+                { "bigint", new[] { Long } },
+                { "binary varying", new[] { VariableLengthBinary } },
+                { "binary", new[] { FixedLengthBinary } },
+                { "bit", new[] { Bool } },
+                { "char varying", new[] { VariableLengthAnsiString } },
+                { "char varying(max)", new[] { VariableLengthMaxAnsiString } },
+                { "char", new[] { FixedLengthAnsiString } },
+                { "character varying", new[] { VariableLengthAnsiString } },
+                { "character varying(max)", new[] { VariableLengthMaxAnsiString } },
+                { "character", new[] { FixedLengthAnsiString } },
+                { "date", new RelationalTypeMapping[] { DateAsDateOnly, DateAsDateTime } },
+                { "datetime", new[] { Datetime } },
+                { "datetime2", new[] { Datetime2 } },
+                { "datetimeoffset", new[] { Datetimeoffset } },
+                { "dec", new[] { Decimal } },
+                { "decimal", new[] { Decimal } },
+                { "double precision", new[] { Double } },
+                { "float", new[] { Double } },
+                { "image", new[] { ImageBinary } },
+                { "int", new[] { Int } },
+                { "money", new[] { Money } },
+                { "national char varying", new[] { VariableLengthUnicodeString } },
+                { "national char varying(max)", new[] { VariableLengthMaxUnicodeString } },
+                { "national character varying", new[] { VariableLengthUnicodeString } },
+                { "national character varying(max)", new[] { VariableLengthMaxUnicodeString } },
+                { "national character", new[] { FixedLengthUnicodeString } },
+                { "nchar", new[] { FixedLengthUnicodeString } },
+                { "ntext", new[] { TextUnicodeString } },
+                { "numeric", new[] { Decimal } },
+                { "nvarchar", new[] { VariableLengthUnicodeString } },
+                { "nvarchar(max)", new[] { VariableLengthMaxUnicodeString } },
+                { "real", new[] { Real } },
+                { "rowversion", new[] { Rowversion } },
+                { "smalldatetime", new[] { SmallDatetime } },
+                { "smallint", new[] { Short } },
+                { "smallmoney", new[] { SmallMoney } },
+                { "sql_variant", new[] { SqlVariant } },
+                { "text", new[] { TextAnsiString } },
+                { "time", new RelationalTypeMapping[] { TimeAsTimeOnly, TimeAsTimeSpan } },
+                { "timestamp", new[] { Rowversion } },
+                { "tinyint", new[] { Byte } },
+                { "uniqueidentifier", new[] { Uniqueidentifier } },
+                { "varbinary", new[] { VariableLengthBinary } },
+                { "varbinary(max)", new[] { VariableLengthMaxBinary } },
+                { "varchar", new[] { VariableLengthAnsiString } },
+                { "varchar(max)", new[] { VariableLengthMaxAnsiString } },
+                { "xml", new[] { Xml } }
             };
         // ReSharper restore CoVariantArrayConversion
     }
@@ -303,7 +567,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 && (storeTypeNameBase.Equals("float", StringComparison.OrdinalIgnoreCase)
                     || storeTypeNameBase.Equals("double precision", StringComparison.OrdinalIgnoreCase)))
             {
-                return _real;
+                return Real;
             }
 
             if (_storeTypeMappings.TryGetValue(storeTypeName, out var mappings)
@@ -350,12 +614,12 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
             if (clrType == typeof(ulong) && mappingInfo.IsRowVersion == true)
             {
-                return _ulongRowversion;
+                return UlongRowversion;
             }
 
             if (clrType == typeof(long) && mappingInfo.IsRowVersion == true)
             {
-                return _longRowversion;
+                return LongRowversion;
             }
 
             if (clrType == typeof(string))
@@ -376,11 +640,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 {
                     return isAnsi
                         ? isFixedLength
-                            ? _fixedLengthAnsiString
-                            : _variableLengthMaxAnsiString
+                            ? FixedLengthAnsiString
+                            : VariableLengthMaxAnsiString
                         : isFixedLength
-                            ? _fixedLengthUnicodeString
-                            : _variableLengthMaxUnicodeString;
+                            ? FixedLengthUnicodeString
+                            : VariableLengthMaxUnicodeString;
                 }
 
                 return new SqlServerStringTypeMapping(
@@ -395,7 +659,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             {
                 if (mappingInfo.IsRowVersion == true)
                 {
-                    return _rowversion;
+                    return Rowversion;
                 }
 
                 var isFixedLength = mappingInfo.IsFixedLength == true;
@@ -407,7 +671,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 }
 
                 return size == null
-                    ? _variableLengthMaxBinary
+                    ? VariableLengthMaxBinary
                     : new SqlServerByteArrayTypeMapping(
                         size: size,
                         fixedLength: isFixedLength,

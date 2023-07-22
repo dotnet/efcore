@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using static Microsoft.EntityFrameworkCore.Metadata.Internal.EntityType;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -62,6 +61,7 @@ public sealed class Snapshot : ISnapshot
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    [RequiresDynamicCode("Creates types using MakeGenericType.")]
     public static Type CreateSnapshotType(Type[] types)
         => types.Length switch
         {

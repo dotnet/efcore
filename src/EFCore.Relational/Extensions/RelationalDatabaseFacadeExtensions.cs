@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -14,6 +15,82 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 public static class RelationalDatabaseFacadeExtensions
 {
+    /// <summary>
+    ///     Gets all the migrations that are defined in the configured migrations assembly.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The list of migrations.</returns>
+    public static IEnumerable<string> GetMigrations(this DatabaseFacade databaseFacade)
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? databaseFacade.GetRelationalService<IMigrationsAssembly>().Migrations.Keys
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+
+    /// <summary>
+    ///     Gets all migrations that have been applied to the target database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The list of migrations.</returns>
+    public static IEnumerable<string> GetAppliedMigrations(this DatabaseFacade databaseFacade)
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? databaseFacade.GetRelationalService<IHistoryRepository>()
+                .GetAppliedMigrations().Select(hr => hr.MigrationId)
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+
+    /// <summary>
+    ///     Asynchronously gets all migrations that have been applied to the target database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
+        this DatabaseFacade databaseFacade,
+        CancellationToken cancellationToken = default)
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? (await databaseFacade.GetRelationalService<IHistoryRepository>()
+                .GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(hr => hr.MigrationId)
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+
+    /// <summary>
+    ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The list of migrations.</returns>
+    public static IEnumerable<string> GetPendingMigrations(this DatabaseFacade databaseFacade)
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade))
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+
+    /// <summary>
+    ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
+        this DatabaseFacade databaseFacade,
+        CancellationToken cancellationToken = default)
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? GetMigrations(databaseFacade).Except(
+                await GetAppliedMigrationsAsync(databaseFacade, cancellationToken).ConfigureAwait(false))
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+
     /// <summary>
     ///     Applies any pending migrations for the context to the database. Will create the database
     ///     if it does not already exist.
@@ -29,73 +106,16 @@ public static class RelationalDatabaseFacadeExtensions
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     public static void Migrate(this DatabaseFacade databaseFacade)
-        => databaseFacade.GetRelationalService<IMigrator>().Migrate();
-
-    /// <summary>
-    ///     Gets all the migrations that are defined in the configured migrations assembly.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The list of migrations.</returns>
-    public static IEnumerable<string> GetMigrations(this DatabaseFacade databaseFacade)
-        => databaseFacade.GetRelationalService<IMigrationsAssembly>().Migrations.Keys;
-
-    /// <summary>
-    ///     Gets all migrations that have been applied to the target database.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The list of migrations.</returns>
-    public static IEnumerable<string> GetAppliedMigrations(this DatabaseFacade databaseFacade)
-        => databaseFacade.GetRelationalService<IHistoryRepository>()
-            .GetAppliedMigrations().Select(hr => hr.MigrationId);
-
-    /// <summary>
-    ///     Asynchronously gets all migrations that have been applied to the target database.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
-        this DatabaseFacade databaseFacade,
-        CancellationToken cancellationToken = default)
-        => (await databaseFacade.GetRelationalService<IHistoryRepository>()
-            .GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(hr => hr.MigrationId);
-
-    /// <summary>
-    ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <returns>The list of migrations.</returns>
-    public static IEnumerable<string> GetPendingMigrations(this DatabaseFacade databaseFacade)
-        => GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade));
-
-    /// <summary>
-    ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
-    /// </remarks>
-    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
-        this DatabaseFacade databaseFacade,
-        CancellationToken cancellationToken = default)
-        => GetMigrations(databaseFacade).Except(
-            await GetAppliedMigrationsAsync(databaseFacade, cancellationToken).ConfigureAwait(false));
+    {
+        if (RuntimeFeature.IsDynamicCodeSupported)
+        {
+            databaseFacade.GetRelationalService<IMigrator>().Migrate();
+        }
+        else
+        {
+            throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        }
+    }
 
     /// <summary>
     ///     Asynchronously applies any pending migrations for the context to the database. Will create the database
@@ -118,8 +138,9 @@ public static class RelationalDatabaseFacadeExtensions
     public static Task MigrateAsync(
         this DatabaseFacade databaseFacade,
         CancellationToken cancellationToken = default)
-        => databaseFacade.GetRelationalService<IMigrator>()
-            .MigrateAsync(cancellationToken: cancellationToken);
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(cancellationToken: cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -938,7 +959,9 @@ public static class RelationalDatabaseFacadeExtensions
     ///     A SQL script.
     /// </returns>
     public static string GenerateCreateScript(this DatabaseFacade databaseFacade)
-        => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript()
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     Returns <see langword="true" /> if the database provider currently in use is a relational database.
@@ -962,6 +985,11 @@ public static class RelationalDatabaseFacadeExtensions
     /// </returns>
     public static bool HasPendingModelChanges(this DatabaseFacade databaseFacade)
     {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+        {
+            throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        }
+
         var modelDiffer = databaseFacade.GetRelationalService<IMigrationsModelDiffer>();
         var migrationsAssembly = databaseFacade.GetRelationalService<IMigrationsAssembly>();
 

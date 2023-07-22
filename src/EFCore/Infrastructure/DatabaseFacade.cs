@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -72,7 +73,9 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     /// </remarks>
     /// <returns><see langword="true" /> if the database is created, <see langword="false" /> if it already existed.</returns>
     public virtual bool EnsureCreated()
-        => Dependencies.DatabaseCreator.EnsureCreated();
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? Dependencies.DatabaseCreator.EnsureCreated()
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     Ensures that the database for the context exists.
@@ -128,7 +131,9 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task<bool> EnsureCreatedAsync(CancellationToken cancellationToken = default)
-        => Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken);
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? Dependencies.DatabaseCreator.EnsureCreatedAsync(cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     <para>
@@ -153,7 +158,9 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     /// </remarks>
     /// <returns><see langword="true" /> if the database is deleted, <see langword="false" /> if it did not exist.</returns>
     public virtual bool EnsureDeleted()
-        => Dependencies.DatabaseCreator.EnsureDeleted();
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? Dependencies.DatabaseCreator.EnsureDeleted()
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     <para>
@@ -190,7 +197,9 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual Task<bool> EnsureDeletedAsync(CancellationToken cancellationToken = default)
-        => Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken);
+        => RuntimeFeature.IsDynamicCodeSupported
+            ? Dependencies.DatabaseCreator.EnsureDeletedAsync(cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
 
     /// <summary>
     ///     Determines whether or not the database is available and can be connected to.
