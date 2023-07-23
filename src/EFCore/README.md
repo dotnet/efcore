@@ -1,4 +1,4 @@
-Entity Framework Core (EF Core) is a modern object-database mapper that lets you build a clean, portable, and high-level data access layer with .NET (C#) across a variety of databases, including SQL Server (on-premises and Azure), SQLite, MySQL, PostgreSQL, MySQL, Oracle, and Azure Cosmos DB. It supports LINQ queries, change tracking, updates, and schema migrations.
+Entity Framework Core (EF Core) is a modern object-database mapper that lets you build a clean, portable, and high-level data access layer with .NET (C#) across a variety of databases, including SQL Server (on-premises and Azure), SQLite, MySQL, PostgreSQL, Oracle, and Azure Cosmos DB. It supports LINQ queries, change tracking, updates, and schema migrations.
 
 ## Getting started
 
