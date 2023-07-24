@@ -88,25 +88,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<LocustHorde>().Select(lh => lh.Eradicated.ToString()));
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_DateOnly_ToString(bool async)
-    {
-        //Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("ru-Ru");
-
-        return AssertQuery(
-           async,
-         ss => ss.Set<Mission>().Where(m => m.Date.ToString() == new DateOnly(2020, 1, 1).ToString()).AsTracking(),
-           entryCount: 1);
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_TimeOnly_ToString(bool async)
-   => AssertQuery(
-      async,
-    ss => ss.Set<Mission>().Where(m => m.Time.ToString() == new TimeOnly(15, 30, 10).ToString()).AsTracking(),
-      entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

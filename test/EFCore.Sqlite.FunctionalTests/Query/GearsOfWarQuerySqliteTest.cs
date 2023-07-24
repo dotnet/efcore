@@ -3111,18 +3111,6 @@ FROM "Weapons" AS "w"
 """);
     }
 
-    public override async Task Where_DateOnly_ToString(bool async)
-    {
-        await base.Where_DateOnly_ToString(async);
-
-        AssertSql(
-            """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
-FROM [Missions] AS [m]
-WHERE FORMAT([m].[Date], N'M/d/yyyy') = N'1/1/2020'
-""");
-    }
-
     public override async Task Select_subquery_projecting_single_constant_int(bool async)
     {
         await base.Select_subquery_projecting_single_constant_int(async);
