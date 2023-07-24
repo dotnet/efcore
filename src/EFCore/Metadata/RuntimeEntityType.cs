@@ -1184,8 +1184,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _relationshipSnapshotFactory, this,
             static entityType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new RelationshipSnapshotFactoryFactory().Create(entityType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new RelationshipSnapshotFactoryFactory().Create(entityType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     [DebuggerStepThrough]

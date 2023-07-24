@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -23,10 +24,10 @@ public static class RelationalDatabaseFacadeExtensions
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The list of migrations.</returns>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static IEnumerable<string> GetMigrations(this DatabaseFacade databaseFacade)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? databaseFacade.GetRelationalService<IMigrationsAssembly>().Migrations.Keys
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => databaseFacade.GetRelationalService<IMigrationsAssembly>().Migrations.Keys;
 
     /// <summary>
     ///     Gets all migrations that have been applied to the target database.
@@ -36,11 +37,11 @@ public static class RelationalDatabaseFacadeExtensions
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The list of migrations.</returns>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static IEnumerable<string> GetAppliedMigrations(this DatabaseFacade databaseFacade)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? databaseFacade.GetRelationalService<IHistoryRepository>()
-                .GetAppliedMigrations().Select(hr => hr.MigrationId)
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => databaseFacade.GetRelationalService<IHistoryRepository>()
+            .GetAppliedMigrations().Select(hr => hr.MigrationId);
 
     /// <summary>
     ///     Asynchronously gets all migrations that have been applied to the target database.
@@ -52,13 +53,13 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static async Task<IEnumerable<string>> GetAppliedMigrationsAsync(
         this DatabaseFacade databaseFacade,
         CancellationToken cancellationToken = default)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? (await databaseFacade.GetRelationalService<IHistoryRepository>()
-                .GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(hr => hr.MigrationId)
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => (await databaseFacade.GetRelationalService<IHistoryRepository>()
+            .GetAppliedMigrationsAsync(cancellationToken).ConfigureAwait(false)).Select(hr => hr.MigrationId);
 
     /// <summary>
     ///     Gets all migrations that are defined in the assembly but haven't been applied to the target database.
@@ -68,10 +69,10 @@ public static class RelationalDatabaseFacadeExtensions
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <returns>The list of migrations.</returns>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static IEnumerable<string> GetPendingMigrations(this DatabaseFacade databaseFacade)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade))
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => GetMigrations(databaseFacade).Except(GetAppliedMigrations(databaseFacade));
 
     /// <summary>
     ///     Asynchronously gets all migrations that are defined in the assembly but haven't been applied to the target database.
@@ -83,13 +84,13 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static async Task<IEnumerable<string>> GetPendingMigrationsAsync(
         this DatabaseFacade databaseFacade,
         CancellationToken cancellationToken = default)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? GetMigrations(databaseFacade).Except(
-                await GetAppliedMigrationsAsync(databaseFacade, cancellationToken).ConfigureAwait(false))
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => GetMigrations(databaseFacade).Except(
+            await GetAppliedMigrationsAsync(databaseFacade, cancellationToken).ConfigureAwait(false));
 
     /// <summary>
     ///     Applies any pending migrations for the context to the database. Will create the database
@@ -105,17 +106,10 @@ public static class RelationalDatabaseFacadeExtensions
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static void Migrate(this DatabaseFacade databaseFacade)
-    {
-        if (RuntimeFeature.IsDynamicCodeSupported)
-        {
-            databaseFacade.GetRelationalService<IMigrator>().Migrate();
-        }
-        else
-        {
-            throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
-        }
-    }
+        => databaseFacade.GetRelationalService<IMigrator>().Migrate();
 
     /// <summary>
     ///     Asynchronously applies any pending migrations for the context to the database. Will create the database
@@ -135,12 +129,12 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous migration operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static Task MigrateAsync(
         this DatabaseFacade databaseFacade,
         CancellationToken cancellationToken = default)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(cancellationToken: cancellationToken)
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => databaseFacade.GetRelationalService<IMigrator>().MigrateAsync(cancellationToken: cancellationToken);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -958,10 +952,10 @@ public static class RelationalDatabaseFacadeExtensions
     /// <returns>
     ///     A SQL script.
     /// </returns>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static string GenerateCreateScript(this DatabaseFacade databaseFacade)
-        => RuntimeFeature.IsDynamicCodeSupported
-            ? databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript()
-            : throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
+        => databaseFacade.GetRelationalService<IRelationalDatabaseCreator>().GenerateCreateScript();
 
     /// <summary>
     ///     Returns <see langword="true" /> if the database provider currently in use is a relational database.
@@ -983,13 +977,10 @@ public static class RelationalDatabaseFacadeExtensions
     ///     <see langword="true"/> if the database model has pending changes
     ///     and a new migration has to be added.
     /// </returns>
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT" +
+        " Use a migration bundle or an alternate way of executing migration operations.")]
     public static bool HasPendingModelChanges(this DatabaseFacade databaseFacade)
     {
-        if (!RuntimeFeature.IsDynamicCodeSupported)
-        {
-            throw new InvalidOperationException(CoreStrings.NativeAotNoMigrations);
-        }
-
         var modelDiffer = databaseFacade.GetRelationalService<IMigrationsModelDiffer>();
         var migrationsAssembly = databaseFacade.GetRelationalService<IMigrationsAssembly>();
 
@@ -1017,23 +1008,17 @@ public static class RelationalDatabaseFacadeExtensions
     {
         var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;
 
-        if (dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies)
-        {
-            return relationalDependencies;
-        }
-
-        throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
+        return dependencies is IRelationalDatabaseFacadeDependencies relationalDependencies
+            ? relationalDependencies
+            : throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
     }
 
     private static TService GetRelationalService<TService>(this IInfrastructure<IServiceProvider> databaseFacade)
     {
         var service = databaseFacade.Instance.GetService<TService>();
-        if (service == null)
-        {
-            throw new InvalidOperationException(RelationalStrings.RelationalNotInUse);
-        }
-
-        return service;
+        return service == null
+            ? throw new InvalidOperationException(RelationalStrings.RelationalNotInUse)
+            : service;
     }
 
     private static IDbContextTransactionManager GetTransactionManager(this DatabaseFacade databaseFacade)

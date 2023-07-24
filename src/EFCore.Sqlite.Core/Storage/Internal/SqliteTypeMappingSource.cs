@@ -55,37 +55,10 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     private const string BlobTypeName = "BLOB";
     private const string TextTypeName = "TEXT";
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly LongTypeMapping Integer = new(IntegerTypeName);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly DoubleTypeMapping Real = new(RealTypeName);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly ByteArrayTypeMapping Blob = new(BlobTypeName);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly SqliteStringTypeMapping Text = new(TextTypeName);
+    private static readonly LongTypeMapping Integer = new(IntegerTypeName);
+    private static readonly DoubleTypeMapping Real = new(RealTypeName);
+    private static readonly ByteArrayTypeMapping Blob = new(BlobTypeName);
+    private static readonly SqliteStringTypeMapping Text = new(TextTypeName);
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
     {
