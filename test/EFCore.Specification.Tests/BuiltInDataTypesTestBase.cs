@@ -2163,7 +2163,9 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     Char = b.TestCharacter.ToString(),
                     DateTime = b.TestDateTime.ToString(),
                     DateTimeOffset = b.TestDateTimeOffset.ToString(),
-                    TimeSpan = b.TestTimeSpan.ToString()
+                    TimeSpan = b.TestTimeSpan.ToString(),
+                    DateOnly = b.TestDateOnly.ToString(),
+                    TimeOnly = b.TestTimeOnly.ToString(),
                 })
             .ToList();
 

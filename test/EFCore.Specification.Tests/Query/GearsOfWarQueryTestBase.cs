@@ -647,7 +647,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Select(
                     b => new
                     {
-                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                     }));
 
     [ConditionalTheory]

@@ -1592,7 +1592,7 @@ FROM "ObjectBackedDataTypes" AS "o"
 
         AssertSql(
 """
-SELECT CAST("b"."TestSignedByte" AS TEXT), CAST("b"."TestByte" AS TEXT), CAST("b"."TestInt16" AS TEXT), CAST("b"."TestUnsignedInt16" AS TEXT), CAST("b"."TestInt32" AS TEXT), CAST("b"."TestUnsignedInt32" AS TEXT), CAST("b"."TestInt64" AS TEXT), "b"."TestUnsignedInt64", CAST("b"."TestSingle" AS TEXT), CAST("b"."TestDouble" AS TEXT), CAST("b"."TestDecimal" AS TEXT), CAST("b"."TestCharacter" AS TEXT), CAST("b"."TestDateTime" AS TEXT), CAST("b"."TestDateTimeOffset" AS TEXT), CAST("b"."TestTimeSpan" AS TEXT)
+SELECT CAST("b"."TestSignedByte" AS TEXT), CAST("b"."TestByte" AS TEXT), CAST("b"."TestInt16" AS TEXT), CAST("b"."TestUnsignedInt16" AS TEXT), CAST("b"."TestInt32" AS TEXT), CAST("b"."TestUnsignedInt32" AS TEXT), CAST("b"."TestInt64" AS TEXT), "b"."TestUnsignedInt64", CAST("b"."TestSingle" AS TEXT), CAST("b"."TestDouble" AS TEXT), CAST("b"."TestDecimal" AS TEXT), CAST("b"."TestCharacter" AS TEXT), CAST("b"."TestDateTime" AS TEXT), CAST("b"."TestDateTimeOffset" AS TEXT), CAST("b"."TestTimeSpan" AS TEXT), CAST("b"."TestDateOnly" AS TEXT), CAST("b"."TestTimeOnly" AS TEXT)
 FROM "BuiltInDataTypes" AS "b"
 WHERE "b"."Id" = 13
 """);

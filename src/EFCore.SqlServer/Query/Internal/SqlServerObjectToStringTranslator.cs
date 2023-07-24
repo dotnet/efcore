@@ -31,6 +31,8 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
             { typeof(decimal), $"varchar({DefaultLength})" },
             { typeof(char), "varchar(1)" },
             { typeof(DateTime), $"varchar({DefaultLength})" },
+            { typeof(DateOnly), $"varchar({DefaultLength})" },
+            { typeof(TimeOnly), $"varchar({DefaultLength})" },
             { typeof(DateTimeOffset), $"varchar({DefaultLength})" },
             { typeof(TimeSpan), $"varchar({DefaultLength})" },
             { typeof(Guid), "varchar(36)" },
