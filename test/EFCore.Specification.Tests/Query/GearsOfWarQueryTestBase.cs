@@ -88,7 +88,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<LocustHorde>().Select(lh => lh.Eradicated.ToString()));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_multiple_one_to_one_and_one_to_many_self_reference(bool async)
@@ -1093,11 +1092,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => from g in ss.Set<Gear>()
                   from o in ss.Set<Gear>().OfType<Officer>()
                   where new
-                  {
-                      Name = g.LeaderNickname,
-                      Squad = g.LeaderSquadId,
-                      Five = 5
-                  }
+                      {
+                          Name = g.LeaderNickname,
+                          Squad = g.LeaderSquadId,
+                          Five = 5
+                      }
                       == new
                       {
                           Name = o.Nickname,
@@ -2798,7 +2797,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => from g1 in ss.Set<Gear>()
                   from g2 in ss.Set<Gear>()
-                      // ReSharper disable once PossibleUnintendedReferenceComparison
+                  // ReSharper disable once PossibleUnintendedReferenceComparison
                   where g1.Weapons == g2.Weapons
                   orderby g1.Nickname
                   select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname },
