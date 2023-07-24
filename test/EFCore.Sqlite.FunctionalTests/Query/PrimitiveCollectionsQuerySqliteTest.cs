@@ -1038,6 +1038,19 @@ ORDER BY "p"."Id"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_multiple_collections(async))).Message);
 
+    public override async Task Project_primitive_collections_element(bool async)
+    {
+        await base.Project_primitive_collections_element(async);
+
+        AssertSql(
+"""
+SELECT "p"."Ints" ->> 0 AS "Indexer", rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "p"."DateTimes" ->> 0), '0'), '.') AS "EnumerableElementAt", "p"."Strings" ->> 1 AS "QueryableElementAt"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" < 4
+ORDER BY "p"."Id"
+""");
+    }
+
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

@@ -765,16 +765,24 @@ FROM [JsonEntitiesBasic] AS [j]
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
-        await base.Json_collection_index_in_projection_using_untranslatable_client_method(async);
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
 
-        AssertSql();
+        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
+            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqlServerFixture>",
+            "MyMethod"),
+            message);
     }
 
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
     {
-        await base.Json_collection_index_in_projection_using_untranslatable_client_method2(async);
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
 
-        AssertSql();
+        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
+            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqlServerFixture>",
+            "MyMethod"),
+            message);
     }
 
     public override async Task Json_collection_index_outside_bounds(bool async)
@@ -788,9 +796,9 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_element_access_outside_bounds2(bool async)
+    public override async Task Json_collection_index_outside_bounds2(bool async)
     {
-        await base.Json_collection_element_access_outside_bounds2(async);
+        await base.Json_collection_index_outside_bounds2(async);
 
         AssertSql(
             """
@@ -1004,8 +1012,10 @@ WHERE EXISTS (
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
         [Date] datetime2 '$.Date',
         [Enum] nvarchar(max) '$.Enum',
+        [Enums] nvarchar(max) '$.Enums',
         [Fraction] decimal(18,2) '$.Fraction',
         [NullableEnum] nvarchar(max) '$.NullableEnum',
+        [NullableEnums] nvarchar(max) '$.NullableEnums',
         [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
         [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
     ) AS [o]
@@ -1041,7 +1051,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [t].[c]
     FROM (
-        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], [j].[Id], CAST([o].[key] AS int) AS [c0]
+        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], [o].[key], CAST([o].[key] AS int) AS [c0]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
         ORDER BY CAST([o].[key] AS int)
         OFFSET 1 ROWS
@@ -1062,16 +1072,9 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [t].[c]
     FROM (
-        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') AS [c], [j].[Id], [o].[Date] AS [c0]
-        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
-            [Date] datetime2 '$.Date',
-            [Enum] nvarchar(max) '$.Enum',
-            [Fraction] decimal(18,2) '$.Fraction',
-            [NullableEnum] nvarchar(max) '$.NullableEnum',
-            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
-            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
-        ) AS [o]
-        ORDER BY [o].[Date] DESC
+        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], [o].[key], CAST(JSON_VALUE([o].[value], '$.Date') AS datetime2) AS [c0]
+        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
+        ORDER BY CAST(JSON_VALUE([o].[value], '$.Date') AS datetime2) DESC
         OFFSET 1 ROWS
     ) AS [t]
     ORDER BY [t].[c0] DESC
@@ -1083,7 +1086,27 @@ WHERE (
     {
         await base.Json_collection_Distinct_Count_with_predicate(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+            [Date] datetime2 '$.Date',
+            [Enum] nvarchar(max) '$.Enum',
+            [Enums] nvarchar(max) '$.Enums',
+            [Fraction] decimal(18,2) '$.Fraction',
+            [NullableEnum] nvarchar(max) '$.NullableEnum',
+            [NullableEnums] nvarchar(max) '$.NullableEnums',
+            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+        ) AS [o]
+        WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c2_r'
+    ) AS [t]) = 1
+""");
     }
 
     public override async Task Json_collection_within_collection_Count(bool async)
@@ -1098,7 +1121,9 @@ WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
         [Name] nvarchar(max) '$.Name',
+        [Names] nvarchar(max) '$.Names',
         [Number] int '$.Number',
+        [Numbers] nvarchar(max) '$.Numbers',
         [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o]
@@ -1107,14 +1132,221 @@ WHERE EXISTS (
         FROM OPENJSON([o].[OwnedCollectionBranch], '$') WITH (
             [Date] datetime2 '$.Date',
             [Enum] nvarchar(max) '$.Enum',
+            [Enums] nvarchar(max) '$.Enums',
             [Fraction] decimal(18,2) '$.Fraction',
             [NullableEnum] nvarchar(max) '$.NullableEnum',
+            [NullableEnums] nvarchar(max) '$.NullableEnums',
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o0]) = 2)
 """);
     }
 
+    public override async Task Json_collection_in_projection_with_composition_count(bool async)
+    {
+        await base.Json_collection_in_projection_with_composition_count(async);
+
+        AssertSql(
+"""
+SELECT (
+    SELECT COUNT(*)
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Name] nvarchar(max) '$.Name',
+        [Names] nvarchar(max) '$.Names',
+        [Number] int '$.Number',
+        [Numbers] nvarchar(max) '$.Numbers',
+        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    ) AS [o])
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
+    {
+        await base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name'), CAST(JSON_VALUE([o].[value], '$.Number') AS int), [o].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+ORDER BY [j].[Id], CAST([o].[key] AS int)
+""");
+    }
+
+    public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
+    {
+        await base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Name], [t].[Number], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_VALUE([o].[value], '$.Name') AS [Name], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], [o].[key], CAST([o].[key] AS int) AS [c]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.Name') = N'Foo'
+) AS [t]
+ORDER BY [j].[Id], [t].[c]
+""");
+    }
+
+    public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(bool async)
+    {
+        await base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Names], [t].[Numbers], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_QUERY([o].[value], '$.Names') AS [Names], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], [o].[key], CAST([o].[key] AS int) AS [c]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.Name') = N'Foo'
+) AS [t]
+ORDER BY [j].[Id], [t].[c]
+""");
+    }
+
+    public override async Task Json_collection_filter_in_projection(bool async)
+    {
+        await base.Json_collection_filter_in_projection(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_skip_take_in_projection(bool async)
+    {
+        await base.Json_collection_skip_take_in_projection(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
+    {
+        await base.Json_collection_skip_take_in_projection_project_into_anonymous_type(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[c], [t].[c0], [t].[c1], [t].[c2], [t].[c3], [t].[Id], [t].[c4], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_VALUE([o].[value], '$.Name') AS [c], JSON_QUERY([o].[value], '$.Names') AS [c0], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [c1], JSON_QUERY([o].[value], '$.Numbers') AS [c2], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c3], [j].[Id], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c4], [o].[key]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    ORDER BY JSON_VALUE([o].[value], '$.Name')
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [t]
+ORDER BY [j].[Id], [t].[c]
+""");
+    }
+
+    public override async Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
+    {
+        await base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[c], [t].[Id], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    ORDER BY JSON_VALUE([o].[value], '$.Name')
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [t]
+ORDER BY [j].[Id], [t].[c0]
+""");
+    }
+
+    public override async Task Json_collection_distinct_in_projection(bool async)
+    {
+        await base.Json_collection_distinct_in_projection(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_leaf_filter_in_projection(bool async)
+    {
+        await base.Json_collection_leaf_filter_in_projection(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_SelectMany(bool async)
+    {
+        await base.Json_collection_SelectMany(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_nested_collection_SelectMany(bool async)
+    {
+        await base.Json_nested_collection_SelectMany(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_of_primitives_SelectMany(bool async)
+    {
+        await base.Json_collection_of_primitives_SelectMany(async);
+
+        AssertSql("");
+    }
+
+    public override async Task Json_collection_of_primitives_index_used_in_predicate(bool async)
+    {
+        await base.Json_collection_of_primitives_index_used_in_predicate(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE JSON_VALUE([j].[OwnedReferenceRoot], '$.Names[0]') = N'e1_r1'
+""");
+    }
+
+    public override async Task Json_collection_of_primitives_index_used_in_projection(bool async)
+    {
+        await base.Json_collection_of_primitives_index_used_in_projection(async);
+
+        AssertSql(
+"""
+SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.Enums[0]') AS int)
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Json_collection_of_primitives_index_used_in_orderby(bool async)
+    {
+        await base.Json_collection_of_primitives_index_used_in_orderby(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.Numbers[0]') AS int)
+""");
+    }
+
+    public override async Task Json_collection_of_primitives_contains_in_predicate(bool async)
+    {
+        await base.Json_collection_of_primitives_contains_in_predicate(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE N'e1_r1' IN (
+    SELECT [n].[value]
+    FROM OPENJSON(JSON_QUERY([j].[OwnedReferenceRoot], '$.Names')) WITH ([value] nvarchar(max) '$') AS [n]
+)
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
         await base.Json_collection_index_with_parameter_Select_ElementAt(async);
@@ -1132,6 +1364,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
     public override async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
         await base.Json_collection_index_with_expression_Select_ElementAt(async);
@@ -1173,8 +1406,15 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT JSON_QUERY([j].[OwnedCollectionRoot], '$[0].OwnedReferenceBranch'), [j].[Id]
+SELECT [t].[c], [t].[Id], [t].[c0]
 FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c], [j].[Id], 1 AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    ORDER BY CAST([o].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY
+) AS [t]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -1245,9 +1485,9 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_element_access_in_projection_using_constant_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
     {
-        await base.Json_collection_element_access_in_projection_using_constant_when_owner_is_not_present(async);
+        await base.Json_collection_index_in_projection_using_constant_when_owner_is_not_present(async);
 
         AssertSql(
 """
@@ -1271,9 +1511,9 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_element_access_in_projection_using_parameter_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
-        await base.Json_collection_element_access_in_projection_using_parameter_when_owner_is_not_present(async);
+        await base.Json_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
 
         AssertSql(
 """
@@ -1284,9 +1524,9 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_after_collection_element_access_in_projection_using_constant_when_owner_is_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
     {
-        await base.Json_collection_after_collection_element_access_in_projection_using_constant_when_owner_is_present(async);
+        await base.Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(async);
 
         AssertSql(
             """
@@ -1295,9 +1535,9 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_after_collection_element_access_in_projection_using_constant_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
     {
-        await base.Json_collection_after_collection_element_access_in_projection_using_constant_when_owner_is_not_present(async);
+        await base.Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(async);
 
         AssertSql(
 """
@@ -1307,12 +1547,12 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_after_collection_element_access_in_projection_using_parameter_when_owner_is_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
         await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(async);
 
         AssertSql(
-            """
+"""
 @__prm_0='1'
 
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedCollectionBranch'), @__prm_0
@@ -1321,9 +1561,9 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_after_collection_element_access_in_projection_using_parameter_when_owner_is_not_present(bool async)
+    public override async Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(bool async)
     {
-        await base.Json_collection_after_collection_element_access_in_projection_using_parameter_when_owner_is_not_present(async);
+        await base.Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_not_present(async);
 
         AssertSql(
 """
@@ -1335,7 +1575,7 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_element_access_in_projection_when_owner_is_present_misc1(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_present_misc1(async);
 
@@ -1349,9 +1589,9 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_element_access_in_projection_when_owner_is_not_present_misc1(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc1(bool async)
     {
-        await base.Json_collection_element_access_in_projection_when_owner_is_not_present_misc1(async);
+        await base.Json_collection_index_in_projection_when_owner_is_not_present_misc1(async);
 
         AssertSql(
 """
@@ -1362,7 +1602,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_element_access_in_projection_when_owner_is_present_misc2(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_present_misc2(bool async)
     {
         await base.Json_collection_index_in_projection_when_owner_is_present_misc2(async);
 
@@ -1373,9 +1613,9 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
-    public override async Task Json_collection_element_access_in_projection_when_owner_is_not_present_misc2(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_not_present_misc2(bool async)
     {
-        await base.Json_collection_element_access_in_projection_when_owner_is_not_present_misc2(async);
+        await base.Json_collection_index_in_projection_when_owner_is_not_present_misc2(async);
 
         AssertSql(
 """
@@ -1399,9 +1639,9 @@ FROM [JsonEntitiesBasic] AS [j]
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
-    public override async Task Json_collection_element_access_in_projection_when_owner_is_not_present_multiple(bool async)
+    public override async Task Json_collection_index_in_projection_when_owner_is_not_present_multiple(bool async)
     {
-        await base.Json_collection_element_access_in_projection_when_owner_is_not_present_multiple(async);
+        await base.Json_collection_index_in_projection_when_owner_is_not_present_multiple(async);
 
         AssertSql(
 """
@@ -1456,7 +1696,7 @@ GROUP BY [t].[Key]
         await base.Group_by_on_json_scalar_using_collection_indexer(async);
 
         AssertSql(
-            """
+"""
 SELECT [t].[Key], COUNT(*) AS [Count]
 FROM (
     SELECT JSON_VALUE([j].[OwnedCollectionRoot], '$[0].Name') AS [Key]
@@ -2191,9 +2431,33 @@ WHERE CAST(JSON_VALUE([j].[Reference], '$.BoolConvertedToIntZeroOne') AS int) = 
 """);
     }
 
+    public override async Task Json_predicate_on_bool_converted_to_int_zero_one_with_explicit_comparison(bool async)
+    {
+        await base.Json_predicate_on_bool_converted_to_int_zero_one_with_explicit_comparison(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Reference]
+FROM [JsonEntitiesConverters] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference], '$.BoolConvertedToIntZeroOne') AS int) = 0
+""");
+    }
+
     public override async Task Json_predicate_on_bool_converted_to_string_True_False(bool async)
     {
         await base.Json_predicate_on_bool_converted_to_string_True_False(async);
+
+        AssertSql(
+            """
+SELECT [j].[Id], [j].[Reference]
+FROM [JsonEntitiesConverters] AS [j]
+WHERE JSON_VALUE([j].[Reference], '$.BoolConvertedToStringTrueFalse') = N'True'
+""");
+    }
+
+    public override async Task Json_predicate_on_bool_converted_to_string_True_False_with_explicit_comparison(bool async)
+    {
+        await base.Json_predicate_on_bool_converted_to_string_True_False_with_explicit_comparison(async);
 
         AssertSql(
             """
@@ -2212,6 +2476,18 @@ WHERE JSON_VALUE([j].[Reference], '$.BoolConvertedToStringTrueFalse') = N'True'
 SELECT [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE JSON_VALUE([j].[Reference], '$.BoolConvertedToStringYN') = N'Y'
+""");
+    }
+
+    public override async Task Json_predicate_on_bool_converted_to_string_Y_N_with_explicit_comparison(bool async)
+    {
+        await base.Json_predicate_on_bool_converted_to_string_Y_N_with_explicit_comparison(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Reference]
+FROM [JsonEntitiesConverters] AS [j]
+WHERE JSON_VALUE([j].[Reference], '$.BoolConvertedToStringYN') = N'N'
 """);
     }
 

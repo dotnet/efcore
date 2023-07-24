@@ -570,6 +570,19 @@ ORDER BY [p].[Id]
         // we don't propagate error details from projection
         => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async));
 
+    public override async Task Project_primitive_collections_element(bool async)
+    {
+        await base.Project_primitive_collections_element(async);
+
+        AssertSql(
+"""
+SELECT [p].[Ints], [p].[DateTimes], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] < 4
+ORDER BY [p].[Id]
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

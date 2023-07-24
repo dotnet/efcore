@@ -466,7 +466,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         => AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Distinct().Count() == 3),
-            entryCount: 1);
+            entryCount: 2);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -810,6 +810,25 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 AssertCollection(e.OrderedInts, a.OrderedInts, ordered: true);
                 AssertCollection(e.FilteredDateTimes, a.FilteredDateTimes, elementSorter: ee => ee);
                 AssertCollection(e.FilteredDateTimes2, a.FilteredDateTimes2, elementSorter: ee => ee);
+            },
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_primitive_collections_element(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x => new
+            {
+                Indexer = x.Ints[0],
+                EnumerableElementAt = x.DateTimes.ElementAt(0),
+                QueryableElementAt = x.Strings.AsQueryable().ElementAt(1)
+            }),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Indexer, a.Indexer);
+                AssertEqual(e.EnumerableElementAt, a.EnumerableElementAt);
+                AssertEqual(e.QueryableElementAt, a.QueryableElementAt);
             },
             assertOrder: true);
 

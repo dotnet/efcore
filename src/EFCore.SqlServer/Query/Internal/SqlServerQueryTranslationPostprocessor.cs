@@ -2,9 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -18,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslationPostprocessor
 {
-    private readonly JsonPostprocessor _openJsonPostprocessor;
+    private readonly JsonPostprocessor _jsonPostprocessor;
     private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
 
     /// <summary>
@@ -34,7 +32,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
-        _openJsonPostprocessor = new(typeMappingSource, relationalDependencies.SqlExpressionFactory);
+        _jsonPostprocessor = new(typeMappingSource, relationalDependencies.SqlExpressionFactory);
     }
 
     /// <summary>
@@ -47,7 +45,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     {
         query = base.Process(query);
 
-        query = _openJsonPostprocessor.Process(query);
+        query = _jsonPostprocessor.Process(query);
         _skipWithoutOrderByInSplitQueryVerifier.Visit(query);
 
         return query;
@@ -107,6 +105,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         public Expression Process(Expression expression)
         {
             _columnsToRewrite.Clear();
+
             return Visit(expression);
         }
 
@@ -121,7 +120,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
                 case SelectExpression selectExpression:
                 {
                     var newTables = default(TableExpressionBase[]);
-                    var appliedCasts = new List<(SqlServerOpenJsonExpression, string)>();
+                    var columnsToRewrite = new Dictionary<(SqlServerOpenJsonExpression, string), SqlServerOpenJsonExpression.ColumnInfo>();
 
                     for (var i = 0; i < selectExpression.Tables.Count; i++)
                     {
@@ -164,28 +163,17 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
                                 newTables[i] = newTable;
                             }
 
-                            foreach (var column in openJsonExpression.ColumnInfos!)
+                            foreach (var columnInfo in openJsonExpression.ColumnInfos!)
                             {
-                                var typeMapping = _typeMappingSource.FindMapping(column.StoreType);
-                                Check.DebugAssert(
-                                    typeMapping is not null,
-                                    $"Could not find mapping for store type {column.StoreType} when converting OPENJSON/WITH");
-
                                 // Binary data (varbinary) is stored in JSON as base64, which OPENJSON knows how to decode as long the type is
                                 // specified in the WITH clause. We're now removing the WITH and applying a relational CAST, but that doesn't work
                                 // for base64 data.
-                                if (typeMapping is SqlServerByteArrayTypeMapping)
+                                if (columnInfo.TypeMapping is SqlServerByteArrayTypeMapping)
                                 {
                                     throw new InvalidOperationException(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported);
                                 }
 
-                                _castsToApply.Add((newOpenJsonExpression, column.Name), typeMapping);
-
-jhjkshjkshfkjshkj
-                        _columnsToRewrite.Add((newOpenJsonExpression, columnInfo.Name), new(newSelectExpression, columnInfo));
-fshjhsjkhfkjshjkfshkj
-
-                                appliedCasts.Add((newOpenJsonExpression, column.Name));
+                                columnsToRewrite.Add((newOpenJsonExpression, columnInfo.Name), columnInfo);
                             }
 
                             continue;
@@ -197,8 +185,6 @@ fshjhsjkhfkjshjkfshkj
                         }
                     }
 
-                    // SelectExpression.Update always creates a new instance - we should avoid it when tables haven't changed
-                    // see #31276
                     var newSelectExpression = newTables is not null
                         ? selectExpression.Update(
                             selectExpression.Projection,
@@ -211,79 +197,56 @@ fshjhsjkhfkjshjkfshkj
                             selectExpression.Offset)
                         : selectExpression;
 
+                    // when we mark columns for rewrite we don't yet have the updated SelectExpression, so we store the info in temporary dictionary
+                    // and now that we have created new SelectExpression we add it to the proper dictionary that we will use for rewrite
+                    foreach (var columnToRewrite in columnsToRewrite)
+                    {
+                        _columnsToRewrite.Add(columnToRewrite.Key, (newSelectExpression, columnToRewrite.Value));
+                    }
+
                     // Record the OPENJSON expression and its projected column(s), along with the store type we just removed from the WITH
-                    // clause. Then visit the select expression, replacing all matching ColumnExpressions - see below for the details.
+                    // clause. Then visit the select expression, adding a cast around the matching ColumnExpressions.
                     var result = base.Visit(newSelectExpression);
 
-                    foreach (var appliedCast in appliedCasts)
+                    foreach (var columnsToRewriteKey in columnsToRewrite.Keys)
                     {
-                        _columnsToRewrite.Remove((newOpenJsonExpression, column.Name));
+                        _columnsToRewrite.Remove(columnsToRewriteKey);
                     }
 
                     return result;
                 }
 
-                case ColumnExpression { Table: SqlServerOpenJsonExpression openJsonTable, Name: var name } columnExpression
-                    when _columnsToRewrite.TryGetValue((openJsonTable, name), out var columnRewriteInfo):
+                case ColumnExpression columnExpression:
                 {
-                    return columnExpression.Table switch
+                    if (columnExpression.Table is SqlServerOpenJsonExpression openJsonTable)
                     {
-                        SqlServerOpenJsonExpression openJsonTable
-                            when _castsToApply.TryGetValue((openJsonTable, columnExpression.Name), out var typeMapping)
-                            => _sqlExpressionFactory.Convert(columnExpression, columnExpression.Type, typeMapping),
-                        JoinExpressionBase { Table: SqlServerOpenJsonExpression innerOpenJsonTable }
-                            when _castsToApply.TryGetValue((innerOpenJsonTable, columnExpression.Name), out var innerTypeMapping)
-                            => _sqlExpressionFactory.Convert(columnExpression, columnExpression.Type, innerTypeMapping),
-                        _ => base.Visit(expression)
-                    };
-                    // We found a ColumnExpression that refers to the OPENJSON table, we need to rewrite it.
-
-                    var (selectExpression, columnInfo) = columnRewriteInfo;
-
-                    // The new OPENJSON (without WITH) always projects a `value` column, instead of a properly named column for individual
-                    // values inside; create a new ColumnExpression with that name.
-                    SqlExpression rewrittenColumn = selectExpression.CreateColumnExpression(
-                        columnExpression.Table, "value", columnExpression.Type, _nvarcharMaxTypeMapping, columnExpression.IsNullable);
-
-                    // If the WITH column info contained a path, we need to wrap the new column expression with a JSON_VALUE for that path.
-                    if (columnInfo.Path is not (null or []))
-                    {
-                        if (columnInfo.AsJson)
+                        if (_columnsToRewrite.TryGetValue((openJsonTable, columnExpression.Name), out var columnRewriteInfo))
                         {
-                            throw new InvalidOperationException(
-                                "IMPOSSIBLE. AS JSON signifies an owned sub-entity being projected out of OPENJSON/WITH. "
-                                + "Columns referring to that must be wrapped be Json{Scalar,Query}Expression and will have been already " +
-                                "dealt with below");
+                            var (selectExpression, columnInfo) = columnRewriteInfo;
+
+                            return RewriteOpenJsonColumn(columnExpression, selectExpression, columnInfo);
                         }
-
-                        _nvarchar4000TypeMapping ??= _typeMappingSource.FindMapping("nvarchar(4000)");
-
-                        rewrittenColumn = new JsonScalarExpression(
-                            rewrittenColumn, columnInfo.Path, rewrittenColumn.Type, _nvarchar4000TypeMapping, columnExpression.IsNullable);
                     }
 
-                    // OPENJSON with WITH specified the store type in the WITH, but the version without just always projects
-                    // nvarchar(max); add a CAST to convert. Note that for AS JSON the type mapping is always nvarchar(max), and we don't
-                    // need to add a CAST over the JSON_QUERY returned above.
-                    if (columnInfo.TypeMapping.StoreType != "nvarchar(max)")
+                    if (columnExpression.Table is JoinExpressionBase { Table: SqlServerOpenJsonExpression innerOpenJsonTable })
                     {
-                        _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)");
+                        if (_columnsToRewrite.TryGetValue((innerOpenJsonTable, columnExpression.Name), out var columnRewriteInfo))
+                        {
+                            var (selectExpression, columnInfo) = columnRewriteInfo;
 
-                        rewrittenColumn = _sqlExpressionFactory.Convert(
-                            rewrittenColumn,
-                            columnExpression.Type,
-                            columnInfo.TypeMapping);
+                            return RewriteOpenJsonColumn(columnExpression, selectExpression, columnInfo);
+                        }
                     }
 
-                    return rewrittenColumn;
+                    return base.Visit(expression);
                 }
 
                 // JsonScalarExpression over a column coming out of OPENJSON/WITH; this means that the column represents an owned sub-
                 // entity, and therefore must have AS JSON. Rewrite the column and simply collapse the paths together.
                 case JsonScalarExpression
-                    {
-                        Json: ColumnExpression { Table: SqlServerOpenJsonExpression openJsonTable } columnExpression
-                    } jsonScalarExpression
+                {
+                    Json: ColumnExpression { Table: SqlServerOpenJsonExpression openJsonTable } columnExpression
+                } jsonScalarExpression
                     when _columnsToRewrite.TryGetValue((openJsonTable, columnExpression.Name), out var columnRewriteInfo):
                 {
                     var (selectExpression, columnInfo) = columnRewriteInfo;
@@ -315,8 +278,65 @@ fshjhsjkhfkjshjkfshkj
             static bool IsKeyColumn(SqlExpression sqlExpression, TableExpressionBase table)
                 => (sqlExpression is ColumnExpression { Name: "key", Table: var keyColumnTable }
                     && keyColumnTable == table)
-                || (sqlExpression is SqlUnaryExpression { OperatorType: ExpressionType.Convert,
-                    Operand: SqlExpression operand } && IsKeyColumn(operand, table));
+                || (sqlExpression is SqlUnaryExpression
+                {
+                    OperatorType: ExpressionType.Convert,
+                    Operand: SqlExpression operand
+                } && IsKeyColumn(operand, table));
+
+            SqlExpression RewriteOpenJsonColumn(
+                ColumnExpression columnExpression,
+                SelectExpression selectExpression,
+                SqlServerOpenJsonExpression.ColumnInfo columnInfo)
+            {
+                // We found a ColumnExpression that refers to the OPENJSON table, we need to rewrite it.
+
+                // The new OPENJSON (without WITH) always projects a `value` column, instead of a properly named column for individual
+                // values inside; create a new ColumnExpression with that name.
+                SqlExpression rewrittenColumn = selectExpression.CreateColumnExpression(
+                    columnExpression.Table, "value", columnExpression.Type, _nvarcharMaxTypeMapping, columnExpression.IsNullable);
+
+                // If the WITH column info contained a path, we need to wrap the new column expression with a JSON_VALUE for that path.
+                if (columnInfo.Path is not (null or []))
+                {
+                    if (columnInfo.AsJson)
+                    {
+                        throw new InvalidOperationException(
+                            "IMPOSSIBLE. AS JSON signifies an owned sub-entity being projected out of OPENJSON/WITH. "
+                            + "Columns referring to that must be wrapped be Json{Scalar,Query}Expression and will have been already " +
+                            "dealt with below");
+                    }
+
+                    _nvarchar4000TypeMapping ??= _typeMappingSource.FindMapping("nvarchar(4000)");
+
+                    if (columnExpression.TypeMapping!.ElementTypeMapping is not null)
+                    {
+                        rewrittenColumn = new JsonScalarExpression(
+                            rewrittenColumn, columnInfo.Path, columnExpression.Type, columnExpression.TypeMapping, columnExpression.IsNullable);
+                    }
+                    else
+                    {
+                        rewrittenColumn = new JsonScalarExpression(
+                            rewrittenColumn, columnInfo.Path, rewrittenColumn.Type, _nvarchar4000TypeMapping, columnExpression.IsNullable);
+
+                    }
+                }
+
+                // OPENJSON with WITH specified the store type in the WITH, but the version without just always projects
+                // nvarchar(max); add a CAST to convert. Note that for AS JSON the type mapping is always nvarchar(max), and we don't
+                // need to add a CAST over the JSON_QUERY returned above.
+                if (columnInfo.TypeMapping.StoreType != "nvarchar(max)")
+                {
+                    _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)");
+
+                    rewrittenColumn = _sqlExpressionFactory.Convert(
+                        rewrittenColumn,
+                        columnExpression.Type,
+                        columnInfo.TypeMapping);
+                }
+
+                return rewrittenColumn;
+            }
         }
     }
 }

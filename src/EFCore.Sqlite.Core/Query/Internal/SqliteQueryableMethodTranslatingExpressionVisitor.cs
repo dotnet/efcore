@@ -306,7 +306,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var jsonEachExpression = new JsonEachExpression(tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path);
 
-        var selectExpression = new SelectExpression(jsonQueryExpression, jsonEachExpression);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var selectExpression = new SelectExpression(
+            jsonQueryExpression,
+            jsonEachExpression,
+            "key",
+            typeof(int),
+            _typeMappingSource.FindMapping(typeof(int))!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         selectExpression.AppendOrdering(
             new OrderingExpression(
@@ -377,7 +384,14 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         selectExpression.PushdownIntoSubquery();
         var subquery = selectExpression.Tables[0];
 
-        var newOuterSelectExpression = new SelectExpression(jsonQueryExpression, subquery);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var newOuterSelectExpression = new SelectExpression(
+            jsonQueryExpression,
+            subquery,
+            "key",
+            typeof(int),
+            _typeMappingSource.FindMapping(typeof(int))!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         newOuterSelectExpression.AppendOrdering(
             new OrderingExpression(
@@ -702,7 +716,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             _ => expression
         };
 
-    private class FakeMemberInfo : MemberInfo
+    private sealed class FakeMemberInfo : MemberInfo
     {
         public FakeMemberInfo(string name)
             => Name = name;

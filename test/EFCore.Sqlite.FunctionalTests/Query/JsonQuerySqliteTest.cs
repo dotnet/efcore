@@ -78,7 +78,7 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "j"."Id", "o"."key"
+        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "t"
     WHERE "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' = 'e1_c2_c1_c1')
@@ -96,7 +96,7 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething'
     FROM (
-        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "j"."Id", "o"."key"
+        SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "t"
     WHERE "t"."Enum" = 'Three'
@@ -116,15 +116,15 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "t0"."c"
     FROM (
-        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "j"."Id", "t"."key"
+        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "t"."key", "t"."key" AS "key0"
         FROM (
-            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "j"."Id", "o"."key"
+            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
         ) AS "t"
         ORDER BY "t"."key"
         LIMIT -1 OFFSET 1
     ) AS "t0"
-    ORDER BY "t0"."key"
+    ORDER BY "t0"."key0"
     LIMIT 1 OFFSET 0) = 'e1_r_c2_r'
 """);
     }
@@ -140,9 +140,9 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE (
     SELECT "t0"."c"
     FROM (
-        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "j"."Id", "t"."Date" AS "c0"
+        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "t"."key", "t"."Date" AS "c0"
         FROM (
-            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "j"."Id", "o"."key"
+            SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
         ) AS "t"
         ORDER BY "t"."Date" DESC
@@ -164,13 +164,13 @@ FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o"."value" ->> 'Name' AS "Name", "o"."value" ->> 'Number' AS "Number", "o"."value" ->> 'OwnedCollectionBranch' AS "OwnedCollectionBranch", "o"."value" ->> 'OwnedReferenceBranch' AS "OwnedReferenceBranch", "j"."Id", "o"."key"
+        SELECT "o"."value" ->> 'Name' AS "Name", "o"."value" ->> 'Names' AS "Names", "o"."value" ->> 'Number' AS "Number", "o"."value" ->> 'Numbers' AS "Numbers", "o"."value" ->> 'OwnedCollectionBranch' AS "OwnedCollectionBranch", "o"."value" ->> 'OwnedReferenceBranch' AS "OwnedReferenceBranch", "o"."key"
         FROM json_each("j"."OwnedCollectionRoot", '$') AS "o"
     ) AS "t"
     WHERE (
         SELECT COUNT(*)
         FROM (
-            SELECT "o0"."value" ->> 'Date' AS "Date", "o0"."value" ->> 'Enum' AS "Enum", "o0"."value" ->> 'Fraction' AS "Fraction", "o0"."value" ->> 'NullableEnum' AS "NullableEnum", "o0"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o0"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "j"."Id", "o0"."key"
+            SELECT "o0"."value" ->> 'Date' AS "Date", "o0"."value" ->> 'Enum' AS "Enum", "o0"."value" ->> 'Enums' AS "Enums", "o0"."value" ->> 'Fraction' AS "Fraction", "o0"."value" ->> 'NullableEnum' AS "NullableEnum", "o0"."value" ->> 'NullableEnums' AS "NullableEnums", "o0"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o0"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o0"."key"
             FROM json_each("t"."OwnedCollectionBranch", '$') AS "o0"
         ) AS "t0") = 2)
 """);
@@ -180,7 +180,7 @@ WHERE EXISTS (
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_json_entity_FirstOrDefault_subquery_deduplication_outer_reference_and_pruning(async)))
+                () => base.Json_collection_Select_entity_with_initializer_ElementAt(async)))
             .Message);
 
     [ConditionalTheory]
@@ -254,6 +254,70 @@ SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
 WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
 """);
+    }
+
+    public override async Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_in_projection_with_anonymous_projection_of_scalars(async)))
+            .Message);
+
+    public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_scalars(async)))
+            .Message);
+
+    public override async Task Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_in_projection_with_composition_where_and_anonymous_projection_of_primitive_arrays(async)))
+            .Message);
+
+    public override async Task Json_collection_Select_entity_in_anonymous_object_ElementAt(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_Select_entity_in_anonymous_object_ElementAt(async)))
+            .Message);
+
+    public override async Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_skip_take_in_projection_project_into_anonymous_type(async)))
+            .Message);
+
+    public override async Task Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async)))
+            .Message);
+
+    public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
+
+        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
+            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
+            "MyMethod"),
+            message);
+    }
+
+    public override async Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
+
+        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
+            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
+            "MyMethod"),
+            message);
     }
 
     private void AssertSql(params string[] expected)

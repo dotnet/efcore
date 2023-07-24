@@ -262,7 +262,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var openJsonExpression = new SqlServerOpenJsonExpression(
             tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path, columnInfos);
 
-        var selectExpression = new SelectExpression(jsonQueryExpression, openJsonExpression);
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var selectExpression = new SelectExpression(
+            jsonQueryExpression,
+            openJsonExpression,
+            "key",
+            typeof(string),
+            _typeMappingSource.FindMapping("nvarchar(4000)")!);
+#pragma warning restore EF1001 // Internal EF Core API usage.
 
         // See note on OPENJSON and ordering in TranslateCollection
         selectExpression.AppendOrdering(

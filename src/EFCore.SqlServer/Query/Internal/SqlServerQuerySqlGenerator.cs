@@ -404,7 +404,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             return jsonScalarExpression;
         }
 
-        if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping)
+        if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping
+            || jsonScalarExpression.TypeMapping?.ElementTypeMapping is not null)
         {
             Sql.Append("JSON_QUERY(");
         }

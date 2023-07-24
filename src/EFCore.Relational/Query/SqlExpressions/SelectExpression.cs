@@ -521,16 +521,18 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
-    ///     Constructs a <see cref="SelectExpression" /> over a collection within a JSON document.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="jsonQueryExpression">
-    ///     The collection within a JSON document which the <see cref="SelectExpression" /> will represent.
-    /// </param>
-    /// <param name="tableExpressionBase">
-    ///     The table for the <see cref="SelectExpression" />; typically a provider-specific table-valued function that converts a JSON
-    ///     array to a relational table/rowset (e.g. SQL Server OPENJSON)
-    /// </param>
-    public SelectExpression(JsonQueryExpression jsonQueryExpression, TableExpressionBase tableExpressionBase)
+    [EntityFrameworkInternal]
+    public SelectExpression(
+        JsonQueryExpression jsonQueryExpression,
+        TableExpressionBase tableExpressionBase,
+        string identifierColumnName,
+        Type identifierColumnType,
+        RelationalTypeMapping identifierColumnTypeMapping)
         : base(null)
     {
         if (!jsonQueryExpression.IsCollection)
@@ -552,6 +554,13 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         foreach (var property in GetAllPropertiesInHierarchy(entityType))
         {
+            // also adding column(s) representing key of the parent (non-JSON) entity, on top of all the projections from OPENJSON/json_each/etc.
+            if (jsonQueryExpression.KeyPropertyMap.TryGetValue(property, out var ownerKeyColumn))
+            {
+                propertyExpressions[property] = ownerKeyColumn;
+                continue;
+            }
+
             // Skip also properties with no JSON name (i.e. shadow keys containing the index in the collection, which don't actually exist
             // in the JSON document and can't be bound to)
             if (property.GetJsonPropertyName() is string jsonPropertyName)
@@ -575,7 +584,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                              && n.ForeignKey.PrincipalToDependent == n))
         {
             var targetEntityType = navigation.TargetEntityType;
-
             var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
             Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
 
@@ -588,12 +596,21 @@ public sealed partial class SelectExpression : TableExpressionBase
                 jsonColumnTypeMapping,
                 nullable: !navigation.ForeignKey.IsRequiredDependent || navigation.IsCollection);
 
+            // need to remap key property map to use target entity key properties
+            var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
+            var targetPrimaryKeyProperties = targetEntityType.FindPrimaryKey()!.Properties.Take(jsonQueryExpression.KeyPropertyMap.Count);
+            var sourcePrimaryKeyProperties = jsonQueryExpression.EntityType.FindPrimaryKey()!.Properties.Take(jsonQueryExpression.KeyPropertyMap.Count);
+            foreach (var (target, source) in targetPrimaryKeyProperties.Zip(sourcePrimaryKeyProperties, (t, s) => (t, s)))
+            {
+                newKeyPropertyMap[target] = jsonQueryExpression.KeyPropertyMap[source];
+            }
+
             var entityShaperExpression = new RelationalEntityShaperExpression(
                 targetEntityType,
                 new JsonQueryExpression(
                     targetEntityType,
                     jsonColumn,
-                    jsonQueryExpression.KeyPropertyMap,
+                    newKeyPropertyMap,
                     navigation.ClrType,
                     navigation.IsCollection),
                 !navigation.ForeignKey.IsRequiredDependent);
@@ -603,10 +620,14 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         _projectionMapping[new ProjectionMember()] = entityProjection;
 
-        foreach (var (property, column) in jsonQueryExpression.KeyPropertyMap)
-        {
-            _identifier.Add((column, property.GetKeyValueComparer()));
-        }
+        var identifierColumn = new ConcreteColumnExpression(
+            identifierColumnName,
+            tableReferenceExpression,
+            identifierColumnType.UnwrapNullableType(),
+            identifierColumnTypeMapping,
+            identifierColumnType.IsNullableType());
+
+        _identifier.Add((identifierColumn, identifierColumnTypeMapping!.Comparer));
     }
 
     private void AddJsonNavigationBindings(
@@ -759,14 +780,28 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 if (projection is EntityProjectionExpression entityProjection)
                 {
-                    var primaryKey = entityProjection.EntityType.FindPrimaryKey();
-                    // If there are any existing identifier then all entity projection must have a key
-                    // else keyless entity would have wiped identifier when generating join.
-                    Check.DebugAssert(primaryKey != null, "primary key is null.");
-                    foreach (var property in primaryKey.Properties)
+                    if (entityProjection.EntityType.IsMappedToJson())
                     {
-                        entityProjectionIdentifiers.Add(entityProjection.BindProperty(property));
-                        entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                        // for JSON entities identifier is the key that was generated when we convert from json to query root (OPENJSON, json_each, etc)
+                        // but we can't use it for distinct, as it would warp the results
+                        // instead, we will treat every non-key property as identifier
+                        foreach (var property in entityProjection.EntityType.GetDeclaredProperties().Where(p => !p.IsPrimaryKey()))
+                        {
+                            entityProjectionIdentifiers.Add(entityProjection.BindProperty(property));
+                            entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                        }
+                    }
+                    else
+                    {
+                        var primaryKey = entityProjection.EntityType.FindPrimaryKey();
+                        // If there are any existing identifier then all entity projection must have a key
+                        // else keyless entity would have wiped identifier when generating join.
+                        Check.DebugAssert(primaryKey != null, "primary key is null.");
+                        foreach (var property in primaryKey.Properties)
+                        {
+                            entityProjectionIdentifiers.Add(entityProjection.BindProperty(property));
+                            entityProjectionValueComparers.Add(property.GetKeyValueComparer());
+                        }
                     }
                 }
                 else if (projection is JsonQueryExpression jsonQueryExpression)
@@ -1710,6 +1745,12 @@ public sealed partial class SelectExpression : TableExpressionBase
             var dictionary = new Dictionary<IProperty, int>();
             foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
             {
+                if (entityProjectionExpression.EntityType.IsMappedToJson()
+                    && property.IsOrdinalKeyProperty())
+                {
+                    continue;
+                }
+
                 dictionary[property] = AddToProjection(entityProjectionExpression.BindProperty(property), null);
             }
 
@@ -3856,6 +3897,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
             foreach (var property in GetAllPropertiesInHierarchy(entityProjection.EntityType))
             {
+                // json entity projection (i.e. JSON entity that was transformed into query root) may have synthesized keys
+                // but they don't correspond to any columns - we need to skip those
+                if (entityProjection.EntityType.IsMappedToJson()
+                    && property.IsOrdinalKeyProperty())
+                {
+                    continue;
+                }
+
                 var innerColumn = entityProjection.BindProperty(property);
                 var outerColumn = subquery.GenerateOuterColumn(subqueryTableReferenceExpression, innerColumn);
                 projectionMap[innerColumn] = outerColumn;
@@ -3906,13 +3955,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             var newJsonColumn = subquery.GenerateOuterColumn(subqueryTableReferenceExpression, jsonScalarExpression);
 
             var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
-
-            var keyProperties = jsonQueryExpression.EntityType.FindPrimaryKey()!.Properties;
-            var keyPropertyCount = jsonQueryExpression.IsCollection
-                ? keyProperties.Count - 1
-                : keyProperties.Count;
-
-            for (var i = 0; i < keyPropertyCount; i++)
+            var keyProperties = jsonQueryExpression.KeyPropertyMap.Keys.ToList();
+            for (var i = 0; i < keyProperties.Count; i++)
             {
                 var keyProperty = keyProperties[i];
                 var innerColumn = jsonQueryExpression.BindProperty(keyProperty);

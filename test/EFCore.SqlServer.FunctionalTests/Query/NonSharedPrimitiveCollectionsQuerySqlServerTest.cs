@@ -332,7 +332,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS nvarchar(max)) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT [s].[value], [s].[key], CAST([s].[key] AS int) AS [c]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
