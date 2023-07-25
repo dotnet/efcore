@@ -256,9 +256,7 @@ namespace Microsoft.Data.Sqlite
                 return;
             }
 
-            var timer = new Stopwatch();
-
-            using var enumerator = PrepareAndEnumerateStatements(timer).GetEnumerator();
+            using var enumerator = PrepareAndEnumerateStatements().GetEnumerator();
             while (enumerator.MoveNext())
             {
             }
@@ -307,19 +305,18 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
-            var timer = new Stopwatch();
             var closeConnection = behavior.HasFlag(CommandBehavior.CloseConnection);
 
-            var dataReader = new SqliteDataReader(this, timer, GetStatements(timer), closeConnection);
+            var dataReader = new SqliteDataReader(this, GetStatements(), closeConnection);
             dataReader.NextResult();
 
             return DataReader = dataReader;
         }
 
-        private IEnumerable<sqlite3_stmt> GetStatements(Stopwatch timer)
+        private IEnumerable<sqlite3_stmt> GetStatements()
         {
             foreach ((var stmt, var expectedParams) in !_prepared
-                ? PrepareAndEnumerateStatements(timer)
+                ? PrepareAndEnumerateStatements()
                 : _preparedStatements)
             {
                 var boundParams = _parameters?.Bind(stmt) ?? 0;
@@ -466,7 +463,7 @@ namespace Microsoft.Data.Sqlite
         {
         }
 
-        private IEnumerable<(sqlite3_stmt Statement, int ParamCount)> PrepareAndEnumerateStatements(Stopwatch timer)
+        private IEnumerable<(sqlite3_stmt Statement, int ParamCount)> PrepareAndEnumerateStatements()
         {
             DisposePreparedStatements(disposing: false);
 
@@ -474,26 +471,31 @@ namespace Microsoft.Data.Sqlite
             var sql = new byte[byteCount + 1];
             Encoding.UTF8.GetBytes(_commandText, 0, _commandText.Length, sql, 0);
 
+            var elapsedTime = TimeSpan.Zero;
             int rc;
             sqlite3_stmt stmt;
             var start = 0;
             do
             {
-                timer.Start();
+                var startTimestamp = Stopwatch.GetTimestamp();
 
                 ReadOnlySpan<byte> tail;
                 while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, sql.AsSpan(start), out stmt, out tail)))
                 {
                     if (CommandTimeout != 0
-                        && timer.ElapsedMilliseconds >= CommandTimeout * 1000L)
+                        && elapsedTime.TotalMilliseconds >= CommandTimeout * 1000L)
                     {
                         break;
                     }
 
                     Thread.Sleep(150);
+
+                    if (CommandTimeout != 0)
+                    {
+                        elapsedTime += StopwatchUtils.GetElapsedTime(startTimestamp);
+                    }
                 }
 
-                timer.Stop();
                 start = sql.Length - tail.Length;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
