@@ -144,6 +144,142 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasColumnName<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasColumnName(name);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasColumnName(name);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasColumnType<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string typeName)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasColumnType(typeName);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasColumnType(typeName);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasDefaultValueSql<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string sql)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasDefaultValueSql(sql);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasDefaultValueSql(sql);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasComputedColumnSql<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string sql)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasComputedColumnSql(sql);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasComputedColumnSql(sql);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasDefaultValue<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        object value)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasDefaultValue(value);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasDefaultValue(value);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> IsFixedLength<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        bool fixedLength = true)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.IsFixedLength(fixedLength);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.IsFixedLength(fixedLength);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> UseCollation<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string? collation)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.UseCollation(collation);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.UseCollation(collation);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
         where TEntity : class

@@ -60,6 +60,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             _baseType = baseType;
             baseType._directlyDerivedTypes.Add(this);
         }
+
         _changeTrackingStrategy = changeTrackingStrategy;
         _indexerPropertyInfo = indexerPropertyInfo;
         _isPropertyBag = propertyBag;
@@ -84,13 +85,15 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     Gets the base type of this type. Returns <see langword="null" /> if this is not a
     ///     derived type in an inheritance hierarchy.
     /// </summary>
-    public virtual RuntimeTypeBase? BaseType => _baseType;
+    public virtual RuntimeTypeBase? BaseType
+        => _baseType;
 
     /// <summary>
     ///     Gets all types in the model that directly derive from this type.
     /// </summary>
     /// <returns>The derived types.</returns>
-    public virtual SortedSet<RuntimeTypeBase> DirectlyDerivedTypes => _directlyDerivedTypes;
+    public virtual SortedSet<RuntimeTypeBase> DirectlyDerivedTypes
+        => _directlyDerivedTypes;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -288,7 +291,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///    Gets the properties with the given name on this type, base types or derived types.
+    ///     Gets the properties with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type properties.</returns>
     public virtual IEnumerable<RuntimeProperty> FindPropertiesInHierarchy(string propertyName)
@@ -325,7 +328,8 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual SortedDictionary<string, RuntimeProperty> Properties => _properties;
+    protected virtual SortedDictionary<string, RuntimeProperty> Properties
+        => _properties;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -433,7 +437,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             : _complexProperties.Values;
 
     /// <summary>
-    ///    Gets the complex properties with the given name on this type, base types or derived types.
+    ///     Gets the complex properties with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type complex properties.</returns>
     public virtual IEnumerable<RuntimeComplexProperty> FindComplexPropertiesInHierarchy(string propertyName)
@@ -448,7 +452,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
         return _directlyDerivedTypes.Count == 0
             ? Enumerable.Empty<RuntimeComplexProperty>()
             : (IEnumerable<RuntimeComplexProperty>)GetDerivedTypes()
-              .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
+                .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
     }
 
     /// <summary>
@@ -491,9 +495,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-    {
-        _originalValuesFactory = factory;
-    }
+        => _originalValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -503,9 +505,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
-    {
-        _storeGeneratedValuesFactory = factory;
-    }
+        => _storeGeneratedValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -515,9 +515,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-    {
-        _temporaryValuesFactory = factory;
-    }
+        => _temporaryValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -527,9 +525,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetShadowValuesFactory(Func<ValueBuffer, ISnapshot> factory)
-    {
-        _shadowValuesFactory = factory;
-    }
+        => _shadowValuesFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -537,12 +533,9 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-
     [EntityFrameworkInternal]
     public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
-    {
-        _emptyShadowValuesFactory = factory;
-    }
+        => _emptyShadowValuesFactory = factory;
 
     /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.

@@ -1263,7 +1263,9 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             { typeof(OwnedEntityTypeBuilder), typeof(OwnedEntityTypeBuilder<>) },
             { typeof(OwnershipBuilder), typeof(OwnershipBuilder<,>) },
             { typeof(PropertyBuilder), typeof(PropertyBuilder<>) },
+            { typeof(PrimitiveCollectionBuilder), typeof(PrimitiveCollectionBuilder<>) },
             { typeof(ComplexTypePropertyBuilder), typeof(ComplexTypePropertyBuilder<>) },
+            { typeof(ComplexTypePrimitiveCollectionBuilder), typeof(ComplexTypePrimitiveCollectionBuilder<>) },
             { typeof(ReferenceCollectionBuilder), typeof(ReferenceCollectionBuilder<,>) },
             { typeof(ReferenceNavigationBuilder), typeof(ReferenceNavigationBuilder<,>) },
             { typeof(ReferenceReferenceBuilder), typeof(ReferenceReferenceBuilder<,>) },
@@ -1394,6 +1396,12 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         typeof(IConventionPropertyBase),
                         typeof(IConventionPropertyBaseBuilder<>),
                         typeof(IPropertyBase))
+                },
+                {
+                    typeof(IReadOnlyElementType), (typeof(IMutableElementType),
+                        typeof(IConventionElementType),
+                        typeof(IConventionElementTypeBuilder),
+                        typeof(IElementType))
                 }
             };
 

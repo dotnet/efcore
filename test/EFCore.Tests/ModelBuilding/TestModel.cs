@@ -3,6 +3,7 @@
 
 #nullable enable
 
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -97,6 +98,8 @@ public abstract partial class ModelBuilderTest
 
         public IEnumerable<Order>? Orders { get; set; }
 
+        public List<string>? Notes { get; set; }
+
         [NotMapped]
         public ICollection<SpecialOrder>? SomeOrders { get; set; }
 
@@ -165,8 +168,8 @@ public abstract partial class ModelBuilderTest
 
         public int OrderId { get; set; }
         public int ProductId { get; set; }
-        public required virtual Order Order { get; set; }
-        public required virtual Product Product { get; set; }
+        public virtual required Order Order { get; set; } = null!;
+        public virtual required Product Product { get; set; } = null!;
     }
 
     protected class UniProduct
@@ -291,6 +294,41 @@ public abstract partial class ModelBuilderTest
 
         // ReSharper disable once ConvertToAutoProperty
         public string? Down
+        {
+            get => _forDown;
+            set => _forDown = value;
+        }
+
+#pragma warning disable 67
+        public event PropertyChangingEventHandler? PropertyChanging;
+        public event PropertyChangedEventHandler? PropertyChanged;
+#pragma warning restore 67
+    }
+
+    // INotify interfaces not really implemented; just marking the classes to test metadata construction
+    protected class CollectionQuarks : INotifyPropertyChanging, INotifyPropertyChanged
+    {
+        private ObservableCollection<int> _forUp = null!;
+        private ObservableCollection<string>? _forDown;
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable IDE0051 // Remove unused private members
+#pragma warning disable CS0169 // Remove unused private fields
+        private ObservableCollection<string>? _forWierd;
+#pragma warning restore CS0169 // Remove unused private fields
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore IDE0044 // Add readonly modifier
+
+        public int Id { get; set; }
+
+        // ReSharper disable once ConvertToAutoProperty
+        public ObservableCollection<int> Up
+        {
+            get => _forUp;
+            set => _forUp = value;
+        }
+
+        // ReSharper disable once ConvertToAutoProperty
+        public ObservableCollection<string>? Down
         {
             get => _forDown;
             set => _forDown = value;
@@ -486,6 +524,7 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
         private int PrivateProperty { get; set; }
+        private List<string> PrivateCollection { get; set; } = null!;
 
         public List<Alpha>? Alphas { get; set; }
     }
@@ -739,6 +778,9 @@ public abstract partial class ModelBuilderTest
         public long Id;
         public int CompanyId;
         public int TenantId;
+        public long[] CollectionId = null!;
+        public int[] CollectionCompanyId = null!;
+        public int[] CollectionTenantId = null!;
         public KeylessEntityWithFields? KeylessEntity;
     }
 
@@ -857,14 +899,15 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
         public required Customer Customer { get; set; }
         public required DoubleProperty DoubleProperty { get; set; }
-        public required IndexedClass IndexedClass { get; set; } 
-        public required Quarks Quarks { get; set; } 
+        public required IndexedClass IndexedClass { get; set; }
+        public required Quarks Quarks { get; set; }
+        public CollectionQuarks? CollectionQuarks { get; set; }
 
         [NotMapped]
-        public required DynamicProperty DynamicProperty { get; set; } 
+        public required DynamicProperty DynamicProperty { get; set; }
 
         [NotMapped]
-        public required EntityWithFields EntityWithFields { get; set; } 
+        public required EntityWithFields EntityWithFields { get; set; }
 
         [NotMapped]
         public required WrappedStringEntity WrappedStringEntity { get; set; }
@@ -1307,5 +1350,26 @@ public abstract partial class ModelBuilderTest
     protected class OwnedOtter
     {
         public decimal Number { get; set; }
+    }
+
+    protected class OneDee
+    {
+        public int Id { get; set; }
+
+        public int[]? One { get; set; }
+    }
+
+    protected class TwoDee
+    {
+        public int Id { get; set; }
+
+        public int[,]? Two { get; set; }
+    }
+
+    protected class ThreeDee
+    {
+        public int Id { get; set; }
+
+        public int[,,]? Three { get; set; }
     }
 }

@@ -559,6 +559,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     property.GetIdentifyingMemberInfo(),
                     typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
                     configurationSource);
+
             if (builder == null)
             {
                 return null;

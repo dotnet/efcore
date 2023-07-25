@@ -227,6 +227,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyType);
 
         /// <summary>
+        ///     The element type of property '{entityType}.{property}' cannot be marked as nullable/optional because the type of the element is '{elementType}' which is not a nullable type. Any element type can be marked as non-nullable/required, but only elements of nullable types can be marked as nullable/optional.
+        /// </summary>
+        public static string CannotBeNullableElement(object? entityType, object? property, object? elementType)
+            => string.Format(
+                GetString("CannotBeNullableElement", "entityType", "property", "elementType"),
+                property, entityType);
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.
         /// </summary>
         public static string CannotBeNullablePK(object? property, object? entityType)
@@ -449,6 +457,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, entityType, propertyName, propertyType);
 
         /// <summary>
+        ///     The comparer for element type '{type}' cannot be used for '{entityType}.{propertyName}' because its element type is '{elementType}'.
+        /// </summary>
+        public static string ComparerPropertyMismatchElement(object? type, object? entityType, object? propertyName, object? elementType)
+            => string.Format(
+                GetString("ComparerPropertyMismatchElement", nameof(type), nameof(entityType), nameof(propertyName), nameof(elementType)),
+                type, entityType, propertyName, elementType);
+
+        /// <summary>
         ///     The type mapping used is incompatible with a compiled model. The mapping type must have a 'public static readonly {typeMapping} {typeMapping}.Default' property.
         /// </summary>
         public static string CompiledModelIncompatibleTypeMapping(object? typeMapping)
@@ -633,6 +649,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConverterPropertyMismatch", nameof(converterType), nameof(entityType), nameof(propertyName), nameof(propertyType)),
                 converterType, entityType, propertyName, propertyType);
+
+        /// <summary>
+        ///     Converter for element type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its element type is '{elementType}'.
+        /// </summary>
+        public static string ConverterPropertyMismatchElement(object? converterType, object? entityType, object? propertyName, object? elementType)
+            => string.Format(
+                GetString("ConverterPropertyMismatchElement", nameof(converterType), nameof(entityType), nameof(propertyName), nameof(elementType)),
+                converterType, entityType, propertyName, elementType);
 
         /// <summary>
         ///     Cannot compose converter from '{typeOneIn}' to '{typeOneOut}' with converter from '{typeTwoIn}' to '{typeTwoOut}' because the output type of the first converter doesn't match the input type of the second converter.
@@ -2064,6 +2088,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NotAnEFService", nameof(service)),
                 service);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' cannot be mapped as a collection since it does not implement 'IEnumerable&lt;T&gt;'.
+        /// </summary>
+        public static string NotCollection(object? entityType, object? property)
+            => string.Format(
+                GetString("NotCollection", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is a service defined by Entity Framework and as such must not be registered using the 'TryAddProviderSpecificServices' method.

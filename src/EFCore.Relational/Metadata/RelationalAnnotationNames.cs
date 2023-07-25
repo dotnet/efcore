@@ -329,4 +329,9 @@ public static class RelationalAnnotationNames
     ///     The JSON property name for the element that the property/navigation maps to.
     /// </summary>
     public const string JsonPropertyName = Prefix + "JsonPropertyName";
+
+    /// <summary>
+    ///     The name for store (database) type annotations.
+    /// </summary>
+    public const string StoreType = Prefix + "StoreType";
 }

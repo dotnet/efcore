@@ -49,10 +49,14 @@ public class CurrentValueComparerFactory
                 var nonNullableProviderType = providerType.UnwrapNullableType();
                 if (IsGenericComparable(providerType, nonNullableProviderType))
                 {
+                    var elementType = property.GetElementType();
+                    var modelBaseType = elementType != null
+                        ? typeof(IEnumerable<>).MakeGenericType(elementType.ClrType)
+                        : modelType;
                     var comparerType = modelType.IsClass
-                        ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelType, providerType)
+                        ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
                         : modelType == converter.ModelClrType
-                            ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelType, providerType)
+                            ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
                             : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
                                 nonNullableModelType, providerType);
 

@@ -88,6 +88,13 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     public abstract CoreTypeMapping? FindMapping(IProperty property);
 
     /// <summary>
+    ///     Finds the type mapping for a given <see cref="IElementType" />.
+    /// </summary>
+    /// <param name="elementType">The collection element.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    public abstract CoreTypeMapping? FindMapping(IElementType elementType);
+
+    /// <summary>
     ///     Finds the type mapping for a given <see cref="Type" />.
     /// </summary>
     /// <remarks>
@@ -142,7 +149,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         TypeMappingInfo mappingInfo,
         Type modelClrType,
         Type? providerClrType,
-        out CoreTypeMapping? elementMapping,
+        ref CoreTypeMapping? elementMapping,
         out JsonValueReaderWriter? collectionReaderWriter)
     {
         if ((providerClrType == null || providerClrType == typeof(string))
@@ -150,8 +157,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
             && elementType != modelClrType
             && !modelClrType.GetGenericTypeImplementations(typeof(IDictionary<,>)).Any())
         {
-            elementMapping = mappingInfo.ElementTypeMapping
-                ?? FindMapping(elementType);
+            elementMapping ??= FindMapping(elementType);
 
             if (elementMapping is { ElementTypeMapping: null, JsonValueReaderWriter: not null })
             {

@@ -29,6 +29,7 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             typeof(SqlServerKeyBuilderExtensions),
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
+            typeof(SqlServerPrimitiveCollectionBuilderExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerDbFunctionsExtensions),

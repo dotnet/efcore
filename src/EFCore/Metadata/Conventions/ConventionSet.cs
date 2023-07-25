@@ -258,6 +258,11 @@ public class ConventionSet
     public virtual List<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } = new();
 
     /// <summary>
+    ///     Conventions to run when the field of a property is changed.
+    /// </summary>
+    public virtual List<IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; } = new();
+
+    /// <summary>
     ///     Conventions to run when an annotation is changed on a property.
     /// </summary>
     public virtual List<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = new();
@@ -266,6 +271,16 @@ public class ConventionSet
     ///     Conventions to run when a property is removed.
     /// </summary>
     public virtual List<IPropertyRemovedConvention> PropertyRemovedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when the nullability of the element of a collection is changed.
+    /// </summary>
+    public virtual List<IElementTypeNullabilityChangedConvention> ElementTypeNullabilityChangedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when an annotation is changed on the element of a collection.
+    /// </summary>
+    public virtual List<IElementTypeAnnotationChangedConvention> ElementTypeAnnotationChangedConventions { get; } = new();
 
     /// <summary>
     ///     Replaces an existing convention with a derived convention. Also registers the new convention for any

@@ -395,6 +395,12 @@ public partial class ConventionDispatcher
             return propertyBuilder.Metadata.IsNullable;
         }
 
+        public override bool? OnElementTypeNullabilityChanged(IConventionElementTypeBuilder builder)
+        {
+            Add(new OnElementTypeNullabilityChangedNode(builder));
+            return builder.Metadata.IsNullable;
+        }
+
         public override FieldInfo? OnPropertyFieldChanged(
             IConventionPropertyBuilder propertyBuilder,
             FieldInfo? newFieldInfo,
@@ -414,12 +420,32 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
+        public override IConventionAnnotation? OnElementTypeAnnotationChanged(
+            IConventionElementTypeBuilder builder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            Add(new OnElementTypeAnnotationChangedNode(builder, name, annotation, oldAnnotation));
+            return annotation;
+        }
+
         public override IConventionProperty OnPropertyRemoved(
             IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property)
         {
             Add(new OnPropertyRemovedNode(typeBaseBuilder, property));
             return property;
+        }
+
+        public override IElementType? OnPropertyElementTypeChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IElementType? newElementType,
+            IElementType? oldElementType)
+        {
+            Add(new OnPropertyElementTypeChangedNode(propertyBuilder, newElementType, oldElementType));
+            return newElementType;
+
         }
     }
 
@@ -635,7 +661,9 @@ public partial class ConventionDispatcher
     private sealed class OnComplexPropertyFieldChangedNode : ConventionNode
     {
         public OnComplexPropertyFieldChangedNode(
-            IConventionComplexPropertyBuilder propertyBuilder, FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
+            IConventionComplexPropertyBuilder propertyBuilder,
+            FieldInfo? newFieldInfo,
+            FieldInfo? oldFieldInfo)
         {
             PropertyBuilder = propertyBuilder;
             NewFieldInfo = newFieldInfo;
@@ -1192,6 +1220,19 @@ public partial class ConventionDispatcher
             => dispatcher._immediateConventionScope.OnPropertyNullabilityChanged(PropertyBuilder);
     }
 
+    private sealed class OnElementTypeNullabilityChangedNode : ConventionNode
+    {
+        public OnElementTypeNullabilityChangedNode(IConventionElementTypeBuilder builder)
+        {
+            ElementTypeBuilder = builder;
+        }
+
+        public IConventionElementTypeBuilder ElementTypeBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnElementTypeNullabilityChanged(ElementTypeBuilder);
+    }
+
     private sealed class OnPropertyFieldChangedNode : ConventionNode
     {
         public OnPropertyFieldChangedNode(IConventionPropertyBuilder propertyBuilder, FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
@@ -1207,6 +1248,24 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyFieldChanged(PropertyBuilder, NewFieldInfo, OldFieldInfo);
+    }
+
+    private sealed class OnPropertyElementTypeChangedNode : ConventionNode
+    {
+        public OnPropertyElementTypeChangedNode(
+            IConventionPropertyBuilder propertyBuilder, IElementType? newElementType, IElementType? oldElementType)
+        {
+            PropertyBuilder = propertyBuilder;
+            NewElementType = newElementType;
+            OldElementType = oldElementType;
+        }
+
+        public IConventionPropertyBuilder PropertyBuilder { get; }
+        public IElementType? NewElementType { get; }
+        public IElementType? OldElementType { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnPropertyElementTypeChanged(PropertyBuilder, NewElementType, OldElementType);
     }
 
     private sealed class OnPropertyAnnotationChangedNode : ConventionNode
@@ -1231,6 +1290,30 @@ public partial class ConventionDispatcher
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnPropertyAnnotationChanged(
                 PropertyBuilder, Name, Annotation, OldAnnotation);
+    }
+
+    private sealed class OnElementTypeAnnotationChangedNode : ConventionNode
+    {
+        public OnElementTypeAnnotationChangedNode(
+            IConventionElementTypeBuilder elementTypeBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            ElementTypeBuilder = elementTypeBuilder;
+            Name = name;
+            Annotation = annotation;
+            OldAnnotation = oldAnnotation;
+        }
+
+        public IConventionElementTypeBuilder ElementTypeBuilder { get; }
+        public string Name { get; }
+        public IConventionAnnotation? Annotation { get; }
+        public IConventionAnnotation? OldAnnotation { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnElementTypeAnnotationChanged(
+                ElementTypeBuilder, Name, Annotation, OldAnnotation);
     }
 
     private sealed class OnPropertyRemovedNode : ConventionNode

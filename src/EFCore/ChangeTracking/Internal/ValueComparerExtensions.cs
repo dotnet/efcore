@@ -17,25 +17,25 @@ public static class ValueComparerExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static ValueComparer? ToNullableComparer(this ValueComparer? valueComparer, IReadOnlyProperty property)
+    public static ValueComparer? ToNullableComparer(this ValueComparer? valueComparer, Type clrType)
     {
         if (valueComparer == null
-            || !property.ClrType.IsNullableValueType()
+            || !clrType.IsNullableValueType()
             || valueComparer.Type.IsNullableValueType())
         {
             return valueComparer;
         }
 
-        var newEqualsParam1 = Expression.Parameter(property.ClrType, "v1");
-        var newEqualsParam2 = Expression.Parameter(property.ClrType, "v2");
-        var newHashCodeParam = Expression.Parameter(property.ClrType, "v");
-        var newSnapshotParam = Expression.Parameter(property.ClrType, "v");
-        var hasValueProperty = property.ClrType.GetProperty("HasValue")!;
+        var newEqualsParam1 = Expression.Parameter(clrType, "v1");
+        var newEqualsParam2 = Expression.Parameter(clrType, "v2");
+        var newHashCodeParam = Expression.Parameter(clrType, "v");
+        var newSnapshotParam = Expression.Parameter(clrType, "v");
+        var hasValueProperty = clrType.GetProperty("HasValue")!;
         var v1HasValue = Expression.MakeMemberAccess(newEqualsParam1, hasValueProperty);
         var v2HasValue = Expression.MakeMemberAccess(newEqualsParam2, hasValueProperty);
 
         return (ValueComparer)Activator.CreateInstance(
-            typeof(ValueComparer<>).MakeGenericType(property.ClrType),
+            typeof(ValueComparer<>).MakeGenericType(clrType),
             Expression.Lambda(
                 Expression.OrElse(
                     Expression.AndAlso(
@@ -61,8 +61,8 @@ public static class ValueComparerExtensions
                     Expression.MakeMemberAccess(newSnapshotParam, hasValueProperty),
                     Expression.Convert(
                         valueComparer.ExtractSnapshotBody(
-                            Expression.Convert(newSnapshotParam, valueComparer.Type)), property.ClrType),
-                    Expression.Default(property.ClrType)),
+                            Expression.Convert(newSnapshotParam, valueComparer.Type)), clrType),
+                    Expression.Default(clrType)),
                 newSnapshotParam))!;
     }
 }

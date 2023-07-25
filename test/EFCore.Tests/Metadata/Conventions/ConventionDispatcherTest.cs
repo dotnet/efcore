@@ -3668,6 +3668,99 @@ public class ConventionDispatcherTest
     [InlineData(false, true)]
     [InlineData(true, true)]
     [ConditionalTheory]
+    public void OnPropertyElementTypeChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyElementTypeChangedConvention(terminate: false);
+        var convention2 = new PropertyElementTypeChangedConvention(terminate: true);
+        var convention3 = new PropertyElementTypeChangedConvention(terminate: false);
+        conventions.PropertyElementTypeChangedConventions.Add(convention1);
+        conventions.PropertyElementTypeChangedConventions.Add(convention2);
+        conventions.PropertyElementTypeChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention)!;
+        var propertyBuilder = entityBuilder.Property(Order.OrderIdsProperty, ConfigurationSource.Convention)!;
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        ElementType elementType;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.PrimitiveCollection(ConfigurationSource.Convention));
+            elementType = (ElementType)propertyBuilder.Metadata.GetElementType()!;
+        }
+        else
+        {
+            elementType = (ElementType)propertyBuilder.Metadata.IsPrimitiveCollection(true, ConfigurationSource.Convention);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new (object, object)[] { (null, elementType) }, convention1.Calls);
+        Assert.Equal(new (object, object)[] { (null, elementType) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.PrimitiveCollection(ConfigurationSource.Convention));
+            elementType = (ElementType)propertyBuilder.Metadata.GetElementType()!;
+        }
+        else
+        {
+            elementType = (ElementType)propertyBuilder.Metadata.IsPrimitiveCollection(true, ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new (object, object)[] { (null, elementType) }, convention1.Calls);
+        Assert.Equal(new (object, object)[] { (null, elementType) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        propertyBuilder.Metadata.IsPrimitiveCollection(false, ConfigurationSource.Convention);
+
+        Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention1.Calls);
+        Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class PropertyElementTypeChangedConvention : IPropertyElementTypeChangedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<(object, object)> Calls = new();
+
+        public PropertyElementTypeChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessPropertyElementTypeChanged(
+            IConventionPropertyBuilder propertyBuilder,
+            IElementType newElementType,
+            IElementType oldElementType,
+            IConventionContext<IElementType> context)
+        {
+            Assert.True(propertyBuilder.Metadata.IsInModel);
+
+            Calls.Add((oldElementType, newElementType));
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
     public void OnPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -4953,6 +5046,7 @@ public class ConventionDispatcherTest
     private class Order
     {
         public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty(nameof(OrderId));
+        public static readonly PropertyInfo OrderIdsProperty = typeof(Order).GetProperty(nameof(OrderIds));
         public static readonly PropertyInfo OrderDetailsProperty = typeof(Order).GetProperty(nameof(OrderDetails));
         public static readonly PropertyInfo OtherOrderDetailsProperty = typeof(Order).GetProperty(nameof(OtherOrderDetails));
 
@@ -4960,6 +5054,7 @@ public class ConventionDispatcherTest
         public readonly OrderDetails OrderDetailsField = default;
 
         public int OrderId { get; set; }
+        public int[] OrderIds { get; set; }
 
         public string Name { get; set; }
 

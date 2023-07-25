@@ -167,8 +167,9 @@ public class MemberClassifier : IMemberClassifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCandidatePrimitiveProperty(MemberInfo memberInfo, IConventionModel model)
+    public virtual bool IsCandidatePrimitiveProperty(MemberInfo memberInfo, IConventionModel model, out CoreTypeMapping? typeMapping)
     {
+        typeMapping = null;
         if (!memberInfo.IsCandidateProperty())
         {
             return false;
@@ -176,7 +177,7 @@ public class MemberClassifier : IMemberClassifier
 
         var configurationType = ((Model)model).Configuration?.GetConfigurationType(memberInfo.GetMemberType());
         return configurationType == TypeConfigurationType.Property
-            || (configurationType == null && _typeMappingSource.FindMapping(memberInfo) != null);
+            || (configurationType == null && (typeMapping = _typeMappingSource.FindMapping(memberInfo)) != null);
     }
 
     /// <summary>
@@ -185,8 +186,11 @@ public class MemberClassifier : IMemberClassifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCandidateComplexProperty(MemberInfo memberInfo, IConventionModel model,
-        out Type? elementType, out bool explicitlyConfigured)
+    public virtual bool IsCandidateComplexProperty(
+        MemberInfo memberInfo,
+        IConventionModel model,
+        out Type? elementType,
+        out bool explicitlyConfigured)
     {
         explicitlyConfigured = false;
         elementType = null;

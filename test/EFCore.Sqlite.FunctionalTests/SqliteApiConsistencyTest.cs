@@ -25,7 +25,8 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
             typeof(SqliteServiceCollectionExtensions),
             typeof(SqliteDbContextOptionsBuilderExtensions),
             typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions)
+            typeof(SqlitePropertyBuilderExtensions),
+            typeof(SqlitePrimitiveCollectionBuilderExtensions)
         };
 
         public override

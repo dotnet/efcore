@@ -153,6 +153,21 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
                 .Metadata);
 
     /// <summary>
+    ///     Returns an object that can be used to configure a property of the entity type where that property represents
+    ///     a collection of primitive values, such as strings or integers.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression)
+        => new(
+            Builder.Property(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    ConfigurationSource.Explicit)!.PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
     ///     Configures a complex property of the entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>

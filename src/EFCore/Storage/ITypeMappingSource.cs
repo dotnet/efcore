@@ -37,6 +37,13 @@ public interface ITypeMappingSource
     CoreTypeMapping? FindMapping(IProperty property);
 
     /// <summary>
+    ///     Finds the type mapping for a given <see cref="IElementType" />.
+    /// </summary>
+    /// <param name="elementType">The collection element.</param>
+    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    CoreTypeMapping? FindMapping(IElementType elementType);
+
+    /// <summary>
     ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
     ///     a field or a property of a CLR type.
     /// </summary>

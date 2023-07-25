@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -192,6 +192,9 @@
   <data name="CannotBeNullable" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the type of the property is '{propertyType}' which is not a nullable type. Any property can be marked as non-nullable/required, but only properties of nullable types can be marked as nullable/optional.</value>
   </data>
+  <data name="CannotBeNullableElement" xml:space="preserve">
+    <value>The element type of property '{entityType}.{property}' cannot be marked as nullable/optional because the type of the element is '{elementType}' which is not a nullable type. Any element type can be marked as non-nullable/required, but only elements of nullable types can be marked as nullable/optional.</value>
+  </data>
   <data name="CannotBeNullablePK" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.</value>
   </data>
@@ -276,6 +279,9 @@
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>The comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
   </data>
+  <data name="ComparerPropertyMismatchElement" xml:space="preserve">
+    <value>The comparer for element type '{type}' cannot be used for '{entityType}.{propertyName}' because its element type is '{elementType}'.</value>
+  </data>
   <data name="CompiledModelIncompatibleTypeMapping" xml:space="preserve">
     <value>The type mapping used is incompatible with a compiled model. The mapping type must have a 'public static readonly {typeMapping} {typeMapping}.Default' property.</value>
   </data>
@@ -347,6 +353,9 @@
   </data>
   <data name="ConverterPropertyMismatch" xml:space="preserve">
     <value>Converter for model type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
+  </data>
+  <data name="ConverterPropertyMismatchElement" xml:space="preserve">
+    <value>Converter for element type '{converterType}' cannot be used for '{entityType}.{propertyName}' because its element type is '{elementType}'.</value>
   </data>
   <data name="ConvertersCannotBeComposed" xml:space="preserve">
     <value>Cannot compose converter from '{typeOneIn}' to '{typeOneOut}' with converter from '{typeTwoIn}' to '{typeTwoOut}' because the output type of the first converter doesn't match the input type of the second converter.</value>
@@ -1205,6 +1214,9 @@
   </data>
   <data name="NotAnEFService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is not a service defined by Entity Framework and as such must be registered as a provider-specific service using the 'TryAddProviderSpecificServices' method.</value>
+  </data>
+  <data name="NotCollection" xml:space="preserve">
+    <value>The property '{entityType}.{property}' cannot be mapped as a collection since it does not implement 'IEnumerable&lt;T&gt;'.</value>
   </data>
   <data name="NotAProviderService" xml:space="preserve">
     <value>The database provider attempted to register an implementation of the '{service}' service. This is a service defined by Entity Framework and as such must not be registered using the 'TryAddProviderSpecificServices' method.</value>

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -21,6 +22,87 @@ public readonly record struct TypeMappingInfo
     public TypeMappingInfo(IProperty property)
         : this(property.GetPrincipals())
     {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+    /// </summary>
+    /// <param name="elementType">The collection element for the property for which mapping is needed.</param>
+    /// <param name="fallbackUnicode">
+    ///     Specifies Unicode or ANSI for the mapping or <see langword="null" /> for the default.
+    /// </param>
+    /// <param name="fallbackSize">
+    ///     Specifies a size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for the default.
+    /// </param>
+    /// <param name="fallbackPrecision">
+    ///     Specifies a precision for the mapping, in case one isn't found at the core level, or <see langword="null" /> for the default.
+    /// </param>
+    /// <param name="fallbackScale">
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for the default.
+    /// </param>
+    public TypeMappingInfo(
+        IElementType elementType,
+        bool? fallbackUnicode = null,
+        int? fallbackSize = null,
+        int? fallbackPrecision = null,
+        int? fallbackScale = null)
+    {
+        ValueConverter? customConverter = null;
+        if (customConverter == null)
+        {
+            var converter = elementType.GetValueConverter();
+            if (converter != null)
+            {
+                customConverter = converter;
+            }
+        }
+
+        if (fallbackSize == null)
+        {
+            var maxLength = elementType.GetMaxLength();
+            if (maxLength != null)
+            {
+                fallbackSize = maxLength;
+            }
+        }
+
+        if (fallbackPrecision == null)
+        {
+            var precisionFromProperty = elementType.GetPrecision();
+            if (precisionFromProperty != null)
+            {
+                fallbackPrecision = precisionFromProperty;
+            }
+        }
+
+        if (fallbackScale == null)
+        {
+            var scaleFromProperty = elementType.GetScale();
+            if (scaleFromProperty != null)
+            {
+                fallbackScale = scaleFromProperty;
+            }
+        }
+
+        if (fallbackUnicode == null)
+        {
+            var unicode = elementType.IsUnicode();
+            if (unicode != null)
+            {
+                fallbackUnicode = unicode;
+            }
+        }
+
+        var mappingHints = customConverter?.MappingHints;
+
+        IsKeyOrIndex = false;
+        Size = fallbackSize ?? mappingHints?.Size;
+        IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
+        IsRowVersion = false;
+        ClrType = (customConverter?.ProviderClrType ?? elementType.ClrType).UnwrapNullableType();
+        Scale = fallbackScale ?? mappingHints?.Scale;
+        Precision = fallbackPrecision ?? mappingHints?.Precision;
+        JsonValueReaderWriter = JsonValueReaderWriter.CreateFromType((Type?)elementType[CoreAnnotationNames.JsonValueReaderWriterType]);
     }
 
     /// <summary>
@@ -70,19 +152,19 @@ public readonly record struct TypeMappingInfo
 
             if (fallbackPrecision == null)
             {
-                var precisionFromProperty = principal.GetPrecision();
-                if (precisionFromProperty != null)
+                var precision = principal.GetPrecision();
+                if (precision != null)
                 {
-                    fallbackPrecision = precisionFromProperty;
+                    fallbackPrecision = precision;
                 }
             }
 
             if (fallbackScale == null)
             {
-                var scaleFromProperty = principal.GetScale();
-                if (scaleFromProperty != null)
+                var scale = principal.GetScale();
+                if (scale != null)
                 {
-                    fallbackScale = scaleFromProperty;
+                    fallbackScale = scale;
                 }
             }
 
@@ -106,7 +188,6 @@ public readonly record struct TypeMappingInfo
         ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;
-        ElementTypeMapping = null; // TODO: set from property
         JsonValueReaderWriter = property.GetJsonValueReaderWriter();
     }
 
@@ -190,28 +271,6 @@ public readonly record struct TypeMappingInfo
 
         ClrType = converter.ProviderClrType.UnwrapNullableType();
 
-        ElementTypeMapping = source.ElementTypeMapping;
-        JsonValueReaderWriter = source.JsonValueReaderWriter;
-    }
-
-    /// <summary>
-    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="CoreTypeMapping" />. for collection
-    ///     elements.
-    /// </summary>
-    /// <param name="source">The source info.</param>
-    /// <param name="elementMapping">The element mapping to use.</param>
-    public TypeMappingInfo(
-        TypeMappingInfo source,
-        CoreTypeMapping elementMapping)
-    {
-        IsRowVersion = source.IsRowVersion;
-        IsKeyOrIndex = source.IsKeyOrIndex;
-        Size = source.Size;
-        IsUnicode = source.IsUnicode;
-        Scale = source.Scale;
-        Precision = source.Precision;
-        ClrType = source.ClrType;
-        ElementTypeMapping = elementMapping;
         JsonValueReaderWriter = source.JsonValueReaderWriter;
     }
 
@@ -222,14 +281,6 @@ public readonly record struct TypeMappingInfo
     /// <returns>The new mapping info.</returns>
     public TypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
         => new(this, converterInfo);
-
-    /// <summary>
-    ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
-    /// </summary>
-    /// <param name="elementMapping">The element mapping to use.</param>
-    /// <returns>The new mapping info.</returns>
-    public TypeMappingInfo WithElementTypeMapping(in CoreTypeMapping elementMapping)
-        => new(this, elementMapping);
 
     /// <summary>
     ///     Indicates whether or not the mapping is part of a key or index.
@@ -266,11 +317,6 @@ public readonly record struct TypeMappingInfo
     ///     (e.g. the store name in a relational type mapping info)
     /// </summary>
     public Type? ClrType { get; init; }
-
-    /// <summary>
-    ///     The element type mapping, if the mapping is for a collection of primitives, or <see langword="null" /> otherwise.
-    /// </summary>
-    public CoreTypeMapping? ElementTypeMapping { get; init; }
 
     /// <summary>
     ///     The JSON reader/writer, if one has been provided, or <see langword="null" /> otherwise.

@@ -164,7 +164,7 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
 
             var model = modelBuilder.FinalizeModel();
 
-            var entity = model.FindEntityType(typeof(Customer));
+            var entity = model.FindEntityType(typeof(Customer))!;
 
             Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
             Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
@@ -241,6 +241,90 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
                 new[] { nameof(Customer.AlternateKey) },
                 entity.FindPrimaryKey().Properties.Select(p => p.Name));
             Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+        }
+
+        public override void Primitive_collections_can_be_made_concurrency_tokens()
+            => Assert.Equal(
+                CosmosStrings.NonETagConcurrencyToken(nameof(CollectionQuarks), "Charm"),
+                Assert.Throws<InvalidOperationException>(
+                    () => base.Primitive_collections_can_be_made_concurrency_tokens()).Message);
+
+        [ConditionalFact]
+        public virtual void Primitive_collections_key_is_added_to_the_keys()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders)
+                .HasPartitionKey(b => b.Notes)
+                .PrimitiveCollection(b => b.Notes);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Equal(
+                new[] { nameof(Customer.Id), nameof(Customer.Notes) },
+                entity.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Equal(
+                new[] { StoreKeyConvention.DefaultIdPropertyName, nameof(Customer.Notes) },
+                entity.GetKeys().First(k => k != entity.FindPrimaryKey()).Properties.Select(p => p.Name));
+
+            var idProperty = entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName)!;
+            Assert.Single(idProperty.GetContainingKeys());
+            Assert.NotNull(idProperty.GetValueGeneratorFactory());
+        }
+
+        [ConditionalFact]
+        public virtual void No_id_property_created_if_another_primitive_collection_mapped_to_id()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .PrimitiveCollection(c => c.Notes)
+                .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
+            modelBuilder.Entity<Customer>()
+                .Ignore(b => b.Details)
+                .Ignore(b => b.Orders);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+            Assert.Single(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+
+            var idProperty = entity.GetDeclaredProperties()
+                .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            Assert.Single(idProperty.GetContainingKeys());
+            Assert.Null(idProperty.GetValueGeneratorFactory());
+        }
+
+        [ConditionalFact]
+        public virtual void No_id_property_created_if_another_primitive_collection_to_id_in_pk()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Customer>()
+                .PrimitiveCollection(c => c.Notes)
+                .ToJsonProperty(StoreKeyConvention.IdPropertyJsonName);
+            modelBuilder.Entity<Customer>()
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
+                .HasKey(c => c.Notes);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Customer))!;
+
+            Assert.Null(entity.FindProperty(StoreKeyConvention.DefaultIdPropertyName));
+            Assert.Empty(entity.GetKeys().Where(k => k != entity.FindPrimaryKey()));
+
+            var idProperty = entity.GetDeclaredProperties()
+                .Single(p => p.GetJsonPropertyName() == StoreKeyConvention.IdPropertyJsonName);
+            Assert.Single(idProperty.GetContainingKeys());
+            Assert.Null(idProperty.GetValueGeneratorFactory());
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)

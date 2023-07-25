@@ -207,6 +207,65 @@ public class ComplexPropertyBuilder :
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
     /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
+        => new(
+            TypeBuilder.Property(
+                Check.NotEmpty(propertyName, nameof(propertyName)),
+                ConfigurationSource.Explicit)!.PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
+        => new(
+            TypeBuilder.Property(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!
+                .PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the entity class
+    ///     then it will be added to the model. If no property exists in the entity class, then
+    ///     a new shadow state property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the entity class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
+        => new(
+            TypeBuilder.Property(
+                Check.NotNull(propertyType, nameof(propertyType)),
+                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!
+                .PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
     ///     Indexer properties are stored in the entity using
     ///     <see href="https://docs.microsoft.com/dotnet/csharp/programming-guide/indexers/">an indexer</see>
     ///     supplying the provided property name.

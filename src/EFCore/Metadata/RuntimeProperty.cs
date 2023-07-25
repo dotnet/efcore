@@ -1,8 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -110,6 +110,55 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     }
 
     /// <summary>
+    ///     Sets the element type for this property.
+    /// </summary>
+    /// <param name="clrType">The type of value the property will hold.</param>
+    /// <param name="nullable">A value indicating whether this property can contain <see langword="null" />.</param>
+    /// <param name="maxLength">The maximum length of data that is allowed in this property.</param>
+    /// <param name="unicode">A value indicating whether or not the property can persist Unicode characters.</param>
+    /// <param name="precision">The precision of data that is allowed in this property.</param>
+    /// <param name="scale">The scale of data that is allowed in this property.</param>
+    /// <param name="providerPropertyType">
+    ///     The type that the property value will be converted to before being sent to the database provider.
+    /// </param>
+    /// <param name="valueConverter">The custom <see cref="ValueConverter" /> set for this property.</param>
+    /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
+    /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
+    /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
+    /// <returns>The newly created property.</returns>
+    public virtual RuntimeElementType SetElementType(
+        Type clrType,
+        bool nullable = false,
+        int? maxLength = null,
+        bool? unicode = null,
+        int? precision = null,
+        int? scale = null,
+        Type? providerPropertyType = null,
+        ValueConverter? valueConverter = null,
+        ValueComparer? valueComparer = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null,
+        CoreTypeMapping? typeMapping = null)
+    {
+        var elementType = new RuntimeElementType(
+            clrType,
+            this,
+            nullable,
+            maxLength,
+            unicode,
+            precision,
+            scale,
+            providerPropertyType,
+            valueConverter,
+            valueComparer,
+            jsonValueReaderWriter,
+            typeMapping);
+
+        SetAnnotation(CoreAnnotationNames.ElementType, elementType);
+
+        return elementType;
+    }
+
+    /// <summary>
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
     [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)]
@@ -180,11 +229,11 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer GetValueComparer()
         => (GetValueComparer(null) ?? TypeMapping.Comparer)
-            .ToNullableComparer(this)!;
+            .ToNullableComparer(ClrType)!;
 
     private ValueComparer GetKeyValueComparer()
         => (GetKeyValueComparer(null) ?? TypeMapping.KeyComparer)
-            .ToNullableComparer(this)!;
+            .ToNullableComparer(ClrType)!;
 
     private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
@@ -214,7 +263,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
-        if ( _keyValueComparer != null)
+        if (_keyValueComparer != null)
         {
             return _keyValueComparer;
         }
@@ -248,6 +297,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <returns>The reader/writer, or <see langword="null" /> if none has been set.</returns>
     public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
         => _jsonValueReaderWriter;
+
+    /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    public virtual IElementType? GetElementType()
+        => (IElementType?)this[CoreAnnotationNames.ElementType];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
