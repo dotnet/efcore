@@ -508,6 +508,9 @@
   <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
     <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
   </data>
+  <data name="JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery" xml:space="preserve">
+    <value>JSON entity or collection can't be projected directly in a tracked query. Either disable tracking by using '{asNoTracking}' method or project the owner entity instead.</value>
+  </data>
   <data name="JsonEntityOwnedByNonJsonOwnedType" xml:space="preserve">
     <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
   </data>

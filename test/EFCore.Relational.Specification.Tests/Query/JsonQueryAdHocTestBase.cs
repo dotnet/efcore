@@ -185,7 +185,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
                 NestedOptional = x.Json.OptionalReference.Nested,
                 NestedRequired = x.Json.RequiredReference.Nested,
                 x.Json.Collection,
-            }).ToList();
+            }).AsNoTracking().ToList();
 
             Assert.Equal(4, result.Count);
             Assert.NotNull(result[0].OptionalReference);
