@@ -80,14 +80,12 @@ public class RelationalCommand : IRelationalCommand
 
         connection.Open();
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = logger?.CommandNonQueryExecuting(
                         connection,
                         command,
@@ -110,7 +108,7 @@ public class RelationalCommand : IRelationalCommand
                         connection.ConnectionId,
                         nonQueryResult,
                         startTime,
-                        Stopwatch.GetElapsedTime(startTimestamp),
+                        stopwatch.Elapsed,
                         parameterObject.CommandSource)
                     ?? nonQueryResult;
             }
@@ -121,8 +119,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (Dependencies.ExceptionDetector.IsCancellation(exception))
             {
                 logger?.CommandCanceled(
@@ -133,7 +129,7 @@ public class RelationalCommand : IRelationalCommand
                     commandId,
                     connection.ConnectionId,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
             else
@@ -147,7 +143,7 @@ public class RelationalCommand : IRelationalCommand
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
 
@@ -186,14 +182,12 @@ public class RelationalCommand : IRelationalCommand
 
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = logger == null
                     ? default
                     : await logger.CommandNonQueryExecutingAsync(
@@ -221,7 +215,7 @@ public class RelationalCommand : IRelationalCommand
                             connection.ConnectionId,
                             result,
                             startTime,
-                            Stopwatch.GetElapsedTime(startTimestamp),
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -236,8 +230,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (logger != null)
             {
                 if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
@@ -250,7 +242,7 @@ public class RelationalCommand : IRelationalCommand
                             commandId,
                             connection.ConnectionId,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -266,7 +258,7 @@ public class RelationalCommand : IRelationalCommand
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -302,14 +294,12 @@ public class RelationalCommand : IRelationalCommand
 
         connection.Open();
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = logger?.CommandScalarExecuting(
                         connection,
                         command,
@@ -332,7 +322,7 @@ public class RelationalCommand : IRelationalCommand
                         connection.ConnectionId,
                         result,
                         startTime,
-                        Stopwatch.GetElapsedTime(startTimestamp),
+                        stopwatch.Elapsed,
                         parameterObject.CommandSource)
                     ?? result;
             }
@@ -343,8 +333,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (Dependencies.ExceptionDetector.IsCancellation(exception))
             {
                 logger?.CommandCanceled(
@@ -355,7 +343,7 @@ public class RelationalCommand : IRelationalCommand
                     commandId,
                     connection.ConnectionId,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
             else
@@ -369,7 +357,7 @@ public class RelationalCommand : IRelationalCommand
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
 
@@ -408,14 +396,12 @@ public class RelationalCommand : IRelationalCommand
 
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = logger == null
                     ? default
                     : await logger.CommandScalarExecutingAsync(
@@ -443,7 +429,7 @@ public class RelationalCommand : IRelationalCommand
                         connection.ConnectionId,
                         result,
                         startTime,
-                        Stopwatch.GetElapsedTime(startTimestamp),
+                        stopwatch.Elapsed,
                         parameterObject.CommandSource,
                         cancellationToken).ConfigureAwait(false);
                 }
@@ -457,8 +443,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (logger != null)
             {
                 if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
@@ -471,7 +455,7 @@ public class RelationalCommand : IRelationalCommand
                             commandId,
                             connection.ConnectionId,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -487,7 +471,7 @@ public class RelationalCommand : IRelationalCommand
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -530,14 +514,12 @@ public class RelationalCommand : IRelationalCommand
         var readerOpen = false;
         DbDataReader reader;
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = logger!.CommandReaderExecuting(
                     connection,
                     command,
@@ -559,7 +541,7 @@ public class RelationalCommand : IRelationalCommand
                     connection.ConnectionId,
                     reader,
                     startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp),
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
             else
@@ -569,8 +551,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (Dependencies.ExceptionDetector.IsCancellation(exception))
             {
                 logger?.CommandCanceled(
@@ -581,7 +561,7 @@ public class RelationalCommand : IRelationalCommand
                     commandId,
                     connection.ConnectionId,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
             else
@@ -595,7 +575,7 @@ public class RelationalCommand : IRelationalCommand
                     connection.ConnectionId,
                     exception,
                     startTime,
-                    elapsedTime,
+                    stopwatch.Elapsed,
                     parameterObject.CommandSource);
             }
 
@@ -662,14 +642,12 @@ public class RelationalCommand : IRelationalCommand
         var readerOpen = false;
         DbDataReader reader;
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
             if (shouldLogCommandExecute)
             {
-                startTimestamp = Stopwatch.GetTimestamp();
-
                 var interceptionResult = await logger!.CommandReaderExecutingAsync(
                         connection,
                         command,
@@ -693,7 +671,7 @@ public class RelationalCommand : IRelationalCommand
                         connection.ConnectionId,
                         reader,
                         startTime,
-                        Stopwatch.GetElapsedTime(startTimestamp),
+                        stopwatch.Elapsed,
                         parameterObject.CommandSource,
                         cancellationToken)
                     .ConfigureAwait(false);
@@ -705,8 +683,6 @@ public class RelationalCommand : IRelationalCommand
         }
         catch (Exception exception)
         {
-            var elapsedTime = startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero;
-
             if (logger != null)
             {
                 if (Dependencies.ExceptionDetector.IsCancellation(exception, cancellationToken))
@@ -719,7 +695,7 @@ public class RelationalCommand : IRelationalCommand
                             commandId,
                             connection.ConnectionId,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -735,7 +711,7 @@ public class RelationalCommand : IRelationalCommand
                             connection.ConnectionId,
                             exception,
                             startTime,
-                            elapsedTime,
+                            stopwatch.Elapsed,
                             parameterObject.CommandSource,
                             cancellationToken)
                         .ConfigureAwait(false);
@@ -799,13 +775,11 @@ public class RelationalCommand : IRelationalCommand
 
         DbCommand command;
 
-        long startTimestamp = 0;
+        var stopwatch = SharedStopwatch.StartNew();
 
         var logCommandCreate = logger?.ShouldLogCommandCreate(startTime) == true;
         if (logCommandCreate)
         {
-            startTimestamp = Stopwatch.GetTimestamp();
-
             var interceptionResult = logger!.CommandCreating(
                 connection, commandMethod, context, commandId, connectionId, startTime,
                 parameterObject.CommandSource);
@@ -822,7 +796,7 @@ public class RelationalCommand : IRelationalCommand
                 commandId,
                 connectionId,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp),
+                stopwatch.Elapsed,
                 parameterObject.CommandSource);
         }
         else
@@ -857,7 +831,7 @@ public class RelationalCommand : IRelationalCommand
                 commandId,
                 connectionId,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp),
+                stopwatch.Elapsed,
                 parameterObject.CommandSource);
         }
 

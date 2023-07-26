@@ -24,7 +24,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     private Guid _commandId;
     private IRelationalCommandDiagnosticsLogger? _logger;
     private DateTimeOffset _startTime;
-    private long startTimestamp;
+    private SharedStopwatch _stopwatch;
 
     private int _readCount;
 
@@ -55,7 +55,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
         _closed = false;
         _disposed = false;
         _startTime = DateTimeOffset.UtcNow;
-        startTimestamp = Stopwatch.GetTimestamp();
+        _stopwatch = SharedStopwatch.StartNew();
     }
 
     /// <summary>
@@ -166,7 +166,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                     _reader.RecordsAffected,
                     _readCount,
                     _startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp));
+                    _stopwatch.Elapsed); // can throw
             }
         }
         finally
@@ -262,7 +262,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                     _reader.RecordsAffected,
                     _readCount,
                     _startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp));
+                    _stopwatch.Elapsed); // can throw
             }
         }
         finally

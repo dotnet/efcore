@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
+using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 using static SQLitePCL.raw;
 
@@ -471,31 +472,27 @@ namespace Microsoft.Data.Sqlite
             var sql = new byte[byteCount + 1];
             Encoding.UTF8.GetBytes(_commandText, 0, _commandText.Length, sql, 0);
 
-            var elapsedTime = TimeSpan.Zero;
+            var totalElapsedTime = TimeSpan.Zero;
             int rc;
             sqlite3_stmt stmt;
             var start = 0;
             do
             {
-                var startTimestamp = Stopwatch.GetTimestamp();
+                var timer = SharedStopwatch.StartNew();
 
                 ReadOnlySpan<byte> tail;
                 while (IsBusy(rc = sqlite3_prepare_v2(_connection!.Handle, sql.AsSpan(start), out stmt, out tail)))
                 {
                     if (CommandTimeout != 0
-                        && elapsedTime.TotalMilliseconds >= CommandTimeout * 1000L)
+                        && (totalElapsedTime + timer.Elapsed).TotalMilliseconds >= CommandTimeout * 1000L)
                     {
                         break;
                     }
 
                     Thread.Sleep(150);
-
-                    if (CommandTimeout != 0)
-                    {
-                        elapsedTime += StopwatchUtils.GetElapsedTime(startTimestamp);
-                    }
                 }
 
+                totalElapsedTime += timer.Elapsed;
                 start = sql.Length - tail.Length;
 
                 SqliteException.ThrowExceptionForRC(rc, _connection.Handle);

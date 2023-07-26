@@ -74,7 +74,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual void Commit()
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -94,7 +94,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 _dbTransaction,
                 TransactionId,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp));
+                stopwatch.Elapsed);
         }
         catch (Exception e)
         {
@@ -105,7 +105,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "Commit",
                 e,
                 startTime,
-                startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero);
+                stopwatch.Elapsed);
 
             throw;
         }
@@ -117,7 +117,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual void Rollback()
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -137,7 +137,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 _dbTransaction,
                 TransactionId,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp));
+                stopwatch.Elapsed);
         }
         catch (Exception e)
         {
@@ -148,7 +148,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "Rollback",
                 e,
                 startTime,
-                startTimestamp > 0 ? Stopwatch.GetElapsedTime(startTimestamp) : TimeSpan.Zero);
+                stopwatch.Elapsed);
 
             throw;
         }
@@ -160,7 +160,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual async Task CommitAsync(CancellationToken cancellationToken = default)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -182,7 +182,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp),
+                    stopwatch.Elapsed,
                     cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -195,7 +195,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                     "Commit",
                     e,
                     startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp),
+                    stopwatch.Elapsed,
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -209,7 +209,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -231,7 +231,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                     _dbTransaction,
                     TransactionId,
                     startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp),
+                    stopwatch.Elapsed,
                     cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -244,7 +244,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                     "Rollback",
                     e,
                     startTime,
-                    Stopwatch.GetElapsedTime(startTimestamp),
+                    stopwatch.Elapsed,
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -258,7 +258,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual void CreateSavepoint(string name)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -291,7 +291,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "CreateSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp));
+                stopwatch.Elapsed);
 
             throw;
         }
@@ -301,7 +301,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual async Task CreateSavepointAsync(string name, CancellationToken cancellationToken = default)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -337,7 +337,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "CreateSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp),
+                stopwatch.Elapsed,
                 cancellationToken).ConfigureAwait(false);
 
             throw;
@@ -348,7 +348,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual void RollbackToSavepoint(string name)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -381,7 +381,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "RollbackToSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp));
+                stopwatch.Elapsed);
 
             throw;
         }
@@ -391,7 +391,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual async Task RollbackToSavepointAsync(string name, CancellationToken cancellationToken = default)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -427,7 +427,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "RollbackToSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp),
+                stopwatch.Elapsed,
                 cancellationToken).ConfigureAwait(false);
 
             throw;
@@ -438,7 +438,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual void ReleaseSavepoint(string name)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -471,7 +471,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "ReleaseSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp));
+                stopwatch.Elapsed);
 
             throw;
         }
@@ -481,7 +481,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
     public virtual async Task ReleaseSavepointAsync(string name, CancellationToken cancellationToken = default)
     {
         var startTime = DateTimeOffset.UtcNow;
-        var startTimestamp = Stopwatch.GetTimestamp();
+        var stopwatch = SharedStopwatch.StartNew();
 
         try
         {
@@ -517,7 +517,7 @@ public class RelationalTransaction : IDbContextTransaction, IInfrastructure<DbTr
                 "ReleaseSavepoint",
                 e,
                 startTime,
-                Stopwatch.GetElapsedTime(startTimestamp),
+                stopwatch.Elapsed,
                 cancellationToken).ConfigureAwait(false);
 
             throw;
