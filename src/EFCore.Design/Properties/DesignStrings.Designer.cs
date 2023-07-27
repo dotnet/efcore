@@ -134,30 +134,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 entityType);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' has a custom type mapping configured. Configure it in '{customize}' in a partial '{className}' class instead.
-        /// </summary>
-        public static string CompiledModelTypeMapping(object? entityType, object? property, object? customize, object? className)
-            => string.Format(
-                GetString("CompiledModelTypeMapping", nameof(entityType), nameof(property), nameof(customize), nameof(className)),
-                entityType, property, customize, className);
-
-        /// <summary>
-        ///     The property '{entityType}.{property}' has a value comparer configured using a ValueComparer instance. Instead, create types that inherit from ValueConverter and ValueComparer and use '{method}=&lt;ConverterType, ComparerType=&gt;()' or '{method}(Type converterType, Type comparerType)' to configure the value converter and comparer.
-        /// </summary>
-        public static string CompiledModelValueComparer(object? entityType, object? property, object? method)
-            => string.Format(
-                GetString("CompiledModelValueComparer", nameof(entityType), nameof(property), nameof(method)),
-                entityType, property, method);
-
-        /// <summary>
-        ///     The property '{entityType}.{property}' has a value converter configured using a ValueConverter instance or inline expressions. Instead, create a type that inherits from ValueConverter and use '{method}=&lt;ConverterType=&gt;()' or '{method}(Type converterType)' to configure the value converter.
-        /// </summary>
-        public static string CompiledModelValueConverter(object? entityType, object? property, object? method)
-            => string.Format(
-                GetString("CompiledModelValueConverter", nameof(entityType), nameof(property), nameof(method)),
-                entityType, property, method);
-
-        /// <summary>
         ///     The property '{entityType}.{property}' has a value generator configured. Use '{method}' to configure the value generator factory type.
         /// </summary>
         public static string CompiledModelValueGenerator(object? entityType, object? property, object? method)

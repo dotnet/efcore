@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.NativeAotTests.Models;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -51,7 +52,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 (InternalEntityEntry e) => e.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<int>(id, 0),
                 valueBuffer => valueBuffer[0]!));
-            id.TypeMapping = SqlServerTypeMappingSource.Int;
+            id.TypeMapping = IntTypeMapping.Default;
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var name = runtimeEntityType.AddProperty(
@@ -69,7 +70,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 (InternalEntityEntry e) => e.ReadOriginalValue<string>(name, 1),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<string>(name, 1),
                 valueBuffer => valueBuffer[1]!));
-            name.TypeMapping = SqlServerTypeMappingSource.VariableLengthMaxUnicodeString;
+            name.TypeMapping = SqlServerStringTypeMapping.Default;
             name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

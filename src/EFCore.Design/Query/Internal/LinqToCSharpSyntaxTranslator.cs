@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -19,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
+public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSyntaxTranslator
 {
     private sealed record StackFrame(
         Dictionary<ParameterExpression, string> Variables,
@@ -61,7 +62,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public LinqToCSharpTranslator(SyntaxGenerator syntaxGenerator)
+    public LinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator)
         => _g = syntaxGenerator;
 
     /// <summary>
@@ -464,7 +465,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                     var useExplicitVariableType = valueSyntax.Kind() == SyntaxKind.NullLiteralExpression;
 
                     translated = useExplicitVariableType
-                        ? _g.LocalDeclarationStatement(lValue.Type.GetTypeSyntax(), LookupVariableName(lValue), valueSyntax)
+                        ? _g.LocalDeclarationStatement(Translate(lValue.Type), LookupVariableName(lValue), valueSyntax)
                         : _g.LocalDeclarationStatement(LookupVariableName(lValue), valueSyntax);
                 }
 
@@ -564,7 +565,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             // and either add them to the block, or lift them if we're an expression block.
             var unassignedVariableDeclarations =
                 unassignedVariables.Select(
-                    v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(v.Type.GetTypeSyntax(), LookupVariableName(v)));
+                    v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(Translate(v.Type), LookupVariableName(v)));
 
             if (blockContext == ExpressionContext.Expression)
             {
@@ -681,7 +682,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
         var catchDeclaration = noType
             ? null
-            : CatchDeclaration(catchBlock.Test.GetTypeSyntax());
+            : CatchDeclaration(Translate(catchBlock.Test));
 
         if (catchBlock.Variable is not null)
         {
@@ -785,7 +786,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                     var name = UniquifyVariableName("liftedConditional");
                     var parameter = E.Parameter(conditional.Type, name);
                     assignmentVariable = IdentifierName(name);
-                    loweredAssignmentVariableType = parameter.Type.GetTypeSyntax();
+                    loweredAssignmentVariableType = Translate(parameter.Type);
                 }
                 else
                 {
@@ -886,7 +887,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
                 string or bool or null => (ExpressionSyntax)_g.LiteralExpression(constant.Value),
 
-                Type t => TypeOfExpression(t.GetTypeSyntax()),
+                Type t => TypeOfExpression(Translate(t)),
                 Enum e => HandleEnum(e),
 
                 ITuple tuple
@@ -894,6 +895,49 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                          && tupleType.Name.StartsWith("ValueTuple`", StringComparison.Ordinal)
                          && tupleType.Namespace == "System"
                     => HandleValueTuple(tuple),
+
+                IEqualityComparer c
+                    when c == StructuralComparisons.StructuralEqualityComparer
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(StructuralComparisons)),
+                        IdentifierName(nameof(StructuralComparisons.StructuralEqualityComparer))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.InvariantCulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.InvariantCulture))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.InstalledUICulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.InstalledUICulture))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentCulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.CurrentCulture))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.CurrentUICulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.CurrentUICulture))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentCulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.DefaultThreadCurrentCulture))),
+
+                CultureInfo cultureInfo when cultureInfo == CultureInfo.DefaultThreadCurrentUICulture
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(CultureInfo)),
+                        IdentifierName(nameof(CultureInfo.DefaultThreadCurrentUICulture))),
 
                 _ => throw new NotSupportedException(
                     $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported.")
@@ -912,7 +956,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                     var underlyingType = enumType.GetEnumUnderlyingType();
 
                     return CastExpression(
-                        enumType.GetTypeSyntax(),
+                        Translate(enumType),
                         LiteralExpression(
                             SyntaxKind.NumericLiteralExpression,
                             underlyingType == typeof(sbyte)
@@ -961,7 +1005,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     /// <inheritdoc />
     protected override Expression VisitDefault(DefaultExpression node)
     {
-        Result = DefaultExpression(node.Type.GetTypeSyntax());
+        Result = DefaultExpression(Translate(node.Type));
 
         return node;
     }
@@ -1052,6 +1096,110 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         return IdentifierName(_stack.Peek().Labels[labelTarget]);
     }
 
+    private TypeSyntax Translate(Type type)
+    {
+        if (type.IsGenericType)
+        {
+            return GenericName(
+                Identifier(type.Name.Substring(0, type.Name.IndexOf('`'))),
+                TypeArgumentList(SeparatedList(type.GenericTypeArguments.Select(Translate))));
+        }
+
+        if (type == typeof(string))
+        {
+            return PredefinedType(Token(SyntaxKind.StringKeyword));
+        }
+
+        if (type == typeof(bool))
+        {
+            return PredefinedType(Token(SyntaxKind.BoolKeyword));
+        }
+
+        if (type == typeof(byte))
+        {
+            return PredefinedType(Token(SyntaxKind.ByteKeyword));
+        }
+
+        if (type == typeof(sbyte))
+        {
+            return PredefinedType(Token(SyntaxKind.SByteKeyword));
+        }
+
+        if (type == typeof(int))
+        {
+            return PredefinedType(Token(SyntaxKind.IntKeyword));
+        }
+
+        if (type == typeof(uint))
+        {
+            return PredefinedType(Token(SyntaxKind.UIntKeyword));
+        }
+
+        if (type == typeof(short))
+        {
+            return PredefinedType(Token(SyntaxKind.ShortKeyword));
+        }
+
+        if (type == typeof(ushort))
+        {
+            return PredefinedType(Token(SyntaxKind.UShortKeyword));
+        }
+
+        if (type == typeof(long))
+        {
+            return PredefinedType(Token(SyntaxKind.LongKeyword));
+        }
+
+        if (type == typeof(ulong))
+        {
+            return PredefinedType(Token(SyntaxKind.ULongKeyword));
+        }
+
+        if (type == typeof(float))
+        {
+            return PredefinedType(Token(SyntaxKind.FloatKeyword));
+        }
+
+        if (type == typeof(double))
+        {
+            return PredefinedType(Token(SyntaxKind.DoubleKeyword));
+        }
+
+        if (type == typeof(decimal))
+        {
+            return PredefinedType(Token(SyntaxKind.DecimalKeyword));
+        }
+
+        if (type == typeof(char))
+        {
+            return PredefinedType(Token(SyntaxKind.CharKeyword));
+        }
+
+        if (type == typeof(object))
+        {
+            return PredefinedType(Token(SyntaxKind.ObjectKeyword));
+        }
+
+        if (type == typeof(void))
+        {
+            return PredefinedType(Token(SyntaxKind.VoidKeyword));
+        }
+
+        if (type.IsNested)
+        {
+            return QualifiedName(
+                (NameSyntax)Translate(type.DeclaringType!),
+                IdentifierName(type.Name));
+        }
+
+        if (type.Namespace != null)
+        {
+            _collectedNamespaces.Add(type.Namespace);
+        }
+
+        return IdentifierName(type.Name);
+    }
+
     /// <inheritdoc />
     protected override Expression VisitLambda<T>(Expression<T> lambda)
     {
@@ -1088,7 +1236,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         Result = ParenthesizedLambdaExpression(
             ParameterList(SeparatedList(lambda.Parameters.Select(p =>
                 Parameter(Identifier(LookupVariableName(p)))
-                    .WithType(p.Type.IsAnonymousType() ? null : p.Type.GetTypeSyntax())))),
+                    .WithType(p.Type.IsAnonymousType() ? null : Translate(p.Type))))),
             body);
 
         var popped = _stack.Pop();
@@ -1195,7 +1343,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 Result = MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     member.Expression is null
-                        ? member.Type.GetTypeSyntax() // static
+                        ? Translate(member.Member.DeclaringType!) // static
                         : Translate<ExpressionSyntax>(member.Expression),
                     IdentifierName(member.Member.Name));
                 break;
@@ -1255,7 +1403,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 Identifier(call.Method.Name),
                 TypeArgumentList(
                     SeparatedList(
-                        call.Method.GetGenericArguments().Select(ga => ga.GetTypeSyntax()))));
+                        call.Method.GetGenericArguments().Select(Translate))));
         }
 
         // Extension syntax
@@ -1277,10 +1425,10 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 // Static method call. Recursively add MemberAccessExpressions for all declaring types (for methods on nested types)
                 expression = GetMemberAccessesForAllDeclaringTypes(call.Method.DeclaringType);
 
-                static ExpressionSyntax GetMemberAccessesForAllDeclaringTypes(Type type)
+                ExpressionSyntax GetMemberAccessesForAllDeclaringTypes(Type type)
                 {
                     return type.DeclaringType is null
-                        ? type.GetTypeSyntax()
+                        ? Translate(type)
                         : MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             GetMemberAccessesForAllDeclaringTypes(type.DeclaringType),
@@ -1341,8 +1489,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var elementType = newArray.Type.GetElementType()!.GetTypeSyntax();
-
+        var elementType = Translate(newArray.Type.GetElementType()!);
         var expressions = TranslateList(newArray.Expressions);
 
         if (newArray.NodeType == ExpressionType.NewArrayBounds)
@@ -1419,7 +1566,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         {
             // Normal case with plain old instantiation
             Result = ObjectCreationExpression(
-                node.Type.GetTypeSyntax(),
+                Translate(node.Type),
                 ArgumentList(SeparatedList(arguments)),
                 initializer: null);
         }
@@ -1584,7 +1731,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                     var name = UniquifyVariableName("liftedSwitch");
                     var parameter = E.Parameter(switchNode.Type, name);
                     assignmentVariable = IdentifierName(name);
-                    loweredAssignmentVariableType = parameter.Type.GetTypeSyntax();
+                    loweredAssignmentVariableType = Translate(parameter.Type);
                 }
                 else
                 {
@@ -1743,10 +1890,10 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         Result = node.NodeType switch
         {
             ExpressionType.TypeIs
-                => BinaryExpression(SyntaxKind.IsExpression, visitedExpression, node.TypeOperand.GetTypeSyntax()),
+                => BinaryExpression(SyntaxKind.IsExpression, visitedExpression, Translate(node.TypeOperand)),
 
             ExpressionType.TypeEqual
-                => BinaryExpression(SyntaxKind.EqualsExpression, visitedExpression, TypeOfExpression(node.TypeOperand.GetTypeSyntax())),
+                => BinaryExpression(SyntaxKind.EqualsExpression, visitedExpression, TypeOfExpression(Translate(node.TypeOperand))),
 
             _ => throw new ArgumentOutOfRangeException()
         };
@@ -1778,16 +1925,16 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             ExpressionType.IsFalse => _g.LogicalNotExpression(operand),
             ExpressionType.IsTrue => operand,
             ExpressionType.ArrayLength => _g.MemberAccessExpression(operand, "Length"),
-            ExpressionType.Convert => _g.ConvertExpression(unary.Type.GetTypeSyntax(), operand),
-            ExpressionType.ConvertChecked => _g.ConvertExpression(unary.Type.GetTypeSyntax(), operand),
-            ExpressionType.Throw when unary.Type == (typeof(void)) => _g.ThrowStatement(operand),
+            ExpressionType.Convert => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Translate(unary.Type), operand)),
+            ExpressionType.ConvertChecked => ParenthesizedExpression((ExpressionSyntax)_g.ConvertExpression(Translate(unary.Type), operand)),
+            ExpressionType.Throw when unary.Type == typeof(void) => _g.ThrowStatement(operand),
             ExpressionType.Throw => _g.ThrowExpression(operand),
-            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, unary.Type.GetTypeSyntax()),
+            ExpressionType.TypeAs => BinaryExpression(SyntaxKind.AsExpression, operand, Translate(unary.Type)),
             ExpressionType.Quote => operand,
             ExpressionType.UnaryPlus => PrefixUnaryExpression(SyntaxKind.UnaryPlusExpression, operand),
             ExpressionType.Unbox => operand,
-            ExpressionType.Increment => Translate(Expression.Add(unary.Operand, Expression.Constant(1))),
-            ExpressionType.Decrement => Translate(Expression.Subtract(unary.Operand, Expression.Constant(1))),
+            ExpressionType.Increment => Translate(E.Add(unary.Operand, E.Constant(1))),
+            ExpressionType.Decrement => Translate(E.Subtract(unary.Operand, E.Constant(1))),
             ExpressionType.PostIncrementAssign => PostfixUnaryExpression(SyntaxKind.PostIncrementExpression, operand),
             ExpressionType.PostDecrementAssign => PostfixUnaryExpression(SyntaxKind.PostDecrementExpression, operand),
             ExpressionType.PreIncrementAssign => PrefixUnaryExpression(SyntaxKind.PreIncrementExpression, operand),
@@ -2103,10 +2250,10 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
     private readonly struct ContextChanger : IDisposable
     {
-        private readonly LinqToCSharpTranslator _translator;
+        private readonly LinqToCSharpSyntaxTranslator _translator;
         private readonly ExpressionContext _oldContext;
 
-        public ContextChanger(LinqToCSharpTranslator translator, ExpressionContext newContext)
+        public ContextChanger(LinqToCSharpSyntaxTranslator translator, ExpressionContext newContext)
         {
             _translator = translator;
             _oldContext = translator._context;

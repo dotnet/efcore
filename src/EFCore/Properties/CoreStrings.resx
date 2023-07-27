@@ -276,6 +276,9 @@
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>The comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
   </data>
+  <data name="CompiledModelIncompatibleTypeMapping" xml:space="preserve">
+    <value>The type mapping used is incompatible with a compiled model. The mapping type must have a 'public static readonly {typeMapping} {typeMapping}.Default' property.</value>
+  </data>
   <data name="CompiledQueryDifferentModel" xml:space="preserve">
     <value>The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.</value>
   </data>

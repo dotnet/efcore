@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 /// </summary>
 public class SqlServerHierarchyIdTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
 {
-    private readonly SqlServerHierarchyIdTypeMapping _hierarchyId = new("hierarchyid");
-    private readonly SqlServerSqlHierarchyIdTypeMapping _sqlHierarchyId = new("hierarchyid");
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,12 +30,12 @@ public class SqlServerHierarchyIdTypeMappingSourcePlugin : IRelationalTypeMappin
             if (clrType is null
                 || clrType == typeof(HierarchyId))
             {
-                return _hierarchyId;
+                return SqlServerHierarchyIdTypeMapping.Default;
             }
 
             if (clrType == typeof(SqlHierarchyId))
             {
-                return _sqlHierarchyId;
+                return SqlServerSqlHierarchyIdTypeMapping.Default;
             }
 
             return null;
@@ -46,12 +43,12 @@ public class SqlServerHierarchyIdTypeMappingSourcePlugin : IRelationalTypeMappin
 
         if (clrType == typeof(HierarchyId))
         {
-            return _hierarchyId;
+            return SqlServerHierarchyIdTypeMapping.Default;
         }
 
         if (clrType == typeof(SqlHierarchyId))
         {
-            return _sqlHierarchyId;
+            return SqlServerSqlHierarchyIdTypeMapping.Default;
         }
 
         return null;

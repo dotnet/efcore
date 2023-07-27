@@ -168,7 +168,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                 collectionReaderWriter = mappingInfo.JsonValueReaderWriter
                     ?? (JsonValueReaderWriter?)Activator.CreateInstance(
                         (elementType.IsNullableValueType()
-                            ? typeof(JsonNullableStuctsCollectionReaderWriter<,,>)
+                            ? typeof(JsonNullableStructsCollectionReaderWriter<,,>)
                             : typeof(JsonCollectionReaderWriter<,,>))
                         .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
                         elementReader);

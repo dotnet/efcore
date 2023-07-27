@@ -69,7 +69,10 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var currentDirectory = Directory.GetCurrentDirectory();
             var logFile = currentDirectory.Substring(
                     0,
-                    currentDirectory.LastIndexOf("\\artifacts\\", StringComparison.Ordinal) + 1)
+                    currentDirectory.LastIndexOf(
+                        $"{Path.DirectorySeparatorChar}artifacts{Path.DirectorySeparatorChar}",
+                        StringComparison.Ordinal)
+                    + 1)
                 + "QueryBaseline.txt";
 
             var testInfo = testName + " : " + lineNumber + FileNewLine;

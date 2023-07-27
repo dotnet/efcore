@@ -50,15 +50,15 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             "POLYGONZM"
         };
 
-    private const string IntegerTypeName = "INTEGER";
-    private const string RealTypeName = "REAL";
-    private const string BlobTypeName = "BLOB";
-    private const string TextTypeName = "TEXT";
+    internal const string IntegerTypeName = "INTEGER";
+    internal const string RealTypeName = "REAL";
+    internal const string BlobTypeName = "BLOB";
+    internal const string TextTypeName = "TEXT";
 
     private static readonly LongTypeMapping Integer = new(IntegerTypeName);
     private static readonly DoubleTypeMapping Real = new(RealTypeName);
     private static readonly ByteArrayTypeMapping Blob = new(BlobTypeName);
-    private static readonly SqliteStringTypeMapping Text = new(TextTypeName);
+    private static readonly SqliteStringTypeMapping Text = SqliteStringTypeMapping.Default;
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
     {
@@ -72,18 +72,18 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(sbyte), new SByteTypeMapping(IntegerTypeName) },
         { typeof(short), new ShortTypeMapping(IntegerTypeName) },
         { typeof(uint), new UIntTypeMapping(IntegerTypeName) },
-        { typeof(ulong), new SqliteULongTypeMapping(IntegerTypeName) },
+        { typeof(ulong), SqliteULongTypeMapping.Default },
         { typeof(ushort), new UShortTypeMapping(IntegerTypeName) },
-        { typeof(DateTime), new SqliteDateTimeTypeMapping(TextTypeName) },
-        { typeof(DateTimeOffset), new SqliteDateTimeOffsetTypeMapping(TextTypeName) },
+        { typeof(DateTime), SqliteDateTimeTypeMapping.Default },
+        { typeof(DateTimeOffset), SqliteDateTimeOffsetTypeMapping.Default },
         { typeof(TimeSpan), new TimeSpanTypeMapping(TextTypeName) },
-        { typeof(DateOnly), new SqliteDateOnlyTypeMapping(TextTypeName) },
-        { typeof(TimeOnly), new SqliteTimeOnlyTypeMapping(TextTypeName) },
-        { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
+        { typeof(DateOnly), SqliteDateOnlyTypeMapping.Default },
+        { typeof(TimeOnly), SqliteTimeOnlyTypeMapping.Default },
+        { typeof(decimal), SqliteDecimalTypeMapping.Default },
         { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
-        { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) },
-        { typeof(JsonElement), new SqliteJsonTypeMapping(TextTypeName) }
+        { typeof(Guid), SqliteGuidTypeMapping.Default },
+        { typeof(JsonElement), SqliteJsonTypeMapping.Default }
     };
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)

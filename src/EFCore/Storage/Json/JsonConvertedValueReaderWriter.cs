@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -11,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </summary>
 /// <typeparam name="TModel">The model type.</typeparam>
 /// <typeparam name="TProvider">The provider type.</typeparam>
-public class JsonConvertedValueReaderWriter<TModel, TProvider> : JsonValueReaderWriter<TModel>
+public class JsonConvertedValueReaderWriter<TModel, TProvider> :
+    JsonValueReaderWriter<TModel>,
+    IJsonConvertedValueReaderWriter
 {
     private readonly JsonValueReaderWriter<TProvider> _providerReaderWriter;
     private readonly ValueConverter _converter;
@@ -36,4 +39,10 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> : JsonValueReader
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TModel value)
         => _providerReaderWriter.ToJson(writer, (TProvider)_converter.ConvertToProvider(value)!);
+
+    JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
+        => _providerReaderWriter;
+
+    ValueConverter IJsonConvertedValueReaderWriter.Converter
+        => _converter;
 }

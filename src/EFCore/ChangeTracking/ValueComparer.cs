@@ -31,9 +31,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     private static readonly MethodInfo FloatEqualsMethodInfo
         = typeof(float).GetRuntimeMethod(nameof(float.Equals), new[] { typeof(float) })!;
 
-    internal static readonly MethodInfo ArrayCopyMethod
-        = typeof(Array).GetRuntimeMethod(nameof(Array.Copy), new[] { typeof(Array), typeof(Array), typeof(int) })!;
-
     internal static readonly MethodInfo EqualityComparerHashCodeMethod
         = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.GetHashCode), new[] { typeof(object) })!;
 
@@ -42,6 +39,42 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
 
     internal static readonly MethodInfo ObjectGetHashCodeMethod
         = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected static readonly MethodInfo HashCodeAddMethod
+        = typeof(ValueComparer).GetRuntimeMethod(nameof(Add), new[] { typeof(HashCode), typeof(int) })!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected static readonly MethodInfo ToHashCodeMethod
+        = typeof(HashCode).GetRuntimeMethod(nameof(HashCode.ToHashCode), new Type[0])!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected static readonly Expression<Func<bool, bool>> BoolIdentity;
+
+    static ValueComparer()
+    {
+        var param = Expression.Parameter(typeof(bool), "v");
+
+        BoolIdentity = (Expression<Func<bool, bool>>)Expression.Lambda(param, param);
+    }
 
     /// <summary>
     ///     Creates a new <see cref="ValueComparer" /> with the given comparison and
@@ -171,6 +204,19 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             SnapshotExpression.Parameters[0],
             expression,
             SnapshotExpression.Body);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static HashCode Add(HashCode hash, int code)
+    {
+        hash.Add(code);
+        return hash;
     }
 
     /// <summary>

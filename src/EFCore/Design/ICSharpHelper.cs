@@ -331,4 +331,34 @@ public interface ICSharpHelper
     /// <param name="type">The type.</param>
     /// <returns>The usings.</returns>
     IEnumerable<string> GetRequiredUsings(Type type);
+
+    /// <summary>
+    ///     Translates a node representing a statement into source code that would produce it.
+    /// </summary>
+    /// <param name="node">The node to be translated.</param>
+    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
+    /// <returns>Source code that would produce <paramref name="node" />.</returns>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    string Statement(Expression node, ISet<string> collectedNamespaces);
+
+    /// <summary>
+    ///     Translates a node representing an expression into source code that would produce it.
+    /// </summary>
+    /// <param name="node">The node to be translated.</param>
+    /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
+    /// <returns>Source code that would produce  <paramref name="node" />.</returns>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    [EntityFrameworkInternal]
+    string Expression(Expression node, ISet<string> collectedNamespaces);
 }

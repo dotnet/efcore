@@ -1,7 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Reflection.Metadata;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -1495,14 +1499,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             throw new InvalidOperationException(RelationalStrings.CompiledModelFunctionTranslation(function.Name));
         }
 
-        if (function is IConventionDbFunction conventionFunction
-            && conventionFunction.GetTypeMappingConfigurationSource() != null)
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.CompiledModelFunctionTypeMapping(
-                    function.Name, "Customize()", parameters.ClassName));
-        }
-
         AddNamespace(function.ReturnType, parameters.Namespaces);
 
         var code = Dependencies.CSharpHelper;
@@ -1531,8 +1527,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         if (function.MethodInfo != null)
         {
             var method = function.MethodInfo;
+            AddNamespace(method.DeclaringType!, parameters.Namespaces);
             mainBuilder.AppendLine(",")
-                .Append("methodInfo: ").Append(code.Literal(method.DeclaringType!)).AppendLine(".GetMethod(").IncrementIndent()
+                .AppendLine($"methodInfo: {code.Literal(method.DeclaringType!)}.GetMethod(").IncrementIndent()
                 .Append(code.Literal(method.Name!)).AppendLine(",")
                 .Append(method.IsPublic ? "BindingFlags.Public" : "BindingFlags.NonPublic")
                 .Append(method.IsStatic ? " | BindingFlags.Static" : " | BindingFlags.Instance")
@@ -1576,6 +1573,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             Create(parameter, parameters);
         }
 
+        if (function.TypeMapping != null)
+        {
+            mainBuilder.Append(functionVariable).Append(".TypeMapping = ");
+            Create(function.TypeMapping, parameters with { TargetName = functionVariable });
+            mainBuilder.AppendLine(";");
+        }
+
         CreateAnnotations(
             function,
             Generate,
@@ -1597,14 +1601,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
     private void Create(IDbFunctionParameter parameter, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
-        if (parameter is IConventionDbFunctionParameter conventionParameter
-            && conventionParameter.GetTypeMappingConfigurationSource() != null)
-        {
-            throw new InvalidOperationException(
-                RelationalStrings.CompiledModelFunctionParameterTypeMapping(
-                    parameter.Function.Name, parameter.Name, "Customize()", parameters.ClassName));
-        }
-
         AddNamespace(parameter.ClrType, parameters.Namespaces);
 
         var code = Dependencies.CSharpHelper;
@@ -1617,6 +1613,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             .Append(code.Literal(parameter.ClrType)).AppendLine(",")
             .Append(code.Literal(parameter.PropagatesNullability)).AppendLine(",")
             .Append(code.Literal(parameter.StoreType)).AppendLine(");").DecrementIndent();
+
+        mainBuilder.Append(parameterVariable).Append(".TypeMapping = ");
+        Create(parameter.TypeMapping!, parameters with { TargetName = parameterVariable });
+        mainBuilder.AppendLine(";");
 
         CreateAnnotations(
             parameter,
@@ -2089,6 +2089,172 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         annotations.Remove(parameters.IsRuntime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
 
         base.Generate(index, parameters);
+    }
+
+    /// <inheritdoc />
+    public override bool Create(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ValueComparer? valueComparer = null,
+        ValueComparer? keyValueComparer = null,
+        ValueComparer? providerValueComparer = null)
+    {
+        if (typeMapping is not RelationalTypeMapping relationalTypeMapping)
+        {
+            return base.Create(typeMapping, parameters, valueComparer, keyValueComparer, providerValueComparer);
+        }
+
+        var mainBuilder = parameters.MainBuilder;
+        var code = Dependencies.CSharpHelper;
+        if (IsSpatial(relationalTypeMapping))
+        {
+            // Spatial mappings are not supported in the compiled model
+            mainBuilder.Append(code.UnknownLiteral(null));
+            return false;
+        }
+
+        var defaultInstance = (RelationalTypeMapping?)CreateDefaultTypeMapping(relationalTypeMapping, parameters);
+        if (defaultInstance == null)
+        {
+            return true;
+        }
+
+        mainBuilder
+            .AppendLine(".Clone(")
+            .IncrementIndent();
+
+        mainBuilder
+            .Append("comparer: ");
+        Create(valueComparer ?? relationalTypeMapping.Comparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("keyComparer: ");
+        Create(keyValueComparer ?? relationalTypeMapping.KeyComparer, parameters, code);
+
+        mainBuilder.AppendLine(",")
+            .Append("providerValueComparer: ");
+        Create(providerValueComparer ?? relationalTypeMapping.ProviderValueComparer, parameters, code);
+
+        var storeTypeDifferent = relationalTypeMapping.StoreType != defaultInstance.StoreType;
+        var sizeDifferent = relationalTypeMapping.Size != null
+            && relationalTypeMapping.Size != defaultInstance.Size;
+        var precisionDifferent = relationalTypeMapping.Precision != null
+            && relationalTypeMapping.Precision != defaultInstance.Precision;
+        var scaleDifferent = relationalTypeMapping.Scale != null
+            && relationalTypeMapping.Scale != defaultInstance.Scale;
+        var dbTypeDifferent = relationalTypeMapping.DbType != null
+            && relationalTypeMapping.DbType != defaultInstance.DbType;
+        if (storeTypeDifferent || sizeDifferent || precisionDifferent || scaleDifferent || dbTypeDifferent)
+        {
+            AddNamespace(typeof(RelationalTypeMappingInfo), parameters.Namespaces);
+            mainBuilder.AppendLine(",")
+                .AppendLine("mappingInfo: new RelationalTypeMappingInfo(")
+                .IncrementIndent();
+
+            var firstParameter = true;
+            if (storeTypeDifferent)
+            {
+                GenerateArgument(
+                    "storeTypeName", code.Literal(relationalTypeMapping.StoreType), mainBuilder, ref firstParameter);
+            }
+
+            if (sizeDifferent)
+            {
+                GenerateArgument(
+                    "size", code.Literal(relationalTypeMapping.Size), mainBuilder, ref firstParameter);
+            }
+
+            if (precisionDifferent)
+            {
+                GenerateArgument(
+                    "precision", code.Literal(relationalTypeMapping.Precision), mainBuilder, ref firstParameter);
+            }
+
+            if (scaleDifferent)
+            {
+                GenerateArgument(
+                    "scale", code.Literal(relationalTypeMapping.Scale), mainBuilder, ref firstParameter);
+            }
+
+            if (dbTypeDifferent)
+            {
+                GenerateArgument(
+                    "dbType", code.Literal(relationalTypeMapping.DbType!, fullName: true), mainBuilder, ref firstParameter);
+            }
+
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+        }
+
+        if (relationalTypeMapping.Converter != null
+            && relationalTypeMapping.Converter != defaultInstance.Converter)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("converter: ");
+
+            Create(relationalTypeMapping.Converter, parameters, code);
+        }
+
+        var typeDifferent = relationalTypeMapping.Converter == null
+            && relationalTypeMapping.ClrType != defaultInstance.ClrType;
+        if (typeDifferent)
+        {
+            mainBuilder.AppendLine(",")
+                .Append($"clrType: {code.Literal(relationalTypeMapping.ClrType)}");
+        }
+
+        var storeTypePostfixDifferent = relationalTypeMapping.StoreTypePostfix != defaultInstance.StoreTypePostfix;
+        if (storeTypePostfixDifferent)
+        {
+            mainBuilder.AppendLine(",")
+                .Append($"storeTypePostfix: {code.Literal(relationalTypeMapping.StoreTypePostfix)}");
+        }
+
+        if (relationalTypeMapping.JsonValueReaderWriter != null
+            && relationalTypeMapping.JsonValueReaderWriter != defaultInstance.JsonValueReaderWriter)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriter: ");
+
+            CreateJsonValueReaderWriter(relationalTypeMapping.JsonValueReaderWriter, parameters, code);
+        }
+
+        if (relationalTypeMapping.ElementTypeMapping != null
+            && relationalTypeMapping.ElementTypeMapping != defaultInstance.ElementTypeMapping)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("elementMapping: ");
+
+            Create(relationalTypeMapping.ElementTypeMapping, parameters);
+        }
+
+        mainBuilder
+            .Append(")")
+            .DecrementIndent();
+
+        return true;
+
+        static void GenerateArgument(string name, string value, IndentedStringBuilder builder, ref bool firstArgument)
+        {
+            if (!firstArgument)
+            {
+                builder.AppendLine(",");
+            }
+            firstArgument = false;
+            builder.Append($"{name}: {value}");
+        }
+
+        static bool IsSpatial(RelationalTypeMapping relationalTypeMapping)
+            => IsSpatialType(relationalTypeMapping.GetType())
+                || (relationalTypeMapping.ElementTypeMapping is RelationalTypeMapping elementTypeMapping
+                    && IsSpatialType(elementTypeMapping.GetType()));
+
+        static bool IsSpatialType(Type relationalTypeMappingType)
+            => (relationalTypeMappingType.IsGenericType
+                && relationalTypeMappingType.GetGenericTypeDefinition() == typeof(RelationalGeometryTypeMapping<,>))
+                || (relationalTypeMappingType.BaseType != typeof(object)
+                    && IsSpatialType(relationalTypeMappingType.BaseType!));
     }
 
     private static void CreateAnnotations<TAnnotatable>(

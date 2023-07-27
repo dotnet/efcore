@@ -316,6 +316,9 @@ public class ChangeDetectorTest
             CoreTypeMapping elementMapping = null,
             JsonValueReaderWriter jsonValueReaderWriter = null)
             => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
+
+        protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
+            => new ConcreteTypeMapping(parameters);
     }
 
     private class BaxterContext : DbContext
