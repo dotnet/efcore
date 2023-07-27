@@ -37,7 +37,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.IsType(expectedComparer, factory.Create(context.Model.FindEntityType(typeof(Godzilla)).FindProperty(property)));
     }
@@ -47,7 +47,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.Equal(
             CoreStrings.NonComparableKeyType(
@@ -62,7 +62,7 @@ public class CurrentValueComparerTest
     {
         using var context = new GodzillaContext();
 
-        var factory = new CurrentValueComparerFactory();
+        var factory = CurrentValueComparerFactory.Instance;
 
         Assert.Equal(
             CoreStrings.NonComparableKeyTypes(

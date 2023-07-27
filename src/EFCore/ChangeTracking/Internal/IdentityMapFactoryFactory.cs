@@ -20,10 +20,12 @@ public class IdentityMapFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Func<bool, IIdentityMap> Create(IKey key)
-        => (Func<bool, IIdentityMap>)typeof(IdentityMapFactoryFactory)
-            .GetMethod(nameof(CreateFactory), BindingFlags.NonPublic | BindingFlags.Static)!
+        => (Func<bool, IIdentityMap>)GenericCreateFactory
             .MakeGenericMethod(key.GetKeyType())
             .Invoke(null, [key])!;
+
+    private static readonly MethodInfo GenericCreateFactory
+        = typeof(IdentityMapFactoryFactory).GetMethod(nameof(CreateFactory), BindingFlags.Static | BindingFlags.NonPublic)!;
 
     [UsedImplicitly]
     private static Func<bool, IIdentityMap> CreateFactory<TKey>(IKey key)

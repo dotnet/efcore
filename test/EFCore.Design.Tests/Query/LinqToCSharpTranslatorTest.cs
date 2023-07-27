@@ -38,6 +38,10 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
             literalRepresentation);
 
     [Fact]
+    public void Constant_DateTime()
+        => AssertExpression(Constant(default(DateTime)), "default(DateTime)");
+
+    [Fact]
     public void Constant_decimal()
         => AssertExpression(Constant(1.5m), "1.5M");
 
@@ -47,15 +51,15 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
 
     [Fact]
     public void Constant_throws_on_unsupported_type()
-        => Assert.Throws<NotSupportedException>(() => AssertExpression(Constant(default(DateTime)), ""));
+        => Assert.Throws<NotSupportedException>(() => AssertExpression(Constant(DateTime.Now), ""));
 
     [Fact]
     public void Enum()
-        => AssertExpression(Constant(SomeEnum.One), "SomeEnum.One");
+        => AssertExpression(Constant(SomeEnum.One), "LinqToCSharpTranslatorTest.SomeEnum.One");
 
     [Fact]
     public void Enum_with_multiple_values()
-        => AssertExpression(Constant(SomeEnum.One | SomeEnum.Two), "SomeEnum.One | SomeEnum.Two");
+        => AssertExpression(Constant(SomeEnum.One | SomeEnum.Two), "LinqToCSharpTranslatorTest.SomeEnum.One | LinqToCSharpTranslatorTest.SomeEnum.Two");
 
     [Fact]
     public void Enum_with_unknown_value()
@@ -229,7 +233,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
     public void Private_instance_field_read()
         => AssertExpression(
             Field(Parameter(typeof(Blog), "blog"), "_privateField"),
-            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
+            """(int)typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
 
     [Fact]
     public void Private_instance_field_write()
@@ -243,7 +247,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
     public void Internal_instance_field_read()
         => AssertExpression(
             Field(Parameter(typeof(Blog), "blog"), "InternalField"),
-            "blog.InternalField");
+            """(int)typeof(LinqToCSharpTranslatorTest.Blog).GetField("InternalField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
 
     [Fact]
     public void Not()
@@ -402,7 +406,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
     {
         var (translator, _) = CreateTranslator();
         var namespaces = new HashSet<string>();
-        _ = translator.TranslateExpression(Call(FooMethod), namespaces);
+        _ = translator.TranslateExpression(Call(FooMethod), null, null, namespaces);
         Assert.Collection(
             namespaces,
             ns => Assert.Equal(typeof(LinqToCSharpTranslatorTest).Namespace, ns));
@@ -1878,7 +1882,7 @@ catch
         var namespaces = new HashSet<string>();
         var actual = isStatement
             ? translator.Statement(expression, namespaces)
-            : translator.Expression(expression, namespaces);
+            : translator.Expression(expression, null, null, namespaces);
 
         if (_outputExpressionTrees)
         {

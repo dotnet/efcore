@@ -11,7 +11,7 @@ public class CollectionTypeFactoryTest
     [ConditionalFact]
     public void Returns_given_type_if_public_parameterless_constructor_available()
     {
-        var factory = new CollectionTypeFactory();
+        var factory = CollectionTypeFactory.Instance;
 
         Assert.Same(typeof(CustomHashSet), factory.TryFindTypeToInstantiate(typeof(object), typeof(CustomHashSet), false));
         Assert.Same(typeof(CustomList), factory.TryFindTypeToInstantiate(typeof(object), typeof(CustomList), false));
@@ -29,18 +29,18 @@ public class CollectionTypeFactoryTest
     public void Returns_ObservableHashSet_if_notifying_and_assignable()
         => Assert.Same(
             typeof(ObservableHashSet<Random>),
-            new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>), false));
+            CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(DummyNotifying), typeof(ICollection<Random>), false));
 
     [ConditionalFact]
     public void Returns_ObservableHashSet_if_full_notification_required()
         => Assert.Same(
             typeof(ObservableHashSet<Random>),
-            new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>), true));
+            CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>), true));
 
     [ConditionalFact]
     public void Returns_HashSet_if_assignable()
     {
-        var factory = new CollectionTypeFactory();
+        var factory = CollectionTypeFactory.Instance;
 
         Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ICollection<Random>), false));
         Assert.Same(typeof(HashSet<Random>), factory.TryFindTypeToInstantiate(typeof(object), typeof(ISet<Random>), false));
@@ -51,12 +51,12 @@ public class CollectionTypeFactoryTest
     public void Returns_List_if_assignable()
         => Assert.Same(
             typeof(List<Random>),
-            new CollectionTypeFactory().TryFindTypeToInstantiate(typeof(object), typeof(IList<Random>), false));
+            CollectionTypeFactory.Instance.TryFindTypeToInstantiate(typeof(object), typeof(IList<Random>), false));
 
     [ConditionalFact]
     public void Returns_null_when_no_usable_concrete_type_found()
     {
-        var factory = new CollectionTypeFactory();
+        var factory = CollectionTypeFactory.Instance;
 
         Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(PrivateConstructor), false));
         Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(InternalConstructor), false));

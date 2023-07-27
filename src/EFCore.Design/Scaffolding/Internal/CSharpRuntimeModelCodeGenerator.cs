@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using System.Text;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -64,18 +66,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
 
-        var entityTypeIds = new Dictionary<IEntityType, (string Variable, string Class)>();
+        var configurationClassNames = new Dictionary<ITypeBase, string>();
         var modelBuilderCode = CreateModelBuilder(
-            model, options.ModelNamespace, options.ContextType, entityTypeIds, nullable);
+            model, options.ModelNamespace, options.ContextType, configurationClassNames, nullable);
         var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
 
-        foreach (var (entityType, (_, @class)) in entityTypeIds)
+        foreach (var entityType in model.GetEntityTypesInHierarchicalOrder())
         {
             var generatedCode = GenerateEntityType(
-                entityType, options.ModelNamespace, @class, nullable);
+                entityType, options.ModelNamespace, configurationClassNames, nullable);
 
-            var entityTypeFileName = @class + FileExtension;
+            var entityTypeFileName = configurationClassNames[entityType] + FileExtension;
             scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
         }
 
@@ -202,7 +204,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IModel model,
         string @namespace,
         Type contextType,
-        Dictionary<IEntityType, (string Variable, string Class)> entityTypeIds,
+        Dictionary<ITypeBase, string> configurationClassNames,
         bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
@@ -260,6 +262,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 var entityTypes = model.GetEntityTypesInHierarchicalOrder();
                 var variables = new HashSet<string>();
+                var scopeVariables = new Dictionary<object, string>();
 
                 var anyEntityTypes = false;
                 foreach (var entityType in entityTypes)
@@ -272,7 +275,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         ? EntityTypeSuffix + variableName[1..]
                         : char.ToUpperInvariant(firstChar) + variableName[(variableName[0] == '@' ? 2 : 1)..] + EntityTypeSuffix;
 
-                    entityTypeIds[entityType] = (variableName, entityClassName);
+                    configurationClassNames[entityType] = entityClassName;
+                    scopeVariables[entityType] = variableName;
 
                     mainBuilder
                         .Append("var ")
@@ -285,7 +289,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     {
                         mainBuilder
                             .Append(", ")
-                            .Append(entityTypeIds[entityType.BaseType].Variable);
+                            .Append(scopeVariables[entityType.BaseType]);
                     }
 
                     mainBuilder
@@ -298,21 +302,20 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 }
 
                 var anyForeignKeys = false;
-                foreach (var (entityType, namePair) in entityTypeIds)
+                foreach (var entityType in entityTypes)
                 {
                     var foreignKeyNumber = 1;
-                    var (variableName, entityClassName) = namePair;
                     foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
                     {
                         anyForeignKeys = true;
-                        var principalVariable = entityTypeIds[foreignKey.PrincipalEntityType].Variable;
+                        var principalVariable = scopeVariables[foreignKey.PrincipalEntityType];
 
                         mainBuilder
-                            .Append(entityClassName)
+                            .Append(configurationClassNames[entityType])
                             .Append(".CreateForeignKey")
                             .Append(foreignKeyNumber++.ToString())
                             .Append("(")
-                            .Append(variableName)
+                            .Append(scopeVariables[entityType])
                             .Append(", ")
                             .Append(principalVariable)
                             .AppendLine(");");
@@ -325,22 +328,21 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 }
 
                 var anySkipNavigations = false;
-                foreach (var (entityType, namePair) in entityTypeIds)
+                foreach (var entityType in entityTypes)
                 {
                     var navigationNumber = 1;
-                    var (variableName, entityClassName) = namePair;
                     foreach (var navigation in entityType.GetDeclaredSkipNavigations())
                     {
                         anySkipNavigations = true;
-                        var targetVariable = entityTypeIds[navigation.TargetEntityType].Variable;
-                        var joinVariable = entityTypeIds[navigation.JoinEntityType].Variable;
+                        var targetVariable = scopeVariables[navigation.TargetEntityType];
+                        var joinVariable = scopeVariables[navigation.JoinEntityType];
 
                         mainBuilder
-                            .Append(entityClassName)
+                            .Append(configurationClassNames[entityType])
                             .Append(".CreateSkipNavigation")
                             .Append(navigationNumber++.ToString())
                             .Append("(")
-                            .Append(variableName)
+                            .Append(scopeVariables[entityType])
                             .Append(", ")
                             .Append(targetVariable)
                             .Append(", ")
@@ -354,15 +356,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine();
                 }
 
-                foreach (var (_, namePair) in entityTypeIds)
+                foreach (var (entityType, entityClassName) in configurationClassNames)
                 {
-                    var (variableName, entityClassName) = namePair;
-
                     mainBuilder
                         .Append(entityClassName)
                         .Append(".CreateAnnotations")
                         .Append("(")
-                        .Append(variableName)
+                        .Append(scopeVariables[entityType])
                         .AppendLine(");");
                 }
 
@@ -378,6 +378,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     methodBuilder,
                     namespaces,
                     variables,
+                    configurationClassNames,
                     nullable);
 
                 foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
@@ -484,7 +485,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine();
     }
 
-    private string GenerateEntityType(IEntityType entityType, string @namespace, string className, bool nullable)
+    private string GenerateEntityType(IEntityType entityType, string @namespace, Dictionary<ITypeBase, string> entityClassNames, bool nullable)
     {
         var mainBuilder = new IndentedStringBuilder();
         var methodBuilder = new IndentedStringBuilder();
@@ -501,31 +502,38 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.Indent();
         }
 
+        var className = entityClassNames[entityType];
         mainBuilder
             .Append("internal partial class ").AppendLine(className)
             .AppendLine("{");
         using (mainBuilder.Indent())
         {
-            CreateEntityType(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
+            CreateEntityType(entityType, mainBuilder, methodBuilder, namespaces, entityClassNames, nullable);
 
             foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
             {
-                CreateComplexProperty(complexProperty, mainBuilder, methodBuilder, namespaces, className, nullable);
+                CreateComplexProperty(complexProperty, mainBuilder, methodBuilder, namespaces, entityClassNames, className, nullable);
             }
 
             var foreignKeyNumber = 1;
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
-                CreateForeignKey(foreignKey, foreignKeyNumber++, mainBuilder, methodBuilder, namespaces, className, nullable);
+                CreateForeignKey(foreignKey, foreignKeyNumber++, mainBuilder, methodBuilder, namespaces, entityClassNames, className, nullable);
             }
 
             var navigationNumber = 1;
             foreach (var navigation in entityType.GetDeclaredSkipNavigations())
             {
-                CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, className, nullable);
+                CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, entityClassNames, className, nullable);
             }
 
-            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
+            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, entityClassNames, nullable);
+
+            var methods = methodBuilder.ToString();
+            if (!string.IsNullOrEmpty(methods))
+            {
+                mainBuilder.AppendLines(methods);
+            }
         }
 
         mainBuilder.AppendLine("}");
@@ -536,7 +544,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine("}");
         }
 
-        return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder + methodBuilder;
+        return GenerateHeader(namespaces, @namespace, nullable) + mainBuilder;
     }
 
     private void CreateEntityType(
@@ -544,7 +552,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
-        string className,
+        Dictionary<ITypeBase, string> configurationClassNames,
         bool nullable)
     {
         mainBuilder
@@ -560,6 +568,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder.AppendLine(" baseEntityType = null)")
             .AppendLine("{");
 
+        var className = configurationClassNames[entityType];
         using (mainBuilder.Indent())
         {
             const string entityTypeVariable = "runtimeEntityType";
@@ -577,14 +586,15 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 methodBuilder,
                 namespaces,
                 variables,
+                configurationClassNames,
                 nullable);
 
             Create(entityType, parameters);
 
-            var propertyVariables = new Dictionary<IProperty, string>();
+            var propertyVariables = new Dictionary<object, string>();
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                Create(property, propertyVariables, parameters);
+                Create(property, propertyVariables, replacementMethods: null, parameters);
             }
 
             foreach (var property in entityType.GetDeclaredServiceProperties())
@@ -804,13 +814,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void Create(
         IProperty property,
-        Dictionary<IProperty, string> propertyVariables,
+        Dictionary<object, string> knownInstances,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
-        propertyVariables[property] = variableName;
 
-        Create(property, variableName, propertyVariables, parameters);
+        Create(property, variableName, knownInstances, replacementMethods, parameters);
 
         CreateAnnotations(
             property,
@@ -823,7 +833,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private void Create(
         IProperty property,
         string variableName,
-        Dictionary<IProperty, string> propertyVariables,
+        Dictionary<object, string> knownInstances,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var valueGeneratorFactoryType = (Type?)property[CoreAnnotationNames.ValueGeneratorFactoryType];
@@ -982,9 +993,26 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine(");")
             .DecrementIndent();
 
+        var propertyParameters = parameters with { TargetName = variableName };
+
+        SetPropertyBaseProperties(property, knownInstances, replacementMethods, propertyParameters);
+
         mainBuilder.Append(variableName).Append(".TypeMapping = ");
-        _annotationCodeGenerator.Create(property.GetTypeMapping(), property, parameters with { TargetName = variableName });
+        _annotationCodeGenerator.Create(property.GetTypeMapping(), property, propertyParameters);
         mainBuilder.AppendLine(";");
+
+        if (property.IsKey()
+            || property.IsForeignKey()
+            || property.IsUniqueIndex())
+        {
+            var currentComparerType = CurrentValueComparerFactory.Instance.GetComparerType(property);
+            AddNamespace(currentComparerType, parameters.Namespaces);
+
+            mainBuilder
+                .Append(variableName).Append(".SetCurrentValueComparer(new ")
+                .Append(_code.Reference(currentComparerType))
+                .AppendLine($"({variableName}));");
+        }
 
         if (sentinel != null
             && converter != null)
@@ -993,6 +1021,193 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.UnknownLiteral(converter?.ConvertToProvider(sentinel) ?? sentinel))
                 .AppendLine(");");
         }
+    }
+
+    private void
+        SetPropertyBaseProperties(
+        IPropertyBase property,
+        Dictionary<object, string>? knownInstances,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var variableName = parameters.TargetName;
+        var mainBuilder = parameters.MainBuilder;
+        knownInstances ??= new Dictionary<object, string>();
+        knownInstances[property] = variableName;
+        if (!property.IsShadowProperty())
+        {
+            replacementMethods = CreatePrivateAccessors(property, replacementMethods, parameters);
+
+            ClrPropertyGetterFactory.Instance.Create(
+                property,
+                out var getterExpression,
+                out var hasSentinelExpression,
+                out var structuralGetterExpression,
+                out var hasStructuralSentinelExpression);
+
+            mainBuilder
+                .Append(variableName).AppendLine(".SetGetter(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(getterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(_code.Expression(hasSentinelExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(_code.Expression(structuralGetterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(_code.Expression(hasStructuralSentinelExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            ClrPropertySetterFactory.Instance.Create(property, out var setterExpression);
+
+            mainBuilder
+                .Append(variableName).AppendLine(".SetSetter(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(setterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            ClrPropertyMaterializationSetterFactory.Instance.Create(property, out var materializationSetterExpression);
+
+            mainBuilder
+                .Append(variableName).AppendLine(".SetMaterializationSetter(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(materializationSetterExpression, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            PropertyAccessorsFactory.Instance.Create(property,
+                out var currentValueGetter,
+                out var preStoreGeneratedCurrentValueGetter,
+                out var originalValueGetter,
+                out var relationshipSnapshotGetter,
+                out var valueBufferGetter);
+
+            mainBuilder
+                .Append(variableName).AppendLine(".SetAccessors(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(currentValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(_code.Expression(preStoreGeneratedCurrentValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(originalValueGetter == null
+                    ? "null"
+                    : _code.Expression(originalValueGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(_code.Expression(relationshipSnapshotGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(valueBufferGetter == null
+                    ? "null"
+                    : _code.Expression(valueBufferGetter, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+        }
+
+        var propertyIndexes = ((IRuntimePropertyBase)property).PropertyIndexes;
+        mainBuilder
+            .Append(variableName).AppendLine(".SetPropertyIndexes(")
+            .IncrementIndent()
+            .Append("index: ").Append(_code.Literal(propertyIndexes.Index)).AppendLine(",")
+            .Append("originalValueIndex: ").Append(_code.Literal(propertyIndexes.OriginalValueIndex)).AppendLine(",")
+            .Append("shadowIndex: ").Append(_code.Literal(propertyIndexes.ShadowIndex)).AppendLine(",")
+            .Append("relationshipIndex: ").Append(_code.Literal(propertyIndexes.RelationshipIndex)).AppendLine(",")
+            .Append("storeGenerationIndex: ").Append(_code.Literal(propertyIndexes.StoreGenerationIndex)).AppendLine(");")
+            .DecrementIndent();
+    }
+
+    private Dictionary<(MemberInfo, bool), string>? CreatePrivateAccessors(
+        IPropertyBase property,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        bool create = true,
+        bool qualify = false)
+    {
+        if (property.IsShadowProperty()
+            || property.IsIndexerProperty())
+        {
+            return replacementMethods;
+        }
+
+        replacementMethods = CreatePrivateAccessor(property, forMaterialization: false, forSet: false, create, qualify, replacementMethods, parameters);
+        replacementMethods = CreatePrivateAccessor(property, forMaterialization: false, forSet: true, create, qualify, replacementMethods, parameters);
+        replacementMethods = CreatePrivateAccessor(property, forMaterialization: true, forSet: false, create, qualify, replacementMethods, parameters);
+        replacementMethods = CreatePrivateAccessor(property, forMaterialization: true, forSet: true, create, qualify, replacementMethods, parameters);
+
+        return replacementMethods;
+    }
+
+    private Dictionary<(MemberInfo, bool), string>? CreatePrivateAccessor(
+        IPropertyBase property,
+        bool forMaterialization,
+        bool forSet,
+        bool create,
+        bool qualify,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var member = property.GetMemberInfo(forMaterialization, forSet);
+        if (member is not FieldInfo field
+            || field.IsPublic)
+        {
+            return replacementMethods;
+        }
+
+        if (replacementMethods?.ContainsKey((member, forSet)) != true)
+        {
+            replacementMethods ??= new();
+
+            var methodName = (forSet ? "Write" : "Read") + property.Name;
+            if (create)
+            {
+                var methodBuilder = parameters.MethodBuilder;
+                if (!replacementMethods.ContainsKey((member, !forSet)))
+                {
+                    AddNamespace(typeof(UnsafeAccessorAttribute), parameters.Namespaces);
+                    methodBuilder
+                        .AppendLine()
+                        .AppendLine($"[UnsafeAccessor(UnsafeAccessorKind.Field, Name = \"{field.Name}\")]")
+                        .Append($"extern static ref {_code.Reference(member.GetMemberType())} Get{property.Name}(")
+                        .AppendLine($"{_code.Reference(property.DeclaringType.ClrType)} @this);");
+                }
+
+                // Expression trees cannot contain calls to methods that have a ref return, so we need to wrap the call
+                // This approach will not work if the declaring type of the member is a value type
+
+                methodBuilder
+                    .AppendLine()
+                    .Append($"public static {(forSet ? "void" : _code.Reference(member.GetMemberType()))} {methodName}(")
+                    .Append($"{_code.Reference(property.DeclaringType.ClrType)} @this");
+                if (forSet)
+                {
+                    methodBuilder
+                        .Append($", {_code.Reference(member.GetMemberType())} value");
+                }
+
+                methodBuilder
+                    .AppendLine(")")
+                    .IncrementIndent()
+                    .Append($"=> Get{property.Name}(@this)");
+
+                if (forSet)
+                {
+                    methodBuilder
+                        .Append(" = value");
+                }
+
+                methodBuilder
+                    .AppendLine(";")
+                    .DecrementIndent();
+            }
+
+            if (qualify)
+            {
+                methodName = parameters.ConfigurationClassNames[property.DeclaringType] + "." + methodName;
+            }
+
+            replacementMethods.Add((field, forSet), methodName);
+        }
+
+        return replacementMethods;
     }
 
     private static Type? GetValueConverterType(IProperty property)
@@ -1077,7 +1292,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IEnumerable<IProperty> properties,
         IndentedStringBuilder mainBuilder,
         bool nullable,
-        Dictionary<IProperty, string>? propertyVariables = null)
+        Dictionary<object, string>? propertyVariables = null)
     {
         mainBuilder.Append("new[] { ");
         var first = true;
@@ -1139,17 +1354,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine(");")
             .DecrementIndent();
 
-        CreateAnnotations(
-            property,
-            _annotationCodeGenerator.Generate,
-            parameters with { TargetName = variableName });
+        var propertyParameters = parameters with { TargetName = variableName };
+
+        // Service properties don't use property accessors, so don't generate them
+
+        CreateAnnotations(property, _annotationCodeGenerator.Generate, propertyParameters);
 
         mainBuilder.AppendLine();
     }
 
     private void Create(
         IKey key,
-        Dictionary<IProperty, string> propertyVariables,
+        Dictionary<object, string> propertyVariables,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         bool nullable)
     {
@@ -1183,7 +1399,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private void Create(
         IIndex index,
-        Dictionary<IProperty, string> propertyVariables,
+        Dictionary<object, string> propertyVariables,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
         bool nullable)
     {
@@ -1227,17 +1443,21 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
+        Dictionary<ITypeBase, string> configurationClassNames,
         string topClassName,
         bool nullable)
     {
+        var className = _code.Identifier(complexProperty.Name, capitalize: true);
         mainBuilder
             .AppendLine()
-            .Append("private static class ")
-            .Append(_code.Identifier(complexProperty.Name, capitalize: true))
+            .Append("public static class ")
+            .Append(className)
             .AppendLine("ComplexProperty")
             .AppendLine("{");
 
+        methodBuilder = new IndentedStringBuilder();
         var complexType = complexProperty.ComplexType;
+        configurationClassNames[complexType] = configurationClassNames[complexProperty.DeclaringType] + "." + className;
         using (mainBuilder.Indent())
         {
             var declaringTypeVariable = "declaringType";
@@ -1281,6 +1501,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     methodBuilder,
                     namespaces,
                     variables,
+                    configurationClassNames,
                     nullable);
 
                 PropertyBaseParameters(complexProperty, parameters, skipType: true);
@@ -1347,10 +1568,21 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(complexPropertyVariable).AppendLine(".ComplexType;");
 
                 var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
-                var propertyVariables = new Dictionary<IProperty, string>();
+                var complexPropertyParameters = parameters with { TargetName = complexPropertyVariable };
+
+                var knownInstances = new Dictionary<object, string>();
+                Dictionary<(MemberInfo, bool), string>? replacementMethods = null;
+
+                SetPropertyBaseProperties(complexProperty, knownInstances, replacementMethods, complexPropertyParameters);
+
+                foreach (var chainedComplexProperty in complexProperty.GetChainToComplexProperty())
+                {
+                    replacementMethods = CreatePrivateAccessors(chainedComplexProperty, replacementMethods, complexTypeParameters, create: false);
+                }
+
                 foreach (var property in complexType.GetProperties())
                 {
-                    Create(property, propertyVariables, complexTypeParameters);
+                    Create(property, knownInstances, replacementMethods, complexTypeParameters);
                 }
 
                 foreach (var nestedComplexProperty in complexType.GetComplexProperties())
@@ -1364,15 +1596,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                         .AppendLine(");");
                 }
 
-                CreateAnnotations(
-                    complexType,
-                    _annotationCodeGenerator.Generate,
-                    complexTypeParameters);
-
-                CreateAnnotations(
-                    complexProperty,
-                    _annotationCodeGenerator.Generate,
-                    parameters with { TargetName = complexPropertyVariable });
+                CreateAnnotations(complexType, _annotationCodeGenerator.Generate, complexTypeParameters);
+                CreateAnnotations(complexProperty, _annotationCodeGenerator.Generate, complexPropertyParameters);
 
                 mainBuilder
                     .Append("return ")
@@ -1387,8 +1612,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             foreach (var nestedComplexProperty in complexType.GetComplexProperties())
             {
-                CreateComplexProperty(nestedComplexProperty, mainBuilder, methodBuilder, namespaces, topClassName, nullable);
+                CreateComplexProperty(nestedComplexProperty, mainBuilder, methodBuilder, namespaces, configurationClassNames, topClassName, nullable);
             }
+        }
+
+        var methods = methodBuilder.ToString();
+        if (!string.IsNullOrEmpty(methods))
+        {
+            mainBuilder.AppendLines(methods);
         }
 
         mainBuilder.AppendLine("}");
@@ -1400,6 +1631,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
+        Dictionary<ITypeBase, string> configurationClassNames,
         string className,
         bool nullable)
     {
@@ -1487,6 +1719,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 methodBuilder,
                 namespaces,
                 variables,
+                configurationClassNames,
                 nullable);
 
             var navigation = foreignKey.DependentToPrincipal;
@@ -1549,10 +1782,66 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine()
             .DecrementIndent();
 
-        CreateAnnotations(
+        var navigationParameters = parameters with { TargetName = navigationVariable };
+
+        var knownInstances = new Dictionary<object, string>();
+        var replacementMethods = CreatePrivateAccessors(navigation, null, navigationParameters, create: false, qualify: true);
+        SetPropertyBaseProperties(navigation, knownInstances, replacementMethods, navigationParameters);
+
+        SetNavigationBaseProperties(navigation, knownInstances, replacementMethods, navigationParameters);
+
+        CreateAnnotations(navigation, _annotationCodeGenerator.Generate, navigationParameters);
+    }
+
+    private void SetNavigationBaseProperties(
+        INavigationBase navigation,
+        Dictionary<object, string> knownInstances,
+        Dictionary<(MemberInfo, bool), string>? replacementMethods,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!navigation.IsCollection)
+        {
+            return;
+        }
+
+        var mainBuilder = parameters.MainBuilder;
+        ClrCollectionAccessorFactory.Instance.Create(
             navigation,
-            _annotationCodeGenerator.Generate,
-            parameters with { TargetName = navigationVariable });
+            out var entityType,
+            out var propertyType,
+            out var elementType,
+            out var getCollection,
+            out var setCollection,
+            out var setCollectionForMaterialization,
+            out var createAndSetCollection,
+            out var createCollection);
+
+        AddNamespace(propertyType, parameters.Namespaces);
+        mainBuilder
+            .Append(parameters.TargetName)
+            .AppendLine($".SetCollectionAccessor<{_code.Reference(entityType)}, {_code.Reference(propertyType)}, {_code.Reference(elementType)}>(")
+            .IncrementIndent()
+            .AppendLines(getCollection == null
+                ? "null"
+                : _code.Expression(getCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+            .AppendLine(",")
+            .AppendLines(setCollection == null
+                ? "null"
+                : _code.Expression(setCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+            .AppendLine(",")
+            .AppendLines(setCollectionForMaterialization == null
+                ? "null"
+                : _code.Expression(setCollectionForMaterialization, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+            .AppendLine(",")
+            .AppendLines(createAndSetCollection == null
+                ? "null"
+                : _code.Expression(createAndSetCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+            .AppendLine(",")
+            .AppendLines(createCollection == null
+                ? "null"
+                : _code.Expression(createCollection, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+            .AppendLine(");")
+            .DecrementIndent();
     }
 
     private void CreateSkipNavigation(
@@ -1561,6 +1850,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
+        Dictionary<ITypeBase, string> configurationClassNames,
         string className,
         bool nullable)
     {
@@ -1593,6 +1883,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 methodBuilder,
                 namespaces,
                 variables,
+                configurationClassNames,
                 nullable);
 
             mainBuilder
@@ -1662,10 +1953,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .AppendLine("}")
                 .AppendLine();
 
-            CreateAnnotations(
-                navigation,
-                _annotationCodeGenerator.Generate,
-                parameters);
+            var knownInstances = new Dictionary<object, string>();
+            var replacementMethods = new Dictionary<(MemberInfo, bool), string>();
+            SetPropertyBaseProperties(navigation, knownInstances, replacementMethods, parameters);
+
+            SetNavigationBaseProperties(navigation, knownInstances, replacementMethods, parameters);
+
+            CreateAnnotations(navigation, _annotationCodeGenerator.Generate, parameters);
 
             mainBuilder
                 .Append("return ")
@@ -1702,7 +1996,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
-        string className,
+        Dictionary<ITypeBase, string> configurationClassNames,
         bool nullable)
     {
         mainBuilder.AppendLine()
@@ -1710,22 +2004,114 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("(RuntimeEntityType runtimeEntityType)")
             .AppendLine("{");
 
+        var className = configurationClassNames[entityType];
         using (mainBuilder.Indent())
         {
             const string entityTypeVariable = "runtimeEntityType";
             var variables = new HashSet<string> { entityTypeVariable };
 
-            CreateAnnotations(
-                entityType,
-                _annotationCodeGenerator.Generate,
-                new CSharpRuntimeAnnotationCodeGeneratorParameters(
+            var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                     entityTypeVariable,
                     className,
                     mainBuilder,
                     methodBuilder,
                     namespaces,
                     variables,
-                    nullable));
+                    configurationClassNames,
+                    nullable);
+
+            var knownInstances = new Dictionary<object, string>() { { entityType, parameters.TargetName } };
+
+            var baseType = entityType.BaseType;
+            while (baseType != null)
+            {
+                if (!knownInstances.ContainsKey(baseType))
+                {
+                    knownInstances[baseType] = parameters.TargetName;
+                }
+                baseType = baseType.BaseType;
+            }
+
+            Dictionary<(MemberInfo, bool), string>? replacementMethods = null;
+            replacementMethods = GenerateMemberReferences(entityType, knownInstances, replacementMethods, parameters);
+
+            foreach (var navigation in entityType.GetNavigations())
+            {
+                var variableName = _code.Identifier(navigation.Name, parameters.ScopeVariables, capitalize: false);
+                knownInstances[navigation] = variableName;
+
+                replacementMethods = CreatePrivateAccessors(navigation, replacementMethods, parameters, create: navigation.DeclaringType == entityType, qualify: navigation.DeclaringType != entityType);
+
+                mainBuilder
+                    .Append($"var {variableName} = ")
+                    .AppendLine($"{parameters.TargetName}.FindNavigation({_code.Literal(navigation.Name)})!;");
+            }
+
+            var runtimeType = (IRuntimeEntityType)entityType;
+
+            var originalValuesFactory = OriginalValuesFactoryFactory.Instance.CreateExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetOriginalValuesFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(originalValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            var storeGeneratedValuesFactory = StoreGeneratedValuesFactoryFactory.Instance.CreateEmptyExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetStoreGeneratedValuesFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(storeGeneratedValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            var temporaryValuesFactory = TemporaryValuesFactoryFactory.Instance.CreateExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetTemporaryValuesFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(temporaryValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            var shadowValuesFactory = ShadowValuesFactoryFactory.Instance.CreateExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetShadowValuesFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(shadowValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            var emptyShadowValuesFactory = EmptyShadowValuesFactoryFactory.Instance.CreateEmptyExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetEmptyShadowValuesFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(emptyShadowValuesFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            var relationshipSnapshotFactory = RelationshipSnapshotFactoryFactory.Instance.CreateExpression(runtimeType);
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".SetRelationshipSnapshotFactory(")
+                .IncrementIndent()
+                .AppendLines(_code.Expression(relationshipSnapshotFactory, knownInstances, replacementMethods, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(");")
+                .DecrementIndent();
+
+            AddNamespace(typeof(PropertyCounts), parameters.Namespaces);
+            var counts = runtimeType.Counts;
+            mainBuilder
+                .Append(parameters.TargetName).AppendLine(".Counts = new PropertyCounts(")
+                .IncrementIndent()
+                .Append("propertyCount: ").Append(_code.Literal(counts.PropertyCount)).AppendLine(",")
+                .Append("navigationCount: ").Append(_code.Literal(counts.NavigationCount)).AppendLine(",")
+                .Append("complexPropertyCount: ").Append(_code.Literal(counts.ComplexPropertyCount)).AppendLine(",")
+                .Append("originalValueCount: ").Append(_code.Literal(counts.OriginalValueCount)).AppendLine(",")
+                .Append("shadowCount: ").Append(_code.Literal(counts.ShadowCount)).AppendLine(",")
+                .Append("relationshipCount: ").Append(_code.Literal(counts.RelationshipCount)).AppendLine(",")
+                .Append("storeGeneratedCount: ").Append(_code.Literal(counts.StoreGeneratedCount)).AppendLine(");")
+                .DecrementIndent();
+
+            CreateAnnotations(entityType, _annotationCodeGenerator.Generate, parameters);
 
             mainBuilder
                 .AppendLine()
@@ -1736,6 +2122,52 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("}")
             .AppendLine()
             .AppendLine("static partial void Customize(RuntimeEntityType runtimeEntityType);");
+
+        Dictionary<(MemberInfo, bool), string>? GenerateMemberReferences(
+            ITypeBase structuralType,
+            Dictionary<object, string> knownInstances,
+            Dictionary<(MemberInfo, bool), string>? replacementMethods,
+            CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+            bool nested = false)
+        {
+            var mainBuilder = parameters.MainBuilder;
+            foreach (var property in structuralType.GetProperties())
+            {
+                var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
+                knownInstances[property] = variableName;
+
+                replacementMethods = CreatePrivateAccessors(
+                    property, replacementMethods, parameters, create: false, qualify: nested || property.DeclaringType != structuralType);
+
+                mainBuilder
+                    .Append($"var {variableName} = ")
+                    .AppendLine($"{knownInstances[property.DeclaringType]}.FindProperty({_code.Literal(property.Name)})!;");
+            }
+
+            foreach (var complexProperty in structuralType.GetComplexProperties())
+            {
+                var variableName = _code.Identifier(complexProperty.Name, parameters.ScopeVariables, capitalize: false);
+                knownInstances[complexProperty] = variableName;
+
+                replacementMethods = CreatePrivateAccessors(
+                    complexProperty, replacementMethods, parameters, create: false, qualify: nested || complexProperty.DeclaringType != structuralType);
+
+                mainBuilder
+                    .Append($"var {variableName} = ")
+                    .AppendLine($"{knownInstances[complexProperty.DeclaringType]}.FindComplexProperty({_code.Literal(complexProperty.Name)})!;");
+
+                var typeVariableName = _code.Identifier(complexProperty.ComplexType.ShortName(), parameters.ScopeVariables, capitalize: false);
+                knownInstances[complexProperty.ComplexType] = typeVariableName;
+
+                mainBuilder
+                    .Append($"var {typeVariableName} = ")
+                    .AppendLine($"{variableName}.ComplexType;");
+
+                GenerateMemberReferences(complexProperty.ComplexType, knownInstances, replacementMethods, parameters, nested: true);
+            }
+
+            return replacementMethods;
+        }
     }
 
     private static void CreateAnnotations<TAnnotatable>(

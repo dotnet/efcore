@@ -3,9 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
@@ -39,6 +42,12 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0L);
+            principalBaseId.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: 0,
+                relationshipIndex: 0,
+                storeGenerationIndex: 0);
             principalBaseId.TypeMapping = LongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
@@ -54,6 +63,7 @@ namespace TestNamespace
                     (long v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "INTEGER"));
+            principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long>(principalBaseId));
 
             var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
             var principalBaseIdPrincipalBase = new RuntimeRelationalPropertyOverrides(
@@ -71,7 +81,14 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            principalBaseAlternateId.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: 1,
+                relationshipIndex: 1,
+                storeGenerationIndex: 1);
             principalBaseAlternateId.TypeMapping = SqliteGuidTypeMapping.Default;
+            principalBaseAlternateId.SetCurrentValueComparer(new EntryCurrentValueComparer<Guid>(principalBaseAlternateId));
 
             var details = runtimeEntityType.AddProperty(
                 "Details",
@@ -80,6 +97,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            details.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadDetails(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadDetails(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadDetails(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadDetails(instance) == null);
+            details.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, string value) => WriteDetails(entity, value));
+            details.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, string value) => WriteDetails(entity, value));
+            details.SetAccessors(
+                (InternalEntityEntry entry) => ReadDetails((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadDetails((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(details, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(details),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
+            details.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 2,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             details.TypeMapping = SqliteStringTypeMapping.Default;
 
             var overrides0 = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
@@ -99,6 +137,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 sentinel: 0);
+            number.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadNumber(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadNumber(entity) == 0,
+                (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance) == 0);
+            number.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, int value) => WriteNumber(entity, value));
+            number.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, int value) => WriteNumber(entity, value));
+            number.SetAccessors(
+                (InternalEntityEntry entry) => ReadNumber((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadNumber((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(number, 3),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int>(number),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
+            number.SetPropertyIndexes(
+                index: 3,
+                originalValueIndex: 3,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             number.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -122,6 +181,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            refTypeArray.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeArray(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeArray(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance) == null);
+            refTypeArray.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+            refTypeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+            refTypeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 4),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[4]);
+            refTypeArray.SetPropertyIndexes(
+                index: 4,
+                originalValueIndex: 4,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -178,6 +258,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            refTypeEnumerable.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeEnumerable(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance) == null);
+            refTypeEnumerable.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+            refTypeEnumerable.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+            refTypeEnumerable.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 5),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
+            refTypeEnumerable.SetPropertyIndexes(
+                index: 5,
+                originalValueIndex: 5,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -204,6 +305,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            refTypeIList.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeIList(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeIList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance) == null);
+            refTypeIList.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, IList<string> value) => WriteRefTypeIList(entity, value));
+            refTypeIList.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, IList<string> value) => WriteRefTypeIList(entity, value));
+            refTypeIList.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 6),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
+                (ValueBuffer valueBuffer) => valueBuffer[6]);
+            refTypeIList.SetPropertyIndexes(
+                index: 6,
+                originalValueIndex: 6,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -230,6 +352,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            refTypeList.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeList(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadRefTypeList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance) == null);
+            refTypeList.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+            refTypeList.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+            refTypeList.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 7),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
+                (ValueBuffer valueBuffer) => valueBuffer[7]);
+            refTypeList.SetPropertyIndexes(
+                index: 7,
+                originalValueIndex: 7,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -286,6 +429,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            valueTypeArray.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeArray(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeArray(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance) == null);
+            valueTypeArray.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+            valueTypeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+            valueTypeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 8),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[8]);
+            valueTypeArray.SetPropertyIndexes(
+                index: 8,
+                originalValueIndex: 8,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -312,6 +476,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            valueTypeEnumerable.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeEnumerable(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance) == null);
+            valueTypeEnumerable.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+            valueTypeEnumerable.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+            valueTypeEnumerable.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 9),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
+                (ValueBuffer valueBuffer) => valueBuffer[9]);
+            valueTypeEnumerable.SetPropertyIndexes(
+                index: 9,
+                originalValueIndex: 9,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
@@ -352,6 +537,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            valueTypeIList.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeIList(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeIList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance) == null);
+            valueTypeIList.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+            valueTypeIList.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+            valueTypeIList.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 10),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
+                (ValueBuffer valueBuffer) => valueBuffer[10]);
+            valueTypeIList.SetPropertyIndexes(
+                index: 10,
+                originalValueIndex: 10,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
@@ -392,6 +598,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
+            valueTypeList.SetGetter(
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeList(entity),
+                (CompiledModelTestBase.OwnedType entity) => ReadValueTypeList(entity) == null,
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance),
+                (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance) == null);
+            valueTypeList.SetSetter(
+                (CompiledModelTestBase.OwnedType entity, List<short> value) => WriteValueTypeList(entity, value));
+            valueTypeList.SetMaterializationSetter(
+                (CompiledModelTestBase.OwnedType entity, List<short> value) => WriteValueTypeList(entity, value));
+            valueTypeList.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.OwnedType)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 11),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
+                (ValueBuffer valueBuffer) => valueBuffer[11]);
+            valueTypeList.SetPropertyIndexes(
+                index: 11,
+                originalValueIndex: 11,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeList.TypeMapping = SqliteStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
@@ -457,6 +684,27 @@ namespace TestNamespace
                 propertyAccessMode: PropertyAccessMode.Field,
                 eagerLoaded: true);
 
+            owned.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadOwned(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadOwned(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadOwned(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadOwned(instance) == null);
+            owned.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseEntityType.WriteOwned(entity, value));
+            owned.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => PrincipalBaseEntityType.WriteOwned(entity, value));
+            owned.SetAccessors(
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                null,
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.OwnedType>(owned),
+                null);
+            owned.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 2,
+                storeGenerationIndex: -1);
             return runtimeForeignKey;
         }
 
@@ -475,6 +723,46 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId")!;
+            var principalBaseAlternateId = runtimeEntityType.FindProperty("PrincipalBaseAlternateId")!;
+            var details = runtimeEntityType.FindProperty("Details")!;
+            var number = runtimeEntityType.FindProperty("Number")!;
+            var refTypeArray = runtimeEntityType.FindProperty("RefTypeArray")!;
+            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable")!;
+            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList")!;
+            var refTypeList = runtimeEntityType.FindProperty("RefTypeList")!;
+            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray")!;
+            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
+            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
+            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
+            runtimeEntityType.SetOriginalValuesFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.OwnedType)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(((ValueComparer<long>)principalBaseId.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)principalBaseAlternateId.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)number.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)));
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                () => (ISnapshot)new Snapshot<long, Guid>(((ValueComparer<long>)principalBaseId.GetValueComparer()).Snapshot(default(long)), ((ValueComparer<Guid>)principalBaseAlternateId.GetValueComparer()).Snapshot(default(Guid))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                (InternalEntityEntry source) => (ISnapshot)new Snapshot<long, Guid>(default(long), default(Guid)));
+            runtimeEntityType.SetShadowValuesFactory(
+                (IDictionary<string, object> source) => (ISnapshot)new Snapshot<long, Guid>(source.ContainsKey("PrincipalBaseId") ? (long)source["PrincipalBaseId"] : 0L, source.ContainsKey("PrincipalBaseAlternateId") ? (Guid)source["PrincipalBaseAlternateId"] : new Guid("00000000-0000-0000-0000-000000000000")));
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                () => (ISnapshot)new Snapshot<long, Guid>(default(long), default(Guid)));
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.OwnedType)source.Entity;
+                    return (ISnapshot)new Snapshot<long, Guid>(((ValueComparer<long>)principalBaseId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<long>(principalBaseId)), ((ValueComparer<Guid>)principalBaseAlternateId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Guid>(principalBaseAlternateId)));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 12,
+                navigationCount: 0,
+                complexPropertyCount: 0,
+                originalValueCount: 12,
+                shadowCount: 2,
+                relationshipCount: 2,
+                storeGeneratedCount: 2);
             var fragments = new StoreObjectDictionary<RuntimeEntityTypeMappingFragment>();
             var detailsFragment = new RuntimeEntityTypeMappingFragment(
                 runtimeEntityType,
@@ -493,5 +781,95 @@ namespace TestNamespace
         }
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_details")]
+        extern static ref string GetDetails(CompiledModelTestBase.OwnedType @this);
+
+        public static string ReadDetails(CompiledModelTestBase.OwnedType @this)
+            => GetDetails(@this);
+
+        public static void WriteDetails(CompiledModelTestBase.OwnedType @this, string value)
+            => GetDetails(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Number>k__BackingField")]
+        extern static ref int GetNumber(CompiledModelTestBase.OwnedType @this);
+
+        public static int ReadNumber(CompiledModelTestBase.OwnedType @this)
+            => GetNumber(@this);
+
+        public static void WriteNumber(CompiledModelTestBase.OwnedType @this, int value)
+            => GetNumber(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeArray")]
+        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.OwnedType @this);
+
+        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeArray(@this);
+
+        public static void WriteRefTypeArray(CompiledModelTestBase.OwnedType @this, IPAddress[] value)
+            => GetRefTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeEnumerable")]
+        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.OwnedType @this);
+
+        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeEnumerable(@this);
+
+        public static void WriteRefTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<string> value)
+            => GetRefTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeIList")]
+        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.OwnedType @this);
+
+        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeIList(@this);
+
+        public static void WriteRefTypeIList(CompiledModelTestBase.OwnedType @this, IList<string> value)
+            => GetRefTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeList")]
+        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.OwnedType @this);
+
+        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeList(@this);
+
+        public static void WriteRefTypeList(CompiledModelTestBase.OwnedType @this, List<IPAddress> value)
+            => GetRefTypeList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeArray")]
+        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.OwnedType @this);
+
+        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeArray(@this);
+
+        public static void WriteValueTypeArray(CompiledModelTestBase.OwnedType @this, DateTime[] value)
+            => GetValueTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeEnumerable")]
+        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
+
+        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeEnumerable(@this);
+
+        public static void WriteValueTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<byte> value)
+            => GetValueTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
+        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.OwnedType @this);
+
+        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeIList(@this);
+
+        public static void WriteValueTypeIList(CompiledModelTestBase.OwnedType @this, IList<byte> value)
+            => GetValueTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeList")]
+        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.OwnedType @this);
+
+        public static List<short> ReadValueTypeList(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeList(@this);
+
+        public static void WriteValueTypeList(CompiledModelTestBase.OwnedType @this, List<short> value)
+            => GetValueTypeList(@this) = value;
     }
 }

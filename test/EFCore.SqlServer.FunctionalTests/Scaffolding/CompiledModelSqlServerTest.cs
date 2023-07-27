@@ -54,14 +54,12 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
             eb =>
             {
-                eb.OwnsMany(
-                    typeof(OwnedType).FullName!, "ManyOwned", ob =>
-                    {
-                        if (!jsonColumns)
+                eb.HasMany(e => e.Principals).WithMany(e => (ICollection<PrincipalDerived<DependentBase<byte?>>>)e.Deriveds)
+                    .UsingEntity(
+                        jb =>
                         {
-                            ob.ToTable("ManyOwned", t => t.IsMemoryOptimized());
-                        }
-                    });
+                            jb.ToTable(tb => tb.IsMemoryOptimized());
+                        });
             });
 
         modelBuilder.Entity<ManyTypes>(
@@ -157,17 +155,12 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>))!;
         var ownedCollectionNavigation = principalDerived.GetDeclaredNavigations().Last();
         var collectionOwnedType = ownedCollectionNavigation.TargetEntityType;
-        if (jsonColumns)
-        {
-            Assert.False(collectionOwnedType.IsMemoryOptimized());
-        }
-        else
-        {
-            Assert.True(collectionOwnedType.IsMemoryOptimized());
-        }
+        Assert.False(collectionOwnedType.IsMemoryOptimized());
 
         var derivedSkipNavigation = principalDerived.GetDeclaredSkipNavigations().Single();
         var joinType = derivedSkipNavigation.JoinEntityType;
+        Assert.True(joinType.IsMemoryOptimized());
+
         var rowid = joinType.GetProperties().Single(p => !p.IsForeignKey());
         Assert.Equal("rowversion", rowid.GetColumnType());
         Assert.Equal(SqlServerValueGenerationStrategy.None, rowid.GetValueGenerationStrategy());

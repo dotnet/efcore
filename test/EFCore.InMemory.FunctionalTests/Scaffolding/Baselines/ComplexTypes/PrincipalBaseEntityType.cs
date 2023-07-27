@@ -3,11 +3,15 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -42,6 +46,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw);
+            id.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadId(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => !ReadId(entity).HasValue,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadId(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => !ReadId(instance).HasValue);
+            id.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => WriteId(entity, value));
+            id.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) => WriteId(entity, value));
+            id.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<Nullable<long>>(0) : entry.FlaggedAsTemporary(0) && !ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity).HasValue ? entry.ReadTemporaryValue<Nullable<long>>(0) : ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(id, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<Nullable<long>>(id, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
+            id.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: -1,
+                relationshipIndex: 0,
+                storeGenerationIndex: 0);
             id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
@@ -57,12 +82,19 @@ namespace TestNamespace
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+            id.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(id));
 
             var discriminator = runtimeEntityType.AddProperty(
                 "Discriminator",
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: 0,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             discriminator.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -85,6 +117,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (CompiledModelTestBase.AnEnum)0);
+            enum1.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadEnum1(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadEnum1(entity), (object)(CompiledModelTestBase.AnEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadEnum1(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadEnum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
+            enum1.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => WriteEnum1(entity, value));
+            enum1.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) => WriteEnum1(entity, value));
+            enum1.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
+            enum1.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 2,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                     (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
@@ -107,6 +160,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            enum2.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadEnum2(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => !ReadEnum2(entity).HasValue,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadEnum2(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => !ReadEnum2(instance).HasValue);
+            enum2.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => WriteEnum2(entity, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value));
+            enum2.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) => WriteEnum2(entity, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value));
+            enum2.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2, 3),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
+            enum2.SetPropertyIndexes(
+                index: 3,
+                originalValueIndex: 3,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                     (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
@@ -129,6 +203,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (CompiledModelTestBase.AFlagsEnum)0);
+            flagsEnum1.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadFlagsEnum1(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadFlagsEnum1(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum1(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+            flagsEnum1.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum1(entity, value));
+            flagsEnum1.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum1(entity, value));
+            flagsEnum1.SetAccessors(
+                (InternalEntityEntry entry) => ReadFlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadFlagsEnum1((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 4),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1),
+                (ValueBuffer valueBuffer) => valueBuffer[4]);
+            flagsEnum1.SetPropertyIndexes(
+                index: 4,
+                originalValueIndex: 4,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             flagsEnum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
@@ -151,6 +246,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (CompiledModelTestBase.AFlagsEnum)0);
+            flagsEnum2.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadFlagsEnum2(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)ReadFlagsEnum2(entity), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum2(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+            flagsEnum2.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum2(entity, value));
+            flagsEnum2.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) => WriteFlagsEnum2(entity, value));
+            flagsEnum2.SetAccessors(
+                (InternalEntityEntry entry) => ReadFlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadFlagsEnum2((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 5),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
+            flagsEnum2.SetPropertyIndexes(
+                index: 5,
+                originalValueIndex: 5,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             flagsEnum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                     (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
@@ -171,6 +287,12 @@ namespace TestNamespace
                 "PrincipalBaseId",
                 typeof(long?),
                 nullable: true);
+            principalBaseId.SetPropertyIndexes(
+                index: 6,
+                originalValueIndex: 6,
+                shadowIndex: 1,
+                relationshipIndex: 1,
+                storeGenerationIndex: 1);
             principalBaseId.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
@@ -186,6 +308,7 @@ namespace TestNamespace
                     (Nullable<long> v) => v.HasValue ? (Nullable<long>)(long)v : default(Nullable<long>)),
                 clrType: typeof(long),
                 jsonValueReaderWriter: JsonInt64ReaderWriter.Instance);
+            principalBaseId.SetCurrentValueComparer(new EntryCurrentValueComparer<long?>(principalBaseId));
 
             var refTypeArray = runtimeEntityType.AddProperty(
                 "RefTypeArray",
@@ -193,6 +316,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            refTypeArray.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeArray(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeArray(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance) == null);
+            refTypeArray.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+            refTypeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) => WriteRefTypeArray(entity, value));
+            refTypeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 7),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[7]);
+            refTypeArray.SetPropertyIndexes(
+                index: 7,
+                originalValueIndex: 7,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -246,6 +390,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            refTypeEnumerable.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeEnumerable(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance) == null);
+            refTypeEnumerable.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+            refTypeEnumerable.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) => WriteRefTypeEnumerable(entity, value));
+            refTypeEnumerable.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 8),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
+                (ValueBuffer valueBuffer) => valueBuffer[8]);
+            refTypeEnumerable.SetPropertyIndexes(
+                index: 8,
+                originalValueIndex: 8,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -285,6 +450,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            refTypeIList.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeIList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeIList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance) == null);
+            refTypeIList.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => WriteRefTypeIList(entity, value));
+            refTypeIList.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IList<string> value) => WriteRefTypeIList(entity, value));
+            refTypeIList.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 9),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
+                (ValueBuffer valueBuffer) => valueBuffer[9]);
+            refTypeIList.SetPropertyIndexes(
+                index: 9,
+                originalValueIndex: 9,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -324,6 +510,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            refTypeList.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadRefTypeList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance) == null);
+            refTypeList.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+            refTypeList.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) => WriteRefTypeList(entity, value));
+            refTypeList.SetAccessors(
+                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadRefTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 10),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
+                (ValueBuffer valueBuffer) => valueBuffer[10]);
+            refTypeList.SetPropertyIndexes(
+                index: 10,
+                originalValueIndex: 10,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             refTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -377,6 +584,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            valueTypeArray.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeArray(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeArray(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance) == null);
+            valueTypeArray.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+            valueTypeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) => WriteValueTypeArray(entity, value));
+            valueTypeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeArray((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 11),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[11]);
+            valueTypeArray.SetPropertyIndexes(
+                index: 11,
+                originalValueIndex: 11,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -416,6 +644,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            valueTypeEnumerable.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeEnumerable(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeEnumerable(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance) == null);
+            valueTypeEnumerable.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+            valueTypeEnumerable.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) => WriteValueTypeEnumerable(entity, value));
+            valueTypeEnumerable.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeEnumerable((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 12),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
+                (ValueBuffer valueBuffer) => valueBuffer[12]);
+            valueTypeEnumerable.SetPropertyIndexes(
+                index: 12,
+                originalValueIndex: 12,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
@@ -455,6 +704,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            valueTypeIList.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeIList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeIList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance) == null);
+            valueTypeIList.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+            valueTypeIList.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) => WriteValueTypeIList(entity, value));
+            valueTypeIList.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeIList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 13),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
+                (ValueBuffer valueBuffer) => valueBuffer[13]);
+            valueTypeIList.SetPropertyIndexes(
+                index: 13,
+                originalValueIndex: 13,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte>(new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
@@ -494,6 +764,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            valueTypeList.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeList(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => ReadValueTypeList(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance) == null);
+            valueTypeList.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => WriteValueTypeList(entity, value));
+            valueTypeList.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, List<short> value) => WriteValueTypeList(entity, value));
+            valueTypeList.SetAccessors(
+                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => ReadValueTypeList((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 14),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
+                (ValueBuffer valueBuffer) => valueBuffer[14]);
+            valueTypeList.SetPropertyIndexes(
+                index: 14,
+                originalValueIndex: 14,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                 comparer: new ListComparer<short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
@@ -538,7 +829,7 @@ namespace TestNamespace
             return runtimeEntityType;
         }
 
-        private static class OwnedComplexProperty
+        public static class OwnedComplexProperty
         {
             public static RuntimeComplexProperty Create(RuntimeEntityType declaringType)
             {
@@ -554,6 +845,27 @@ namespace TestNamespace
                     complexPropertyCount: 1);
 
                 var complexType = complexProperty.ComplexType;
+                complexProperty.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity),
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null,
+                    (CompiledModelTestBase.PrincipalBase instance) => ReadOwned(instance),
+                    (CompiledModelTestBase.PrincipalBase instance) => ReadOwned(instance) == null);
+                complexProperty.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => WriteOwned(entity, value));
+                complexProperty.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.OwnedType value) => WriteOwned(entity, value));
+                complexProperty.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                    null,
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.OwnedType>(complexProperty),
+                    null);
+                complexProperty.SetPropertyIndexes(
+                    index: 0,
+                    originalValueIndex: -1,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 var details = complexType.AddProperty(
                     "Details",
                     typeof(string),
@@ -570,6 +882,35 @@ namespace TestNamespace
                     precision: 3,
                     scale: 2,
                     sentinel: "");
+                details.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details,
+                    (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details) == null) && (ReadOwned(entity) == null ? default(string) : ReadOwned(entity).Details) == "",
+                    (CompiledModelTestBase.OwnedType instance) => instance.Details,
+                    (CompiledModelTestBase.OwnedType instance) => !(instance.Details == null) && instance.Details == "");
+                details.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, string value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        level1.Details = value;
+                    });
+                details.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, string value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        level1.Details = value;
+                    });
+                details.SetAccessors(
+                    (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(15) ? entry.ReadStoreGeneratedValue<string>(2) : entry.FlaggedAsTemporary(15) && !((ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == null) && (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details) == "" ? entry.ReadTemporaryValue<string>(2) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(string) : ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity).Details,
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(details, 15),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<string>(details),
+                    (ValueBuffer valueBuffer) => valueBuffer[15]);
+                details.SetPropertyIndexes(
+                    index: 15,
+                    originalValueIndex: 15,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: 2);
                 details.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
@@ -593,6 +934,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     sentinel: 0);
+                number.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(int) : ReadNumber(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(int) : ReadNumber(ReadOwned(entity))) == 0,
+                    (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadNumber(instance) == 0);
+                number.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, int value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteNumber(level1, value);
+                    });
+                number.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, int value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteNumber(level1, value);
+                    });
+                number.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : ReadNumber(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(int) : ReadNumber(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(number, 16),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<int>(number),
+                    (ValueBuffer valueBuffer) => valueBuffer[16]);
+                number.SetPropertyIndexes(
+                    index: 16,
+                    originalValueIndex: 16,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 number.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ValueComparer<int>(
                         (int v1, int v2) => v1 == v2,
@@ -615,6 +985,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("RefTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                refTypeArray.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeArray(instance) == null);
+                refTypeArray.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeArray(level1, value);
+                    });
+                refTypeArray.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeArray(level1, value);
+                    });
+                refTypeArray.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 17),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
+                    (ValueBuffer valueBuffer) => valueBuffer[17]);
+                refTypeArray.SetPropertyIndexes(
+                    index: 17,
+                    originalValueIndex: 17,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 refTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -668,6 +1067,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("RefTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                refTypeEnumerable.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeEnumerable(instance) == null);
+                refTypeEnumerable.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeEnumerable(level1, value);
+                    });
+                refTypeEnumerable.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeEnumerable(level1, value);
+                    });
+                refTypeEnumerable.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 18),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
+                    (ValueBuffer valueBuffer) => valueBuffer[18]);
+                refTypeEnumerable.SetPropertyIndexes(
+                    index: 18,
+                    originalValueIndex: 18,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 refTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
@@ -707,6 +1135,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("RefTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeIList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                refTypeIList.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeIList(instance) == null);
+                refTypeIList.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeIList(level1, value);
+                    });
+                refTypeIList.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeIList(level1, value);
+                    });
+                refTypeIList.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 19),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
+                    (ValueBuffer valueBuffer) => valueBuffer[19]);
+                refTypeIList.SetPropertyIndexes(
+                    index: 19,
+                    originalValueIndex: 19,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 refTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<string>(new ValueComparer<string>(
                         (string v1, string v2) => v1 == v2,
@@ -746,6 +1203,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("RefTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_refTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                refTypeList.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadRefTypeList(instance) == null);
+                refTypeList.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeList(level1, value);
+                    });
+                refTypeList.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteRefTypeList(level1, value);
+                    });
+                refTypeList.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 20),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
+                    (ValueBuffer valueBuffer) => valueBuffer[20]);
+                refTypeList.SetPropertyIndexes(
+                    index: 20,
+                    originalValueIndex: 20,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 refTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                         (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -799,6 +1285,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("ValueTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeArray", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                valueTypeArray.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeArray(instance) == null);
+                valueTypeArray.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeArray(level1, value);
+                    });
+                valueTypeArray.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeArray(level1, value);
+                    });
+                valueTypeArray.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 21),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
+                    (ValueBuffer valueBuffer) => valueBuffer[21]);
+                valueTypeArray.SetPropertyIndexes(
+                    index: 21,
+                    originalValueIndex: 21,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 valueTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
                         (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -838,6 +1353,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("ValueTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeEnumerable", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                valueTypeEnumerable.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeEnumerable(instance) == null);
+                valueTypeEnumerable.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeEnumerable(level1, value);
+                    });
+                valueTypeEnumerable.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeEnumerable(level1, value);
+                    });
+                valueTypeEnumerable.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 22),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
+                    (ValueBuffer valueBuffer) => valueBuffer[22]);
+                valueTypeEnumerable.SetPropertyIndexes(
+                    index: 22,
+                    originalValueIndex: 22,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
@@ -877,6 +1421,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("ValueTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                valueTypeIList.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeIList(instance) == null);
+                valueTypeIList.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeIList(level1, value);
+                    });
+                valueTypeIList.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeIList(level1, value);
+                    });
+                valueTypeIList.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 23),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
+                    (ValueBuffer valueBuffer) => valueBuffer[23]);
+                valueTypeIList.SetPropertyIndexes(
+                    index: 23,
+                    originalValueIndex: 23,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<byte>(new ValueComparer<byte>(
                         (byte v1, byte v2) => v1 == v2,
@@ -916,6 +1489,35 @@ namespace TestNamespace
                     propertyInfo: typeof(CompiledModelTestBase.OwnedType).GetProperty("ValueTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     fieldInfo: typeof(CompiledModelTestBase.OwnedType).GetField("_valueTypeList", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                     nullable: true);
+                valueTypeList.SetGetter(
+                    (CompiledModelTestBase.PrincipalBase entity) => ReadOwned(entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity)),
+                    (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity))) == null,
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance),
+                    (CompiledModelTestBase.OwnedType instance) => ReadValueTypeList(instance) == null);
+                valueTypeList.SetSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeList(level1, value);
+                    });
+                valueTypeList.SetMaterializationSetter(
+                    (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                    {
+                        var level1 = ReadOwned(entity);
+                        WriteValueTypeList(level1, value);
+                    });
+                valueTypeList.SetAccessors(
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                    (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 24),
+                    (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
+                    (ValueBuffer valueBuffer) => valueBuffer[24]);
+                valueTypeList.SetPropertyIndexes(
+                    index: 24,
+                    originalValueIndex: 24,
+                    shadowIndex: -1,
+                    relationshipIndex: -1,
+                    storeGenerationIndex: -1);
                 valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                     comparer: new ListComparer<short>(new ValueComparer<short>(
                         (short v1, short v2) => v1 == v2,
@@ -955,7 +1557,7 @@ namespace TestNamespace
                 return complexProperty;
             }
 
-            private static class PrincipalComplexProperty
+            public static class PrincipalComplexProperty
             {
                 public static RuntimeComplexProperty Create(RuntimeComplexType declaringType)
                 {
@@ -968,11 +1570,71 @@ namespace TestNamespace
                         propertyCount: 14);
 
                     var complexType = complexProperty.ComplexType;
+                    complexProperty.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity)),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity))) == null,
+                        (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance),
+                        (CompiledModelTestBase.OwnedType instance) => ReadPrincipal(instance) == null);
+                    complexProperty.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
+                        {
+                            var level1 = (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity);
+                            WritePrincipal(level1, value);
+                        });
+                    complexProperty.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.PrincipalBase value) =>
+                        {
+                            var level1 = (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(entity);
+                            WritePrincipal(level1, value);
+                        });
+                    complexProperty.SetAccessors(
+                        (InternalEntityEntry entry) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        (InternalEntityEntry entry) => (CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal((CompiledModelTestBase.OwnedType)typeof(CompiledModelTestBase.PrincipalBase).GetField("_ownedField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue((CompiledModelTestBase.PrincipalBase)entry.Entity)),
+                        null,
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.PrincipalBase>(complexProperty),
+                        null);
+                    complexProperty.SetPropertyIndexes(
+                        index: 1,
+                        originalValueIndex: -1,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     var alternateId = complexType.AddProperty(
                         "AlternateId",
                         typeof(Guid),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+                    alternateId.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Guid) : (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))).AlternateId,
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Guid) : (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))).AlternateId) == new Guid("00000000-0000-0000-0000-000000000000"),
+                        (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId,
+                        (CompiledModelTestBase.PrincipalBase instance) => instance.AlternateId == new Guid("00000000-0000-0000-0000-000000000000"));
+                    alternateId.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            level2.AlternateId = value;
+                        });
+                    alternateId.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Guid value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            level2.AlternateId = value;
+                        });
+                    alternateId.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Guid) : (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))).AlternateId,
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(alternateId, 25),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<Guid>(alternateId),
+                        (ValueBuffer valueBuffer) => valueBuffer[25]);
+                    alternateId.SetPropertyIndexes(
+                        index: 25,
+                        originalValueIndex: 25,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     alternateId.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<Guid>(
                             (Guid v1, Guid v2) => v1 == v2,
@@ -995,6 +1657,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         sentinel: (CompiledModelTestBase.AnEnum)0);
+                    enum1.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AnEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadEnum1(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadEnum1(instance), (object)(CompiledModelTestBase.AnEnum)0L));
+                    enum1.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteEnum1(level2, value);
+                        });
+                    enum1.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AnEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteEnum1(level2, value);
+                        });
+                    enum1.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AnEnum) : ReadEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AnEnum>(enum1, 26),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1),
+                        (ValueBuffer valueBuffer) => valueBuffer[26]);
+                    enum1.SetPropertyIndexes(
+                        index: 26,
+                        originalValueIndex: 26,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     enum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum>(
                             (CompiledModelTestBase.AnEnum v1, CompiledModelTestBase.AnEnum v2) => object.Equals((object)v1, (object)v2),
@@ -1017,6 +1710,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Enum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    enum2.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))).HasValue,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadEnum2(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => !ReadEnum2(instance).HasValue);
+                    enum2.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteEnum2(level2, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
+                        });
+                    enum2.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Nullable<CompiledModelTestBase.AnEnum> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteEnum2(level2, value == null ? value : (Nullable<CompiledModelTestBase.AnEnum>)(CompiledModelTestBase.AnEnum)value);
+                        });
+                    enum2.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<CompiledModelTestBase.AnEnum>) : ReadEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2, 27),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2),
+                        (ValueBuffer valueBuffer) => valueBuffer[27]);
+                    enum2.SetPropertyIndexes(
+                        index: 27,
+                        originalValueIndex: 27,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     enum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AnEnum?>(
                             (Nullable<CompiledModelTestBase.AnEnum> v1, Nullable<CompiledModelTestBase.AnEnum> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.AnEnum)v1, (object)(CompiledModelTestBase.AnEnum)v2) || !v1.HasValue && !v2.HasValue,
@@ -1039,6 +1763,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         sentinel: (CompiledModelTestBase.AFlagsEnum)0);
+                    flagsEnum1.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum1(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum1(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                    flagsEnum1.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteFlagsEnum1(level2, value);
+                        });
+                    flagsEnum1.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteFlagsEnum1(level2, value);
+                        });
+                    flagsEnum1.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum1(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1, 28),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1),
+                        (ValueBuffer valueBuffer) => valueBuffer[28]);
+                    flagsEnum1.SetPropertyIndexes(
+                        index: 28,
+                        originalValueIndex: 28,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     flagsEnum1.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
@@ -1061,6 +1816,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         sentinel: (CompiledModelTestBase.AFlagsEnum)0);
+                    flagsEnum2.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => object.Equals((object)((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))), (object)(CompiledModelTestBase.AFlagsEnum)0L),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadFlagsEnum2(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => object.Equals((object)ReadFlagsEnum2(instance), (object)(CompiledModelTestBase.AFlagsEnum)0L));
+                    flagsEnum2.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteFlagsEnum2(level2, value);
+                        });
+                    flagsEnum2.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, CompiledModelTestBase.AFlagsEnum value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteFlagsEnum2(level2, value);
+                        });
+                    flagsEnum2.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(CompiledModelTestBase.AFlagsEnum) : ReadFlagsEnum2(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2, 29),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2),
+                        (ValueBuffer valueBuffer) => valueBuffer[29]);
+                    flagsEnum2.SetPropertyIndexes(
+                        index: 29,
+                        originalValueIndex: 29,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     flagsEnum2.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<CompiledModelTestBase.AFlagsEnum>(
                             (CompiledModelTestBase.AFlagsEnum v1, CompiledModelTestBase.AFlagsEnum v2) => object.Equals((object)v1, (object)v2),
@@ -1083,6 +1869,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    id.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => !((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))).HasValue,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadId(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => !ReadId(instance).HasValue);
+                    id.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteId(level2, value);
+                        });
+                    id.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, Nullable<long> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteId(level2, value);
+                        });
+                    id.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(Nullable<long>) : ReadId(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(id, 30),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<long>>(id),
+                        (ValueBuffer valueBuffer) => valueBuffer[30]);
+                    id.SetPropertyIndexes(
+                        index: 30,
+                        originalValueIndex: 30,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     id.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ValueComparer<long?>(
                             (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
@@ -1105,6 +1922,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    refTypeArray.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeArray(instance) == null);
+                    refTypeArray.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeArray(level2, value);
+                        });
+                    refTypeArray.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IPAddress[] value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeArray(level2, value);
+                        });
+                    refTypeArray.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IPAddress[]) : ReadRefTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(refTypeArray, 31),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(refTypeArray),
+                        (ValueBuffer valueBuffer) => valueBuffer[31]);
+                    refTypeArray.SetPropertyIndexes(
+                        index: 31,
+                        originalValueIndex: 31,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     refTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1158,6 +2006,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    refTypeEnumerable.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeEnumerable(instance) == null);
+                    refTypeEnumerable.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeEnumerable(level2, value);
+                        });
+                    refTypeEnumerable.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<string> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeEnumerable(level2, value);
+                        });
+                    refTypeEnumerable.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<string>) : ReadRefTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<string>>(refTypeEnumerable, 32),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable),
+                        (ValueBuffer valueBuffer) => valueBuffer[32]);
+                    refTypeEnumerable.SetPropertyIndexes(
+                        index: 32,
+                        originalValueIndex: 32,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     refTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
@@ -1197,6 +2076,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    refTypeIList.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeIList(instance) == null);
+                    refTypeIList.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeIList(level2, value);
+                        });
+                    refTypeIList.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IList<string> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeIList(level2, value);
+                        });
+                    refTypeIList.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<string>) : ReadRefTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<string>>(refTypeIList, 33),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<IList<string>>(refTypeIList),
+                        (ValueBuffer valueBuffer) => valueBuffer[33]);
+                    refTypeIList.SetPropertyIndexes(
+                        index: 33,
+                        originalValueIndex: 33,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     refTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<string>(new ValueComparer<string>(
                             (string v1, string v2) => v1 == v2,
@@ -1236,6 +2146,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("RefTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<RefTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    refTypeList.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadRefTypeList(instance) == null);
+                    refTypeList.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeList(level2, value);
+                        });
+                    refTypeList.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, List<IPAddress> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteRefTypeList(level2, value);
+                        });
+                    refTypeList.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<IPAddress>) : ReadRefTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<List<IPAddress>>(refTypeList, 34),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<List<IPAddress>>(refTypeList),
+                        (ValueBuffer valueBuffer) => valueBuffer[34]);
+                    refTypeList.SetPropertyIndexes(
+                        index: 34,
+                        originalValueIndex: 34,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     refTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                             (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -1289,6 +2230,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    valueTypeArray.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeArray(instance) == null);
+                    valueTypeArray.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeArray(level2, value);
+                        });
+                    valueTypeArray.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, DateTime[] value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeArray(level2, value);
+                        });
+                    valueTypeArray.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(DateTime[]) : ReadValueTypeArray(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(valueTypeArray, 35),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(valueTypeArray),
+                        (ValueBuffer valueBuffer) => valueBuffer[35]);
+                    valueTypeArray.SetPropertyIndexes(
+                        index: 35,
+                        originalValueIndex: 35,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     valueTypeArray.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
                             (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -1328,6 +2300,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeEnumerable", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeEnumerable>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    valueTypeEnumerable.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeEnumerable(instance) == null);
+                    valueTypeEnumerable.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeEnumerable(level2, value);
+                        });
+                    valueTypeEnumerable.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IEnumerable<byte> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeEnumerable(level2, value);
+                        });
+                    valueTypeEnumerable.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IEnumerable<byte>) : ReadValueTypeEnumerable(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<IEnumerable<byte>>(valueTypeEnumerable, 36),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable),
+                        (ValueBuffer valueBuffer) => valueBuffer[36]);
+                    valueTypeEnumerable.SetPropertyIndexes(
+                        index: 36,
+                        originalValueIndex: 36,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     valueTypeEnumerable.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
@@ -1367,6 +2370,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeIList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeIList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    valueTypeIList.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeIList(instance) == null);
+                    valueTypeIList.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeIList(level2, value);
+                        });
+                    valueTypeIList.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, IList<byte> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeIList(level2, value);
+                        });
+                    valueTypeIList.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(IList<byte>) : ReadValueTypeIList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<IList<byte>>(valueTypeIList, 37),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<IList<byte>>(valueTypeIList),
+                        (ValueBuffer valueBuffer) => valueBuffer[37]);
+                    valueTypeIList.SetPropertyIndexes(
+                        index: 37,
+                        originalValueIndex: 37,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     valueTypeIList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<byte>(new ValueComparer<byte>(
                             (byte v1, byte v2) => v1 == v2,
@@ -1406,6 +2440,37 @@ namespace TestNamespace
                         propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("ValueTypeList", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<ValueTypeList>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                         nullable: true);
+                    valueTypeList.SetGetter(
+                        (CompiledModelTestBase.PrincipalBase entity) => (ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))),
+                        (CompiledModelTestBase.PrincipalBase entity) => ((ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned(entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned(entity)))) == null,
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance),
+                        (CompiledModelTestBase.PrincipalBase instance) => ReadValueTypeList(instance) == null);
+                    valueTypeList.SetSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeList(level2, value);
+                        });
+                    valueTypeList.SetMaterializationSetter(
+                        (CompiledModelTestBase.PrincipalBase entity, List<short> value) =>
+                        {
+                            var level1 = ReadOwned(entity);
+                            var level2 = ReadPrincipal(level1);
+                            WriteValueTypeList(level2, value);
+                        });
+                    valueTypeList.SetAccessors(
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => (ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))) == null ? default(List<short>) : ReadValueTypeList(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity) == null ? default(CompiledModelTestBase.PrincipalBase) : ReadPrincipal(ReadOwned((CompiledModelTestBase.PrincipalBase)entry.Entity))),
+                        (InternalEntityEntry entry) => entry.ReadOriginalValue<List<short>>(valueTypeList, 38),
+                        (InternalEntityEntry entry) => entry.GetCurrentValue<List<short>>(valueTypeList),
+                        (ValueBuffer valueBuffer) => valueBuffer[38]);
+                    valueTypeList.SetPropertyIndexes(
+                        index: 38,
+                        originalValueIndex: 38,
+                        shadowIndex: -1,
+                        relationshipIndex: -1,
+                        storeGenerationIndex: -1);
                     valueTypeList.TypeMapping = InMemoryTypeMapping.Default.Clone(
                         comparer: new ListComparer<short>(new ValueComparer<short>(
                             (short v1, short v2) => v1 == v2,
@@ -1441,7 +2506,232 @@ namespace TestNamespace
 
                     return complexProperty;
                 }
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Principal>k__BackingField")]
+            extern static ref CompiledModelTestBase.PrincipalBase GetPrincipal(CompiledModelTestBase.OwnedType @this);
+
+            public static CompiledModelTestBase.PrincipalBase ReadPrincipal(CompiledModelTestBase.OwnedType @this)
+                => GetPrincipal(@this);
+
+            public static void WritePrincipal(CompiledModelTestBase.OwnedType @this, CompiledModelTestBase.PrincipalBase value)
+                => GetPrincipal(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum1>k__BackingField")]
+            extern static ref CompiledModelTestBase.AnEnum GetEnum1(CompiledModelTestBase.PrincipalBase @this);
+
+            public static CompiledModelTestBase.AnEnum ReadEnum1(CompiledModelTestBase.PrincipalBase @this)
+                => GetEnum1(@this);
+
+            public static void WriteEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum value)
+                => GetEnum1(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum2>k__BackingField")]
+            extern static ref CompiledModelTestBase.AnEnum? GetEnum2(CompiledModelTestBase.PrincipalBase @this);
+
+            public static CompiledModelTestBase.AnEnum? ReadEnum2(CompiledModelTestBase.PrincipalBase @this)
+                => GetEnum2(@this);
+
+            public static void WriteEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum? value)
+                => GetEnum2(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum1>k__BackingField")]
+            extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
+
+            public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum1(CompiledModelTestBase.PrincipalBase @this)
+                => GetFlagsEnum1(@this);
+
+            public static void WriteFlagsEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
+                => GetFlagsEnum1(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum2>k__BackingField")]
+            extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
+
+            public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum2(CompiledModelTestBase.PrincipalBase @this)
+                => GetFlagsEnum2(@this);
+
+            public static void WriteFlagsEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
+                => GetFlagsEnum2(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+            extern static ref long? GetId(CompiledModelTestBase.PrincipalBase @this);
+
+            public static long? ReadId(CompiledModelTestBase.PrincipalBase @this)
+                => GetId(@this);
+
+            public static void WriteId(CompiledModelTestBase.PrincipalBase @this, long? value)
+                => GetId(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeArray>k__BackingField")]
+            extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.PrincipalBase @this);
+
+            public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.PrincipalBase @this)
+                => GetRefTypeArray(@this);
+
+            public static void WriteRefTypeArray(CompiledModelTestBase.PrincipalBase @this, IPAddress[] value)
+                => GetRefTypeArray(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeEnumerable>k__BackingField")]
+            extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
+
+            public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
+                => GetRefTypeEnumerable(@this);
+
+            public static void WriteRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<string> value)
+                => GetRefTypeEnumerable(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeIList>k__BackingField")]
+            extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.PrincipalBase @this);
+
+            public static IList<string> ReadRefTypeIList(CompiledModelTestBase.PrincipalBase @this)
+                => GetRefTypeIList(@this);
+
+            public static void WriteRefTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<string> value)
+                => GetRefTypeIList(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeList>k__BackingField")]
+            extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.PrincipalBase @this);
+
+            public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.PrincipalBase @this)
+                => GetRefTypeList(@this);
+
+            public static void WriteRefTypeList(CompiledModelTestBase.PrincipalBase @this, List<IPAddress> value)
+                => GetRefTypeList(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeArray>k__BackingField")]
+            extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
+
+            public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.PrincipalBase @this)
+                => GetValueTypeArray(@this);
+
+            public static void WriteValueTypeArray(CompiledModelTestBase.PrincipalBase @this, DateTime[] value)
+                => GetValueTypeArray(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeEnumerable>k__BackingField")]
+            extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
+
+            public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
+                => GetValueTypeEnumerable(@this);
+
+            public static void WriteValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<byte> value)
+                => GetValueTypeEnumerable(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
+            extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
+
+            public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.PrincipalBase @this)
+                => GetValueTypeIList(@this);
+
+            public static void WriteValueTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<byte> value)
+                => GetValueTypeIList(@this) = value;
+
+            [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeList>k__BackingField")]
+            extern static ref List<short> GetValueTypeList(CompiledModelTestBase.PrincipalBase @this);
+
+            public static List<short> ReadValueTypeList(CompiledModelTestBase.PrincipalBase @this)
+                => GetValueTypeList(@this);
+
+            public static void WriteValueTypeList(CompiledModelTestBase.PrincipalBase @this, List<short> value)
+                => GetValueTypeList(@this) = value;
             }
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_ownedField")]
+        extern static ref CompiledModelTestBase.OwnedType GetOwned(CompiledModelTestBase.PrincipalBase @this);
+
+        public static CompiledModelTestBase.OwnedType ReadOwned(CompiledModelTestBase.PrincipalBase @this)
+            => GetOwned(@this);
+
+        public static void WriteOwned(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.OwnedType value)
+            => GetOwned(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_details")]
+        extern static ref string GetDetails(CompiledModelTestBase.OwnedType @this);
+
+        public static string ReadDetails(CompiledModelTestBase.OwnedType @this)
+            => GetDetails(@this);
+
+        public static void WriteDetails(CompiledModelTestBase.OwnedType @this, string value)
+            => GetDetails(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Number>k__BackingField")]
+        extern static ref int GetNumber(CompiledModelTestBase.OwnedType @this);
+
+        public static int ReadNumber(CompiledModelTestBase.OwnedType @this)
+            => GetNumber(@this);
+
+        public static void WriteNumber(CompiledModelTestBase.OwnedType @this, int value)
+            => GetNumber(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeArray")]
+        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.OwnedType @this);
+
+        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeArray(@this);
+
+        public static void WriteRefTypeArray(CompiledModelTestBase.OwnedType @this, IPAddress[] value)
+            => GetRefTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeEnumerable")]
+        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.OwnedType @this);
+
+        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeEnumerable(@this);
+
+        public static void WriteRefTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<string> value)
+            => GetRefTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeIList")]
+        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.OwnedType @this);
+
+        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeIList(@this);
+
+        public static void WriteRefTypeIList(CompiledModelTestBase.OwnedType @this, IList<string> value)
+            => GetRefTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_refTypeList")]
+        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.OwnedType @this);
+
+        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.OwnedType @this)
+            => GetRefTypeList(@this);
+
+        public static void WriteRefTypeList(CompiledModelTestBase.OwnedType @this, List<IPAddress> value)
+            => GetRefTypeList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeArray")]
+        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.OwnedType @this);
+
+        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeArray(@this);
+
+        public static void WriteValueTypeArray(CompiledModelTestBase.OwnedType @this, DateTime[] value)
+            => GetValueTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeEnumerable")]
+        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.OwnedType @this);
+
+        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeEnumerable(@this);
+
+        public static void WriteValueTypeEnumerable(CompiledModelTestBase.OwnedType @this, IEnumerable<byte> value)
+            => GetValueTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
+        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.OwnedType @this);
+
+        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeIList(@this);
+
+        public static void WriteValueTypeIList(CompiledModelTestBase.OwnedType @this, IList<byte> value)
+            => GetValueTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "_valueTypeList")]
+        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.OwnedType @this);
+
+        public static List<short> ReadValueTypeList(CompiledModelTestBase.OwnedType @this)
+            => GetValueTypeList(@this);
+
+        public static void WriteValueTypeList(CompiledModelTestBase.OwnedType @this, List<short> value)
+            => GetValueTypeList(@this) = value;
         }
 
         public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
@@ -1457,15 +2747,242 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.PrincipalBase).GetProperty("Deriveds", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.PrincipalBase).GetField("<Deriveds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
+            deriveds.SetGetter(
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity) == null,
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadDeriveds(instance),
+                (CompiledModelTestBase.PrincipalBase instance) => PrincipalBaseEntityType.ReadDeriveds(instance) == null);
+            deriveds.SetSetter(
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.WriteDeriveds(entity, value));
+            deriveds.SetMaterializationSetter(
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> value) => PrincipalBaseEntityType.WriteDeriveds(entity, value));
+            deriveds.SetAccessors(
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadDeriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                (InternalEntityEntry entry) => PrincipalBaseEntityType.ReadDeriveds((CompiledModelTestBase.PrincipalBase)entry.Entity),
+                null,
+                (InternalEntityEntry entry) => entry.GetCurrentValue<ICollection<CompiledModelTestBase.PrincipalBase>>(deriveds),
+                null);
+            deriveds.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: -1,
+                shadowIndex: -1,
+                relationshipIndex: 2,
+                storeGenerationIndex: -1);
+            deriveds.SetCollectionAccessor<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(
+                (CompiledModelTestBase.PrincipalBase entity) => PrincipalBaseEntityType.ReadDeriveds(entity),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.WriteDeriveds(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity, ICollection<CompiledModelTestBase.PrincipalBase> collection) => PrincipalBaseEntityType.WriteDeriveds(entity, (ICollection<CompiledModelTestBase.PrincipalBase>)collection),
+                (CompiledModelTestBase.PrincipalBase entity, Action<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>> setter) => ClrCollectionAccessorFactory.CreateAndSetHashSet<CompiledModelTestBase.PrincipalBase, ICollection<CompiledModelTestBase.PrincipalBase>, CompiledModelTestBase.PrincipalBase>(entity, setter),
+                () => (ICollection<CompiledModelTestBase.PrincipalBase>)(ICollection<CompiledModelTestBase.PrincipalBase>)new HashSet<CompiledModelTestBase.PrincipalBase>(ReferenceEqualityComparer.Instance));
             return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var id = runtimeEntityType.FindProperty("Id")!;
+            var discriminator = runtimeEntityType.FindProperty("Discriminator")!;
+            var enum1 = runtimeEntityType.FindProperty("Enum1")!;
+            var enum2 = runtimeEntityType.FindProperty("Enum2")!;
+            var flagsEnum1 = runtimeEntityType.FindProperty("FlagsEnum1")!;
+            var flagsEnum2 = runtimeEntityType.FindProperty("FlagsEnum2")!;
+            var principalBaseId = runtimeEntityType.FindProperty("PrincipalBaseId")!;
+            var refTypeArray = runtimeEntityType.FindProperty("RefTypeArray")!;
+            var refTypeEnumerable = runtimeEntityType.FindProperty("RefTypeEnumerable")!;
+            var refTypeIList = runtimeEntityType.FindProperty("RefTypeIList")!;
+            var refTypeList = runtimeEntityType.FindProperty("RefTypeList")!;
+            var valueTypeArray = runtimeEntityType.FindProperty("ValueTypeArray")!;
+            var valueTypeEnumerable = runtimeEntityType.FindProperty("ValueTypeEnumerable")!;
+            var valueTypeIList = runtimeEntityType.FindProperty("ValueTypeIList")!;
+            var valueTypeList = runtimeEntityType.FindProperty("ValueTypeList")!;
+            var owned = runtimeEntityType.FindComplexProperty("Owned")!;
+            var ownedType = owned.ComplexType;
+            var details = ownedType.FindProperty("Details")!;
+            var number = ownedType.FindProperty("Number")!;
+            var refTypeArray0 = ownedType.FindProperty("RefTypeArray")!;
+            var refTypeEnumerable0 = ownedType.FindProperty("RefTypeEnumerable")!;
+            var refTypeIList0 = ownedType.FindProperty("RefTypeIList")!;
+            var refTypeList0 = ownedType.FindProperty("RefTypeList")!;
+            var valueTypeArray0 = ownedType.FindProperty("ValueTypeArray")!;
+            var valueTypeEnumerable0 = ownedType.FindProperty("ValueTypeEnumerable")!;
+            var valueTypeIList0 = ownedType.FindProperty("ValueTypeIList")!;
+            var valueTypeList0 = ownedType.FindProperty("ValueTypeList")!;
+            var principal = ownedType.FindComplexProperty("Principal")!;
+            var principalBase = principal.ComplexType;
+            var alternateId = principalBase.FindProperty("AlternateId")!;
+            var enum10 = principalBase.FindProperty("Enum1")!;
+            var enum20 = principalBase.FindProperty("Enum2")!;
+            var flagsEnum10 = principalBase.FindProperty("FlagsEnum1")!;
+            var flagsEnum20 = principalBase.FindProperty("FlagsEnum2")!;
+            var id0 = principalBase.FindProperty("Id")!;
+            var refTypeArray1 = principalBase.FindProperty("RefTypeArray")!;
+            var refTypeEnumerable1 = principalBase.FindProperty("RefTypeEnumerable")!;
+            var refTypeIList1 = principalBase.FindProperty("RefTypeIList")!;
+            var refTypeList1 = principalBase.FindProperty("RefTypeList")!;
+            var valueTypeArray1 = principalBase.FindProperty("ValueTypeArray")!;
+            var valueTypeEnumerable1 = principalBase.FindProperty("ValueTypeEnumerable")!;
+            var valueTypeIList1 = principalBase.FindProperty("ValueTypeIList")!;
+            var valueTypeList1 = principalBase.FindProperty("ValueTypeList")!;
+            var deriveds = runtimeEntityType.FindNavigation("Deriveds")!;
+            runtimeEntityType.SetOriginalValuesFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
+                    var liftedArg = (ISnapshot)new Snapshot<Nullable<long>, string, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum, Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, string, int, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>, Guid, CompiledModelTestBase.AnEnum, Nullable<CompiledModelTestBase.AnEnum>, CompiledModelTestBase.AFlagsEnum, CompiledModelTestBase.AFlagsEnum>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<string>(discriminator) == null ? null : ((ValueComparer<string>)discriminator.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(discriminator)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum1)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum2.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum2)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum1.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum1)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum2.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum2)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList)), source.GetCurrentValue<string>(details) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(details)), ((ValueComparer<int>)number.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(number)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray0) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray0.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray0)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable0.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable0)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList0) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList0.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList0)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList0) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList0.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList0)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray0.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray0)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable0.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable0)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList0.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList0)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList0.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList0)), ((ValueComparer<Guid>)alternateId.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(alternateId)), ((ValueComparer<CompiledModelTestBase.AnEnum>)enum10.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AnEnum>(enum10)), source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.AnEnum>>)enum20.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.AnEnum>>(enum20)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum10.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum10)), ((ValueComparer<CompiledModelTestBase.AFlagsEnum>)flagsEnum20.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.AFlagsEnum>(flagsEnum20)));
+                    var entity0 = (CompiledModelTestBase.PrincipalBase)source.Entity;
+                    return (ISnapshot)new MultiSnapshot(new ISnapshot[] { liftedArg, (ISnapshot)new Snapshot<Nullable<long>, IPAddress[], IEnumerable<string>, IList<string>, List<IPAddress>, DateTime[], IEnumerable<byte>, IList<byte>, List<short>>(source.GetCurrentValue<Nullable<long>>(id0) == null ? null : ((ValueComparer<Nullable<long>>)id0.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id0)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray1) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)refTypeArray1.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(refTypeArray1)), source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<string>>)refTypeEnumerable1.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<string>>(refTypeEnumerable1)), (IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList1) == null ? null : (IList<string>)((ValueComparer<IEnumerable<string>>)refTypeIList1.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<IList<string>>(refTypeIList1)), (IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList1) == null ? null : (List<IPAddress>)((ValueComparer<IEnumerable<IPAddress>>)refTypeList1.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<List<IPAddress>>(refTypeList1)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)valueTypeArray1.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(valueTypeArray1)), source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1) == null ? null : ((ValueComparer<IEnumerable<byte>>)valueTypeEnumerable1.GetValueComparer()).Snapshot(source.GetCurrentValue<IEnumerable<byte>>(valueTypeEnumerable1)), (IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1) == null ? null : (IList<byte>)((ValueComparer<IEnumerable<byte>>)valueTypeIList1.GetValueComparer()).Snapshot((IEnumerable<byte>)source.GetCurrentValue<IList<byte>>(valueTypeIList1)), (IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1) == null ? null : (List<short>)((ValueComparer<IEnumerable<short>>)valueTypeList1.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<List<short>>(valueTypeList1))) });
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                () => (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, string>(default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)id.GetValueComparer()).Snapshot(default(Nullable<long>)), default(Nullable<long>) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetValueComparer()).Snapshot(default(Nullable<long>)), default(string) == null ? null : ((ValueComparer<string>)details.GetValueComparer()).Snapshot(default(string))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                (InternalEntityEntry source) => (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, string>(default(Nullable<long>), default(Nullable<long>), default(string)));
+            runtimeEntityType.SetShadowValuesFactory(
+                (IDictionary<string, object> source) => (ISnapshot)new Snapshot<string, Nullable<long>>(source.ContainsKey("Discriminator") ? (string)source["Discriminator"] : null, source.ContainsKey("PrincipalBaseId") ? (Nullable<long>)source["PrincipalBaseId"] : null));
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                () => (ISnapshot)new Snapshot<string, Nullable<long>>(default(string), default(Nullable<long>)));
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.PrincipalBase)source.Entity;
+                    return (ISnapshot)new Snapshot<Nullable<long>, Nullable<long>, object>(source.GetCurrentValue<Nullable<long>>(id) == null ? null : ((ValueComparer<Nullable<long>>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(id)), source.GetCurrentValue<Nullable<long>>(principalBaseId) == null ? null : ((ValueComparer<Nullable<long>>)principalBaseId.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(principalBaseId)), SnapshotFactoryFactory.SnapshotCollection(ReadDeriveds(entity)));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 39,
+                navigationCount: 1,
+                complexPropertyCount: 2,
+                originalValueCount: 39,
+                shadowCount: 2,
+                relationshipCount: 3,
+                storeGeneratedCount: 3);
 
             Customize(runtimeEntityType);
         }
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+        extern static ref long? GetId(CompiledModelTestBase.PrincipalBase @this);
+
+        public static long? ReadId(CompiledModelTestBase.PrincipalBase @this)
+            => GetId(@this);
+
+        public static void WriteId(CompiledModelTestBase.PrincipalBase @this, long? value)
+            => GetId(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum1>k__BackingField")]
+        extern static ref CompiledModelTestBase.AnEnum GetEnum1(CompiledModelTestBase.PrincipalBase @this);
+
+        public static CompiledModelTestBase.AnEnum ReadEnum1(CompiledModelTestBase.PrincipalBase @this)
+            => GetEnum1(@this);
+
+        public static void WriteEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum value)
+            => GetEnum1(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum2>k__BackingField")]
+        extern static ref CompiledModelTestBase.AnEnum? GetEnum2(CompiledModelTestBase.PrincipalBase @this);
+
+        public static CompiledModelTestBase.AnEnum? ReadEnum2(CompiledModelTestBase.PrincipalBase @this)
+            => GetEnum2(@this);
+
+        public static void WriteEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AnEnum? value)
+            => GetEnum2(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum1>k__BackingField")]
+        extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum1(CompiledModelTestBase.PrincipalBase @this);
+
+        public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum1(CompiledModelTestBase.PrincipalBase @this)
+            => GetFlagsEnum1(@this);
+
+        public static void WriteFlagsEnum1(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
+            => GetFlagsEnum1(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FlagsEnum2>k__BackingField")]
+        extern static ref CompiledModelTestBase.AFlagsEnum GetFlagsEnum2(CompiledModelTestBase.PrincipalBase @this);
+
+        public static CompiledModelTestBase.AFlagsEnum ReadFlagsEnum2(CompiledModelTestBase.PrincipalBase @this)
+            => GetFlagsEnum2(@this);
+
+        public static void WriteFlagsEnum2(CompiledModelTestBase.PrincipalBase @this, CompiledModelTestBase.AFlagsEnum value)
+            => GetFlagsEnum2(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeArray>k__BackingField")]
+        extern static ref IPAddress[] GetRefTypeArray(CompiledModelTestBase.PrincipalBase @this);
+
+        public static IPAddress[] ReadRefTypeArray(CompiledModelTestBase.PrincipalBase @this)
+            => GetRefTypeArray(@this);
+
+        public static void WriteRefTypeArray(CompiledModelTestBase.PrincipalBase @this, IPAddress[] value)
+            => GetRefTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeEnumerable>k__BackingField")]
+        extern static ref IEnumerable<string> GetRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
+
+        public static IEnumerable<string> ReadRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
+            => GetRefTypeEnumerable(@this);
+
+        public static void WriteRefTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<string> value)
+            => GetRefTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeIList>k__BackingField")]
+        extern static ref IList<string> GetRefTypeIList(CompiledModelTestBase.PrincipalBase @this);
+
+        public static IList<string> ReadRefTypeIList(CompiledModelTestBase.PrincipalBase @this)
+            => GetRefTypeIList(@this);
+
+        public static void WriteRefTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<string> value)
+            => GetRefTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<RefTypeList>k__BackingField")]
+        extern static ref List<IPAddress> GetRefTypeList(CompiledModelTestBase.PrincipalBase @this);
+
+        public static List<IPAddress> ReadRefTypeList(CompiledModelTestBase.PrincipalBase @this)
+            => GetRefTypeList(@this);
+
+        public static void WriteRefTypeList(CompiledModelTestBase.PrincipalBase @this, List<IPAddress> value)
+            => GetRefTypeList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeArray>k__BackingField")]
+        extern static ref DateTime[] GetValueTypeArray(CompiledModelTestBase.PrincipalBase @this);
+
+        public static DateTime[] ReadValueTypeArray(CompiledModelTestBase.PrincipalBase @this)
+            => GetValueTypeArray(@this);
+
+        public static void WriteValueTypeArray(CompiledModelTestBase.PrincipalBase @this, DateTime[] value)
+            => GetValueTypeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeEnumerable>k__BackingField")]
+        extern static ref IEnumerable<byte> GetValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this);
+
+        public static IEnumerable<byte> ReadValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this)
+            => GetValueTypeEnumerable(@this);
+
+        public static void WriteValueTypeEnumerable(CompiledModelTestBase.PrincipalBase @this, IEnumerable<byte> value)
+            => GetValueTypeEnumerable(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeIList>k__BackingField")]
+        extern static ref IList<byte> GetValueTypeIList(CompiledModelTestBase.PrincipalBase @this);
+
+        public static IList<byte> ReadValueTypeIList(CompiledModelTestBase.PrincipalBase @this)
+            => GetValueTypeIList(@this);
+
+        public static void WriteValueTypeIList(CompiledModelTestBase.PrincipalBase @this, IList<byte> value)
+            => GetValueTypeIList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<ValueTypeList>k__BackingField")]
+        extern static ref List<short> GetValueTypeList(CompiledModelTestBase.PrincipalBase @this);
+
+        public static List<short> ReadValueTypeList(CompiledModelTestBase.PrincipalBase @this)
+            => GetValueTypeList(@this);
+
+        public static void WriteValueTypeList(CompiledModelTestBase.PrincipalBase @this, List<short> value)
+            => GetValueTypeList(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Deriveds>k__BackingField")]
+        extern static ref ICollection<CompiledModelTestBase.PrincipalBase> GetDeriveds(CompiledModelTestBase.PrincipalBase @this);
+
+        public static ICollection<CompiledModelTestBase.PrincipalBase> ReadDeriveds(CompiledModelTestBase.PrincipalBase @this)
+            => GetDeriveds(@this);
+
+        public static void WriteDeriveds(CompiledModelTestBase.PrincipalBase @this, ICollection<CompiledModelTestBase.PrincipalBase> value)
+            => GetDeriveds(@this) = value;
     }
 }

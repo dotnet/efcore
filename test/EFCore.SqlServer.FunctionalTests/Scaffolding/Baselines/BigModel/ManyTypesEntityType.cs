@@ -7,9 +7,12 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -41,6 +44,27 @@ namespace TestNamespace
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueConverter: new CompiledModelTestBase.ManyTypesIdConverter());
+            id.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadId(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadId(entity).Equals(default(CompiledModelTestBase.ManyTypesId)),
+                (CompiledModelTestBase.ManyTypes instance) => ReadId(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadId(instance).Equals(default(CompiledModelTestBase.ManyTypesId)));
+            id.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.ManyTypesId value) => WriteId(entity, value));
+            id.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.ManyTypesId value) => WriteId(entity, value));
+            id.SetAccessors(
+                (InternalEntityEntry entry) => entry.FlaggedAsStoreGenerated(0) ? entry.ReadStoreGeneratedValue<CompiledModelTestBase.ManyTypesId>(0) : entry.FlaggedAsTemporary(0) && ReadId((CompiledModelTestBase.ManyTypes)entry.Entity).Equals(default(CompiledModelTestBase.ManyTypesId)) ? entry.ReadTemporaryValue<CompiledModelTestBase.ManyTypesId>(0) : ReadId((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadId((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.ManyTypesId>(id, 0),
+                (InternalEntityEntry entry) => entry.ReadRelationshipSnapshotValue<CompiledModelTestBase.ManyTypesId>(id, 0),
+                (ValueBuffer valueBuffer) => valueBuffer[0]);
+            id.SetPropertyIndexes(
+                index: 0,
+                originalValueIndex: 0,
+                shadowIndex: -1,
+                relationshipIndex: 0,
+                storeGenerationIndex: 0);
             id.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.ManyTypesId>(
                     (CompiledModelTestBase.ManyTypesId v1, CompiledModelTestBase.ManyTypesId v2) => v1.Equals(v2),
@@ -62,6 +86,7 @@ namespace TestNamespace
                     new ValueConverter<CompiledModelTestBase.ManyTypesId, int>(
                         (CompiledModelTestBase.ManyTypesId v) => v.Id,
                         (int v) => new CompiledModelTestBase.ManyTypesId(v))));
+            id.SetCurrentValueComparer(new CurrentProviderValueComparer<CompiledModelTestBase.ManyTypesId, int>(id));
             id.SetSentinelFromProviderValue(0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -71,6 +96,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Bool", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Bool>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: false);
+            @bool.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBool(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBool(entity) == false,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBool(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBool(instance) == false);
+            @bool.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBool(entity, value));
+            @bool.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBool(entity, value));
+            @bool.SetAccessors(
+                (InternalEntityEntry entry) => ReadBool((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBool((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(@bool, 1),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(@bool),
+                (ValueBuffer valueBuffer) => valueBuffer[1]);
+            @bool.SetPropertyIndexes(
+                index: 1,
+                originalValueIndex: 1,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @bool.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
@@ -91,6 +137,27 @@ namespace TestNamespace
                 typeof(bool[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            boolArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolArray(instance) == null);
+            boolArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool[] value) => WriteBoolArray(entity, value));
+            boolArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool[] value) => WriteBoolArray(entity, value));
+            boolArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadBoolArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBoolArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<bool[]>(boolArray, 2),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<bool[]>(boolArray),
+                (ValueBuffer valueBuffer) => valueBuffer[2]);
+            boolArray.SetPropertyIndexes(
+                index: 2,
+                originalValueIndex: 2,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             boolArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<bool>(new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
@@ -133,6 +200,27 @@ namespace TestNamespace
                 typeof(bool),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            boolToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToStringConverterProperty(entity) == false,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToStringConverterProperty(instance) == false);
+            boolToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToStringConverterProperty(entity, value));
+            boolToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToStringConverterProperty(entity, value));
+            boolToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadBoolToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBoolToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(boolToStringConverterProperty, 3),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(boolToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[3]);
+            boolToStringConverterProperty.SetPropertyIndexes(
+                index: 3,
+                originalValueIndex: 3,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             boolToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
@@ -167,6 +255,27 @@ namespace TestNamespace
                 typeof(bool),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToTwoValuesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToTwoValuesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            boolToTwoValuesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToTwoValuesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToTwoValuesConverterProperty(entity) == false,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToTwoValuesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToTwoValuesConverterProperty(instance) == false);
+            boolToTwoValuesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToTwoValuesConverterProperty(entity, value));
+            boolToTwoValuesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToTwoValuesConverterProperty(entity, value));
+            boolToTwoValuesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadBoolToTwoValuesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBoolToTwoValuesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(boolToTwoValuesConverterProperty, 4),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(boolToTwoValuesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[4]);
+            boolToTwoValuesConverterProperty.SetPropertyIndexes(
+                index: 4,
+                originalValueIndex: 4,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             boolToTwoValuesConverterProperty.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
@@ -197,6 +306,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BoolToZeroOneConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BoolToZeroOneConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new BoolToZeroOneConverter<short>());
+            boolToZeroOneConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToZeroOneConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBoolToZeroOneConverterProperty(entity) == false,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToZeroOneConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBoolToZeroOneConverterProperty(instance) == false);
+            boolToZeroOneConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToZeroOneConverterProperty(entity, value));
+            boolToZeroOneConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, bool value) => WriteBoolToZeroOneConverterProperty(entity, value));
+            boolToZeroOneConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadBoolToZeroOneConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBoolToZeroOneConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<bool>(boolToZeroOneConverterProperty, 5),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<bool>(boolToZeroOneConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[5]);
+            boolToZeroOneConverterProperty.SetPropertyIndexes(
+                index: 5,
+                originalValueIndex: 5,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             boolToZeroOneConverterProperty.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool>(
                     (bool v1, bool v2) => v1 == v2,
@@ -226,19 +356,40 @@ namespace TestNamespace
                 typeof(byte[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Bytes", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Bytes>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            bytes.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytes(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytes(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytes(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytes(instance) == null);
+            bytes.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteBytes(entity, value));
+            bytes.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteBytes(entity, value));
+            bytes.SetAccessors(
+                (InternalEntityEntry entry) => ReadBytes((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBytes((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(bytes, 6),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(bytes),
+                (ValueBuffer valueBuffer) => valueBuffer[6]);
+            bytes.SetPropertyIndexes(
+                index: 6,
+                originalValueIndex: 6,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             bytes.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(max)"),
                 storeTypePostfix: StoreTypePostfix.None);
@@ -249,15 +400,36 @@ namespace TestNamespace
                 typeof(byte[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("BytesArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BytesArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            bytesArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytesArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytesArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytesArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytesArray(instance) == null);
+            bytesArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[][] value) => WriteBytesArray(entity, value));
+            bytesArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[][] value) => WriteBytesArray(entity, value));
+            bytesArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadBytesArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBytesArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[][]>(bytesArray, 7),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[][]>(bytesArray),
+                (ValueBuffer valueBuffer) => valueBuffer[7]);
+            bytesArray.SetPropertyIndexes(
+                index: 7,
+                originalValueIndex: 7,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             bytesArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte[]>(new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v)),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v)),
                 keyComparer: new ListComparer<byte[]>(new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v)),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
@@ -273,17 +445,17 @@ namespace TestNamespace
                     JsonByteArrayReaderWriter.Instance),
                 elementMapping: SqlServerByteArrayTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => v.GetHashCode(),
-                        (Byte[] v) => v),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => v.GetHashCode(),
+                        (byte[] v) => v),
                     keyComparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                        (Byte[] source) => source.ToArray()),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                        (byte[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                        (Byte[] source) => source.ToArray()),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                        (byte[] source) => source.ToArray()),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "varbinary(max)"),
                     storeTypePostfix: StoreTypePostfix.None));
@@ -296,15 +468,36 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<BytesToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new BytesToStringConverter(),
                 valueComparer: new ArrayStructuralComparer<byte>());
+            bytesToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytesToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadBytesToStringConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytesToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadBytesToStringConverterProperty(instance) == null);
+            bytesToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteBytesToStringConverterProperty(entity, value));
+            bytesToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteBytesToStringConverterProperty(entity, value));
+            bytesToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadBytesToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadBytesToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(bytesToStringConverterProperty, 8),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(bytesToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[8]);
+            bytesToStringConverterProperty.SetPropertyIndexes(
+                index: 8,
+                originalValueIndex: 8,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             bytesToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] v) => v.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] v) => v.ToArray()),
                 keyComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] v) => v.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] v) => v.ToArray()),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
@@ -314,13 +507,13 @@ namespace TestNamespace
                     unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<byte[], string>(
-                    (Byte[] v) => Convert.ToBase64String(v),
+                    (byte[] v) => Convert.ToBase64String(v),
                     (string v) => Convert.FromBase64String(v)),
                 storeTypePostfix: StoreTypePostfix.None,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<byte[], string>(
                     JsonStringReaderWriter.Instance,
                     new ValueConverter<byte[], string>(
-                        (Byte[] v) => Convert.ToBase64String(v),
+                        (byte[] v) => Convert.ToBase64String(v),
                         (string v) => Convert.FromBase64String(v))));
             bytesToStringConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -330,6 +523,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CastingConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CastingConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new CastingConverter<int, decimal>());
+            castingConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadCastingConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadCastingConverterProperty(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadCastingConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadCastingConverterProperty(instance) == 0);
+            castingConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteCastingConverterProperty(entity, value));
+            castingConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteCastingConverterProperty(entity, value));
+            castingConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadCastingConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadCastingConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(castingConverterProperty, 9),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int>(castingConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[9]);
+            castingConverterProperty.SetPropertyIndexes(
+                index: 9,
+                originalValueIndex: 9,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             castingConverterProperty.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -359,6 +573,27 @@ namespace TestNamespace
                 typeof(char),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Char", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Char>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            @char.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadChar(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadChar(entity) == '\0',
+                (CompiledModelTestBase.ManyTypes instance) => ReadChar(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadChar(instance) == '\0');
+            @char.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, char value) => WriteChar(entity, value));
+            @char.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, char value) => WriteChar(entity, value));
+            @char.SetAccessors(
+                (InternalEntityEntry entry) => ReadChar((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadChar((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<char>(@char, 10),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<char>(@char),
+                (ValueBuffer valueBuffer) => valueBuffer[10]);
+            @char.SetPropertyIndexes(
+                index: 10,
+                originalValueIndex: 10,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @char.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char>(
                     (char v1, char v2) => v1 == v2,
@@ -393,6 +628,27 @@ namespace TestNamespace
                 typeof(char[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            charArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadCharArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadCharArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadCharArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadCharArray(instance) == null);
+            charArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, char[] value) => WriteCharArray(entity, value));
+            charArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, char[] value) => WriteCharArray(entity, value));
+            charArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadCharArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadCharArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<char[]>(charArray, 11),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<char[]>(charArray),
+                (ValueBuffer valueBuffer) => valueBuffer[11]);
+            charArray.SetPropertyIndexes(
+                index: 11,
+                originalValueIndex: 11,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             charArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<char>(new ValueComparer<char>(
                     (char v1, char v2) => v1 == v2,
@@ -457,6 +713,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("CharToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<CharToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new CharToStringConverter());
+            charToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadCharToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadCharToStringConverterProperty(entity) == '\0',
+                (CompiledModelTestBase.ManyTypes instance) => ReadCharToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadCharToStringConverterProperty(instance) == '\0');
+            charToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, char value) => WriteCharToStringConverterProperty(entity, value));
+            charToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, char value) => WriteCharToStringConverterProperty(entity, value));
+            charToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadCharToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadCharToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<char>(charToStringConverterProperty, 12),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<char>(charToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[12]);
+            charToStringConverterProperty.SetPropertyIndexes(
+                index: 12,
+                originalValueIndex: 12,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             charToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char>(
                     (char v1, char v2) => v1 == v2,
@@ -494,6 +771,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateOnly", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateOnly(1, 1, 1));
+            dateOnly.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnly(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnly(entity) == default(DateOnly),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnly(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnly(instance) == default(DateOnly));
+            dateOnly.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => WriteDateOnly(entity, value));
+            dateOnly.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => WriteDateOnly(entity, value));
+            dateOnly.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnly, 13),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateOnly>(dateOnly),
+                (ValueBuffer valueBuffer) => valueBuffer[13]);
+            dateOnly.SetPropertyIndexes(
+                index: 13,
+                originalValueIndex: 13,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateOnly.TypeMapping = SqlServerDateOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateOnly>(
                     (DateOnly v1, DateOnly v2) => v1.Equals(v2),
@@ -514,6 +812,27 @@ namespace TestNamespace
                 typeof(DateOnly[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateOnlyArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateOnlyArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            dateOnlyArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnlyArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnlyArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnlyArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnlyArray(instance) == null);
+            dateOnlyArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly[] value) => WriteDateOnlyArray(entity, value));
+            dateOnlyArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly[] value) => WriteDateOnlyArray(entity, value));
+            dateOnlyArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateOnly[]>(dateOnlyArray, 14),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateOnly[]>(dateOnlyArray),
+                (ValueBuffer valueBuffer) => valueBuffer[14]);
+            dateOnlyArray.SetPropertyIndexes(
+                index: 14,
+                originalValueIndex: 14,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<DateOnly>(new ValueComparer<DateOnly>(
                     (DateOnly v1, DateOnly v2) => v1.Equals(v2),
@@ -557,6 +876,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateOnlyToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateOnlyToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateOnlyToStringConverter());
+            dateOnlyToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnlyToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateOnlyToStringConverterProperty(entity) == default(DateOnly),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnlyToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateOnlyToStringConverterProperty(instance) == default(DateOnly));
+            dateOnlyToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => WriteDateOnlyToStringConverterProperty(entity, value));
+            dateOnlyToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateOnly value) => WriteDateOnlyToStringConverterProperty(entity, value));
+            dateOnlyToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateOnlyToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateOnlyToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateOnly>(dateOnlyToStringConverterProperty, 15),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[15]);
+            dateOnlyToStringConverterProperty.SetPropertyIndexes(
+                index: 15,
+                originalValueIndex: 15,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateOnlyToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateOnly>(
                     (DateOnly v1, DateOnly v2) => v1.Equals(v2),
@@ -592,6 +932,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTime", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTime>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            dateTime.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTime(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTime(entity) == default(DateTime),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTime(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTime(instance) == default(DateTime));
+            dateTime.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTime(entity, value));
+            dateTime.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTime(entity, value));
+            dateTime.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTime((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTime((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime>(dateTime, 16),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime>(dateTime),
+                (ValueBuffer valueBuffer) => valueBuffer[16]);
+            dateTime.SetPropertyIndexes(
+                index: 16,
+                originalValueIndex: 16,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTime.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -612,6 +973,27 @@ namespace TestNamespace
                 typeof(DateTime[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            dateTimeArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeArray(instance) == null);
+            dateTimeArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime[] value) => WriteDateTimeArray(entity, value));
+            dateTimeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime[] value) => WriteDateTimeArray(entity, value));
+            dateTimeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime[]>(dateTimeArray, 17),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime[]>(dateTimeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[17]);
+            dateTimeArray.SetPropertyIndexes(
+                index: 17,
+                originalValueIndex: 17,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<DateTime>(new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -655,6 +1037,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeOffsetToBinaryConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToBinaryConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToBinaryConverter());
+            dateTimeOffsetToBinaryConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToBinaryConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToBinaryConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToBinaryConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToBinaryConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
+            dateTimeOffsetToBinaryConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToBinaryConverterProperty(entity, value));
+            dateTimeOffsetToBinaryConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToBinaryConverterProperty(entity, value));
+            dateTimeOffsetToBinaryConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToBinaryConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToBinaryConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty, 18),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[18]);
+            dateTimeOffsetToBinaryConverterProperty.SetPropertyIndexes(
+                index: 18,
+                originalValueIndex: 18,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeOffsetToBinaryConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTimeOffset>(
                     (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
@@ -685,6 +1088,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeOffsetToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToBytesConverter());
+            dateTimeOffsetToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToBytesConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToBytesConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
+            dateTimeOffsetToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToBytesConverterProperty(entity, value));
+            dateTimeOffsetToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToBytesConverterProperty(entity, value));
+            dateTimeOffsetToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty, 19),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[19]);
+            dateTimeOffsetToBytesConverterProperty.SetPropertyIndexes(
+                index: 19,
+                originalValueIndex: 19,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeOffsetToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTimeOffset>(
                     (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
@@ -695,20 +1119,20 @@ namespace TestNamespace
                     (DateTimeOffset v) => v.GetHashCode(),
                     (DateTimeOffset v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(12)",
                     size: 12),
                 converter: new ValueConverter<DateTimeOffset, byte[]>(
                     (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v),
-                    (Byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v)),
+                    (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<DateTimeOffset, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<DateTimeOffset, byte[]>(
                         (DateTimeOffset v) => DateTimeOffsetToBytesConverter.ToBytes(v),
-                        (Byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v))));
+                        (byte[] v) => DateTimeOffsetToBytesConverter.FromBytes(v))));
             dateTimeOffsetToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             dateTimeOffsetToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -718,6 +1142,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeOffsetToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeOffsetToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeOffsetToStringConverter());
+            dateTimeOffsetToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeOffsetToStringConverterProperty(entity).EqualsExact(default(DateTimeOffset)),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeOffsetToStringConverterProperty(instance).EqualsExact(default(DateTimeOffset)));
+            dateTimeOffsetToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToStringConverterProperty(entity, value));
+            dateTimeOffsetToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTimeOffset value) => WriteDateTimeOffsetToStringConverterProperty(entity, value));
+            dateTimeOffsetToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeOffsetToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty, 20),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[20]);
+            dateTimeOffsetToStringConverterProperty.SetPropertyIndexes(
+                index: 20,
+                originalValueIndex: 20,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeOffsetToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTimeOffset>(
                     (DateTimeOffset v1, DateTimeOffset v2) => v1.EqualsExact(v2),
@@ -753,6 +1198,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeToBinaryConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToBinaryConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeToBinaryConverter());
+            dateTimeToBinaryConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToBinaryConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToBinaryConverterProperty(entity) == default(DateTime),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToBinaryConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToBinaryConverterProperty(instance) == default(DateTime));
+            dateTimeToBinaryConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToBinaryConverterProperty(entity, value));
+            dateTimeToBinaryConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToBinaryConverterProperty(entity, value));
+            dateTimeToBinaryConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeToBinaryConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeToBinaryConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToBinaryConverterProperty, 21),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[21]);
+            dateTimeToBinaryConverterProperty.SetPropertyIndexes(
+                index: 21,
+                originalValueIndex: 21,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeToBinaryConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -783,6 +1249,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new DateTimeToStringConverter());
+            dateTimeToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToStringConverterProperty(entity) == default(DateTime),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToStringConverterProperty(instance) == default(DateTime));
+            dateTimeToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToStringConverterProperty(entity, value));
+            dateTimeToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToStringConverterProperty(entity, value));
+            dateTimeToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToStringConverterProperty, 22),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[22]);
+            dateTimeToStringConverterProperty.SetPropertyIndexes(
+                index: 22,
+                originalValueIndex: 22,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -818,6 +1305,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DateTimeToTicksConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DateTimeToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            dateTimeToTicksConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToTicksConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDateTimeToTicksConverterProperty(entity) == default(DateTime),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToTicksConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDateTimeToTicksConverterProperty(instance) == default(DateTime));
+            dateTimeToTicksConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToTicksConverterProperty(entity, value));
+            dateTimeToTicksConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, DateTime value) => WriteDateTimeToTicksConverterProperty(entity, value));
+            dateTimeToTicksConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDateTimeToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDateTimeToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<DateTime>(dateTimeToTicksConverterProperty, 23),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[23]);
+            dateTimeToTicksConverterProperty.SetPropertyIndexes(
+                index: 23,
+                originalValueIndex: 23,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             dateTimeToTicksConverterProperty.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTime>(
                     (DateTime v1, DateTime v2) => v1.Equals(v2),
@@ -839,6 +1347,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Decimal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Decimal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0m);
+            @decimal.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimal(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimal(entity) == 0M,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimal(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimal(instance) == 0M);
+            @decimal.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimal(entity, value));
+            @decimal.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimal(entity, value));
+            @decimal.SetAccessors(
+                (InternalEntityEntry entry) => ReadDecimal((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDecimal((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal>(@decimal, 24),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<decimal>(@decimal),
+                (ValueBuffer valueBuffer) => valueBuffer[24]);
+            @decimal.SetPropertyIndexes(
+                index: 24,
+                originalValueIndex: 24,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @decimal.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
@@ -859,6 +1388,27 @@ namespace TestNamespace
                 typeof(decimal[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            decimalArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalArray(instance) == null);
+            decimalArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal[] value) => WriteDecimalArray(entity, value));
+            decimalArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal[] value) => WriteDecimalArray(entity, value));
+            decimalArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadDecimalArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDecimalArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal[]>(decimalArray, 25),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<decimal[]>(decimalArray),
+                (ValueBuffer valueBuffer) => valueBuffer[25]);
+            decimalArray.SetPropertyIndexes(
+                index: 25,
+                originalValueIndex: 25,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             decimalArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<decimal>(new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
@@ -902,6 +1452,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DecimalNumberToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<decimal>());
+            decimalNumberToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalNumberToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalNumberToBytesConverterProperty(entity) == 0M,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalNumberToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalNumberToBytesConverterProperty(instance) == 0M);
+            decimalNumberToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimalNumberToBytesConverterProperty(entity, value));
+            decimalNumberToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimalNumberToBytesConverterProperty(entity, value));
+            decimalNumberToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDecimalNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDecimalNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToBytesConverterProperty, 26),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[26]);
+            decimalNumberToBytesConverterProperty.SetPropertyIndexes(
+                index: 26,
+                originalValueIndex: 26,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             decimalNumberToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
@@ -912,20 +1483,20 @@ namespace TestNamespace
                     (decimal v) => v.GetHashCode(),
                     (decimal v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(16)",
                     size: 16),
                 converter: new ValueConverter<decimal, byte[]>(
                     (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v),
-                    (Byte[] v) => v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v)),
+                    (byte[] v) => v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<decimal, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<decimal, byte[]>(
                         (decimal v) => NumberToBytesConverter<decimal>.DecimalToBytes(v),
-                        (Byte[] v) => v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v))));
+                        (byte[] v) => v == null ? 0M : NumberToBytesConverter<decimal>.BytesToDecimal(v))));
             decimalNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             decimalNumberToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -935,6 +1506,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DecimalNumberToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DecimalNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<decimal>());
+            decimalNumberToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalNumberToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDecimalNumberToStringConverterProperty(entity) == 0M,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalNumberToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDecimalNumberToStringConverterProperty(instance) == 0M);
+            decimalNumberToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimalNumberToStringConverterProperty(entity, value));
+            decimalNumberToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, decimal value) => WriteDecimalNumberToStringConverterProperty(entity, value));
+            decimalNumberToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDecimalNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDecimalNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<decimal>(decimalNumberToStringConverterProperty, 27),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[27]);
+            decimalNumberToStringConverterProperty.SetPropertyIndexes(
+                index: 27,
+                originalValueIndex: 27,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             decimalNumberToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<decimal>(
                     (decimal v1, decimal v2) => v1 == v2,
@@ -970,6 +1562,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Double", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Double>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0.0);
+            @double.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDouble(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDouble(entity).Equals(0D),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDouble(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDouble(instance).Equals(0D));
+            @double.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDouble(entity, value));
+            @double.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDouble(entity, value));
+            @double.SetAccessors(
+                (InternalEntityEntry entry) => ReadDouble((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDouble((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<double>(@double, 28),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<double>(@double),
+                (ValueBuffer valueBuffer) => valueBuffer[28]);
+            @double.SetPropertyIndexes(
+                index: 28,
+                originalValueIndex: 28,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @double.TypeMapping = SqlServerDoubleTypeMapping.Default.Clone(
                 comparer: new ValueComparer<double>(
                     (double v1, double v2) => v1.Equals(v2),
@@ -990,6 +1603,27 @@ namespace TestNamespace
                 typeof(double[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            doubleArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleArray(instance) == null);
+            doubleArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, double[] value) => WriteDoubleArray(entity, value));
+            doubleArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, double[] value) => WriteDoubleArray(entity, value));
+            doubleArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadDoubleArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDoubleArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<double[]>(doubleArray, 29),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<double[]>(doubleArray),
+                (ValueBuffer valueBuffer) => valueBuffer[29]);
+            doubleArray.SetPropertyIndexes(
+                index: 29,
+                originalValueIndex: 29,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             doubleArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<double>(new ValueComparer<double>(
                     (double v1, double v2) => v1.Equals(v2),
@@ -1033,6 +1667,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DoubleNumberToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<double>());
+            doubleNumberToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleNumberToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleNumberToBytesConverterProperty(entity).Equals(0D),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleNumberToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleNumberToBytesConverterProperty(instance).Equals(0D));
+            doubleNumberToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDoubleNumberToBytesConverterProperty(entity, value));
+            doubleNumberToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDoubleNumberToBytesConverterProperty(entity, value));
+            doubleNumberToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDoubleNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDoubleNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<double>(doubleNumberToBytesConverterProperty, 30),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<double>(doubleNumberToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[30]);
+            doubleNumberToBytesConverterProperty.SetPropertyIndexes(
+                index: 30,
+                originalValueIndex: 30,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             doubleNumberToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<double>(
                     (double v1, double v2) => v1.Equals(v2),
@@ -1043,20 +1698,20 @@ namespace TestNamespace
                     (double v) => v.GetHashCode(),
                     (double v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(8)",
                     size: 8),
                 converter: new ValueConverter<double, byte[]>(
                     (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)),
-                    (Byte[] v) => v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0)),
+                    (byte[] v) => v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<double, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<double, byte[]>(
                         (double v) => NumberToBytesConverter<double>.ReverseLong(BitConverter.GetBytes(v)),
-                        (Byte[] v) => v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0))));
+                        (byte[] v) => v == null ? 0D : BitConverter.ToDouble(NumberToBytesConverter<double>.ReverseLong(v), 0))));
             doubleNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });
             doubleNumberToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -1066,6 +1721,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("DoubleNumberToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<DoubleNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<double>());
+            doubleNumberToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleNumberToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadDoubleNumberToStringConverterProperty(entity).Equals(0D),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleNumberToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadDoubleNumberToStringConverterProperty(instance).Equals(0D));
+            doubleNumberToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDoubleNumberToStringConverterProperty(entity, value));
+            doubleNumberToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, double value) => WriteDoubleNumberToStringConverterProperty(entity, value));
+            doubleNumberToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadDoubleNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadDoubleNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<double>(doubleNumberToStringConverterProperty, 31),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<double>(doubleNumberToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[31]);
+            doubleNumberToStringConverterProperty.SetPropertyIndexes(
+                index: 31,
+                originalValueIndex: 31,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             doubleNumberToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<double>(
                     (double v1, double v2) => v1.Equals(v2),
@@ -1100,6 +1776,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum16),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum16(entity), (object)CompiledModelTestBase.Enum16.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum16(instance), (object)CompiledModelTestBase.Enum16.Default));
+            enum16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => WriteEnum16(entity, value));
+            enum16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => WriteEnum16(entity, value));
+            enum16.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum16>(enum16, 32),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16),
+                (ValueBuffer valueBuffer) => valueBuffer[32]);
+            enum16.SetPropertyIndexes(
+                index: 32,
+                originalValueIndex: 32,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1129,6 +1826,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum16[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16Array(instance) == null);
+            enum16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16[] value) => WriteEnum16Array(entity, value));
+            enum16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16[] value) => WriteEnum16Array(entity, value));
+            enum16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum16[]>(enum16Array, 33),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[33]);
+            enum16Array.SetPropertyIndexes(
+                index: 33,
+                originalValueIndex: 33,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1188,6 +1906,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enum16AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum16AsString(entity), (object)CompiledModelTestBase.Enum16.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum16AsString(instance), (object)CompiledModelTestBase.Enum16.Default));
+            enum16AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => WriteEnum16AsString(entity, value));
+            enum16AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16 value) => WriteEnum16AsString(entity, value));
+            enum16AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum16>(enum16AsString, 34),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[34]);
+            enum16AsString.SetPropertyIndexes(
+                index: 34,
+                originalValueIndex: 34,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1222,6 +1961,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum16[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum16AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16AsStringArray(instance) == null);
+            enum16AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16[] value) => WriteEnum16AsStringArray(entity, value));
+            enum16AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum16[] value) => WriteEnum16AsStringArray(entity, value));
+            enum16AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum16[]>(enum16AsStringArray, 35),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[35]);
+            enum16AsStringArray.SetPropertyIndexes(
+                index: 35,
+                originalValueIndex: 35,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1285,6 +2045,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum16>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum16AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16AsStringCollection(instance) == null);
+            enum16AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum16> value) => WriteEnum16AsStringCollection(entity, value));
+            enum16AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum16> value) => WriteEnum16AsStringCollection(entity, value));
+            enum16AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum16>>(enum16AsStringCollection, 36),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[36]);
+            enum16AsStringCollection.SetPropertyIndexes(
+                index: 36,
+                originalValueIndex: 36,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1348,6 +2129,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum16>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum16Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum16Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum16Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum16Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum16Collection(instance) == null);
+            enum16Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum16> value) => WriteEnum16Collection(entity, value));
+            enum16Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum16> value) => WriteEnum16Collection(entity, value));
+            enum16Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum16>>(enum16Collection, 37),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[37]);
+            enum16Collection.SetPropertyIndexes(
+                index: 37,
+                originalValueIndex: 37,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16>(
                     (CompiledModelTestBase.Enum16 v1, CompiledModelTestBase.Enum16 v2) => object.Equals((object)v1, (object)v2),
@@ -1406,6 +2208,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum32),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum32(entity), (object)CompiledModelTestBase.Enum32.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum32(instance), (object)CompiledModelTestBase.Enum32.Default));
+            enum32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnum32(entity, value));
+            enum32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnum32(entity, value));
+            enum32.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32>(enum32, 38),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32),
+                (ValueBuffer valueBuffer) => valueBuffer[38]);
+            enum32.SetPropertyIndexes(
+                index: 38,
+                originalValueIndex: 38,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1435,6 +2258,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum32[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32Array(instance) == null);
+            enum32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32[] value) => WriteEnum32Array(entity, value));
+            enum32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32[] value) => WriteEnum32Array(entity, value));
+            enum32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32[]>(enum32Array, 39),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[39]);
+            enum32Array.SetPropertyIndexes(
+                index: 39,
+                originalValueIndex: 39,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1494,6 +2338,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enum32AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum32AsString(entity), (object)CompiledModelTestBase.Enum32.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum32AsString(instance), (object)CompiledModelTestBase.Enum32.Default));
+            enum32AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnum32AsString(entity, value));
+            enum32AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnum32AsString(entity, value));
+            enum32AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32>(enum32AsString, 40),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[40]);
+            enum32AsString.SetPropertyIndexes(
+                index: 40,
+                originalValueIndex: 40,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1528,6 +2393,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum32[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum32AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32AsStringArray(instance) == null);
+            enum32AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32[] value) => WriteEnum32AsStringArray(entity, value));
+            enum32AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32[] value) => WriteEnum32AsStringArray(entity, value));
+            enum32AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32[]>(enum32AsStringArray, 41),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[41]);
+            enum32AsStringArray.SetPropertyIndexes(
+                index: 41,
+                originalValueIndex: 41,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1591,6 +2477,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum32>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum32AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32AsStringCollection(instance) == null);
+            enum32AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum32> value) => WriteEnum32AsStringCollection(entity, value));
+            enum32AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum32> value) => WriteEnum32AsStringCollection(entity, value));
+            enum32AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum32>>(enum32AsStringCollection, 42),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[42]);
+            enum32AsStringCollection.SetPropertyIndexes(
+                index: 42,
+                originalValueIndex: 42,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1654,6 +2561,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum32>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum32Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum32Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum32Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum32Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum32Collection(instance) == null);
+            enum32Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum32> value) => WriteEnum32Collection(entity, value));
+            enum32Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum32> value) => WriteEnum32Collection(entity, value));
+            enum32Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum32>>(enum32Collection, 43),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[43]);
+            enum32Collection.SetPropertyIndexes(
+                index: 43,
+                originalValueIndex: 43,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -1712,6 +2640,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum64),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum64(entity), (object)CompiledModelTestBase.Enum64.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum64(instance), (object)CompiledModelTestBase.Enum64.Default));
+            enum64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => WriteEnum64(entity, value));
+            enum64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => WriteEnum64(entity, value));
+            enum64.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum64>(enum64, 44),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64),
+                (ValueBuffer valueBuffer) => valueBuffer[44]);
+            enum64.SetPropertyIndexes(
+                index: 44,
+                originalValueIndex: 44,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -1741,6 +2690,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum64[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64Array(instance) == null);
+            enum64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64[] value) => WriteEnum64Array(entity, value));
+            enum64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64[] value) => WriteEnum64Array(entity, value));
+            enum64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum64[]>(enum64Array, 45),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[45]);
+            enum64Array.SetPropertyIndexes(
+                index: 45,
+                originalValueIndex: 45,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -1800,6 +2770,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enum64AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum64AsString(entity), (object)CompiledModelTestBase.Enum64.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum64AsString(instance), (object)CompiledModelTestBase.Enum64.Default));
+            enum64AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => WriteEnum64AsString(entity, value));
+            enum64AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64 value) => WriteEnum64AsString(entity, value));
+            enum64AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum64>(enum64AsString, 46),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[46]);
+            enum64AsString.SetPropertyIndexes(
+                index: 46,
+                originalValueIndex: 46,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -1834,6 +2825,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum64[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum64AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64AsStringArray(instance) == null);
+            enum64AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64[] value) => WriteEnum64AsStringArray(entity, value));
+            enum64AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum64[] value) => WriteEnum64AsStringArray(entity, value));
+            enum64AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum64[]>(enum64AsStringArray, 47),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[47]);
+            enum64AsStringArray.SetPropertyIndexes(
+                index: 47,
+                originalValueIndex: 47,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -1897,6 +2909,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum64>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum64AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64AsStringCollection(instance) == null);
+            enum64AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum64> value) => WriteEnum64AsStringCollection(entity, value));
+            enum64AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum64> value) => WriteEnum64AsStringCollection(entity, value));
+            enum64AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum64>>(enum64AsStringCollection, 48),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[48]);
+            enum64AsStringCollection.SetPropertyIndexes(
+                index: 48,
+                originalValueIndex: 48,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -1960,6 +2993,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum64>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum64Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum64Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum64Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum64Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum64Collection(instance) == null);
+            enum64Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum64> value) => WriteEnum64Collection(entity, value));
+            enum64Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum64> value) => WriteEnum64Collection(entity, value));
+            enum64Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum64>>(enum64Collection, 49),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[49]);
+            enum64Collection.SetPropertyIndexes(
+                index: 49,
+                originalValueIndex: 49,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64>(
                     (CompiledModelTestBase.Enum64 v1, CompiledModelTestBase.Enum64 v2) => object.Equals((object)v1, (object)v2),
@@ -2018,6 +3072,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum8),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum8(entity), (object)CompiledModelTestBase.Enum8.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum8(instance), (object)CompiledModelTestBase.Enum8.Default));
+            enum8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => WriteEnum8(entity, value));
+            enum8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => WriteEnum8(entity, value));
+            enum8.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum8>(enum8, 50),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8),
+                (ValueBuffer valueBuffer) => valueBuffer[50]);
+            enum8.SetPropertyIndexes(
+                index: 50,
+                originalValueIndex: 50,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2047,6 +3122,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum8[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8Array(instance) == null);
+            enum8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8[] value) => WriteEnum8Array(entity, value));
+            enum8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8[] value) => WriteEnum8Array(entity, value));
+            enum8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum8[]>(enum8Array, 51),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[51]);
+            enum8Array.SetPropertyIndexes(
+                index: 51,
+                originalValueIndex: 51,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2106,6 +3202,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enum8AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnum8AsString(entity), (object)CompiledModelTestBase.Enum8.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnum8AsString(instance), (object)CompiledModelTestBase.Enum8.Default));
+            enum8AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => WriteEnum8AsString(entity, value));
+            enum8AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8 value) => WriteEnum8AsString(entity, value));
+            enum8AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum8>(enum8AsString, 52),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[52]);
+            enum8AsString.SetPropertyIndexes(
+                index: 52,
+                originalValueIndex: 52,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2140,6 +3257,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum8[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum8AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8AsStringArray(instance) == null);
+            enum8AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8[] value) => WriteEnum8AsStringArray(entity, value));
+            enum8AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum8[] value) => WriteEnum8AsStringArray(entity, value));
+            enum8AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum8[]>(enum8AsStringArray, 53),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[53]);
+            enum8AsStringArray.SetPropertyIndexes(
+                index: 53,
+                originalValueIndex: 53,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2203,6 +3341,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum8>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum8AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8AsStringCollection(instance) == null);
+            enum8AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum8> value) => WriteEnum8AsStringCollection(entity, value));
+            enum8AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum8> value) => WriteEnum8AsStringCollection(entity, value));
+            enum8AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum8>>(enum8AsStringCollection, 54),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[54]);
+            enum8AsStringCollection.SetPropertyIndexes(
+                index: 54,
+                originalValueIndex: 54,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2266,6 +3425,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum8>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Enum8Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Enum8Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enum8Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnum8Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnum8Collection(instance) == null);
+            enum8Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum8> value) => WriteEnum8Collection(entity, value));
+            enum8Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.Enum8> value) => WriteEnum8Collection(entity, value));
+            enum8Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnum8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnum8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.Enum8>>(enum8Collection, 55),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[55]);
+            enum8Collection.SetPropertyIndexes(
+                index: 55,
+                originalValueIndex: 55,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enum8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8>(
                     (CompiledModelTestBase.Enum8 v1, CompiledModelTestBase.Enum8 v2) => object.Equals((object)v1, (object)v2),
@@ -2325,6 +3505,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumToNumberConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumToNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new EnumToNumberConverter<CompiledModelTestBase.Enum32, int>());
+            enumToNumberConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumToNumberConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumToNumberConverterProperty(entity), (object)CompiledModelTestBase.Enum32.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumToNumberConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumToNumberConverterProperty(instance), (object)CompiledModelTestBase.Enum32.Default));
+            enumToNumberConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnumToNumberConverterProperty(entity, value));
+            enumToNumberConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnumToNumberConverterProperty(entity, value));
+            enumToNumberConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumToNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumToNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32>(enumToNumberConverterProperty, 56),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToNumberConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[56]);
+            enumToNumberConverterProperty.SetPropertyIndexes(
+                index: 56,
+                originalValueIndex: 56,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumToNumberConverterProperty.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -2355,6 +3556,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new EnumToStringConverter<CompiledModelTestBase.Enum32>());
+            enumToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumToStringConverterProperty(entity), (object)CompiledModelTestBase.Enum32.Default),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumToStringConverterProperty(instance), (object)CompiledModelTestBase.Enum32.Default));
+            enumToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnumToStringConverterProperty(entity, value));
+            enumToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.Enum32 value) => WriteEnumToStringConverterProperty(entity, value));
+            enumToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.Enum32>(enumToStringConverterProperty, 57),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[57]);
+            enumToStringConverterProperty.SetPropertyIndexes(
+                index: 57,
+                originalValueIndex: 57,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32>(
                     (CompiledModelTestBase.Enum32 v1, CompiledModelTestBase.Enum32 v2) => object.Equals((object)v1, (object)v2),
@@ -2389,6 +3611,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU16),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU16(entity), (object)CompiledModelTestBase.EnumU16.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU16(instance), (object)CompiledModelTestBase.EnumU16.Min));
+            enumU16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => WriteEnumU16(entity, value));
+            enumU16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => WriteEnumU16(entity, value));
+            enumU16.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU16>(enumU16, 58),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16),
+                (ValueBuffer valueBuffer) => valueBuffer[58]);
+            enumU16.SetPropertyIndexes(
+                index: 58,
+                originalValueIndex: 58,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2418,6 +3661,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU16[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16Array(instance) == null);
+            enumU16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16[] value) => WriteEnumU16Array(entity, value));
+            enumU16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16[] value) => WriteEnumU16Array(entity, value));
+            enumU16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU16[]>(enumU16Array, 59),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[59]);
+            enumU16Array.SetPropertyIndexes(
+                index: 59,
+                originalValueIndex: 59,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2477,6 +3741,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enumU16AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU16AsString(entity), (object)CompiledModelTestBase.EnumU16.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU16AsString(instance), (object)CompiledModelTestBase.EnumU16.Min));
+            enumU16AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => WriteEnumU16AsString(entity, value));
+            enumU16AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16 value) => WriteEnumU16AsString(entity, value));
+            enumU16AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU16>(enumU16AsString, 60),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[60]);
+            enumU16AsString.SetPropertyIndexes(
+                index: 60,
+                originalValueIndex: 60,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2511,6 +3796,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU16[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU16AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16AsStringArray(instance) == null);
+            enumU16AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16[] value) => WriteEnumU16AsStringArray(entity, value));
+            enumU16AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU16[] value) => WriteEnumU16AsStringArray(entity, value));
+            enumU16AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU16[]>(enumU16AsStringArray, 61),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[61]);
+            enumU16AsStringArray.SetPropertyIndexes(
+                index: 61,
+                originalValueIndex: 61,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2574,6 +3880,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU16>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU16AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16AsStringCollection(instance) == null);
+            enumU16AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU16> value) => WriteEnumU16AsStringCollection(entity, value));
+            enumU16AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU16> value) => WriteEnumU16AsStringCollection(entity, value));
+            enumU16AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU16>>(enumU16AsStringCollection, 62),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[62]);
+            enumU16AsStringCollection.SetPropertyIndexes(
+                index: 62,
+                originalValueIndex: 62,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2637,6 +3964,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU16>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU16Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU16Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU16Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU16Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU16Collection(instance) == null);
+            enumU16Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU16> value) => WriteEnumU16Collection(entity, value));
+            enumU16Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU16> value) => WriteEnumU16Collection(entity, value));
+            enumU16Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU16>>(enumU16Collection, 63),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[63]);
+            enumU16Collection.SetPropertyIndexes(
+                index: 63,
+                originalValueIndex: 63,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16>(
                     (CompiledModelTestBase.EnumU16 v1, CompiledModelTestBase.EnumU16 v2) => object.Equals((object)v1, (object)v2),
@@ -2695,6 +4043,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU32),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU32(entity), (object)CompiledModelTestBase.EnumU32.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU32(instance), (object)CompiledModelTestBase.EnumU32.Min));
+            enumU32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => WriteEnumU32(entity, value));
+            enumU32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => WriteEnumU32(entity, value));
+            enumU32.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU32>(enumU32, 64),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32),
+                (ValueBuffer valueBuffer) => valueBuffer[64]);
+            enumU32.SetPropertyIndexes(
+                index: 64,
+                originalValueIndex: 64,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -2724,6 +4093,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU32[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32Array(instance) == null);
+            enumU32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32[] value) => WriteEnumU32Array(entity, value));
+            enumU32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32[] value) => WriteEnumU32Array(entity, value));
+            enumU32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU32[]>(enumU32Array, 65),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[65]);
+            enumU32Array.SetPropertyIndexes(
+                index: 65,
+                originalValueIndex: 65,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -2783,6 +4173,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enumU32AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU32AsString(entity), (object)CompiledModelTestBase.EnumU32.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU32AsString(instance), (object)CompiledModelTestBase.EnumU32.Min));
+            enumU32AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => WriteEnumU32AsString(entity, value));
+            enumU32AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32 value) => WriteEnumU32AsString(entity, value));
+            enumU32AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU32>(enumU32AsString, 66),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[66]);
+            enumU32AsString.SetPropertyIndexes(
+                index: 66,
+                originalValueIndex: 66,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -2817,6 +4228,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU32[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU32AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32AsStringArray(instance) == null);
+            enumU32AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32[] value) => WriteEnumU32AsStringArray(entity, value));
+            enumU32AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU32[] value) => WriteEnumU32AsStringArray(entity, value));
+            enumU32AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU32[]>(enumU32AsStringArray, 67),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[67]);
+            enumU32AsStringArray.SetPropertyIndexes(
+                index: 67,
+                originalValueIndex: 67,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -2880,6 +4312,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU32>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU32AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32AsStringCollection(instance) == null);
+            enumU32AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU32> value) => WriteEnumU32AsStringCollection(entity, value));
+            enumU32AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU32> value) => WriteEnumU32AsStringCollection(entity, value));
+            enumU32AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU32>>(enumU32AsStringCollection, 68),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[68]);
+            enumU32AsStringCollection.SetPropertyIndexes(
+                index: 68,
+                originalValueIndex: 68,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -2943,6 +4396,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU32>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU32Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU32Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU32Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU32Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU32Collection(instance) == null);
+            enumU32Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU32> value) => WriteEnumU32Collection(entity, value));
+            enumU32Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU32> value) => WriteEnumU32Collection(entity, value));
+            enumU32Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU32>>(enumU32Collection, 69),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[69]);
+            enumU32Collection.SetPropertyIndexes(
+                index: 69,
+                originalValueIndex: 69,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32>(
                     (CompiledModelTestBase.EnumU32 v1, CompiledModelTestBase.EnumU32 v2) => object.Equals((object)v1, (object)v2),
@@ -3001,6 +4475,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU64),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU64(entity), (object)CompiledModelTestBase.EnumU64.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU64(instance), (object)CompiledModelTestBase.EnumU64.Min));
+            enumU64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => WriteEnumU64(entity, value));
+            enumU64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => WriteEnumU64(entity, value));
+            enumU64.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU64>(enumU64, 70),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64),
+                (ValueBuffer valueBuffer) => valueBuffer[70]);
+            enumU64.SetPropertyIndexes(
+                index: 70,
+                originalValueIndex: 70,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3034,6 +4529,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU64[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64Array(instance) == null);
+            enumU64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64[] value) => WriteEnumU64Array(entity, value));
+            enumU64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64[] value) => WriteEnumU64Array(entity, value));
+            enumU64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU64[]>(enumU64Array, 71),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[71]);
+            enumU64Array.SetPropertyIndexes(
+                index: 71,
+                originalValueIndex: 71,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3097,6 +4613,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enumU64AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU64AsString(entity), (object)CompiledModelTestBase.EnumU64.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU64AsString(instance), (object)CompiledModelTestBase.EnumU64.Min));
+            enumU64AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => WriteEnumU64AsString(entity, value));
+            enumU64AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64 value) => WriteEnumU64AsString(entity, value));
+            enumU64AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU64>(enumU64AsString, 72),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[72]);
+            enumU64AsString.SetPropertyIndexes(
+                index: 72,
+                originalValueIndex: 72,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3131,6 +4668,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU64[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU64AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64AsStringArray(instance) == null);
+            enumU64AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64[] value) => WriteEnumU64AsStringArray(entity, value));
+            enumU64AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU64[] value) => WriteEnumU64AsStringArray(entity, value));
+            enumU64AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU64[]>(enumU64AsStringArray, 73),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[73]);
+            enumU64AsStringArray.SetPropertyIndexes(
+                index: 73,
+                originalValueIndex: 73,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3194,6 +4752,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU64>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU64AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64AsStringCollection(instance) == null);
+            enumU64AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU64> value) => WriteEnumU64AsStringCollection(entity, value));
+            enumU64AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU64> value) => WriteEnumU64AsStringCollection(entity, value));
+            enumU64AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU64>>(enumU64AsStringCollection, 74),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[74]);
+            enumU64AsStringCollection.SetPropertyIndexes(
+                index: 74,
+                originalValueIndex: 74,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3257,6 +4836,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU64>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU64Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU64Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU64Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU64Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU64Collection(instance) == null);
+            enumU64Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU64> value) => WriteEnumU64Collection(entity, value));
+            enumU64Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU64> value) => WriteEnumU64Collection(entity, value));
+            enumU64Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU64>>(enumU64Collection, 75),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[75]);
+            enumU64Collection.SetPropertyIndexes(
+                index: 75,
+                originalValueIndex: 75,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64>(
                     (CompiledModelTestBase.EnumU64 v1, CompiledModelTestBase.EnumU64 v2) => object.Equals((object)v1, (object)v2),
@@ -3319,6 +4919,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU8),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU8(entity), (object)CompiledModelTestBase.EnumU8.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU8(instance), (object)CompiledModelTestBase.EnumU8.Min));
+            enumU8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => WriteEnumU8(entity, value));
+            enumU8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => WriteEnumU8(entity, value));
+            enumU8.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU8>(enumU8, 76),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8),
+                (ValueBuffer valueBuffer) => valueBuffer[76]);
+            enumU8.SetPropertyIndexes(
+                index: 76,
+                originalValueIndex: 76,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3348,6 +4969,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU8[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8Array(instance) == null);
+            enumU8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8[] value) => WriteEnumU8Array(entity, value));
+            enumU8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8[] value) => WriteEnumU8Array(entity, value));
+            enumU8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU8[]>(enumU8Array, 77),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[77]);
+            enumU8Array.SetPropertyIndexes(
+                index: 77,
+                originalValueIndex: 77,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3407,6 +5049,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 providerPropertyType: typeof(string));
+            enumU8AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => object.Equals((object)ReadEnumU8AsString(entity), (object)CompiledModelTestBase.EnumU8.Min),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => object.Equals((object)ReadEnumU8AsString(instance), (object)CompiledModelTestBase.EnumU8.Min));
+            enumU8AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => WriteEnumU8AsString(entity, value));
+            enumU8AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8 value) => WriteEnumU8AsString(entity, value));
+            enumU8AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU8>(enumU8AsString, 78),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[78]);
+            enumU8AsString.SetPropertyIndexes(
+                index: 78,
+                originalValueIndex: 78,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8AsString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3441,6 +5104,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU8[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU8AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8AsStringArray(instance) == null);
+            enumU8AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8[] value) => WriteEnumU8AsStringArray(entity, value));
+            enumU8AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, CompiledModelTestBase.EnumU8[] value) => WriteEnumU8AsStringArray(entity, value));
+            enumU8AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<CompiledModelTestBase.EnumU8[]>(enumU8AsStringArray, 79),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[79]);
+            enumU8AsStringArray.SetPropertyIndexes(
+                index: 79,
+                originalValueIndex: 79,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3504,6 +5188,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU8>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU8AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8AsStringCollection(instance) == null);
+            enumU8AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU8> value) => WriteEnumU8AsStringCollection(entity, value));
+            enumU8AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU8> value) => WriteEnumU8AsStringCollection(entity, value));
+            enumU8AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU8>>(enumU8AsStringCollection, 80),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[80]);
+            enumU8AsStringCollection.SetPropertyIndexes(
+                index: 80,
+                originalValueIndex: 80,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3567,6 +5272,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU8>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("EnumU8Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<EnumU8Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            enumU8Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadEnumU8Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadEnumU8Collection(instance) == null);
+            enumU8Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU8> value) => WriteEnumU8Collection(entity, value));
+            enumU8Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<CompiledModelTestBase.EnumU8> value) => WriteEnumU8Collection(entity, value));
+            enumU8Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadEnumU8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadEnumU8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<CompiledModelTestBase.EnumU8>>(enumU8Collection, 81),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[81]);
+            enumU8Collection.SetPropertyIndexes(
+                index: 81,
+                originalValueIndex: 81,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             enumU8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8>(
                     (CompiledModelTestBase.EnumU8 v1, CompiledModelTestBase.EnumU8 v2) => object.Equals((object)v1, (object)v2),
@@ -3626,6 +5352,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Float", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Float>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0f);
+            @float.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadFloat(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadFloat(entity).Equals(0F),
+                (CompiledModelTestBase.ManyTypes instance) => ReadFloat(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadFloat(instance).Equals(0F));
+            @float.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, float value) => WriteFloat(entity, value));
+            @float.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, float value) => WriteFloat(entity, value));
+            @float.SetAccessors(
+                (InternalEntityEntry entry) => ReadFloat((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadFloat((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<float>(@float, 82),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<float>(@float),
+                (ValueBuffer valueBuffer) => valueBuffer[82]);
+            @float.SetPropertyIndexes(
+                index: 82,
+                originalValueIndex: 82,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @float.TypeMapping = SqlServerFloatTypeMapping.Default.Clone(
                 comparer: new ValueComparer<float>(
                     (float v1, float v2) => v1.Equals(v2),
@@ -3646,6 +5393,27 @@ namespace TestNamespace
                 typeof(float[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("FloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<FloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            floatArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadFloatArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadFloatArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadFloatArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadFloatArray(instance) == null);
+            floatArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, float[] value) => WriteFloatArray(entity, value));
+            floatArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, float[] value) => WriteFloatArray(entity, value));
+            floatArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadFloatArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadFloatArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<float[]>(floatArray, 83),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<float[]>(floatArray),
+                (ValueBuffer valueBuffer) => valueBuffer[83]);
+            floatArray.SetPropertyIndexes(
+                index: 83,
+                originalValueIndex: 83,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             floatArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<float>(new ValueComparer<float>(
                     (float v1, float v2) => v1.Equals(v2),
@@ -3689,6 +5457,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Guid", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Guid>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            guid.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuid(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuid(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuid(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuid(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
+            guid.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuid(entity, value));
+            guid.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuid(entity, value));
+            guid.SetAccessors(
+                (InternalEntityEntry entry) => ReadGuid((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadGuid((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(guid, 84),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Guid>(guid),
+                (ValueBuffer valueBuffer) => valueBuffer[84]);
+            guid.SetPropertyIndexes(
+                index: 84,
+                originalValueIndex: 84,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             guid.TypeMapping = GuidTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
@@ -3711,6 +5500,27 @@ namespace TestNamespace
                 typeof(Guid[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("GuidArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<GuidArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            guidArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidArray(instance) == null);
+            guidArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid[] value) => WriteGuidArray(entity, value));
+            guidArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid[] value) => WriteGuidArray(entity, value));
+            guidArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadGuidArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadGuidArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid[]>(guidArray, 85),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Guid[]>(guidArray),
+                (ValueBuffer valueBuffer) => valueBuffer[85]);
+            guidArray.SetPropertyIndexes(
+                index: 85,
+                originalValueIndex: 85,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             guidArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<Guid>(new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
@@ -3756,6 +5566,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("GuidToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<GuidToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new GuidToBytesConverter());
+            guidToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidToBytesConverterProperty(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidToBytesConverterProperty(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
+            guidToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuidToBytesConverterProperty(entity, value));
+            guidToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuidToBytesConverterProperty(entity, value));
+            guidToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadGuidToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadGuidToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(guidToBytesConverterProperty, 86),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Guid>(guidToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[86]);
+            guidToBytesConverterProperty.SetPropertyIndexes(
+                index: 86,
+                originalValueIndex: 86,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             guidToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
@@ -3766,20 +5597,20 @@ namespace TestNamespace
                     (Guid v) => v.GetHashCode(),
                     (Guid v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(16)",
                     size: 16),
                 converter: new ValueConverter<Guid, byte[]>(
                     (Guid v) => v.ToByteArray(),
-                    (Byte[] v) => new Guid(v)),
+                    (byte[] v) => new Guid(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<Guid, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<Guid, byte[]>(
                         (Guid v) => v.ToByteArray(),
-                        (Byte[] v) => new Guid(v))));
+                        (byte[] v) => new Guid(v))));
             guidToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
             guidToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -3789,6 +5620,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("GuidToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<GuidToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new GuidToStringConverter());
+            guidToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadGuidToStringConverterProperty(entity) == new Guid("00000000-0000-0000-0000-000000000000"),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadGuidToStringConverterProperty(instance) == new Guid("00000000-0000-0000-0000-000000000000"));
+            guidToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuidToStringConverterProperty(entity, value));
+            guidToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Guid value) => WriteGuidToStringConverterProperty(entity, value));
+            guidToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadGuidToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadGuidToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Guid>(guidToStringConverterProperty, 87),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Guid>(guidToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[87]);
+            guidToStringConverterProperty.SetPropertyIndexes(
+                index: 87,
+                originalValueIndex: 87,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             guidToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid>(
                     (Guid v1, Guid v2) => v1 == v2,
@@ -3823,6 +5675,27 @@ namespace TestNamespace
                 typeof(IPAddress),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            iPAddress.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddress(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddress(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddress(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddress(instance) == null);
+            iPAddress.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddress(entity, value));
+            iPAddress.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddress(entity, value));
+            iPAddress.SetAccessors(
+                (InternalEntityEntry entry) => ReadIPAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIPAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress>(iPAddress, 88),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress>(iPAddress),
+                (ValueBuffer valueBuffer) => valueBuffer[88]);
+            iPAddress.SetPropertyIndexes(
+                index: 88,
+                originalValueIndex: 88,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             iPAddress.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -3856,6 +5729,27 @@ namespace TestNamespace
                 typeof(IPAddress[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            iPAddressArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressArray(instance) == null);
+            iPAddressArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress[] value) => WriteIPAddressArray(entity, value));
+            iPAddressArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress[] value) => WriteIPAddressArray(entity, value));
+            iPAddressArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadIPAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIPAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(iPAddressArray, 89),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(iPAddressArray),
+                (ValueBuffer valueBuffer) => valueBuffer[89]);
+            iPAddressArray.SetPropertyIndexes(
+                index: 89,
+                originalValueIndex: 89,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             iPAddressArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -3920,6 +5814,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new IPAddressToBytesConverter());
+            iPAddressToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressToBytesConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressToBytesConverterProperty(instance) == null);
+            iPAddressToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddressToBytesConverterProperty(entity, value));
+            iPAddressToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddressToBytesConverterProperty(entity, value));
+            iPAddressToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadIPAddressToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIPAddressToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress>(iPAddressToBytesConverterProperty, 90),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[90]);
+            iPAddressToBytesConverterProperty.SetPropertyIndexes(
+                index: 90,
+                originalValueIndex: 90,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             iPAddressToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -3930,20 +5845,20 @@ namespace TestNamespace
                     (IPAddress v) => v.GetHashCode(),
                     (IPAddress v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(16)",
                     size: 16),
                 converter: new ValueConverter<IPAddress, byte[]>(
                     (IPAddress v) => v.GetAddressBytes(),
-                    (Byte[] v) => new IPAddress(v)),
+                    (byte[] v) => new IPAddress(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<IPAddress, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<IPAddress, byte[]>(
                         (IPAddress v) => v.GetAddressBytes(),
-                        (Byte[] v) => new IPAddress(v))));
+                        (byte[] v) => new IPAddress(v))));
             iPAddressToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var iPAddressToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -3952,6 +5867,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IPAddressToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IPAddressToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new IPAddressToStringConverter());
+            iPAddressToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIPAddressToStringConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIPAddressToStringConverterProperty(instance) == null);
+            iPAddressToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddressToStringConverterProperty(entity, value));
+            iPAddressToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteIPAddressToStringConverterProperty(entity, value));
+            iPAddressToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadIPAddressToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIPAddressToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress>(iPAddressToStringConverterProperty, 91),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[91]);
+            iPAddressToStringConverterProperty.SetPropertyIndexes(
+                index: 91,
+                originalValueIndex: 91,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             iPAddressToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -3986,6 +5922,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (short)0);
+            int16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt16(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt16(instance) == 0);
+            int16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, short value) => WriteInt16(entity, value));
+            int16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, short value) => WriteInt16(entity, value));
+            int16.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<short>(int16, 92),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<short>(int16),
+                (ValueBuffer valueBuffer) => valueBuffer[92]);
+            int16.SetPropertyIndexes(
+                index: 92,
+                originalValueIndex: 92,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
@@ -4006,6 +5963,27 @@ namespace TestNamespace
                 typeof(short[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt16Array(instance) == null);
+            int16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, short[] value) => WriteInt16Array(entity, value));
+            int16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, short[] value) => WriteInt16Array(entity, value));
+            int16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<short[]>(int16Array, 93),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<short[]>(int16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[93]);
+            int16Array.SetPropertyIndexes(
+                index: 93,
+                originalValueIndex: 93,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<short>(new ValueComparer<short>(
                     (short v1, short v2) => v1 == v2,
@@ -4049,6 +6027,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0);
+            int32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt32(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt32(instance) == 0);
+            int32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteInt32(entity, value));
+            int32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteInt32(entity, value));
+            int32.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(int32, 94),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int>(int32),
+                (ValueBuffer valueBuffer) => valueBuffer[94]);
+            int32.SetPropertyIndexes(
+                index: 94,
+                originalValueIndex: 94,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int32.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -4069,6 +6068,27 @@ namespace TestNamespace
                 typeof(int[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt32Array(instance) == null);
+            int32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, int[] value) => WriteInt32Array(entity, value));
+            int32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, int[] value) => WriteInt32Array(entity, value));
+            int32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int[]>(int32Array, 95),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int[]>(int32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[95]);
+            int32Array.SetPropertyIndexes(
+                index: 95,
+                originalValueIndex: 95,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<int>(new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -4112,6 +6132,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: 0L);
+            int64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt64(entity) == 0L,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt64(instance) == 0L);
+            int64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, long value) => WriteInt64(entity, value));
+            int64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, long value) => WriteInt64(entity, value));
+            int64.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<long>(int64, 96),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<long>(int64),
+                (ValueBuffer valueBuffer) => valueBuffer[96]);
+            int64.SetPropertyIndexes(
+                index: 96,
+                originalValueIndex: 96,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
@@ -4132,6 +6173,27 @@ namespace TestNamespace
                 typeof(long[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt64Array(instance) == null);
+            int64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, long[] value) => WriteInt64Array(entity, value));
+            int64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, long[] value) => WriteInt64Array(entity, value));
+            int64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<long[]>(int64Array, 97),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<long[]>(int64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[97]);
+            int64Array.SetPropertyIndexes(
+                index: 97,
+                originalValueIndex: 97,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<long>(new ValueComparer<long>(
                     (long v1, long v2) => v1 == v2,
@@ -4174,6 +6236,27 @@ namespace TestNamespace
                 typeof(sbyte),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt8(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt8(instance) == 0);
+            int8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, sbyte value) => WriteInt8(entity, value));
+            int8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, sbyte value) => WriteInt8(entity, value));
+            int8.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<sbyte>(int8, 98),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<sbyte>(int8),
+                (ValueBuffer valueBuffer) => valueBuffer[98]);
+            int8.SetPropertyIndexes(
+                index: 98,
+                originalValueIndex: 98,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<sbyte>(
                     (sbyte v1, sbyte v2) => v1 == v2,
@@ -4203,6 +6286,27 @@ namespace TestNamespace
                 typeof(sbyte[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Int8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Int8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            int8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadInt8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadInt8Array(instance) == null);
+            int8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, sbyte[] value) => WriteInt8Array(entity, value));
+            int8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, sbyte[] value) => WriteInt8Array(entity, value));
+            int8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<sbyte[]>(int8Array, 99),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<sbyte[]>(int8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[99]);
+            int8Array.SetPropertyIndexes(
+                index: 99,
+                originalValueIndex: 99,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             int8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<sbyte>(new ValueComparer<sbyte>(
                     (sbyte v1, sbyte v2) => v1 == v2,
@@ -4262,6 +6366,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IntNumberToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IntNumberToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToBytesConverter<int>());
+            intNumberToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIntNumberToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIntNumberToBytesConverterProperty(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIntNumberToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIntNumberToBytesConverterProperty(instance) == 0);
+            intNumberToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteIntNumberToBytesConverterProperty(entity, value));
+            intNumberToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteIntNumberToBytesConverterProperty(entity, value));
+            intNumberToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadIntNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIntNumberToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(intNumberToBytesConverterProperty, 100),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int>(intNumberToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[100]);
+            intNumberToBytesConverterProperty.SetPropertyIndexes(
+                index: 100,
+                originalValueIndex: 100,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             intNumberToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -4272,20 +6397,20 @@ namespace TestNamespace
                     (int v) => v,
                     (int v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(4)",
                     size: 4),
                 converter: new ValueConverter<int, byte[]>(
                     (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)),
-                    (Byte[] v) => v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt(v.Length == 0 ? new byte[4] : v), 0)),
+                    (byte[] v) => v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt(v.Length == 0 ? new byte[4] : v), 0)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<int, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<int, byte[]>(
                         (int v) => NumberToBytesConverter<int>.ReverseInt(BitConverter.GetBytes(v)),
-                        (Byte[] v) => v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt(v.Length == 0 ? new byte[4] : v), 0))));
+                        (byte[] v) => v == null ? 0 : BitConverter.ToInt32(NumberToBytesConverter<int>.ReverseInt(v.Length == 0 ? new byte[4] : v), 0))));
             intNumberToBytesConverterProperty.SetSentinelFromProviderValue(new byte[] { 0, 0, 0, 0 });
             intNumberToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -4295,6 +6420,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("IntNumberToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<IntNumberToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new NumberToStringConverter<int>());
+            intNumberToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadIntNumberToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadIntNumberToStringConverterProperty(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadIntNumberToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadIntNumberToStringConverterProperty(instance) == 0);
+            intNumberToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteIntNumberToStringConverterProperty(entity, value));
+            intNumberToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, int value) => WriteIntNumberToStringConverterProperty(entity, value));
+            intNumberToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadIntNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadIntNumberToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<int>(intNumberToStringConverterProperty, 101),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<int>(intNumberToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[101]);
+            intNumberToStringConverterProperty.SetPropertyIndexes(
+                index: 101,
+                originalValueIndex: 101,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             intNumberToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
@@ -4331,6 +6477,27 @@ namespace TestNamespace
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullIntToNullStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true,
                 valueConverter: new CompiledModelTestBase.NullIntToNullStringConverter());
+            nullIntToNullStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullIntToNullStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullIntToNullStringConverterProperty(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullIntToNullStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullIntToNullStringConverterProperty(instance).HasValue);
+            nullIntToNullStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int> value) => WriteNullIntToNullStringConverterProperty(entity, value));
+            nullIntToNullStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int> value) => WriteNullIntToNullStringConverterProperty(entity, value));
+            nullIntToNullStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullIntToNullStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullIntToNullStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<int>>(nullIntToNullStringConverterProperty, 102),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<int>>(nullIntToNullStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[102]);
+            nullIntToNullStringConverterProperty.SetPropertyIndexes(
+                index: 102,
+                originalValueIndex: 102,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullIntToNullStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int?>(
                     (Nullable<int> v1, Nullable<int> v2) => v1 == v2,
@@ -4367,6 +6534,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBool", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBool>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableBool.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBool(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableBool(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBool(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableBool(instance).HasValue);
+            nullableBool.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<bool> value) => WriteNullableBool(entity, value));
+            nullableBool.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<bool> value) => WriteNullableBool(entity, value));
+            nullableBool.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableBool((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableBool((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<bool>>(nullableBool, 103),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<bool>>(nullableBool),
+                (ValueBuffer valueBuffer) => valueBuffer[103]);
+            nullableBool.SetPropertyIndexes(
+                index: 103,
+                originalValueIndex: 103,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableBool.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<bool?>(
                     (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
@@ -4387,6 +6575,27 @@ namespace TestNamespace
                 typeof(bool?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBoolArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBoolArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableBoolArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBoolArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBoolArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBoolArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBoolArray(instance) == null);
+            nullableBoolArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<bool>[] value) => WriteNullableBoolArray(entity, value));
+            nullableBoolArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<bool>[] value) => WriteNullableBoolArray(entity, value));
+            nullableBoolArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableBoolArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableBoolArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<bool>[]>(nullableBoolArray, 104),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<bool>[]>(nullableBoolArray),
+                (ValueBuffer valueBuffer) => valueBuffer[104]);
+            nullableBoolArray.SetPropertyIndexes(
+                index: 104,
+                originalValueIndex: 104,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableBoolArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<bool>(new ValueComparer<bool?>(
                     (Nullable<bool> v1, Nullable<bool> v2) => v1.HasValue && v2.HasValue && (bool)v1 == (bool)v2 || !v1.HasValue && !v2.HasValue,
@@ -4430,19 +6639,40 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBytes", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBytes>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableBytes.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBytes(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBytes(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBytes(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBytes(instance) == null);
+            nullableBytes.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteNullableBytes(entity, value));
+            nullableBytes.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteNullableBytes(entity, value));
+            nullableBytes.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableBytes((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableBytes((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(nullableBytes, 105),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(nullableBytes),
+                (ValueBuffer valueBuffer) => valueBuffer[105]);
+            nullableBytes.SetPropertyIndexes(
+                index: 105,
+                originalValueIndex: 105,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableBytes.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(max)"),
                 storeTypePostfix: StoreTypePostfix.None);
@@ -4453,15 +6683,36 @@ namespace TestNamespace
                 typeof(byte[][]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableBytesArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableBytesArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableBytesArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBytesArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableBytesArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBytesArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableBytesArray(instance) == null);
+            nullableBytesArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[][] value) => WriteNullableBytesArray(entity, value));
+            nullableBytesArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[][] value) => WriteNullableBytesArray(entity, value));
+            nullableBytesArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableBytesArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableBytesArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[][]>(nullableBytesArray, 106),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[][]>(nullableBytesArray),
+                (ValueBuffer valueBuffer) => valueBuffer[106]);
+            nullableBytesArray.SetPropertyIndexes(
+                index: 106,
+                originalValueIndex: 106,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableBytesArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<byte[]>(new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v)),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v)),
                 keyComparer: new ListComparer<byte[]>(new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v)),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v)),
                 providerValueComparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
@@ -4477,17 +6728,17 @@ namespace TestNamespace
                     JsonByteArrayReaderWriter.Instance),
                 elementMapping: SqlServerByteArrayTypeMapping.Default.Clone(
                     comparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => v.GetHashCode(),
-                        (Byte[] v) => v),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => v.GetHashCode(),
+                        (byte[] v) => v),
                     keyComparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                        (Byte[] source) => source.ToArray()),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                        (byte[] source) => source.ToArray()),
                     providerValueComparer: new ValueComparer<byte[]>(
-                        (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                        (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                        (Byte[] source) => source.ToArray()),
+                        (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                        (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                        (byte[] source) => source.ToArray()),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "varbinary(max)"),
                     storeTypePostfix: StoreTypePostfix.None));
@@ -4499,6 +6750,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableChar", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableChar>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableChar.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableChar(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableChar(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableChar(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableChar(instance).HasValue);
+            nullableChar.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<char> value) => WriteNullableChar(entity, value));
+            nullableChar.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<char> value) => WriteNullableChar(entity, value));
+            nullableChar.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableChar((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableChar((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<char>>(nullableChar, 107),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<char>>(nullableChar),
+                (ValueBuffer valueBuffer) => valueBuffer[107]);
+            nullableChar.SetPropertyIndexes(
+                index: 107,
+                originalValueIndex: 107,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableChar.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<char?>(
                     (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
@@ -4532,6 +6804,27 @@ namespace TestNamespace
                 typeof(char?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableCharArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableCharArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableCharArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableCharArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableCharArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableCharArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableCharArray(instance) == null);
+            nullableCharArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<char>[] value) => WriteNullableCharArray(entity, value));
+            nullableCharArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<char>[] value) => WriteNullableCharArray(entity, value));
+            nullableCharArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableCharArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableCharArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<char>[]>(nullableCharArray, 108),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<char>[]>(nullableCharArray),
+                (ValueBuffer valueBuffer) => valueBuffer[108]);
+            nullableCharArray.SetPropertyIndexes(
+                index: 108,
+                originalValueIndex: 108,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableCharArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<char>(new ValueComparer<char?>(
                     (Nullable<char> v1, Nullable<char> v2) => v1.HasValue && v2.HasValue && (char)v1 == (char)v2 || !v1.HasValue && !v2.HasValue,
@@ -4596,6 +6889,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDateOnly", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableDateOnly.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateOnly(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableDateOnly(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateOnly(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableDateOnly(instance).HasValue);
+            nullableDateOnly.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateOnly> value) => WriteNullableDateOnly(entity, value));
+            nullableDateOnly.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateOnly> value) => WriteNullableDateOnly(entity, value));
+            nullableDateOnly.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDateOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDateOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<DateOnly>>(nullableDateOnly, 109),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<DateOnly>>(nullableDateOnly),
+                (ValueBuffer valueBuffer) => valueBuffer[109]);
+            nullableDateOnly.SetPropertyIndexes(
+                index: 109,
+                originalValueIndex: 109,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDateOnly.TypeMapping = SqlServerDateOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateOnly?>(
                     (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
@@ -4616,6 +6930,27 @@ namespace TestNamespace
                 typeof(DateOnly?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDateOnlyArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateOnlyArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableDateOnlyArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateOnlyArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateOnlyArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateOnlyArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateOnlyArray(instance) == null);
+            nullableDateOnlyArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateOnly>[] value) => WriteNullableDateOnlyArray(entity, value));
+            nullableDateOnlyArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateOnly>[] value) => WriteNullableDateOnlyArray(entity, value));
+            nullableDateOnlyArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDateOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDateOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<DateOnly>[]>(nullableDateOnlyArray, 110),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<DateOnly>[]>(nullableDateOnlyArray),
+                (ValueBuffer valueBuffer) => valueBuffer[110]);
+            nullableDateOnlyArray.SetPropertyIndexes(
+                index: 110,
+                originalValueIndex: 110,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDateOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<DateOnly>(new ValueComparer<DateOnly?>(
                     (Nullable<DateOnly> v1, Nullable<DateOnly> v2) => v1.HasValue && v2.HasValue && (DateOnly)v1 == (DateOnly)v2 || !v1.HasValue && !v2.HasValue,
@@ -4659,6 +6994,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDateTime", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateTime>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableDateTime.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateTime(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableDateTime(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateTime(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableDateTime(instance).HasValue);
+            nullableDateTime.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateTime> value) => WriteNullableDateTime(entity, value));
+            nullableDateTime.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateTime> value) => WriteNullableDateTime(entity, value));
+            nullableDateTime.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDateTime((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDateTime((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<DateTime>>(nullableDateTime, 111),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<DateTime>>(nullableDateTime),
+                (ValueBuffer valueBuffer) => valueBuffer[111]);
+            nullableDateTime.SetPropertyIndexes(
+                index: 111,
+                originalValueIndex: 111,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDateTime.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
                 comparer: new ValueComparer<DateTime?>(
                     (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
@@ -4679,6 +7035,27 @@ namespace TestNamespace
                 typeof(DateTime?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDateTimeArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDateTimeArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableDateTimeArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateTimeArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDateTimeArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateTimeArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDateTimeArray(instance) == null);
+            nullableDateTimeArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateTime>[] value) => WriteNullableDateTimeArray(entity, value));
+            nullableDateTimeArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<DateTime>[] value) => WriteNullableDateTimeArray(entity, value));
+            nullableDateTimeArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDateTimeArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDateTimeArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<DateTime>[]>(nullableDateTimeArray, 112),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<DateTime>[]>(nullableDateTimeArray),
+                (ValueBuffer valueBuffer) => valueBuffer[112]);
+            nullableDateTimeArray.SetPropertyIndexes(
+                index: 112,
+                originalValueIndex: 112,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDateTimeArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<DateTime>(new ValueComparer<DateTime?>(
                     (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
@@ -4722,6 +7099,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDecimal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDecimal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableDecimal.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDecimal(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableDecimal(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDecimal(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableDecimal(instance).HasValue);
+            nullableDecimal.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<decimal> value) => WriteNullableDecimal(entity, value));
+            nullableDecimal.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<decimal> value) => WriteNullableDecimal(entity, value));
+            nullableDecimal.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDecimal((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDecimal((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<decimal>>(nullableDecimal, 113),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<decimal>>(nullableDecimal),
+                (ValueBuffer valueBuffer) => valueBuffer[113]);
+            nullableDecimal.SetPropertyIndexes(
+                index: 113,
+                originalValueIndex: 113,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDecimal.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<decimal?>(
                     (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
@@ -4742,6 +7140,27 @@ namespace TestNamespace
                 typeof(decimal?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDecimalArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDecimalArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableDecimalArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDecimalArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDecimalArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDecimalArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDecimalArray(instance) == null);
+            nullableDecimalArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<decimal>[] value) => WriteNullableDecimalArray(entity, value));
+            nullableDecimalArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<decimal>[] value) => WriteNullableDecimalArray(entity, value));
+            nullableDecimalArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDecimalArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDecimalArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<decimal>[]>(nullableDecimalArray, 114),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<decimal>[]>(nullableDecimalArray),
+                (ValueBuffer valueBuffer) => valueBuffer[114]);
+            nullableDecimalArray.SetPropertyIndexes(
+                index: 114,
+                originalValueIndex: 114,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDecimalArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<decimal>(new ValueComparer<decimal?>(
                     (Nullable<decimal> v1, Nullable<decimal> v2) => v1.HasValue && v2.HasValue && (decimal)v1 == (decimal)v2 || !v1.HasValue && !v2.HasValue,
@@ -4785,6 +7204,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDouble", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDouble>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableDouble.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDouble(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableDouble(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDouble(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableDouble(instance).HasValue);
+            nullableDouble.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<double> value) => WriteNullableDouble(entity, value));
+            nullableDouble.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<double> value) => WriteNullableDouble(entity, value));
+            nullableDouble.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDouble((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDouble((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<double>>(nullableDouble, 115),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<double>>(nullableDouble),
+                (ValueBuffer valueBuffer) => valueBuffer[115]);
+            nullableDouble.SetPropertyIndexes(
+                index: 115,
+                originalValueIndex: 115,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDouble.TypeMapping = SqlServerDoubleTypeMapping.Default.Clone(
                 comparer: new ValueComparer<double?>(
                     (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
@@ -4805,6 +7245,27 @@ namespace TestNamespace
                 typeof(double?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableDoubleArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableDoubleArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableDoubleArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDoubleArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableDoubleArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDoubleArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableDoubleArray(instance) == null);
+            nullableDoubleArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<double>[] value) => WriteNullableDoubleArray(entity, value));
+            nullableDoubleArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<double>[] value) => WriteNullableDoubleArray(entity, value));
+            nullableDoubleArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableDoubleArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableDoubleArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<double>[]>(nullableDoubleArray, 116),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<double>[]>(nullableDoubleArray),
+                (ValueBuffer valueBuffer) => valueBuffer[116]);
+            nullableDoubleArray.SetPropertyIndexes(
+                index: 116,
+                originalValueIndex: 116,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableDoubleArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<double>(new ValueComparer<double?>(
                     (Nullable<double> v1, Nullable<double> v2) => v1.HasValue && v2.HasValue && ((double)v1).Equals((double)v2) || !v1.HasValue && !v2.HasValue,
@@ -4848,6 +7309,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum16(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum16(instance).HasValue);
+            nullableEnum16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16> value) => WriteNullableEnum16(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)value));
+            nullableEnum16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16> value) => WriteNullableEnum16(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)value));
+            nullableEnum16.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16, 117),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16),
+                (ValueBuffer valueBuffer) => valueBuffer[117]);
+            nullableEnum16.SetPropertyIndexes(
+                index: 117,
+                originalValueIndex: 117,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -4876,6 +7358,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum16?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16Array(instance) == null);
+            nullableEnum16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16>[] value) => WriteNullableEnum16Array(entity, value));
+            nullableEnum16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16>[] value) => WriteNullableEnum16Array(entity, value));
+            nullableEnum16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16Array, 118),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[118]);
+            nullableEnum16Array.SetPropertyIndexes(
+                index: 118,
+                originalValueIndex: 118,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -4935,6 +7438,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum16AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum16AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum16AsString(instance).HasValue);
+            nullableEnum16AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16> value) => WriteNullableEnum16AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)value));
+            nullableEnum16AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16> value) => WriteNullableEnum16AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum16>)(CompiledModelTestBase.Enum16)value));
+            nullableEnum16AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16AsString, 119),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[119]);
+            nullableEnum16AsString.SetPropertyIndexes(
+                index: 119,
+                originalValueIndex: 119,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16AsString.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -4963,6 +7487,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum16?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum16AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16AsStringArray(instance) == null);
+            nullableEnum16AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16>[] value) => WriteNullableEnum16AsStringArray(entity, value));
+            nullableEnum16AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum16>[] value) => WriteNullableEnum16AsStringArray(entity, value));
+            nullableEnum16AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16AsStringArray, 120),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[120]);
+            nullableEnum16AsStringArray.SetPropertyIndexes(
+                index: 120,
+                originalValueIndex: 120,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -5021,6 +7566,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum16?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum16AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16AsStringCollection(instance) == null);
+            nullableEnum16AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum16>> value) => WriteNullableEnum16AsStringCollection(entity, value));
+            nullableEnum16AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum16>> value) => WriteNullableEnum16AsStringCollection(entity, value));
+            nullableEnum16AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16AsStringCollection, 121),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[121]);
+            nullableEnum16AsStringCollection.SetPropertyIndexes(
+                index: 121,
+                originalValueIndex: 121,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -5079,6 +7645,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum16?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum16Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum16Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum16Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum16Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum16Collection(instance) == null);
+            nullableEnum16Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum16>> value) => WriteNullableEnum16Collection(entity, value));
+            nullableEnum16Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum16>> value) => WriteNullableEnum16Collection(entity, value));
+            nullableEnum16Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16Collection, 122),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[122]);
+            nullableEnum16Collection.SetPropertyIndexes(
+                index: 122,
+                originalValueIndex: 122,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum16>(new ValueComparer<CompiledModelTestBase.Enum16?>(
                     (Nullable<CompiledModelTestBase.Enum16> v1, Nullable<CompiledModelTestBase.Enum16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum16)v1, (object)(CompiledModelTestBase.Enum16)v2) || !v1.HasValue && !v2.HasValue,
@@ -5138,6 +7725,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum32(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum32(instance).HasValue);
+            nullableEnum32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32> value) => WriteNullableEnum32(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)value));
+            nullableEnum32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32> value) => WriteNullableEnum32(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)value));
+            nullableEnum32.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32, 123),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32),
+                (ValueBuffer valueBuffer) => valueBuffer[123]);
+            nullableEnum32.SetPropertyIndexes(
+                index: 123,
+                originalValueIndex: 123,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5166,6 +7774,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum32?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32Array(instance) == null);
+            nullableEnum32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32>[] value) => WriteNullableEnum32Array(entity, value));
+            nullableEnum32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32>[] value) => WriteNullableEnum32Array(entity, value));
+            nullableEnum32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32Array, 124),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[124]);
+            nullableEnum32Array.SetPropertyIndexes(
+                index: 124,
+                originalValueIndex: 124,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5225,6 +7854,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum32AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum32AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum32AsString(instance).HasValue);
+            nullableEnum32AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32> value) => WriteNullableEnum32AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)value));
+            nullableEnum32AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32> value) => WriteNullableEnum32AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum32>)(CompiledModelTestBase.Enum32)value));
+            nullableEnum32AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32AsString, 125),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[125]);
+            nullableEnum32AsString.SetPropertyIndexes(
+                index: 125,
+                originalValueIndex: 125,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32AsString.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5253,6 +7903,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum32?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum32AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32AsStringArray(instance) == null);
+            nullableEnum32AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32>[] value) => WriteNullableEnum32AsStringArray(entity, value));
+            nullableEnum32AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum32>[] value) => WriteNullableEnum32AsStringArray(entity, value));
+            nullableEnum32AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32AsStringArray, 126),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[126]);
+            nullableEnum32AsStringArray.SetPropertyIndexes(
+                index: 126,
+                originalValueIndex: 126,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5311,6 +7982,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum32?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum32AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32AsStringCollection(instance) == null);
+            nullableEnum32AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum32>> value) => WriteNullableEnum32AsStringCollection(entity, value));
+            nullableEnum32AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum32>> value) => WriteNullableEnum32AsStringCollection(entity, value));
+            nullableEnum32AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32AsStringCollection, 127),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[127]);
+            nullableEnum32AsStringCollection.SetPropertyIndexes(
+                index: 127,
+                originalValueIndex: 127,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5369,6 +8061,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum32?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum32Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum32Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum32Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum32Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum32Collection(instance) == null);
+            nullableEnum32Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum32>> value) => WriteNullableEnum32Collection(entity, value));
+            nullableEnum32Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum32>> value) => WriteNullableEnum32Collection(entity, value));
+            nullableEnum32Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32Collection, 128),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[128]);
+            nullableEnum32Collection.SetPropertyIndexes(
+                index: 128,
+                originalValueIndex: 128,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum32>(new ValueComparer<CompiledModelTestBase.Enum32?>(
                     (Nullable<CompiledModelTestBase.Enum32> v1, Nullable<CompiledModelTestBase.Enum32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum32)v1, (object)(CompiledModelTestBase.Enum32)v2) || !v1.HasValue && !v2.HasValue,
@@ -5428,6 +8141,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum64(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum64(instance).HasValue);
+            nullableEnum64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64> value) => WriteNullableEnum64(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)value));
+            nullableEnum64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64> value) => WriteNullableEnum64(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)value));
+            nullableEnum64.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64, 129),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64),
+                (ValueBuffer valueBuffer) => valueBuffer[129]);
+            nullableEnum64.SetPropertyIndexes(
+                index: 129,
+                originalValueIndex: 129,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5456,6 +8190,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum64?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64Array(instance) == null);
+            nullableEnum64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64>[] value) => WriteNullableEnum64Array(entity, value));
+            nullableEnum64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64>[] value) => WriteNullableEnum64Array(entity, value));
+            nullableEnum64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64Array, 130),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[130]);
+            nullableEnum64Array.SetPropertyIndexes(
+                index: 130,
+                originalValueIndex: 130,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5515,6 +8270,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum64AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum64AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum64AsString(instance).HasValue);
+            nullableEnum64AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64> value) => WriteNullableEnum64AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)value));
+            nullableEnum64AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64> value) => WriteNullableEnum64AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum64>)(CompiledModelTestBase.Enum64)value));
+            nullableEnum64AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64AsString, 131),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[131]);
+            nullableEnum64AsString.SetPropertyIndexes(
+                index: 131,
+                originalValueIndex: 131,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64AsString.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5543,6 +8319,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum64?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum64AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64AsStringArray(instance) == null);
+            nullableEnum64AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64>[] value) => WriteNullableEnum64AsStringArray(entity, value));
+            nullableEnum64AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum64>[] value) => WriteNullableEnum64AsStringArray(entity, value));
+            nullableEnum64AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64AsStringArray, 132),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[132]);
+            nullableEnum64AsStringArray.SetPropertyIndexes(
+                index: 132,
+                originalValueIndex: 132,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5601,6 +8398,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum64?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum64AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64AsStringCollection(instance) == null);
+            nullableEnum64AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum64>> value) => WriteNullableEnum64AsStringCollection(entity, value));
+            nullableEnum64AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum64>> value) => WriteNullableEnum64AsStringCollection(entity, value));
+            nullableEnum64AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64AsStringCollection, 133),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[133]);
+            nullableEnum64AsStringCollection.SetPropertyIndexes(
+                index: 133,
+                originalValueIndex: 133,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5659,6 +8477,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum64?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum64Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum64Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum64Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum64Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum64Collection(instance) == null);
+            nullableEnum64Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum64>> value) => WriteNullableEnum64Collection(entity, value));
+            nullableEnum64Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum64>> value) => WriteNullableEnum64Collection(entity, value));
+            nullableEnum64Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64Collection, 134),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[134]);
+            nullableEnum64Collection.SetPropertyIndexes(
+                index: 134,
+                originalValueIndex: 134,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum64>(new ValueComparer<CompiledModelTestBase.Enum64?>(
                     (Nullable<CompiledModelTestBase.Enum64> v1, Nullable<CompiledModelTestBase.Enum64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum64)v1, (object)(CompiledModelTestBase.Enum64)v2) || !v1.HasValue && !v2.HasValue,
@@ -5718,6 +8557,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum8(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum8(instance).HasValue);
+            nullableEnum8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8> value) => WriteNullableEnum8(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)value));
+            nullableEnum8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8> value) => WriteNullableEnum8(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)value));
+            nullableEnum8.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8, 135),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8),
+                (ValueBuffer valueBuffer) => valueBuffer[135]);
+            nullableEnum8.SetPropertyIndexes(
+                index: 135,
+                originalValueIndex: 135,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -5746,6 +8606,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum8?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8Array(instance) == null);
+            nullableEnum8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8>[] value) => WriteNullableEnum8Array(entity, value));
+            nullableEnum8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8>[] value) => WriteNullableEnum8Array(entity, value));
+            nullableEnum8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8Array, 136),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[136]);
+            nullableEnum8Array.SetPropertyIndexes(
+                index: 136,
+                originalValueIndex: 136,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -5805,6 +8686,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnum8AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnum8AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnum8AsString(instance).HasValue);
+            nullableEnum8AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8> value) => WriteNullableEnum8AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)value));
+            nullableEnum8AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8> value) => WriteNullableEnum8AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.Enum8>)(CompiledModelTestBase.Enum8)value));
+            nullableEnum8AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8AsString, 137),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[137]);
+            nullableEnum8AsString.SetPropertyIndexes(
+                index: 137,
+                originalValueIndex: 137,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8AsString.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -5833,6 +8735,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.Enum8?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum8AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8AsStringArray(instance) == null);
+            nullableEnum8AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8>[] value) => WriteNullableEnum8AsStringArray(entity, value));
+            nullableEnum8AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.Enum8>[] value) => WriteNullableEnum8AsStringArray(entity, value));
+            nullableEnum8AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8AsStringArray, 138),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[138]);
+            nullableEnum8AsStringArray.SetPropertyIndexes(
+                index: 138,
+                originalValueIndex: 138,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -5891,6 +8814,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum8?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum8AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8AsStringCollection(instance) == null);
+            nullableEnum8AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum8>> value) => WriteNullableEnum8AsStringCollection(entity, value));
+            nullableEnum8AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum8>> value) => WriteNullableEnum8AsStringCollection(entity, value));
+            nullableEnum8AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8AsStringCollection, 139),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[139]);
+            nullableEnum8AsStringCollection.SetPropertyIndexes(
+                index: 139,
+                originalValueIndex: 139,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -5949,6 +8893,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.Enum8?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnum8Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnum8Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnum8Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnum8Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnum8Collection(instance) == null);
+            nullableEnum8Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum8>> value) => WriteNullableEnum8Collection(entity, value));
+            nullableEnum8Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.Enum8>> value) => WriteNullableEnum8Collection(entity, value));
+            nullableEnum8Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnum8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnum8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8Collection, 140),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[140]);
+            nullableEnum8Collection.SetPropertyIndexes(
+                index: 140,
+                originalValueIndex: 140,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnum8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.Enum8>(new ValueComparer<CompiledModelTestBase.Enum8?>(
                     (Nullable<CompiledModelTestBase.Enum8> v1, Nullable<CompiledModelTestBase.Enum8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.Enum8)v1, (object)(CompiledModelTestBase.Enum8)v2) || !v1.HasValue && !v2.HasValue,
@@ -6008,6 +8973,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU16(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU16(instance).HasValue);
+            nullableEnumU16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16> value) => WriteNullableEnumU16(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)value));
+            nullableEnumU16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16> value) => WriteNullableEnumU16(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)value));
+            nullableEnumU16.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16, 141),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16),
+                (ValueBuffer valueBuffer) => valueBuffer[141]);
+            nullableEnumU16.SetPropertyIndexes(
+                index: 141,
+                originalValueIndex: 141,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6036,6 +9022,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU16?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16Array(instance) == null);
+            nullableEnumU16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16>[] value) => WriteNullableEnumU16Array(entity, value));
+            nullableEnumU16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16>[] value) => WriteNullableEnumU16Array(entity, value));
+            nullableEnumU16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16Array, 142),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[142]);
+            nullableEnumU16Array.SetPropertyIndexes(
+                index: 142,
+                originalValueIndex: 142,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6095,6 +9102,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU16AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU16AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU16AsString(instance).HasValue);
+            nullableEnumU16AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16> value) => WriteNullableEnumU16AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)value));
+            nullableEnumU16AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16> value) => WriteNullableEnumU16AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU16>)(CompiledModelTestBase.EnumU16)value));
+            nullableEnumU16AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16AsString, 143),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[143]);
+            nullableEnumU16AsString.SetPropertyIndexes(
+                index: 143,
+                originalValueIndex: 143,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16AsString.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6123,6 +9151,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU16?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU16AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16AsStringArray(instance) == null);
+            nullableEnumU16AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16>[] value) => WriteNullableEnumU16AsStringArray(entity, value));
+            nullableEnumU16AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU16>[] value) => WriteNullableEnumU16AsStringArray(entity, value));
+            nullableEnumU16AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16AsStringArray, 144),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[144]);
+            nullableEnumU16AsStringArray.SetPropertyIndexes(
+                index: 144,
+                originalValueIndex: 144,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6181,6 +9230,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU16?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU16AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16AsStringCollection(instance) == null);
+            nullableEnumU16AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU16>> value) => WriteNullableEnumU16AsStringCollection(entity, value));
+            nullableEnumU16AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU16>> value) => WriteNullableEnumU16AsStringCollection(entity, value));
+            nullableEnumU16AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16AsStringCollection, 145),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[145]);
+            nullableEnumU16AsStringCollection.SetPropertyIndexes(
+                index: 145,
+                originalValueIndex: 145,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6239,6 +9309,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU16?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU16Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU16Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU16Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU16Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU16Collection(instance) == null);
+            nullableEnumU16Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU16>> value) => WriteNullableEnumU16Collection(entity, value));
+            nullableEnumU16Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU16>> value) => WriteNullableEnumU16Collection(entity, value));
+            nullableEnumU16Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU16Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16Collection, 146),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[146]);
+            nullableEnumU16Collection.SetPropertyIndexes(
+                index: 146,
+                originalValueIndex: 146,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU16Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU16>(new ValueComparer<CompiledModelTestBase.EnumU16?>(
                     (Nullable<CompiledModelTestBase.EnumU16> v1, Nullable<CompiledModelTestBase.EnumU16> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU16)v1, (object)(CompiledModelTestBase.EnumU16)v2) || !v1.HasValue && !v2.HasValue,
@@ -6298,6 +9389,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU32(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU32(instance).HasValue);
+            nullableEnumU32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32> value) => WriteNullableEnumU32(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)value));
+            nullableEnumU32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32> value) => WriteNullableEnumU32(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)value));
+            nullableEnumU32.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32, 147),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32),
+                (ValueBuffer valueBuffer) => valueBuffer[147]);
+            nullableEnumU32.SetPropertyIndexes(
+                index: 147,
+                originalValueIndex: 147,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6326,6 +9438,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU32?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32Array(instance) == null);
+            nullableEnumU32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32>[] value) => WriteNullableEnumU32Array(entity, value));
+            nullableEnumU32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32>[] value) => WriteNullableEnumU32Array(entity, value));
+            nullableEnumU32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32Array, 148),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[148]);
+            nullableEnumU32Array.SetPropertyIndexes(
+                index: 148,
+                originalValueIndex: 148,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6385,6 +9518,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU32AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU32AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU32AsString(instance).HasValue);
+            nullableEnumU32AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32> value) => WriteNullableEnumU32AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)value));
+            nullableEnumU32AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32> value) => WriteNullableEnumU32AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU32>)(CompiledModelTestBase.EnumU32)value));
+            nullableEnumU32AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32AsString, 149),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[149]);
+            nullableEnumU32AsString.SetPropertyIndexes(
+                index: 149,
+                originalValueIndex: 149,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32AsString.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6413,6 +9567,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU32?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU32AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32AsStringArray(instance) == null);
+            nullableEnumU32AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32>[] value) => WriteNullableEnumU32AsStringArray(entity, value));
+            nullableEnumU32AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU32>[] value) => WriteNullableEnumU32AsStringArray(entity, value));
+            nullableEnumU32AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32AsStringArray, 150),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[150]);
+            nullableEnumU32AsStringArray.SetPropertyIndexes(
+                index: 150,
+                originalValueIndex: 150,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6471,6 +9646,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU32?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU32AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32AsStringCollection(instance) == null);
+            nullableEnumU32AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU32>> value) => WriteNullableEnumU32AsStringCollection(entity, value));
+            nullableEnumU32AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU32>> value) => WriteNullableEnumU32AsStringCollection(entity, value));
+            nullableEnumU32AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32AsStringCollection, 151),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[151]);
+            nullableEnumU32AsStringCollection.SetPropertyIndexes(
+                index: 151,
+                originalValueIndex: 151,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6529,6 +9725,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU32?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU32Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU32Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU32Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU32Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU32Collection(instance) == null);
+            nullableEnumU32Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU32>> value) => WriteNullableEnumU32Collection(entity, value));
+            nullableEnumU32Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU32>> value) => WriteNullableEnumU32Collection(entity, value));
+            nullableEnumU32Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU32Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32Collection, 152),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[152]);
+            nullableEnumU32Collection.SetPropertyIndexes(
+                index: 152,
+                originalValueIndex: 152,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU32Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU32>(new ValueComparer<CompiledModelTestBase.EnumU32?>(
                     (Nullable<CompiledModelTestBase.EnumU32> v1, Nullable<CompiledModelTestBase.EnumU32> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU32)v1, (object)(CompiledModelTestBase.EnumU32)v2) || !v1.HasValue && !v2.HasValue,
@@ -6588,6 +9805,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU64(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU64(instance).HasValue);
+            nullableEnumU64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64> value) => WriteNullableEnumU64(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)value));
+            nullableEnumU64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64> value) => WriteNullableEnumU64(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)value));
+            nullableEnumU64.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64, 153),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64),
+                (ValueBuffer valueBuffer) => valueBuffer[153]);
+            nullableEnumU64.SetPropertyIndexes(
+                index: 153,
+                originalValueIndex: 153,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6620,6 +9858,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU64?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64Array(instance) == null);
+            nullableEnumU64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64>[] value) => WriteNullableEnumU64Array(entity, value));
+            nullableEnumU64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64>[] value) => WriteNullableEnumU64Array(entity, value));
+            nullableEnumU64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64Array, 154),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[154]);
+            nullableEnumU64Array.SetPropertyIndexes(
+                index: 154,
+                originalValueIndex: 154,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6683,6 +9942,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU64AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU64AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU64AsString(instance).HasValue);
+            nullableEnumU64AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64> value) => WriteNullableEnumU64AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)value));
+            nullableEnumU64AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64> value) => WriteNullableEnumU64AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU64>)(CompiledModelTestBase.EnumU64)value));
+            nullableEnumU64AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64AsString, 155),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[155]);
+            nullableEnumU64AsString.SetPropertyIndexes(
+                index: 155,
+                originalValueIndex: 155,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64AsString.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6715,6 +9995,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU64?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU64AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64AsStringArray(instance) == null);
+            nullableEnumU64AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64>[] value) => WriteNullableEnumU64AsStringArray(entity, value));
+            nullableEnumU64AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU64>[] value) => WriteNullableEnumU64AsStringArray(entity, value));
+            nullableEnumU64AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64AsStringArray, 156),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[156]);
+            nullableEnumU64AsStringArray.SetPropertyIndexes(
+                index: 156,
+                originalValueIndex: 156,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6777,6 +10078,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU64?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU64AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64AsStringCollection(instance) == null);
+            nullableEnumU64AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU64>> value) => WriteNullableEnumU64AsStringCollection(entity, value));
+            nullableEnumU64AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU64>> value) => WriteNullableEnumU64AsStringCollection(entity, value));
+            nullableEnumU64AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64AsStringCollection, 157),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[157]);
+            nullableEnumU64AsStringCollection.SetPropertyIndexes(
+                index: 157,
+                originalValueIndex: 157,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6839,6 +10161,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU64?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU64Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU64Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU64Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU64Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU64Collection(instance) == null);
+            nullableEnumU64Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU64>> value) => WriteNullableEnumU64Collection(entity, value));
+            nullableEnumU64Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU64>> value) => WriteNullableEnumU64Collection(entity, value));
+            nullableEnumU64Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU64Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64Collection, 158),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[158]);
+            nullableEnumU64Collection.SetPropertyIndexes(
+                index: 158,
+                originalValueIndex: 158,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU64Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU64>(new ValueComparer<CompiledModelTestBase.EnumU64?>(
                     (Nullable<CompiledModelTestBase.EnumU64> v1, Nullable<CompiledModelTestBase.EnumU64> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU64)v1, (object)(CompiledModelTestBase.EnumU64)v2) || !v1.HasValue && !v2.HasValue,
@@ -6902,6 +10245,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU8(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU8(instance).HasValue);
+            nullableEnumU8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8> value) => WriteNullableEnumU8(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)value));
+            nullableEnumU8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8> value) => WriteNullableEnumU8(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)value));
+            nullableEnumU8.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8, 159),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8),
+                (ValueBuffer valueBuffer) => valueBuffer[159]);
+            nullableEnumU8.SetPropertyIndexes(
+                index: 159,
+                originalValueIndex: 159,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -6930,6 +10294,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU8?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8Array(instance) == null);
+            nullableEnumU8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8>[] value) => WriteNullableEnumU8Array(entity, value));
+            nullableEnumU8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8>[] value) => WriteNullableEnumU8Array(entity, value));
+            nullableEnumU8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8Array, 160),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[160]);
+            nullableEnumU8Array.SetPropertyIndexes(
+                index: 160,
+                originalValueIndex: 160,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -6989,6 +10374,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8AsString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8AsString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableEnumU8AsString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8AsString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableEnumU8AsString(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8AsString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableEnumU8AsString(instance).HasValue);
+            nullableEnumU8AsString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8> value) => WriteNullableEnumU8AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)value));
+            nullableEnumU8AsString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8> value) => WriteNullableEnumU8AsString(entity, value == null ? value : (Nullable<CompiledModelTestBase.EnumU8>)(CompiledModelTestBase.EnumU8)value));
+            nullableEnumU8AsString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8AsString, 161),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8AsString),
+                (ValueBuffer valueBuffer) => valueBuffer[161]);
+            nullableEnumU8AsString.SetPropertyIndexes(
+                index: 161,
+                originalValueIndex: 161,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8AsString.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -7017,6 +10423,27 @@ namespace TestNamespace
                 typeof(CompiledModelTestBase.EnumU8?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8AsStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8AsStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU8AsStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8AsStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8AsStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8AsStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8AsStringArray(instance) == null);
+            nullableEnumU8AsStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8>[] value) => WriteNullableEnumU8AsStringArray(entity, value));
+            nullableEnumU8AsStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<CompiledModelTestBase.EnumU8>[] value) => WriteNullableEnumU8AsStringArray(entity, value));
+            nullableEnumU8AsStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8AsStringArray, 162),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8AsStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[162]);
+            nullableEnumU8AsStringArray.SetPropertyIndexes(
+                index: 162,
+                originalValueIndex: 162,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8AsStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -7075,6 +10502,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU8?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8AsStringCollection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8AsStringCollection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU8AsStringCollection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8AsStringCollection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8AsStringCollection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8AsStringCollection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8AsStringCollection(instance) == null);
+            nullableEnumU8AsStringCollection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU8>> value) => WriteNullableEnumU8AsStringCollection(entity, value));
+            nullableEnumU8AsStringCollection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU8>> value) => WriteNullableEnumU8AsStringCollection(entity, value));
+            nullableEnumU8AsStringCollection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8AsStringCollection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8AsStringCollection, 163),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8AsStringCollection),
+                (ValueBuffer valueBuffer) => valueBuffer[163]);
+            nullableEnumU8AsStringCollection.SetPropertyIndexes(
+                index: 163,
+                originalValueIndex: 163,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8AsStringCollection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -7133,6 +10581,27 @@ namespace TestNamespace
                 typeof(List<CompiledModelTestBase.EnumU8?>),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableEnumU8Collection", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableEnumU8Collection>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableEnumU8Collection.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8Collection(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableEnumU8Collection(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8Collection(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableEnumU8Collection(instance) == null);
+            nullableEnumU8Collection.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU8>> value) => WriteNullableEnumU8Collection(entity, value));
+            nullableEnumU8Collection.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, List<Nullable<CompiledModelTestBase.EnumU8>> value) => WriteNullableEnumU8Collection(entity, value));
+            nullableEnumU8Collection.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableEnumU8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableEnumU8Collection((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8Collection, 164),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8Collection),
+                (ValueBuffer valueBuffer) => valueBuffer[164]);
+            nullableEnumU8Collection.SetPropertyIndexes(
+                index: 164,
+                originalValueIndex: 164,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableEnumU8Collection.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<CompiledModelTestBase.EnumU8>(new ValueComparer<CompiledModelTestBase.EnumU8?>(
                     (Nullable<CompiledModelTestBase.EnumU8> v1, Nullable<CompiledModelTestBase.EnumU8> v2) => v1.HasValue && v2.HasValue && object.Equals((object)(CompiledModelTestBase.EnumU8)v1, (object)(CompiledModelTestBase.EnumU8)v2) || !v1.HasValue && !v2.HasValue,
@@ -7192,6 +10661,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableFloat", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableFloat>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableFloat.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableFloat(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableFloat(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableFloat(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableFloat(instance).HasValue);
+            nullableFloat.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<float> value) => WriteNullableFloat(entity, value));
+            nullableFloat.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<float> value) => WriteNullableFloat(entity, value));
+            nullableFloat.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableFloat((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableFloat((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<float>>(nullableFloat, 165),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<float>>(nullableFloat),
+                (ValueBuffer valueBuffer) => valueBuffer[165]);
+            nullableFloat.SetPropertyIndexes(
+                index: 165,
+                originalValueIndex: 165,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableFloat.TypeMapping = SqlServerFloatTypeMapping.Default.Clone(
                 comparer: new ValueComparer<float?>(
                     (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
@@ -7212,6 +10702,27 @@ namespace TestNamespace
                 typeof(float?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableFloatArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableFloatArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableFloatArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableFloatArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableFloatArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableFloatArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableFloatArray(instance) == null);
+            nullableFloatArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<float>[] value) => WriteNullableFloatArray(entity, value));
+            nullableFloatArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<float>[] value) => WriteNullableFloatArray(entity, value));
+            nullableFloatArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableFloatArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableFloatArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<float>[]>(nullableFloatArray, 166),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<float>[]>(nullableFloatArray),
+                (ValueBuffer valueBuffer) => valueBuffer[166]);
+            nullableFloatArray.SetPropertyIndexes(
+                index: 166,
+                originalValueIndex: 166,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableFloatArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<float>(new ValueComparer<float?>(
                     (Nullable<float> v1, Nullable<float> v2) => v1.HasValue && v2.HasValue && ((float)v1).Equals((float)v2) || !v1.HasValue && !v2.HasValue,
@@ -7255,6 +10766,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableGuid", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableGuid>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableGuid.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableGuid(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableGuid(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableGuid(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableGuid(instance).HasValue);
+            nullableGuid.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<Guid> value) => WriteNullableGuid(entity, value));
+            nullableGuid.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<Guid> value) => WriteNullableGuid(entity, value));
+            nullableGuid.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableGuid((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableGuid((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<Guid>>(nullableGuid, 167),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<Guid>>(nullableGuid),
+                (ValueBuffer valueBuffer) => valueBuffer[167]);
+            nullableGuid.SetPropertyIndexes(
+                index: 167,
+                originalValueIndex: 167,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableGuid.TypeMapping = GuidTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Guid?>(
                     (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
@@ -7277,6 +10809,27 @@ namespace TestNamespace
                 typeof(Guid?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableGuidArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableGuidArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableGuidArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableGuidArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableGuidArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableGuidArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableGuidArray(instance) == null);
+            nullableGuidArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<Guid>[] value) => WriteNullableGuidArray(entity, value));
+            nullableGuidArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<Guid>[] value) => WriteNullableGuidArray(entity, value));
+            nullableGuidArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableGuidArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableGuidArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<Guid>[]>(nullableGuidArray, 168),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<Guid>[]>(nullableGuidArray),
+                (ValueBuffer valueBuffer) => valueBuffer[168]);
+            nullableGuidArray.SetPropertyIndexes(
+                index: 168,
+                originalValueIndex: 168,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableGuidArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<Guid>(new ValueComparer<Guid?>(
                     (Nullable<Guid> v1, Nullable<Guid> v2) => v1.HasValue && v2.HasValue && (Guid)v1 == (Guid)v2 || !v1.HasValue && !v2.HasValue,
@@ -7322,6 +10875,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableIPAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableIPAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableIPAddress.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableIPAddress(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableIPAddress(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableIPAddress(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableIPAddress(instance) == null);
+            nullableIPAddress.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteNullableIPAddress(entity, value));
+            nullableIPAddress.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress value) => WriteNullableIPAddress(entity, value));
+            nullableIPAddress.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableIPAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableIPAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress>(nullableIPAddress, 169),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress>(nullableIPAddress),
+                (ValueBuffer valueBuffer) => valueBuffer[169]);
+            nullableIPAddress.SetPropertyIndexes(
+                index: 169,
+                originalValueIndex: 169,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableIPAddress.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -7355,6 +10929,27 @@ namespace TestNamespace
                 typeof(IPAddress[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableIPAddressArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableIPAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableIPAddressArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableIPAddressArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableIPAddressArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableIPAddressArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableIPAddressArray(instance) == null);
+            nullableIPAddressArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress[] value) => WriteNullableIPAddressArray(entity, value));
+            nullableIPAddressArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, IPAddress[] value) => WriteNullableIPAddressArray(entity, value));
+            nullableIPAddressArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableIPAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableIPAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<IPAddress[]>(nullableIPAddressArray, 170),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<IPAddress[]>(nullableIPAddressArray),
+                (ValueBuffer valueBuffer) => valueBuffer[170]);
+            nullableIPAddressArray.SetPropertyIndexes(
+                index: 170,
+                originalValueIndex: 170,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableIPAddressArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<IPAddress>(new ValueComparer<IPAddress>(
                     (IPAddress v1, IPAddress v2) => v1 == null && v2 == null || v1 != null && v2 != null && v1.Equals(v2),
@@ -7419,6 +11014,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableInt16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableInt16(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableInt16(instance).HasValue);
+            nullableInt16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<short> value) => WriteNullableInt16(entity, value));
+            nullableInt16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<short> value) => WriteNullableInt16(entity, value));
+            nullableInt16.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<short>>(nullableInt16, 171),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<short>>(nullableInt16),
+                (ValueBuffer valueBuffer) => valueBuffer[171]);
+            nullableInt16.SetPropertyIndexes(
+                index: 171,
+                originalValueIndex: 171,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt16.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<short?>(
                     (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
@@ -7439,6 +11055,27 @@ namespace TestNamespace
                 typeof(short?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableInt16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt16Array(instance) == null);
+            nullableInt16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<short>[] value) => WriteNullableInt16Array(entity, value));
+            nullableInt16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<short>[] value) => WriteNullableInt16Array(entity, value));
+            nullableInt16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<short>[]>(nullableInt16Array, 172),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<short>[]>(nullableInt16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[172]);
+            nullableInt16Array.SetPropertyIndexes(
+                index: 172,
+                originalValueIndex: 172,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<short>(new ValueComparer<short?>(
                     (Nullable<short> v1, Nullable<short> v2) => v1.HasValue && v2.HasValue && (short)v1 == (short)v2 || !v1.HasValue && !v2.HasValue,
@@ -7482,6 +11119,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableInt32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableInt32(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableInt32(instance).HasValue);
+            nullableInt32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int> value) => WriteNullableInt32(entity, value));
+            nullableInt32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int> value) => WriteNullableInt32(entity, value));
+            nullableInt32.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<int>>(nullableInt32, 173),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<int>>(nullableInt32),
+                (ValueBuffer valueBuffer) => valueBuffer[173]);
+            nullableInt32.SetPropertyIndexes(
+                index: 173,
+                originalValueIndex: 173,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt32.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<int?>(
                     (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
@@ -7502,6 +11160,27 @@ namespace TestNamespace
                 typeof(int?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableInt32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt32Array(instance) == null);
+            nullableInt32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int>[] value) => WriteNullableInt32Array(entity, value));
+            nullableInt32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<int>[] value) => WriteNullableInt32Array(entity, value));
+            nullableInt32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<int>[]>(nullableInt32Array, 174),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<int>[]>(nullableInt32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[174]);
+            nullableInt32Array.SetPropertyIndexes(
+                index: 174,
+                originalValueIndex: 174,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<int>(new ValueComparer<int?>(
                     (Nullable<int> v1, Nullable<int> v2) => v1.HasValue && v2.HasValue && (int)v1 == (int)v2 || !v1.HasValue && !v2.HasValue,
@@ -7545,6 +11224,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableInt64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableInt64(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableInt64(instance).HasValue);
+            nullableInt64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<long> value) => WriteNullableInt64(entity, value));
+            nullableInt64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<long> value) => WriteNullableInt64(entity, value));
+            nullableInt64.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>>(nullableInt64, 175),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<long>>(nullableInt64),
+                (ValueBuffer valueBuffer) => valueBuffer[175]);
+            nullableInt64.SetPropertyIndexes(
+                index: 175,
+                originalValueIndex: 175,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt64.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
@@ -7565,6 +11265,27 @@ namespace TestNamespace
                 typeof(long?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableInt64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt64Array(instance) == null);
+            nullableInt64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<long>[] value) => WriteNullableInt64Array(entity, value));
+            nullableInt64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<long>[] value) => WriteNullableInt64Array(entity, value));
+            nullableInt64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<long>[]>(nullableInt64Array, 176),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<long>[]>(nullableInt64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[176]);
+            nullableInt64Array.SetPropertyIndexes(
+                index: 176,
+                originalValueIndex: 176,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<long>(new ValueComparer<long?>(
                     (Nullable<long> v1, Nullable<long> v2) => v1.HasValue && v2.HasValue && (long)v1 == (long)v2 || !v1.HasValue && !v2.HasValue,
@@ -7608,6 +11329,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableInt8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableInt8(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableInt8(instance).HasValue);
+            nullableInt8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<sbyte> value) => WriteNullableInt8(entity, value));
+            nullableInt8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<sbyte> value) => WriteNullableInt8(entity, value));
+            nullableInt8.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<sbyte>>(nullableInt8, 177),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<sbyte>>(nullableInt8),
+                (ValueBuffer valueBuffer) => valueBuffer[177]);
+            nullableInt8.SetPropertyIndexes(
+                index: 177,
+                originalValueIndex: 177,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt8.TypeMapping = SqlServerShortTypeMapping.Default.Clone(
                 comparer: new ValueComparer<sbyte?>(
                     (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
@@ -7636,6 +11378,27 @@ namespace TestNamespace
                 typeof(sbyte?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableInt8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableInt8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableInt8Array(instance) == null);
+            nullableInt8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<sbyte>[] value) => WriteNullableInt8Array(entity, value));
+            nullableInt8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<sbyte>[] value) => WriteNullableInt8Array(entity, value));
+            nullableInt8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<sbyte>[]>(nullableInt8Array, 178),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<sbyte>[]>(nullableInt8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[178]);
+            nullableInt8Array.SetPropertyIndexes(
+                index: 178,
+                originalValueIndex: 178,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableInt8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<sbyte>(new ValueComparer<sbyte?>(
                     (Nullable<sbyte> v1, Nullable<sbyte> v2) => v1.HasValue && v2.HasValue && (sbyte)v1 == (sbyte)v2 || !v1.HasValue && !v2.HasValue,
@@ -7695,6 +11458,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullablePhysicalAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullablePhysicalAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullablePhysicalAddress.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullablePhysicalAddress(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullablePhysicalAddress(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullablePhysicalAddress(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullablePhysicalAddress(instance) == null);
+            nullablePhysicalAddress.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WriteNullablePhysicalAddress(entity, value));
+            nullablePhysicalAddress.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WriteNullablePhysicalAddress(entity, value));
+            nullablePhysicalAddress.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullablePhysicalAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullablePhysicalAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress>(nullablePhysicalAddress, 179),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress>(nullablePhysicalAddress),
+                (ValueBuffer valueBuffer) => valueBuffer[179]);
+            nullablePhysicalAddress.SetPropertyIndexes(
+                index: 179,
+                originalValueIndex: 179,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullablePhysicalAddress.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -7728,6 +11512,27 @@ namespace TestNamespace
                 typeof(PhysicalAddress[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullablePhysicalAddressArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullablePhysicalAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullablePhysicalAddressArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullablePhysicalAddressArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullablePhysicalAddressArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullablePhysicalAddressArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullablePhysicalAddressArray(instance) == null);
+            nullablePhysicalAddressArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress[] value) => WriteNullablePhysicalAddressArray(entity, value));
+            nullablePhysicalAddressArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress[] value) => WriteNullablePhysicalAddressArray(entity, value));
+            nullablePhysicalAddressArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullablePhysicalAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullablePhysicalAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress[]>(nullablePhysicalAddressArray, 180),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress[]>(nullablePhysicalAddressArray),
+                (ValueBuffer valueBuffer) => valueBuffer[180]);
+            nullablePhysicalAddressArray.SetPropertyIndexes(
+                index: 180,
+                originalValueIndex: 180,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullablePhysicalAddressArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<PhysicalAddress>(new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -7792,6 +11597,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableString", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableString>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableString.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableString(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableString(instance) == null);
+            nullableString.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteNullableString(entity, value));
+            nullableString.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteNullableString(entity, value));
+            nullableString.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(nullableString, 181),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(nullableString),
+                (ValueBuffer valueBuffer) => valueBuffer[181]);
+            nullableString.SetPropertyIndexes(
+                index: 181,
+                originalValueIndex: 181,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableString.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -7817,6 +11643,27 @@ namespace TestNamespace
                 typeof(string[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableStringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableStringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableStringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableStringArray(instance) == null);
+            nullableStringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string[] value) => WriteNullableStringArray(entity, value));
+            nullableStringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string[] value) => WriteNullableStringArray(entity, value));
+            nullableStringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string[]>(nullableStringArray, 182),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string[]>(nullableStringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[182]);
+            nullableStringArray.SetPropertyIndexes(
+                index: 182,
+                originalValueIndex: 182,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableStringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -7865,6 +11712,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableTimeOnly", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableTimeOnly.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeOnly(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableTimeOnly(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeOnly(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableTimeOnly(instance).HasValue);
+            nullableTimeOnly.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeOnly> value) => WriteNullableTimeOnly(entity, value));
+            nullableTimeOnly.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeOnly> value) => WriteNullableTimeOnly(entity, value));
+            nullableTimeOnly.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableTimeOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableTimeOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<TimeOnly>>(nullableTimeOnly, 183),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<TimeOnly>>(nullableTimeOnly),
+                (ValueBuffer valueBuffer) => valueBuffer[183]);
+            nullableTimeOnly.SetPropertyIndexes(
+                index: 183,
+                originalValueIndex: 183,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableTimeOnly.TypeMapping = SqlServerTimeOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeOnly?>(
                     (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
@@ -7885,6 +11753,27 @@ namespace TestNamespace
                 typeof(TimeOnly?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableTimeOnlyArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeOnlyArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableTimeOnlyArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeOnlyArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeOnlyArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeOnlyArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeOnlyArray(instance) == null);
+            nullableTimeOnlyArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeOnly>[] value) => WriteNullableTimeOnlyArray(entity, value));
+            nullableTimeOnlyArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeOnly>[] value) => WriteNullableTimeOnlyArray(entity, value));
+            nullableTimeOnlyArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableTimeOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableTimeOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<TimeOnly>[]>(nullableTimeOnlyArray, 184),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<TimeOnly>[]>(nullableTimeOnlyArray),
+                (ValueBuffer valueBuffer) => valueBuffer[184]);
+            nullableTimeOnlyArray.SetPropertyIndexes(
+                index: 184,
+                originalValueIndex: 184,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableTimeOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<TimeOnly>(new ValueComparer<TimeOnly?>(
                     (Nullable<TimeOnly> v1, Nullable<TimeOnly> v2) => v1.HasValue && v2.HasValue && (TimeOnly)v1 == (TimeOnly)v2 || !v1.HasValue && !v2.HasValue,
@@ -7928,6 +11817,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableTimeSpan", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeSpan>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableTimeSpan.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeSpan(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableTimeSpan(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeSpan(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableTimeSpan(instance).HasValue);
+            nullableTimeSpan.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeSpan> value) => WriteNullableTimeSpan(entity, value));
+            nullableTimeSpan.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeSpan> value) => WriteNullableTimeSpan(entity, value));
+            nullableTimeSpan.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableTimeSpan((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableTimeSpan((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<TimeSpan>>(nullableTimeSpan, 185),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<TimeSpan>>(nullableTimeSpan),
+                (ValueBuffer valueBuffer) => valueBuffer[185]);
+            nullableTimeSpan.SetPropertyIndexes(
+                index: 185,
+                originalValueIndex: 185,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableTimeSpan.TypeMapping = SqlServerTimeSpanTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeSpan?>(
                     (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
@@ -7948,6 +11858,27 @@ namespace TestNamespace
                 typeof(TimeSpan?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableTimeSpanArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableTimeSpanArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableTimeSpanArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeSpanArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableTimeSpanArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeSpanArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableTimeSpanArray(instance) == null);
+            nullableTimeSpanArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeSpan>[] value) => WriteNullableTimeSpanArray(entity, value));
+            nullableTimeSpanArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<TimeSpan>[] value) => WriteNullableTimeSpanArray(entity, value));
+            nullableTimeSpanArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableTimeSpanArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableTimeSpanArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<TimeSpan>[]>(nullableTimeSpanArray, 186),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<TimeSpan>[]>(nullableTimeSpanArray),
+                (ValueBuffer valueBuffer) => valueBuffer[186]);
+            nullableTimeSpanArray.SetPropertyIndexes(
+                index: 186,
+                originalValueIndex: 186,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableTimeSpanArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<TimeSpan>(new ValueComparer<TimeSpan?>(
                     (Nullable<TimeSpan> v1, Nullable<TimeSpan> v2) => v1.HasValue && v2.HasValue && (TimeSpan)v1 == (TimeSpan)v2 || !v1.HasValue && !v2.HasValue,
@@ -7991,6 +11922,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableUInt16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableUInt16(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableUInt16(instance).HasValue);
+            nullableUInt16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ushort> value) => WriteNullableUInt16(entity, value));
+            nullableUInt16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ushort> value) => WriteNullableUInt16(entity, value));
+            nullableUInt16.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<ushort>>(nullableUInt16, 187),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<ushort>>(nullableUInt16),
+                (ValueBuffer valueBuffer) => valueBuffer[187]);
+            nullableUInt16.SetPropertyIndexes(
+                index: 187,
+                originalValueIndex: 187,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt16.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ushort?>(
                     (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
@@ -8019,6 +11971,27 @@ namespace TestNamespace
                 typeof(ushort?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableUInt16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt16Array(instance) == null);
+            nullableUInt16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ushort>[] value) => WriteNullableUInt16Array(entity, value));
+            nullableUInt16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ushort>[] value) => WriteNullableUInt16Array(entity, value));
+            nullableUInt16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<ushort>[]>(nullableUInt16Array, 188),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<ushort>[]>(nullableUInt16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[188]);
+            nullableUInt16Array.SetPropertyIndexes(
+                index: 188,
+                originalValueIndex: 188,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<ushort>(new ValueComparer<ushort?>(
                     (Nullable<ushort> v1, Nullable<ushort> v2) => v1.HasValue && v2.HasValue && (ushort)v1 == (ushort)v2 || !v1.HasValue && !v2.HasValue,
@@ -8078,6 +12051,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableUInt32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableUInt32(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableUInt32(instance).HasValue);
+            nullableUInt32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<uint> value) => WriteNullableUInt32(entity, value));
+            nullableUInt32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<uint> value) => WriteNullableUInt32(entity, value));
+            nullableUInt32.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<uint>>(nullableUInt32, 189),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<uint>>(nullableUInt32),
+                (ValueBuffer valueBuffer) => valueBuffer[189]);
+            nullableUInt32.SetPropertyIndexes(
+                index: 189,
+                originalValueIndex: 189,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint?>(
                     (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
@@ -8106,6 +12100,27 @@ namespace TestNamespace
                 typeof(uint?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableUInt32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt32Array(instance) == null);
+            nullableUInt32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<uint>[] value) => WriteNullableUInt32Array(entity, value));
+            nullableUInt32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<uint>[] value) => WriteNullableUInt32Array(entity, value));
+            nullableUInt32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<uint>[]>(nullableUInt32Array, 190),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<uint>[]>(nullableUInt32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[190]);
+            nullableUInt32Array.SetPropertyIndexes(
+                index: 190,
+                originalValueIndex: 190,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<uint>(new ValueComparer<uint?>(
                     (Nullable<uint> v1, Nullable<uint> v2) => v1.HasValue && v2.HasValue && (uint)v1 == (uint)v2 || !v1.HasValue && !v2.HasValue,
@@ -8165,6 +12180,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableUInt64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableUInt64(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableUInt64(instance).HasValue);
+            nullableUInt64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ulong> value) => WriteNullableUInt64(entity, value));
+            nullableUInt64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ulong> value) => WriteNullableUInt64(entity, value));
+            nullableUInt64.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<ulong>>(nullableUInt64, 191),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<ulong>>(nullableUInt64),
+                (ValueBuffer valueBuffer) => valueBuffer[191]);
+            nullableUInt64.SetPropertyIndexes(
+                index: 191,
+                originalValueIndex: 191,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ulong?>(
                     (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
@@ -8197,6 +12233,27 @@ namespace TestNamespace
                 typeof(ulong?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableUInt64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt64Array(instance) == null);
+            nullableUInt64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ulong>[] value) => WriteNullableUInt64Array(entity, value));
+            nullableUInt64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<ulong>[] value) => WriteNullableUInt64Array(entity, value));
+            nullableUInt64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<ulong>[]>(nullableUInt64Array, 192),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<ulong>[]>(nullableUInt64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[192]);
+            nullableUInt64Array.SetPropertyIndexes(
+                index: 192,
+                originalValueIndex: 192,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<ulong>(new ValueComparer<ulong?>(
                     (Nullable<ulong> v1, Nullable<ulong> v2) => v1.HasValue && v2.HasValue && (ulong)v1 == (ulong)v2 || !v1.HasValue && !v2.HasValue,
@@ -8260,6 +12317,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableUInt8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => !ReadNullableUInt8(entity).HasValue,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => !ReadNullableUInt8(instance).HasValue);
+            nullableUInt8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<byte> value) => WriteNullableUInt8(entity, value));
+            nullableUInt8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<byte> value) => WriteNullableUInt8(entity, value));
+            nullableUInt8.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<byte>>(nullableUInt8, 193),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<byte>>(nullableUInt8),
+                (ValueBuffer valueBuffer) => valueBuffer[193]);
+            nullableUInt8.SetPropertyIndexes(
+                index: 193,
+                originalValueIndex: 193,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte?>(
                     (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
@@ -8280,6 +12358,27 @@ namespace TestNamespace
                 typeof(byte?[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableUInt8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUInt8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUInt8Array(instance) == null);
+            nullableUInt8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<byte>[] value) => WriteNullableUInt8Array(entity, value));
+            nullableUInt8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Nullable<byte>[] value) => WriteNullableUInt8Array(entity, value));
+            nullableUInt8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Nullable<byte>[]>(nullableUInt8Array, 194),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Nullable<byte>[]>(nullableUInt8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[194]);
+            nullableUInt8Array.SetPropertyIndexes(
+                index: 194,
+                originalValueIndex: 194,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUInt8Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new NullableValueTypeListComparer<byte>(new ValueComparer<byte?>(
                     (Nullable<byte> v1, Nullable<byte> v2) => v1.HasValue && v2.HasValue && (byte)v1 == (byte)v2 || !v1.HasValue && !v2.HasValue,
@@ -8323,6 +12422,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUri", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUri>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            nullableUri.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUri(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUri(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUri(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUri(instance) == null);
+            nullableUri.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteNullableUri(entity, value));
+            nullableUri.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteNullableUri(entity, value));
+            nullableUri.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUri((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUri((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Uri>(nullableUri, 195),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Uri>(nullableUri),
+                (ValueBuffer valueBuffer) => valueBuffer[195]);
+            nullableUri.SetPropertyIndexes(
+                index: 195,
+                originalValueIndex: 195,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUri.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
                     (Uri v1, Uri v2) => v1 == v2,
@@ -8356,6 +12476,27 @@ namespace TestNamespace
                 typeof(Uri[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("NullableUriArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<NullableUriArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            nullableUriArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUriArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadNullableUriArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUriArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadNullableUriArray(instance) == null);
+            nullableUriArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri[] value) => WriteNullableUriArray(entity, value));
+            nullableUriArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri[] value) => WriteNullableUriArray(entity, value));
+            nullableUriArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadNullableUriArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadNullableUriArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Uri[]>(nullableUriArray, 196),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Uri[]>(nullableUriArray),
+                (ValueBuffer valueBuffer) => valueBuffer[196]);
+            nullableUriArray.SetPropertyIndexes(
+                index: 196,
+                originalValueIndex: 196,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             nullableUriArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<Uri>(new ValueComparer<Uri>(
                     (Uri v1, Uri v2) => v1 == v2,
@@ -8419,6 +12560,27 @@ namespace TestNamespace
                 typeof(PhysicalAddress),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("PhysicalAddress", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddress>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            physicalAddress.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddress(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddress(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddress(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddress(instance) == null);
+            physicalAddress.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddress(entity, value));
+            physicalAddress.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddress(entity, value));
+            physicalAddress.SetAccessors(
+                (InternalEntityEntry entry) => ReadPhysicalAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadPhysicalAddress((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress>(physicalAddress, 197),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress>(physicalAddress),
+                (ValueBuffer valueBuffer) => valueBuffer[197]);
+            physicalAddress.SetPropertyIndexes(
+                index: 197,
+                originalValueIndex: 197,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             physicalAddress.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -8452,6 +12614,27 @@ namespace TestNamespace
                 typeof(PhysicalAddress[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("PhysicalAddressArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddressArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            physicalAddressArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressArray(instance) == null);
+            physicalAddressArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress[] value) => WritePhysicalAddressArray(entity, value));
+            physicalAddressArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress[] value) => WritePhysicalAddressArray(entity, value));
+            physicalAddressArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadPhysicalAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadPhysicalAddressArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress[]>(physicalAddressArray, 198),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress[]>(physicalAddressArray),
+                (ValueBuffer valueBuffer) => valueBuffer[198]);
+            physicalAddressArray.SetPropertyIndexes(
+                index: 198,
+                originalValueIndex: 198,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             physicalAddressArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<PhysicalAddress>(new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -8516,6 +12699,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("PhysicalAddressToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddressToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new PhysicalAddressToBytesConverter());
+            physicalAddressToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressToBytesConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressToBytesConverterProperty(instance) == null);
+            physicalAddressToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddressToBytesConverterProperty(entity, value));
+            physicalAddressToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddressToBytesConverterProperty(entity, value));
+            physicalAddressToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadPhysicalAddressToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadPhysicalAddressToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress>(physicalAddressToBytesConverterProperty, 199),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[199]);
+            physicalAddressToBytesConverterProperty.SetPropertyIndexes(
+                index: 199,
+                originalValueIndex: 199,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             physicalAddressToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -8526,20 +12730,20 @@ namespace TestNamespace
                     (PhysicalAddress v) => v.GetHashCode(),
                     (PhysicalAddress v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(8)",
                     size: 8),
                 converter: new ValueConverter<PhysicalAddress, byte[]>(
                     (PhysicalAddress v) => v.GetAddressBytes(),
-                    (Byte[] v) => new PhysicalAddress(v)),
+                    (byte[] v) => new PhysicalAddress(v)),
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<PhysicalAddress, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<PhysicalAddress, byte[]>(
                         (PhysicalAddress v) => v.GetAddressBytes(),
-                        (Byte[] v) => new PhysicalAddress(v))));
+                        (byte[] v) => new PhysicalAddress(v))));
             physicalAddressToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var physicalAddressToStringConverterProperty = runtimeEntityType.AddProperty(
@@ -8548,6 +12752,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("PhysicalAddressToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<PhysicalAddressToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new PhysicalAddressToStringConverter());
+            physicalAddressToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadPhysicalAddressToStringConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadPhysicalAddressToStringConverterProperty(instance) == null);
+            physicalAddressToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddressToStringConverterProperty(entity, value));
+            physicalAddressToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, PhysicalAddress value) => WritePhysicalAddressToStringConverterProperty(entity, value));
+            physicalAddressToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadPhysicalAddressToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadPhysicalAddressToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<PhysicalAddress>(physicalAddressToStringConverterProperty, 200),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[200]);
+            physicalAddressToStringConverterProperty.SetPropertyIndexes(
+                index: 200,
+                originalValueIndex: 200,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             physicalAddressToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<PhysicalAddress>(
                     (PhysicalAddress v1, PhysicalAddress v2) => object.Equals(v1, v2),
@@ -8581,6 +12806,27 @@ namespace TestNamespace
                 typeof(string),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("String", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<String>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            @string.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadString(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadString(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadString(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadString(instance) == null);
+            @string.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteString(entity, value));
+            @string.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteString(entity, value));
+            @string.SetAccessors(
+                (InternalEntityEntry entry) => ReadString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadString((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(@string, 201),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(@string),
+                (ValueBuffer valueBuffer) => valueBuffer[201]);
+            @string.SetPropertyIndexes(
+                index: 201,
+                originalValueIndex: 201,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             @string.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8606,6 +12852,27 @@ namespace TestNamespace
                 typeof(string[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            stringArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringArray(instance) == null);
+            stringArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string[] value) => WriteStringArray(entity, value));
+            stringArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string[] value) => WriteStringArray(entity, value));
+            stringArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string[]>(stringArray, 202),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string[]>(stringArray),
+                (ValueBuffer valueBuffer) => valueBuffer[202]);
+            stringArray.SetPropertyIndexes(
+                index: 202,
+                originalValueIndex: 202,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<string>(new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8654,6 +12921,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToBoolConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToBoolConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToBoolConverter());
+            stringToBoolConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToBoolConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToBoolConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToBoolConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToBoolConverterProperty(instance) == null);
+            stringToBoolConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToBoolConverterProperty(entity, value));
+            stringToBoolConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToBoolConverterProperty(entity, value));
+            stringToBoolConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToBoolConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToBoolConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToBoolConverterProperty, 203),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToBoolConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[203]);
+            stringToBoolConverterProperty.SetPropertyIndexes(
+                index: 203,
+                originalValueIndex: 203,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToBoolConverterProperty.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8683,6 +12971,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToBytesConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToBytesConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            stringToBytesConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToBytesConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToBytesConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToBytesConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToBytesConverterProperty(instance) == null);
+            stringToBytesConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToBytesConverterProperty(entity, value));
+            stringToBytesConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToBytesConverterProperty(entity, value));
+            stringToBytesConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToBytesConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToBytesConverterProperty, 204),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToBytesConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[204]);
+            stringToBytesConverterProperty.SetPropertyIndexes(
+                index: 204,
+                originalValueIndex: 204,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToBytesConverterProperty.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8693,20 +13002,20 @@ namespace TestNamespace
                     (string v) => v.GetHashCode(),
                     (string v) => v),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(max)"),
                 converter: new ValueConverter<string, byte[]>(
                     (string v) => Encoding.UTF32.GetBytes(v),
-                    (Byte[] v) => Encoding.UTF32.GetString(v)),
+                    (byte[] v) => Encoding.UTF32.GetString(v)),
                 storeTypePostfix: StoreTypePostfix.None,
                 jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, byte[]>(
                     JsonByteArrayReaderWriter.Instance,
                     new ValueConverter<string, byte[]>(
                         (string v) => Encoding.UTF32.GetBytes(v),
-                        (Byte[] v) => Encoding.UTF32.GetString(v))));
+                        (byte[] v) => Encoding.UTF32.GetString(v))));
             stringToBytesConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var stringToCharConverterProperty = runtimeEntityType.AddProperty(
@@ -8715,6 +13024,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToCharConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToCharConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToCharConverter());
+            stringToCharConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToCharConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToCharConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToCharConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToCharConverterProperty(instance) == null);
+            stringToCharConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToCharConverterProperty(entity, value));
+            stringToCharConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToCharConverterProperty(entity, value));
+            stringToCharConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToCharConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToCharConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToCharConverterProperty, 205),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToCharConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[205]);
+            stringToCharConverterProperty.SetPropertyIndexes(
+                index: 205,
+                originalValueIndex: 205,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToCharConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8749,6 +13079,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToDateOnlyConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateOnlyConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateOnlyConverter());
+            stringToDateOnlyConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateOnlyConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateOnlyConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateOnlyConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateOnlyConverterProperty(instance) == null);
+            stringToDateOnlyConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateOnlyConverterProperty(entity, value));
+            stringToDateOnlyConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateOnlyConverterProperty(entity, value));
+            stringToDateOnlyConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToDateOnlyConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToDateOnlyConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToDateOnlyConverterProperty, 206),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToDateOnlyConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[206]);
+            stringToDateOnlyConverterProperty.SetPropertyIndexes(
+                index: 206,
+                originalValueIndex: 206,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToDateOnlyConverterProperty.TypeMapping = SqlServerDateOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8780,6 +13131,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToDateTimeConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateTimeConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateTimeConverter());
+            stringToDateTimeConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateTimeConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateTimeConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateTimeConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateTimeConverterProperty(instance) == null);
+            stringToDateTimeConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateTimeConverterProperty(entity, value));
+            stringToDateTimeConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateTimeConverterProperty(entity, value));
+            stringToDateTimeConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToDateTimeConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToDateTimeConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToDateTimeConverterProperty, 207),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToDateTimeConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[207]);
+            stringToDateTimeConverterProperty.SetPropertyIndexes(
+                index: 207,
+                originalValueIndex: 207,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToDateTimeConverterProperty.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8811,6 +13183,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToDateTimeOffsetConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDateTimeOffsetConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToDateTimeOffsetConverter());
+            stringToDateTimeOffsetConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateTimeOffsetConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDateTimeOffsetConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateTimeOffsetConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDateTimeOffsetConverterProperty(instance) == null);
+            stringToDateTimeOffsetConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateTimeOffsetConverterProperty(entity, value));
+            stringToDateTimeOffsetConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDateTimeOffsetConverterProperty(entity, value));
+            stringToDateTimeOffsetConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToDateTimeOffsetConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToDateTimeOffsetConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToDateTimeOffsetConverterProperty, 208),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[208]);
+            stringToDateTimeOffsetConverterProperty.SetPropertyIndexes(
+                index: 208,
+                originalValueIndex: 208,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToDateTimeOffsetConverterProperty.TypeMapping = SqlServerDateTimeOffsetTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8842,6 +13235,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToDecimalNumberConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDecimalNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<decimal>());
+            stringToDecimalNumberConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDecimalNumberConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDecimalNumberConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDecimalNumberConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDecimalNumberConverterProperty(instance) == null);
+            stringToDecimalNumberConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDecimalNumberConverterProperty(entity, value));
+            stringToDecimalNumberConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDecimalNumberConverterProperty(entity, value));
+            stringToDecimalNumberConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToDecimalNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToDecimalNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToDecimalNumberConverterProperty, 209),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToDecimalNumberConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[209]);
+            stringToDecimalNumberConverterProperty.SetPropertyIndexes(
+                index: 209,
+                originalValueIndex: 209,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToDecimalNumberConverterProperty.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8873,6 +13287,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToDoubleNumberConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToDoubleNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<double>());
+            stringToDoubleNumberConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDoubleNumberConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToDoubleNumberConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDoubleNumberConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToDoubleNumberConverterProperty(instance) == null);
+            stringToDoubleNumberConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDoubleNumberConverterProperty(entity, value));
+            stringToDoubleNumberConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToDoubleNumberConverterProperty(entity, value));
+            stringToDoubleNumberConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToDoubleNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToDoubleNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToDoubleNumberConverterProperty, 210),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToDoubleNumberConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[210]);
+            stringToDoubleNumberConverterProperty.SetPropertyIndexes(
+                index: 210,
+                originalValueIndex: 210,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToDoubleNumberConverterProperty.TypeMapping = SqlServerDoubleTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8904,6 +13339,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToEnumConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToEnumConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToEnumConverter<CompiledModelTestBase.EnumU32>());
+            stringToEnumConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToEnumConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToEnumConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToEnumConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToEnumConverterProperty(instance) == null);
+            stringToEnumConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToEnumConverterProperty(entity, value));
+            stringToEnumConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToEnumConverterProperty(entity, value));
+            stringToEnumConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToEnumConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToEnumConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToEnumConverterProperty, 211),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToEnumConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[211]);
+            stringToEnumConverterProperty.SetPropertyIndexes(
+                index: 211,
+                originalValueIndex: 211,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToEnumConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8932,6 +13388,27 @@ namespace TestNamespace
                 typeof(string),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToGuidConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToGuidConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            stringToGuidConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToGuidConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToGuidConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToGuidConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToGuidConverterProperty(instance) == null);
+            stringToGuidConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToGuidConverterProperty(entity, value));
+            stringToGuidConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToGuidConverterProperty(entity, value));
+            stringToGuidConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToGuidConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToGuidConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToGuidConverterProperty, 212),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToGuidConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[212]);
+            stringToGuidConverterProperty.SetPropertyIndexes(
+                index: 212,
+                originalValueIndex: 212,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToGuidConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8958,6 +13435,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToIntNumberConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToIntNumberConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToNumberConverter<int>());
+            stringToIntNumberConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToIntNumberConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToIntNumberConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToIntNumberConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToIntNumberConverterProperty(instance) == null);
+            stringToIntNumberConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToIntNumberConverterProperty(entity, value));
+            stringToIntNumberConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToIntNumberConverterProperty(entity, value));
+            stringToIntNumberConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToIntNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToIntNumberConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToIntNumberConverterProperty, 213),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToIntNumberConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[213]);
+            stringToIntNumberConverterProperty.SetPropertyIndexes(
+                index: 213,
+                originalValueIndex: 213,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToIntNumberConverterProperty.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -8989,6 +13487,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToTimeOnlyConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToTimeOnlyConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToTimeOnlyConverter());
+            stringToTimeOnlyConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToTimeOnlyConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToTimeOnlyConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToTimeOnlyConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToTimeOnlyConverterProperty(instance) == null);
+            stringToTimeOnlyConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToTimeOnlyConverterProperty(entity, value));
+            stringToTimeOnlyConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToTimeOnlyConverterProperty(entity, value));
+            stringToTimeOnlyConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToTimeOnlyConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToTimeOnlyConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToTimeOnlyConverterProperty, 214),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToTimeOnlyConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[214]);
+            stringToTimeOnlyConverterProperty.SetPropertyIndexes(
+                index: 214,
+                originalValueIndex: 214,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToTimeOnlyConverterProperty.TypeMapping = SqlServerTimeOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -9020,6 +13539,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToTimeSpanConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToTimeSpanConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToTimeSpanConverter());
+            stringToTimeSpanConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToTimeSpanConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToTimeSpanConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToTimeSpanConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToTimeSpanConverterProperty(instance) == null);
+            stringToTimeSpanConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToTimeSpanConverterProperty(entity, value));
+            stringToTimeSpanConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToTimeSpanConverterProperty(entity, value));
+            stringToTimeSpanConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToTimeSpanConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToTimeSpanConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToTimeSpanConverterProperty, 215),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToTimeSpanConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[215]);
+            stringToTimeSpanConverterProperty.SetPropertyIndexes(
+                index: 215,
+                originalValueIndex: 215,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToTimeSpanConverterProperty.TypeMapping = SqlServerTimeSpanTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -9051,6 +13591,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("StringToUriConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<StringToUriConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new StringToUriConverter());
+            stringToUriConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToUriConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadStringToUriConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToUriConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadStringToUriConverterProperty(instance) == null);
+            stringToUriConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToUriConverterProperty(entity, value));
+            stringToUriConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, string value) => WriteStringToUriConverterProperty(entity, value));
+            stringToUriConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadStringToUriConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadStringToUriConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<string>(stringToUriConverterProperty, 216),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<string>(stringToUriConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[216]);
+            stringToUriConverterProperty.SetPropertyIndexes(
+                index: 216,
+                originalValueIndex: 216,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             stringToUriConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
@@ -9085,6 +13646,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeOnly", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnly>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new TimeOnly(0, 0, 0));
+            timeOnly.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnly(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnly(entity) == default(TimeOnly),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnly(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnly(instance) == default(TimeOnly));
+            timeOnly.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnly(entity, value));
+            timeOnly.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnly(entity, value));
+            timeOnly.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeOnly((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeOnly>(timeOnly, 217),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeOnly>(timeOnly),
+                (ValueBuffer valueBuffer) => valueBuffer[217]);
+            timeOnly.SetPropertyIndexes(
+                index: 217,
+                originalValueIndex: 217,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeOnly.TypeMapping = SqlServerTimeOnlyTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeOnly>(
                     (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
@@ -9105,6 +13687,27 @@ namespace TestNamespace
                 typeof(TimeOnly[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeOnlyArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnlyArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            timeOnlyArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyArray(instance) == null);
+            timeOnlyArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly[] value) => WriteTimeOnlyArray(entity, value));
+            timeOnlyArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly[] value) => WriteTimeOnlyArray(entity, value));
+            timeOnlyArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeOnlyArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeOnly[]>(timeOnlyArray, 218),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeOnly[]>(timeOnlyArray),
+                (ValueBuffer valueBuffer) => valueBuffer[218]);
+            timeOnlyArray.SetPropertyIndexes(
+                index: 218,
+                originalValueIndex: 218,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeOnlyArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<TimeOnly>(new ValueComparer<TimeOnly>(
                     (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
@@ -9148,6 +13751,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeOnlyToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnlyToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeOnlyToStringConverter());
+            timeOnlyToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyToStringConverterProperty(entity) == default(TimeOnly),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyToStringConverterProperty(instance) == default(TimeOnly));
+            timeOnlyToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnlyToStringConverterProperty(entity, value));
+            timeOnlyToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnlyToStringConverterProperty(entity, value));
+            timeOnlyToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeOnlyToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeOnlyToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeOnly>(timeOnlyToStringConverterProperty, 219),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[219]);
+            timeOnlyToStringConverterProperty.SetPropertyIndexes(
+                index: 219,
+                originalValueIndex: 219,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeOnlyToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeOnly>(
                     (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
@@ -9183,6 +13807,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeOnlyToTicksConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeOnlyToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeOnlyToTicksConverter());
+            timeOnlyToTicksConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyToTicksConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeOnlyToTicksConverterProperty(entity) == default(TimeOnly),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyToTicksConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeOnlyToTicksConverterProperty(instance) == default(TimeOnly));
+            timeOnlyToTicksConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnlyToTicksConverterProperty(entity, value));
+            timeOnlyToTicksConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeOnly value) => WriteTimeOnlyToTicksConverterProperty(entity, value));
+            timeOnlyToTicksConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeOnlyToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeOnlyToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeOnly>(timeOnlyToTicksConverterProperty, 220),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[220]);
+            timeOnlyToTicksConverterProperty.SetPropertyIndexes(
+                index: 220,
+                originalValueIndex: 220,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeOnlyToTicksConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeOnly>(
                     (TimeOnly v1, TimeOnly v2) => v1.Equals(v2),
@@ -9213,6 +13858,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeSpan", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpan>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: new TimeSpan(0, 0, 0, 0, 0));
+            timeSpan.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpan(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpan(entity) == default(TimeSpan),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpan(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpan(instance) == default(TimeSpan));
+            timeSpan.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpan(entity, value));
+            timeSpan.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpan(entity, value));
+            timeSpan.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeSpan((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeSpan((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeSpan>(timeSpan, 221),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeSpan>(timeSpan),
+                (ValueBuffer valueBuffer) => valueBuffer[221]);
+            timeSpan.SetPropertyIndexes(
+                index: 221,
+                originalValueIndex: 221,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeSpan.TypeMapping = SqlServerTimeSpanTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeSpan>(
                     (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
@@ -9233,6 +13899,27 @@ namespace TestNamespace
                 typeof(TimeSpan[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeSpanArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpanArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            timeSpanArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanArray(instance) == null);
+            timeSpanArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan[] value) => WriteTimeSpanArray(entity, value));
+            timeSpanArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan[] value) => WriteTimeSpanArray(entity, value));
+            timeSpanArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeSpanArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeSpanArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeSpan[]>(timeSpanArray, 222),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeSpan[]>(timeSpanArray),
+                (ValueBuffer valueBuffer) => valueBuffer[222]);
+            timeSpanArray.SetPropertyIndexes(
+                index: 222,
+                originalValueIndex: 222,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeSpanArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<TimeSpan>(new ValueComparer<TimeSpan>(
                     (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
@@ -9276,6 +13963,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeSpanToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpanToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeSpanToStringConverter());
+            timeSpanToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanToStringConverterProperty(entity) == default(TimeSpan),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanToStringConverterProperty(instance) == default(TimeSpan));
+            timeSpanToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpanToStringConverterProperty(entity, value));
+            timeSpanToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpanToStringConverterProperty(entity, value));
+            timeSpanToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeSpanToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeSpanToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeSpan>(timeSpanToStringConverterProperty, 223),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[223]);
+            timeSpanToStringConverterProperty.SetPropertyIndexes(
+                index: 223,
+                originalValueIndex: 223,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeSpanToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeSpan>(
                     (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
@@ -9311,6 +14019,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("TimeSpanToTicksConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<TimeSpanToTicksConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new TimeSpanToTicksConverter());
+            timeSpanToTicksConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanToTicksConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadTimeSpanToTicksConverterProperty(entity) == default(TimeSpan),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanToTicksConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadTimeSpanToTicksConverterProperty(instance) == default(TimeSpan));
+            timeSpanToTicksConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpanToTicksConverterProperty(entity, value));
+            timeSpanToTicksConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, TimeSpan value) => WriteTimeSpanToTicksConverterProperty(entity, value));
+            timeSpanToTicksConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadTimeSpanToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadTimeSpanToTicksConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<TimeSpan>(timeSpanToTicksConverterProperty, 224),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[224]);
+            timeSpanToTicksConverterProperty.SetPropertyIndexes(
+                index: 224,
+                originalValueIndex: 224,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             timeSpanToTicksConverterProperty.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<TimeSpan>(
                     (TimeSpan v1, TimeSpan v2) => v1.Equals(v2),
@@ -9340,6 +14069,27 @@ namespace TestNamespace
                 typeof(ushort),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt16", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt16>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt16.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt16(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt16(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt16(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt16(instance) == 0);
+            uInt16.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, ushort value) => WriteUInt16(entity, value));
+            uInt16.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, ushort value) => WriteUInt16(entity, value));
+            uInt16.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt16((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<ushort>(uInt16, 225),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<ushort>(uInt16),
+                (ValueBuffer valueBuffer) => valueBuffer[225]);
+            uInt16.SetPropertyIndexes(
+                index: 225,
+                originalValueIndex: 225,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt16.TypeMapping = IntTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ushort>(
                     (ushort v1, ushort v2) => v1 == v2,
@@ -9369,6 +14119,27 @@ namespace TestNamespace
                 typeof(ushort[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt16Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt16Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt16Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt16Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt16Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt16Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt16Array(instance) == null);
+            uInt16Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, ushort[] value) => WriteUInt16Array(entity, value));
+            uInt16Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, ushort[] value) => WriteUInt16Array(entity, value));
+            uInt16Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt16Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<ushort[]>(uInt16Array, 226),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<ushort[]>(uInt16Array),
+                (ValueBuffer valueBuffer) => valueBuffer[226]);
+            uInt16Array.SetPropertyIndexes(
+                index: 226,
+                originalValueIndex: 226,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt16Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<ushort>(new ValueComparer<ushort>(
                     (ushort v1, ushort v2) => v1 == v2,
@@ -9427,6 +14198,27 @@ namespace TestNamespace
                 typeof(uint),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt32", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt32>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt32.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt32(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt32(entity) == 0U,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt32(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt32(instance) == 0U);
+            uInt32.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, uint value) => WriteUInt32(entity, value));
+            uInt32.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, uint value) => WriteUInt32(entity, value));
+            uInt32.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt32((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<uint>(uInt32, 227),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<uint>(uInt32),
+                (ValueBuffer valueBuffer) => valueBuffer[227]);
+            uInt32.SetPropertyIndexes(
+                index: 227,
+                originalValueIndex: 227,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt32.TypeMapping = SqlServerLongTypeMapping.Default.Clone(
                 comparer: new ValueComparer<uint>(
                     (uint v1, uint v2) => v1 == v2,
@@ -9456,6 +14248,27 @@ namespace TestNamespace
                 typeof(uint[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt32Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt32Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt32Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt32Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt32Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt32Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt32Array(instance) == null);
+            uInt32Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, uint[] value) => WriteUInt32Array(entity, value));
+            uInt32Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, uint[] value) => WriteUInt32Array(entity, value));
+            uInt32Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt32Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<uint[]>(uInt32Array, 228),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<uint[]>(uInt32Array),
+                (ValueBuffer valueBuffer) => valueBuffer[228]);
+            uInt32Array.SetPropertyIndexes(
+                index: 228,
+                originalValueIndex: 228,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt32Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<uint>(new ValueComparer<uint>(
                     (uint v1, uint v2) => v1 == v2,
@@ -9514,6 +14327,27 @@ namespace TestNamespace
                 typeof(ulong),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt64", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt64>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt64.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt64(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt64(entity) == 0UL,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt64(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt64(instance) == 0UL);
+            uInt64.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, ulong value) => WriteUInt64(entity, value));
+            uInt64.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, ulong value) => WriteUInt64(entity, value));
+            uInt64.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt64((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong>(uInt64, 229),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<ulong>(uInt64),
+                (ValueBuffer valueBuffer) => valueBuffer[229]);
+            uInt64.SetPropertyIndexes(
+                index: 229,
+                originalValueIndex: 229,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt64.TypeMapping = SqlServerDecimalTypeMapping.Default.Clone(
                 comparer: new ValueComparer<ulong>(
                     (ulong v1, ulong v2) => v1 == v2,
@@ -9547,6 +14381,27 @@ namespace TestNamespace
                 typeof(ulong[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt64Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt64Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt64Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt64Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt64Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt64Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt64Array(instance) == null);
+            uInt64Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, ulong[] value) => WriteUInt64Array(entity, value));
+            uInt64Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, ulong[] value) => WriteUInt64Array(entity, value));
+            uInt64Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt64Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<ulong[]>(uInt64Array, 230),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<ulong[]>(uInt64Array),
+                (ValueBuffer valueBuffer) => valueBuffer[230]);
+            uInt64Array.SetPropertyIndexes(
+                index: 230,
+                originalValueIndex: 230,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt64Array.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<ulong>(new ValueComparer<ulong>(
                     (ulong v1, ulong v2) => v1 == v2,
@@ -9610,6 +14465,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 sentinel: (byte)0);
+            uInt8.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt8(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt8(entity) == 0,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt8(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt8(instance) == 0);
+            uInt8.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte value) => WriteUInt8(entity, value));
+            uInt8.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte value) => WriteUInt8(entity, value));
+            uInt8.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt8((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte>(uInt8, 231),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte>(uInt8),
+                (ValueBuffer valueBuffer) => valueBuffer[231]);
+            uInt8.SetPropertyIndexes(
+                index: 231,
+                originalValueIndex: 231,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt8.TypeMapping = SqlServerByteTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte>(
                     (byte v1, byte v2) => v1 == v2,
@@ -9630,19 +14506,40 @@ namespace TestNamespace
                 typeof(byte[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UInt8Array", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UInt8Array>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uInt8Array.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt8Array(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUInt8Array(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt8Array(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUInt8Array(instance) == null);
+            uInt8Array.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteUInt8Array(entity, value));
+            uInt8Array.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, byte[] value) => WriteUInt8Array(entity, value));
+            uInt8Array.SetAccessors(
+                (InternalEntityEntry entry) => ReadUInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUInt8Array((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<byte[]>(uInt8Array, 232),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<byte[]>(uInt8Array),
+                (ValueBuffer valueBuffer) => valueBuffer[232]);
+            uInt8Array.SetPropertyIndexes(
+                index: 232,
+                originalValueIndex: 232,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uInt8Array.TypeMapping = SqlServerByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => v.GetHashCode(),
-                    (Byte[] v) => v),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => v.GetHashCode(),
+                    (byte[] v) => v),
                 keyComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 providerValueComparer: new ValueComparer<byte[]>(
-                    (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
-                    (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
+                    (byte[] v1, byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
+                    (byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
+                    (byte[] source) => source.ToArray()),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "varbinary(max)"),
                 storeTypePostfix: StoreTypePostfix.None);
@@ -9653,6 +14550,27 @@ namespace TestNamespace
                 typeof(Uri),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("Uri", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<Uri>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uri.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUri(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUri(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUri(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUri(instance) == null);
+            uri.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteUri(entity, value));
+            uri.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteUri(entity, value));
+            uri.SetAccessors(
+                (InternalEntityEntry entry) => ReadUri((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUri((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Uri>(uri, 233),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Uri>(uri),
+                (ValueBuffer valueBuffer) => valueBuffer[233]);
+            uri.SetPropertyIndexes(
+                index: 233,
+                originalValueIndex: 233,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uri.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
                     (Uri v1, Uri v2) => v1 == v2,
@@ -9686,6 +14604,27 @@ namespace TestNamespace
                 typeof(Uri[]),
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UriArray", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UriArray>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            uriArray.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUriArray(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUriArray(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUriArray(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUriArray(instance) == null);
+            uriArray.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri[] value) => WriteUriArray(entity, value));
+            uriArray.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri[] value) => WriteUriArray(entity, value));
+            uriArray.SetAccessors(
+                (InternalEntityEntry entry) => ReadUriArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUriArray((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Uri[]>(uriArray, 234),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Uri[]>(uriArray),
+                (ValueBuffer valueBuffer) => valueBuffer[234]);
+            uriArray.SetPropertyIndexes(
+                index: 234,
+                originalValueIndex: 234,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uriArray.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ListComparer<Uri>(new ValueComparer<Uri>(
                     (Uri v1, Uri v2) => v1 == v2,
@@ -9750,6 +14689,27 @@ namespace TestNamespace
                 propertyInfo: typeof(CompiledModelTestBase.ManyTypes).GetProperty("UriToStringConverterProperty", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CompiledModelTestBase.ManyTypes).GetField("<UriToStringConverterProperty>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueConverter: new UriToStringConverter());
+            uriToStringConverterProperty.SetGetter(
+                (CompiledModelTestBase.ManyTypes entity) => ReadUriToStringConverterProperty(entity),
+                (CompiledModelTestBase.ManyTypes entity) => ReadUriToStringConverterProperty(entity) == null,
+                (CompiledModelTestBase.ManyTypes instance) => ReadUriToStringConverterProperty(instance),
+                (CompiledModelTestBase.ManyTypes instance) => ReadUriToStringConverterProperty(instance) == null);
+            uriToStringConverterProperty.SetSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteUriToStringConverterProperty(entity, value));
+            uriToStringConverterProperty.SetMaterializationSetter(
+                (CompiledModelTestBase.ManyTypes entity, Uri value) => WriteUriToStringConverterProperty(entity, value));
+            uriToStringConverterProperty.SetAccessors(
+                (InternalEntityEntry entry) => ReadUriToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => ReadUriToStringConverterProperty((CompiledModelTestBase.ManyTypes)entry.Entity),
+                (InternalEntityEntry entry) => entry.ReadOriginalValue<Uri>(uriToStringConverterProperty, 235),
+                (InternalEntityEntry entry) => entry.GetCurrentValue<Uri>(uriToStringConverterProperty),
+                (ValueBuffer valueBuffer) => valueBuffer[235]);
+            uriToStringConverterProperty.SetPropertyIndexes(
+                index: 235,
+                originalValueIndex: 235,
+                shadowIndex: -1,
+                relationshipIndex: -1,
+                storeGenerationIndex: -1);
             uriToStringConverterProperty.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<Uri>(
                     (Uri v1, Uri v2) => v1 == v2,
@@ -9787,6 +14747,284 @@ namespace TestNamespace
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
         {
+            var id = runtimeEntityType.FindProperty("Id")!;
+            var @bool = runtimeEntityType.FindProperty("Bool")!;
+            var boolArray = runtimeEntityType.FindProperty("BoolArray")!;
+            var boolToStringConverterProperty = runtimeEntityType.FindProperty("BoolToStringConverterProperty")!;
+            var boolToTwoValuesConverterProperty = runtimeEntityType.FindProperty("BoolToTwoValuesConverterProperty")!;
+            var boolToZeroOneConverterProperty = runtimeEntityType.FindProperty("BoolToZeroOneConverterProperty")!;
+            var bytes = runtimeEntityType.FindProperty("Bytes")!;
+            var bytesArray = runtimeEntityType.FindProperty("BytesArray")!;
+            var bytesToStringConverterProperty = runtimeEntityType.FindProperty("BytesToStringConverterProperty")!;
+            var castingConverterProperty = runtimeEntityType.FindProperty("CastingConverterProperty")!;
+            var @char = runtimeEntityType.FindProperty("Char")!;
+            var charArray = runtimeEntityType.FindProperty("CharArray")!;
+            var charToStringConverterProperty = runtimeEntityType.FindProperty("CharToStringConverterProperty")!;
+            var dateOnly = runtimeEntityType.FindProperty("DateOnly")!;
+            var dateOnlyArray = runtimeEntityType.FindProperty("DateOnlyArray")!;
+            var dateOnlyToStringConverterProperty = runtimeEntityType.FindProperty("DateOnlyToStringConverterProperty")!;
+            var dateTime = runtimeEntityType.FindProperty("DateTime")!;
+            var dateTimeArray = runtimeEntityType.FindProperty("DateTimeArray")!;
+            var dateTimeOffsetToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBinaryConverterProperty")!;
+            var dateTimeOffsetToBytesConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToBytesConverterProperty")!;
+            var dateTimeOffsetToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeOffsetToStringConverterProperty")!;
+            var dateTimeToBinaryConverterProperty = runtimeEntityType.FindProperty("DateTimeToBinaryConverterProperty")!;
+            var dateTimeToStringConverterProperty = runtimeEntityType.FindProperty("DateTimeToStringConverterProperty")!;
+            var dateTimeToTicksConverterProperty = runtimeEntityType.FindProperty("DateTimeToTicksConverterProperty")!;
+            var @decimal = runtimeEntityType.FindProperty("Decimal")!;
+            var decimalArray = runtimeEntityType.FindProperty("DecimalArray")!;
+            var decimalNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToBytesConverterProperty")!;
+            var decimalNumberToStringConverterProperty = runtimeEntityType.FindProperty("DecimalNumberToStringConverterProperty")!;
+            var @double = runtimeEntityType.FindProperty("Double")!;
+            var doubleArray = runtimeEntityType.FindProperty("DoubleArray")!;
+            var doubleNumberToBytesConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToBytesConverterProperty")!;
+            var doubleNumberToStringConverterProperty = runtimeEntityType.FindProperty("DoubleNumberToStringConverterProperty")!;
+            var enum16 = runtimeEntityType.FindProperty("Enum16")!;
+            var enum16Array = runtimeEntityType.FindProperty("Enum16Array")!;
+            var enum16AsString = runtimeEntityType.FindProperty("Enum16AsString")!;
+            var enum16AsStringArray = runtimeEntityType.FindProperty("Enum16AsStringArray")!;
+            var enum16AsStringCollection = runtimeEntityType.FindProperty("Enum16AsStringCollection")!;
+            var enum16Collection = runtimeEntityType.FindProperty("Enum16Collection")!;
+            var enum32 = runtimeEntityType.FindProperty("Enum32")!;
+            var enum32Array = runtimeEntityType.FindProperty("Enum32Array")!;
+            var enum32AsString = runtimeEntityType.FindProperty("Enum32AsString")!;
+            var enum32AsStringArray = runtimeEntityType.FindProperty("Enum32AsStringArray")!;
+            var enum32AsStringCollection = runtimeEntityType.FindProperty("Enum32AsStringCollection")!;
+            var enum32Collection = runtimeEntityType.FindProperty("Enum32Collection")!;
+            var enum64 = runtimeEntityType.FindProperty("Enum64")!;
+            var enum64Array = runtimeEntityType.FindProperty("Enum64Array")!;
+            var enum64AsString = runtimeEntityType.FindProperty("Enum64AsString")!;
+            var enum64AsStringArray = runtimeEntityType.FindProperty("Enum64AsStringArray")!;
+            var enum64AsStringCollection = runtimeEntityType.FindProperty("Enum64AsStringCollection")!;
+            var enum64Collection = runtimeEntityType.FindProperty("Enum64Collection")!;
+            var enum8 = runtimeEntityType.FindProperty("Enum8")!;
+            var enum8Array = runtimeEntityType.FindProperty("Enum8Array")!;
+            var enum8AsString = runtimeEntityType.FindProperty("Enum8AsString")!;
+            var enum8AsStringArray = runtimeEntityType.FindProperty("Enum8AsStringArray")!;
+            var enum8AsStringCollection = runtimeEntityType.FindProperty("Enum8AsStringCollection")!;
+            var enum8Collection = runtimeEntityType.FindProperty("Enum8Collection")!;
+            var enumToNumberConverterProperty = runtimeEntityType.FindProperty("EnumToNumberConverterProperty")!;
+            var enumToStringConverterProperty = runtimeEntityType.FindProperty("EnumToStringConverterProperty")!;
+            var enumU16 = runtimeEntityType.FindProperty("EnumU16")!;
+            var enumU16Array = runtimeEntityType.FindProperty("EnumU16Array")!;
+            var enumU16AsString = runtimeEntityType.FindProperty("EnumU16AsString")!;
+            var enumU16AsStringArray = runtimeEntityType.FindProperty("EnumU16AsStringArray")!;
+            var enumU16AsStringCollection = runtimeEntityType.FindProperty("EnumU16AsStringCollection")!;
+            var enumU16Collection = runtimeEntityType.FindProperty("EnumU16Collection")!;
+            var enumU32 = runtimeEntityType.FindProperty("EnumU32")!;
+            var enumU32Array = runtimeEntityType.FindProperty("EnumU32Array")!;
+            var enumU32AsString = runtimeEntityType.FindProperty("EnumU32AsString")!;
+            var enumU32AsStringArray = runtimeEntityType.FindProperty("EnumU32AsStringArray")!;
+            var enumU32AsStringCollection = runtimeEntityType.FindProperty("EnumU32AsStringCollection")!;
+            var enumU32Collection = runtimeEntityType.FindProperty("EnumU32Collection")!;
+            var enumU64 = runtimeEntityType.FindProperty("EnumU64")!;
+            var enumU64Array = runtimeEntityType.FindProperty("EnumU64Array")!;
+            var enumU64AsString = runtimeEntityType.FindProperty("EnumU64AsString")!;
+            var enumU64AsStringArray = runtimeEntityType.FindProperty("EnumU64AsStringArray")!;
+            var enumU64AsStringCollection = runtimeEntityType.FindProperty("EnumU64AsStringCollection")!;
+            var enumU64Collection = runtimeEntityType.FindProperty("EnumU64Collection")!;
+            var enumU8 = runtimeEntityType.FindProperty("EnumU8")!;
+            var enumU8Array = runtimeEntityType.FindProperty("EnumU8Array")!;
+            var enumU8AsString = runtimeEntityType.FindProperty("EnumU8AsString")!;
+            var enumU8AsStringArray = runtimeEntityType.FindProperty("EnumU8AsStringArray")!;
+            var enumU8AsStringCollection = runtimeEntityType.FindProperty("EnumU8AsStringCollection")!;
+            var enumU8Collection = runtimeEntityType.FindProperty("EnumU8Collection")!;
+            var @float = runtimeEntityType.FindProperty("Float")!;
+            var floatArray = runtimeEntityType.FindProperty("FloatArray")!;
+            var guid = runtimeEntityType.FindProperty("Guid")!;
+            var guidArray = runtimeEntityType.FindProperty("GuidArray")!;
+            var guidToBytesConverterProperty = runtimeEntityType.FindProperty("GuidToBytesConverterProperty")!;
+            var guidToStringConverterProperty = runtimeEntityType.FindProperty("GuidToStringConverterProperty")!;
+            var iPAddress = runtimeEntityType.FindProperty("IPAddress")!;
+            var iPAddressArray = runtimeEntityType.FindProperty("IPAddressArray")!;
+            var iPAddressToBytesConverterProperty = runtimeEntityType.FindProperty("IPAddressToBytesConverterProperty")!;
+            var iPAddressToStringConverterProperty = runtimeEntityType.FindProperty("IPAddressToStringConverterProperty")!;
+            var int16 = runtimeEntityType.FindProperty("Int16")!;
+            var int16Array = runtimeEntityType.FindProperty("Int16Array")!;
+            var int32 = runtimeEntityType.FindProperty("Int32")!;
+            var int32Array = runtimeEntityType.FindProperty("Int32Array")!;
+            var int64 = runtimeEntityType.FindProperty("Int64")!;
+            var int64Array = runtimeEntityType.FindProperty("Int64Array")!;
+            var int8 = runtimeEntityType.FindProperty("Int8")!;
+            var int8Array = runtimeEntityType.FindProperty("Int8Array")!;
+            var intNumberToBytesConverterProperty = runtimeEntityType.FindProperty("IntNumberToBytesConverterProperty")!;
+            var intNumberToStringConverterProperty = runtimeEntityType.FindProperty("IntNumberToStringConverterProperty")!;
+            var nullIntToNullStringConverterProperty = runtimeEntityType.FindProperty("NullIntToNullStringConverterProperty")!;
+            var nullableBool = runtimeEntityType.FindProperty("NullableBool")!;
+            var nullableBoolArray = runtimeEntityType.FindProperty("NullableBoolArray")!;
+            var nullableBytes = runtimeEntityType.FindProperty("NullableBytes")!;
+            var nullableBytesArray = runtimeEntityType.FindProperty("NullableBytesArray")!;
+            var nullableChar = runtimeEntityType.FindProperty("NullableChar")!;
+            var nullableCharArray = runtimeEntityType.FindProperty("NullableCharArray")!;
+            var nullableDateOnly = runtimeEntityType.FindProperty("NullableDateOnly")!;
+            var nullableDateOnlyArray = runtimeEntityType.FindProperty("NullableDateOnlyArray")!;
+            var nullableDateTime = runtimeEntityType.FindProperty("NullableDateTime")!;
+            var nullableDateTimeArray = runtimeEntityType.FindProperty("NullableDateTimeArray")!;
+            var nullableDecimal = runtimeEntityType.FindProperty("NullableDecimal")!;
+            var nullableDecimalArray = runtimeEntityType.FindProperty("NullableDecimalArray")!;
+            var nullableDouble = runtimeEntityType.FindProperty("NullableDouble")!;
+            var nullableDoubleArray = runtimeEntityType.FindProperty("NullableDoubleArray")!;
+            var nullableEnum16 = runtimeEntityType.FindProperty("NullableEnum16")!;
+            var nullableEnum16Array = runtimeEntityType.FindProperty("NullableEnum16Array")!;
+            var nullableEnum16AsString = runtimeEntityType.FindProperty("NullableEnum16AsString")!;
+            var nullableEnum16AsStringArray = runtimeEntityType.FindProperty("NullableEnum16AsStringArray")!;
+            var nullableEnum16AsStringCollection = runtimeEntityType.FindProperty("NullableEnum16AsStringCollection")!;
+            var nullableEnum16Collection = runtimeEntityType.FindProperty("NullableEnum16Collection")!;
+            var nullableEnum32 = runtimeEntityType.FindProperty("NullableEnum32")!;
+            var nullableEnum32Array = runtimeEntityType.FindProperty("NullableEnum32Array")!;
+            var nullableEnum32AsString = runtimeEntityType.FindProperty("NullableEnum32AsString")!;
+            var nullableEnum32AsStringArray = runtimeEntityType.FindProperty("NullableEnum32AsStringArray")!;
+            var nullableEnum32AsStringCollection = runtimeEntityType.FindProperty("NullableEnum32AsStringCollection")!;
+            var nullableEnum32Collection = runtimeEntityType.FindProperty("NullableEnum32Collection")!;
+            var nullableEnum64 = runtimeEntityType.FindProperty("NullableEnum64")!;
+            var nullableEnum64Array = runtimeEntityType.FindProperty("NullableEnum64Array")!;
+            var nullableEnum64AsString = runtimeEntityType.FindProperty("NullableEnum64AsString")!;
+            var nullableEnum64AsStringArray = runtimeEntityType.FindProperty("NullableEnum64AsStringArray")!;
+            var nullableEnum64AsStringCollection = runtimeEntityType.FindProperty("NullableEnum64AsStringCollection")!;
+            var nullableEnum64Collection = runtimeEntityType.FindProperty("NullableEnum64Collection")!;
+            var nullableEnum8 = runtimeEntityType.FindProperty("NullableEnum8")!;
+            var nullableEnum8Array = runtimeEntityType.FindProperty("NullableEnum8Array")!;
+            var nullableEnum8AsString = runtimeEntityType.FindProperty("NullableEnum8AsString")!;
+            var nullableEnum8AsStringArray = runtimeEntityType.FindProperty("NullableEnum8AsStringArray")!;
+            var nullableEnum8AsStringCollection = runtimeEntityType.FindProperty("NullableEnum8AsStringCollection")!;
+            var nullableEnum8Collection = runtimeEntityType.FindProperty("NullableEnum8Collection")!;
+            var nullableEnumU16 = runtimeEntityType.FindProperty("NullableEnumU16")!;
+            var nullableEnumU16Array = runtimeEntityType.FindProperty("NullableEnumU16Array")!;
+            var nullableEnumU16AsString = runtimeEntityType.FindProperty("NullableEnumU16AsString")!;
+            var nullableEnumU16AsStringArray = runtimeEntityType.FindProperty("NullableEnumU16AsStringArray")!;
+            var nullableEnumU16AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU16AsStringCollection")!;
+            var nullableEnumU16Collection = runtimeEntityType.FindProperty("NullableEnumU16Collection")!;
+            var nullableEnumU32 = runtimeEntityType.FindProperty("NullableEnumU32")!;
+            var nullableEnumU32Array = runtimeEntityType.FindProperty("NullableEnumU32Array")!;
+            var nullableEnumU32AsString = runtimeEntityType.FindProperty("NullableEnumU32AsString")!;
+            var nullableEnumU32AsStringArray = runtimeEntityType.FindProperty("NullableEnumU32AsStringArray")!;
+            var nullableEnumU32AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU32AsStringCollection")!;
+            var nullableEnumU32Collection = runtimeEntityType.FindProperty("NullableEnumU32Collection")!;
+            var nullableEnumU64 = runtimeEntityType.FindProperty("NullableEnumU64")!;
+            var nullableEnumU64Array = runtimeEntityType.FindProperty("NullableEnumU64Array")!;
+            var nullableEnumU64AsString = runtimeEntityType.FindProperty("NullableEnumU64AsString")!;
+            var nullableEnumU64AsStringArray = runtimeEntityType.FindProperty("NullableEnumU64AsStringArray")!;
+            var nullableEnumU64AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU64AsStringCollection")!;
+            var nullableEnumU64Collection = runtimeEntityType.FindProperty("NullableEnumU64Collection")!;
+            var nullableEnumU8 = runtimeEntityType.FindProperty("NullableEnumU8")!;
+            var nullableEnumU8Array = runtimeEntityType.FindProperty("NullableEnumU8Array")!;
+            var nullableEnumU8AsString = runtimeEntityType.FindProperty("NullableEnumU8AsString")!;
+            var nullableEnumU8AsStringArray = runtimeEntityType.FindProperty("NullableEnumU8AsStringArray")!;
+            var nullableEnumU8AsStringCollection = runtimeEntityType.FindProperty("NullableEnumU8AsStringCollection")!;
+            var nullableEnumU8Collection = runtimeEntityType.FindProperty("NullableEnumU8Collection")!;
+            var nullableFloat = runtimeEntityType.FindProperty("NullableFloat")!;
+            var nullableFloatArray = runtimeEntityType.FindProperty("NullableFloatArray")!;
+            var nullableGuid = runtimeEntityType.FindProperty("NullableGuid")!;
+            var nullableGuidArray = runtimeEntityType.FindProperty("NullableGuidArray")!;
+            var nullableIPAddress = runtimeEntityType.FindProperty("NullableIPAddress")!;
+            var nullableIPAddressArray = runtimeEntityType.FindProperty("NullableIPAddressArray")!;
+            var nullableInt16 = runtimeEntityType.FindProperty("NullableInt16")!;
+            var nullableInt16Array = runtimeEntityType.FindProperty("NullableInt16Array")!;
+            var nullableInt32 = runtimeEntityType.FindProperty("NullableInt32")!;
+            var nullableInt32Array = runtimeEntityType.FindProperty("NullableInt32Array")!;
+            var nullableInt64 = runtimeEntityType.FindProperty("NullableInt64")!;
+            var nullableInt64Array = runtimeEntityType.FindProperty("NullableInt64Array")!;
+            var nullableInt8 = runtimeEntityType.FindProperty("NullableInt8")!;
+            var nullableInt8Array = runtimeEntityType.FindProperty("NullableInt8Array")!;
+            var nullablePhysicalAddress = runtimeEntityType.FindProperty("NullablePhysicalAddress")!;
+            var nullablePhysicalAddressArray = runtimeEntityType.FindProperty("NullablePhysicalAddressArray")!;
+            var nullableString = runtimeEntityType.FindProperty("NullableString")!;
+            var nullableStringArray = runtimeEntityType.FindProperty("NullableStringArray")!;
+            var nullableTimeOnly = runtimeEntityType.FindProperty("NullableTimeOnly")!;
+            var nullableTimeOnlyArray = runtimeEntityType.FindProperty("NullableTimeOnlyArray")!;
+            var nullableTimeSpan = runtimeEntityType.FindProperty("NullableTimeSpan")!;
+            var nullableTimeSpanArray = runtimeEntityType.FindProperty("NullableTimeSpanArray")!;
+            var nullableUInt16 = runtimeEntityType.FindProperty("NullableUInt16")!;
+            var nullableUInt16Array = runtimeEntityType.FindProperty("NullableUInt16Array")!;
+            var nullableUInt32 = runtimeEntityType.FindProperty("NullableUInt32")!;
+            var nullableUInt32Array = runtimeEntityType.FindProperty("NullableUInt32Array")!;
+            var nullableUInt64 = runtimeEntityType.FindProperty("NullableUInt64")!;
+            var nullableUInt64Array = runtimeEntityType.FindProperty("NullableUInt64Array")!;
+            var nullableUInt8 = runtimeEntityType.FindProperty("NullableUInt8")!;
+            var nullableUInt8Array = runtimeEntityType.FindProperty("NullableUInt8Array")!;
+            var nullableUri = runtimeEntityType.FindProperty("NullableUri")!;
+            var nullableUriArray = runtimeEntityType.FindProperty("NullableUriArray")!;
+            var physicalAddress = runtimeEntityType.FindProperty("PhysicalAddress")!;
+            var physicalAddressArray = runtimeEntityType.FindProperty("PhysicalAddressArray")!;
+            var physicalAddressToBytesConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToBytesConverterProperty")!;
+            var physicalAddressToStringConverterProperty = runtimeEntityType.FindProperty("PhysicalAddressToStringConverterProperty")!;
+            var @string = runtimeEntityType.FindProperty("String")!;
+            var stringArray = runtimeEntityType.FindProperty("StringArray")!;
+            var stringToBoolConverterProperty = runtimeEntityType.FindProperty("StringToBoolConverterProperty")!;
+            var stringToBytesConverterProperty = runtimeEntityType.FindProperty("StringToBytesConverterProperty")!;
+            var stringToCharConverterProperty = runtimeEntityType.FindProperty("StringToCharConverterProperty")!;
+            var stringToDateOnlyConverterProperty = runtimeEntityType.FindProperty("StringToDateOnlyConverterProperty")!;
+            var stringToDateTimeConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeConverterProperty")!;
+            var stringToDateTimeOffsetConverterProperty = runtimeEntityType.FindProperty("StringToDateTimeOffsetConverterProperty")!;
+            var stringToDecimalNumberConverterProperty = runtimeEntityType.FindProperty("StringToDecimalNumberConverterProperty")!;
+            var stringToDoubleNumberConverterProperty = runtimeEntityType.FindProperty("StringToDoubleNumberConverterProperty")!;
+            var stringToEnumConverterProperty = runtimeEntityType.FindProperty("StringToEnumConverterProperty")!;
+            var stringToGuidConverterProperty = runtimeEntityType.FindProperty("StringToGuidConverterProperty")!;
+            var stringToIntNumberConverterProperty = runtimeEntityType.FindProperty("StringToIntNumberConverterProperty")!;
+            var stringToTimeOnlyConverterProperty = runtimeEntityType.FindProperty("StringToTimeOnlyConverterProperty")!;
+            var stringToTimeSpanConverterProperty = runtimeEntityType.FindProperty("StringToTimeSpanConverterProperty")!;
+            var stringToUriConverterProperty = runtimeEntityType.FindProperty("StringToUriConverterProperty")!;
+            var timeOnly = runtimeEntityType.FindProperty("TimeOnly")!;
+            var timeOnlyArray = runtimeEntityType.FindProperty("TimeOnlyArray")!;
+            var timeOnlyToStringConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToStringConverterProperty")!;
+            var timeOnlyToTicksConverterProperty = runtimeEntityType.FindProperty("TimeOnlyToTicksConverterProperty")!;
+            var timeSpan = runtimeEntityType.FindProperty("TimeSpan")!;
+            var timeSpanArray = runtimeEntityType.FindProperty("TimeSpanArray")!;
+            var timeSpanToStringConverterProperty = runtimeEntityType.FindProperty("TimeSpanToStringConverterProperty")!;
+            var timeSpanToTicksConverterProperty = runtimeEntityType.FindProperty("TimeSpanToTicksConverterProperty")!;
+            var uInt16 = runtimeEntityType.FindProperty("UInt16")!;
+            var uInt16Array = runtimeEntityType.FindProperty("UInt16Array")!;
+            var uInt32 = runtimeEntityType.FindProperty("UInt32")!;
+            var uInt32Array = runtimeEntityType.FindProperty("UInt32Array")!;
+            var uInt64 = runtimeEntityType.FindProperty("UInt64")!;
+            var uInt64Array = runtimeEntityType.FindProperty("UInt64Array")!;
+            var uInt8 = runtimeEntityType.FindProperty("UInt8")!;
+            var uInt8Array = runtimeEntityType.FindProperty("UInt8Array")!;
+            var uri = runtimeEntityType.FindProperty("Uri")!;
+            var uriArray = runtimeEntityType.FindProperty("UriArray")!;
+            var uriToStringConverterProperty = runtimeEntityType.FindProperty("UriToStringConverterProperty")!;
+            runtimeEntityType.SetOriginalValuesFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg = (ISnapshot)new Snapshot<CompiledModelTestBase.ManyTypesId, bool, bool[], bool, bool, bool, byte[], byte[][], byte[], int, char, char[], char, DateOnly, DateOnly[], DateOnly, DateTime, DateTime[], DateTimeOffset, DateTimeOffset, DateTimeOffset, DateTime, DateTime, DateTime, decimal, decimal[], decimal, decimal, double, double[]>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)id.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)), ((ValueComparer<bool>)@bool.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(@bool)), (IEnumerable<bool>)source.GetCurrentValue<bool[]>(boolArray) == null ? null : (bool[])((ValueComparer<IEnumerable<bool>>)boolArray.GetValueComparer()).Snapshot((IEnumerable<bool>)source.GetCurrentValue<bool[]>(boolArray)), ((ValueComparer<bool>)boolToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(boolToStringConverterProperty)), ((ValueComparer<bool>)boolToTwoValuesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(boolToTwoValuesConverterProperty)), ((ValueComparer<bool>)boolToZeroOneConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<bool>(boolToZeroOneConverterProperty)), source.GetCurrentValue<byte[]>(bytes) == null ? null : ((ValueComparer<byte[]>)bytes.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(bytes)), (IEnumerable<byte[]>)source.GetCurrentValue<byte[][]>(bytesArray) == null ? null : (byte[][])((ValueComparer<IEnumerable<byte[]>>)bytesArray.GetValueComparer()).Snapshot((IEnumerable<byte[]>)source.GetCurrentValue<byte[][]>(bytesArray)), source.GetCurrentValue<byte[]>(bytesToStringConverterProperty) == null ? null : ((ValueComparer<byte[]>)bytesToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(bytesToStringConverterProperty)), ((ValueComparer<int>)castingConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(castingConverterProperty)), ((ValueComparer<char>)@char.GetValueComparer()).Snapshot(source.GetCurrentValue<char>(@char)), (IEnumerable<char>)source.GetCurrentValue<char[]>(charArray) == null ? null : (char[])((ValueComparer<IEnumerable<char>>)charArray.GetValueComparer()).Snapshot((IEnumerable<char>)source.GetCurrentValue<char[]>(charArray)), ((ValueComparer<char>)charToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<char>(charToStringConverterProperty)), ((ValueComparer<DateOnly>)dateOnly.GetValueComparer()).Snapshot(source.GetCurrentValue<DateOnly>(dateOnly)), (IEnumerable<DateOnly>)source.GetCurrentValue<DateOnly[]>(dateOnlyArray) == null ? null : (DateOnly[])((ValueComparer<IEnumerable<DateOnly>>)dateOnlyArray.GetValueComparer()).Snapshot((IEnumerable<DateOnly>)source.GetCurrentValue<DateOnly[]>(dateOnlyArray)), ((ValueComparer<DateOnly>)dateOnlyToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateOnly>(dateOnlyToStringConverterProperty)), ((ValueComparer<DateTime>)dateTime.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTime>(dateTime)), (IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(dateTimeArray) == null ? null : (DateTime[])((ValueComparer<IEnumerable<DateTime>>)dateTimeArray.GetValueComparer()).Snapshot((IEnumerable<DateTime>)source.GetCurrentValue<DateTime[]>(dateTimeArray)), ((ValueComparer<DateTimeOffset>)dateTimeOffsetToBinaryConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBinaryConverterProperty)), ((ValueComparer<DateTimeOffset>)dateTimeOffsetToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToBytesConverterProperty)), ((ValueComparer<DateTimeOffset>)dateTimeOffsetToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTimeOffset>(dateTimeOffsetToStringConverterProperty)), ((ValueComparer<DateTime>)dateTimeToBinaryConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToBinaryConverterProperty)), ((ValueComparer<DateTime>)dateTimeToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToStringConverterProperty)), ((ValueComparer<DateTime>)dateTimeToTicksConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<DateTime>(dateTimeToTicksConverterProperty)), ((ValueComparer<decimal>)@decimal.GetValueComparer()).Snapshot(source.GetCurrentValue<decimal>(@decimal)), (IEnumerable<decimal>)source.GetCurrentValue<decimal[]>(decimalArray) == null ? null : (decimal[])((ValueComparer<IEnumerable<decimal>>)decimalArray.GetValueComparer()).Snapshot((IEnumerable<decimal>)source.GetCurrentValue<decimal[]>(decimalArray)), ((ValueComparer<decimal>)decimalNumberToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToBytesConverterProperty)), ((ValueComparer<decimal>)decimalNumberToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<decimal>(decimalNumberToStringConverterProperty)), ((ValueComparer<double>)@double.GetValueComparer()).Snapshot(source.GetCurrentValue<double>(@double)), (IEnumerable<double>)source.GetCurrentValue<double[]>(doubleArray) == null ? null : (double[])((ValueComparer<IEnumerable<double>>)doubleArray.GetValueComparer()).Snapshot((IEnumerable<double>)source.GetCurrentValue<double[]>(doubleArray)));
+                    var entity0 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg0 = (ISnapshot)new Snapshot<double, double, CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16, CompiledModelTestBase.Enum16[], List<CompiledModelTestBase.Enum16>, List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32[], List<CompiledModelTestBase.Enum32>, List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64, CompiledModelTestBase.Enum64[], List<CompiledModelTestBase.Enum64>, List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8, CompiledModelTestBase.Enum8[], List<CompiledModelTestBase.Enum8>, List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum32, CompiledModelTestBase.Enum32, CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU16[]>(((ValueComparer<double>)doubleNumberToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<double>(doubleNumberToBytesConverterProperty)), ((ValueComparer<double>)doubleNumberToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<double>(doubleNumberToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum16>)enum16.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16)), (IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16Array) == null ? null : (CompiledModelTestBase.Enum16[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum16>>)enum16Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16Array)), ((ValueComparer<CompiledModelTestBase.Enum16>)enum16AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum16>(enum16AsString)), (IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16AsStringArray) == null ? null : (CompiledModelTestBase.Enum16[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum16>>)enum16AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<CompiledModelTestBase.Enum16[]>(enum16AsStringArray)), (IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16AsStringCollection) == null ? null : (List<CompiledModelTestBase.Enum16>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum16>>)enum16AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16AsStringCollection)), (IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16Collection) == null ? null : (List<CompiledModelTestBase.Enum16>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum16>>)enum16Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum16>)source.GetCurrentValue<List<CompiledModelTestBase.Enum16>>(enum16Collection)), ((ValueComparer<CompiledModelTestBase.Enum32>)enum32.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32)), (IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32Array) == null ? null : (CompiledModelTestBase.Enum32[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum32>>)enum32Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32Array)), ((ValueComparer<CompiledModelTestBase.Enum32>)enum32AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enum32AsString)), (IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32AsStringArray) == null ? null : (CompiledModelTestBase.Enum32[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum32>>)enum32AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<CompiledModelTestBase.Enum32[]>(enum32AsStringArray)), (IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32AsStringCollection) == null ? null : (List<CompiledModelTestBase.Enum32>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum32>>)enum32AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32AsStringCollection)), (IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32Collection) == null ? null : (List<CompiledModelTestBase.Enum32>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum32>>)enum32Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum32>)source.GetCurrentValue<List<CompiledModelTestBase.Enum32>>(enum32Collection)), ((ValueComparer<CompiledModelTestBase.Enum64>)enum64.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64)), (IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64Array) == null ? null : (CompiledModelTestBase.Enum64[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum64>>)enum64Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64Array)), ((ValueComparer<CompiledModelTestBase.Enum64>)enum64AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum64>(enum64AsString)), (IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64AsStringArray) == null ? null : (CompiledModelTestBase.Enum64[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum64>>)enum64AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<CompiledModelTestBase.Enum64[]>(enum64AsStringArray)), (IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64AsStringCollection) == null ? null : (List<CompiledModelTestBase.Enum64>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum64>>)enum64AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64AsStringCollection)), (IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64Collection) == null ? null : (List<CompiledModelTestBase.Enum64>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum64>>)enum64Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum64>)source.GetCurrentValue<List<CompiledModelTestBase.Enum64>>(enum64Collection)), ((ValueComparer<CompiledModelTestBase.Enum8>)enum8.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8)), (IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8Array) == null ? null : (CompiledModelTestBase.Enum8[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum8>>)enum8Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8Array)), ((ValueComparer<CompiledModelTestBase.Enum8>)enum8AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum8>(enum8AsString)), (IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8AsStringArray) == null ? null : (CompiledModelTestBase.Enum8[])((ValueComparer<IEnumerable<CompiledModelTestBase.Enum8>>)enum8AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<CompiledModelTestBase.Enum8[]>(enum8AsStringArray)), (IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8AsStringCollection) == null ? null : (List<CompiledModelTestBase.Enum8>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum8>>)enum8AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8AsStringCollection)), (IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8Collection) == null ? null : (List<CompiledModelTestBase.Enum8>)((ValueComparer<IEnumerable<CompiledModelTestBase.Enum8>>)enum8Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.Enum8>)source.GetCurrentValue<List<CompiledModelTestBase.Enum8>>(enum8Collection)), ((ValueComparer<CompiledModelTestBase.Enum32>)enumToNumberConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToNumberConverterProperty)), ((ValueComparer<CompiledModelTestBase.Enum32>)enumToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.Enum32>(enumToStringConverterProperty)), ((ValueComparer<CompiledModelTestBase.EnumU16>)enumU16.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16)), (IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16Array) == null ? null : (CompiledModelTestBase.EnumU16[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU16>>)enumU16Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16Array)));
+                    var entity1 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg1 = (ISnapshot)new Snapshot<CompiledModelTestBase.EnumU16, CompiledModelTestBase.EnumU16[], List<CompiledModelTestBase.EnumU16>, List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32[], List<CompiledModelTestBase.EnumU32>, List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64, CompiledModelTestBase.EnumU64[], List<CompiledModelTestBase.EnumU64>, List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU8, CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8, CompiledModelTestBase.EnumU8[], List<CompiledModelTestBase.EnumU8>, List<CompiledModelTestBase.EnumU8>, float, float[], Guid, Guid[], Guid, Guid, IPAddress, IPAddress[]>(((ValueComparer<CompiledModelTestBase.EnumU16>)enumU16AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU16>(enumU16AsString)), (IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16AsStringArray) == null ? null : (CompiledModelTestBase.EnumU16[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU16>>)enumU16AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<CompiledModelTestBase.EnumU16[]>(enumU16AsStringArray)), (IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16AsStringCollection) == null ? null : (List<CompiledModelTestBase.EnumU16>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU16>>)enumU16AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16AsStringCollection)), (IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16Collection) == null ? null : (List<CompiledModelTestBase.EnumU16>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU16>>)enumU16Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU16>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU16>>(enumU16Collection)), ((ValueComparer<CompiledModelTestBase.EnumU32>)enumU32.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32)), (IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32Array) == null ? null : (CompiledModelTestBase.EnumU32[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU32>>)enumU32Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32Array)), ((ValueComparer<CompiledModelTestBase.EnumU32>)enumU32AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU32>(enumU32AsString)), (IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32AsStringArray) == null ? null : (CompiledModelTestBase.EnumU32[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU32>>)enumU32AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<CompiledModelTestBase.EnumU32[]>(enumU32AsStringArray)), (IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32AsStringCollection) == null ? null : (List<CompiledModelTestBase.EnumU32>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU32>>)enumU32AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32AsStringCollection)), (IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32Collection) == null ? null : (List<CompiledModelTestBase.EnumU32>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU32>>)enumU32Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU32>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU32>>(enumU32Collection)), ((ValueComparer<CompiledModelTestBase.EnumU64>)enumU64.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64)), (IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64Array) == null ? null : (CompiledModelTestBase.EnumU64[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU64>>)enumU64Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64Array)), ((ValueComparer<CompiledModelTestBase.EnumU64>)enumU64AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU64>(enumU64AsString)), (IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64AsStringArray) == null ? null : (CompiledModelTestBase.EnumU64[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU64>>)enumU64AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<CompiledModelTestBase.EnumU64[]>(enumU64AsStringArray)), (IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64AsStringCollection) == null ? null : (List<CompiledModelTestBase.EnumU64>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU64>>)enumU64AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64AsStringCollection)), (IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64Collection) == null ? null : (List<CompiledModelTestBase.EnumU64>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU64>>)enumU64Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU64>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU64>>(enumU64Collection)), ((ValueComparer<CompiledModelTestBase.EnumU8>)enumU8.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8)), (IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8Array) == null ? null : (CompiledModelTestBase.EnumU8[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU8>>)enumU8Array.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8Array)), ((ValueComparer<CompiledModelTestBase.EnumU8>)enumU8AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.EnumU8>(enumU8AsString)), (IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8AsStringArray) == null ? null : (CompiledModelTestBase.EnumU8[])((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU8>>)enumU8AsStringArray.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<CompiledModelTestBase.EnumU8[]>(enumU8AsStringArray)), (IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8AsStringCollection) == null ? null : (List<CompiledModelTestBase.EnumU8>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU8>>)enumU8AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8AsStringCollection)), (IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8Collection) == null ? null : (List<CompiledModelTestBase.EnumU8>)((ValueComparer<IEnumerable<CompiledModelTestBase.EnumU8>>)enumU8Collection.GetValueComparer()).Snapshot((IEnumerable<CompiledModelTestBase.EnumU8>)source.GetCurrentValue<List<CompiledModelTestBase.EnumU8>>(enumU8Collection)), ((ValueComparer<float>)@float.GetValueComparer()).Snapshot(source.GetCurrentValue<float>(@float)), (IEnumerable<float>)source.GetCurrentValue<float[]>(floatArray) == null ? null : (float[])((ValueComparer<IEnumerable<float>>)floatArray.GetValueComparer()).Snapshot((IEnumerable<float>)source.GetCurrentValue<float[]>(floatArray)), ((ValueComparer<Guid>)guid.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(guid)), (IEnumerable<Guid>)source.GetCurrentValue<Guid[]>(guidArray) == null ? null : (Guid[])((ValueComparer<IEnumerable<Guid>>)guidArray.GetValueComparer()).Snapshot((IEnumerable<Guid>)source.GetCurrentValue<Guid[]>(guidArray)), ((ValueComparer<Guid>)guidToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(guidToBytesConverterProperty)), ((ValueComparer<Guid>)guidToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<Guid>(guidToStringConverterProperty)), source.GetCurrentValue<IPAddress>(iPAddress) == null ? null : ((ValueComparer<IPAddress>)iPAddress.GetValueComparer()).Snapshot(source.GetCurrentValue<IPAddress>(iPAddress)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(iPAddressArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)iPAddressArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(iPAddressArray)));
+                    var entity2 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg2 = (ISnapshot)new Snapshot<IPAddress, IPAddress, short, short[], int, int[], long, long[], sbyte, sbyte[], int, int, Nullable<int>, Nullable<bool>, Nullable<bool>[], byte[], byte[][], Nullable<char>, Nullable<char>[], Nullable<DateOnly>, Nullable<DateOnly>[], Nullable<DateTime>, Nullable<DateTime>[], Nullable<decimal>, Nullable<decimal>[], Nullable<double>, Nullable<double>[], Nullable<CompiledModelTestBase.Enum16>, Nullable<CompiledModelTestBase.Enum16>[], Nullable<CompiledModelTestBase.Enum16>>(source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty) == null ? null : ((ValueComparer<IPAddress>)iPAddressToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToBytesConverterProperty)), source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty) == null ? null : ((ValueComparer<IPAddress>)iPAddressToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<IPAddress>(iPAddressToStringConverterProperty)), ((ValueComparer<short>)int16.GetValueComparer()).Snapshot(source.GetCurrentValue<short>(int16)), (IEnumerable<short>)source.GetCurrentValue<short[]>(int16Array) == null ? null : (short[])((ValueComparer<IEnumerable<short>>)int16Array.GetValueComparer()).Snapshot((IEnumerable<short>)source.GetCurrentValue<short[]>(int16Array)), ((ValueComparer<int>)int32.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(int32)), (IEnumerable<int>)source.GetCurrentValue<int[]>(int32Array) == null ? null : (int[])((ValueComparer<IEnumerable<int>>)int32Array.GetValueComparer()).Snapshot((IEnumerable<int>)source.GetCurrentValue<int[]>(int32Array)), ((ValueComparer<long>)int64.GetValueComparer()).Snapshot(source.GetCurrentValue<long>(int64)), (IEnumerable<long>)source.GetCurrentValue<long[]>(int64Array) == null ? null : (long[])((ValueComparer<IEnumerable<long>>)int64Array.GetValueComparer()).Snapshot((IEnumerable<long>)source.GetCurrentValue<long[]>(int64Array)), ((ValueComparer<sbyte>)int8.GetValueComparer()).Snapshot(source.GetCurrentValue<sbyte>(int8)), (IEnumerable<sbyte>)source.GetCurrentValue<sbyte[]>(int8Array) == null ? null : (sbyte[])((ValueComparer<IEnumerable<sbyte>>)int8Array.GetValueComparer()).Snapshot((IEnumerable<sbyte>)source.GetCurrentValue<sbyte[]>(int8Array)), ((ValueComparer<int>)intNumberToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(intNumberToBytesConverterProperty)), ((ValueComparer<int>)intNumberToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<int>(intNumberToStringConverterProperty)), source.GetCurrentValue<Nullable<int>>(nullIntToNullStringConverterProperty) == null ? null : ((ValueComparer<Nullable<int>>)nullIntToNullStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(nullIntToNullStringConverterProperty)), source.GetCurrentValue<Nullable<bool>>(nullableBool) == null ? null : ((ValueComparer<Nullable<bool>>)nullableBool.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<bool>>(nullableBool)), (IEnumerable<Nullable<bool>>)source.GetCurrentValue<Nullable<bool>[]>(nullableBoolArray) == null ? null : (Nullable<bool>[])((ValueComparer<IEnumerable<Nullable<bool>>>)nullableBoolArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<bool>>)source.GetCurrentValue<Nullable<bool>[]>(nullableBoolArray)), source.GetCurrentValue<byte[]>(nullableBytes) == null ? null : ((ValueComparer<byte[]>)nullableBytes.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(nullableBytes)), (IEnumerable<byte[]>)source.GetCurrentValue<byte[][]>(nullableBytesArray) == null ? null : (byte[][])((ValueComparer<IEnumerable<byte[]>>)nullableBytesArray.GetValueComparer()).Snapshot((IEnumerable<byte[]>)source.GetCurrentValue<byte[][]>(nullableBytesArray)), source.GetCurrentValue<Nullable<char>>(nullableChar) == null ? null : ((ValueComparer<Nullable<char>>)nullableChar.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<char>>(nullableChar)), (IEnumerable<Nullable<char>>)source.GetCurrentValue<Nullable<char>[]>(nullableCharArray) == null ? null : (Nullable<char>[])((ValueComparer<IEnumerable<Nullable<char>>>)nullableCharArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<char>>)source.GetCurrentValue<Nullable<char>[]>(nullableCharArray)), source.GetCurrentValue<Nullable<DateOnly>>(nullableDateOnly) == null ? null : ((ValueComparer<Nullable<DateOnly>>)nullableDateOnly.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<DateOnly>>(nullableDateOnly)), (IEnumerable<Nullable<DateOnly>>)source.GetCurrentValue<Nullable<DateOnly>[]>(nullableDateOnlyArray) == null ? null : (Nullable<DateOnly>[])((ValueComparer<IEnumerable<Nullable<DateOnly>>>)nullableDateOnlyArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<DateOnly>>)source.GetCurrentValue<Nullable<DateOnly>[]>(nullableDateOnlyArray)), source.GetCurrentValue<Nullable<DateTime>>(nullableDateTime) == null ? null : ((ValueComparer<Nullable<DateTime>>)nullableDateTime.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<DateTime>>(nullableDateTime)), (IEnumerable<Nullable<DateTime>>)source.GetCurrentValue<Nullable<DateTime>[]>(nullableDateTimeArray) == null ? null : (Nullable<DateTime>[])((ValueComparer<IEnumerable<Nullable<DateTime>>>)nullableDateTimeArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<DateTime>>)source.GetCurrentValue<Nullable<DateTime>[]>(nullableDateTimeArray)), source.GetCurrentValue<Nullable<decimal>>(nullableDecimal) == null ? null : ((ValueComparer<Nullable<decimal>>)nullableDecimal.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<decimal>>(nullableDecimal)), (IEnumerable<Nullable<decimal>>)source.GetCurrentValue<Nullable<decimal>[]>(nullableDecimalArray) == null ? null : (Nullable<decimal>[])((ValueComparer<IEnumerable<Nullable<decimal>>>)nullableDecimalArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<decimal>>)source.GetCurrentValue<Nullable<decimal>[]>(nullableDecimalArray)), source.GetCurrentValue<Nullable<double>>(nullableDouble) == null ? null : ((ValueComparer<Nullable<double>>)nullableDouble.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<double>>(nullableDouble)), (IEnumerable<Nullable<double>>)source.GetCurrentValue<Nullable<double>[]>(nullableDoubleArray) == null ? null : (Nullable<double>[])((ValueComparer<IEnumerable<Nullable<double>>>)nullableDoubleArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<double>>)source.GetCurrentValue<Nullable<double>[]>(nullableDoubleArray)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum16>>)nullableEnum16.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16)), (IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16Array) == null ? null : (Nullable<CompiledModelTestBase.Enum16>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum16>>>)nullableEnum16Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum16>>)nullableEnum16AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>>(nullableEnum16AsString)));
+                    var entity3 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg3 = (ISnapshot)new Snapshot<Nullable<CompiledModelTestBase.Enum16>[], List<Nullable<CompiledModelTestBase.Enum16>>, List<Nullable<CompiledModelTestBase.Enum16>>, Nullable<CompiledModelTestBase.Enum32>, Nullable<CompiledModelTestBase.Enum32>[], Nullable<CompiledModelTestBase.Enum32>, Nullable<CompiledModelTestBase.Enum32>[], List<Nullable<CompiledModelTestBase.Enum32>>, List<Nullable<CompiledModelTestBase.Enum32>>, Nullable<CompiledModelTestBase.Enum64>, Nullable<CompiledModelTestBase.Enum64>[], Nullable<CompiledModelTestBase.Enum64>, Nullable<CompiledModelTestBase.Enum64>[], List<Nullable<CompiledModelTestBase.Enum64>>, List<Nullable<CompiledModelTestBase.Enum64>>, Nullable<CompiledModelTestBase.Enum8>, Nullable<CompiledModelTestBase.Enum8>[], Nullable<CompiledModelTestBase.Enum8>, Nullable<CompiledModelTestBase.Enum8>[], List<Nullable<CompiledModelTestBase.Enum8>>, List<Nullable<CompiledModelTestBase.Enum8>>, Nullable<CompiledModelTestBase.EnumU16>, Nullable<CompiledModelTestBase.EnumU16>[], Nullable<CompiledModelTestBase.EnumU16>, Nullable<CompiledModelTestBase.EnumU16>[], List<Nullable<CompiledModelTestBase.EnumU16>>, List<Nullable<CompiledModelTestBase.EnumU16>>, Nullable<CompiledModelTestBase.EnumU32>, Nullable<CompiledModelTestBase.EnumU32>[], Nullable<CompiledModelTestBase.EnumU32>>((IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.Enum16>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum16>>>)nullableEnum16AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum16>[]>(nullableEnum16AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum16>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum16>>>)nullableEnum16AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16Collection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum16>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum16>>>)nullableEnum16Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum16>>>(nullableEnum16Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum32>>)nullableEnum32.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32)), (IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32Array) == null ? null : (Nullable<CompiledModelTestBase.Enum32>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum32>>>)nullableEnum32Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum32>>)nullableEnum32AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>>(nullableEnum32AsString)), (IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.Enum32>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum32>>>)nullableEnum32AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum32>[]>(nullableEnum32AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum32>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum32>>>)nullableEnum32AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32Collection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum32>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum32>>>)nullableEnum32Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum32>>>(nullableEnum32Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum64>>)nullableEnum64.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64)), (IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64Array) == null ? null : (Nullable<CompiledModelTestBase.Enum64>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum64>>>)nullableEnum64Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum64>>)nullableEnum64AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>>(nullableEnum64AsString)), (IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.Enum64>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum64>>>)nullableEnum64AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum64>[]>(nullableEnum64AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum64>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum64>>>)nullableEnum64AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64Collection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum64>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum64>>>)nullableEnum64Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum64>>>(nullableEnum64Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum8>>)nullableEnum8.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8)), (IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8Array) == null ? null : (Nullable<CompiledModelTestBase.Enum8>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum8>>>)nullableEnum8Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.Enum8>>)nullableEnum8AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>>(nullableEnum8AsString)), (IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.Enum8>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum8>>>)nullableEnum8AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.Enum8>[]>(nullableEnum8AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum8>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum8>>>)nullableEnum8AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8Collection) == null ? null : (List<Nullable<CompiledModelTestBase.Enum8>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.Enum8>>>)nullableEnum8Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.Enum8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.Enum8>>>(nullableEnum8Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU16>>)nullableEnumU16.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16Array) == null ? null : (Nullable<CompiledModelTestBase.EnumU16>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>>)nullableEnumU16Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU16>>)nullableEnumU16AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>>(nullableEnumU16AsString)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.EnumU16>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>>)nullableEnumU16AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU16>[]>(nullableEnumU16AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU16>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>>)nullableEnumU16AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16Collection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU16>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>>)nullableEnumU16Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU16>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU16>>>(nullableEnumU16Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU32>>)nullableEnumU32.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32Array) == null ? null : (Nullable<CompiledModelTestBase.EnumU32>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>>)nullableEnumU32Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU32>>)nullableEnumU32AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>>(nullableEnumU32AsString)));
+                    var entity4 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg4 = (ISnapshot)new Snapshot<Nullable<CompiledModelTestBase.EnumU32>[], List<Nullable<CompiledModelTestBase.EnumU32>>, List<Nullable<CompiledModelTestBase.EnumU32>>, Nullable<CompiledModelTestBase.EnumU64>, Nullable<CompiledModelTestBase.EnumU64>[], Nullable<CompiledModelTestBase.EnumU64>, Nullable<CompiledModelTestBase.EnumU64>[], List<Nullable<CompiledModelTestBase.EnumU64>>, List<Nullable<CompiledModelTestBase.EnumU64>>, Nullable<CompiledModelTestBase.EnumU8>, Nullable<CompiledModelTestBase.EnumU8>[], Nullable<CompiledModelTestBase.EnumU8>, Nullable<CompiledModelTestBase.EnumU8>[], List<Nullable<CompiledModelTestBase.EnumU8>>, List<Nullable<CompiledModelTestBase.EnumU8>>, Nullable<float>, Nullable<float>[], Nullable<Guid>, Nullable<Guid>[], IPAddress, IPAddress[], Nullable<short>, Nullable<short>[], Nullable<int>, Nullable<int>[], Nullable<long>, Nullable<long>[], Nullable<sbyte>, Nullable<sbyte>[], PhysicalAddress>((IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.EnumU32>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>>)nullableEnumU32AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU32>[]>(nullableEnumU32AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU32>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>>)nullableEnumU32AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32Collection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU32>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>>)nullableEnumU32Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU32>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU32>>>(nullableEnumU32Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU64>>)nullableEnumU64.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64Array) == null ? null : (Nullable<CompiledModelTestBase.EnumU64>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>>)nullableEnumU64Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU64>>)nullableEnumU64AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>>(nullableEnumU64AsString)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.EnumU64>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>>)nullableEnumU64AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU64>[]>(nullableEnumU64AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU64>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>>)nullableEnumU64AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64Collection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU64>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>>)nullableEnumU64Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU64>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU64>>>(nullableEnumU64Collection)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU8>>)nullableEnumU8.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8Array) == null ? null : (Nullable<CompiledModelTestBase.EnumU8>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>>)nullableEnumU8Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8Array)), source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8AsString) == null ? null : ((ValueComparer<Nullable<CompiledModelTestBase.EnumU8>>)nullableEnumU8AsString.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>>(nullableEnumU8AsString)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8AsStringArray) == null ? null : (Nullable<CompiledModelTestBase.EnumU8>[])((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>>)nullableEnumU8AsStringArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<Nullable<CompiledModelTestBase.EnumU8>[]>(nullableEnumU8AsStringArray)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8AsStringCollection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU8>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>>)nullableEnumU8AsStringCollection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8AsStringCollection)), (IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8Collection) == null ? null : (List<Nullable<CompiledModelTestBase.EnumU8>>)((ValueComparer<IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>>)nullableEnumU8Collection.GetValueComparer()).Snapshot((IEnumerable<Nullable<CompiledModelTestBase.EnumU8>>)source.GetCurrentValue<List<Nullable<CompiledModelTestBase.EnumU8>>>(nullableEnumU8Collection)), source.GetCurrentValue<Nullable<float>>(nullableFloat) == null ? null : ((ValueComparer<Nullable<float>>)nullableFloat.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<float>>(nullableFloat)), (IEnumerable<Nullable<float>>)source.GetCurrentValue<Nullable<float>[]>(nullableFloatArray) == null ? null : (Nullable<float>[])((ValueComparer<IEnumerable<Nullable<float>>>)nullableFloatArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<float>>)source.GetCurrentValue<Nullable<float>[]>(nullableFloatArray)), source.GetCurrentValue<Nullable<Guid>>(nullableGuid) == null ? null : ((ValueComparer<Nullable<Guid>>)nullableGuid.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<Guid>>(nullableGuid)), (IEnumerable<Nullable<Guid>>)source.GetCurrentValue<Nullable<Guid>[]>(nullableGuidArray) == null ? null : (Nullable<Guid>[])((ValueComparer<IEnumerable<Nullable<Guid>>>)nullableGuidArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<Guid>>)source.GetCurrentValue<Nullable<Guid>[]>(nullableGuidArray)), source.GetCurrentValue<IPAddress>(nullableIPAddress) == null ? null : ((ValueComparer<IPAddress>)nullableIPAddress.GetValueComparer()).Snapshot(source.GetCurrentValue<IPAddress>(nullableIPAddress)), (IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(nullableIPAddressArray) == null ? null : (IPAddress[])((ValueComparer<IEnumerable<IPAddress>>)nullableIPAddressArray.GetValueComparer()).Snapshot((IEnumerable<IPAddress>)source.GetCurrentValue<IPAddress[]>(nullableIPAddressArray)), source.GetCurrentValue<Nullable<short>>(nullableInt16) == null ? null : ((ValueComparer<Nullable<short>>)nullableInt16.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<short>>(nullableInt16)), (IEnumerable<Nullable<short>>)source.GetCurrentValue<Nullable<short>[]>(nullableInt16Array) == null ? null : (Nullable<short>[])((ValueComparer<IEnumerable<Nullable<short>>>)nullableInt16Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<short>>)source.GetCurrentValue<Nullable<short>[]>(nullableInt16Array)), source.GetCurrentValue<Nullable<int>>(nullableInt32) == null ? null : ((ValueComparer<Nullable<int>>)nullableInt32.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<int>>(nullableInt32)), (IEnumerable<Nullable<int>>)source.GetCurrentValue<Nullable<int>[]>(nullableInt32Array) == null ? null : (Nullable<int>[])((ValueComparer<IEnumerable<Nullable<int>>>)nullableInt32Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<int>>)source.GetCurrentValue<Nullable<int>[]>(nullableInt32Array)), source.GetCurrentValue<Nullable<long>>(nullableInt64) == null ? null : ((ValueComparer<Nullable<long>>)nullableInt64.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<long>>(nullableInt64)), (IEnumerable<Nullable<long>>)source.GetCurrentValue<Nullable<long>[]>(nullableInt64Array) == null ? null : (Nullable<long>[])((ValueComparer<IEnumerable<Nullable<long>>>)nullableInt64Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<long>>)source.GetCurrentValue<Nullable<long>[]>(nullableInt64Array)), source.GetCurrentValue<Nullable<sbyte>>(nullableInt8) == null ? null : ((ValueComparer<Nullable<sbyte>>)nullableInt8.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<sbyte>>(nullableInt8)), (IEnumerable<Nullable<sbyte>>)source.GetCurrentValue<Nullable<sbyte>[]>(nullableInt8Array) == null ? null : (Nullable<sbyte>[])((ValueComparer<IEnumerable<Nullable<sbyte>>>)nullableInt8Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<sbyte>>)source.GetCurrentValue<Nullable<sbyte>[]>(nullableInt8Array)), source.GetCurrentValue<PhysicalAddress>(nullablePhysicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)nullablePhysicalAddress.GetValueComparer()).Snapshot(source.GetCurrentValue<PhysicalAddress>(nullablePhysicalAddress)));
+                    var entity5 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    var liftedArg5 = (ISnapshot)new Snapshot<PhysicalAddress[], string, string[], Nullable<TimeOnly>, Nullable<TimeOnly>[], Nullable<TimeSpan>, Nullable<TimeSpan>[], Nullable<ushort>, Nullable<ushort>[], Nullable<uint>, Nullable<uint>[], Nullable<ulong>, Nullable<ulong>[], Nullable<byte>, Nullable<byte>[], Uri, Uri[], PhysicalAddress, PhysicalAddress[], PhysicalAddress, PhysicalAddress, string, string[], string, string, string, string, string, string, string>((IEnumerable<PhysicalAddress>)source.GetCurrentValue<PhysicalAddress[]>(nullablePhysicalAddressArray) == null ? null : (PhysicalAddress[])((ValueComparer<IEnumerable<PhysicalAddress>>)nullablePhysicalAddressArray.GetValueComparer()).Snapshot((IEnumerable<PhysicalAddress>)source.GetCurrentValue<PhysicalAddress[]>(nullablePhysicalAddressArray)), source.GetCurrentValue<string>(nullableString) == null ? null : ((ValueComparer<string>)nullableString.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(nullableString)), (IEnumerable<string>)source.GetCurrentValue<string[]>(nullableStringArray) == null ? null : (string[])((ValueComparer<IEnumerable<string>>)nullableStringArray.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<string[]>(nullableStringArray)), source.GetCurrentValue<Nullable<TimeOnly>>(nullableTimeOnly) == null ? null : ((ValueComparer<Nullable<TimeOnly>>)nullableTimeOnly.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<TimeOnly>>(nullableTimeOnly)), (IEnumerable<Nullable<TimeOnly>>)source.GetCurrentValue<Nullable<TimeOnly>[]>(nullableTimeOnlyArray) == null ? null : (Nullable<TimeOnly>[])((ValueComparer<IEnumerable<Nullable<TimeOnly>>>)nullableTimeOnlyArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<TimeOnly>>)source.GetCurrentValue<Nullable<TimeOnly>[]>(nullableTimeOnlyArray)), source.GetCurrentValue<Nullable<TimeSpan>>(nullableTimeSpan) == null ? null : ((ValueComparer<Nullable<TimeSpan>>)nullableTimeSpan.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<TimeSpan>>(nullableTimeSpan)), (IEnumerable<Nullable<TimeSpan>>)source.GetCurrentValue<Nullable<TimeSpan>[]>(nullableTimeSpanArray) == null ? null : (Nullable<TimeSpan>[])((ValueComparer<IEnumerable<Nullable<TimeSpan>>>)nullableTimeSpanArray.GetValueComparer()).Snapshot((IEnumerable<Nullable<TimeSpan>>)source.GetCurrentValue<Nullable<TimeSpan>[]>(nullableTimeSpanArray)), source.GetCurrentValue<Nullable<ushort>>(nullableUInt16) == null ? null : ((ValueComparer<Nullable<ushort>>)nullableUInt16.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<ushort>>(nullableUInt16)), (IEnumerable<Nullable<ushort>>)source.GetCurrentValue<Nullable<ushort>[]>(nullableUInt16Array) == null ? null : (Nullable<ushort>[])((ValueComparer<IEnumerable<Nullable<ushort>>>)nullableUInt16Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<ushort>>)source.GetCurrentValue<Nullable<ushort>[]>(nullableUInt16Array)), source.GetCurrentValue<Nullable<uint>>(nullableUInt32) == null ? null : ((ValueComparer<Nullable<uint>>)nullableUInt32.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<uint>>(nullableUInt32)), (IEnumerable<Nullable<uint>>)source.GetCurrentValue<Nullable<uint>[]>(nullableUInt32Array) == null ? null : (Nullable<uint>[])((ValueComparer<IEnumerable<Nullable<uint>>>)nullableUInt32Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<uint>>)source.GetCurrentValue<Nullable<uint>[]>(nullableUInt32Array)), source.GetCurrentValue<Nullable<ulong>>(nullableUInt64) == null ? null : ((ValueComparer<Nullable<ulong>>)nullableUInt64.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<ulong>>(nullableUInt64)), (IEnumerable<Nullable<ulong>>)source.GetCurrentValue<Nullable<ulong>[]>(nullableUInt64Array) == null ? null : (Nullable<ulong>[])((ValueComparer<IEnumerable<Nullable<ulong>>>)nullableUInt64Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<ulong>>)source.GetCurrentValue<Nullable<ulong>[]>(nullableUInt64Array)), source.GetCurrentValue<Nullable<byte>>(nullableUInt8) == null ? null : ((ValueComparer<Nullable<byte>>)nullableUInt8.GetValueComparer()).Snapshot(source.GetCurrentValue<Nullable<byte>>(nullableUInt8)), (IEnumerable<Nullable<byte>>)source.GetCurrentValue<Nullable<byte>[]>(nullableUInt8Array) == null ? null : (Nullable<byte>[])((ValueComparer<IEnumerable<Nullable<byte>>>)nullableUInt8Array.GetValueComparer()).Snapshot((IEnumerable<Nullable<byte>>)source.GetCurrentValue<Nullable<byte>[]>(nullableUInt8Array)), source.GetCurrentValue<Uri>(nullableUri) == null ? null : ((ValueComparer<Uri>)nullableUri.GetValueComparer()).Snapshot(source.GetCurrentValue<Uri>(nullableUri)), (IEnumerable<Uri>)source.GetCurrentValue<Uri[]>(nullableUriArray) == null ? null : (Uri[])((ValueComparer<IEnumerable<Uri>>)nullableUriArray.GetValueComparer()).Snapshot((IEnumerable<Uri>)source.GetCurrentValue<Uri[]>(nullableUriArray)), source.GetCurrentValue<PhysicalAddress>(physicalAddress) == null ? null : ((ValueComparer<PhysicalAddress>)physicalAddress.GetValueComparer()).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddress)), (IEnumerable<PhysicalAddress>)source.GetCurrentValue<PhysicalAddress[]>(physicalAddressArray) == null ? null : (PhysicalAddress[])((ValueComparer<IEnumerable<PhysicalAddress>>)physicalAddressArray.GetValueComparer()).Snapshot((IEnumerable<PhysicalAddress>)source.GetCurrentValue<PhysicalAddress[]>(physicalAddressArray)), source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)physicalAddressToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToBytesConverterProperty)), source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty) == null ? null : ((ValueComparer<PhysicalAddress>)physicalAddressToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<PhysicalAddress>(physicalAddressToStringConverterProperty)), source.GetCurrentValue<string>(@string) == null ? null : ((ValueComparer<string>)@string.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(@string)), (IEnumerable<string>)source.GetCurrentValue<string[]>(stringArray) == null ? null : (string[])((ValueComparer<IEnumerable<string>>)stringArray.GetValueComparer()).Snapshot((IEnumerable<string>)source.GetCurrentValue<string[]>(stringArray)), source.GetCurrentValue<string>(stringToBoolConverterProperty) == null ? null : ((ValueComparer<string>)stringToBoolConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToBoolConverterProperty)), source.GetCurrentValue<string>(stringToBytesConverterProperty) == null ? null : ((ValueComparer<string>)stringToBytesConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToBytesConverterProperty)), source.GetCurrentValue<string>(stringToCharConverterProperty) == null ? null : ((ValueComparer<string>)stringToCharConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToCharConverterProperty)), source.GetCurrentValue<string>(stringToDateOnlyConverterProperty) == null ? null : ((ValueComparer<string>)stringToDateOnlyConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToDateOnlyConverterProperty)), source.GetCurrentValue<string>(stringToDateTimeConverterProperty) == null ? null : ((ValueComparer<string>)stringToDateTimeConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToDateTimeConverterProperty)), source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty) == null ? null : ((ValueComparer<string>)stringToDateTimeOffsetConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToDateTimeOffsetConverterProperty)), source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty) == null ? null : ((ValueComparer<string>)stringToDecimalNumberConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToDecimalNumberConverterProperty)));
+                    var entity6 = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    return (ISnapshot)new MultiSnapshot(new ISnapshot[] { liftedArg, liftedArg0, liftedArg1, liftedArg2, liftedArg3, liftedArg4, liftedArg5, (ISnapshot)new Snapshot<string, string, string, string, string, string, string, TimeOnly, TimeOnly[], TimeOnly, TimeOnly, TimeSpan, TimeSpan[], TimeSpan, TimeSpan, ushort, ushort[], uint, uint[], ulong, ulong[], byte, byte[], Uri, Uri[], Uri>(source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty) == null ? null : ((ValueComparer<string>)stringToDoubleNumberConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToDoubleNumberConverterProperty)), source.GetCurrentValue<string>(stringToEnumConverterProperty) == null ? null : ((ValueComparer<string>)stringToEnumConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToEnumConverterProperty)), source.GetCurrentValue<string>(stringToGuidConverterProperty) == null ? null : ((ValueComparer<string>)stringToGuidConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToGuidConverterProperty)), source.GetCurrentValue<string>(stringToIntNumberConverterProperty) == null ? null : ((ValueComparer<string>)stringToIntNumberConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToIntNumberConverterProperty)), source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty) == null ? null : ((ValueComparer<string>)stringToTimeOnlyConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToTimeOnlyConverterProperty)), source.GetCurrentValue<string>(stringToTimeSpanConverterProperty) == null ? null : ((ValueComparer<string>)stringToTimeSpanConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToTimeSpanConverterProperty)), source.GetCurrentValue<string>(stringToUriConverterProperty) == null ? null : ((ValueComparer<string>)stringToUriConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<string>(stringToUriConverterProperty)), ((ValueComparer<TimeOnly>)timeOnly.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnly)), (IEnumerable<TimeOnly>)source.GetCurrentValue<TimeOnly[]>(timeOnlyArray) == null ? null : (TimeOnly[])((ValueComparer<IEnumerable<TimeOnly>>)timeOnlyArray.GetValueComparer()).Snapshot((IEnumerable<TimeOnly>)source.GetCurrentValue<TimeOnly[]>(timeOnlyArray)), ((ValueComparer<TimeOnly>)timeOnlyToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToStringConverterProperty)), ((ValueComparer<TimeOnly>)timeOnlyToTicksConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeOnly>(timeOnlyToTicksConverterProperty)), ((ValueComparer<TimeSpan>)timeSpan.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpan)), (IEnumerable<TimeSpan>)source.GetCurrentValue<TimeSpan[]>(timeSpanArray) == null ? null : (TimeSpan[])((ValueComparer<IEnumerable<TimeSpan>>)timeSpanArray.GetValueComparer()).Snapshot((IEnumerable<TimeSpan>)source.GetCurrentValue<TimeSpan[]>(timeSpanArray)), ((ValueComparer<TimeSpan>)timeSpanToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToStringConverterProperty)), ((ValueComparer<TimeSpan>)timeSpanToTicksConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<TimeSpan>(timeSpanToTicksConverterProperty)), ((ValueComparer<ushort>)uInt16.GetValueComparer()).Snapshot(source.GetCurrentValue<ushort>(uInt16)), (IEnumerable<ushort>)source.GetCurrentValue<ushort[]>(uInt16Array) == null ? null : (ushort[])((ValueComparer<IEnumerable<ushort>>)uInt16Array.GetValueComparer()).Snapshot((IEnumerable<ushort>)source.GetCurrentValue<ushort[]>(uInt16Array)), ((ValueComparer<uint>)uInt32.GetValueComparer()).Snapshot(source.GetCurrentValue<uint>(uInt32)), (IEnumerable<uint>)source.GetCurrentValue<uint[]>(uInt32Array) == null ? null : (uint[])((ValueComparer<IEnumerable<uint>>)uInt32Array.GetValueComparer()).Snapshot((IEnumerable<uint>)source.GetCurrentValue<uint[]>(uInt32Array)), ((ValueComparer<ulong>)uInt64.GetValueComparer()).Snapshot(source.GetCurrentValue<ulong>(uInt64)), (IEnumerable<ulong>)source.GetCurrentValue<ulong[]>(uInt64Array) == null ? null : (ulong[])((ValueComparer<IEnumerable<ulong>>)uInt64Array.GetValueComparer()).Snapshot((IEnumerable<ulong>)source.GetCurrentValue<ulong[]>(uInt64Array)), ((ValueComparer<byte>)uInt8.GetValueComparer()).Snapshot(source.GetCurrentValue<byte>(uInt8)), source.GetCurrentValue<byte[]>(uInt8Array) == null ? null : ((ValueComparer<byte[]>)uInt8Array.GetValueComparer()).Snapshot(source.GetCurrentValue<byte[]>(uInt8Array)), source.GetCurrentValue<Uri>(uri) == null ? null : ((ValueComparer<Uri>)uri.GetValueComparer()).Snapshot(source.GetCurrentValue<Uri>(uri)), (IEnumerable<Uri>)source.GetCurrentValue<Uri[]>(uriArray) == null ? null : (Uri[])((ValueComparer<IEnumerable<Uri>>)uriArray.GetValueComparer()).Snapshot((IEnumerable<Uri>)source.GetCurrentValue<Uri[]>(uriArray)), source.GetCurrentValue<Uri>(uriToStringConverterProperty) == null ? null : ((ValueComparer<Uri>)uriToStringConverterProperty.GetValueComparer()).Snapshot(source.GetCurrentValue<Uri>(uriToStringConverterProperty))) });
+                });
+            runtimeEntityType.SetStoreGeneratedValuesFactory(
+                () => (ISnapshot)new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)id.GetValueComparer()).Snapshot(default(CompiledModelTestBase.ManyTypesId))));
+            runtimeEntityType.SetTemporaryValuesFactory(
+                (InternalEntityEntry source) => (ISnapshot)new Snapshot<CompiledModelTestBase.ManyTypesId>(default(CompiledModelTestBase.ManyTypesId)));
+            runtimeEntityType.SetShadowValuesFactory(
+                (IDictionary<string, object> source) => Snapshot.Empty);
+            runtimeEntityType.SetEmptyShadowValuesFactory(
+                () => Snapshot.Empty);
+            runtimeEntityType.SetRelationshipSnapshotFactory(
+                (InternalEntityEntry source) =>
+                {
+                    var entity = (CompiledModelTestBase.ManyTypes)source.Entity;
+                    return (ISnapshot)new Snapshot<CompiledModelTestBase.ManyTypesId>(((ValueComparer<CompiledModelTestBase.ManyTypesId>)id.GetKeyValueComparer()).Snapshot(source.GetCurrentValue<CompiledModelTestBase.ManyTypesId>(id)));
+                });
+            runtimeEntityType.Counts = new PropertyCounts(
+                propertyCount: 236,
+                navigationCount: 0,
+                complexPropertyCount: 0,
+                originalValueCount: 236,
+                shadowCount: 0,
+                relationshipCount: 1,
+                storeGeneratedCount: 1);
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", null);
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
@@ -9798,5 +15036,2129 @@ namespace TestNamespace
         }
 
         static partial void Customize(RuntimeEntityType runtimeEntityType);
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Id>k__BackingField")]
+        extern static ref CompiledModelTestBase.ManyTypesId GetId(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.ManyTypesId ReadId(CompiledModelTestBase.ManyTypes @this)
+            => GetId(@this);
+
+        public static void WriteId(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.ManyTypesId value)
+            => GetId(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Bool>k__BackingField")]
+        extern static ref bool GetBool(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool ReadBool(CompiledModelTestBase.ManyTypes @this)
+            => GetBool(@this);
+
+        public static void WriteBool(CompiledModelTestBase.ManyTypes @this, bool value)
+            => GetBool(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolArray>k__BackingField")]
+        extern static ref bool[] GetBoolArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool[] ReadBoolArray(CompiledModelTestBase.ManyTypes @this)
+            => GetBoolArray(@this);
+
+        public static void WriteBoolArray(CompiledModelTestBase.ManyTypes @this, bool[] value)
+            => GetBoolArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolToStringConverterProperty>k__BackingField")]
+        extern static ref bool GetBoolToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool ReadBoolToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetBoolToStringConverterProperty(@this);
+
+        public static void WriteBoolToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, bool value)
+            => GetBoolToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolToTwoValuesConverterProperty>k__BackingField")]
+        extern static ref bool GetBoolToTwoValuesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool ReadBoolToTwoValuesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetBoolToTwoValuesConverterProperty(@this);
+
+        public static void WriteBoolToTwoValuesConverterProperty(CompiledModelTestBase.ManyTypes @this, bool value)
+            => GetBoolToTwoValuesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BoolToZeroOneConverterProperty>k__BackingField")]
+        extern static ref bool GetBoolToZeroOneConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool ReadBoolToZeroOneConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetBoolToZeroOneConverterProperty(@this);
+
+        public static void WriteBoolToZeroOneConverterProperty(CompiledModelTestBase.ManyTypes @this, bool value)
+            => GetBoolToZeroOneConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Bytes>k__BackingField")]
+        extern static ref byte[] GetBytes(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[] ReadBytes(CompiledModelTestBase.ManyTypes @this)
+            => GetBytes(@this);
+
+        public static void WriteBytes(CompiledModelTestBase.ManyTypes @this, byte[] value)
+            => GetBytes(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BytesArray>k__BackingField")]
+        extern static ref byte[][] GetBytesArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[][] ReadBytesArray(CompiledModelTestBase.ManyTypes @this)
+            => GetBytesArray(@this);
+
+        public static void WriteBytesArray(CompiledModelTestBase.ManyTypes @this, byte[][] value)
+            => GetBytesArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<BytesToStringConverterProperty>k__BackingField")]
+        extern static ref byte[] GetBytesToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[] ReadBytesToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetBytesToStringConverterProperty(@this);
+
+        public static void WriteBytesToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, byte[] value)
+            => GetBytesToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<CastingConverterProperty>k__BackingField")]
+        extern static ref int GetCastingConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static int ReadCastingConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetCastingConverterProperty(@this);
+
+        public static void WriteCastingConverterProperty(CompiledModelTestBase.ManyTypes @this, int value)
+            => GetCastingConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Char>k__BackingField")]
+        extern static ref char GetChar(CompiledModelTestBase.ManyTypes @this);
+
+        public static char ReadChar(CompiledModelTestBase.ManyTypes @this)
+            => GetChar(@this);
+
+        public static void WriteChar(CompiledModelTestBase.ManyTypes @this, char value)
+            => GetChar(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<CharArray>k__BackingField")]
+        extern static ref char[] GetCharArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static char[] ReadCharArray(CompiledModelTestBase.ManyTypes @this)
+            => GetCharArray(@this);
+
+        public static void WriteCharArray(CompiledModelTestBase.ManyTypes @this, char[] value)
+            => GetCharArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<CharToStringConverterProperty>k__BackingField")]
+        extern static ref char GetCharToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static char ReadCharToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetCharToStringConverterProperty(@this);
+
+        public static void WriteCharToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, char value)
+            => GetCharToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnly>k__BackingField")]
+        extern static ref DateOnly GetDateOnly(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateOnly ReadDateOnly(CompiledModelTestBase.ManyTypes @this)
+            => GetDateOnly(@this);
+
+        public static void WriteDateOnly(CompiledModelTestBase.ManyTypes @this, DateOnly value)
+            => GetDateOnly(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnlyArray>k__BackingField")]
+        extern static ref DateOnly[] GetDateOnlyArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateOnly[] ReadDateOnlyArray(CompiledModelTestBase.ManyTypes @this)
+            => GetDateOnlyArray(@this);
+
+        public static void WriteDateOnlyArray(CompiledModelTestBase.ManyTypes @this, DateOnly[] value)
+            => GetDateOnlyArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateOnlyToStringConverterProperty>k__BackingField")]
+        extern static ref DateOnly GetDateOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateOnly ReadDateOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateOnlyToStringConverterProperty(@this);
+
+        public static void WriteDateOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, DateOnly value)
+            => GetDateOnlyToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTime>k__BackingField")]
+        extern static ref DateTime GetDateTime(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime ReadDateTime(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTime(@this);
+
+        public static void WriteDateTime(CompiledModelTestBase.ManyTypes @this, DateTime value)
+            => GetDateTime(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeArray>k__BackingField")]
+        extern static ref DateTime[] GetDateTimeArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime[] ReadDateTimeArray(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeArray(@this);
+
+        public static void WriteDateTimeArray(CompiledModelTestBase.ManyTypes @this, DateTime[] value)
+            => GetDateTimeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeOffsetToBinaryConverterProperty>k__BackingField")]
+        extern static ref DateTimeOffset GetDateTimeOffsetToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTimeOffset ReadDateTimeOffsetToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeOffsetToBinaryConverterProperty(@this);
+
+        public static void WriteDateTimeOffsetToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTimeOffset value)
+            => GetDateTimeOffsetToBinaryConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeOffsetToBytesConverterProperty>k__BackingField")]
+        extern static ref DateTimeOffset GetDateTimeOffsetToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTimeOffset ReadDateTimeOffsetToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeOffsetToBytesConverterProperty(@this);
+
+        public static void WriteDateTimeOffsetToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTimeOffset value)
+            => GetDateTimeOffsetToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeOffsetToStringConverterProperty>k__BackingField")]
+        extern static ref DateTimeOffset GetDateTimeOffsetToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTimeOffset ReadDateTimeOffsetToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeOffsetToStringConverterProperty(@this);
+
+        public static void WriteDateTimeOffsetToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTimeOffset value)
+            => GetDateTimeOffsetToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeToBinaryConverterProperty>k__BackingField")]
+        extern static ref DateTime GetDateTimeToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime ReadDateTimeToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeToBinaryConverterProperty(@this);
+
+        public static void WriteDateTimeToBinaryConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTime value)
+            => GetDateTimeToBinaryConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeToStringConverterProperty>k__BackingField")]
+        extern static ref DateTime GetDateTimeToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime ReadDateTimeToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeToStringConverterProperty(@this);
+
+        public static void WriteDateTimeToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTime value)
+            => GetDateTimeToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DateTimeToTicksConverterProperty>k__BackingField")]
+        extern static ref DateTime GetDateTimeToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime ReadDateTimeToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDateTimeToTicksConverterProperty(@this);
+
+        public static void WriteDateTimeToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this, DateTime value)
+            => GetDateTimeToTicksConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Decimal>k__BackingField")]
+        extern static ref decimal GetDecimal(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal ReadDecimal(CompiledModelTestBase.ManyTypes @this)
+            => GetDecimal(@this);
+
+        public static void WriteDecimal(CompiledModelTestBase.ManyTypes @this, decimal value)
+            => GetDecimal(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DecimalArray>k__BackingField")]
+        extern static ref decimal[] GetDecimalArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal[] ReadDecimalArray(CompiledModelTestBase.ManyTypes @this)
+            => GetDecimalArray(@this);
+
+        public static void WriteDecimalArray(CompiledModelTestBase.ManyTypes @this, decimal[] value)
+            => GetDecimalArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DecimalNumberToBytesConverterProperty>k__BackingField")]
+        extern static ref decimal GetDecimalNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal ReadDecimalNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDecimalNumberToBytesConverterProperty(@this);
+
+        public static void WriteDecimalNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, decimal value)
+            => GetDecimalNumberToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DecimalNumberToStringConverterProperty>k__BackingField")]
+        extern static ref decimal GetDecimalNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal ReadDecimalNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDecimalNumberToStringConverterProperty(@this);
+
+        public static void WriteDecimalNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, decimal value)
+            => GetDecimalNumberToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Double>k__BackingField")]
+        extern static ref double GetDouble(CompiledModelTestBase.ManyTypes @this);
+
+        public static double ReadDouble(CompiledModelTestBase.ManyTypes @this)
+            => GetDouble(@this);
+
+        public static void WriteDouble(CompiledModelTestBase.ManyTypes @this, double value)
+            => GetDouble(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DoubleArray>k__BackingField")]
+        extern static ref double[] GetDoubleArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static double[] ReadDoubleArray(CompiledModelTestBase.ManyTypes @this)
+            => GetDoubleArray(@this);
+
+        public static void WriteDoubleArray(CompiledModelTestBase.ManyTypes @this, double[] value)
+            => GetDoubleArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DoubleNumberToBytesConverterProperty>k__BackingField")]
+        extern static ref double GetDoubleNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static double ReadDoubleNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDoubleNumberToBytesConverterProperty(@this);
+
+        public static void WriteDoubleNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, double value)
+            => GetDoubleNumberToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<DoubleNumberToStringConverterProperty>k__BackingField")]
+        extern static ref double GetDoubleNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static double ReadDoubleNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetDoubleNumberToStringConverterProperty(@this);
+
+        public static void WriteDoubleNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, double value)
+            => GetDoubleNumberToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16 GetEnum16(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16 ReadEnum16(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16(@this);
+
+        public static void WriteEnum16(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16 value)
+            => GetEnum16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16[] GetEnum16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16[] ReadEnum16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16Array(@this);
+
+        public static void WriteEnum16Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16[] value)
+            => GetEnum16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16 GetEnum16AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16 ReadEnum16AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16AsString(@this);
+
+        public static void WriteEnum16AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16 value)
+            => GetEnum16AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16[] GetEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16[] ReadEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16AsStringArray(@this);
+
+        public static void WriteEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16[] value)
+            => GetEnum16AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum16> GetEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum16> ReadEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16AsStringCollection(@this);
+
+        public static void WriteEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum16> value)
+            => GetEnum16AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum16Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum16> GetEnum16Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum16> ReadEnum16Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum16Collection(@this);
+
+        public static void WriteEnum16Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum16> value)
+            => GetEnum16Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32 GetEnum32(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32 ReadEnum32(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32(@this);
+
+        public static void WriteEnum32(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32 value)
+            => GetEnum32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32[] GetEnum32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32[] ReadEnum32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32Array(@this);
+
+        public static void WriteEnum32Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32[] value)
+            => GetEnum32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32 GetEnum32AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32 ReadEnum32AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32AsString(@this);
+
+        public static void WriteEnum32AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32 value)
+            => GetEnum32AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32[] GetEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32[] ReadEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32AsStringArray(@this);
+
+        public static void WriteEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32[] value)
+            => GetEnum32AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum32> GetEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum32> ReadEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32AsStringCollection(@this);
+
+        public static void WriteEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum32> value)
+            => GetEnum32AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum32Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum32> GetEnum32Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum32> ReadEnum32Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum32Collection(@this);
+
+        public static void WriteEnum32Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum32> value)
+            => GetEnum32Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64 GetEnum64(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64 ReadEnum64(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64(@this);
+
+        public static void WriteEnum64(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64 value)
+            => GetEnum64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64[] GetEnum64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64[] ReadEnum64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64Array(@this);
+
+        public static void WriteEnum64Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64[] value)
+            => GetEnum64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64 GetEnum64AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64 ReadEnum64AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64AsString(@this);
+
+        public static void WriteEnum64AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64 value)
+            => GetEnum64AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64[] GetEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64[] ReadEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64AsStringArray(@this);
+
+        public static void WriteEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64[] value)
+            => GetEnum64AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum64> GetEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum64> ReadEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64AsStringCollection(@this);
+
+        public static void WriteEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum64> value)
+            => GetEnum64AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum64Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum64> GetEnum64Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum64> ReadEnum64Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum64Collection(@this);
+
+        public static void WriteEnum64Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum64> value)
+            => GetEnum64Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8 GetEnum8(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8 ReadEnum8(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8(@this);
+
+        public static void WriteEnum8(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8 value)
+            => GetEnum8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8[] GetEnum8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8[] ReadEnum8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8Array(@this);
+
+        public static void WriteEnum8Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8[] value)
+            => GetEnum8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8 GetEnum8AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8 ReadEnum8AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8AsString(@this);
+
+        public static void WriteEnum8AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8 value)
+            => GetEnum8AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8[] GetEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8[] ReadEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8AsStringArray(@this);
+
+        public static void WriteEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8[] value)
+            => GetEnum8AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum8> GetEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum8> ReadEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8AsStringCollection(@this);
+
+        public static void WriteEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum8> value)
+            => GetEnum8AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Enum8Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum8> GetEnum8Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum8> ReadEnum8Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnum8Collection(@this);
+
+        public static void WriteEnum8Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum8> value)
+            => GetEnum8Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumToNumberConverterProperty>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32 GetEnumToNumberConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32 ReadEnumToNumberConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumToNumberConverterProperty(@this);
+
+        public static void WriteEnumToNumberConverterProperty(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32 value)
+            => GetEnumToNumberConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumToStringConverterProperty>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32 GetEnumToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32 ReadEnumToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumToStringConverterProperty(@this);
+
+        public static void WriteEnumToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32 value)
+            => GetEnumToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16 GetEnumU16(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16 ReadEnumU16(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16(@this);
+
+        public static void WriteEnumU16(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16 value)
+            => GetEnumU16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16[] GetEnumU16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16[] ReadEnumU16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16Array(@this);
+
+        public static void WriteEnumU16Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16[] value)
+            => GetEnumU16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16 GetEnumU16AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16 ReadEnumU16AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16AsString(@this);
+
+        public static void WriteEnumU16AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16 value)
+            => GetEnumU16AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16[] GetEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16[] ReadEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16AsStringArray(@this);
+
+        public static void WriteEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16[] value)
+            => GetEnumU16AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU16> GetEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU16> ReadEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16AsStringCollection(@this);
+
+        public static void WriteEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU16> value)
+            => GetEnumU16AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU16Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU16> GetEnumU16Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU16> ReadEnumU16Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU16Collection(@this);
+
+        public static void WriteEnumU16Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU16> value)
+            => GetEnumU16Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32 GetEnumU32(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32 ReadEnumU32(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32(@this);
+
+        public static void WriteEnumU32(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32 value)
+            => GetEnumU32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32[] GetEnumU32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32[] ReadEnumU32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32Array(@this);
+
+        public static void WriteEnumU32Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32[] value)
+            => GetEnumU32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32 GetEnumU32AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32 ReadEnumU32AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32AsString(@this);
+
+        public static void WriteEnumU32AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32 value)
+            => GetEnumU32AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32[] GetEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32[] ReadEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32AsStringArray(@this);
+
+        public static void WriteEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32[] value)
+            => GetEnumU32AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU32> GetEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU32> ReadEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32AsStringCollection(@this);
+
+        public static void WriteEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU32> value)
+            => GetEnumU32AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU32Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU32> GetEnumU32Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU32> ReadEnumU32Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU32Collection(@this);
+
+        public static void WriteEnumU32Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU32> value)
+            => GetEnumU32Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64 GetEnumU64(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64 ReadEnumU64(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64(@this);
+
+        public static void WriteEnumU64(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64 value)
+            => GetEnumU64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64[] GetEnumU64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64[] ReadEnumU64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64Array(@this);
+
+        public static void WriteEnumU64Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64[] value)
+            => GetEnumU64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64 GetEnumU64AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64 ReadEnumU64AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64AsString(@this);
+
+        public static void WriteEnumU64AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64 value)
+            => GetEnumU64AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64[] GetEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64[] ReadEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64AsStringArray(@this);
+
+        public static void WriteEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64[] value)
+            => GetEnumU64AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU64> GetEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU64> ReadEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64AsStringCollection(@this);
+
+        public static void WriteEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU64> value)
+            => GetEnumU64AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU64Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU64> GetEnumU64Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU64> ReadEnumU64Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU64Collection(@this);
+
+        public static void WriteEnumU64Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU64> value)
+            => GetEnumU64Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8 GetEnumU8(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8 ReadEnumU8(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8(@this);
+
+        public static void WriteEnumU8(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8 value)
+            => GetEnumU8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8[] GetEnumU8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8[] ReadEnumU8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8Array(@this);
+
+        public static void WriteEnumU8Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8[] value)
+            => GetEnumU8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8 GetEnumU8AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8 ReadEnumU8AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8AsString(@this);
+
+        public static void WriteEnumU8AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8 value)
+            => GetEnumU8AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8[] GetEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8[] ReadEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8AsStringArray(@this);
+
+        public static void WriteEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8[] value)
+            => GetEnumU8AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU8> GetEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU8> ReadEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8AsStringCollection(@this);
+
+        public static void WriteEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU8> value)
+            => GetEnumU8AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<EnumU8Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU8> GetEnumU8Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU8> ReadEnumU8Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetEnumU8Collection(@this);
+
+        public static void WriteEnumU8Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU8> value)
+            => GetEnumU8Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Float>k__BackingField")]
+        extern static ref float GetFloat(CompiledModelTestBase.ManyTypes @this);
+
+        public static float ReadFloat(CompiledModelTestBase.ManyTypes @this)
+            => GetFloat(@this);
+
+        public static void WriteFloat(CompiledModelTestBase.ManyTypes @this, float value)
+            => GetFloat(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<FloatArray>k__BackingField")]
+        extern static ref float[] GetFloatArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static float[] ReadFloatArray(CompiledModelTestBase.ManyTypes @this)
+            => GetFloatArray(@this);
+
+        public static void WriteFloatArray(CompiledModelTestBase.ManyTypes @this, float[] value)
+            => GetFloatArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Guid>k__BackingField")]
+        extern static ref Guid GetGuid(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid ReadGuid(CompiledModelTestBase.ManyTypes @this)
+            => GetGuid(@this);
+
+        public static void WriteGuid(CompiledModelTestBase.ManyTypes @this, Guid value)
+            => GetGuid(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidArray>k__BackingField")]
+        extern static ref Guid[] GetGuidArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid[] ReadGuidArray(CompiledModelTestBase.ManyTypes @this)
+            => GetGuidArray(@this);
+
+        public static void WriteGuidArray(CompiledModelTestBase.ManyTypes @this, Guid[] value)
+            => GetGuidArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidToBytesConverterProperty>k__BackingField")]
+        extern static ref Guid GetGuidToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid ReadGuidToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetGuidToBytesConverterProperty(@this);
+
+        public static void WriteGuidToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, Guid value)
+            => GetGuidToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<GuidToStringConverterProperty>k__BackingField")]
+        extern static ref Guid GetGuidToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid ReadGuidToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetGuidToStringConverterProperty(@this);
+
+        public static void WriteGuidToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, Guid value)
+            => GetGuidToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddress>k__BackingField")]
+        extern static ref IPAddress GetIPAddress(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress ReadIPAddress(CompiledModelTestBase.ManyTypes @this)
+            => GetIPAddress(@this);
+
+        public static void WriteIPAddress(CompiledModelTestBase.ManyTypes @this, IPAddress value)
+            => GetIPAddress(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressArray>k__BackingField")]
+        extern static ref IPAddress[] GetIPAddressArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress[] ReadIPAddressArray(CompiledModelTestBase.ManyTypes @this)
+            => GetIPAddressArray(@this);
+
+        public static void WriteIPAddressArray(CompiledModelTestBase.ManyTypes @this, IPAddress[] value)
+            => GetIPAddressArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressToBytesConverterProperty>k__BackingField")]
+        extern static ref IPAddress GetIPAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress ReadIPAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetIPAddressToBytesConverterProperty(@this);
+
+        public static void WriteIPAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, IPAddress value)
+            => GetIPAddressToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IPAddressToStringConverterProperty>k__BackingField")]
+        extern static ref IPAddress GetIPAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress ReadIPAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetIPAddressToStringConverterProperty(@this);
+
+        public static void WriteIPAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, IPAddress value)
+            => GetIPAddressToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int16>k__BackingField")]
+        extern static ref short GetInt16(CompiledModelTestBase.ManyTypes @this);
+
+        public static short ReadInt16(CompiledModelTestBase.ManyTypes @this)
+            => GetInt16(@this);
+
+        public static void WriteInt16(CompiledModelTestBase.ManyTypes @this, short value)
+            => GetInt16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int16Array>k__BackingField")]
+        extern static ref short[] GetInt16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static short[] ReadInt16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetInt16Array(@this);
+
+        public static void WriteInt16Array(CompiledModelTestBase.ManyTypes @this, short[] value)
+            => GetInt16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int32>k__BackingField")]
+        extern static ref int GetInt32(CompiledModelTestBase.ManyTypes @this);
+
+        public static int ReadInt32(CompiledModelTestBase.ManyTypes @this)
+            => GetInt32(@this);
+
+        public static void WriteInt32(CompiledModelTestBase.ManyTypes @this, int value)
+            => GetInt32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int32Array>k__BackingField")]
+        extern static ref int[] GetInt32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static int[] ReadInt32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetInt32Array(@this);
+
+        public static void WriteInt32Array(CompiledModelTestBase.ManyTypes @this, int[] value)
+            => GetInt32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int64>k__BackingField")]
+        extern static ref long GetInt64(CompiledModelTestBase.ManyTypes @this);
+
+        public static long ReadInt64(CompiledModelTestBase.ManyTypes @this)
+            => GetInt64(@this);
+
+        public static void WriteInt64(CompiledModelTestBase.ManyTypes @this, long value)
+            => GetInt64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int64Array>k__BackingField")]
+        extern static ref long[] GetInt64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static long[] ReadInt64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetInt64Array(@this);
+
+        public static void WriteInt64Array(CompiledModelTestBase.ManyTypes @this, long[] value)
+            => GetInt64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int8>k__BackingField")]
+        extern static ref sbyte GetInt8(CompiledModelTestBase.ManyTypes @this);
+
+        public static sbyte ReadInt8(CompiledModelTestBase.ManyTypes @this)
+            => GetInt8(@this);
+
+        public static void WriteInt8(CompiledModelTestBase.ManyTypes @this, sbyte value)
+            => GetInt8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Int8Array>k__BackingField")]
+        extern static ref sbyte[] GetInt8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static sbyte[] ReadInt8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetInt8Array(@this);
+
+        public static void WriteInt8Array(CompiledModelTestBase.ManyTypes @this, sbyte[] value)
+            => GetInt8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IntNumberToBytesConverterProperty>k__BackingField")]
+        extern static ref int GetIntNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static int ReadIntNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetIntNumberToBytesConverterProperty(@this);
+
+        public static void WriteIntNumberToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, int value)
+            => GetIntNumberToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<IntNumberToStringConverterProperty>k__BackingField")]
+        extern static ref int GetIntNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static int ReadIntNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetIntNumberToStringConverterProperty(@this);
+
+        public static void WriteIntNumberToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, int value)
+            => GetIntNumberToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullIntToNullStringConverterProperty>k__BackingField")]
+        extern static ref int? GetNullIntToNullStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static int? ReadNullIntToNullStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetNullIntToNullStringConverterProperty(@this);
+
+        public static void WriteNullIntToNullStringConverterProperty(CompiledModelTestBase.ManyTypes @this, int? value)
+            => GetNullIntToNullStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBool>k__BackingField")]
+        extern static ref bool? GetNullableBool(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool? ReadNullableBool(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableBool(@this);
+
+        public static void WriteNullableBool(CompiledModelTestBase.ManyTypes @this, bool? value)
+            => GetNullableBool(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBoolArray>k__BackingField")]
+        extern static ref bool?[] GetNullableBoolArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static bool?[] ReadNullableBoolArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableBoolArray(@this);
+
+        public static void WriteNullableBoolArray(CompiledModelTestBase.ManyTypes @this, bool?[] value)
+            => GetNullableBoolArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBytes>k__BackingField")]
+        extern static ref byte[] GetNullableBytes(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[] ReadNullableBytes(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableBytes(@this);
+
+        public static void WriteNullableBytes(CompiledModelTestBase.ManyTypes @this, byte[] value)
+            => GetNullableBytes(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableBytesArray>k__BackingField")]
+        extern static ref byte[][] GetNullableBytesArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[][] ReadNullableBytesArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableBytesArray(@this);
+
+        public static void WriteNullableBytesArray(CompiledModelTestBase.ManyTypes @this, byte[][] value)
+            => GetNullableBytesArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableChar>k__BackingField")]
+        extern static ref char? GetNullableChar(CompiledModelTestBase.ManyTypes @this);
+
+        public static char? ReadNullableChar(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableChar(@this);
+
+        public static void WriteNullableChar(CompiledModelTestBase.ManyTypes @this, char? value)
+            => GetNullableChar(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableCharArray>k__BackingField")]
+        extern static ref char?[] GetNullableCharArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static char?[] ReadNullableCharArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableCharArray(@this);
+
+        public static void WriteNullableCharArray(CompiledModelTestBase.ManyTypes @this, char?[] value)
+            => GetNullableCharArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateOnly>k__BackingField")]
+        extern static ref DateOnly? GetNullableDateOnly(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateOnly? ReadNullableDateOnly(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDateOnly(@this);
+
+        public static void WriteNullableDateOnly(CompiledModelTestBase.ManyTypes @this, DateOnly? value)
+            => GetNullableDateOnly(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateOnlyArray>k__BackingField")]
+        extern static ref DateOnly?[] GetNullableDateOnlyArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateOnly?[] ReadNullableDateOnlyArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDateOnlyArray(@this);
+
+        public static void WriteNullableDateOnlyArray(CompiledModelTestBase.ManyTypes @this, DateOnly?[] value)
+            => GetNullableDateOnlyArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateTime>k__BackingField")]
+        extern static ref DateTime? GetNullableDateTime(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime? ReadNullableDateTime(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDateTime(@this);
+
+        public static void WriteNullableDateTime(CompiledModelTestBase.ManyTypes @this, DateTime? value)
+            => GetNullableDateTime(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDateTimeArray>k__BackingField")]
+        extern static ref DateTime?[] GetNullableDateTimeArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static DateTime?[] ReadNullableDateTimeArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDateTimeArray(@this);
+
+        public static void WriteNullableDateTimeArray(CompiledModelTestBase.ManyTypes @this, DateTime?[] value)
+            => GetNullableDateTimeArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDecimal>k__BackingField")]
+        extern static ref decimal? GetNullableDecimal(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal? ReadNullableDecimal(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDecimal(@this);
+
+        public static void WriteNullableDecimal(CompiledModelTestBase.ManyTypes @this, decimal? value)
+            => GetNullableDecimal(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDecimalArray>k__BackingField")]
+        extern static ref decimal?[] GetNullableDecimalArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static decimal?[] ReadNullableDecimalArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDecimalArray(@this);
+
+        public static void WriteNullableDecimalArray(CompiledModelTestBase.ManyTypes @this, decimal?[] value)
+            => GetNullableDecimalArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDouble>k__BackingField")]
+        extern static ref double? GetNullableDouble(CompiledModelTestBase.ManyTypes @this);
+
+        public static double? ReadNullableDouble(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDouble(@this);
+
+        public static void WriteNullableDouble(CompiledModelTestBase.ManyTypes @this, double? value)
+            => GetNullableDouble(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableDoubleArray>k__BackingField")]
+        extern static ref double?[] GetNullableDoubleArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static double?[] ReadNullableDoubleArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableDoubleArray(@this);
+
+        public static void WriteNullableDoubleArray(CompiledModelTestBase.ManyTypes @this, double?[] value)
+            => GetNullableDoubleArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16? GetNullableEnum16(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16? ReadNullableEnum16(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16(@this);
+
+        public static void WriteNullableEnum16(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16? value)
+            => GetNullableEnum16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16?[] GetNullableEnum16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16?[] ReadNullableEnum16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16Array(@this);
+
+        public static void WriteNullableEnum16Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16?[] value)
+            => GetNullableEnum16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16? GetNullableEnum16AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16? ReadNullableEnum16AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16AsString(@this);
+
+        public static void WriteNullableEnum16AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16? value)
+            => GetNullableEnum16AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum16?[] GetNullableEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum16?[] ReadNullableEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16AsStringArray(@this);
+
+        public static void WriteNullableEnum16AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum16?[] value)
+            => GetNullableEnum16AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum16?> GetNullableEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum16?> ReadNullableEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16AsStringCollection(@this);
+
+        public static void WriteNullableEnum16AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum16?> value)
+            => GetNullableEnum16AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum16Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum16?> GetNullableEnum16Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum16?> ReadNullableEnum16Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum16Collection(@this);
+
+        public static void WriteNullableEnum16Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum16?> value)
+            => GetNullableEnum16Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32? GetNullableEnum32(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32? ReadNullableEnum32(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32(@this);
+
+        public static void WriteNullableEnum32(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32? value)
+            => GetNullableEnum32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32?[] GetNullableEnum32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32?[] ReadNullableEnum32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32Array(@this);
+
+        public static void WriteNullableEnum32Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32?[] value)
+            => GetNullableEnum32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32? GetNullableEnum32AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32? ReadNullableEnum32AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32AsString(@this);
+
+        public static void WriteNullableEnum32AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32? value)
+            => GetNullableEnum32AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum32?[] GetNullableEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum32?[] ReadNullableEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32AsStringArray(@this);
+
+        public static void WriteNullableEnum32AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum32?[] value)
+            => GetNullableEnum32AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum32?> GetNullableEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum32?> ReadNullableEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32AsStringCollection(@this);
+
+        public static void WriteNullableEnum32AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum32?> value)
+            => GetNullableEnum32AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum32Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum32?> GetNullableEnum32Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum32?> ReadNullableEnum32Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum32Collection(@this);
+
+        public static void WriteNullableEnum32Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum32?> value)
+            => GetNullableEnum32Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64? GetNullableEnum64(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64? ReadNullableEnum64(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64(@this);
+
+        public static void WriteNullableEnum64(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64? value)
+            => GetNullableEnum64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64?[] GetNullableEnum64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64?[] ReadNullableEnum64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64Array(@this);
+
+        public static void WriteNullableEnum64Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64?[] value)
+            => GetNullableEnum64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64? GetNullableEnum64AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64? ReadNullableEnum64AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64AsString(@this);
+
+        public static void WriteNullableEnum64AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64? value)
+            => GetNullableEnum64AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum64?[] GetNullableEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum64?[] ReadNullableEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64AsStringArray(@this);
+
+        public static void WriteNullableEnum64AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum64?[] value)
+            => GetNullableEnum64AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum64?> GetNullableEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum64?> ReadNullableEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64AsStringCollection(@this);
+
+        public static void WriteNullableEnum64AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum64?> value)
+            => GetNullableEnum64AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum64Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum64?> GetNullableEnum64Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum64?> ReadNullableEnum64Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum64Collection(@this);
+
+        public static void WriteNullableEnum64Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum64?> value)
+            => GetNullableEnum64Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8? GetNullableEnum8(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8? ReadNullableEnum8(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8(@this);
+
+        public static void WriteNullableEnum8(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8? value)
+            => GetNullableEnum8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8?[] GetNullableEnum8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8?[] ReadNullableEnum8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8Array(@this);
+
+        public static void WriteNullableEnum8Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8?[] value)
+            => GetNullableEnum8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8? GetNullableEnum8AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8? ReadNullableEnum8AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8AsString(@this);
+
+        public static void WriteNullableEnum8AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8? value)
+            => GetNullableEnum8AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.Enum8?[] GetNullableEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.Enum8?[] ReadNullableEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8AsStringArray(@this);
+
+        public static void WriteNullableEnum8AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.Enum8?[] value)
+            => GetNullableEnum8AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum8?> GetNullableEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum8?> ReadNullableEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8AsStringCollection(@this);
+
+        public static void WriteNullableEnum8AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum8?> value)
+            => GetNullableEnum8AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnum8Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.Enum8?> GetNullableEnum8Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.Enum8?> ReadNullableEnum8Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnum8Collection(@this);
+
+        public static void WriteNullableEnum8Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.Enum8?> value)
+            => GetNullableEnum8Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16? GetNullableEnumU16(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16? ReadNullableEnumU16(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16(@this);
+
+        public static void WriteNullableEnumU16(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16? value)
+            => GetNullableEnumU16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16?[] GetNullableEnumU16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16?[] ReadNullableEnumU16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16Array(@this);
+
+        public static void WriteNullableEnumU16Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16?[] value)
+            => GetNullableEnumU16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16? GetNullableEnumU16AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16? ReadNullableEnumU16AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16AsString(@this);
+
+        public static void WriteNullableEnumU16AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16? value)
+            => GetNullableEnumU16AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU16?[] GetNullableEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU16?[] ReadNullableEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16AsStringArray(@this);
+
+        public static void WriteNullableEnumU16AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU16?[] value)
+            => GetNullableEnumU16AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU16?> GetNullableEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU16?> ReadNullableEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16AsStringCollection(@this);
+
+        public static void WriteNullableEnumU16AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU16?> value)
+            => GetNullableEnumU16AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU16Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU16?> GetNullableEnumU16Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU16?> ReadNullableEnumU16Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU16Collection(@this);
+
+        public static void WriteNullableEnumU16Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU16?> value)
+            => GetNullableEnumU16Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32? GetNullableEnumU32(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32? ReadNullableEnumU32(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32(@this);
+
+        public static void WriteNullableEnumU32(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32? value)
+            => GetNullableEnumU32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32?[] GetNullableEnumU32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32?[] ReadNullableEnumU32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32Array(@this);
+
+        public static void WriteNullableEnumU32Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32?[] value)
+            => GetNullableEnumU32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32? GetNullableEnumU32AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32? ReadNullableEnumU32AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32AsString(@this);
+
+        public static void WriteNullableEnumU32AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32? value)
+            => GetNullableEnumU32AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU32?[] GetNullableEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU32?[] ReadNullableEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32AsStringArray(@this);
+
+        public static void WriteNullableEnumU32AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU32?[] value)
+            => GetNullableEnumU32AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU32?> GetNullableEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU32?> ReadNullableEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32AsStringCollection(@this);
+
+        public static void WriteNullableEnumU32AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU32?> value)
+            => GetNullableEnumU32AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU32Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU32?> GetNullableEnumU32Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU32?> ReadNullableEnumU32Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU32Collection(@this);
+
+        public static void WriteNullableEnumU32Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU32?> value)
+            => GetNullableEnumU32Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64? GetNullableEnumU64(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64? ReadNullableEnumU64(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64(@this);
+
+        public static void WriteNullableEnumU64(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64? value)
+            => GetNullableEnumU64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64?[] GetNullableEnumU64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64?[] ReadNullableEnumU64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64Array(@this);
+
+        public static void WriteNullableEnumU64Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64?[] value)
+            => GetNullableEnumU64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64? GetNullableEnumU64AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64? ReadNullableEnumU64AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64AsString(@this);
+
+        public static void WriteNullableEnumU64AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64? value)
+            => GetNullableEnumU64AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU64?[] GetNullableEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU64?[] ReadNullableEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64AsStringArray(@this);
+
+        public static void WriteNullableEnumU64AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU64?[] value)
+            => GetNullableEnumU64AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU64?> GetNullableEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU64?> ReadNullableEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64AsStringCollection(@this);
+
+        public static void WriteNullableEnumU64AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU64?> value)
+            => GetNullableEnumU64AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU64Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU64?> GetNullableEnumU64Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU64?> ReadNullableEnumU64Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU64Collection(@this);
+
+        public static void WriteNullableEnumU64Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU64?> value)
+            => GetNullableEnumU64Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8? GetNullableEnumU8(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8? ReadNullableEnumU8(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8(@this);
+
+        public static void WriteNullableEnumU8(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8? value)
+            => GetNullableEnumU8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8Array>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8?[] GetNullableEnumU8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8?[] ReadNullableEnumU8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8Array(@this);
+
+        public static void WriteNullableEnumU8Array(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8?[] value)
+            => GetNullableEnumU8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsString>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8? GetNullableEnumU8AsString(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8? ReadNullableEnumU8AsString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8AsString(@this);
+
+        public static void WriteNullableEnumU8AsString(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8? value)
+            => GetNullableEnumU8AsString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsStringArray>k__BackingField")]
+        extern static ref CompiledModelTestBase.EnumU8?[] GetNullableEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static CompiledModelTestBase.EnumU8?[] ReadNullableEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8AsStringArray(@this);
+
+        public static void WriteNullableEnumU8AsStringArray(CompiledModelTestBase.ManyTypes @this, CompiledModelTestBase.EnumU8?[] value)
+            => GetNullableEnumU8AsStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8AsStringCollection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU8?> GetNullableEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU8?> ReadNullableEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8AsStringCollection(@this);
+
+        public static void WriteNullableEnumU8AsStringCollection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU8?> value)
+            => GetNullableEnumU8AsStringCollection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableEnumU8Collection>k__BackingField")]
+        extern static ref List<CompiledModelTestBase.EnumU8?> GetNullableEnumU8Collection(CompiledModelTestBase.ManyTypes @this);
+
+        public static List<CompiledModelTestBase.EnumU8?> ReadNullableEnumU8Collection(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableEnumU8Collection(@this);
+
+        public static void WriteNullableEnumU8Collection(CompiledModelTestBase.ManyTypes @this, List<CompiledModelTestBase.EnumU8?> value)
+            => GetNullableEnumU8Collection(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableFloat>k__BackingField")]
+        extern static ref float? GetNullableFloat(CompiledModelTestBase.ManyTypes @this);
+
+        public static float? ReadNullableFloat(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableFloat(@this);
+
+        public static void WriteNullableFloat(CompiledModelTestBase.ManyTypes @this, float? value)
+            => GetNullableFloat(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableFloatArray>k__BackingField")]
+        extern static ref float?[] GetNullableFloatArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static float?[] ReadNullableFloatArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableFloatArray(@this);
+
+        public static void WriteNullableFloatArray(CompiledModelTestBase.ManyTypes @this, float?[] value)
+            => GetNullableFloatArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableGuid>k__BackingField")]
+        extern static ref Guid? GetNullableGuid(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid? ReadNullableGuid(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableGuid(@this);
+
+        public static void WriteNullableGuid(CompiledModelTestBase.ManyTypes @this, Guid? value)
+            => GetNullableGuid(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableGuidArray>k__BackingField")]
+        extern static ref Guid?[] GetNullableGuidArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static Guid?[] ReadNullableGuidArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableGuidArray(@this);
+
+        public static void WriteNullableGuidArray(CompiledModelTestBase.ManyTypes @this, Guid?[] value)
+            => GetNullableGuidArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableIPAddress>k__BackingField")]
+        extern static ref IPAddress GetNullableIPAddress(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress ReadNullableIPAddress(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableIPAddress(@this);
+
+        public static void WriteNullableIPAddress(CompiledModelTestBase.ManyTypes @this, IPAddress value)
+            => GetNullableIPAddress(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableIPAddressArray>k__BackingField")]
+        extern static ref IPAddress[] GetNullableIPAddressArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static IPAddress[] ReadNullableIPAddressArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableIPAddressArray(@this);
+
+        public static void WriteNullableIPAddressArray(CompiledModelTestBase.ManyTypes @this, IPAddress[] value)
+            => GetNullableIPAddressArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt16>k__BackingField")]
+        extern static ref short? GetNullableInt16(CompiledModelTestBase.ManyTypes @this);
+
+        public static short? ReadNullableInt16(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt16(@this);
+
+        public static void WriteNullableInt16(CompiledModelTestBase.ManyTypes @this, short? value)
+            => GetNullableInt16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt16Array>k__BackingField")]
+        extern static ref short?[] GetNullableInt16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static short?[] ReadNullableInt16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt16Array(@this);
+
+        public static void WriteNullableInt16Array(CompiledModelTestBase.ManyTypes @this, short?[] value)
+            => GetNullableInt16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt32>k__BackingField")]
+        extern static ref int? GetNullableInt32(CompiledModelTestBase.ManyTypes @this);
+
+        public static int? ReadNullableInt32(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt32(@this);
+
+        public static void WriteNullableInt32(CompiledModelTestBase.ManyTypes @this, int? value)
+            => GetNullableInt32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt32Array>k__BackingField")]
+        extern static ref int?[] GetNullableInt32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static int?[] ReadNullableInt32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt32Array(@this);
+
+        public static void WriteNullableInt32Array(CompiledModelTestBase.ManyTypes @this, int?[] value)
+            => GetNullableInt32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt64>k__BackingField")]
+        extern static ref long? GetNullableInt64(CompiledModelTestBase.ManyTypes @this);
+
+        public static long? ReadNullableInt64(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt64(@this);
+
+        public static void WriteNullableInt64(CompiledModelTestBase.ManyTypes @this, long? value)
+            => GetNullableInt64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt64Array>k__BackingField")]
+        extern static ref long?[] GetNullableInt64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static long?[] ReadNullableInt64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt64Array(@this);
+
+        public static void WriteNullableInt64Array(CompiledModelTestBase.ManyTypes @this, long?[] value)
+            => GetNullableInt64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt8>k__BackingField")]
+        extern static ref sbyte? GetNullableInt8(CompiledModelTestBase.ManyTypes @this);
+
+        public static sbyte? ReadNullableInt8(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt8(@this);
+
+        public static void WriteNullableInt8(CompiledModelTestBase.ManyTypes @this, sbyte? value)
+            => GetNullableInt8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableInt8Array>k__BackingField")]
+        extern static ref sbyte?[] GetNullableInt8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static sbyte?[] ReadNullableInt8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableInt8Array(@this);
+
+        public static void WriteNullableInt8Array(CompiledModelTestBase.ManyTypes @this, sbyte?[] value)
+            => GetNullableInt8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullablePhysicalAddress>k__BackingField")]
+        extern static ref PhysicalAddress GetNullablePhysicalAddress(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress ReadNullablePhysicalAddress(CompiledModelTestBase.ManyTypes @this)
+            => GetNullablePhysicalAddress(@this);
+
+        public static void WriteNullablePhysicalAddress(CompiledModelTestBase.ManyTypes @this, PhysicalAddress value)
+            => GetNullablePhysicalAddress(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullablePhysicalAddressArray>k__BackingField")]
+        extern static ref PhysicalAddress[] GetNullablePhysicalAddressArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress[] ReadNullablePhysicalAddressArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullablePhysicalAddressArray(@this);
+
+        public static void WriteNullablePhysicalAddressArray(CompiledModelTestBase.ManyTypes @this, PhysicalAddress[] value)
+            => GetNullablePhysicalAddressArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableString>k__BackingField")]
+        extern static ref string GetNullableString(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadNullableString(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableString(@this);
+
+        public static void WriteNullableString(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetNullableString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableStringArray>k__BackingField")]
+        extern static ref string[] GetNullableStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static string[] ReadNullableStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableStringArray(@this);
+
+        public static void WriteNullableStringArray(CompiledModelTestBase.ManyTypes @this, string[] value)
+            => GetNullableStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeOnly>k__BackingField")]
+        extern static ref TimeOnly? GetNullableTimeOnly(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly? ReadNullableTimeOnly(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableTimeOnly(@this);
+
+        public static void WriteNullableTimeOnly(CompiledModelTestBase.ManyTypes @this, TimeOnly? value)
+            => GetNullableTimeOnly(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeOnlyArray>k__BackingField")]
+        extern static ref TimeOnly?[] GetNullableTimeOnlyArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly?[] ReadNullableTimeOnlyArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableTimeOnlyArray(@this);
+
+        public static void WriteNullableTimeOnlyArray(CompiledModelTestBase.ManyTypes @this, TimeOnly?[] value)
+            => GetNullableTimeOnlyArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeSpan>k__BackingField")]
+        extern static ref TimeSpan? GetNullableTimeSpan(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan? ReadNullableTimeSpan(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableTimeSpan(@this);
+
+        public static void WriteNullableTimeSpan(CompiledModelTestBase.ManyTypes @this, TimeSpan? value)
+            => GetNullableTimeSpan(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableTimeSpanArray>k__BackingField")]
+        extern static ref TimeSpan?[] GetNullableTimeSpanArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan?[] ReadNullableTimeSpanArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableTimeSpanArray(@this);
+
+        public static void WriteNullableTimeSpanArray(CompiledModelTestBase.ManyTypes @this, TimeSpan?[] value)
+            => GetNullableTimeSpanArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt16>k__BackingField")]
+        extern static ref ushort? GetNullableUInt16(CompiledModelTestBase.ManyTypes @this);
+
+        public static ushort? ReadNullableUInt16(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt16(@this);
+
+        public static void WriteNullableUInt16(CompiledModelTestBase.ManyTypes @this, ushort? value)
+            => GetNullableUInt16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt16Array>k__BackingField")]
+        extern static ref ushort?[] GetNullableUInt16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static ushort?[] ReadNullableUInt16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt16Array(@this);
+
+        public static void WriteNullableUInt16Array(CompiledModelTestBase.ManyTypes @this, ushort?[] value)
+            => GetNullableUInt16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt32>k__BackingField")]
+        extern static ref uint? GetNullableUInt32(CompiledModelTestBase.ManyTypes @this);
+
+        public static uint? ReadNullableUInt32(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt32(@this);
+
+        public static void WriteNullableUInt32(CompiledModelTestBase.ManyTypes @this, uint? value)
+            => GetNullableUInt32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt32Array>k__BackingField")]
+        extern static ref uint?[] GetNullableUInt32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static uint?[] ReadNullableUInt32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt32Array(@this);
+
+        public static void WriteNullableUInt32Array(CompiledModelTestBase.ManyTypes @this, uint?[] value)
+            => GetNullableUInt32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt64>k__BackingField")]
+        extern static ref ulong? GetNullableUInt64(CompiledModelTestBase.ManyTypes @this);
+
+        public static ulong? ReadNullableUInt64(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt64(@this);
+
+        public static void WriteNullableUInt64(CompiledModelTestBase.ManyTypes @this, ulong? value)
+            => GetNullableUInt64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt64Array>k__BackingField")]
+        extern static ref ulong?[] GetNullableUInt64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static ulong?[] ReadNullableUInt64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt64Array(@this);
+
+        public static void WriteNullableUInt64Array(CompiledModelTestBase.ManyTypes @this, ulong?[] value)
+            => GetNullableUInt64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt8>k__BackingField")]
+        extern static ref byte? GetNullableUInt8(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte? ReadNullableUInt8(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt8(@this);
+
+        public static void WriteNullableUInt8(CompiledModelTestBase.ManyTypes @this, byte? value)
+            => GetNullableUInt8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUInt8Array>k__BackingField")]
+        extern static ref byte?[] GetNullableUInt8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte?[] ReadNullableUInt8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUInt8Array(@this);
+
+        public static void WriteNullableUInt8Array(CompiledModelTestBase.ManyTypes @this, byte?[] value)
+            => GetNullableUInt8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUri>k__BackingField")]
+        extern static ref Uri GetNullableUri(CompiledModelTestBase.ManyTypes @this);
+
+        public static Uri ReadNullableUri(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUri(@this);
+
+        public static void WriteNullableUri(CompiledModelTestBase.ManyTypes @this, Uri value)
+            => GetNullableUri(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<NullableUriArray>k__BackingField")]
+        extern static ref Uri[] GetNullableUriArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static Uri[] ReadNullableUriArray(CompiledModelTestBase.ManyTypes @this)
+            => GetNullableUriArray(@this);
+
+        public static void WriteNullableUriArray(CompiledModelTestBase.ManyTypes @this, Uri[] value)
+            => GetNullableUriArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddress>k__BackingField")]
+        extern static ref PhysicalAddress GetPhysicalAddress(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress ReadPhysicalAddress(CompiledModelTestBase.ManyTypes @this)
+            => GetPhysicalAddress(@this);
+
+        public static void WritePhysicalAddress(CompiledModelTestBase.ManyTypes @this, PhysicalAddress value)
+            => GetPhysicalAddress(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddressArray>k__BackingField")]
+        extern static ref PhysicalAddress[] GetPhysicalAddressArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress[] ReadPhysicalAddressArray(CompiledModelTestBase.ManyTypes @this)
+            => GetPhysicalAddressArray(@this);
+
+        public static void WritePhysicalAddressArray(CompiledModelTestBase.ManyTypes @this, PhysicalAddress[] value)
+            => GetPhysicalAddressArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddressToBytesConverterProperty>k__BackingField")]
+        extern static ref PhysicalAddress GetPhysicalAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress ReadPhysicalAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetPhysicalAddressToBytesConverterProperty(@this);
+
+        public static void WritePhysicalAddressToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, PhysicalAddress value)
+            => GetPhysicalAddressToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<PhysicalAddressToStringConverterProperty>k__BackingField")]
+        extern static ref PhysicalAddress GetPhysicalAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static PhysicalAddress ReadPhysicalAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetPhysicalAddressToStringConverterProperty(@this);
+
+        public static void WritePhysicalAddressToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, PhysicalAddress value)
+            => GetPhysicalAddressToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<String>k__BackingField")]
+        extern static ref string GetString(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadString(CompiledModelTestBase.ManyTypes @this)
+            => GetString(@this);
+
+        public static void WriteString(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetString(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringArray>k__BackingField")]
+        extern static ref string[] GetStringArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static string[] ReadStringArray(CompiledModelTestBase.ManyTypes @this)
+            => GetStringArray(@this);
+
+        public static void WriteStringArray(CompiledModelTestBase.ManyTypes @this, string[] value)
+            => GetStringArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToBoolConverterProperty>k__BackingField")]
+        extern static ref string GetStringToBoolConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToBoolConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToBoolConverterProperty(@this);
+
+        public static void WriteStringToBoolConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToBoolConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToBytesConverterProperty>k__BackingField")]
+        extern static ref string GetStringToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToBytesConverterProperty(@this);
+
+        public static void WriteStringToBytesConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToBytesConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToCharConverterProperty>k__BackingField")]
+        extern static ref string GetStringToCharConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToCharConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToCharConverterProperty(@this);
+
+        public static void WriteStringToCharConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToCharConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToDateOnlyConverterProperty>k__BackingField")]
+        extern static ref string GetStringToDateOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToDateOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToDateOnlyConverterProperty(@this);
+
+        public static void WriteStringToDateOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToDateOnlyConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToDateTimeConverterProperty>k__BackingField")]
+        extern static ref string GetStringToDateTimeConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToDateTimeConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToDateTimeConverterProperty(@this);
+
+        public static void WriteStringToDateTimeConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToDateTimeConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToDateTimeOffsetConverterProperty>k__BackingField")]
+        extern static ref string GetStringToDateTimeOffsetConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToDateTimeOffsetConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToDateTimeOffsetConverterProperty(@this);
+
+        public static void WriteStringToDateTimeOffsetConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToDateTimeOffsetConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToDecimalNumberConverterProperty>k__BackingField")]
+        extern static ref string GetStringToDecimalNumberConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToDecimalNumberConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToDecimalNumberConverterProperty(@this);
+
+        public static void WriteStringToDecimalNumberConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToDecimalNumberConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToDoubleNumberConverterProperty>k__BackingField")]
+        extern static ref string GetStringToDoubleNumberConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToDoubleNumberConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToDoubleNumberConverterProperty(@this);
+
+        public static void WriteStringToDoubleNumberConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToDoubleNumberConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToEnumConverterProperty>k__BackingField")]
+        extern static ref string GetStringToEnumConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToEnumConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToEnumConverterProperty(@this);
+
+        public static void WriteStringToEnumConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToEnumConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToGuidConverterProperty>k__BackingField")]
+        extern static ref string GetStringToGuidConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToGuidConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToGuidConverterProperty(@this);
+
+        public static void WriteStringToGuidConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToGuidConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToIntNumberConverterProperty>k__BackingField")]
+        extern static ref string GetStringToIntNumberConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToIntNumberConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToIntNumberConverterProperty(@this);
+
+        public static void WriteStringToIntNumberConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToIntNumberConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToTimeOnlyConverterProperty>k__BackingField")]
+        extern static ref string GetStringToTimeOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToTimeOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToTimeOnlyConverterProperty(@this);
+
+        public static void WriteStringToTimeOnlyConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToTimeOnlyConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToTimeSpanConverterProperty>k__BackingField")]
+        extern static ref string GetStringToTimeSpanConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToTimeSpanConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToTimeSpanConverterProperty(@this);
+
+        public static void WriteStringToTimeSpanConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToTimeSpanConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<StringToUriConverterProperty>k__BackingField")]
+        extern static ref string GetStringToUriConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static string ReadStringToUriConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetStringToUriConverterProperty(@this);
+
+        public static void WriteStringToUriConverterProperty(CompiledModelTestBase.ManyTypes @this, string value)
+            => GetStringToUriConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnly>k__BackingField")]
+        extern static ref TimeOnly GetTimeOnly(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly ReadTimeOnly(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeOnly(@this);
+
+        public static void WriteTimeOnly(CompiledModelTestBase.ManyTypes @this, TimeOnly value)
+            => GetTimeOnly(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnlyArray>k__BackingField")]
+        extern static ref TimeOnly[] GetTimeOnlyArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly[] ReadTimeOnlyArray(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeOnlyArray(@this);
+
+        public static void WriteTimeOnlyArray(CompiledModelTestBase.ManyTypes @this, TimeOnly[] value)
+            => GetTimeOnlyArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnlyToStringConverterProperty>k__BackingField")]
+        extern static ref TimeOnly GetTimeOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly ReadTimeOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeOnlyToStringConverterProperty(@this);
+
+        public static void WriteTimeOnlyToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, TimeOnly value)
+            => GetTimeOnlyToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeOnlyToTicksConverterProperty>k__BackingField")]
+        extern static ref TimeOnly GetTimeOnlyToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeOnly ReadTimeOnlyToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeOnlyToTicksConverterProperty(@this);
+
+        public static void WriteTimeOnlyToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this, TimeOnly value)
+            => GetTimeOnlyToTicksConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpan>k__BackingField")]
+        extern static ref TimeSpan GetTimeSpan(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan ReadTimeSpan(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeSpan(@this);
+
+        public static void WriteTimeSpan(CompiledModelTestBase.ManyTypes @this, TimeSpan value)
+            => GetTimeSpan(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpanArray>k__BackingField")]
+        extern static ref TimeSpan[] GetTimeSpanArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan[] ReadTimeSpanArray(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeSpanArray(@this);
+
+        public static void WriteTimeSpanArray(CompiledModelTestBase.ManyTypes @this, TimeSpan[] value)
+            => GetTimeSpanArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpanToStringConverterProperty>k__BackingField")]
+        extern static ref TimeSpan GetTimeSpanToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan ReadTimeSpanToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeSpanToStringConverterProperty(@this);
+
+        public static void WriteTimeSpanToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, TimeSpan value)
+            => GetTimeSpanToStringConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<TimeSpanToTicksConverterProperty>k__BackingField")]
+        extern static ref TimeSpan GetTimeSpanToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static TimeSpan ReadTimeSpanToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetTimeSpanToTicksConverterProperty(@this);
+
+        public static void WriteTimeSpanToTicksConverterProperty(CompiledModelTestBase.ManyTypes @this, TimeSpan value)
+            => GetTimeSpanToTicksConverterProperty(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt16>k__BackingField")]
+        extern static ref ushort GetUInt16(CompiledModelTestBase.ManyTypes @this);
+
+        public static ushort ReadUInt16(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt16(@this);
+
+        public static void WriteUInt16(CompiledModelTestBase.ManyTypes @this, ushort value)
+            => GetUInt16(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt16Array>k__BackingField")]
+        extern static ref ushort[] GetUInt16Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static ushort[] ReadUInt16Array(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt16Array(@this);
+
+        public static void WriteUInt16Array(CompiledModelTestBase.ManyTypes @this, ushort[] value)
+            => GetUInt16Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt32>k__BackingField")]
+        extern static ref uint GetUInt32(CompiledModelTestBase.ManyTypes @this);
+
+        public static uint ReadUInt32(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt32(@this);
+
+        public static void WriteUInt32(CompiledModelTestBase.ManyTypes @this, uint value)
+            => GetUInt32(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt32Array>k__BackingField")]
+        extern static ref uint[] GetUInt32Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static uint[] ReadUInt32Array(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt32Array(@this);
+
+        public static void WriteUInt32Array(CompiledModelTestBase.ManyTypes @this, uint[] value)
+            => GetUInt32Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt64>k__BackingField")]
+        extern static ref ulong GetUInt64(CompiledModelTestBase.ManyTypes @this);
+
+        public static ulong ReadUInt64(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt64(@this);
+
+        public static void WriteUInt64(CompiledModelTestBase.ManyTypes @this, ulong value)
+            => GetUInt64(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt64Array>k__BackingField")]
+        extern static ref ulong[] GetUInt64Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static ulong[] ReadUInt64Array(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt64Array(@this);
+
+        public static void WriteUInt64Array(CompiledModelTestBase.ManyTypes @this, ulong[] value)
+            => GetUInt64Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt8>k__BackingField")]
+        extern static ref byte GetUInt8(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte ReadUInt8(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt8(@this);
+
+        public static void WriteUInt8(CompiledModelTestBase.ManyTypes @this, byte value)
+            => GetUInt8(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UInt8Array>k__BackingField")]
+        extern static ref byte[] GetUInt8Array(CompiledModelTestBase.ManyTypes @this);
+
+        public static byte[] ReadUInt8Array(CompiledModelTestBase.ManyTypes @this)
+            => GetUInt8Array(@this);
+
+        public static void WriteUInt8Array(CompiledModelTestBase.ManyTypes @this, byte[] value)
+            => GetUInt8Array(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<Uri>k__BackingField")]
+        extern static ref Uri GetUri(CompiledModelTestBase.ManyTypes @this);
+
+        public static Uri ReadUri(CompiledModelTestBase.ManyTypes @this)
+            => GetUri(@this);
+
+        public static void WriteUri(CompiledModelTestBase.ManyTypes @this, Uri value)
+            => GetUri(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UriArray>k__BackingField")]
+        extern static ref Uri[] GetUriArray(CompiledModelTestBase.ManyTypes @this);
+
+        public static Uri[] ReadUriArray(CompiledModelTestBase.ManyTypes @this)
+            => GetUriArray(@this);
+
+        public static void WriteUriArray(CompiledModelTestBase.ManyTypes @this, Uri[] value)
+            => GetUriArray(@this) = value;
+
+        [UnsafeAccessor(UnsafeAccessorKind.Field, Name = "<UriToStringConverterProperty>k__BackingField")]
+        extern static ref Uri GetUriToStringConverterProperty(CompiledModelTestBase.ManyTypes @this);
+
+        public static Uri ReadUriToStringConverterProperty(CompiledModelTestBase.ManyTypes @this)
+            => GetUriToStringConverterProperty(@this);
+
+        public static void WriteUriToStringConverterProperty(CompiledModelTestBase.ManyTypes @this, Uri value)
+            => GetUriToStringConverterProperty(@this) = value;
     }
 }

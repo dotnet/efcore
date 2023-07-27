@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -20,6 +21,8 @@ public interface ILinqToCSharpSyntaxTranslator
     ///     Translates a node representing a statement into a Roslyn syntax tree.
     /// </summary>
     /// <param name="node">The node to be translated.</param>
+    /// <param name="knownInstances">Collection of translations for statically known instances.</param>
+    /// <param name="replacementMethods">Collection of translations for non-public member accesses.</param>
     /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <returns>A Roslyn syntax tree representation of <paramref name="node" />.</returns>
     /// <remarks>
@@ -28,12 +31,18 @@ public interface ILinqToCSharpSyntaxTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    SyntaxNode TranslateStatement(Expression node, ISet<string> collectedNamespaces);
+    SyntaxNode TranslateStatement(
+        Expression node,
+        Dictionary<object, ExpressionSyntax>? knownInstances,
+        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
+        ISet<string> collectedNamespaces);
 
     /// <summary>
     ///     Translates a node representing an expression into a Roslyn syntax tree.
     /// </summary>
     /// <param name="node">The node to be translated.</param>
+    /// <param name="knownInstances">Collection of translations for statically known instances.</param>
+    /// <param name="replacementMethods">Collection of translations for non-public member accesses.</param>
     /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <returns>A Roslyn syntax tree representation of <paramref name="node" />.</returns>
     /// <remarks>
@@ -42,7 +51,11 @@ public interface ILinqToCSharpSyntaxTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    SyntaxNode TranslateExpression(Expression node, ISet<string> collectedNamespaces);
+    SyntaxNode TranslateExpression(
+        Expression node,
+        Dictionary<object, ExpressionSyntax>? knownInstances,
+        Dictionary<(MemberInfo, bool), ExpressionSyntax>? replacementMethods,
+        ISet<string> collectedNamespaces);
 
     /// <summary>
     ///     Returns the captured variables detected in the last translation.

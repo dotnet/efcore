@@ -1418,15 +1418,10 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             string name,
             int genericParameterCount,
             Func<Type[], Type[], Type[]> parameterGenerator)
-            => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
-                .Single(
-                    mi => mi.Name == name
-                        && ((genericParameterCount == 0 && !mi.IsGenericMethod)
-                            || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
-                        && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
-                            parameterGenerator(
-                                type.IsGenericType ? type.GetGenericArguments() : [],
-                                mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
+            => type.GetGenericMethod(name,
+                genericParameterCount,
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly,
+                parameterGenerator);
 
         protected virtual void Initialize()
         {
