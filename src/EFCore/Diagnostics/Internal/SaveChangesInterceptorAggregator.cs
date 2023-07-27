@@ -64,6 +64,18 @@ public class SaveChangesInterceptorAggregator : InterceptorAggregator<ISaveChang
             }
         }
 
+        public InterceptionResult ThrowingConcurrencyException(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = _interceptors[i].ThrowingConcurrencyException(eventData, result);
+            }
+
+            return result;
+        }
+
         public async ValueTask<InterceptionResult<int>> SavingChangesAsync(
             DbContextEventData eventData,
             InterceptionResult<int> result,
@@ -108,6 +120,21 @@ public class SaveChangesInterceptorAggregator : InterceptorAggregator<ISaveChang
             {
                 await _interceptors[i].SaveChangesCanceledAsync(eventData, cancellationToken).ConfigureAwait(false);
             }
+        }
+
+        public async ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+            ConcurrencyExceptionEventData eventData,
+            InterceptionResult result,
+            CancellationToken cancellationToken = default)
+        {
+            for (var i = 0; i < _interceptors.Length; i++)
+            {
+                result = await _interceptors[i]
+                    .ThrowingConcurrencyExceptionAsync(eventData, result, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+
+            return result;
         }
     }
 }
