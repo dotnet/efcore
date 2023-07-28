@@ -33,6 +33,7 @@ public interface IMigrator
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     void Migrate(string? targetMigration = null);
 
     /// <summary>
@@ -49,6 +50,7 @@ public interface IMigrator
     /// <returns>A task that represents the asynchronous operation</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     Task MigrateAsync(
         string? targetMigration = null,
         CancellationToken cancellationToken = default);
@@ -71,6 +73,7 @@ public interface IMigrator
     /// </param>
     /// <returns>The generated script.</returns>
     [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
+    [RequiresDynamicCode("Migrations operations are not supported with NativeAOT")]
     string GenerateScript(
         string? fromMigration = null,
         string? toMigration = null,

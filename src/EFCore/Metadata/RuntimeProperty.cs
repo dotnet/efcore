@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -171,7 +172,9 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         get => NonCapturingLazyInitializer.EnsureInitialized(
             ref _typeMapping, (IProperty)this,
             static property =>
-                property.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!);
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? property.DeclaringType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
         set => _typeMapping = value;
     }
 

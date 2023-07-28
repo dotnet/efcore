@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -690,31 +691,41 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     Func<InternalEntityEntry, ISnapshot> IRuntimeTypeBase.OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
-            static complexType => new OriginalValuesFactoryFactory().Create(complexType));
+            static complexType => RuntimeFeature.IsDynamicCodeSupported
+                        ? new OriginalValuesFactoryFactory().Create(complexType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     Func<ISnapshot> IRuntimeTypeBase.StoreGeneratedValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _storeGeneratedValuesFactory, this,
-            static complexType => new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType));
+            static complexType => RuntimeFeature.IsDynamicCodeSupported
+                        ? new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     Func<InternalEntityEntry, ISnapshot> IRuntimeTypeBase.TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
-            static complexType => new TemporaryValuesFactoryFactory().Create(complexType));
+            static complexType => RuntimeFeature.IsDynamicCodeSupported
+                        ? new TemporaryValuesFactoryFactory().Create(complexType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     Func<ValueBuffer, ISnapshot> IRuntimeTypeBase.ShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _shadowValuesFactory, this,
-            static complexType => new ShadowValuesFactoryFactory().Create(complexType));
+            static complexType => RuntimeFeature.IsDynamicCodeSupported
+                        ? new ShadowValuesFactoryFactory().Create(complexType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     Func<ISnapshot> IRuntimeTypeBase.EmptyShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _emptyShadowValuesFactory, this,
-            static complexType => new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType));
+            static complexType => RuntimeFeature.IsDynamicCodeSupported
+                        ? new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     [DebuggerStepThrough]

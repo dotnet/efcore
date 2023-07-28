@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.NativeAotTests.Models;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 #pragma warning disable 219, 612, 618
 #nullable enable
@@ -27,6 +28,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 fieldInfo: typeof(User).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0,
                 valueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: false),
                 providerValueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
             id.SetSetter((User e, int v) => e.Id = v);
@@ -49,6 +51,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 (InternalEntityEntry e) => e.ReadOriginalValue<int>(id, 0),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<int>(id, 0),
                 valueBuffer => valueBuffer[0]!));
+            id.TypeMapping = SqlServerTypeMappingSource.Int;
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var name = runtimeEntityType.AddProperty(
@@ -66,6 +69,7 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 (InternalEntityEntry e) => e.ReadOriginalValue<string>(name, 1),
                 (InternalEntityEntry e) => e.ReadRelationshipSnapshotValue<string>(name, 1),
                 valueBuffer => valueBuffer[1]!));
+            name.TypeMapping = SqlServerTypeMappingSource.VariableLengthMaxUnicodeString;
             name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

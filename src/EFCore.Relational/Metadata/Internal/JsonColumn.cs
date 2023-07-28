@@ -22,9 +22,8 @@ public class JsonColumn : Column, IColumn
     /// </summary>
     public JsonColumn(string name, string type, Table table,
         RelationalTypeMapping? storeTypeMapping = null,
-        ValueComparer? providerValueComparer = null,
-        ColumnAccessors? accessors = null)
-        : base(name, type, table, storeTypeMapping, providerValueComparer, accessors)
+        ValueComparer? providerValueComparer = null)
+        : base(name, type, table, storeTypeMapping, providerValueComparer)
     {
     }
 

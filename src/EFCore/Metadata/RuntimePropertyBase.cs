@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -96,13 +97,17 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _materializationSetter, this, static property =>
-                new ClrPropertyMaterializationSetterFactory().Create(property));
+                RuntimeFeature.IsDynamicCodeSupported
+                        ? new ClrPropertyMaterializationSetterFactory().Create(property)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     PropertyAccessors IRuntimePropertyBase.Accessors
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _accessors, this, static property =>
-                new PropertyAccessorsFactory().Create(property));
+                RuntimeFeature.IsDynamicCodeSupported
+                        ? new PropertyAccessorsFactory().Create(property)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     PropertyIndexes IRuntimePropertyBase.PropertyIndexes
