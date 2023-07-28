@@ -213,8 +213,10 @@ public abstract class CoreTypeMapping
             _providerValueComparer = parameters.ProviderValueComparer;
         }
 
+#pragma warning disable CS0612 // Type or member is obsolete
         ValueGeneratorFactory = parameters.ValueGeneratorFactory
             ?? converter?.MappingHints?.ValueGeneratorFactory;
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     /// <summary>
@@ -242,7 +244,8 @@ public abstract class CoreTypeMapping
     ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
     ///     this mapping.
     /// </summary>
-    public virtual Func<IProperty, ITypeBase, ValueGenerator>? ValueGeneratorFactory { get; }
+    [Obsolete]
+    public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 
     /// <summary>
     ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

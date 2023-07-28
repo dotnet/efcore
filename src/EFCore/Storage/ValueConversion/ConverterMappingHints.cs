@@ -28,13 +28,15 @@ public class ConverterMappingHints
         int? precision = null,
         int? scale = null,
         bool? unicode = null,
-        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory = null)
+        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
     {
         Size = size;
         Precision = precision;
         Scale = scale;
         IsUnicode = unicode;
+#pragma warning disable CS0612 // Type or member is obsolete
         ValueGeneratorFactory = valueGeneratorFactory;
+#pragma warning restore CS0612 // Type or member is obsolete
     }
 
     /// <summary>
@@ -54,7 +56,9 @@ public class ConverterMappingHints
                     hints.Precision ?? Precision,
                     hints.Scale ?? Scale,
                     hints.IsUnicode ?? IsUnicode,
+#pragma warning disable CS0612 // Type or member is obsolete
                     hints.ValueGeneratorFactory ?? ValueGeneratorFactory)
+#pragma warning restore CS0612 // Type or member is obsolete
                 : hints.Override(this);
 
     /// <summary>
@@ -74,7 +78,9 @@ public class ConverterMappingHints
                     Precision ?? hints.Precision,
                     Scale ?? hints.Scale,
                     IsUnicode ?? hints.IsUnicode,
+#pragma warning disable CS0612 // Type or member is obsolete
                     ValueGeneratorFactory ?? hints.ValueGeneratorFactory)
+#pragma warning restore CS0612 // Type or member is obsolete
                 : hints.With(this);
 
     /// <summary>
@@ -101,5 +107,6 @@ public class ConverterMappingHints
     ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use for model
     ///     values when this converter is being used.
     /// </summary>
-    public virtual Func<IProperty, ITypeBase, ValueGenerator>? ValueGeneratorFactory { get; }
+    [Obsolete]
+    public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 }

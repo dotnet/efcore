@@ -30,7 +30,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
         int? scale = null,
         bool? unicode = null,
         bool? fixedLength = null,
-        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory = null,
+        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
         DbType? dbType = null)
         : base(size, precision, scale, unicode, valueGeneratorFactory)
     {
@@ -71,7 +71,9 @@ public class RelationalConverterMappingHints : ConverterMappingHints
                 hints.Scale ?? Scale,
                 hints.IsUnicode ?? IsUnicode,
                 (hints as RelationalConverterMappingHints)?.IsFixedLength ?? IsFixedLength,
+#pragma warning disable CS0612 // Type or member is obsolete
                 hints.ValueGeneratorFactory ?? ValueGeneratorFactory,
+#pragma warning restore CS0612 // Type or member is obsolete
                 (hints as RelationalConverterMappingHints)?.DbType ?? DbType);
 
     /// <inheritdoc />
@@ -84,7 +86,9 @@ public class RelationalConverterMappingHints : ConverterMappingHints
                 Scale ?? hints.Scale,
                 IsUnicode ?? hints.IsUnicode,
                 IsFixedLength ?? (hints as RelationalConverterMappingHints)?.IsFixedLength,
+#pragma warning disable CS0612 // Type or member is obsolete
                 ValueGeneratorFactory ?? hints.ValueGeneratorFactory,
+#pragma warning restore CS0612 // Type or member is obsolete
                 DbType ?? (hints as RelationalConverterMappingHints)?.DbType);
 
     /// <summary>

@@ -58,16 +58,22 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     public virtual ValueGenerator Select(IProperty property, ITypeBase typeBase)
         => Cache.GetOrAdd(property, typeBase, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
 
-    private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase entityType)
+    private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase structuralType)
     {
         var factory = property.GetValueGeneratorFactory();
         if (factory == null)
         {
             var mapping = property.GetTypeMapping();
-            factory = mapping.ValueGeneratorFactory;
+#pragma warning disable CS0612 // Type or member is obsolete
+            if (mapping.ValueGeneratorFactory != null
+                && structuralType is IEntityType)
+            {
+                factory = (p, t) => mapping.ValueGeneratorFactory.Invoke(p, (IEntityType)t);
+            }
+#pragma warning restore CS0612 // Type or member is obsolete
         }
 
-        return factory?.Invoke(property, entityType);
+        return factory?.Invoke(property, structuralType);
     }
 
     /// <summary>
