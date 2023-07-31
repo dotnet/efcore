@@ -1955,8 +1955,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             if (methodCallExpression.Method.IsGenericMethod
-            && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
-                || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
+                && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
+                    || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
             {
                 source = methodCallExpression.Arguments[0];
                 var selectMethodCallExpression = default(MethodCallExpression);
@@ -2302,8 +2302,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
             }
 
+            // TODO: Check that the property is a primitive collection property directly once we have that in metadata, rather than
+            // looking at the type mapping.
             var property = entityType.FindProperty(memberName);
-            if (property == null || property.GetRelationalTypeMapping().ElementTypeMapping is null)
+            if (property?.GetRelationalTypeMapping().ElementTypeMapping is null)
             {
                 return null;
             }

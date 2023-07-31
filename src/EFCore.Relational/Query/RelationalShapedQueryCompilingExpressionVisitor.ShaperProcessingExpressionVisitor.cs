@@ -2029,8 +2029,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (keyValues.Length != expectedKeyValuesCount && !_isTracking)
             {
-                throw new InvalidOperationException(
-                    $"JSON entity '{entityType.ShortName()}' is missing key information. This is not allowed for Tracking queries since EF can't correctly build identity for this entity object.");
+                throw new InvalidOperationException(RelationalStrings.JsonEntityMissingKeyInformation(entityType.ShortName()));
             }
 
             //var keyValues = new Expression[jsonProjectionInfo.KeyAccessInfo.Count];

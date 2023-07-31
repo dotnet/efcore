@@ -505,6 +505,9 @@
   <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
     <value>Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.</value>
   </data>
+  <data name="JsonEntityMissingKeyInformation" xml:space="preserve">
+    <value>JSON entity '{jsonEntity}' is missing key information. This is not allowed for tracking queries since EF can't correctly build identity for this entity object.</value>
+  </data>
   <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
     <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
   </data>

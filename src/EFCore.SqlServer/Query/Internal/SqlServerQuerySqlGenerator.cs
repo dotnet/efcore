@@ -489,9 +489,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         // OPENJSON docs: https://learn.microsoft.com/sql/t-sql/functions/openjson-transact-sql
 
-        // OPENJSON is a regular table-valued function with an optional special WITH clause at the end.
-        // The second argument is the JSON path, which can either be a regular SqlExpression, or a list of PathSegments, from which we
-        // generate a constant JSONPATH from.
+        // The second argument is the JSON path, which is represented as a list of PathSegments, from which we generate a SQL jsonpath
+        // expression.
         Sql.Append("OPENJSON(");
 
         Visit(openJsonExpression.JsonExpression);

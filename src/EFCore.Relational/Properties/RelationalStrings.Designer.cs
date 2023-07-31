@@ -1036,6 +1036,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.
         /// </summary>
+        public static string JsonEntityMissingKeyInformation(object? jsonEntity)
+            => string.Format(
+                GetString("JsonEntityMissingKeyInformation", nameof(jsonEntity)),
+                jsonEntity);
+
+        /// <summary>
+        ///     Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.
+        /// </summary>
         public static string JsonEntityMultipleRootsMappedToTheSameJsonColumn(object? column, object? table)
             => string.Format(
                 GetString("JsonEntityMultipleRootsMappedToTheSameJsonColumn", nameof(column), nameof(table)),

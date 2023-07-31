@@ -806,11 +806,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
                 else if (projection is JsonQueryExpression jsonQueryExpression)
                 {
-                    if (jsonQueryExpression.IsCollection)
-                    {
-                        throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
-                    }
-
                     var primaryKeyProperties = jsonQueryExpression.EntityType.FindPrimaryKey()!.Properties;
                     var primaryKeyPropertiesCount = jsonQueryExpression.IsCollection
                         ? primaryKeyProperties.Count - 1
