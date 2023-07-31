@@ -235,14 +235,15 @@ WHERE [o].[OrderID] < (
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o1]
-    GROUP BY [o1].[CustomerID]
-    HAVING COUNT(*) > 9 AND (
+WHERE [o0].[OrderID] IN (
+    SELECT (
         SELECT TOP(1) [o2].[OrderID]
         FROM [Orders] AS [o2]
-        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) = [o0].[OrderID])
+        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+    FROM [Orders] AS [o1]
+    GROUP BY [o1].[CustomerID]
+    HAVING COUNT(*) > 9
+)
 """);
     }
 
@@ -741,13 +742,13 @@ WHERE [c].[CustomerID] LIKE N'F%'
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -778,13 +779,13 @@ WHERE [c].[CustomerID] LIKE N'F%'
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -797,11 +798,11 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -816,13 +817,13 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
     OFFSET @__p_0 ROWS
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -837,12 +838,12 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT TOP(@__p_0) [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -858,13 +859,13 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+)
 """);
     }
 
@@ -880,8 +881,8 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+WHERE [c].[CustomerID] IN (
+    SELECT [t].[CustomerID]
     FROM (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
         FROM [Customers] AS [c0]
@@ -891,7 +892,7 @@ INNER JOIN (
     ) AS [t]
     ORDER BY [t].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+)
 """);
     }
 
@@ -948,15 +949,16 @@ WHERE [c].[CustomerID] = (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
-    HAVING COUNT(*) > 11 AND (
+WHERE [c].[CustomerID] IN (
+    SELECT (
         SELECT TOP(1) [c0].[CustomerID]
         FROM [Orders] AS [o0]
         LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) = [c].[CustomerID])
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 11
+)
 """);
     }
 
@@ -1143,15 +1145,18 @@ WHERE [c].[CustomerID] LIKE N'F%'
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    UNION
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] IN (
+    SELECT [t].[CustomerID]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE [c0].[CustomerID] LIKE N'F%'
+        UNION
+        SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'A%'
+    ) AS [t]
+)
 """);
     }
 
@@ -1164,15 +1169,18 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    UNION ALL
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] IN (
+    SELECT [t].[CustomerID]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE [c0].[CustomerID] LIKE N'F%'
+        UNION ALL
+        SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'A%'
+    ) AS [t]
+)
 """);
     }
 
@@ -1185,15 +1193,18 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    EXCEPT
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] IN (
+    SELECT [t].[CustomerID]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE [c0].[CustomerID] LIKE N'F%'
+        EXCEPT
+        SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'A%'
+    ) AS [t]
+)
 """);
     }
 
@@ -1206,15 +1217,18 @@ INNER JOIN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    INTERSECT
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[CustomerID] IN (
+    SELECT [t].[CustomerID]
+    FROM (
+        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        FROM [Customers] AS [c0]
+        WHERE [c0].[CustomerID] LIKE N'F%'
+        INTERSECT
+        SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+        FROM [Customers] AS [c1]
+        WHERE [c1].[CustomerID] LIKE N'A%'
+    ) AS [t]
+)
 """);
     }
 
@@ -1393,8 +1407,8 @@ WHERE [c].[CustomerID] LIKE N'F%'
 UPDATE [o]
 SET [o].[OrderDate] = NULL
 FROM [Orders] AS [o]
-INNER JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+WHERE [o].[OrderID] IN (
+    SELECT [t].[OrderID]
     FROM [Customers] AS [c]
     INNER JOIN (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
@@ -1402,7 +1416,7 @@ INNER JOIN (
         WHERE DATEPART(year, [o0].[OrderDate]) = 1997
     ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
     WHERE [c].[CustomerID] LIKE N'F%'
-) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
+)
 """);
     }
 

@@ -36,16 +36,13 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 @__p_0='0'
 
 DELETE FROM "Animals" AS "a"
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT "a0"."Id", "a0"."CountryId", "a0"."Discriminator", "a0"."Name", "a0"."Species", "a0"."EagleId", "a0"."IsFlightless", "a0"."Group", "a0"."FoundOn"
-        FROM "Animals" AS "a0"
-        WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
-        ORDER BY "a0"."Name"
-        LIMIT @__p_1 OFFSET @__p_0
-    ) AS "t"
-    WHERE "t"."Id" = "a"."Id")
+WHERE "a"."Id" IN (
+    SELECT "a0"."Id"
+    FROM "Animals" AS "a0"
+    WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
+    ORDER BY "a0"."Name"
+    LIMIT @__p_1 OFFSET @__p_0
+)
 """);
     }
 
@@ -116,16 +113,17 @@ WHERE (
         AssertSql(
 """
 DELETE FROM "Animals" AS "a"
-WHERE "a"."CountryId" = 1 AND EXISTS (
-    SELECT 1
-    FROM "Animals" AS "a0"
-    WHERE "a0"."CountryId" = 1
-    GROUP BY "a0"."CountryId"
-    HAVING COUNT(*) < 3 AND (
+WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
+    SELECT (
         SELECT "a1"."Id"
         FROM "Animals" AS "a1"
         WHERE "a1"."CountryId" = 1 AND "a0"."CountryId" = "a1"."CountryId"
-        LIMIT 1) = "a"."Id")
+        LIMIT 1)
+    FROM "Animals" AS "a0"
+    WHERE "a0"."CountryId" = 1
+    GROUP BY "a0"."CountryId"
+    HAVING COUNT(*) < 3
+)
 """);
     }
 

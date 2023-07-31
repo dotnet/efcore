@@ -95,14 +95,15 @@ WHERE (
 """
 DELETE FROM [a]
 FROM [Animals] AS [a]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Animals] AS [a0]
-    GROUP BY [a0].[CountryId]
-    HAVING COUNT(*) < 3 AND (
+WHERE [a].[Id] IN (
+    SELECT (
         SELECT TOP(1) [a1].[Id]
         FROM [Animals] AS [a1]
-        WHERE [a0].[CountryId] = [a1].[CountryId]) = [a].[Id])
+        WHERE [a0].[CountryId] = [a1].[CountryId])
+    FROM [Animals] AS [a0]
+    GROUP BY [a0].[CountryId]
+    HAVING COUNT(*) < 3
+)
 """);
     }
 
@@ -124,16 +125,13 @@ WHERE EXISTS (
 
 DELETE FROM [a]
 FROM [Animals] AS [a]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
-        FROM [Animals] AS [a0]
-        WHERE [a0].[Name] = N'Great spotted kiwi'
-        ORDER BY [a0].[Name]
-        OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-    ) AS [t]
-    WHERE [t].[Id] = [a].[Id])
+WHERE [a].[Id] IN (
+    SELECT [a0].[Id]
+    FROM [Animals] AS [a0]
+    WHERE [a0].[Name] = N'Great spotted kiwi'
+    ORDER BY [a0].[Name]
+    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
+)
 """);
     }
 
