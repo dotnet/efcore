@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
+using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 using static SQLitePCL.raw;
 
@@ -25,7 +26,7 @@ namespace Microsoft.Data.Sqlite
     {
         private readonly SqliteCommand _command;
         private readonly bool _closeConnection;
-        private readonly Stopwatch _timer;
+        private TimeSpan _totalElapsedTime;
         private IEnumerator<sqlite3_stmt>? _stmtEnumerator;
         private SqliteDataRecord? _record;
         private bool _closed;
@@ -33,12 +34,10 @@ namespace Microsoft.Data.Sqlite
 
         internal SqliteDataReader(
             SqliteCommand command,
-            Stopwatch timer,
             IEnumerable<sqlite3_stmt> stmts,
             bool closeConnection)
         {
             _command = command;
-            _timer = timer;
             _stmtEnumerator = stmts.GetEnumerator();
             _closeConnection = closeConnection;
         }
@@ -155,12 +154,12 @@ namespace Microsoft.Data.Sqlite
                 {
                     stmt = _stmtEnumerator.Current;
 
-                    _timer.Start();
+                    var timer = SharedStopwatch.StartNew();
 
                     while (IsBusy(rc = sqlite3_step(stmt)))
                     {
                         if (_command.CommandTimeout != 0
-                            && _timer.ElapsedMilliseconds >= _command.CommandTimeout * 1000L)
+                            && (_totalElapsedTime + timer.Elapsed).TotalMilliseconds >= _command.CommandTimeout * 1000L)
                         {
                             break;
                         }
@@ -171,7 +170,7 @@ namespace Microsoft.Data.Sqlite
                         Thread.Sleep(150);
                     }
 
-                    _timer.Stop();
+                    _totalElapsedTime += timer.Elapsed;
 
                     SqliteException.ThrowExceptionForRC(rc, _command.Connection!.Handle);
 
