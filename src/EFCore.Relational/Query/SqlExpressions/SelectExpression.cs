@@ -566,35 +566,39 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
                 propertyExpressions[property] = CreateColumnExpression(
-                    tableExpressionBase, jsonPropertyName, property.ClrType, property.GetRelationalTypeMapping(), property.IsNullable);
+                    tableExpressionBase, jsonPropertyName, property.ClrType, property.GetRelationalTypeMapping(),
+                    /*jsonQueryExpression.IsNullable || */property.IsNullable);
             }
         }
 
         var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
 
         var containerColumnName = jsonQueryExpression.EntityType.GetContainerColumnName()!;
-        var jsonColumnTypeMapping = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+        var containerColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
                 ?? entityType.GetDefaultMappings().Single().Table)
-            .FindColumn(containerColumnName)!.StoreTypeMapping;
-
-        foreach (var navigation in GetAllNavigationsInHierarchy(entityType)
+            .FindColumn(containerColumnName)!;
+        var containerColumnTypeMapping = containerColumn.StoreTypeMapping;
+        foreach (var ownedJsonNavigation in GetAllNavigationsInHierarchy(entityType)
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
                              && n.ForeignKey.PrincipalToDependent == n))
         {
-            var targetEntityType = navigation.TargetEntityType;
-            var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
+            var targetEntityType = ownedJsonNavigation.TargetEntityType;
+            var jsonNavigationName = ownedJsonNavigation.TargetEntityType.GetJsonPropertyName();
             Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
+            var isNullable = containerColumn.IsNullable
+                || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
+                || ownedJsonNavigation.IsCollection;
 
             // The TableExpressionBase represents a relational expansion of the JSON collection. We now need a ColumnExpression to represent
             // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
-            var jsonColumn = new ConcreteColumnExpression(
+            var column = new ConcreteColumnExpression(
                 jsonNavigationName,
                 tableReferenceExpression,
-                jsonColumnTypeMapping.ClrType,
-                jsonColumnTypeMapping,
-                nullable: !navigation.ForeignKey.IsRequiredDependent || navigation.IsCollection);
+                containerColumnTypeMapping.ClrType,
+                containerColumnTypeMapping,
+                isNullable);
 
             // need to remap key property map to use target entity key properties
             var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
@@ -609,13 +613,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                 targetEntityType,
                 new JsonQueryExpression(
                     targetEntityType,
-                    jsonColumn,
+                    column,
                     newKeyPropertyMap,
-                    navigation.ClrType,
-                    navigation.IsCollection),
-                !navigation.ForeignKey.IsRequiredDependent);
+                    ownedJsonNavigation.ClrType,
+                    ownedJsonNavigation.IsCollection),
+                isNullable);
 
-            entityProjection.AddNavigationBinding(navigation, entityShaperExpression);
+            entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
         }
 
         _projectionMapping[new ProjectionMember()] = entityProjection;
@@ -643,20 +647,20 @@ public sealed partial class SelectExpression : TableExpressionBase
                              && n.ForeignKey.PrincipalToDependent == n))
         {
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
-            var jsonColumnName = targetEntityType.GetContainerColumnName()!;
-            var jsonColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+            var containerColumnName = targetEntityType.GetContainerColumnName()!;
+            var containerColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
                     ?? entityType.GetDefaultMappings().Single().Table)
-                .FindColumn(jsonColumnName)!;
-            var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
-            var isNullable = jsonColumn.IsNullable
+                .FindColumn(containerColumnName)!;
+            var cotainerColumnTypeMapping = containerColumn.StoreTypeMapping;
+            var isNullable = containerColumn.IsNullable
                 || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
                 || ownedJsonNavigation.IsCollection;
 
-            var jsonColumnExpression = new ConcreteColumnExpression(
-                jsonColumnName,
+            var column = new ConcreteColumnExpression(
+                containerColumnName,
                 tableReferenceExpression,
-                jsonColumnTypeMapping.ClrType,
-                jsonColumnTypeMapping,
+                cotainerColumnTypeMapping.ClrType,
+                cotainerColumnTypeMapping,
                 isNullable);
 
             // for json collections we need to skip ordinal key (which is always the last one)
@@ -678,7 +682,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 targetEntityType,
                 new JsonQueryExpression(
                     targetEntityType,
-                    jsonColumnExpression,
+                    column,
                     keyPropertiesMap,
                     ownedJsonNavigation.ClrType,
                     ownedJsonNavigation.IsCollection),
