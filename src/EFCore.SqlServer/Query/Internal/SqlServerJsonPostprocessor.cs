@@ -236,8 +236,10 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                 columnExpression.Table, "value", columnExpression.Type, _nvarcharMaxTypeMapping, columnExpression.IsNullable);
 
             Check.DebugAssert(columnInfo.Path is not null, "Path shouldn't be null in OPENJSON WITH");
-            Check.DebugAssert(!columnInfo.AsJson, "AS JSON signifies an owned sub-entity being projected out of OPENJSON/WITH. "
-                + "Columns referring to that must be wrapped be Json{Scalar,Query}Expression and will have been already dealt with above");
+            //Check.DebugAssert(
+            //    !columnInfo.AsJson || columnInfo.TypeMapping.ElementTypeMapping is not null,
+            //    "AS JSON signifies an owned sub-entity or array of primitives being projected out of OPENJSON/WITH. "
+            //    + "Columns referring to sub-entities must be wrapped in Json{Scalar,Query}Expression and will have been already dealt with above");
 
             if (columnInfo.Path is [])
             {

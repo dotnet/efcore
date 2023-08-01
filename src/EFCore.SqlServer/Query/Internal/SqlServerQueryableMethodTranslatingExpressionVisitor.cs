@@ -245,7 +245,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                 {
                     Name = jsonPropertyName,
                     TypeMapping = property.GetRelationalTypeMapping(),
-                    Path = new PathSegment[] { new(jsonPropertyName) }
+                    Path = new PathSegment[] { new(jsonPropertyName) },
+                    AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
                 });
             }
         }

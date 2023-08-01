@@ -1012,10 +1012,10 @@ WHERE EXISTS (
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
         [Date] datetime2 '$.Date',
         [Enum] int '$.Enum',
-        [Enums] nvarchar(max) '$.Enums',
+        [Enums] nvarchar(max) '$.Enums' AS JSON,
         [Fraction] decimal(18,2) '$.Fraction',
         [NullableEnum] int '$.NullableEnum',
-        [NullableEnums] nvarchar(max) '$.NullableEnums',
+        [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
         [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
         [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
     ) AS [o]
@@ -1097,10 +1097,10 @@ WHERE (
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
             [Enum] int '$.Enum',
-            [Enums] nvarchar(max) '$.Enums',
+            [Enums] nvarchar(max) '$.Enums' AS JSON,
             [Fraction] decimal(18,2) '$.Fraction',
             [NullableEnum] int '$.NullableEnum',
-            [NullableEnums] nvarchar(max) '$.NullableEnums',
+            [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
@@ -1121,9 +1121,9 @@ WHERE EXISTS (
     SELECT 1
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
         [Name] nvarchar(max) '$.Name',
-        [Names] nvarchar(max) '$.Names',
+        [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
-        [Numbers] nvarchar(max) '$.Numbers',
+        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
         [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o]
@@ -1132,10 +1132,10 @@ WHERE EXISTS (
         FROM OPENJSON([o].[OwnedCollectionBranch], '$') WITH (
             [Date] datetime2 '$.Date',
             [Enum] int '$.Enum',
-            [Enums] nvarchar(max) '$.Enums',
+            [Enums] nvarchar(max) '$.Enums' AS JSON,
             [Fraction] decimal(18,2) '$.Fraction',
             [NullableEnum] int '$.NullableEnum',
-            [NullableEnums] nvarchar(max) '$.NullableEnums',
+            [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
             [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o0]) = 2)
@@ -1152,9 +1152,9 @@ SELECT (
     SELECT COUNT(*)
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
         [Name] nvarchar(max) '$.Name',
-        [Names] nvarchar(max) '$.Names',
+        [Names] nvarchar(max) '$.Names' AS JSON,
         [Number] int '$.Number',
-        [Numbers] nvarchar(max) '$.Numbers',
+        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
         [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o])
@@ -1214,14 +1214,73 @@ ORDER BY [j].[Id], [t].[c]
     {
         await base.Json_collection_filter_in_projection(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[Name], [t].[Names], [t].[Number], [t].[Numbers], [t].[c], [t].[c0], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], CAST([o].[key] AS int) AS [c1]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.Name') <> N'Foo' OR JSON_VALUE([o].[value], '$.Name') IS NULL
+) AS [t]
+ORDER BY [j].[Id], [t].[c1]
+""");
+    }
+
+    public override async Task Json_nested_collection_filter_in_projection(bool async)
+    {
+        await base.Json_nested_collection_filter_in_projection(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t0].[key], [t0].[Id], [t0].[Date], [t0].[Enum], [t0].[Enums], [t0].[Fraction], [t0].[NullableEnum], [t0].[NullableEnums], [t0].[c], [t0].[c0], [t0].[key0]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [o].[key], [t].[Id], [t].[Date], [t].[Enum], [t].[Enums], [t].[Fraction], [t].[NullableEnum], [t].[NullableEnums], [t].[c], [t].[c0], [t].[key] AS [key0], CAST([o].[key] AS int) AS [c1], [t].[c1] AS [c10]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY (
+        SELECT [j].[Id], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o0].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o0].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o0].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c0], [o0].[key], CAST([o0].[key] AS int) AS [c1]
+        FROM OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
+        WHERE CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000' OR CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) IS NULL
+    ) AS [t]
+) AS [t0]
+ORDER BY [j].[Id], [t0].[c1], [t0].[key], [t0].[c10]
+""");
+    }
+
+    public override async Task Json_nested_collection_anonymous_projection_in_projection(bool async)
+    {
+        await base.Json_nested_collection_anonymous_projection_in_projection(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[key], [t].[c], [t].[c0], [t].[c1], [t].[c2], [t].[c3], [t].[Id], [t].[c4], [t].[key0]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [o].[key], CAST(JSON_VALUE([o0].[value], '$.Date') AS datetime2) AS [c], CAST(JSON_VALUE([o0].[value], '$.Enum') AS int) AS [c0], JSON_QUERY([o0].[value], '$.Enums') AS [c1], CAST(JSON_VALUE([o0].[value], '$.Fraction') AS decimal(18,2)) AS [c2], JSON_QUERY([o0].[value], '$.OwnedReferenceLeaf') AS [c3], [j].[Id], JSON_QUERY([o0].[value], '$.OwnedCollectionLeaf') AS [c4], [o0].[key] AS [key0], CAST([o].[key] AS int) AS [c5], CAST([o0].[key] AS int) AS [c6]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    OUTER APPLY OPENJSON(JSON_QUERY([o].[value], '$.OwnedCollectionBranch'), '$') AS [o0]
+) AS [t]
+ORDER BY [j].[Id], [t].[c5], [t].[key], [t].[c6]
+""");
     }
 
     public override async Task Json_collection_skip_take_in_projection(bool async)
     {
         await base.Json_collection_skip_take_in_projection(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[Name], [t].[Names], [t].[Number], [t].[Numbers], [t].[c], [t].[c0], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], JSON_VALUE([o].[value], '$.Name') AS [Name], JSON_QUERY([o].[value], '$.Names') AS [Names], CAST(JSON_VALUE([o].[value], '$.Number') AS int) AS [Number], JSON_QUERY([o].[value], '$.Numbers') AS [Numbers], JSON_QUERY([o].[value], '$.OwnedCollectionBranch') AS [c], JSON_QUERY([o].[value], '$.OwnedReferenceBranch') AS [c0], [o].[key], JSON_VALUE([o].[value], '$.Name') AS [c1]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o]
+    ORDER BY JSON_VALUE([o].[value], '$.Name')
+    OFFSET 1 ROWS FETCH NEXT 5 ROWS ONLY
+) AS [t]
+ORDER BY [j].[Id], [t].[c1]
+""");
     }
 
     public override async Task Json_collection_skip_take_in_projection_project_into_anonymous_type(bool async)
@@ -1264,6 +1323,29 @@ ORDER BY [j].[Id], [t].[c0]
     {
         await base.Json_collection_distinct_in_projection(async);
 
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[Name], [t].[Names], [t].[Number], [t].[Numbers], [t].[c], [t].[c0]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch] AS [c], [o].[OwnedReferenceBranch] AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Name] nvarchar(max) '$.Name',
+        [Names] nvarchar(max) '$.Names' AS JSON,
+        [Number] int '$.Number',
+        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    ) AS [o]
+) AS [t]
+ORDER BY [j].[Id], [t].[Name]
+""");
+    }
+
+    public override async Task Json_collection_anonymous_projection_distinct_in_projection(bool async)
+    {
+        await base.Json_collection_anonymous_projection_distinct_in_projection(async);
+
         AssertSql("");
     }
 
@@ -1271,21 +1353,138 @@ ORDER BY [j].[Id], [t].[c0]
     {
         await base.Json_collection_leaf_filter_in_projection(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[SomethingSomething], [t].[key]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+) AS [t]
+ORDER BY [j].[Id], [t].[c]
+""");
+    }
+
+    public override async Task Json_multiple_collection_projections(bool async)
+    {
+        await base.Json_multiple_collection_projections(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[SomethingSomething], [t].[key], [t0].[Id], [t0].[Name], [t0].[Names], [t0].[Number], [t0].[Numbers], [t0].[c], [t0].[c0], [t1].[key], [t1].[Id], [t1].[Date], [t1].[Enum], [t1].[Enums], [t1].[Fraction], [t1].[NullableEnum], [t1].[NullableEnums], [t1].[c], [t1].[c0], [t1].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
+    WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
+) AS [t]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+        [Name] nvarchar(max) '$.Name',
+        [Names] nvarchar(max) '$.Names' AS JSON,
+        [Number] int '$.Number',
+        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+    ) AS [o0]
+) AS [t0]
+OUTER APPLY (
+    SELECT [o1].[key], [t2].[Id], [t2].[Date], [t2].[Enum], [t2].[Enums], [t2].[Fraction], [t2].[NullableEnum], [t2].[NullableEnums], [t2].[c], [t2].[c0], [t2].[key] AS [key0], CAST([o1].[key] AS int) AS [c1], [t2].[c1] AS [c10]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o1]
+    OUTER APPLY (
+        SELECT [j].[Id], CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o2].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o2].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o2].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o2].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o2].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o2].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o2].[value], '$.OwnedReferenceLeaf') AS [c0], [o2].[key], CAST([o2].[key] AS int) AS [c1]
+        FROM OPENJSON(JSON_QUERY([o1].[value], '$.OwnedCollectionBranch'), '$') AS [o2]
+        WHERE CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000' OR CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) IS NULL
+    ) AS [t2]
+) AS [t1]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id], [t].[c], [t].[key], [t0].[Name], [t0].[Number], [t1].[c1], [t1].[key], [t1].[c10], [t1].[key0]
+""");
+    }
+
+    public override async Task Json_branch_collection_distinct_and_other_collection(bool async)
+    {
+        await base.Json_branch_collection_distinct_and_other_collection(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[Date], [t].[Enum], [t].[Enums], [t].[Fraction], [t].[NullableEnum], [t].[NullableEnums], [t].[c], [t].[c0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf] AS [c], [o].[OwnedReferenceLeaf] AS [c0]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+        [Date] datetime2 '$.Date',
+        [Enum] int '$.Enum',
+        [Enums] nvarchar(max) '$.Enums' AS JSON,
+        [Fraction] decimal(18,2) '$.Fraction',
+        [NullableEnum] int '$.NullableEnum',
+        [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+        [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+        [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+    ) AS [o]
+) AS [t]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id], [t].[Date], [t].[Enum], [t].[Fraction], [t].[NullableEnum]
+""");
+    }
+
+    public override async Task Json_leaf_collection_distinct_and_other_collection(bool async)
+    {
+        await base.Json_leaf_collection_distinct_and_other_collection(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [t].[Id], [t].[SomethingSomething], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+OUTER APPLY (
+    SELECT DISTINCT [j].[Id], [o].[SomethingSomething]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') WITH ([SomethingSomething] nvarchar(max) '$.SomethingSomething') AS [o]
+) AS [t]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id], [t].[SomethingSomething]
+""");
     }
 
     public override async Task Json_collection_SelectMany(bool async)
     {
         await base.Json_collection_SelectMany(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [j].[Id], [o].[Name], [o].[Names], [o].[Number], [o].[Numbers], [o].[OwnedCollectionBranch], [o].[OwnedReferenceBranch]
+FROM [JsonEntitiesBasic] AS [j]
+CROSS APPLY OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
+    [Name] nvarchar(max) '$.Name',
+    [Names] nvarchar(max) '$.Names' AS JSON,
+    [Number] int '$.Number',
+    [Numbers] nvarchar(max) '$.Numbers' AS JSON,
+    [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
+    [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
+) AS [o]
+""");
     }
 
     public override async Task Json_nested_collection_SelectMany(bool async)
     {
         await base.Json_nested_collection_SelectMany(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [j].[Id], [o].[Date], [o].[Enum], [o].[Enums], [o].[Fraction], [o].[NullableEnum], [o].[NullableEnums], [o].[OwnedCollectionLeaf], [o].[OwnedReferenceLeaf]
+FROM [JsonEntitiesBasic] AS [j]
+CROSS APPLY OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+    [Date] datetime2 '$.Date',
+    [Enum] int '$.Enum',
+    [Enums] nvarchar(max) '$.Enums' AS JSON,
+    [Fraction] decimal(18,2) '$.Fraction',
+    [NullableEnum] int '$.NullableEnum',
+    [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+    [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+    [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+) AS [o]
+""");
     }
 
     public override async Task Json_collection_of_primitives_SelectMany(bool async)
