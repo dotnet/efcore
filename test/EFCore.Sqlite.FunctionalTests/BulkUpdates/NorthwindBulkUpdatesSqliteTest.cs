@@ -712,12 +712,13 @@ WHERE "c"."CustomerID" LIKE 'F%'
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT -1 OFFSET @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -731,12 +732,13 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -751,12 +753,13 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT @__p_1 OFFSET @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -768,11 +771,12 @@ WHERE "c"."CustomerID" IN (
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -786,13 +790,14 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
     LIMIT -1 OFFSET @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -806,13 +811,14 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
     LIMIT @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -827,13 +833,14 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "c0"."CustomerID"
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
     LIMIT @__p_1 OFFSET @__p_0
-)
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -848,8 +855,8 @@ WHERE "c"."CustomerID" IN (
 
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "t"."CustomerID"
+FROM (
+    SELECT "t"."CustomerID", "t"."Address", "t"."City", "t"."CompanyName", "t"."ContactName", "t"."ContactTitle", "t"."Country", "t"."Fax", "t"."Phone", "t"."PostalCode", "t"."Region"
     FROM (
         SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
         FROM "Customers" AS "c0"
@@ -859,7 +866,8 @@ WHERE "c"."CustomerID" IN (
     ) AS "t"
     ORDER BY "t"."City"
     LIMIT @__p_0 OFFSET @__p_0
-)
+) AS "t0"
+WHERE "c"."CustomerID" = "t0"."CustomerID"
 """);
     }
 
@@ -950,12 +958,13 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
-WHERE "o"."OrderID" IN (
-    SELECT "o0"."OrderID"
+FROM (
+    SELECT "o0"."OrderID", "o0"."CustomerID", "o0"."EmployeeID", "o0"."OrderDate", "c"."CustomerID" AS "CustomerID0"
     FROM "Orders" AS "o0"
     LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
     WHERE "c"."City" = 'Seattle'
-)
+) AS "t"
+WHERE "o"."OrderID" = "t"."OrderID"
 """);
     }
 
@@ -1106,18 +1115,16 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "t"."CustomerID"
-    FROM (
-        SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
-        FROM "Customers" AS "c0"
-        WHERE "c0"."CustomerID" LIKE 'F%'
-        UNION
-        SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
-        FROM "Customers" AS "c1"
-        WHERE "c1"."CustomerID" LIKE 'A%'
-    ) AS "t"
-)
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    FROM "Customers" AS "c0"
+    WHERE "c0"."CustomerID" LIKE 'F%'
+    UNION
+    SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
+    FROM "Customers" AS "c1"
+    WHERE "c1"."CustomerID" LIKE 'A%'
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -1129,18 +1136,16 @@ WHERE "c"."CustomerID" IN (
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "t"."CustomerID"
-    FROM (
-        SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
-        FROM "Customers" AS "c0"
-        WHERE "c0"."CustomerID" LIKE 'F%'
-        UNION ALL
-        SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
-        FROM "Customers" AS "c1"
-        WHERE "c1"."CustomerID" LIKE 'A%'
-    ) AS "t"
-)
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    FROM "Customers" AS "c0"
+    WHERE "c0"."CustomerID" LIKE 'F%'
+    UNION ALL
+    SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
+    FROM "Customers" AS "c1"
+    WHERE "c1"."CustomerID" LIKE 'A%'
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -1152,18 +1157,16 @@ WHERE "c"."CustomerID" IN (
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "t"."CustomerID"
-    FROM (
-        SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
-        FROM "Customers" AS "c0"
-        WHERE "c0"."CustomerID" LIKE 'F%'
-        EXCEPT
-        SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
-        FROM "Customers" AS "c1"
-        WHERE "c1"."CustomerID" LIKE 'A%'
-    ) AS "t"
-)
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    FROM "Customers" AS "c0"
+    WHERE "c0"."CustomerID" LIKE 'F%'
+    EXCEPT
+    SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
+    FROM "Customers" AS "c1"
+    WHERE "c1"."CustomerID" LIKE 'A%'
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -1175,18 +1178,16 @@ WHERE "c"."CustomerID" IN (
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE "c"."CustomerID" IN (
-    SELECT "t"."CustomerID"
-    FROM (
-        SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
-        FROM "Customers" AS "c0"
-        WHERE "c0"."CustomerID" LIKE 'F%'
-        INTERSECT
-        SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
-        FROM "Customers" AS "c1"
-        WHERE "c1"."CustomerID" LIKE 'A%'
-    ) AS "t"
-)
+FROM (
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    FROM "Customers" AS "c0"
+    WHERE "c0"."CustomerID" LIKE 'F%'
+    INTERSECT
+    SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
+    FROM "Customers" AS "c1"
+    WHERE "c1"."CustomerID" LIKE 'A%'
+) AS "t"
+WHERE "c"."CustomerID" = "t"."CustomerID"
 """);
     }
 
@@ -1306,8 +1307,8 @@ WHERE "c"."CustomerID" LIKE 'F%'
 """
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
-WHERE "o"."OrderID" IN (
-    SELECT "t"."OrderID"
+FROM (
+    SELECT "t"."OrderID", "t"."CustomerID", "t"."EmployeeID", "t"."OrderDate", "c"."CustomerID" AS "CustomerID0"
     FROM "Customers" AS "c"
     INNER JOIN (
         SELECT "o0"."OrderID", "o0"."CustomerID", "o0"."EmployeeID", "o0"."OrderDate"
@@ -1315,7 +1316,8 @@ WHERE "o"."OrderID" IN (
         WHERE CAST(strftime('%Y', "o0"."OrderDate") AS INTEGER) = 1997
     ) AS "t" ON "c"."CustomerID" = "t"."CustomerID"
     WHERE "c"."CustomerID" LIKE 'F%'
-)
+) AS "t0"
+WHERE "o"."OrderID" = "t0"."OrderID"
 """);
     }
 

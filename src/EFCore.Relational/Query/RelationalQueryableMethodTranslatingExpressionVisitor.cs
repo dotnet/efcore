@@ -1490,8 +1490,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         // The provider doesn't natively support the update.
-        // As a fallback, we place the original query in a Contains subquery, which will get translated via the regular entity equality/
-        // containment mechanism (InExpression for non-composite keys, Any for composite keys)
+        // As a fallback, we place the original query in a subquery and user an INNER JOIN on the primary key columns.
+        // Unlike with ExecuteDelete, we cannot use a Contains subquery (which would produce the simpler WHERE Id IN (SELECT ...) syntax),
+        // since we allow projecting out to arbitrary shapes (e.g. anonymous types) before the ExecuteUpdate.
         var pk = entityType.FindPrimaryKey();
         if (pk == null)
         {
@@ -1502,20 +1503,51 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
-        var clrType = entityType.ClrType;
-        var entityParameter = Expression.Parameter(clrType);
-        var predicateBody = Expression.Call(QueryableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
+        var outer = (ShapedQueryExpression)Visit(new EntityQueryRootExpression(entityType));
+        var inner = source;
+        var outerParameter = Expression.Parameter(entityType.ClrType);
+        var outerKeySelector = Expression.Lambda(outerParameter.CreateKeyValuesExpression(pk.Properties), outerParameter);
+        var firstPropertyLambdaExpression = propertyValueLambdaExpressions[0].Item1;
+        var entitySource = GetEntitySource(RelationalDependencies.Model, firstPropertyLambdaExpression.Body);
+        var innerKeySelector = Expression.Lambda(
+            entitySource.CreateKeyValuesExpression(pk.Properties), firstPropertyLambdaExpression.Parameters);
 
-        var newSource = (ShapedQueryExpression)Visit(
-            Expression.Call(
-                QueryableMethods.Where.MakeGenericMethod(clrType),
-                new EntityQueryRootExpression(entityType),
-                Expression.Quote(Expression.Lambda(predicateBody, entityParameter))));
+        var joinPredicate = CreateJoinPredicate(outer, outerKeySelector, inner, innerKeySelector);
 
-        selectExpression = (SelectExpression)newSource.QueryExpression;
-        tableExpression = (TableExpression)selectExpression.Tables[0];
+        Check.DebugAssert(joinPredicate != null, "Join predicate shouldn't be null");
 
-        return TranslateSetPropertyExpressions(this, newSource, selectExpression, tableExpression, propertyValueLambdaExpressions, null);
+        var outerSelectExpression = (SelectExpression)outer.QueryExpression;
+        var outerShaperExpression = outerSelectExpression.AddInnerJoin(inner, joinPredicate, outer.ShaperExpression);
+        outer = outer.UpdateShaperExpression(outerShaperExpression);
+        var transparentIdentifierType = outer.ShaperExpression.Type;
+        var transparentIdentifierParameter = Expression.Parameter(transparentIdentifierType);
+
+        var propertyReplacement = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Outer");
+        var valueReplacement = AccessField(transparentIdentifierType, transparentIdentifierParameter, "Inner");
+        for (var i = 0; i < propertyValueLambdaExpressions.Count; i++)
+        {
+            var (propertyExpression, valueExpression) = propertyValueLambdaExpressions[i];
+            propertyExpression = Expression.Lambda(
+                ReplacingExpressionVisitor.Replace(
+                    ReplacingExpressionVisitor.Replace(
+                        firstPropertyLambdaExpression.Parameters[0],
+                        propertyExpression.Parameters[0],
+                        entitySource),
+                    propertyReplacement, propertyExpression.Body),
+                transparentIdentifierParameter);
+
+            valueExpression = valueExpression is LambdaExpression lambdaExpression
+                ? Expression.Lambda(
+                    ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], valueReplacement, lambdaExpression.Body),
+                    transparentIdentifierParameter)
+                : valueExpression;
+
+            propertyValueLambdaExpressions[i] = (propertyExpression, valueExpression);
+        }
+
+        tableExpression = (TableExpression)outerSelectExpression.Tables[0];
+
+        return TranslateSetPropertyExpressions(this, outer, outerSelectExpression, tableExpression, propertyValueLambdaExpressions, null);
 
         static NonQueryExpression? TranslateSetPropertyExpressions(
             RelationalQueryableMethodTranslatingExpressionVisitor visitor,
@@ -1658,6 +1690,25 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             entityShaperExpression = null;
             return false;
+        }
+
+        static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
+        {
+            propertyAccessExpression = propertyAccessExpression.UnwrapTypeConversion(out _);
+            if (propertyAccessExpression is MethodCallExpression mce)
+            {
+                if (mce.TryGetEFPropertyArguments(out var source, out _))
+                {
+                    return source;
+                }
+
+                if (mce.TryGetIndexerArguments(model, out var source2, out _))
+                {
+                    return source2;
+                }
+            }
+
+            return ((MemberExpression)propertyAccessExpression).Expression!;
         }
     }
 
