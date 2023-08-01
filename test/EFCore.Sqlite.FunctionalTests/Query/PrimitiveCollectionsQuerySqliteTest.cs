@@ -646,6 +646,23 @@ WHERE json_array_length("p"."Ints") > 0
 """);
     }
 
+    public override async Task Column_collection_Distinct(bool async)
+    {
+        await base.Column_collection_Distinct(async);
+
+        AssertSql(
+"""
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT "i"."value"
+        FROM json_each("p"."Ints") AS "i"
+    ) AS "t") = 3
+""");
+    }
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);
@@ -1020,6 +1037,19 @@ ORDER BY "p"."Id"
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_multiple_collections(async))).Message);
+
+    public override async Task Project_primitive_collections_element(bool async)
+    {
+        await base.Project_primitive_collections_element(async);
+
+        AssertSql(
+"""
+SELECT "p"."Ints" ->> 0 AS "Indexer", rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "p"."DateTimes" ->> 0), '0'), '.') AS "EnumerableElementAt", "p"."Strings" ->> 1 AS "QueryableElementAt"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" < 4
+ORDER BY "p"."Id"
+""");
+    }
 
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => Assert.Equal(

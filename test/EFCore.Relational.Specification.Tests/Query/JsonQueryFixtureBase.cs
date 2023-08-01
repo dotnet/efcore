@@ -63,12 +63,15 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                     Assert.Equal(ee.Id, aa.Id);
                     Assert.Equal(ee.Name, aa.Name);
 
-                    AssertOwnedRoot(ee.OwnedReferenceRoot, aa.OwnedReferenceRoot);
-
-                    Assert.Equal(ee.OwnedCollectionRoot.Count, aa.OwnedCollectionRoot.Count);
-                    for (var i = 0; i < ee.OwnedCollectionRoot.Count; i++)
+                    if (ee.OwnedReferenceRoot is not null || aa.OwnedReferenceRoot is not null)
                     {
-                        AssertOwnedRoot(ee.OwnedCollectionRoot[i], aa.OwnedCollectionRoot[i]);
+                        AssertOwnedRoot(ee.OwnedReferenceRoot, aa.OwnedReferenceRoot);
+
+                        Assert.Equal(ee.OwnedCollectionRoot.Count, aa.OwnedCollectionRoot.Count);
+                        for (var i = 0; i < ee.OwnedCollectionRoot.Count; i++)
+                        {
+                            AssertOwnedRoot(ee.OwnedCollectionRoot[i], aa.OwnedCollectionRoot[i]);
+                        }
                     }
                 }
             }
@@ -320,7 +323,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
-    private static void AssertOwnedRoot(JsonOwnedRoot expected, JsonOwnedRoot actual)
+    public static void AssertOwnedRoot(JsonOwnedRoot expected, JsonOwnedRoot actual)
     {
         Assert.Equal(expected.Name, actual.Name);
         Assert.Equal(expected.Number, actual.Number);
@@ -335,7 +338,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         }
     }
 
-    private static void AssertOwnedBranch(JsonOwnedBranch expected, JsonOwnedBranch actual)
+    public static void AssertOwnedBranch(JsonOwnedBranch expected, JsonOwnedBranch actual)
     {
         Assert.Equal(expected.Date, actual.Date);
         Assert.Equal(expected.Fraction, actual.Fraction);
@@ -352,7 +355,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         }
     }
 
-    private static void AssertOwnedLeaf(JsonOwnedLeaf expected, JsonOwnedLeaf actual)
+    public static void AssertOwnedLeaf(JsonOwnedLeaf expected, JsonOwnedLeaf actual)
         => Assert.Equal(expected.SomethingSomething, actual.SomethingSomething);
 
     public static void AssertCustomNameRoot(JsonOwnedCustomNameRoot expected, JsonOwnedCustomNameRoot actual)

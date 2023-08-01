@@ -1036,6 +1036,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// <summary>
         ///     Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.
         /// </summary>
+        public static string JsonEntityMissingKeyInformation(object? jsonEntity)
+            => string.Format(
+                GetString("JsonEntityMissingKeyInformation", nameof(jsonEntity)),
+                jsonEntity);
+
+        /// <summary>
+        ///     Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.
+        /// </summary>
         public static string JsonEntityMultipleRootsMappedToTheSameJsonColumn(object? column, object? table)
             => string.Format(
                 GetString("JsonEntityMultipleRootsMappedToTheSameJsonColumn", nameof(column), nameof(table)),
@@ -1154,6 +1162,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("JsonReaderInvalidTokenType", nameof(tokenType)),
                 tokenType);
+
+        /// <summary>
+        ///     Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.
+        /// </summary>
+        public static string JsonQueryLinqOperatorsNotSupported
+            => GetString("JsonQueryLinqOperatorsNotSupported");
 
         /// <summary>
         ///     Entity {entity} is required but the JSON element containing it is null.
@@ -1502,6 +1516,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string RelationalNotInUse
             => GetString("RelationalNotInUse");
+
+        /// <summary>
+        ///     SelectExpression can only be built over a JsonQueryExpression that represents a collection within the JSON document.
+        /// </summary>
+        public static string SelectCanOnlyBeBuiltOnCollectionJsonQuery
+            => GetString("SelectCanOnlyBeBuiltOnCollectionJsonQuery");
 
         /// <summary>
         ///     Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.

@@ -396,6 +396,9 @@ WHERE (
     public override Task Column_collection_Any(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any(async));
 
+    public override Task Column_collection_Distinct(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_Distinct(async));
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);
@@ -566,6 +569,19 @@ ORDER BY [p].[Id]
     public override Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         // we don't propagate error details from projection
         => AssertTranslationFailed(() => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async));
+
+    public override async Task Project_primitive_collections_element(bool async)
+    {
+        await base.Project_primitive_collections_element(async);
+
+        AssertSql(
+"""
+SELECT [p].[Ints], [p].[DateTimes], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] < 4
+ORDER BY [p].[Id]
+""");
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

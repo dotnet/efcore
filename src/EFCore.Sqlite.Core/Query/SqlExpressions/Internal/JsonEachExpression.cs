@@ -3,15 +3,14 @@
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
 /// <summary>
-///     An expression that represents a SQL Server OPENJSON function call in a SQL tree.
+///     An expression that represents a SQLite json_each function call in a SQL tree.
 /// </summary>
 /// <remarks>
 ///     <para>
-///         See <see href="https://learn.microsoft.com/sql/t-sql/functions/openjson-transact-sql">OPENJSON (Transact-SQL)</see> for more
-///         information and examples.
+///         See <see href="https://www.sqlite.org/json1.html#jeach">json_each</see> for more information and examples.
 ///     </para>
 ///     <para>
 ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
-public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClonableTableExpressionBase
+public class JsonEachExpression : TableValuedFunctionExpression, IClonableTableExpressionBase
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,24 +44,13 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IReadOnlyList<ColumnInfo>? ColumnInfos { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-
-    public SqlServerOpenJsonExpression(
+    public JsonEachExpression(
         string alias,
         SqlExpression jsonExpression,
-        IReadOnlyList<PathSegment>? path = null,
-        IReadOnlyList<ColumnInfo>? columnInfos = null)
-        : base(alias, "OPENJSON", schema: null, builtIn: true, new[] { jsonExpression })
+        IReadOnlyList<PathSegment>? path = null)
+        : base(alias, "json_each", schema: null, builtIn: true, new[] { jsonExpression })
     {
         Path = path;
-        ColumnInfos = columnInfos;
     }
 
     /// <summary>
@@ -118,7 +106,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
             }
         }
 
-        return Update(visitedJsonExpression, visitedPath ?? Path, ColumnInfos);
+        return Update(visitedJsonExpression, visitedPath ?? Path);
     }
 
     /// <summary>
@@ -127,16 +115,13 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SqlServerOpenJsonExpression Update(
+    public virtual JsonEachExpression Update(
         SqlExpression jsonExpression,
-        IReadOnlyList<PathSegment>? path,
-        IReadOnlyList<ColumnInfo>? columnInfos = null)
+        IReadOnlyList<PathSegment>? path)
         => jsonExpression == JsonExpression
-        && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
-        && (ReferenceEquals(columnInfos, ColumnInfos) || columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))
-            ? this
-            : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
-
+            && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
+                ? this
+                : new JsonEachExpression(Alias, jsonExpression, path);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -147,7 +132,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
     // TODO: Deep clone, see #30982
     public virtual TableExpressionBase Clone()
     {
-        var clone = new SqlServerOpenJsonExpression(Alias, JsonExpression, Path, ColumnInfos);
+        var clone = new JsonEachExpression(Alias, JsonExpression, Path);
 
         foreach (var annotation in GetAnnotations())
         {
@@ -179,41 +164,6 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
 
         expressionPrinter.Append(")");
 
-        if (ColumnInfos is not null)
-        {
-            expressionPrinter.Append(" WITH (");
-
-            for (var i = 0; i < ColumnInfos.Count; i++)
-            {
-                var columnInfo = ColumnInfos[i];
-
-                if (i > 0)
-                {
-                    expressionPrinter.Append(", ");
-                }
-
-                expressionPrinter
-                    .Append(columnInfo.Name)
-                    .Append(" ")
-                    .Append(columnInfo.TypeMapping.StoreType);
-
-                if (columnInfo.Path is not null)
-                {
-                    expressionPrinter
-                        .Append(" '")
-                        .Append(string.Join(".", columnInfo.Path.Select(e => e.ToString())))
-                        .Append("'");
-                }
-
-                if (columnInfo.AsJson)
-                {
-                    expressionPrinter.Append(" AS JSON");
-                }
-            }
-
-            expressionPrinter.Append(")");
-        }
-
         PrintAnnotations(expressionPrinter);
 
         expressionPrinter.Append(" AS ");
@@ -222,51 +172,14 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
-        => ReferenceEquals(this, obj) || (obj is SqlServerOpenJsonExpression openJsonExpression && Equals(openJsonExpression));
+        => ReferenceEquals(this, obj) || (obj is JsonEachExpression jsonEachExpression && Equals(jsonEachExpression));
 
-    private bool Equals(SqlServerOpenJsonExpression other)
-    {
-        if (!base.Equals(other) || ColumnInfos?.Count != other.ColumnInfos?.Count)
-        {
-            return false;
-        }
-
-        if (ReferenceEquals(ColumnInfos, other.ColumnInfos))
-        {
-            return true;
-        }
-
-        for (var i = 0; i < ColumnInfos!.Count; i++)
-        {
-            var (columnInfo, otherColumnInfo) = (ColumnInfos[i], other.ColumnInfos![i]);
-
-            if (columnInfo.Name != otherColumnInfo.Name
-                || !columnInfo.TypeMapping.Equals(otherColumnInfo.TypeMapping)
-                || (columnInfo.Path is null != otherColumnInfo.Path is null
-                    || (columnInfo.Path is not null
-                        && otherColumnInfo.Path is not null
-                        && columnInfo.Path.SequenceEqual(otherColumnInfo.Path))))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    private bool Equals(JsonEachExpression other)
+        => base.Equals(other)
+            && (ReferenceEquals(Path, other.Path)
+                || (Path is not null && other.Path is not null && Path.SequenceEqual(other.Path)));
 
     /// <inheritdoc />
     public override int GetHashCode()
         => base.GetHashCode();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public readonly record struct ColumnInfo(
-        string Name,
-        RelationalTypeMapping TypeMapping,
-        IReadOnlyList<PathSegment>? Path = null,
-        bool AsJson = false);
 }

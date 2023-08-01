@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -223,6 +224,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString())
                     ?? base.VisitExtension(extensionExpression);
 
+            case JsonQueryExpression jsonQueryExpression:
+                return TransformJsonQueryToTable(jsonQueryExpression) ?? base.VisitExtension(extensionExpression);
+
             default:
                 return base.VisitExtension(extensionExpression);
         }
@@ -325,6 +329,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         RelationalTypeMapping? elementTypeMapping,
         string tableAlias)
         => null;
+
+    /// <summary>
+    ///     Invoked when LINQ operators are composed over a collection within a JSON document.
+    ///     Transforms the provided <see cref="JsonQueryExpression" /> - representing access to the collection - into a provider-specific
+    ///     means to expand the JSON array into a relational table/rowset (e.g. SQL Server OPENJSON).
+    /// </summary>
+    /// <param name="jsonQueryExpression">The <see cref="JsonQueryExpression" /> referencing the JSON array.</param>
+    /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
+    protected virtual ShapedQueryExpression? TransformJsonQueryToTable(JsonQueryExpression jsonQueryExpression)
+    {
+        AddTranslationErrorDetails(RelationalStrings.JsonQueryLinqOperatorsNotSupported);
+        return null;
+    }
 
     /// <summary>
     ///     Translates an inline collection into a queryable SQL VALUES expression.
@@ -606,9 +623,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.Orderings.Count > 0
-            && selectExpression.Limit == null
-            && selectExpression.Offset == null)
+
+        if (selectExpression is { Orderings.Count: > 0, Limit: null, Offset: null }
+            && !IsNaturallyOrdered(selectExpression))
         {
             _queryCompilationContext.Logger.DistinctAfterOrderByWithoutRowLimitingOperatorWarning();
         }
@@ -1862,6 +1879,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     protected virtual bool IsOrdered(SelectExpression selectExpression)
         => selectExpression.Orderings.Count > 0;
 
+    /// <summary>
+    ///     Determines whether the given <see cref="SelectExpression" /> is naturally ordered, meaning that any ordering has been added
+    ///     automatically by EF to preserve e.g. the natural ordering of a JSON array, and not because the original LINQ query contained
+    ///     an explicit ordering.
+    /// </summary>
+    /// <param name="selectExpression">The <see cref="SelectExpression" /> to check for ordering.</param>
+    /// <returns>Whether <paramref name="selectExpression"/> is ordered.</returns>
+    protected virtual bool IsNaturallyOrdered(SelectExpression selectExpression)
+        => false;
+
     private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
     {
         var lambdaBody = ReplacingExpressionVisitor.Replace(
@@ -1923,11 +1950,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 source = Visit(source);
 
                 return TryExpand(source, MemberIdentity.Create(navigationName))
+                    ?? TryBindPrimitiveCollection(source, navigationName)
                     ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
             }
 
-            // TODO: issue #28688
-            // when implementing collection of primitives, make sure EAOD is translated correctly for them
             if (methodCallExpression.Method.IsGenericMethod
                 && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
                     || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
@@ -2249,6 +2275,42 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 return table;
             }
+        }
+
+        private Expression? TryBindPrimitiveCollection(Expression? source, string memberName)
+        {
+            while (source is IncludeExpression includeExpression)
+            {
+                source = includeExpression.EntityExpression;
+            }
+
+            source = source.UnwrapTypeConversion(out var convertedType);
+            if (source is not EntityShaperExpression entityShaperExpression)
+            {
+                return null;
+            }
+
+            var entityType = entityShaperExpression.EntityType;
+            if (convertedType != null)
+            {
+                entityType = entityType.GetRootType().GetDerivedTypesInclusive()
+                    .FirstOrDefault(et => et.ClrType == convertedType);
+
+                if (entityType == null)
+                {
+                    return null;
+                }
+            }
+
+            // TODO: Check that the property is a primitive collection property directly once we have that in metadata, rather than
+            // looking at the type mapping.
+            var property = entityType.FindProperty(memberName);
+            if (property?.GetRelationalTypeMapping().ElementTypeMapping is null)
+            {
+                return null;
+            }
+
+            return source.CreateEFPropertyExpression(property);
         }
 
         private sealed class AnnotationApplyingExpressionVisitor : ExpressionVisitor
