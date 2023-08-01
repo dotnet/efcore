@@ -1040,7 +1040,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             || source.DefaultValueSql != target.DefaultValueSql
             || source.ComputedColumnSql != target.ComputedColumnSql
             || source.IsStored != target.IsStored
-            || !Equals(sourceDefault, targetDefault)
+            || sourceDefault?.GetType() != targetDefault?.GetType()
+            || (sourceDefault != DBNull.Value && !target.ProviderValueComparer.Equals(sourceDefault, targetDefault))
             || source.Comment != target.Comment
             || source.Collation != target.Collation
             || source.Order != target.Order

@@ -2960,6 +2960,27 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             });
 
     [ConditionalFact]
+    public void No_alter_column_default_when_references_not_equal()
+        => Execute(
+            source => source.Entity(
+                "Snake",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<byte[]>("Bytes")
+                        .HasDefaultValue(new byte[] { 0 });
+                }),
+            target => target.Entity(
+                "Snake",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.Property<byte[]>("Bytes")
+                        .HasDefaultValue(new byte[] { 0 });
+                }),
+            Assert.Empty);
+
+    [ConditionalFact]
     public void Alter_column_default_expression()
         => Execute(
             source => source.Entity(
