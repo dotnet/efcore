@@ -467,31 +467,21 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override bool IsValidSelectExpressionForExecuteUpdate(
         SelectExpression selectExpression,
-        EntityShaperExpression entityShaperExpression,
+        TableExpressionBase table,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
-        if (selectExpression.Offset == null
-            // If entity type has primary key then Distinct is no-op
-            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0)
+        if (selectExpression is
+            {
+                Offset: null,
+                IsDistinct: false,
+                GroupBy: [],
+                Having: null,
+                Orderings: []
+            })
         {
-            TableExpressionBase table;
-            if (selectExpression.Tables.Count == 1)
+            if (selectExpression.Tables.Count > 1 && table is JoinExpressionBase joinExpressionBase)
             {
-                table = selectExpression.Tables[0];
-            }
-            else
-            {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
-                var column = entityProjectionExpression.BindProperty(entityShaperExpression.EntityType.GetProperties().First());
-                table = column.Table;
-                if (table is JoinExpressionBase joinExpressionBase)
-                {
-                    table = joinExpressionBase.Table;
-                }
+                table = joinExpressionBase.Table;
             }
 
             if (table is TableExpression te)

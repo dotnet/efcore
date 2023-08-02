@@ -65,6 +65,40 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
+    {
+        await base.Update_owned_and_non_owned_properties_with_table_sharing(async);
+
+        AssertSql(
+"""
+UPDATE [o]
+SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
+    [o].[Title] = CONVERT(varchar(11), [o].[OwnedReference_Number])
+FROM [Owner] AS [o]
+""");
+    }
+
+    public override async Task Update_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        await base.Update_main_table_in_entity_with_entity_splitting(async);
+
+        AssertSql(
+"""
+UPDATE [b]
+SET [b].[CreationTimestamp] = '2020-01-01T00:00:00.0000000'
+FROM [Blogs] AS [b]
+""");
+    }
+
+    public override async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        // #28643
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => base.Update_non_main_table_in_entity_with_entity_splitting(async));
+
+        AssertSql();
+    }
+
     public override async Task Delete_entity_with_auto_include(bool async)
     {
         await base.Delete_entity_with_auto_include(async);

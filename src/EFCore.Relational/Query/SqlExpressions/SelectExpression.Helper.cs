@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -478,96 +479,6 @@ public sealed partial class SelectExpression
         /// <inheritdoc />
         public override int GetHashCode()
             => 0;
-    }
-
-    private sealed class TpcTablesExpression : TableExpressionBase
-    {
-        public TpcTablesExpression(
-            string? alias,
-            IEntityType entityType,
-            IReadOnlyList<SelectExpression> subSelectExpressions)
-            : base(alias)
-        {
-            EntityType = entityType;
-            SelectExpressions = subSelectExpressions;
-        }
-
-        private TpcTablesExpression(
-            string? alias,
-            IEntityType entityType,
-            IReadOnlyList<SelectExpression> subSelectExpressions,
-            IEnumerable<IAnnotation>? annotations)
-            : base(alias, annotations)
-        {
-            EntityType = entityType;
-            SelectExpressions = subSelectExpressions;
-        }
-
-        [NotNull]
-        public override string? Alias
-        {
-            get => base.Alias!;
-            internal set => base.Alias = value;
-        }
-
-        public IEntityType EntityType { get; }
-
-        public IReadOnlyList<SelectExpression> SelectExpressions { get; }
-
-        public TpcTablesExpression Prune(IReadOnlyList<string> discriminatorValues)
-        {
-            var subSelectExpressions = discriminatorValues.Count == 0
-                ? new List<SelectExpression> { SelectExpressions[0] }
-                : SelectExpressions.Where(
-                    se =>
-                        discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();
-
-            Check.DebugAssert(subSelectExpressions.Count > 0, "TPC must have at least 1 table selected.");
-
-            return new TpcTablesExpression(Alias, EntityType, subSelectExpressions, GetAnnotations());
-        }
-
-        // This is implementation detail hence visitors are not supposed to see inside unless they really need to.
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => this;
-
-        protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-            => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
-
-        protected override void Print(ExpressionPrinter expressionPrinter)
-        {
-            expressionPrinter.AppendLine("(");
-            using (expressionPrinter.Indent())
-            {
-                expressionPrinter.VisitCollection(SelectExpressions, e => e.AppendLine().AppendLine("UNION ALL"));
-            }
-
-            expressionPrinter.AppendLine()
-                .AppendLine(") AS " + Alias);
-            PrintAnnotations(expressionPrinter);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is TpcTablesExpression tpcTablesExpression
-                    && Equals(tpcTablesExpression));
-
-        private bool Equals(TpcTablesExpression tpcTablesExpression)
-        {
-            if (!base.Equals(tpcTablesExpression)
-                || EntityType != tpcTablesExpression.EntityType)
-            {
-                return false;
-            }
-
-            return SelectExpressions.SequenceEqual(tpcTablesExpression.SelectExpressions);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), EntityType);
     }
 
     private sealed class ConcreteColumnExpression : ColumnExpression

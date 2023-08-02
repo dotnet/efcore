@@ -8,10 +8,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBase<TFixture>
     where TFixture : NorthwindBulkUpdatesFixture<NoopModelCustomizer>, new()
 {
-    protected NorthwindBulkUpdatesTestBase(TFixture fixture)
+    protected NorthwindBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         ClearLog();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalTheory]
@@ -779,24 +780,25 @@ WHERE [OrderID] < 10300"))
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_multiple_entity_throws(bool async)
+    public virtual Task Update_multiple_tables_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.MultipleEntityPropertiesInSetProperty("Order", "Customer"),
+            RelationalStrings.MultipleTablesInExecuteUpdate("c => c.Customer.ContactName", "c => c.e.OrderDate"),
             () => AssertUpdate(
                 async,
-                ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F"))
+                ss => ss.Set<Order>()
+                    .Where(o => o.CustomerID.StartsWith("F"))
                     .Select(e => new { e, e.Customer }),
                 e => e.Customer,
-                s => s.SetProperty(c => c.Customer.ContactName, "Name").SetProperty(c => c.e.OrderDate, new DateTime(2020, 1, 1)),
+                s => s
+                    .SetProperty(c => c.Customer.ContactName, "Name")
+                    .SetProperty(c => c.e.OrderDate, new DateTime(2020, 1, 1)),
                 rowsAffectedCount: 0));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_unmapped_property_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.UnableToTranslateSetProperty(
-                "c => c.IsLondon", "True",
-                CoreStrings.QueryUnableToTranslateMember("IsLondon", "Customer")),
+            RelationalStrings.InvalidPropertyInSetProperty("c => c.IsLondon"),
             () => AssertUpdate(
                 async,
                 ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")),

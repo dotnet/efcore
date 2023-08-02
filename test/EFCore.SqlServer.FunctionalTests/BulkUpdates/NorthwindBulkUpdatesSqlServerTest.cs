@@ -8,10 +8,8 @@ public class NorthwindBulkUpdatesSqlServerTest : NorthwindBulkUpdatesTestBase<No
     public NorthwindBulkUpdatesSqlServerTest(
         NorthwindBulkUpdatesSqlServerFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -971,7 +969,11 @@ WHERE [c].[CustomerID] IN (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] LIKE N'F%'
+INNER JOIN (
+    SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[CustomerID] LIKE N'F%'
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1122,9 +1124,9 @@ WHERE [c].[CustomerID] LIKE N'F%'
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_multiple_entity_throws(bool async)
+    public override async Task Update_multiple_tables_throws(bool async)
     {
-        await base.Update_multiple_entity_throws(async);
+        await base.Update_multiple_tables_throws(async);
 
         AssertExecuteUpdateSql();
     }

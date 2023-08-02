@@ -6,9 +6,11 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 public abstract class TPCInheritanceBulkUpdatesTestBase<TFixture> : InheritanceBulkUpdatesTestBase<TFixture>
     where TFixture : TPCInheritanceBulkUpdatesFixture, new()
 {
-    protected TPCInheritanceBulkUpdatesTestBase(TFixture fixture)
+    protected TPCInheritanceBulkUpdatesTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
+        ClearLog();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     // Keyless entities are mapped as TPH only
@@ -34,8 +36,13 @@ public abstract class TPCInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
     public override Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
         => Task.CompletedTask;
 
-    public override Task Update_where_hierarchy(bool async)
+    public override Task Update_base_type(bool async)
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnTPC("ExecuteUpdate", "Animal"),
-            () => base.Update_where_hierarchy(async));
+            () => base.Update_base_type(async));
+
+    public override Task Update_base_type_with_OfType(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPC("ExecuteUpdate", "Animal"),
+            () => base.Update_base_type_with_OfType(async));
 }

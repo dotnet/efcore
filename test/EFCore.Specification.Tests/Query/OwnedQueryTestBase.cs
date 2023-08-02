@@ -1876,27 +1876,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         public object this[string name]
         {
-            get
-            {
-                if (string.Equals(name, "Name", StringComparison.Ordinal))
-                {
-                    return _name;
-                }
+            get => string.Equals(name, "Name", StringComparison.Ordinal)
+                ? _name
+                : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
 
-                throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
-            }
-
-            set
-            {
-                if (string.Equals(name, "Name", StringComparison.Ordinal))
-                {
-                    _name = (string)value;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
-                }
-            }
+            set => _name = string.Equals(name, "Name", StringComparison.Ordinal)
+                ? (string)value
+                : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
         }
 
         public OwnedAddress PersonAddress { get; set; }
@@ -1914,27 +1900,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         public object this[string name]
         {
-            get
-            {
-                if (string.Equals(name, "OrderDate", StringComparison.Ordinal))
-                {
-                    return _orderDate;
-                }
+            get => string.Equals(name, "OrderDate", StringComparison.Ordinal)
+                ? _orderDate
+                : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
 
-                throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
-            }
-
-            set
-            {
-                if (string.Equals(name, "OrderDate", StringComparison.Ordinal))
-                {
-                    _orderDate = (DateTime)value;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
-                }
-            }
+            set => _orderDate = string.Equals(name, "OrderDate", StringComparison.Ordinal)
+                ? (DateTime)value
+                : throw new InvalidOperationException($"Indexer property with key {name} is not defined on {nameof(OwnedPerson)}.");
         }
 
         public OwnedPerson Client { get; set; }
