@@ -918,4 +918,34 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     x.Reference.TestNullableEnumWithIntConverter,
                     x.Reference.TestNullableEnumWithConverterThatHandlesNulls,
                 }));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_boolean_predicate(bool async)
+          => AssertQuery(
+              async,
+              ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestBoolean),
+              entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_boolean_predicate_negated(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference.TestBoolean),
+            entryCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_boolean_projection(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference.TestBoolean));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_boolean_projection_negated(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => !x.Reference.TestBoolean));
 }
