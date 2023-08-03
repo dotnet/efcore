@@ -236,15 +236,16 @@ WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
     INNER JOIN "Orders" AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
-    WHERE EXISTS (
-        SELECT 1
-        FROM "Orders" AS "o2"
-        GROUP BY "o2"."CustomerID"
-        HAVING COUNT(*) > 9 AND (
+    WHERE "o1"."OrderID" IN (
+        SELECT (
             SELECT "o3"."OrderID"
             FROM "Orders" AS "o3"
             WHERE "o2"."CustomerID" = "o3"."CustomerID" OR ("o2"."CustomerID" IS NULL AND "o3"."CustomerID" IS NULL)
-            LIMIT 1) = "o1"."OrderID") AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
+            LIMIT 1)
+        FROM "Orders" AS "o2"
+        GROUP BY "o2"."CustomerID"
+        HAVING COUNT(*) > 9
+    ) AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
     }
 
@@ -923,16 +924,17 @@ WHERE "c"."CustomerID" = (
 """
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
-WHERE EXISTS (
-    SELECT 1
-    FROM "Orders" AS "o"
-    GROUP BY "o"."CustomerID"
-    HAVING COUNT(*) > 11 AND (
+WHERE "c"."CustomerID" IN (
+    SELECT (
         SELECT "c0"."CustomerID"
         FROM "Orders" AS "o0"
         LEFT JOIN "Customers" AS "c0" ON "o0"."CustomerID" = "c0"."CustomerID"
         WHERE "o"."CustomerID" = "o0"."CustomerID" OR ("o"."CustomerID" IS NULL AND "o0"."CustomerID" IS NULL)
-        LIMIT 1) = "c"."CustomerID")
+        LIMIT 1)
+    FROM "Orders" AS "o"
+    GROUP BY "o"."CustomerID"
+    HAVING COUNT(*) > 11
+)
 """);
     }
 
@@ -1261,19 +1263,21 @@ WHERE "c"."CustomerID" LIKE 'F%'
         await base.Update_with_cross_join_left_join_set_constant(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE ""Customers"" AS ""c""
-SET ""ContactName"" = 'Updated'
+"""
+UPDATE "Customers" AS "c"
+SET "ContactName" = 'Updated'
 FROM (
-    SELECT ""c0"".""CustomerID"", ""c0"".""Address"", ""c0"".""City"", ""c0"".""CompanyName"", ""c0"".""ContactName"", ""c0"".""ContactTitle"", ""c0"".""Country"", ""c0"".""Fax"", ""c0"".""Phone"", ""c0"".""PostalCode"", ""c0"".""Region""
-    FROM ""Customers"" AS ""c0""
-    WHERE ""c0"".""City"" IS NOT NULL AND (""c0"".""City"" LIKE 'S%')
-) AS ""t""
+    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    FROM "Customers" AS "c0"
+    WHERE "c0"."City" IS NOT NULL AND ("c0"."City" LIKE 'S%')
+) AS "t"
 LEFT JOIN (
-    SELECT ""o"".""OrderID"", ""o"".""CustomerID"", ""o"".""EmployeeID"", ""o"".""OrderDate""
-    FROM ""Orders"" AS ""o""
-    WHERE ""o"".""OrderID"" < 10300
-) AS ""t0"" ON ""c"".""CustomerID"" = ""t0"".""CustomerID""
-WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+    FROM "Orders" AS "o"
+    WHERE "o"."OrderID" < 10300
+) AS "t0" ON "c"."CustomerID" = "t0"."CustomerID"
+WHERE "c"."CustomerID" LIKE 'F%'
+""");
     }
 
     public override async Task Update_with_cross_join_cross_apply_set_constant(bool async)

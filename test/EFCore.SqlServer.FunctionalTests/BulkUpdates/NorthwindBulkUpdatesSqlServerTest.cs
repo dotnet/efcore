@@ -235,14 +235,15 @@ WHERE [o].[OrderID] < (
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o1]
-    GROUP BY [o1].[CustomerID]
-    HAVING COUNT(*) > 9 AND (
+WHERE [o0].[OrderID] IN (
+    SELECT (
         SELECT TOP(1) [o2].[OrderID]
         FROM [Orders] AS [o2]
-        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL)) = [o0].[OrderID])
+        WHERE [o1].[CustomerID] = [o2].[CustomerID] OR ([o1].[CustomerID] IS NULL AND [o2].[CustomerID] IS NULL))
+    FROM [Orders] AS [o1]
+    GROUP BY [o1].[CustomerID]
+    HAVING COUNT(*) > 9
+)
 """);
     }
 
@@ -948,15 +949,16 @@ WHERE [c].[CustomerID] = (
 UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
-    FROM [Orders] AS [o]
-    GROUP BY [o].[CustomerID]
-    HAVING COUNT(*) > 11 AND (
+WHERE [c].[CustomerID] IN (
+    SELECT (
         SELECT TOP(1) [c0].[CustomerID]
         FROM [Orders] AS [o0]
         LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL)) = [c].[CustomerID])
+        WHERE [o].[CustomerID] = [o0].[CustomerID] OR ([o].[CustomerID] IS NULL AND [o0].[CustomerID] IS NULL))
+    FROM [Orders] AS [o]
+    GROUP BY [o].[CustomerID]
+    HAVING COUNT(*) > 11
+)
 """);
     }
 

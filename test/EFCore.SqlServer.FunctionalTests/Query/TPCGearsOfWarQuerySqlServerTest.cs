@@ -9476,10 +9476,11 @@ FROM (
         FROM [Officers] AS [o]
     ) AS [t]
     INNER JOIN [Squads] AS [s] ON [t].[SquadId] = [s].[Id]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [s].[Id] IN (
+        SELECT [s0].[Id]
         FROM [Squads] AS [s0]
-        WHERE [s0].[Id] = @__squadId_0 AND [s0].[Id] = [s].[Id])
+        WHERE [s0].[Id] = @__squadId_0
+    )
     UNION ALL
     SELECT [t1].[Nickname], [t1].[SquadId], [t1].[AssignedCityName], [t1].[CityOfBirthName], [t1].[FullName], [t1].[HasSoulPatch], [t1].[LeaderNickname], [t1].[LeaderSquadId], [t1].[Rank], [t1].[Discriminator]
     FROM (
@@ -9490,10 +9491,11 @@ FROM (
         FROM [Officers] AS [o0]
     ) AS [t1]
     INNER JOIN [Squads] AS [s1] ON [t1].[SquadId] = [s1].[Id]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [s1].[Id] IN (
+        SELECT [s2].[Id]
         FROM [Squads] AS [s2]
-        WHERE [s2].[Id] = @__squadId_0 AND [s2].[Id] = [s1].[Id])
+        WHERE [s2].[Id] = @__squadId_0
+    )
 ) AS [t0]
 ORDER BY [t0].[FullName]
 """);

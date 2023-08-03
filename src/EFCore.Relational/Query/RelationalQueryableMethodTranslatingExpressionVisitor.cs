@@ -539,7 +539,23 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             || !TryGetProjection(source, out var projection))
         {
             // If the item can't be translated, we can't translate to an IN expression.
-            // However, attempt to translate as Any since that passes through Where predicate translation, which e.g. does entity equality.
+
+            // We do attempt one thing: if this is a contains over an entity type which has a single key property (non-composite key),
+            // we can project its key property (entity equality/containment) and translate to InExpression over that.
+            if (item is EntityShaperExpression { EntityType: var entityType }
+                && entityType.FindPrimaryKey()?.Properties is [var singleKeyProperty])
+            {
+                var keySelectorParam = Expression.Parameter(source.Type);
+
+                return TranslateContains(
+                    TranslateSelect(
+                        source,
+                        Expression.Lambda(keySelectorParam.CreateEFPropertyExpression(singleKeyProperty), keySelectorParam)),
+                    item.CreateEFPropertyExpression(singleKeyProperty));
+            }
+
+            // Otherwise, attempt to translate as Any since that passes through Where predicate translation. This will e.g. take care of
+            // entity , which e.g. does entity equality/containment for entities with composite keys.
             var anyLambdaParameter = Expression.Parameter(item.Type, "p");
             var anyLambda = Expression.Lambda(
                 Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
@@ -1321,6 +1337,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
+        // First, check if the provider has a native translation for the delete represented by the select expression.
+        // The default relational implementation handles simple, universally-supported cases (i.e. no operators except for predicate).
+        // Providers may override IsValidSelectExpressionForExecuteDelete to add support for more cases via provider-specific DELETE syntax.
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (IsValidSelectExpressionForExecuteDelete(selectExpression, entityShaperExpression, out var tableExpression))
         {
@@ -1357,7 +1376,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        // We need to convert to PK predicate
+        // The provider doesn't natively support the delete.
+        // As a fallback, we place the original query in a Contains subquery, which will get translated via the regular entity equality/
+        // containment mechanism (InExpression for non-composite keys, Any for composite keys)
         var pk = entityType.FindPrimaryKey();
         if (pk == null)
         {
@@ -1370,14 +1391,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var clrType = entityType.ClrType;
         var entityParameter = Expression.Parameter(clrType);
-        var innerParameter = Expression.Parameter(clrType);
-        var predicateBody = Expression.Call(
-            QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
-            source,
-            Expression.Quote(
-                Expression.Lambda(
-                    Infrastructure.ExpressionExtensions.CreateEqualsExpression(innerParameter, entityParameter),
-                    innerParameter)));
+        var predicateBody = Expression.Call(QueryableMethods.Contains.MakeGenericMethod(clrType), source, entityParameter);
 
         var newSource = Expression.Call(
             QueryableMethods.Where.MakeGenericMethod(clrType),
@@ -1481,6 +1495,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
+        // First, check if the provider has a native translation for the update represented by the select expression.
+        // The default relational implementation handles simple, universally-supported cases (i.e. no operators except for predicate).
+        // Providers may override IsValidSelectExpressionForExecuteDelete to add support for more cases via provider-specific UPDATE syntax.
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (IsValidSelectExpressionForExecuteUpdate(selectExpression, entityShaperExpression, out var tableExpression))
         {
@@ -1489,7 +1506,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 propertyValueLambdaExpressions, remappedUnwrappedLeftExpressions);
         }
 
-        // We need to convert to join with original query using PK
+        // The provider doesn't natively support the update.
+        // As a fallback, we place the original query in a subquery and user an INNER JOIN on the primary key columns.
+        // Unlike with ExecuteDelete, we cannot use a Contains subquery (which would produce the simpler WHERE Id IN (SELECT ...) syntax),
+        // since we allow projecting out to arbitrary shapes (e.g. anonymous types) before the ExecuteUpdate.
         var pk = entityType.FindPrimaryKey();
         if (pk == null)
         {

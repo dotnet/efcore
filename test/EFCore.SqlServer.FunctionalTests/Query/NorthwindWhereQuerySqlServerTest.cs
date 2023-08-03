@@ -1940,10 +1940,11 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [o].[OrderID] IN (
+        SELECT [o0].[OrderID]
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] = [o].[OrderID]))
+        WHERE [c].[CustomerID] = [o0].[CustomerID]
+    ))
 """);
     }
 

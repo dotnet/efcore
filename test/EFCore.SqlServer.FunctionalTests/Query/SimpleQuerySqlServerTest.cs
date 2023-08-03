@@ -131,15 +131,16 @@ SELECT cast(null as int) AS MyValue
 @__currentUserId_0='1'
 
 SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN [u].[Id] IN (
+        SELECT [u0].[Id]
         FROM [Memberships] AS [m]
         INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
         WHERE [m].[GroupId] IN (
             SELECT [m0].[GroupId]
             FROM [Memberships] AS [m0]
             WHERE [m0].[UserId] = @__currentUserId_0
-        ) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
+        )
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
 FROM [Users] AS [u]
@@ -155,16 +156,18 @@ FROM [Users] AS [u]
 @__currentUserId_0='1'
 
 SELECT CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN [u].[Id] IN (
+        SELECT [u0].[Id]
         FROM [Memberships] AS [m]
         INNER JOIN [Groups] AS [g] ON [m].[GroupId] = [g].[Id]
         INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE EXISTS (
-            SELECT 1
+        WHERE [g].[Id] IN (
+            SELECT [g0].[Id]
             FROM [Memberships] AS [m0]
             INNER JOIN [Groups] AS [g0] ON [m0].[GroupId] = [g0].[Id]
-            WHERE [m0].[UserId] = @__currentUserId_0 AND [g0].[Id] = [g].[Id]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
+            WHERE [m0].[UserId] = @__currentUserId_0
+        )
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
 FROM [Users] AS [u]
