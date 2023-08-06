@@ -1518,6 +1518,7 @@ Customer (Customer) Required
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer);
 
+            // TODO: Issue #14661
             //modelBuilder
             //    .Entity<ValueComplexProperties>()
             //    .Ignore(e => e.Tuple)
@@ -1602,6 +1603,7 @@ Customer (Customer) Required
                     Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
 
             // Uncomment when value types are supported.
+            // TODO: Issue #14661
             //var model = modelBuilder.FinalizeModel();
 
             //var valueType = model.FindEntityType(typeof(ValueComplexProperties));

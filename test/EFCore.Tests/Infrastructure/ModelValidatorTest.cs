@@ -1491,6 +1491,33 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
             sensitiveDataLoggingEnabled);
     }
 
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual void Detects_complex_properties_in_seeds(bool sensitiveDataLoggingEnabled)
+    {
+        var modelBuilder = CreateConventionModelBuilder(sensitiveDataLoggingEnabled: sensitiveDataLoggingEnabled);
+        modelBuilder.Entity<SampleEntity>(
+            e =>
+            {
+                e.HasData(
+                    new SampleEntity { Id = 1, ReferencedEntity = new ReferencedEntity { Id = 2 } });
+                e.ComplexProperty(s => s.ReferencedEntity).IsRequired();
+            });
+
+        VerifyError(
+            sensitiveDataLoggingEnabled
+                ? CoreStrings.SeedDatumComplexPropertySensitive(
+                    nameof(SampleEntity),
+                    $"{nameof(SampleEntity.Id)}:1",
+                    nameof(SampleEntity.ReferencedEntity))
+                : CoreStrings.SeedDatumComplexProperty(
+                    nameof(SampleEntity),
+                    nameof(SampleEntity.ReferencedEntity)),
+            modelBuilder,
+            sensitiveDataLoggingEnabled);
+    }
+
     [ConditionalFact]
     public virtual void Throws_on_two_properties_sharing_a_field()
     {

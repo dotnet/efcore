@@ -278,9 +278,9 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
         }
 
-        foreach (var complexPropery in type.GetDeclaredComplexProperties())
+        foreach (var complexProperty in type.GetDeclaredComplexProperties())
         {
-            TryUniquifyColumnNames(complexPropery.ComplexType, columns, storeObject, maxLength);
+            TryUniquifyColumnNames(complexProperty.ComplexType, columns, storeObject, maxLength);
         }
     }
 

@@ -1164,6 +1164,28 @@ public class ModelValidator : IModelValidator
                     }
                 }
 
+                foreach (var complexProperty in entityType.GetComplexProperties())
+                {
+                    if (seedDatum.TryGetValue(complexProperty.Name, out var value)
+                        && ((complexProperty.IsCollection && value is IEnumerable collection && collection.Any())
+                            || (!complexProperty.IsCollection && value != complexProperty.Sentinel)))
+                    {
+                        if (sensitiveDataLogged)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.SeedDatumComplexPropertySensitive(
+                                    entityType.DisplayName(),
+                                    string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
+                                    complexProperty.Name));
+                        }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.SeedDatumComplexProperty(
+                                entityType.DisplayName(),
+                                complexProperty.Name));
+                    }
+                }
+
                 if (identityMap == null)
                 {
                     if (!identityMaps.TryGetValue(key, out identityMap))
