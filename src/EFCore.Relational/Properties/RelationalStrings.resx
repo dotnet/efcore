@@ -161,10 +161,10 @@
     <value>The connection is currently enlisted in a transaction. The enlisted transaction needs to be completed before starting a new transaction.</value>
   </data>
   <data name="ConflictingOriginalRowValues" xml:space="preserve">
-    <value>An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+    <value>Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
   </data>
   <data name="ConflictingOriginalRowValuesSensitive" xml:space="preserve">
-    <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values {firstConflictingValues} and {secondConflictingValues} for the column '{column}'.</value>
+    <value>Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values {firstConflictingValues} and {secondConflictingValues} for the column '{column}'.</value>
   </data>
   <data name="ConflictingRowUpdateTypes" xml:space="preserve">
     <value>An instance of entity type '{firstEntityType}' is marked as '{firstState}', but an instance of entity type '{secondEntityType}' is marked as '{secondState}' and both are mapped to the same row. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>
@@ -173,10 +173,10 @@
     <value>The instance of entity type '{firstEntityType}' with the key value '{firstKeyValue}' is marked as '{firstState}', but the instance of entity type '{secondEntityType}' with the key value '{secondKeyValue}' is marked as '{secondState}' and both are mapped to the same row.</value>
   </data>
   <data name="ConflictingRowValues" xml:space="preserve">
-    <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
+    <value>Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
   </data>
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
-    <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
+    <value>Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
   <data name="ConflictingSeedValues" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
@@ -553,11 +553,11 @@
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>
-  <data name="JsonReaderInvalidTokenType" xml:space="preserve">
-    <value>Invalid token type: '{tokenType}'.</value>
-  </data>
   <data name="JsonQueryLinqOperatorsNotSupported" xml:space="preserve">
     <value>Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.</value>
+  </data>
+  <data name="JsonReaderInvalidTokenType" xml:space="preserve">
+    <value>Invalid token type: '{tokenType}'.</value>
   </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is null.</value>
@@ -1008,7 +1008,7 @@
     <value>Unable to translate set operation when matching columns on both sides have different store types.</value>
   </data>
   <data name="SetOperationsRequireAtLeastOneSideWithValidTypeMapping" xml:space="preserve">
-    <value>A set operation 'setOperationType' requires valid type mapping for at least one of its sides.</value>
+    <value>A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.</value>
   </data>
   <data name="SetPropertyMethodInvoked" xml:space="preserve">
     <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>

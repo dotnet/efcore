@@ -11,12 +11,12 @@ public sealed partial class InternalEntityEntry
     {
         private readonly ISnapshot _values;
 
-        public OriginalValues(InternalEntityEntry entry)
+        public OriginalValues(IInternalEntry entry)
         {
-            _values = ((IRuntimeEntityType)entry.EntityType).OriginalValuesFactory(entry);
+            _values = entry.StructuralType.OriginalValuesFactory(entry);
         }
 
-        public object? GetValue(InternalEntityEntry entry, IProperty property)
+        public object? GetValue(IInternalEntry entry, IProperty property)
         {
             var index = property.GetOriginalValueIndex();
             if (index == -1)
@@ -28,7 +28,7 @@ public sealed partial class InternalEntityEntry
             return IsEmpty ? entry[property] : _values[index];
         }
 
-        public T GetValue<T>(InternalEntityEntry entry, IProperty property, int index)
+        public T GetValue<T>(IInternalEntry entry, IProperty property, int index)
         {
             if (index == -1)
             {
@@ -65,14 +65,14 @@ public sealed partial class InternalEntityEntry
             _values[index] = SnapshotValue(property, value);
         }
 
-        public void RejectChanges(InternalEntityEntry entry)
+        public void RejectChanges(IInternalEntry entry)
         {
             if (IsEmpty)
             {
                 return;
             }
 
-            foreach (var property in entry.EntityType.GetProperties())
+            foreach (var property in entry.StructuralType.GetProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)
@@ -82,14 +82,14 @@ public sealed partial class InternalEntityEntry
             }
         }
 
-        public void AcceptChanges(InternalEntityEntry entry)
+        public void AcceptChanges(IInternalEntry entry)
         {
             if (IsEmpty)
             {
                 return;
             }
 
-            foreach (var property in entry.EntityType.GetProperties())
+            foreach (var property in entry.StructuralType.GetProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)

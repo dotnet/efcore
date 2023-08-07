@@ -37,7 +37,7 @@ public class ReaderModificationCommandBatchTest
             });
 
         var entry2 = CreateEntry(EntityState.Modified);
-        var property2 = entry1.EntityType.FindProperty("Name")!;
+        var property2 = entry2.EntityType.FindProperty("Name")!;
         var command2 = CreateModificationCommand(
             "T2",
             null,
@@ -53,8 +53,10 @@ public class ReaderModificationCommandBatchTest
                     false, true, false, false, true)
             });
 
-        var batch = new ModificationCommandBatchFake();
-        batch.ShouldBeValid = true;
+        var batch = new ModificationCommandBatchFake
+        {
+            ShouldBeValid = true
+        };
         Assert.True(batch.TryAddCommand(command1));
         Assert.True(batch.TryAddCommand(command2));
         batch.Complete(moreBatchesExpected: false);
@@ -97,7 +99,7 @@ RETURNING 1;
             });
 
         var entry2 = CreateEntry(EntityState.Modified);
-        var property2 = entry1.EntityType.FindProperty("Name")!;
+        var property2 = entry2.EntityType.FindProperty("Name")!;
         var command2 = CreateModificationCommand(
             "T2",
             null,

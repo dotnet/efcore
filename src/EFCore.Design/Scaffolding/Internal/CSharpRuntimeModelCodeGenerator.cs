@@ -4,7 +4,6 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -652,7 +651,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(")
                 .Append(_code.Literal(entityType.ClrType))
-                .Append(")");
+                .Append(')');
         }
 
         if (entityType.IsPropertyBag)
@@ -991,7 +990,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(".GetProperty(")
                     .Append(_code.Literal(propertyInfo.Name))
                     .Append(", ")
-                    .Append(propertyInfo.GetAccessors().Any() ? "BindingFlags.Public" : "BindingFlags.NonPublic")
+                    .Append(propertyInfo.GetAccessors().Length != 0 ? "BindingFlags.Public" : "BindingFlags.NonPublic")
                     .Append(propertyInfo.IsStatic() ? " | BindingFlags.Static" : " | BindingFlags.Instance")
                     .Append(" | BindingFlags.DeclaredOnly)");
             }
@@ -1055,12 +1054,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(entityTypeVariable)
                     .Append(".FindProperty(")
                     .Append(_code.Literal(property.Name))
-                    .Append(")");
+                    .Append(')');
 
                 if (nullable)
                 {
                     mainBuilder
-                        .Append("!");
+                        .Append('!');
                 }
             }
         }

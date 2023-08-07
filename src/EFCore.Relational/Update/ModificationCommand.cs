@@ -111,7 +111,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     [EntityFrameworkInternal]
     public virtual void AssertColumnsNotInitialized()
     {
-        if (_columnModifications != null)
+        if (_columnModifications != null
+            && !Debugger.IsAttached)
         {
             throw new Exception("_columnModifications have been initialized prematurely");
         }
@@ -249,18 +250,22 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var state = EntityState;
         var adding = state == EntityState.Added;
         var updating = state == EntityState.Modified;
+        var deleting = state == EntityState.Deleted;
         var columnModifications = new List<IColumnModification>();
         Dictionary<string, ColumnValuePropagator>? sharedTableColumnMap = null;
         var jsonEntry = false;
 
         if (_entries.Count > 1
-            || _entries is [{ SharedIdentityEntry: not null }])
+            || _entries is [var singleEntry]
+                && (singleEntry.SharedIdentityEntry is not null
+                   || singleEntry.EntityType.GetComplexProperties().Any()))
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 
             sharedTableColumnMap = new Dictionary<string, ColumnValuePropagator>();
 
-            if (_comparer != null)
+            if (_comparer != null
+                && _entries.Count > 1)
             {
                 _entries.Sort(_comparer);
             }
@@ -280,11 +285,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         : tableMapping;
                     if (sharedTableMapping != null)
                     {
-                        InitializeSharedColumns(entry.SharedIdentityEntry, sharedTableMapping, updating, sharedTableColumnMap);
+                        HandleSharedColumns(entry.SharedIdentityEntry.EntityType, entry.SharedIdentityEntry, sharedTableMapping, deleting, sharedTableColumnMap);
                     }
                 }
 
-                InitializeSharedColumns(entry, tableMapping, updating, sharedTableColumnMap);
+                HandleSharedColumns(entry.EntityType, entry, tableMapping, deleting, sharedTableColumnMap);
 
                 if (!jsonEntry && entry.EntityType.IsMappedToJson())
                 {
@@ -294,6 +299,366 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         }
 
         if (jsonEntry)
+        {
+            HandleJson(columnModifications);
+        }
+
+        foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
+        {
+            var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
+
+            var optionalDependentWithAllNull = false;
+
+            if (StoreStoredProcedure is null)
+            {
+                var tableMapping = GetTableMapping(entry.EntityType);
+                if (tableMapping is null)
+                {
+                    continue;
+                }
+
+                optionalDependentWithAllNull =
+                    entry.EntityState is EntityState.Modified or EntityState.Added
+                    && tableMapping.Table.IsOptional(entry.EntityType)
+                    && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
+
+                HandleNonJson(entry.EntityType, tableMapping);
+            }
+            else // Stored procedure mapping case
+            {
+                var storedProcedureMapping = GetStoredProcedureMapping(entry.EntityType, EntityState);
+                Check.DebugAssert(storedProcedureMapping is not null, "No sproc mapping but StoredProcedure is not null");
+                var storedProcedure = storedProcedureMapping.StoredProcedure;
+
+                // Stored procedures may have an additional rows affected result column or return value, which does not have a
+                // property/column mapping but still needs to have be represented via a column modification.
+                // Note that for rows affected parameters/result columns, we add column modifications below along with regular parameters/
+                // result columns; for return value we do that here.
+                if (storedProcedure.FindRowsAffectedParameter() is { } rowsAffectedParameter)
+                {
+                    RowsAffectedColumn = rowsAffectedParameter.StoreParameter;
+                }
+                else if (storedProcedure.FindRowsAffectedResultColumn() is { } rowsAffectedResultColumn)
+                {
+                    RowsAffectedColumn = rowsAffectedResultColumn.StoreResultColumn;
+                }
+                else if (storedProcedureMapping.StoreStoredProcedure.ReturnValue is { } rowsAffectedReturnValue)
+                {
+                    RowsAffectedColumn = rowsAffectedReturnValue;
+
+                    columnModifications.Add(
+                        CreateColumnModification(
+                            new ColumnModificationParameters(
+                                entry: null,
+                                property: null,
+                                rowsAffectedReturnValue,
+                                _generateParameterName!,
+                                rowsAffectedReturnValue.StoreTypeMapping,
+                                valueIsRead: true,
+                                valueIsWrite: false,
+                                columnIsKey: false,
+                                columnIsCondition: false,
+                                _sensitiveLoggingEnabled)));
+                }
+
+                // In TPH, the sproc has parameters for all entity types in the hierarchy; we must generate null column modifications
+                // for parameters for unrelated entity types.
+                // Enumerate over the sproc parameters in order, trying to match a corresponding parameter mapping.
+                // Note that we produce the column modifications in the same order as their sproc parameters; this is important and assumed
+                // later in the pipeline.
+                foreach (var parameter in StoreStoredProcedure.Parameters)
+                {
+                    if (parameter.FindParameterMapping(entry.EntityType) is { } parameterMapping)
+                    {
+                        HandleColumn(parameterMapping);
+                        continue;
+                    }
+
+                    // The parameter has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows affected
+                    // output parameter. Note that we set IsRead to false since we don't propagate the output parameter.
+                    columnModifications.Add(
+                        CreateColumnModification(
+                            new ColumnModificationParameters(
+                                entry: null,
+                                property: null,
+                                parameter,
+                                _generateParameterName!,
+                                parameter.StoreTypeMapping,
+                                valueIsRead: false,
+                                valueIsWrite: parameter.Direction.HasFlag(ParameterDirection.Input),
+                                columnIsKey: false,
+                                columnIsCondition: false,
+                                _sensitiveLoggingEnabled)));
+                }
+
+                foreach (var resultColumn in StoreStoredProcedure.ResultColumns)
+                {
+                    if (resultColumn.FindColumnMapping(entry.EntityType) is { } resultColumnMapping)
+                    {
+                        HandleColumn(resultColumnMapping);
+                        continue;
+                    }
+
+                    // The result column has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows
+                    // affected result column. Note that we set IsRead to false since we don't propagate the result column.
+                    columnModifications.Add(
+                        CreateColumnModification(
+                            new ColumnModificationParameters(
+                                entry: null,
+                                property: null,
+                                resultColumn,
+                                _generateParameterName!,
+                                resultColumn.StoreTypeMapping,
+                                valueIsRead: false,
+                                valueIsWrite: false,
+                                columnIsKey: false,
+                                columnIsCondition: false,
+                                _sensitiveLoggingEnabled)));
+                }
+            }
+
+            if (optionalDependentWithAllNull && _logger != null)
+            {
+                if (_sensitiveLoggingEnabled)
+                {
+                    _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
+                }
+                else
+                {
+                    _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
+                }
+            }
+
+            void HandleNonJson(ITypeBase structuralType, ITableMapping tableMapping)
+            {
+                foreach (var columnMapping in tableMapping.ColumnMappings)
+                {
+                    HandleColumn(columnMapping);
+                }
+
+                foreach (var complexProperty in structuralType.GetComplexProperties())
+                {
+                    var complexTableMapping = GetTableMapping(complexProperty.ComplexType);
+                    if (complexTableMapping != null)
+                    {
+                        HandleNonJson(complexProperty.ComplexType, complexTableMapping);
+                    }
+                }
+            }
+
+            void HandleColumn(IColumnMappingBase columnMapping)
+            {
+                var property = columnMapping.Property;
+                var column = columnMapping.Column;
+                var storedProcedureParameter = columnMapping is IStoredProcedureParameterMapping parameterMapping
+                    ? parameterMapping.Parameter
+                    : null;
+                var isKey = property.IsPrimaryKey();
+                var isCondition = !adding
+                    && (isKey
+                        || storedProcedureParameter is { ForOriginalValue: true }
+                        || (property.IsConcurrencyToken && storedProcedureParameter is null));
+
+                // Store-generated properties generally need to be read back (unless we're deleting).
+                // One exception is if the property is mapped to a non-output parameter.
+                var readValue = state != EntityState.Deleted
+                    && ColumnModification.IsStoreGenerated(entry, property)
+                    && (storedProcedureParameter is null || storedProcedureParameter.Direction.HasFlag(ParameterDirection.Output));
+
+                ColumnValuePropagator? columnPropagator = null;
+                sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);
+
+                var writeValue = false;
+                if (!readValue)
+                {
+                    if (adding)
+                    {
+                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                        columnPropagator?.TryPropagate(columnMapping, entry);
+                    }
+                    else if (storedProcedureParameter is not { ForOriginalValue: true }
+                             && !deleting
+                             && ((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
+                                 || (!isKey && nonMainEntry)
+                                 || entry.SharedIdentityEntry != null))
+                    {
+                        // Note that for stored procedures we always need to send all parameters, regardless of whether the property
+                        // actually changed.
+                        writeValue = columnPropagator?.TryPropagate(columnMapping, entry)
+                            ?? (entry.EntityState == EntityState.Added
+                                || entry.EntityState == EntityState.Deleted
+                                || ColumnModification.IsModified(entry, property)
+                                || StoreStoredProcedure is not null);
+                    }
+                }
+
+                if (readValue
+                    || writeValue
+                    || isCondition)
+                {
+                    var columnModificationParameters = new ColumnModificationParameters(
+                        entry,
+                        property,
+                        column,
+                        _generateParameterName!,
+                        columnMapping.TypeMapping,
+                        readValue,
+                        writeValue,
+                        isKey,
+                        isCondition,
+                        _sensitiveLoggingEnabled);
+
+                    var columnModification = CreateColumnModification(columnModificationParameters);
+
+                    if (columnPropagator != null
+                        && column.PropertyMappings.Count != 1)
+                    {
+                        if (columnPropagator.ColumnModification != null)
+                        {
+                            columnPropagator.ColumnModification.AddSharedColumnModification(columnModification);
+
+                            return;
+                        }
+
+                        columnPropagator.ColumnModification = columnModification;
+                    }
+
+                    columnModifications.Add(columnModification);
+
+                    if (optionalDependentWithAllNull
+                        && (columnModification.IsWrite
+                            || (columnModification.IsCondition && !isKey))
+                        && columnModification.Value is not null)
+                    {
+                        optionalDependentWithAllNull = false;
+                    }
+                }
+                else if (optionalDependentWithAllNull
+                         && state == EntityState.Modified
+                         && property.DeclaringType == entry.EntityType
+                         && entry.GetCurrentValue(property) is not null)
+                {
+                    optionalDependentWithAllNull = false;
+                }
+            }
+        }
+
+        return columnModifications;
+
+        void HandleSharedColumns(
+            ITypeBase structuralType,
+            IUpdateEntry entry,
+            ITableMapping tableMapping,
+            bool deleting,
+            Dictionary<string, ColumnValuePropagator> sharedTableColumnMap)
+        {
+            InitializeSharedColumns(entry, tableMapping, deleting, sharedTableColumnMap);
+
+            foreach (var complexProperty in structuralType.GetComplexProperties())
+            {
+                var complexTableMapping = GetTableMapping(complexProperty.ComplexType);
+                if (complexTableMapping != null)
+                {
+                    HandleSharedColumns(
+                        complexProperty.ComplexType, entry, complexTableMapping, deleting, sharedTableColumnMap);
+                }
+            }
+        }
+
+        static JsonPartialUpdateInfo? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
+        {
+            var result = new JsonPartialUpdateInfo();
+            var currentEntry = entry;
+            var currentOwnership = currentEntry.EntityType.FindOwnership()!;
+
+            while (currentEntry.EntityType.IsMappedToJson())
+            {
+                var jsonPropertyName = currentEntry.EntityType.GetJsonPropertyName()!;
+                currentOwnership = currentEntry.EntityType.FindOwnership()!;
+                var previousEntry = currentEntry;
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal(
+                    (InternalEntityEntry)currentEntry, currentOwnership)!;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                if (processedEntries.Contains(currentEntry))
+                {
+                    return null;
+                }
+
+                var ordinal = default(int?);
+                if (!currentOwnership.IsUnique
+                    && previousEntry.EntityState != EntityState.Added
+                    && previousEntry.EntityState != EntityState.Deleted)
+                {
+                    var ordinalProperty = previousEntry.EntityType.FindPrimaryKey()!.Properties.Last();
+                    ordinal = (int)previousEntry.GetCurrentProviderValue(ordinalProperty)! - 1;
+                }
+
+                var pathEntry = new JsonPartialUpdatePathEntry(
+                    currentOwnership.PrincipalEntityType.IsMappedToJson() ? jsonPropertyName : "$",
+                    ordinal,
+                    currentEntry,
+                    currentOwnership.GetNavigation(pointsToPrincipal: false)!);
+
+                result.Path.Insert(0, pathEntry);
+            }
+
+            var modifiedMembers = entry.EntityType.GetProperties().Where(entry.IsModified).ToList();
+            if (modifiedMembers.Count == 1)
+            {
+                result.Property = modifiedMembers[0];
+                result.PropertyValue = entry.GetCurrentValue(result.Property);
+            }
+            else
+            {
+                // only add to processed entries list if we are planning to update the entire entity
+                // (rather than just a single property on that entity)
+                processedEntries.Add(entry);
+            }
+
+            // parent entity got deleted, no need to do any json-specific processing
+            if (currentEntry.EntityState == EntityState.Deleted)
+            {
+                return null;
+            }
+
+            return result;
+        }
+
+        static JsonPartialUpdateInfo FindCommonJsonPartialUpdateInfo(
+            JsonPartialUpdateInfo first,
+            JsonPartialUpdateInfo second)
+        {
+            var result = new JsonPartialUpdateInfo();
+            for (var i = 0; i < Math.Min(first.Path.Count, second.Path.Count); i++)
+            {
+                if (first.Path[i].PropertyName == second.Path[i].PropertyName)
+                {
+                    if (first.Path[i].Ordinal == second.Path[i].Ordinal)
+                    {
+                        result.Path.Add(first.Path[i]);
+                        continue;
+                    }
+
+                    var common = new JsonPartialUpdatePathEntry(
+                        first.Path[i].PropertyName,
+                        null,
+                        first.Path[i].ParentEntry,
+                        first.Path[i].Navigation);
+
+                    result.Path.Add(common);
+
+                    break;
+                }
+            }
+
+            Check.DebugAssert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
+
+            return result;
+        }
+
+        void HandleJson(List<IColumnModification> columnModifications)
         {
             var jsonColumnsUpdateMap = new Dictionary<IColumn, JsonPartialUpdateInfo>();
             var processedEntries = new List<IUpdateEntry>();
@@ -338,7 +703,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         write: true,
                         key: false,
                         condition: false,
-                        _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName };
+                        _sensitiveLoggingEnabled)
+                    { GenerateParameterName = _generateParameterName };
 
                     ProcessSinglePropertyJsonUpdate(ref columnModificationParameters);
 
@@ -401,324 +767,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 write: true,
                                 key: false,
                                 condition: false,
-                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
+                                _sensitiveLoggingEnabled)
+                            { GenerateParameterName = _generateParameterName }));
                 }
             }
-        }
-
-        foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
-        {
-            var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
-
-            var optionalDependentWithAllNull = false;
-
-            if (StoreStoredProcedure is null)
-            {
-                var tableMapping = GetTableMapping(entry.EntityType);
-                if (tableMapping is null)
-                {
-                    continue;
-                }
-
-                optionalDependentWithAllNull =
-                    entry.EntityState is EntityState.Modified or EntityState.Added
-                    && tableMapping.Table.IsOptional(entry.EntityType)
-                    && tableMapping.Table.GetRowInternalForeignKeys(entry.EntityType).Any();
-
-                foreach (var columnMapping in tableMapping.ColumnMappings)
-                {
-                    HandleColumnModification(columnMapping);
-                }
-            }
-            else // Stored procedure mapping case
-            {
-                var storedProcedureMapping = GetStoredProcedureMapping(entry.EntityType, EntityState);
-                Check.DebugAssert(storedProcedureMapping is not null, "No sproc mapping but StoredProcedure is not null");
-                var storedProcedure = storedProcedureMapping.StoredProcedure;
-
-                // Stored procedures may have an additional rows affected result column or return value, which does not have a
-                // property/column mapping but still needs to have be represented via a column modification.
-                // Note that for rows affected parameters/result columns, we add column modifications below along with regular parameters/
-                // result columns; for return value we do that here.
-                if (storedProcedure.FindRowsAffectedParameter() is { } rowsAffectedParameter)
-                {
-                    RowsAffectedColumn = rowsAffectedParameter.StoreParameter;
-                }
-                else if (storedProcedure.FindRowsAffectedResultColumn() is { } rowsAffectedResultColumn)
-                {
-                    RowsAffectedColumn = rowsAffectedResultColumn.StoreResultColumn;
-                }
-                else if (storedProcedureMapping.StoreStoredProcedure.ReturnValue is { } rowsAffectedReturnValue)
-                {
-                    RowsAffectedColumn = rowsAffectedReturnValue;
-
-                    columnModifications.Add(
-                        CreateColumnModification(
-                            new ColumnModificationParameters(
-                                entry: null,
-                                property: null,
-                                rowsAffectedReturnValue,
-                                _generateParameterName!,
-                                rowsAffectedReturnValue.StoreTypeMapping,
-                                valueIsRead: true,
-                                valueIsWrite: false,
-                                columnIsKey: false,
-                                columnIsCondition: false,
-                                _sensitiveLoggingEnabled)));
-                }
-
-                // In TPH, the sproc has parameters for all entity types in the hierarchy; we must generate null column modifications
-                // for parameters for unrelated entity types.
-                // Enumerate over the sproc parameters in order, trying to match a corresponding parameter mapping.
-                // Note that we produce the column modifications in the same order as their sproc parameters; this is important and assumed
-                // later in the pipeline.
-                foreach (var parameter in StoreStoredProcedure.Parameters)
-                {
-                    if (parameter.FindParameterMapping(entry.EntityType) is { } parameterMapping)
-                    {
-                        HandleColumnModification(parameterMapping);
-                        continue;
-                    }
-
-                    // The parameter has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows affected
-                    // output parameter. Note that we set IsRead to false since we don't propagate the output parameter.
-                    columnModifications.Add(
-                        CreateColumnModification(
-                            new ColumnModificationParameters(
-                                entry: null,
-                                property: null,
-                                parameter,
-                                _generateParameterName!,
-                                parameter.StoreTypeMapping,
-                                valueIsRead: false,
-                                valueIsWrite: parameter.Direction.HasFlag(ParameterDirection.Input),
-                                columnIsKey: false,
-                                columnIsCondition: false,
-                                _sensitiveLoggingEnabled)));
-                }
-
-                foreach (var resultColumn in StoreStoredProcedure.ResultColumns)
-                {
-                    if (resultColumn.FindColumnMapping(entry.EntityType) is { } resultColumnMapping)
-                    {
-                        HandleColumnModification(resultColumnMapping);
-                        continue;
-                    }
-
-                    // The result column has no corresponding mapping; this is either a sibling property in a TPH hierarchy or a rows
-                    // affected result column. Note that we set IsRead to false since we don't propagate the result column.
-                    columnModifications.Add(
-                        CreateColumnModification(
-                            new ColumnModificationParameters(
-                                entry: null,
-                                property: null,
-                                resultColumn,
-                                _generateParameterName!,
-                                resultColumn.StoreTypeMapping,
-                                valueIsRead: false,
-                                valueIsWrite: false,
-                                columnIsKey: false,
-                                columnIsCondition: false,
-                                _sensitiveLoggingEnabled)));
-                }
-            }
-
-            if (optionalDependentWithAllNull && _logger != null)
-            {
-                if (_sensitiveLoggingEnabled)
-                {
-                    _logger.OptionalDependentWithAllNullPropertiesWarningSensitive(entry);
-                }
-                else
-                {
-                    _logger.OptionalDependentWithAllNullPropertiesWarning(entry);
-                }
-            }
-
-            void HandleColumnModification(IColumnMappingBase columnMapping)
-            {
-                var property = columnMapping.Property;
-                var column = columnMapping.Column;
-                var storedProcedureParameter = columnMapping is IStoredProcedureParameterMapping parameterMapping
-                    ? parameterMapping.Parameter
-                    : null;
-                var isKey = property.IsPrimaryKey();
-                var isCondition = !adding
-                    && (isKey
-                        || storedProcedureParameter is { ForOriginalValue: true }
-                        || (property.IsConcurrencyToken && storedProcedureParameter is null));
-
-                // Store-generated properties generally need to be read back (unless we're deleting).
-                // One exception is if the property is mapped to a non-output parameter.
-                var readValue = state != EntityState.Deleted
-                    && entry.IsStoreGenerated(property)
-                    && (storedProcedureParameter is null || storedProcedureParameter.Direction.HasFlag(ParameterDirection.Output));
-
-                ColumnValuePropagator? columnPropagator = null;
-                sharedTableColumnMap?.TryGetValue(column.Name, out columnPropagator);
-
-                var writeValue = false;
-                if (!readValue)
-                {
-                    if (adding)
-                    {
-                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
-                    }
-                    else if (((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                                 || (!isKey && nonMainEntry)
-                                 || entry.SharedIdentityEntry != null)
-                             && storedProcedureParameter is not { ForOriginalValue: true })
-                    {
-                        // Note that for stored procedures we always need to send all parameters, regardless of whether the property
-                        // actually changed.
-                        writeValue = columnPropagator?.TryPropagate(columnMapping, entry)
-                            ?? (entry.EntityState == EntityState.Added || entry.IsModified(property) || StoreStoredProcedure is not null);
-                    }
-                }
-
-                if (readValue
-                    || writeValue
-                    || isCondition)
-                {
-                    var columnModificationParameters = new ColumnModificationParameters(
-                        entry,
-                        property,
-                        column,
-                        _generateParameterName!,
-                        columnMapping.TypeMapping,
-                        readValue,
-                        writeValue,
-                        isKey,
-                        isCondition,
-                        _sensitiveLoggingEnabled);
-
-                    var columnModification = CreateColumnModification(columnModificationParameters);
-
-                    if (columnPropagator != null
-                        && column.PropertyMappings.Count != 1)
-                    {
-                        if (columnPropagator.ColumnModification != null)
-                        {
-                            columnPropagator.ColumnModification.AddSharedColumnModification(columnModification);
-
-                            return;
-                        }
-
-                        columnPropagator.ColumnModification = columnModification;
-                    }
-
-                    columnModifications.Add(columnModification);
-
-                    if (optionalDependentWithAllNull
-                        && (columnModification.IsWrite
-                            || (columnModification.IsCondition && !isKey))
-                        && columnModification.Value is not null)
-                    {
-                        optionalDependentWithAllNull = false;
-                    }
-                }
-                else if (optionalDependentWithAllNull
-                         && state == EntityState.Modified
-                         && entry.GetCurrentValue(property) is not null)
-                {
-                    optionalDependentWithAllNull = false;
-                }
-            }
-        }
-
-        return columnModifications;
-
-        static JsonPartialUpdateInfo? FindJsonPartialUpdateInfo(IUpdateEntry entry, List<IUpdateEntry> processedEntries)
-        {
-            var result = new JsonPartialUpdateInfo();
-            var currentEntry = entry;
-            var currentOwnership = currentEntry.EntityType.FindOwnership()!;
-
-            while (currentEntry.EntityType.IsMappedToJson())
-            {
-                var jsonPropertyName = currentEntry.EntityType.GetJsonPropertyName()!;
-                currentOwnership = currentEntry.EntityType.FindOwnership()!;
-                var previousEntry = currentEntry;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                currentEntry = ((InternalEntityEntry)currentEntry).StateManager.FindPrincipal(
-                    (InternalEntityEntry)currentEntry, currentOwnership)!;
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                if (processedEntries.Contains(currentEntry))
-                {
-                    return null;
-                }
-
-                var ordinal = default(int?);
-                if (!currentOwnership.IsUnique
-                    && previousEntry.EntityState != EntityState.Added
-                    && previousEntry.EntityState != EntityState.Deleted)
-                {
-                    var ordinalProperty = previousEntry.EntityType.FindPrimaryKey()!.Properties.Last();
-                    ordinal = (int)previousEntry.GetCurrentProviderValue(ordinalProperty)! - 1;
-                }
-
-                var pathEntry = new JsonPartialUpdatePathEntry(
-                    currentOwnership.PrincipalEntityType.IsMappedToJson() ? jsonPropertyName : "$",
-                    ordinal,
-                    currentEntry,
-                    currentOwnership.GetNavigation(pointsToPrincipal: false)!);
-
-                result.Path.Insert(0, pathEntry);
-            }
-
-            var modifiedMembers = entry.ToEntityEntry().Properties.Where(m => m.IsModified).ToList();
-            if (modifiedMembers.Count == 1)
-            {
-                result.Property = modifiedMembers.Single().Metadata;
-                result.PropertyValue = entry.GetCurrentValue(result.Property);
-            }
-            else
-            {
-                // only add to processed entries list if we are planning to update the entire entity
-                // (rather than just a single property on that entity)
-                processedEntries.Add(entry);
-            }
-
-            // parent entity got deleted, no need to do any json-specific processing
-            if (currentEntry.EntityState == EntityState.Deleted)
-            {
-                return null;
-            }
-
-            return result;
-        }
-
-        static JsonPartialUpdateInfo FindCommonJsonPartialUpdateInfo(
-            JsonPartialUpdateInfo first,
-            JsonPartialUpdateInfo second)
-        {
-            var result = new JsonPartialUpdateInfo();
-            for (var i = 0; i < Math.Min(first.Path.Count, second.Path.Count); i++)
-            {
-                if (first.Path[i].PropertyName == second.Path[i].PropertyName)
-                {
-                    if (first.Path[i].Ordinal == second.Path[i].Ordinal)
-                    {
-                        result.Path.Add(first.Path[i]);
-                        continue;
-                    }
-
-                    var common = new JsonPartialUpdatePathEntry(
-                        first.Path[i].PropertyName,
-                        null,
-                        first.Path[i].ParentEntry,
-                        first.Path[i].Navigation);
-
-                    result.Path.Add(common);
-
-                    break;
-                }
-            }
-
-            Check.DebugAssert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
-
-            return result;
         }
     }
 
@@ -854,9 +906,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         writer.WriteEndObject();
     }
 
-    private ITableMapping? GetTableMapping(IEntityType entityType)
+    private ITableMapping? GetTableMapping(ITypeBase structuralType)
     {
-        foreach (var mapping in entityType.GetTableMappings())
+        foreach (var mapping in structuralType.GetTableMappings())
         {
             var table = mapping.Table;
             if (table.Name == TableName
@@ -894,12 +946,18 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private static void InitializeSharedColumns(
         IUpdateEntry entry,
         ITableMapping tableMapping,
-        bool updating,
+        bool deleting,
         Dictionary<string, ColumnValuePropagator> columnMap)
     {
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
             if (columnMapping.Property.DeclaringType.IsMappedToJson())
+            {
+                continue;
+            }
+
+            if (columnMapping.Column.PropertyMappings.Select(p => p.Property).Distinct().Count() == 1
+                && entry.SharedIdentityEntry == null)
             {
                 continue;
             }
@@ -911,7 +969,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 columnMap.Add(columnName, columnPropagator);
             }
 
-            if (updating)
+            if (!deleting)
             {
                 columnPropagator.RecordValue(columnMapping, entry);
             }
@@ -1022,6 +1080,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         private bool _write;
         private object? _originalValue;
         private object? _currentValue;
+        private bool _originalValueInitialized;
 
         public IColumnModification? ColumnModification { get; set; }
 
@@ -1032,20 +1091,31 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             {
                 case EntityState.Modified:
                     if (!_write
-                        && entry.IsModified(property))
+                        && Update.ColumnModification.IsModified(entry, property))
                     {
                         _write = true;
-                        _currentValue = entry.GetCurrentProviderValue(property);
+                        _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                        _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
+                        _originalValueInitialized = true;
                     }
 
                     break;
                 case EntityState.Added:
-                    _currentValue = entry.GetCurrentProviderValue(property);
-                    _write = !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
+                    if (_currentValue == null
+                        || !property.GetValueComparer().Equals(
+                             Update.ColumnModification.GetCurrentValue(entry, property),
+                             property.Sentinel))
+                    {
+                        _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
+                    }
+                    
+                    _write = !_originalValueInitialized
+                        || !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
 
                     break;
                 case EntityState.Deleted:
-                    _originalValue = entry.GetOriginalProviderValue(property);
+                    _originalValue = Update.ColumnModification.GetOriginalProviderValue(entry, property);
+                    _originalValueInitialized = true;
                     if (!_write
                         && !property.IsPrimaryKey())
                     {
@@ -1062,12 +1132,20 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             var property = mapping.Property;
             if (_write
                 && (entry.EntityState == EntityState.Unchanged
-                    || (entry.EntityState == EntityState.Modified && !entry.IsModified(property))
+                    || (entry.EntityState == EntityState.Modified && !Update.ColumnModification.IsModified(entry, property))
                     || (entry.EntityState == EntityState.Added
-                        && mapping.Column.ProviderValueComparer.Equals(_originalValue, entry.GetCurrentProviderValue(property)))))
+                        && ((!_originalValueInitialized
+                            && property.GetValueComparer().Equals(
+                                 Update.ColumnModification.GetCurrentValue(entry, property),
+                                 property.Sentinel))
+                            || (_originalValueInitialized
+                                && mapping.Column.ProviderValueComparer.Equals(
+                                    Update.ColumnModification.GetCurrentProviderValue(entry, property),
+                                    _originalValue))))))
             {
-                if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                if ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)
+                    && property.ValueGenerated != ValueGenerated.Never)
                 {
                     var value = _currentValue;
                     var converter = property.GetTypeMapping().Converter;
@@ -1076,7 +1154,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         value = converter.ConvertFromProvider(value);
                     }
 
-                    entry.SetStoreGeneratedValue(property, value);
+                    Update.ColumnModification.SetStoreGeneratedValue(entry, property, value);
                 }
 
                 return false;

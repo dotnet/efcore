@@ -43,6 +43,7 @@ public class F1CosmosFixture<TRowVersion> : F1FixtureBase<TRowVersion>
             });
 
         modelBuilder.Entity<TitleSponsor>()
+            .Ignore(s => s.Details)
             .OwnsOne(
                 s => s.Details, eb =>
                 {

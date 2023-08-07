@@ -448,7 +448,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         var dependentCommand = reverseDependency ? target : source;
         var dependentEntry = dependentCommand.Entries.First(e => foreignKey.DeclaringEntityType.IsAssignableFrom(e.EntityType));
         builder.Append(dependentEntry.BuildCurrentValuesString(foreignKey.Properties))
-            .Append(" ");
+            .Append(' ');
 
         if (!reverseDependency)
         {
@@ -507,7 +507,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 ? dependentEntry.BuildCurrentValuesString(key.Properties)
                 : dependentEntry.BuildOriginalValuesString(key.Properties));
 
-        builder.Append(" ");
+        builder.Append(' ');
 
         if (!reverseDependency)
         {
@@ -1122,15 +1122,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
+                    var (value, _) = ((TableIndex)index).GetRowIndexValueFactory()
                         .CreateEquatableIndexValue(command, fromOriginalValues: true);
-                    if (indexValue.Value != null)
+                    if (value != null)
                     {
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
-                        if (!indexPredecessorsMap.TryGetValue(indexValue.Value, out var predecessorCommands))
+                        if (!indexPredecessorsMap.TryGetValue(value, out var predecessorCommands))
                         {
                             predecessorCommands = new List<IReadOnlyModificationCommand>();
-                            indexPredecessorsMap.Add(indexValue.Value, predecessorCommands);
+                            indexPredecessorsMap.Add(value, predecessorCommands);
                         }
 
                         predecessorCommands.Add(command);
@@ -1204,12 +1204,12 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         continue;
                     }
 
-                    var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
+                    var (value, hasNullValue) = ((TableIndex)index).GetRowIndexValueFactory()
                         .CreateEquatableIndexValue(command);
-                    if (indexValue.Value != null)
+                    if (value != null)
                     {
-                        AddMatchingPredecessorEdge(indexPredecessorsMap, indexValue.Value, command,
-                            new CommandDependency(index, breakable: index.Filter != null || indexValue.HasNullValue));
+                        AddMatchingPredecessorEdge(indexPredecessorsMap, value, command,
+                            new CommandDependency(index, breakable: index.Filter != null || hasNullValue));
                     }
                 }
             }

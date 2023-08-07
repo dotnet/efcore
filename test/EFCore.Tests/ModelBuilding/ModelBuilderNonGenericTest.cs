@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using Microsoft.EntityFrameworkCore.Metadata;
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class ModelBuilderNonGenericTest : ModelBuilderTest

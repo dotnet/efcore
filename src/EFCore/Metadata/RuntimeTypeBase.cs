@@ -23,16 +23,15 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     private readonly SortedSet<RuntimeTypeBase> _directlyDerivedTypes = new(TypeBaseNameComparer.Instance);
     private readonly SortedDictionary<string, RuntimeProperty> _properties;
 
-    private readonly SortedDictionary<string, RuntimeComplexProperty> _complexProperties =
-        new SortedDictionary<string, RuntimeComplexProperty>(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, RuntimeComplexProperty> _complexProperties = new(StringComparer.Ordinal);
 
     private readonly PropertyInfo? _indexerPropertyInfo;
     private readonly bool _isPropertyBag;
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
@@ -491,7 +490,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetOriginalValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
+    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
     {
         _originalValuesFactory = factory;
     }
@@ -515,7 +514,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetTemporaryValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
+    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
     {
         _temporaryValuesFactory = factory;
     }
@@ -688,7 +687,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     }
 
     /// <inheritdoc />
-    Func<InternalEntityEntry, ISnapshot> IRuntimeTypeBase.OriginalValuesFactory
+    Func<IInternalEntry, ISnapshot> IRuntimeTypeBase.OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
@@ -704,7 +703,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
-    Func<InternalEntityEntry, ISnapshot> IRuntimeTypeBase.TemporaryValuesFactory
+    Func<IInternalEntry, ISnapshot> IRuntimeTypeBase.TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported

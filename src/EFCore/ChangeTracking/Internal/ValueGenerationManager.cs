@@ -93,6 +93,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasStableValues = false;
         var hasNonStableValues = false;
 
+        //TODO: Handle complex properties
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
             if (entry.HasExplicitValue(property)

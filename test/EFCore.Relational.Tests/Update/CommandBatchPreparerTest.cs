@@ -851,9 +851,7 @@ FakeEntity [Deleted]"
 
         if (state == EntityState.Deleted)
         {
-            // Detect indirect update dependencies. Issue #17947.
-            Assert.Throws<SingleException>(
-                () => Assert.Single(commandBatches));
+            Assert.Single(commandBatches);
         }
         else
         {
