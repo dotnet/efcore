@@ -166,7 +166,15 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
         modelBuilder.Entity<TitleSponsor>(
             b =>
             {
-                b.OwnsOne(s => s.Details);
+                // TODO: Configure as ComplexProperty when optional complex types are supported
+                // Issue #31376
+                b.OwnsOne(
+                    s => s.Details, eb =>
+                    {
+                        eb.Property(d => d.Space);
+                        eb.Property<TRowVersion>("Version").IsRowVersion();
+                        eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
+                    });
                 ConfigureConstructorBinding<TitleSponsor>(b.Metadata);
             });
 
@@ -183,15 +191,6 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                 eb.Property<TRowVersion>("Version").IsRowVersion();
                 eb.Property<int?>(Sponsor.ClientTokenPropertyName);
             });
-
-        modelBuilder.Entity<TitleSponsor>()
-            .OwnsOne(
-                s => s.Details, eb =>
-                {
-                    eb.Property(d => d.Space);
-                    eb.Property<TRowVersion>("Version").IsRowVersion();
-                    eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
-                });
 
         modelBuilder.Entity<Fan>();
         modelBuilder.Entity<SuperFan>();

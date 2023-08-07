@@ -17,7 +17,7 @@ public class StateManager : IStateManager
 {
     private readonly EntityReferenceMap _entityReferenceMap = new(hasSubMap: true);
 
-    private IDictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>? _referencedUntrackedEntities;
+    private Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>? _referencedUntrackedEntities;
     private IIdentityMap? _identityMap0;
     private IIdentityMap? _identityMap1;
     private Dictionary<IKey, IIdentityMap>? _identityMaps;

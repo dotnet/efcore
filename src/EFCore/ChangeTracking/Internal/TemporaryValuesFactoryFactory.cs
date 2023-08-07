@@ -28,7 +28,7 @@ public class TemporaryValuesFactoryFactory : SidecarValuesFactoryFactory
         var constructorExpression = Expression.Convert(
             Expression.New(
                 Snapshot.CreateSnapshotType(types).GetDeclaredConstructor(types)!,
-                types.Select(e => Expression.Default(e)).ToArray()),
+                types.Select(Expression.Default).ToArray()),
             typeof(ISnapshot));
 
         return constructorExpression;

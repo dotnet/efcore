@@ -128,7 +128,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("ConflictingEnlistedTransaction");
 
         /// <summary>
-        ///     An instance of entity type '{firstEntityType}' and an instance of entity type '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        ///     Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different original property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
         /// </summary>
         public static string ConflictingOriginalRowValues(object? firstEntityType, object? secondEntityType, object? firstProperty, object? secondProperty, object? column)
             => string.Format(
@@ -136,7 +136,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, firstProperty, secondProperty, column);
 
         /// <summary>
-        ///     Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values {firstConflictingValues} and {secondConflictingValues} for the column '{column}'.
+        ///     Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different original property values {firstConflictingValues} and {secondConflictingValues} for the column '{column}'.
         /// </summary>
         public static string ConflictingOriginalRowValuesSensitive(object? firstEntityType, object? secondEntityType, object? keyValue, object? firstConflictingValues, object? secondConflictingValues, object? column)
             => string.Format(
@@ -160,7 +160,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, firstKeyValue, firstState, secondEntityType, secondKeyValue, secondState);
 
         /// <summary>
-        ///     Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
+        ///     Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row, but have different property values for the properties {firstProperty} and {secondProperty} mapped to '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
         /// </summary>
         public static string ConflictingRowValues(object? firstEntityType, object? secondEntityType, object? firstProperty, object? secondProperty, object? column)
             => string.Format(
@@ -168,7 +168,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, firstProperty, secondProperty, column);
 
         /// <summary>
-        ///     Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.
+        ///     Instances of types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.
         /// </summary>
         public static string ConflictingRowValuesSensitive(object? firstEntityType, object? secondEntityType, object? keyValue, object? firstConflictingValue, object? secondConflictingValue, object? column)
             => string.Format(
@@ -1034,7 +1034,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonType, viewName, ownerType, ownerViewName);
 
         /// <summary>
-        ///     Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.
+        ///     JSON entity '{jsonEntity}' is missing key information. This is not allowed for tracking queries since EF can't correctly build identity for this entity object.
         /// </summary>
         public static string JsonEntityMissingKeyInformation(object? jsonEntity)
             => string.Format(
@@ -1156,18 +1156,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonPropertyNameShouldBeConfiguredOnNestedNavigation");
 
         /// <summary>
+        ///     Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.
+        /// </summary>
+        public static string JsonQueryLinqOperatorsNotSupported
+            => GetString("JsonQueryLinqOperatorsNotSupported");
+
+        /// <summary>
         ///     Invalid token type: '{tokenType}'.
         /// </summary>
         public static string JsonReaderInvalidTokenType(object? tokenType)
             => string.Format(
                 GetString("JsonReaderInvalidTokenType", nameof(tokenType)),
                 tokenType);
-
-        /// <summary>
-        ///     Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.
-        /// </summary>
-        public static string JsonQueryLinqOperatorsNotSupported
-            => GetString("JsonQueryLinqOperatorsNotSupported");
 
         /// <summary>
         ///     Entity {entity} is required but the JSON element containing it is null.
@@ -1544,12 +1544,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SetOperationsOnDifferentStoreTypes");
 
         /// <summary>
-        ///     A set operation 'setOperationType' requires valid type mapping for at least one of its sides.
+        ///     A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.
         /// </summary>
         public static string SetOperationsRequireAtLeastOneSideWithValidTypeMapping(object? setOperationType)
-        => string.Format(
-            GetString("SetOperationsRequireAtLeastOneSideWithValidTypeMapping", nameof(setOperationType)),
-            setOperationType);
+            => string.Format(
+                GetString("SetOperationsRequireAtLeastOneSideWithValidTypeMapping", nameof(setOperationType)),
+                setOperationType);
 
         /// <summary>
         ///     The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.
@@ -2038,7 +2038,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

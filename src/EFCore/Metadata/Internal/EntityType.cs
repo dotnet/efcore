@@ -61,8 +61,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private InstantiationBinding? _serviceOnlyConstructorBinding;
 
     private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
-    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
+    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
@@ -221,7 +221,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    new public virtual EntityType? BaseType
+    public new virtual EntityType? BaseType
         => (EntityType?)base.BaseType;
 
     /// <summary>
@@ -1828,9 +1828,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         var removed = _skipNavigations.Remove(navigation.Name);
         Check.DebugAssert(removed, "Expected the navigation to be removed");
 
-        removed = navigation.ForeignKey is ForeignKey foreignKey
-            ? foreignKey.ReferencingSkipNavigations!.Remove(navigation)
-            : true;
+        removed = navigation.ForeignKey is not ForeignKey foreignKey
+            || foreignKey.ReferencingSkipNavigations!.Remove(navigation);
         Check.DebugAssert(removed, "removed is false");
 
         removed = navigation.TargetEntityType.DeclaredReferencingSkipNavigations!.Remove(navigation);
@@ -2277,7 +2276,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
+    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static entityType =>
@@ -2307,7 +2306,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
+    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static entityType =>
@@ -2960,14 +2959,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     /// <returns>The name of the property that will be used for storing a discriminator value.</returns>
     public virtual string? GetDiscriminatorPropertyName()
-    {
-        if (BaseType != null)
-        {
-            return ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
-        }
-
-        return (string?)this[CoreAnnotationNames.DiscriminatorProperty];
-    }
+        => BaseType is null
+            ? (string?)this[CoreAnnotationNames.DiscriminatorProperty]
+            : ((IReadOnlyEntityType)this).GetRootType().GetDiscriminatorPropertyName();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

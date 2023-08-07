@@ -758,8 +758,10 @@ public class RelationalModel : Annotatable, IRelationalModel
                 var column = sqlQuery.FindColumn(columnName);
                 if (column == null)
                 {
-                    column = new SqlQueryColumn(columnName, property.GetColumnType(mappedQuery), sqlQuery);
-                    column.IsNullable = property.IsColumnNullable(mappedQuery);
+                    column = new SqlQueryColumn(columnName, property.GetColumnType(mappedQuery), sqlQuery)
+                    {
+                        IsNullable = property.IsColumnNullable(mappedQuery)
+                    };
                     sqlQuery.Columns.Add(columnName, column);
                 }
                 else if (!property.IsColumnNullable(mappedQuery))

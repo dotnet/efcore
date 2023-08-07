@@ -283,12 +283,6 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                     circuitInner.Name += "-";
                 }
 
-                if (mapping == Mapping.Tpc) // Issue #29751.
-                {
-                    await Assert.ThrowsAsync<InvalidOperationException>(() => innerContext.SaveChangesAsync());
-                    return;
-                }
-
                 await innerContext.SaveChangesAsync();
 
                 if (updateDependentFirst && mapping == Mapping.Tpt) // Issue #22060
