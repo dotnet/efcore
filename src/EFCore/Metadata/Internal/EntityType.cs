@@ -2701,6 +2701,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             propertiesList ??= GetProperties()
                 .Concat<IPropertyBase>(GetNavigations())
                 .Concat(GetSkipNavigations())
+                .Concat(GetComplexProperties())
                 .ToList();
             if (ClrType.IsAssignableFrom(type))
             {

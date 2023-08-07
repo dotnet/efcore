@@ -283,13 +283,16 @@
     <value>The collection complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not implement 'IEnumerable&lt;{targetType}&gt;'. Collection complex property must implement IEnumerable&lt;&gt; of the complex type.</value>
   </data>
   <data name="ComplexPropertyCollection" xml:space="preserve">
-    <value>Adding the collection complex property '{type}.{property}' isn't supported.</value>
+    <value>Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.</value>
   </data>
   <data name="ComplexPropertyIndexer" xml:space="preserve">
-    <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported.</value>
+    <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
+  </data>
+  <data name="ComplexPropertyOptional" xml:space="preserve">
+    <value>Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.</value>
   </data>
   <data name="ComplexPropertyShadow" xml:space="preserve">
-    <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.</value>
+    <value>Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.</value>
   </data>
   <data name="ComplexPropertyWrongClrType" xml:space="preserve">
     <value>The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
@@ -1395,6 +1398,12 @@
   <data name="SavepointsNotSupported" xml:space="preserve">
     <value>Savepoints are not supported by the database provider in use.</value>
   </data>
+  <data name="SeedDatumComplexProperty" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' cannot be added because it has the complex property '{property}' set. Complex properties are currently not supported in seeding. See https://github.com/dotnet/efcore/issues/31254 for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.</value>
+  </data>
+  <data name="SeedDatumComplexPropertySensitive" xml:space="preserve">
+    <value>The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the complex property '{property}' set. Complex properties are currently not supported in seeding. See https://github.com/dotnet/efcore/issues/31254 for more information.</value>
+  </data>
   <data name="SeedDatumDefaultValue" xml:space="preserve">
     <value>The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.</value>
   </data>
@@ -1559,6 +1568,9 @@
   </data>
   <data name="ValueCannotBeNull" xml:space="preserve">
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
+  </data>
+  <data name="ValueComplexType" xml:space="preserve">
+    <value>Adding the complex property '{type}.{property}' isn't supported because it's of a value type '{propertyType}'. See https://github.com/dotnet/efcore/issues/9906 for more information.</value>
   </data>
   <data name="VisitIsNotAllowed" xml:space="preserve">
     <value>Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.</value>

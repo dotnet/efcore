@@ -991,8 +991,6 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 RemoveMembersInHierarchy(propertyName, configurationSource.Value);
             }
 
-            model.Builder.Complex(complexType!, configurationSource.Value);
-
             complexProperty = typeBase.AddComplexProperty(
                 propertyName, propertyType, memberInfo, complexTypeName, complexType!, collection.Value, configurationSource.Value)!;
 

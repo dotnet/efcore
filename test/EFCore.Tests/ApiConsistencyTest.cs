@@ -158,7 +158,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetAnnotation)),
             typeof(IConventionAnnotatable).GetMethod(nameof(IConventionAnnotatable.SetOrRemoveAnnotation)),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.HasNoEntityType)),
-            typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Complex)),
+            typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.ComplexType)),
             typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.GetConcreteDerivedTypesInclusive)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
             typeof(IReadOnlyNavigationBase).GetMethod("get_DeclaringEntityType"),

@@ -176,6 +176,19 @@ public class ModelValidator : IModelValidator
                         CoreStrings.ComplexPropertyCollection(typeBase.DisplayName(), complexProperty.Name));
                 }
 
+                if (complexProperty.IsNullable)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyOptional(typeBase.DisplayName(), complexProperty.Name));
+                }
+
+                if (complexProperty.ComplexType.ClrType.IsValueType)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ValueComplexType(
+                            typeBase.DisplayName(), complexProperty.Name, complexProperty.ComplexType.ClrType.ShortDisplayName()));
+                }
+
                 if (complexProperty.ComplexType.GetMembers().Count() == 0)
                 {
                     throw new InvalidOperationException(
@@ -1148,6 +1161,28 @@ public class ModelValidator : IModelValidator
                                 navigation.Name,
                                 foreignKey.DeclaringEntityType.DisplayName(),
                                 foreignKey.Properties.Format()));
+                    }
+                }
+
+                foreach (var complexProperty in entityType.GetComplexProperties())
+                {
+                    if (seedDatum.TryGetValue(complexProperty.Name, out var value)
+                        && ((complexProperty.IsCollection && value is IEnumerable collection && collection.Any())
+                            || (!complexProperty.IsCollection && value != complexProperty.Sentinel)))
+                    {
+                        if (sensitiveDataLogged)
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.SeedDatumComplexPropertySensitive(
+                                    entityType.DisplayName(),
+                                    string.Join(", ", key.Properties.Select((p, i) => p.Name + ":" + keyValues[i])),
+                                    complexProperty.Name));
+                        }
+
+                        throw new InvalidOperationException(
+                            CoreStrings.SeedDatumComplexProperty(
+                                entityType.DisplayName(),
+                                complexProperty.Name));
                     }
                 }
 
