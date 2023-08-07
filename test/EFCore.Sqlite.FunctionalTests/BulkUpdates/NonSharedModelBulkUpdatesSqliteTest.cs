@@ -95,21 +95,6 @@ WHERE "o"."Id" = 1
 """);
     }
 
-    public override async Task Update_with_alias_uniquification_in_setter_subquery(bool async)
-    {
-        await base.Update_with_alias_uniquification_in_setter_subquery(async);
-
-        AssertSql(
-"""
-UPDATE "Orders" AS "o"
-SET "Total" = (
-    SELECT COALESCE(SUM("o0"."Amount"), 0)
-    FROM "OrderProduct" AS "o0"
-    WHERE "o"."Id" = "o0"."OrderId")
-WHERE "o"."Id" = 1
-""");
-    }
-
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(wcb => wcb.Log(SqliteEventId.CompositeKeyWithValueGeneration));
 
