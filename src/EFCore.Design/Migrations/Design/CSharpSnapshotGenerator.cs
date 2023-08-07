@@ -517,8 +517,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
     private ValueConverter? FindValueConverter(IProperty property)
         => property.GetValueConverter()
-            ?? (property.FindTypeMapping()
-                ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+            ?? property.GetTypeMapping().Converter;
 
     /// <summary>
     ///     Generates code for <see cref="IComplexProperty" /> objects.

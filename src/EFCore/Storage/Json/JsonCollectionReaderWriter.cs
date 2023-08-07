@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -11,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TElement> : JsonValueReaderWriter<IEnumerable<TElement?>>
+public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TElement> :
+    JsonValueReaderWriter<IEnumerable<TElement?>>,
+    ICompositeJsonValueReaderWriter
     where TCollection : IEnumerable<TElement?>
     where TConcreteCollection : IList<TElement?>
 {
@@ -83,4 +86,7 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
 
         writer.WriteEndArray();
     }
+
+    JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
+        => _elementReaderWriter;
 }

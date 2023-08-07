@@ -120,33 +120,6 @@ public class TestSqlLoggerFactory : ListLoggerFactory
 
             var contents = testInfo + newBaseLine + FileNewLine + "--------------------" + FileNewLine;
 
-            var indexSimpleMethodEnding = methodCallLine.IndexOf('(');
-            var indexSimpleMethodStarting = methodCallLine.LastIndexOf('.', indexSimpleMethodEnding) + 1;
-            var methodName = methodCallLine.Substring(indexSimpleMethodStarting, indexSimpleMethodEnding - indexSimpleMethodStarting);
-
-            var manipulatedSql = string.IsNullOrEmpty(sql)
-                ? ""
-                : @$"
-{sql}";
-
-            var overrideString = testName.Contains("Boolean async")
-                ? @$"        public override async Task {methodName}(bool async)
-        {{
-            await base.{methodName}(async);
-
-            Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql({manipulatedSql});
-        }}
-
-"
-                : @$"        public override void {methodName}()
-        {{
-            base.{methodName}();
-
-            Assert{(forUpdate ? "ExecuteUpdate" : "")}Sql({manipulatedSql});
-        }}
-
-";
-
             lock (_queryBaselineFileLock)
             {
                 File.AppendAllText(logFile, contents);

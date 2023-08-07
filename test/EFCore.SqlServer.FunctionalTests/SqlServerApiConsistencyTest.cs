@@ -113,6 +113,7 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             MirrorTypes.Add(typeof(TemporalTableBuilder), typeof(OwnedNavigationTemporalTableBuilder));
             MirrorTypes.Add(typeof(TemporalTableBuilder<>), typeof(OwnedNavigationTemporalTableBuilder<,>));
             MirrorTypes.Add(typeof(TemporalPeriodPropertyBuilder), typeof(OwnedNavigationTemporalPeriodPropertyBuilder));
+            MirrorTypes.Add(typeof(SqlServerPropertyBuilderExtensions), typeof(SqlServerComplexTypePropertyBuilderExtensions));
 
             base.Initialize();
         }

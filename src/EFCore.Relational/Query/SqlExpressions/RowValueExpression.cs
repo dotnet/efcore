@@ -24,7 +24,7 @@ public class RowValueExpression : SqlExpression
     /// </summary>
     /// <param name="values">The values of this row.</param>
     public RowValueExpression(IReadOnlyList<SqlExpression> values)
-        : base(typeof(ValueTuple<object>), RowValueTypeMapping.Instance)
+        : base(typeof(ValueTuple<object>), RowValueTypeMapping.Default)
     {
         Check.NotEmpty(values, nameof(values));
 
@@ -108,7 +108,7 @@ public class RowValueExpression : SqlExpression
 
     private sealed class RowValueTypeMapping : RelationalTypeMapping
     {
-        public static RowValueTypeMapping Instance = new(typeof(ValueTuple<object>));
+        public static RowValueTypeMapping Default { get; } = new(typeof(ValueTuple<object>));
 
         private RowValueTypeMapping(Type clrType)
             : base("", clrType)

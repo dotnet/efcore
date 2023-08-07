@@ -4,9 +4,10 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
-using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.CodeAnalysis.Text;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Xunit.Sdk;
 using static System.Linq.Expressions.Expression;
 using Assert = Xunit.Assert;
@@ -66,7 +67,7 @@ public class LinqToCSharpTranslatorTest
 
     [Fact]
     public void Enum_with_unknown_value()
-        => AssertExpression(Constant((SomeEnum)1000), "(SomeEnum)1000L");
+        => AssertExpression(Constant((SomeEnum)1000), "(LinqToCSharpTranslatorTest.SomeEnum)1000L");
 
     [Theory]
     [InlineData(ExpressionType.Add, "+")]
@@ -196,7 +197,7 @@ $$"""
     public void Private_instance_field_read()
         => AssertExpression(
             Field(Parameter(typeof(Blog), "blog"), "_privateField"),
-            """typeof(Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
+            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)""");
 
     [Fact]
     public void Private_instance_field_write()
@@ -204,7 +205,7 @@ $$"""
             Assign(
                 Field(Parameter(typeof(Blog), "blog"), "_privateField"),
                 Constant(8)),
-            """typeof(Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, 8)""");
+            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, 8)""");
 
     [Fact]
     public void Internal_instance_field_read()
@@ -228,7 +229,7 @@ $$"""
                 Bind(typeof(Blog).GetProperty(nameof(Blog.PublicProperty))!, Constant(8)),
                 Bind(typeof(Blog).GetField(nameof(Blog.PublicField))!, Constant(9))),
 """
-new Blog("foo")
+new LinqToCSharpTranslatorTest.Blog("foo")
 {
     PublicProperty = 8,
     PublicField = 9
@@ -246,7 +247,7 @@ new Blog("foo")
                     ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
                     ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9)))),
 """
-new Blog("foo")
+new LinqToCSharpTranslatorTest.Blog("foo")
 {
     ListOfInts =
     {
@@ -269,7 +270,7 @@ new Blog("foo")
                         ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
                         ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9))))),
 """
-new Blog("foo")
+new LinqToCSharpTranslatorTest.Blog("foo")
 {
     Details =
     {
@@ -297,7 +298,7 @@ new Blog("foo")
                     typeof(Blog).GetMethod(nameof(Blog.SomeInstanceMethod))!)),
 """
 {
-    var blog = new Blog();
+    var blog = new LinqToCSharpTranslatorTest.Blog();
     blog.SomeInstanceMethod();
 }
 """);
@@ -355,7 +356,7 @@ new Blog("foo")
                     blog)),
 """
 {
-    var blog = new Blog();
+    var blog = new LinqToCSharpTranslatorTest.Blog();
     LinqToCSharpTranslatorTest.GenericMethodImplementation(blog);
 }
 """);
@@ -398,7 +399,7 @@ new Blog("foo")
             New(
                 typeof(Blog).GetConstructor(new[] { typeof(string) })!,
                 Constant("foo")),
-            """new Blog("foo")""");
+            """new LinqToCSharpTranslatorTest.Blog("foo")""");
 
     [Fact]
     public void Instantiation_with_required_properties_and_parameterless_constructor()
@@ -406,7 +407,7 @@ new Blog("foo")
             New(
                 typeof(BlogWithRequiredProperties).GetConstructor(Array.Empty<Type>())!),
 """
-Activator.CreateInstance<BlogWithRequiredProperties>()
+Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>()
 """);
 
     [Fact]
@@ -422,7 +423,7 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
             New(
                 typeof(BlogWithRequiredProperties).GetConstructor(new[] { typeof(string), typeof(int) })!,
                 Constant("foo"), Constant(8)),
-            """new BlogWithRequiredProperties("foo", 8)""");
+            """new LinqToCSharpTranslatorTest.BlogWithRequiredProperties("foo", 8)""");
 
     [Fact]
     public void Lambda_with_expression_body()
@@ -1183,7 +1184,7 @@ f1 = (int i) =>
 {
     var liftedArg = LinqToCSharpTranslatorTest.Foo();
     LinqToCSharpTranslatorTest.Bar();
-    var b = new Blog(liftedArg, LinqToCSharpTranslatorTest.Baz());
+    var b = new LinqToCSharpTranslatorTest.Blog(liftedArg, LinqToCSharpTranslatorTest.Baz());
 }
 """);
     }
@@ -1832,11 +1833,16 @@ catch
 
     private void AssertCore(Expression expression, bool isStatement, string expected)
     {
-        var (translator, workspace) = CreateTranslator();
+       var typeMappingSource = new SqlServerTypeMappingSource(
+                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+                new RelationalTypeMappingSourceDependencies(new IRelationalTypeMappingSourcePlugin[0]),
+                new SqlServerSingletonOptions());
+
+        var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();
-        var node = isStatement
-            ? translator.TranslateStatement(expression, namespaces)
-            : translator.TranslateExpression(expression, namespaces);
+        var actual = isStatement
+            ? translator.Statement(expression, namespaces)
+            : translator.Expression(expression, namespaces);
 
         if (_outputExpressionTrees)
         {
@@ -1846,21 +1852,6 @@ catch
 
         // TODO: Actually compile the output C# code to make sure it's valid.
         // TODO: For extra credit, execute both code representations and make sure the results are the same
-        // Simplifier.ReduceAsync(expression).Result
-
-        var code = node.NormalizeWhitespace().ToFullString();
-
-        var projectId = ProjectId.CreateNewId();
-        var versionStamp = VersionStamp.Create();
-        var projectInfo = ProjectInfo.Create(projectId, versionStamp, "TestProj", "TestProj", LanguageNames.CSharp);
-        workspace.AddProject(projectInfo);
-        var document = workspace.AddDocument(projectId, "Test.cs", SourceText.From(code));
-
-        var syntaxRootFoo = document.GetSyntaxRootAsync().Result!;
-        var annotatedDocument = document.WithSyntaxRoot(syntaxRootFoo.WithAdditionalAnnotations(Simplifier.Annotation));
-        document = Simplifier.ReduceAsync(annotatedDocument).Result;
-
-        var actual = document.GetTextAsync().Result.ToString();
 
         try
         {
@@ -1881,11 +1872,11 @@ catch
         }
     }
 
-    private (LinqToCSharpTranslator, AdhocWorkspace) CreateTranslator()
+    private (LinqToCSharpSyntaxTranslator, AdhocWorkspace) CreateTranslator()
     {
         var workspace = new AdhocWorkspace();
         var syntaxGenerator = SyntaxGenerator.GetGenerator(workspace, LanguageNames.CSharp);
-        return (new LinqToCSharpTranslator(syntaxGenerator), workspace);
+        return (new LinqToCSharpSyntaxTranslator(syntaxGenerator), workspace);
     }
 
     // ReSharper disable UnusedMember.Local
@@ -1943,7 +1934,11 @@ catch
         public int PublicProperty { get; set; }
         internal int InternalField;
         internal int InternalProperty { get; set; }
+#pragma warning disable IDE0044 // Add readonly modifier
+#pragma warning disable IDE0051 // Remove unused private members
         private int _privateField;
+#pragma warning restore IDE0051 // Remove unused private members
+#pragma warning restore IDE0044 // Add readonly modifier
         private int PrivateProperty { get; set; }
 
         public List<int> ListOfInts { get; set; } = new();

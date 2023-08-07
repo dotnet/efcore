@@ -449,6 +449,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, entityType, propertyName, propertyType);
 
         /// <summary>
+        ///     The type mapping used is incompatible with a compiled model. The mapping type must have a 'public static readonly {typeMapping} {typeMapping}.Default' property.
+        /// </summary>
+        public static string CompiledModelIncompatibleTypeMapping(object? typeMapping)
+            => string.Format(
+                GetString("CompiledModelIncompatibleTypeMapping", nameof(typeMapping)),
+                typeMapping);
+
+        /// <summary>
         ///     The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.
         /// </summary>
         public static string CompiledQueryDifferentModel(object? queryExpression)

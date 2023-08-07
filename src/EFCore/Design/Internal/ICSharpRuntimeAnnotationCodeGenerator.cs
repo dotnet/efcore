@@ -103,4 +103,32 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <param name="typeConfiguration">The scalar type configuration to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(ITypeMappingConfiguration typeConfiguration, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
+
+    /// <summary>
+    ///     Generates code to create the given property type mapping.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping to create.</param>
+    /// <param name="property">The property to which this type mapping will be applied.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    bool Create(
+        CoreTypeMapping typeMapping,
+        IProperty property,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+        => Create(typeMapping, parameters,
+            property.GetValueComparer(), property.GetKeyValueComparer(), property.GetProviderValueComparer());
+
+    /// <summary>
+    ///     Generates code to create the given property type mapping.
+    /// </summary>
+    /// <param name="typeMapping">The type mapping to create.</param>
+    /// <param name="parameters">Additional parameters used during code generation.</param>
+    /// <param name="valueComparer">The value comparer that should be used instead of the one in the type mapping.</param>
+    /// <param name="keyValueComparer">The key value comparer that should be used instead of the one in the type mapping.</param>
+    /// <param name="providerValueComparer">The provider value comparer that should be used instead of the one in the type mapping.</param>
+    bool Create(
+        CoreTypeMapping typeMapping,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters,
+        ValueComparer? valueComparer = null,
+        ValueComparer? keyValueComparer = null,
+        ValueComparer? providerValueComparer = null);
 }

@@ -144,6 +144,8 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalKeyBuilderExtensions),
             typeof(RelationalEntityTypeBuilderExtensions),
             typeof(RelationalOwnedNavigationBuilderExtensions),
+            typeof(RelationalComplexTypeExtensions),
+            typeof(RelationalComplexTypePropertyBuilderExtensions),
             typeof(DbFunctionBuilder),
             typeof(DbFunctionParameterBuilder),
             typeof(TableBuilder),
@@ -215,9 +217,9 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 {
                     typeof(IReadOnlyComplexType),
                     (
-                        null,
-                        null,
-                        null,
+                        typeof(RelationalComplexTypeExtensions),
+                        typeof(RelationalComplexTypeExtensions),
+                        typeof(RelationalComplexTypeExtensions),
                         null,
                         null
                     )
@@ -464,6 +466,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             MirrorTypes.Add(typeof(TableValuedFunctionBuilder<>), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
             MirrorTypes.Add(typeof(StoredProcedureBuilder), typeof(OwnedNavigationStoredProcedureBuilder));
             MirrorTypes.Add(typeof(StoredProcedureBuilder<>), typeof(OwnedNavigationStoredProcedureBuilder<,>));
+            MirrorTypes.Add(typeof(RelationalComplexTypePropertyBuilderExtensions), typeof(RelationalPropertyBuilderExtensions));
 
             base.Initialize();
         }

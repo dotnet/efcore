@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-
 using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -13,7 +11,7 @@ internal static class EnumerableMethods
 
     //public static MethodInfo AggregateWithSeedWithoutSelector { get; }
 
-    //public static MethodInfo AggregateWithSeedSelector { get; }
+    public static MethodInfo AggregateWithSeedSelector { get; }
 
     public static MethodInfo All { get; }
 
@@ -198,7 +196,7 @@ internal static class EnumerableMethods
 
     //public static MethodInfo WhereOrdinal { get; }
 
-    //public static MethodInfo Zip { get; }
+    public static MethodInfo ZipWithSelector { get; }
 
     // private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
@@ -264,6 +262,15 @@ internal static class EnumerableMethods
             .GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
             .GroupBy(mi => mi.Name)
             .ToDictionary(e => e.Key, l => l.ToList());
+
+        AggregateWithSeedSelector = GetMethod(
+            nameof(Enumerable.Aggregate), 3,
+            types => new[] {
+                typeof(IEnumerable<>).MakeGenericType(types[0]),
+                types[1],
+                typeof(Func<,,>).MakeGenericType(types[1], types[0], types[1]),
+                typeof(Func<,>).MakeGenericType(types[1], types[2])
+                });
 
         All = GetMethod(
             nameof(Enumerable.All), 1,
@@ -540,6 +547,14 @@ internal static class EnumerableMethods
         Where = GetMethod(
             nameof(Enumerable.Where), 1,
             types => new[] { typeof(IEnumerable<>).MakeGenericType(types[0]), typeof(Func<,>).MakeGenericType(types[0], typeof(bool)) });
+
+        ZipWithSelector = GetMethod(
+            nameof(Enumerable.Zip), 3,
+            types => new[] {
+                typeof(IEnumerable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Func<,,>).MakeGenericType(types[0], types[1], types[2])
+                });
 
         var numericTypes = new[]
         {

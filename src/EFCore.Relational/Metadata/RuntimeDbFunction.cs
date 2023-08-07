@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -95,6 +96,11 @@ public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
             ? NonCapturingLazyInitializer.EnsureInitialized(
                 ref _typeMapping, this, static dbFunction =>
                 {
+                    if (!RuntimeFeature.IsDynamicCodeSupported)
+                    {
+                        throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+                    }
+
                     var relationalTypeMappingSource =
                         (IRelationalTypeMappingSource)((IModel)dbFunction.Model).GetModelDependencies().TypeMappingSource;
                     return !string.IsNullOrEmpty(dbFunction._storeType)

@@ -57,21 +57,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         IModel model,
         CompiledModelCodeGenerationOptions options)
     {
+        // Translated expressions don't have nullability annotations
+        var nullable = false;
         var scaffoldedFiles = new List<ScaffoldedFile>();
-        var modelCode = CreateModel(options.ModelNamespace, options.ContextType, options.UseNullableReferenceTypes);
+        var modelCode = CreateModel(options.ModelNamespace, options.ContextType, nullable);
         var modelFileName = options.ContextType.ShortDisplayName() + ModelSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelFileName, Code = modelCode });
 
         var entityTypeIds = new Dictionary<IEntityType, (string Variable, string Class)>();
         var modelBuilderCode = CreateModelBuilder(
-            model, options.ModelNamespace, options.ContextType, entityTypeIds, options.UseNullableReferenceTypes);
+            model, options.ModelNamespace, options.ContextType, entityTypeIds, nullable);
         var modelBuilderFileName = options.ContextType.ShortDisplayName() + ModelBuilderSuffix + FileExtension;
         scaffoldedFiles.Add(new ScaffoldedFile { Path = modelBuilderFileName, Code = modelBuilderCode });
 
         foreach (var (entityType, (_, @class)) in entityTypeIds)
         {
             var generatedCode = GenerateEntityType(
-                entityType, options.ModelNamespace, @class, options.UseNullableReferenceTypes);
+                entityType, options.ModelNamespace, @class, nullable);
 
             var entityTypeFileName = @class + FileExtension;
             scaffoldedFiles.Add(new ScaffoldedFile { Path = entityTypeFileName, Code = generatedCode });
@@ -710,41 +712,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasValueGeneratorFactory)));
         }
 
-        var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
-        if (valueComparerType == null
-            && property[CoreAnnotationNames.ValueComparer] != null)
-        {
-            throw new InvalidOperationException(
-                DesignStrings.CompiledModelValueComparer(
-                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
-        }
-
-        var providerValueComparerType = (Type?)property[CoreAnnotationNames.ProviderValueComparerType];
-        if (providerValueComparerType == null
-            && property[CoreAnnotationNames.ProviderValueComparer] != null)
-        {
-            throw new InvalidOperationException(
-                DesignStrings.CompiledModelValueComparer(
-                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
-        }
-
-        var valueConverterType = GetValueConverterType(property);
-        if (valueConverterType == null
-            && property.GetValueConverter() != null)
-        {
-            throw new InvalidOperationException(
-                DesignStrings.CompiledModelValueConverter(
-                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
-        }
-
-        if (property is IConventionProperty conventionProperty
-            && conventionProperty.GetTypeMappingConfigurationSource() != null)
-        {
-            throw new InvalidOperationException(
-                DesignStrings.CompiledModelTypeMapping(
-                    property.DeclaringType.ShortName(), property.Name, "Customize()", parameters.ClassName));
-        }
-
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
             .Append("var ").Append(variableName).Append(" = ").Append(parameters.TargetName).AppendLine(".AddProperty(")
@@ -836,6 +803,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("().Create");
         }
 
+        var valueConverterType = GetValueConverterType(property);
         if (valueConverterType != null)
         {
             AddNamespace(valueConverterType, parameters.Namespaces);
@@ -846,6 +814,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
         if (valueComparerType != null)
         {
             AddNamespace(valueComparerType, parameters.Namespaces);
@@ -856,6 +825,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var providerValueComparerType = (Type?)property[CoreAnnotationNames.ProviderValueComparerType];
         if (providerValueComparerType != null)
         {
             AddNamespace(providerValueComparerType, parameters.Namespaces);
@@ -866,31 +836,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
-        var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
-        if (jsonValueReaderWriterType != null)
-        {
-            AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
-
-            var instanceProperty = jsonValueReaderWriterType.GetAnyProperty("Instance");
-            if (instanceProperty != null
-                && instanceProperty.IsStatic()
-                && instanceProperty.GetMethod?.IsPublic == true
-                && jsonValueReaderWriterType.IsAssignableFrom(instanceProperty.PropertyType))
-            {
-                mainBuilder.AppendLine(",")
-                    .Append("jsonValueReaderWriter: ")
-                    .Append(_code.Reference(jsonValueReaderWriterType))
-                    .Append(".Instance");
-            }
-            else
-            {
-                mainBuilder.AppendLine(",")
-                    .Append("jsonValueReaderWriter: new ")
-                    .Append(_code.Reference(jsonValueReaderWriterType))
-                    .Append("()");
-            }
-        }
-
         var sentinel = property.Sentinel;
         if (sentinel != null)
         {
@@ -899,9 +844,22 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append(_code.UnknownLiteral(sentinel));
         }
 
+        var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
+        if (jsonValueReaderWriterType != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("jsonValueReaderWriter: ");
+
+            CSharpRuntimeAnnotationCodeGenerator.CreateJsonValueReaderWriter(jsonValueReaderWriterType, parameters, _code);
+        }
+
         mainBuilder
             .AppendLine(");")
             .DecrementIndent();
+
+        mainBuilder.Append(variableName).Append(".TypeMapping = ");
+        _annotationCodeGenerator.Create(property.GetTypeMapping(), property, parameters with { TargetName = variableName });
+        mainBuilder.AppendLine(";");
     }
 
     private static Type? GetValueConverterType(IProperty property)
@@ -1696,24 +1654,5 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     }
 
     private static void AddNamespace(Type type, ISet<string> namespaces)
-    {
-        if (!string.IsNullOrEmpty(type.Namespace))
-        {
-            namespaces.Add(type.Namespace);
-        }
-
-        if (type.IsGenericType)
-        {
-            foreach (var argument in type.GenericTypeArguments)
-            {
-                AddNamespace(argument, namespaces);
-            }
-        }
-
-        var sequenceType = type.TryGetSequenceType();
-        if (sequenceType != null && sequenceType != type)
-        {
-            AddNamespace(sequenceType, namespaces);
-        }
-    }
+        => CSharpRuntimeAnnotationCodeGenerator.AddNamespace(type, namespaces);
 }

@@ -185,31 +185,11 @@ public class ValueComparer
             return v => v;
         }
 
-        // Comparer implementation for arrays
         var sourceParameter = Expression.Parameter(typeof(T), "source");
-        var lengthVariable = Expression.Variable(typeof(int), "length");
-        var destinationVariable = Expression.Variable(typeof(T), "destination");
-
-        // Code looks like:
-        // var length = source.Length;
-        // var destination = new T[length];
-        // Array.Copy(source, destination, length);
-        // return destination;
         return Expression.Lambda<Func<T, T>>(
-            Expression.Block(
-                new[] { lengthVariable, destinationVariable },
-                Expression.Assign(
-                    lengthVariable,
-                    Expression.Property(sourceParameter, typeof(T).GetTypeInfo().GetProperty(nameof(Array.Length))!)),
-                Expression.Assign(
-                    destinationVariable,
-                    Expression.NewArrayBounds(typeof(T).GetElementType()!, lengthVariable)),
-                Expression.Call(
-                    ArrayCopyMethod,
-                    sourceParameter,
-                    destinationVariable,
-                    lengthVariable),
-                destinationVariable),
+            Expression.Call(
+                    EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
+                    sourceParameter),
             sourceParameter);
     }
 
@@ -249,8 +229,7 @@ public class ValueComparer
                 || unwrappedType == typeof(sbyte)
                 || unwrappedType == typeof(char)
                     ? (Expression)Expression.Convert(param, typeof(int))
-                    : Expression.Call(
-                        Expression.Convert(param, typeof(object)), ObjectGetHashCodeMethod);
+                    : Expression.Call(param, ObjectGetHashCodeMethod);
 
         return Expression.Lambda<Func<T, int>>(expression, param);
     }

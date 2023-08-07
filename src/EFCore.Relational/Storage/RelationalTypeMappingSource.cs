@@ -5,13 +5,12 @@ using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable 1574, CS0419 // Ambiguous reference in cref attribute
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
 ///     <para>
 ///         The base class for relational type mapping source. Relational providers
-///         should derive from this class and override <see cref="RelationalTypeMappingSource.FindMapping" />
+///         should derive from this class and override <see cref="FindMapping(in RelationalTypeMappingInfo)" />
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -77,7 +76,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     protected virtual RelationalTypeMappingSourceDependencies RelationalDependencies { get; }
 
     /// <summary>
-    ///     Call <see cref="RelationalTypeMappingSource.FindMapping" /> instead
+    ///     Call <see cref="FindMapping(in RelationalTypeMappingInfo)" /> instead
     /// </summary>
     /// <param name="mappingInfo">The mapping info to use to create the mapping.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none could be found.</returns>
@@ -275,7 +274,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     ///     <para>
     ///         Note: Only call this method if there is no <see cref="IProperty" />
     ///         or <see cref="IModel" /> available, otherwise call <see cref="FindMapping(IProperty)" />
-    ///         or <see cref="FindMapping(Type, IModel)" />
+    ///         or <see cref="FindMapping(Type, IModel, CoreTypeMapping?)" />
     ///     </para>
     ///     <para>
     ///         Note: providers should typically not need to override this method.

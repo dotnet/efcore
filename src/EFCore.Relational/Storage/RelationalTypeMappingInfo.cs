@@ -165,8 +165,8 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
-    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="RelationalTypeMapping" />. for collection
-    ///     elements.
+    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="RelationalTypeMapping" />
+    ///     for collection elements.
     /// </summary>
     /// <param name="source">The source info.</param>
     /// <param name="elementMapping">The element mapping to use.</param>
@@ -194,8 +194,9 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="dbType">The suggested <see cref="DbType"/>, or <see langword="null" /> for default.</param>
     public RelationalTypeMappingInfo(
-        Type type,
+        Type? type = null,
         string? storeTypeName = null,
         string? storeTypeNameBase = null,
         bool keyOrIndex = false,
@@ -204,13 +205,15 @@ public readonly record struct RelationalTypeMappingInfo
         bool? rowVersion = null,
         bool? fixedLength = null,
         int? precision = null,
-        int? scale = null)
+        int? scale = null,
+        DbType? dbType = null)
     {
         _coreTypeMappingInfo = new TypeMappingInfo(type, keyOrIndex, unicode, size, rowVersion, precision, scale);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
+        DbType = dbType;
     }
 
     /// <summary>

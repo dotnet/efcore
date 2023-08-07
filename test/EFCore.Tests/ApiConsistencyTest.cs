@@ -28,6 +28,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
         {
             AddInstanceMethods(MetadataTypes);
 
+            MirrorTypes.Add(typeof(PropertyBuilder), typeof(ComplexTypePropertyBuilder));
+
             base.Initialize();
         }
 

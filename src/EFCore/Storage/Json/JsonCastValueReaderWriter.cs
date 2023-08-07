@@ -2,13 +2,16 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
 ///     A <see cref="JsonValueReaderWriter{TValue}" /> that wraps an existing reader/writer and adds casts to the given type.
 /// </summary>
-public class JsonCastValueReaderWriter<TConverted> : JsonValueReaderWriter<TConverted>
+public class JsonCastValueReaderWriter<TConverted> :
+    JsonValueReaderWriter<TConverted>,
+    ICompositeJsonValueReaderWriter
 {
     private readonly JsonValueReaderWriter _providerReaderWriter;
 
@@ -28,4 +31,7 @@ public class JsonCastValueReaderWriter<TConverted> : JsonValueReaderWriter<TConv
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TConverted value)
         => _providerReaderWriter.ToJson(writer, value!);
+
+    JsonValueReaderWriter ICompositeJsonValueReaderWriter.InnerReaderWriter
+        => _providerReaderWriter;
 }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -45,8 +46,11 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                 parameters.CoreParameters with
                 {
                     ProviderValueComparer = parameters.CoreParameters.ProviderValueComparer
-                    ?? CreateProviderValueComparer(
-                        parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
+                    ?? (RuntimeFeature.IsDynamicCodeSupported
+                        ? CreateProviderValueComparer(
+                            parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
+                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
+                    
                 }))
     {
         SpatialConverter = converter;
