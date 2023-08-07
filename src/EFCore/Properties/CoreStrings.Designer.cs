@@ -465,7 +465,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
-        ///     Adding the collection complex property '{type}.{property}' isn't supported.
+        ///     Adding the collection complex property '{type}.{property}' isn't supported. See https://github.com/dotnet/efcore/issues/31237 for more information.
         /// </summary>
         public static string ComplexPropertyCollection(object? type, object? property)
             => string.Format(
@@ -473,7 +473,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
-        ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported.
+        ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.
         /// </summary>
         public static string ComplexPropertyIndexer(object? type, object? property)
             => string.Format(
@@ -481,7 +481,15 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
-        ///     Configuring the complex property '{type}.{property}' in shadow state isn't supported.
+        ///     Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.
+        /// </summary>
+        public static string ComplexPropertyOptional(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyOptional", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
+        ///     Configuring the complex property '{type}.{property}' in shadow state isn't supported.  See https://github.com/dotnet/efcore/issues/31243 for more information.
         /// </summary>
         public static string ComplexPropertyShadow(object? type, object? property)
             => string.Format(
@@ -2542,6 +2550,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("SavepointsNotSupported");
 
         /// <summary>
+        ///     The seed entity for entity type '{entityType}' cannot be added because it has the complex property '{property}' set. Complex properties are currently not supported in seeding. See https://github.com/dotnet/efcore/issues/31254 for more information. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the involved property values.
+        /// </summary>
+        public static string SeedDatumComplexProperty(object? entityType, object? property)
+            => string.Format(
+                GetString("SeedDatumComplexProperty", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
+        ///     The seed entity for entity type '{entityType}' with the key value '{keyValue}' cannot be added because it has the complex property '{property}' set. Complex properties are currently not supported in seeding. See https://github.com/dotnet/efcore/issues/31254 for more information.
+        /// </summary>
+        public static string SeedDatumComplexPropertySensitive(object? entityType, object? keyValue, object? property)
+            => string.Format(
+                GetString("SeedDatumComplexPropertySensitive", nameof(entityType), nameof(keyValue), nameof(property)),
+                entityType, keyValue, property);
+
+        /// <summary>
         ///     The seed entity for entity type '{entityType}' cannot be added because a default value was provided for the required property '{property}'. Please provide a value different from '{defaultValue}'.
         /// </summary>
         public static string SeedDatumDefaultValue(object? entityType, object? property, object? defaultValue)
@@ -2970,6 +2994,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ValueCannotBeNull", "0_property", "1_entityType", nameof(propertyType)),
                 property, entityType, propertyType);
+
+        /// <summary>
+        ///     Adding the complex property '{type}.{property}' isn't supported because it's of a value type '{propertyType}'. See https://github.com/dotnet/efcore/issues/9906 for more information.
+        /// </summary>
+        public static string ValueComplexType(object? type, object? property, object? propertyType)
+            => string.Format(
+                GetString("ValueComplexType", nameof(type), nameof(property), nameof(propertyType)),
+                type, property, propertyType);
 
         /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.

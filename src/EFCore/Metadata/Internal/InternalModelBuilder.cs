@@ -937,7 +937,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionModelBuilder? IConventionModelBuilder.Complex(Type type, bool fromDataAnnotation)
+    IConventionModelBuilder? IConventionModelBuilder.ComplexType(Type type, bool fromDataAnnotation)
         => Complex(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>

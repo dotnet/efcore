@@ -32,7 +32,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar2", complexProperty["foo2"]);
             Assert.Equal(typeof(Customer).Name, complexProperty.Name);
             Assert.Equal("""
-Customer (Customer)
+Customer (Customer) Required
   ComplexType: ComplexProperties.Customer#Customer
     Properties: 
       AlternateKey (Guid) Required
@@ -1507,7 +1507,7 @@ Customer (Customer)
         }
 
         [ConditionalFact]
-        public virtual void Complex_properties_discovered_by_convention()
+        public virtual void Complex_properties_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -1518,10 +1518,11 @@ Customer (Customer)
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer);
 
-            modelBuilder
-                .Entity<ValueComplexProperties>()
-                .Ignore(e => e.Tuple)
-                .ComplexProperty(e => e.Label);
+            // TODO: Issue #14661
+            //modelBuilder
+            //    .Entity<ValueComplexProperties>()
+            //    .Ignore(e => e.Tuple)
+            //    .ComplexProperty(e => e.Label);
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1530,26 +1531,26 @@ Customer (Customer)
             var indexedType = model.FindEntityType(typeof(ComplexProperties))
                 .FindComplexProperty(nameof(ComplexProperties.IndexedClass)).ComplexType;
 
-            var valueType = model.FindEntityType(typeof(ValueComplexProperties));
-            var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label));
-            Assert.False(labelProperty.IsNullable);
-            Assert.Equal(typeof(ProductLabel), labelProperty.ClrType);
-            var labelType = labelProperty.ComplexType;
-            Assert.Equal(typeof(ProductLabel), labelType.ClrType);
+            //var valueType = model.FindEntityType(typeof(ValueComplexProperties));
+            //var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label));
+            //Assert.False(labelProperty.IsNullable);
+            //Assert.Equal(typeof(ProductLabel), labelProperty.ClrType);
+            //var labelType = labelProperty.ComplexType;
+            //Assert.Equal(typeof(ProductLabel), labelType.ClrType);
 
-            var labelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
-            Assert.True(labelCustomerProperty.IsNullable);
-            Assert.Equal(typeof(Customer), labelCustomerProperty.ClrType);
+            //var labelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
+            //Assert.True(labelCustomerProperty.IsNullable);
+            //Assert.Equal(typeof(Customer), labelCustomerProperty.ClrType);
 
-            var oldLabelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.OldLabel));
-            Assert.True(oldLabelProperty.IsNullable);
-            Assert.Equal(typeof(ProductLabel?), oldLabelProperty.ClrType);
-            var oldLabelType = oldLabelProperty.ComplexType;
-            Assert.Equal(typeof(ProductLabel), oldLabelType.ClrType);
+            //var oldLabelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.OldLabel));
+            //Assert.True(oldLabelProperty.IsNullable);
+            //Assert.Equal(typeof(ProductLabel?), oldLabelProperty.ClrType);
+            //var oldLabelType = oldLabelProperty.ComplexType;
+            //Assert.Equal(typeof(ProductLabel), oldLabelType.ClrType);
 
-            var oldLabelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
-            Assert.True(oldLabelCustomerProperty.IsNullable);
-            Assert.Equal(typeof(Customer), oldLabelCustomerProperty.ClrType);
+            //var oldLabelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
+            //Assert.True(oldLabelCustomerProperty.IsNullable);
+            //Assert.Equal(typeof(Customer), oldLabelCustomerProperty.ClrType);
         }
 
         [ConditionalFact]
@@ -1571,7 +1572,22 @@ Customer (Customer)
         }
 
         [ConditionalFact]
-        public virtual void Can_map_tuple()
+        public virtual void Throws_for_optional_complex_property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer).IsRequired(false);
+
+            Assert.Equal(
+                CoreStrings.ComplexPropertyOptional(
+                    nameof(ComplexProperties), nameof(ComplexProperties.Customer)),
+                    Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Throws_for_tuple()
         {
             var modelBuilder = CreateModelBuilder();
 
@@ -1581,17 +1597,24 @@ Customer (Customer)
                 .Ignore(e => e.OldLabel)
                 .ComplexProperty(e => e.Tuple);
 
-            var model = modelBuilder.FinalizeModel();
+            Assert.Equal(
+                CoreStrings.ValueComplexType(
+                    nameof(ValueComplexProperties), nameof(ValueComplexProperties.Tuple), typeof((string, int)).ShortDisplayName()),
+                    Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
 
-            var valueType = model.FindEntityType(typeof(ValueComplexProperties));
-            var tupleProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Tuple));
-            Assert.False(tupleProperty.IsNullable);
-            Assert.Equal(typeof((string, int)), tupleProperty.ClrType);
-            var tupleType = tupleProperty.ComplexType;
-            Assert.Equal(typeof((string, int)), tupleType.ClrType);
-            Assert.Equal("ValueComplexProperties.Tuple#ValueTuple<string, int>", tupleType.DisplayName());
+            // Uncomment when value types are supported.
+            // TODO: Issue #14661
+            //var model = modelBuilder.FinalizeModel();
 
-            Assert.Equal(2, tupleType.GetProperties().Count());
+            //var valueType = model.FindEntityType(typeof(ValueComplexProperties));
+            //var tupleProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Tuple));
+            //Assert.False(tupleProperty.IsNullable);
+            //Assert.Equal(typeof((string, int)), tupleProperty.ClrType);
+            //var tupleType = tupleProperty.ComplexType;
+            //Assert.Equal(typeof((string, int)), tupleType.ClrType);
+            //Assert.Equal("ValueComplexProperties.Tuple#ValueTuple<string, int>", tupleType.DisplayName());
+
+            //Assert.Equal(2, tupleType.GetProperties().Count());
         }
 
         [ConditionalFact]
