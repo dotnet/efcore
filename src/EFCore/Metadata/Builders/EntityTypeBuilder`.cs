@@ -164,8 +164,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(
-            Builder.Property(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
-                    ConfigurationSource.Explicit)!.PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+            Builder.PrimitiveCollection(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures a complex property of the entity type.

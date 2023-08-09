@@ -19,7 +19,7 @@ public interface IElementTypeAnnotationChangedConvention : IConvention
     /// <param name="annotation">The new annotation.</param>
     /// <param name="oldAnnotation">The old annotation.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    void ProcessPropertyAnnotationChanged(
+    void ProcessElementTypeAnnotationChanged(
         IConventionElementTypeBuilder builder,
         string name,
         IConventionAnnotation? annotation,

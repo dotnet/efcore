@@ -116,9 +116,9 @@ public class OwnedNavigationBuilder<
         Expression<Func<TDependentEntity, TProperty>> propertyExpression)
         => UpdateBuilder(
             () => new PropertyBuilder<TProperty>(
-                DependentEntityType.Builder.Property(
+                DependentEntityType.Builder.PrimitiveCollection(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
-                    ConfigurationSource.Explicit)!.PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata));
+                    ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property

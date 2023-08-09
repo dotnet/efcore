@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -55,37 +53,4 @@ public static class CosmosPrimitiveCollectionBuilderExtensions
         this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string name)
         => (PrimitiveCollectionBuilder<TProperty>)ToJsonProperty((PrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
-
-    /// <summary>
-    ///     Configures this property to be the etag concurrency token.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PrimitiveCollectionBuilder IsETagConcurrency(this PrimitiveCollectionBuilder primitiveCollectionBuilder)
-    {
-        primitiveCollectionBuilder
-            .IsConcurrencyToken()
-            .ToJsonProperty("_etag")
-            .ValueGeneratedOnAddOrUpdate();
-
-        return primitiveCollectionBuilder;
-    }
-
-    /// <summary>
-    ///     Configures this property to be the etag concurrency token.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
-    /// </remarks>
-    /// <typeparam name="TProperty">The type of the property being configured.</typeparam>
-    /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
-    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PrimitiveCollectionBuilder<TProperty> IsETagConcurrency<TProperty>(
-        this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        => (PrimitiveCollectionBuilder<TProperty>)IsETagConcurrency((PrimitiveCollectionBuilder)primitiveCollectionBuilder);
 }

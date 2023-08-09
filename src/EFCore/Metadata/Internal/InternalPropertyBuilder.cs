@@ -776,13 +776,13 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBuilder? PrimitiveCollection(ConfigurationSource configurationSource)
+    public virtual InternalElementTypeBuilder? ElementType(ConfigurationSource configurationSource)
     {
-        if (CanSetPrimitiveCollection(configurationSource))
+        if (CanSetElementType(configurationSource))
         {
             Metadata.IsPrimitiveCollection(true, configurationSource);
             Metadata.SetValueConverter((Type?)null, configurationSource);
-            return this;
+            return new InternalElementTypeBuilder((ElementType)Metadata.GetElementType()!, ModelBuilder);
         }
 
         return null;
@@ -794,7 +794,7 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetPrimitiveCollection(ConfigurationSource? configurationSource)
+    public virtual bool CanSetElementType(ConfigurationSource? configurationSource)
         => configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource());
 
     /// <summary>
@@ -904,35 +904,80 @@ public class InternalPropertyBuilder
             newPropertyBuilder.HasTypeMapping(Metadata.TypeMapping, oldTypeMappingConfigurationSource.Value);
         }
 
-        var element = Metadata.GetElementType();
+        var oldElementType = (ElementType?)Metadata.GetElementType();
         var oldElementTypeConfigurationSource = Metadata.GetElementTypeConfigurationSource();
-        if (element != null
+        if (oldElementType != null
             && oldElementTypeConfigurationSource.HasValue
-            && newPropertyBuilder.CanSetPrimitiveCollection(oldElementTypeConfigurationSource))
+            && newPropertyBuilder.CanSetElementType(oldElementTypeConfigurationSource))
         {
-            newPropertyBuilder.PrimitiveCollection(oldElementTypeConfigurationSource.Value);
-            var elementType = (ElementType?)Metadata.GetElementType();
-            if (elementType != null)
+            var newElementType = (ElementType?)newPropertyBuilder.Metadata.GetElementType();
+            if (newElementType != null)
             {
-                newPropertyBuilder.PrimitiveCollection(oldElementTypeConfigurationSource.Value);
-                var newElementTypeBuilder = new InternalElementTypeBuilder(elementType, ModelBuilder);
-                newElementTypeBuilder.IsRequired(
-                    !elementType.IsNullable, elementType.GetIsNullableConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.IsUnicode(
-                    elementType.IsUnicode(), elementType.GetIsUnicodeConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasConverter(
-                    elementType.GetValueConverter()?.GetType(),
-                    elementType.GetValueConverterConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasPrecision(
-                    elementType.GetPrecision(), elementType.GetPrecisionConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasScale(
-                    elementType.GetScale(), elementType.GetScaleConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasMaxLength(
-                    elementType.GetMaxLength(), elementType.GetMaxLengthConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasTypeMapping(
-                    elementType.TypeMapping, elementType.GetTypeMappingConfigurationSource() ?? ConfigurationSource.Convention);
-                newElementTypeBuilder.HasValueComparer(
-                    elementType.GetValueComparer(), elementType.GetValueComparerConfigurationSource() ?? ConfigurationSource.Convention);
+                var newElementTypeBuilder = new InternalElementTypeBuilder(newElementType, ModelBuilder);
+                newElementTypeBuilder.MergeAnnotationsFrom(oldElementType);
+
+                var oldElementNullableConfigurationSource = oldElementType.GetIsNullableConfigurationSource();
+                if (oldElementNullableConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetIsRequired(!oldElementType.IsNullable, oldElementNullableConfigurationSource))
+                {
+                    newElementTypeBuilder.IsRequired(!oldElementType.IsNullable, oldElementNullableConfigurationSource.Value);
+                }
+
+                var oldElementUnicodeConfigurationSource = oldElementType.GetIsUnicodeConfigurationSource();
+                if (oldElementUnicodeConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetIsUnicode(oldElementType.IsNullable, oldElementUnicodeConfigurationSource))
+                {
+                    newElementTypeBuilder.IsUnicode(oldElementType.IsNullable, oldElementUnicodeConfigurationSource.Value);
+                }
+
+                var oldElementProviderClrTypeConfigurationSource = oldElementType.GetProviderClrTypeConfigurationSource();
+                if (oldElementProviderClrTypeConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetConversion(oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource))
+                {
+                    newElementTypeBuilder.HasConversion(oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource.Value);
+                }
+
+                var oldElementConverterConfigurationSource = oldElementType.GetValueConverterConfigurationSource();
+                if (oldElementConverterConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetConverter(oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource))
+                {
+                    newElementTypeBuilder.HasConverter(oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource.Value);
+                }
+
+                var oldElementPrecisionConfigurationSource = oldElementType.GetPrecisionConfigurationSource();
+                if (oldElementPrecisionConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetPrecision(oldElementType.GetPrecision(), oldElementPrecisionConfigurationSource))
+                {
+                    newElementTypeBuilder.HasPrecision(oldElementType.GetPrecision(), oldElementPrecisionConfigurationSource.Value);
+                }
+
+                var oldElementScaleConfigurationSource = oldElementType.GetScaleConfigurationSource();
+                if (oldElementScaleConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetScale(oldElementType.GetScale(), oldElementScaleConfigurationSource))
+                {
+                    newElementTypeBuilder.HasScale(oldElementType.GetScale(), oldElementScaleConfigurationSource.Value);
+                }
+
+                var oldElementMaxLengthConfigurationSource = oldElementType.GetMaxLengthConfigurationSource();
+                if (oldElementMaxLengthConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetMaxLength(oldElementType.GetMaxLength(), oldElementMaxLengthConfigurationSource))
+                {
+                    newElementTypeBuilder.HasMaxLength(oldElementType.GetMaxLength(), oldElementMaxLengthConfigurationSource.Value);
+                }
+
+                var oldElementTypeMappingConfigurationSource = oldElementType.GetTypeMappingConfigurationSource();
+                if (oldElementTypeMappingConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetTypeMapping(oldElementType.TypeMapping, oldElementTypeMappingConfigurationSource))
+                {
+                    newPropertyBuilder.HasTypeMapping(oldElementType.TypeMapping, oldElementTypeMappingConfigurationSource.Value);
+                }
+
+                var oldElementComparerConfigurationSource = oldElementType.GetValueComparerConfigurationSource();
+                if (oldElementComparerConfigurationSource.HasValue
+                    && newElementTypeBuilder.CanSetValueComparer(oldElementType.GetValueComparer(), oldElementComparerConfigurationSource))
+                {
+                    newElementTypeBuilder.HasValueComparer(oldElementType.GetValueComparer(), oldElementComparerConfigurationSource.Value);
+                }
             }
         }
 
@@ -1480,14 +1525,8 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionElementTypeBuilder? IConventionPropertyBuilder.PrimitiveCollection(bool fromDataAnnotation)
-    {
-        var propertyBuilder = PrimitiveCollection(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-        return propertyBuilder == null
-            ? null
-            : new InternalElementTypeBuilder((ElementType)propertyBuilder.Metadata.GetElementType()!, propertyBuilder.ModelBuilder);
-    }
+    IConventionElementTypeBuilder? IConventionPropertyBuilder.ElementType(bool fromDataAnnotation)
+        => ElementType(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1495,7 +1534,7 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetPrimitiveCollection(bool fromDataAnnotation = false)
+    public virtual bool CanSetElementType(bool fromDataAnnotation = false)
         => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
             .Overrides(Metadata.GetElementTypeConfigurationSource());
 }

@@ -123,6 +123,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
         {
+            typeof(PropertyBuilder).GetMethod(
+                nameof(PropertyBuilder.HasValueGenerator), 0, new[] { typeof(Func<IProperty, ITypeBase, ValueGenerator>) }),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(string) }),
             typeof(ComplexPropertyBuilder).GetMethod(

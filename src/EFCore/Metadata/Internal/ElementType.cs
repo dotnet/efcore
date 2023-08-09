@@ -108,7 +108,7 @@ public class ElementType : ConventionAnnotatable, IMutableElementType, IConventi
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected new virtual IConventionAnnotation? OnAnnotationSet(
+    protected override IConventionAnnotation? OnAnnotationSet(
         string name,
         IConventionAnnotation? annotation,
         IConventionAnnotation? oldAnnotation)

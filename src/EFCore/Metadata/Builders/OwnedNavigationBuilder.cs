@@ -206,10 +206,9 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(string propertyName)
         => UpdateBuilder(
             () => new PrimitiveCollectionBuilder(
-                DependentEntityType.Builder.Property(
+                DependentEntityType.Builder.PrimitiveCollection(
                     Check.NotEmpty(propertyName, nameof(propertyName)),
-                    ConfigurationSource.Explicit)!
-                    .PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata));
+                    ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the owned type where that property represents
@@ -229,10 +228,9 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
         => UpdateBuilder(
             () => new PrimitiveCollectionBuilder<TProperty>(
-                DependentEntityType.Builder.Property(
+                DependentEntityType.Builder.PrimitiveCollection(
                     typeof(TProperty),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!
-                    .PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata));
+                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the owned type where that property represents
@@ -251,10 +249,9 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder PrimitiveCollection(Type propertyType, string propertyName)
         => new(
-            DependentEntityType.Builder.Property(
+            DependentEntityType.Builder.PrimitiveCollection(
                 Check.NotNull(propertyType, nameof(propertyType)), Check.NotEmpty(propertyName, nameof(propertyName)),
-                ConfigurationSource.Explicit)!
-                .PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata);
+                ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type.

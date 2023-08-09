@@ -363,7 +363,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// </summary>
     /// <returns>A builder to configure the collection element type.</returns>
     public virtual ElementTypeBuilder ElementType()
-        => new((IMutableElementType)Builder.PrimitiveCollection(ConfigurationSource.Explicit)!.Metadata.GetElementType()!);
+        => new((IMutableElementType)Builder.Metadata.GetElementType()!);
 
     /// <summary>
     ///     Configures the elements of this collection.

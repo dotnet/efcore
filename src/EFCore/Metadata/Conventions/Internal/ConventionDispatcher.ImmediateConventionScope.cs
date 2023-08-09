@@ -1567,7 +1567,7 @@ public partial class ConventionDispatcher
                         return null;
                     }
 
-                    elementConvention.ProcessPropertyNullabilityChanged(builder, _boolConventionContext);
+                    elementConvention.ProcessElementTypeNullabilityChanged(builder, _boolConventionContext);
                     if (_boolConventionContext.ShouldStopProcessing())
                     {
                         return _boolConventionContext.Result;
@@ -1704,7 +1704,7 @@ public partial class ConventionDispatcher
                 _annotationConventionContext.ResetState(annotation);
                 foreach (var elementConvention in _conventionSet.ElementTypeAnnotationChangedConventions)
                 {
-                    elementConvention.ProcessPropertyAnnotationChanged(
+                    elementConvention.ProcessElementTypeAnnotationChanged(
                         builder, name, annotation, oldAnnotation, _annotationConventionContext);
 
                     if (_annotationConventionContext.ShouldStopProcessing())

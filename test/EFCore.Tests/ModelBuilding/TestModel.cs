@@ -901,7 +901,7 @@ public abstract partial class ModelBuilderTest
         public required DoubleProperty DoubleProperty { get; set; }
         public required IndexedClass IndexedClass { get; set; }
         public required Quarks Quarks { get; set; }
-        public CollectionQuarks? CollectionQuarks { get; set; }
+        public CollectionQuarks CollectionQuarks { get; set; } = null!;
 
         [NotMapped]
         public required DynamicProperty DynamicProperty { get; set; }

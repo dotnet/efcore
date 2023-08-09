@@ -278,6 +278,72 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalPropertyBuilder? PrimitiveCollection(
+        Type? propertyType,
+        string propertyName,
+        ConfigurationSource? configurationSource)
+        => PrimitiveCollection(propertyType, propertyName, typeConfigurationSource: configurationSource, configurationSource: configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalPropertyBuilder? PrimitiveCollection(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
+        string propertyName,
+        ConfigurationSource? typeConfigurationSource,
+        ConfigurationSource? configurationSource)
+        => PrimitiveCollection(
+            propertyType, propertyName, memberInfo: null,
+            typeConfigurationSource,
+            configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalPropertyBuilder? PrimitiveCollection(string propertyName, ConfigurationSource? configurationSource)
+        => PrimitiveCollection(propertyType: null, propertyName, memberInfo: null, typeConfigurationSource: null, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalPropertyBuilder? PrimitiveCollection(MemberInfo memberInfo, ConfigurationSource? configurationSource)
+        => PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual InternalPropertyBuilder? PrimitiveCollection(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
+        string propertyName,
+        MemberInfo? memberInfo,
+        ConfigurationSource? typeConfigurationSource,
+        ConfigurationSource? configurationSource)
+    {
+        var builder = Property(propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource);
+
+        builder?.ElementType(configurationSource!.Value);
+
+        return builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalPropertyBuilder? CreateUniqueProperty(
         Type propertyType,
         string propertyName,
