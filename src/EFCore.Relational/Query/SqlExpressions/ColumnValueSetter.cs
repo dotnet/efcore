@@ -12,41 +12,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class ColumnValueSetter
+/// <param name="Column">A column to be updated.</param>
+/// <param name="Value">A value to be assigned to the column.</param>
+[DebuggerDisplay("{DebuggerDisplay(),nq}")]
+public readonly record struct ColumnValueSetter(ColumnExpression Column, SqlExpression Value)
 {
-    /// <summary>
-    ///     Creates a new instance of the <see cref="ColumnValueSetter" /> class.
-    /// </summary>
-    /// <param name="column">A column to be updated.</param>
-    /// <param name="value">A value to be assigned to the column.</param>
-    public ColumnValueSetter(ColumnExpression column, SqlExpression value)
-    {
-        Column = column;
-        Value = value;
-    }
-
-    /// <summary>
-    ///     The column to update value of.
-    /// </summary>
-    public virtual ColumnExpression Column { get; }
-
-    /// <summary>
-    ///     The value to be assigned to the column.
-    /// </summary>
-    public virtual SqlExpression Value { get; }
-
-    /// <inheritdoc />
-    public override bool Equals(object? obj)
-        => obj != null
-            && (ReferenceEquals(this, obj)
-                || obj is ColumnValueSetter columnValueSetter
-                && Equals(columnValueSetter));
-
-    private bool Equals(ColumnValueSetter columnValueSetter)
-        => Column == columnValueSetter.Column
-            && Value == columnValueSetter.Value;
-
-    /// <inheritdoc />
-    public override int GetHashCode()
-        => HashCode.Combine(Column, Value);
+    private string DebuggerDisplay()
+        => $"{Column.Print()} = {Value.Print()}";
 }

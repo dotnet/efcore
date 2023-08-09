@@ -8,10 +8,8 @@ public class TPCInheritanceBulkUpdatesSqlServerTest : TPCInheritanceBulkUpdatesT
     public TPCInheritanceBulkUpdatesSqlServerTest(
         TPCInheritanceBulkUpdatesSqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        ClearLog();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -111,9 +109,16 @@ WHERE (
         AssertSql();
     }
 
-    public override async Task Update_where_hierarchy(bool async)
+    public override async Task Update_base_type(bool async)
     {
-        await base.Update_where_hierarchy(async);
+        await base.Update_base_type(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_base_type_with_OfType(bool async)
+    {
+        await base.Update_base_type_with_OfType(async);
 
         AssertExecuteUpdateSql();
     }
@@ -125,16 +130,27 @@ WHERE (
         AssertExecuteUpdateSql();
     }
 
-    public override async Task Update_where_hierarchy_derived(bool async)
+    public override async Task Update_base_property_on_derived_type(bool async)
     {
-        await base.Update_where_hierarchy_derived(async);
+        await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
 """
 UPDATE [k]
-SET [k].[Name] = N'Kiwi'
+SET [k].[Name] = N'SomeOtherKiwi'
 FROM [Kiwi] AS [k]
-WHERE [k].[Name] = N'Great spotted kiwi'
+""");
+    }
+
+    public override async Task Update_derived_property_on_derived_type(bool async)
+    {
+        await base.Update_derived_property_on_derived_type(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE [k]
+SET [k].[FoundOn] = CAST(0 AS tinyint)
+FROM [Kiwi] AS [k]
 """);
     }
 
@@ -157,6 +173,19 @@ WHERE (
         FROM [Kiwi] AS [k]
     ) AS [t]
     WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+""");
+    }
+
+    public override async Task Update_base_and_derived_types(bool async)
+    {
+        await base.Update_base_and_derived_types(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE [k]
+SET [k].[FoundOn] = CAST(0 AS tinyint),
+    [k].[Name] = N'Kiwi'
+FROM [Kiwi] AS [k]
 """);
     }
 

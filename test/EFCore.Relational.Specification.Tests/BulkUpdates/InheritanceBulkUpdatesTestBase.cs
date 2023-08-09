@@ -97,7 +97,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_where_hierarchy(bool async)
+    public virtual Task Update_base_type(bool async)
         => AssertUpdate(
             async,
             ss => ss.Set<Animal>().Where(e => e.Name == "Great spotted kiwi"),
@@ -105,6 +105,17 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             s => s.SetProperty(e => e.Name, "Animal"),
             rowsAffectedCount: 1,
             (b, a) => a.ForEach(e => Assert.Equal("Animal", e.Name)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_base_type_with_OfType(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Animal>().OfType<Kiwi>(),
+            e => e,
+            s => s.SetProperty(e => e.Name, "NewBird"),
+            rowsAffectedCount: 1,
+            (b, a) => a.ForEach(e => Assert.Equal("NewBird", e.Name)));
 
     [ConditionalTheory(Skip = "InnerJoin")]
     [MemberData(nameof(IsAsyncData))]
@@ -118,12 +129,34 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Update_where_hierarchy_derived(bool async)
+    public virtual Task Update_base_property_on_derived_type(bool async)
         => AssertUpdate(
             async,
-            ss => ss.Set<Kiwi>().Where(e => e.Name == "Great spotted kiwi"),
+            ss => ss.Set<Kiwi>(),
             e => e,
-            s => s.SetProperty(e => e.Name, "Kiwi"),
+            s => s.SetProperty(e => e.Name, "SomeOtherKiwi"),
+            rowsAffectedCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_derived_property_on_derived_type(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Kiwi>(),
+            e => e,
+            s => s.SetProperty(e => e.FoundOn, Island.North),
+            rowsAffectedCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_base_and_derived_types(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Kiwi>(),
+            e => e,
+            s => s
+                .SetProperty(e => e.Name, "Kiwi")
+                .SetProperty(e => e.FoundOn, Island.North),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]

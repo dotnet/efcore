@@ -1002,6 +1002,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertyExpression);
 
         /// <summary>
+        ///     The following lambda argument to 'SetProperty' does not represent a valid value: '{valueExpression}'.
+        /// </summary>
+        public static string InvalidValueInSetProperty(object? valueExpression)
+            => string.Format(
+                GetString("InvalidValueInSetProperty", nameof(valueExpression)),
+                valueExpression);
+
+        /// <summary>
         ///     Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.
         /// </summary>
         public static string JsonCantNavigateToParentEntity(object? jsonEntity, object? parentEntity, object? navigation)
@@ -1284,12 +1292,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValues, entityState);
 
         /// <summary>
-        ///     Multiple 'SetProperty' invocations refer to properties on different entity types ('{entityType1}' and '{entityType2}'). A single 'ExecuteUpdate' call can only update the properties of a single entity type.
+        ///     Multiple 'SetProperty' invocations refer to different tables ('{propertySelector1}' and '{propertySelector2}'). A single 'ExecuteUpdate' call can only update the columns of a single table.
         /// </summary>
-        public static string MultipleEntityPropertiesInSetProperty(object? entityType1, object? entityType2)
+        public static string MultipleTablesInExecuteUpdate(object? propertySelector1, object? propertySelector2)
             => string.Format(
-                GetString("MultipleEntityPropertiesInSetProperty", nameof(entityType1), nameof(entityType2)),
-                entityType1, entityType2);
+                GetString("MultipleTablesInExecuteUpdate", nameof(propertySelector1), nameof(propertySelector2)),
+                propertySelector1, propertySelector2);
 
         /// <summary>
         ///     Multiple relational database provider configurations found. A context can only be configured to use a single database provider.
@@ -1972,14 +1980,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("UnableToBindMemberToEntityProjection", nameof(memberType), nameof(member), nameof(entityType)),
                 memberType, member, entityType);
-
-        /// <summary>
-        ///     The following 'SetProperty' failed to translate: 'SetProperty({property}, {value})'. {details}
-        /// </summary>
-        public static string UnableToTranslateSetProperty(object? property, object? value, object? details)
-            => string.Format(
-                GetString("UnableToTranslateSetProperty", nameof(property), nameof(value), nameof(details)),
-                property, value, details);
 
         /// <summary>
         ///     Unhandled annotatable type '{annotatableType}'.

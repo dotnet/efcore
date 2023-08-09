@@ -67,35 +67,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task ExecuteUpdate_throws_for_entity_splitting(bool async)
-    {
-        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
-
-        if (async)
-        {
-            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
-                CreateContext,
-                UseTransaction,
-                async context => Assert.Contains(
-                    RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
-                    (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => context.MeterReadings.ExecuteUpdateAsync(s => s.SetProperty(m => m.CurrentRead, "Value")))).Message));
-        }
-        else
-        {
-            TestHelpers.ExecuteWithStrategyInTransaction(
-                CreateContext,
-                UseTransaction,
-                context => Assert.Contains(
-                    RelationalStrings.NonQueryTranslationFailedWithDetails(
-                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
-                    Assert.Throws<InvalidOperationException>(
-                        () => context.MeterReadings.ExecuteUpdate(s => s.SetProperty(m => m.CurrentRead, "Value"))).Message));
-        }
-    }
+    // See additional tests bulk update tests in NonSharedModelBulkUpdatesTestBase
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

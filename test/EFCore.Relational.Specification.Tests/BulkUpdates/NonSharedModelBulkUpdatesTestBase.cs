@@ -129,6 +129,82 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
+            });
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Owner>(),
+            s => s
+                .SetProperty(o => o.Title, o => o.OwnedReference.Number.ToString())
+                .SetProperty(o => o.OwnedReference.Number, o => o.Title.Length),
+            rowsAffectedCount: 0);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: mb => mb.Entity<Blog>()
+                .ToTable("Blogs")
+                .SplitToTable(
+                    "BlogsPart1", tb =>
+                    {
+                        tb.Property(b => b.Title);
+                        tb.Property(b => b.Rating);
+                    }),
+            seed: context =>
+            {
+                context.Set<Blog>().Add(new() { Title = "SomeBlog" });
+                context.SaveChanges();
+            });
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Blog>(),
+            s => s.SetProperty(b => b.CreationTimestamp, b => new DateTime(2020, 1, 1)),
+            rowsAffectedCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: mb => mb.Entity<Blog>()
+                .ToTable("Blogs")
+                .SplitToTable(
+                    "BlogsPart1", tb =>
+                    {
+                        tb.Property(b => b.Title);
+                        tb.Property(b => b.Rating);
+                    }),
+            seed: context =>
+            {
+                context.Set<Blog>().Add(new() { Title = "SomeBlog" });
+                context.SaveChanges();
+            });
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Blog>(),
+            s => s
+                .SetProperty(b => b.Title, b => b.Rating.ToString())
+                .SetProperty(b => b.Rating, b => b.Title!.Length),
+            rowsAffectedCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_entity_with_auto_include(bool async)
     {
         var contextFactory = await InitializeAsync<Context30572>();
@@ -261,6 +337,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     {
         public int Id { get; set; }
         public string? Title { get; set; }
+        public int Rating { get; set; }
+        public DateTime CreationTimestamp { get; set; }
 
         public virtual ICollection<Post> Posts { get; } = new List<Post>();
     }

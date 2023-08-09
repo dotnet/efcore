@@ -493,6 +493,9 @@
   <data name="InvalidPropertyInSetProperty" xml:space="preserve">
     <value>The following lambda argument to 'SetProperty' does not represent a valid property to be set: '{propertyExpression}'.</value>
   </data>
+  <data name="InvalidValueInSetProperty" xml:space="preserve">
+    <value>The following lambda argument to 'SetProperty' does not represent a valid value: '{valueExpression}'.</value>
+  </data>
   <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
     <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
   </data>
@@ -899,8 +902,8 @@
   <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
   </data>
-  <data name="MultipleEntityPropertiesInSetProperty" xml:space="preserve">
-    <value>Multiple 'SetProperty' invocations refer to properties on different entity types ('{entityType1}' and '{entityType2}'). A single 'ExecuteUpdate' call can only update the properties of a single entity type.</value>
+  <data name="MultipleTablesInExecuteUpdate" xml:space="preserve">
+    <value>Multiple 'SetProperty' invocations refer to different tables ('{propertySelector1}' and '{propertySelector2}'). A single 'ExecuteUpdate' call can only update the columns of a single table.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -1171,9 +1174,6 @@
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>
-  </data>
-  <data name="UnableToTranslateSetProperty" xml:space="preserve">
-    <value>The following 'SetProperty' failed to translate: 'SetProperty({property}, {value})'. {details}</value>
   </data>
   <data name="UnhandledAnnotatableType" xml:space="preserve">
     <value>Unhandled annotatable type '{annotatableType}'.</value>

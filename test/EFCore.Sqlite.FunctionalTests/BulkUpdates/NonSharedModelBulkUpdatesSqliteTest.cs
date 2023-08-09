@@ -61,6 +61,41 @@ SET "Title" = COALESCE("o"."Title", '') || '_Suffix'
 """);
     }
 
+    public override async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
+    {
+        await base.Update_owned_and_non_owned_properties_with_table_sharing(async);
+
+        AssertSql(
+"""
+UPDATE "Owner" AS "o"
+SET "OwnedReference_Number" = length("o"."Title"),
+    "Title" = CAST("o"."OwnedReference_Number" AS TEXT)
+""");
+    }
+
+    public override async Task Update_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        await base.Update_main_table_in_entity_with_entity_splitting(async);
+
+        AssertSql(
+"""
+UPDATE "Blogs" AS "b"
+SET "CreationTimestamp" = '2020-01-01 00:00:00'
+""");
+    }
+
+    public override async Task Update_non_main_table_in_entity_with_entity_splitting(bool async)
+    {
+        await base.Update_non_main_table_in_entity_with_entity_splitting(async);
+
+        AssertSql(
+"""
+UPDATE "BlogsPart1" AS "b0"
+SET "Rating" = length("b0"."Title"),
+    "Title" = CAST("b0"."Rating" AS TEXT)
+""");
+    }
+
     public override Task Delete_entity_with_auto_include(bool async)
         => Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => base.Delete_entity_with_auto_include(async));
 
