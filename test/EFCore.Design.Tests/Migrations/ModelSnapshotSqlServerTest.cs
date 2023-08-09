@@ -348,6 +348,23 @@ public class ModelSnapshotSqlServerTest
         public ICollection<Pet> Pets { get; } = new List<Pet>();
     }
 
+    public abstract class BarBase
+    {
+        public int Id { get; set; }
+    }
+
+    public class BarA : BarBase
+    {
+    }
+
+    public class FooExtension<T>
+        where T : BarBase
+    {
+        public int Id { get; set; }
+
+        public T Bar { get; set; }
+    }
+
     #region Model
 
     [ConditionalFact]
@@ -4542,6 +4559,92 @@ namespace RootNamespace
                 });
 """),
             o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
+
+    [ConditionalFact]
+    public virtual void Property_column_name_is_stored_in_snapshot_when_DefaultColumnName_uses_clr_type()
+        => Test(
+            modelBuilder => modelBuilder
+                .Entity<BarA>(b => b.HasBaseType<BarBase>())
+                .Entity<FooExtension<BarA>>(b => b.HasOne(x => x.Bar).WithOne().HasForeignKey<BarA>()),
+            AddBoilerPlate(
+"""
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarBase", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BarBase", "DefaultSchema");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("BarBase");
+
+                    b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FooExtension<BarA>", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarBase");
+
+                    b.Property<int?>("FooExtensionId")
+                        .HasColumnType("int")
+                        .HasColumnName("FooExtension<BarA>Id");
+
+                    b.HasIndex("FooExtensionId")
+                        .IsUnique()
+                        .HasFilter("[FooExtension<BarA>Id] IS NOT NULL");
+
+                    b.HasDiscriminator().HasValue("BarA");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA", b =>
+                {
+                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA>", null)
+                        .WithOne("Bar")
+                        .HasForeignKey("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA", "FooExtensionId");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+FooExtension<Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BarA>", b =>
+                {
+                    b.Navigation("Bar");
+                });
+""", usingSystem: true),
+            model =>
+            {
+                var entityType = model.FindEntityType(typeof(BarA).FullName);
+                Assert.NotNull(entityType);
+
+                var property = entityType.FindProperty("FooExtensionId");
+                Assert.NotNull(property);
+                Assert.Equal("FooExtension<BarA>Id", property.GetColumnName());
+            });
 
     [ConditionalFact]
     public virtual void Property_column_name_on_specific_table_is_stored_in_snapshot_as_fluent_api()

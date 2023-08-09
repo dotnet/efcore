@@ -512,6 +512,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 valueConverter.ConvertToProvider(defaultValue));
         }
 
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnName)
+            && property.Name != property.GetColumnName())
+        {
+            annotations[RelationalAnnotationNames.ColumnName] = new Annotation(
+                RelationalAnnotationNames.ColumnName,
+                property.GetColumnName());
+        }
+
         GenerateAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
     }
 
