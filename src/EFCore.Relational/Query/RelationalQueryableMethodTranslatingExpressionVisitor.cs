@@ -1459,7 +1459,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             if (targetTable is null)
             {
-                (targetTable, targetTablePropertySelector) = (column.Table, propertySelector);
+                targetTable = column.Table;
+                targetTablePropertySelector = propertySelector;
             }
             else if (!ReferenceEquals(column.Table, targetTable))
             {
@@ -1660,57 +1661,57 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             return TranslateValueExpressions(this, outer, outerSelectExpression, tableExpression, propertyValueLambdaExpressions, columns);
+        }
 
-            // For property setter selectors in ExecuteUpdate, we support only simple member access, EF.Function, etc.
-            // We also unwrap casts to interface/base class (#29618). Note that owned IncludeExpressions have already been pruned from the
-            // source before remapping the lambda (#28727).
-            bool TryExtractEntityType(Expression expression, IModel model, [NotNullWhen(true)] out IEntityType? entityType)
+        // For property setter selectors in ExecuteUpdate, we support only simple member access, EF.Function, etc.
+        // We also unwrap casts to interface/base class (#29618). Note that owned IncludeExpressions have already been pruned from the
+        // source before remapping the lambda (#28727).
+        bool TryExtractEntityType(Expression expression, IModel model, [NotNullWhen(true)] out IEntityType? entityType)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+
+            switch (expression)
             {
-                expression = expression.UnwrapTypeConversion(out _);
+                case MemberExpression { Expression : not null } memberExpression
+                    when memberExpression.Expression.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
+                    entityType = ese.EntityType;
+                    return true;
 
-                switch (expression)
+                case MethodCallExpression mce when mce.TryGetEFPropertyArguments(out var source, out _)
+                    && source.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
                 {
-                    case MemberExpression { Expression : not null } memberExpression
-                        when memberExpression.Expression.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
-                        entityType = ese.EntityType;
-                        return true;
+                    entityType = ese.EntityType;
+                    return true;
+                }
 
-                    case MethodCallExpression mce when mce.TryGetEFPropertyArguments(out var source, out _)
-                        && source.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
-                    {
-                        entityType = ese.EntityType;
-                        return true;
-                    }
+                case MethodCallExpression mce when mce.TryGetIndexerArguments(model, out var source2, out _)
+                    && source2.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
+                    entityType = ese.EntityType;
+                    return true;
 
-                    case MethodCallExpression mce when mce.TryGetIndexerArguments(model, out var source2, out _)
-                        && source2.UnwrapTypeConversion(out _) is EntityShaperExpression ese:
-                        entityType = ese.EntityType;
-                        return true;
+                default:
+                    entityType = null;
+                    return false;
+            }
+        }
 
-                    default:
-                        entityType = null;
-                        return false;
+        static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
+        {
+            propertyAccessExpression = propertyAccessExpression.UnwrapTypeConversion(out _);
+            if (propertyAccessExpression is MethodCallExpression mce)
+            {
+                if (mce.TryGetEFPropertyArguments(out var source, out _))
+                {
+                    return source;
+                }
+
+                if (mce.TryGetIndexerArguments(model, out var source2, out _))
+                {
+                    return source2;
                 }
             }
 
-            static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
-            {
-                propertyAccessExpression = propertyAccessExpression.UnwrapTypeConversion(out _);
-                if (propertyAccessExpression is MethodCallExpression mce)
-                {
-                    if (mce.TryGetEFPropertyArguments(out var source, out _))
-                    {
-                        return source;
-                    }
-
-                    if (mce.TryGetIndexerArguments(model, out var source2, out _))
-                    {
-                        return source2;
-                    }
-                }
-
-                return ((MemberExpression)propertyAccessExpression).Expression!;
-            }
+            return ((MemberExpression)propertyAccessExpression).Expression!;
         }
     }
 
@@ -1772,12 +1773,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     </para>
     /// </remarks>
     /// <param name="selectExpression">The select expression to validate.</param>
-    /// <param name="table">TODO</param>
-    /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
-    /// <returns>Returns <see langword="true" /> if the current select expression can be used for update as-is, <see langword="false" /> otherwise.</returns>
+    /// <param name="targetTable">The target table containing the rows to be updated.</param>
+    /// <param name="tableExpression">
+    /// The table expression corresponding to the provided <paramref name="targetTable" />, containing the rows to be updated.
+    /// </param>
+    /// <returns>
+    /// Returns <see langword="true" /> if the current select expression can be used for update as-is, <see langword="false" /> otherwise.
+    /// </returns>
     protected virtual bool IsValidSelectExpressionForExecuteUpdate(
         SelectExpression selectExpression,
-        TableExpressionBase table,
+        TableExpressionBase targetTable,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
         tableExpression = null;
@@ -1794,20 +1799,21 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             if (selectExpression.Tables.Count > 1)
             {
-                // If the table we are looking for it first table, then we need to verify if we can lift the next table in FROM clause
-                if (ReferenceEquals(selectExpression.Tables[0], table)
+                // If the table we are looking for is the first table, then we need to verify whether we can lift the next table in FROM
+                // clause
+                if (ReferenceEquals(selectExpression.Tables[0], targetTable)
                     && selectExpression.Tables[1] is not InnerJoinExpression and not CrossJoinExpression)
                 {
                     return false;
                 }
 
-                if (table is JoinExpressionBase joinExpressionBase)
+                if (targetTable is JoinExpressionBase joinExpressionBase)
                 {
-                    table = joinExpressionBase.Table;
+                    targetTable = joinExpressionBase.Table;
                 }
             }
 
-            if (table is TableExpression te)
+            if (targetTable is TableExpression te)
             {
                 tableExpression = te;
                 return true;
