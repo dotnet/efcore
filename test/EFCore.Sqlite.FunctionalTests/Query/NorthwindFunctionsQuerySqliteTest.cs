@@ -42,6 +42,63 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Convert_ToString(bool async)
         => AssertTranslationFailed(() => base.Convert_ToString(async));
 
+    public override Task Byte_Parse(bool async)
+        => AssertTranslationFailed(() => base.Byte_Parse(async));
+
+    public override Task Byte_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Byte_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Byte_Parse_Greater_Than_Max_Value_Overflows(bool async)
+        => AssertTranslationFailed(() => base.Byte_Parse_Greater_Than_Max_Value_Overflows(async));
+
+    public override Task Byte_Parse_Negative_Overflows(bool async)
+        => AssertTranslationFailed(() => base.Byte_Parse_Negative_Overflows(async));
+
+    public override Task Byte_Parse_Decimal_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Byte_Parse_Decimal_Bad_Format(async));
+
+    public override Task Decimal_Parse(bool async)
+        => AssertTranslationFailed(() => base.Decimal_Parse(async));
+
+    public override Task Decimal_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Decimal_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Double_Parse(bool async)
+        => AssertTranslationFailed(() => base.Double_Parse(async));
+
+    public override Task Double_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Double_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Short_Parse(bool async)
+        => AssertTranslationFailed(() => base.Short_Parse(async));
+
+    public override Task Short_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Short_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Short_Parse_Greater_Than_Max_Value_Overflows(bool async)
+        => AssertTranslationFailed(() => base.Short_Parse_Greater_Than_Max_Value_Overflows(async));
+
+    public override Task Short_Parse_Decimal_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Short_Parse_Decimal_Bad_Format(async));
+
+    public override Task Int_Parse(bool async)
+        => AssertTranslationFailed(() => base.Int_Parse(async));
+
+    public override Task Int_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Int_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Int_Parse_Decimal_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Int_Parse_Decimal_Bad_Format(async));
+
+    public override Task Long_Parse(bool async)
+        => AssertTranslationFailed(() => base.Long_Parse(async));
+
+    public override Task Long_Parse_Non_Numeric_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Long_Parse_Non_Numeric_Bad_Format(async));
+
+    public override Task Long_Parse_Decimal_Bad_Format(bool async)
+        => AssertTranslationFailed(() => base.Long_Parse_Decimal_Bad_Format(async));
+
     public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
         => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
 

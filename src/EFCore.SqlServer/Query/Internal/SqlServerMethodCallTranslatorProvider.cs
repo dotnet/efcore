@@ -38,6 +38,7 @@ public class SqlServerMethodCallTranslatorProvider : RelationalMethodCallTransla
                 new SqlServerMathTranslator(sqlExpressionFactory),
                 new SqlServerNewGuidTranslator(sqlExpressionFactory),
                 new SqlServerObjectToStringTranslator(sqlExpressionFactory),
+                new SqlServerParseTranslator(sqlExpressionFactory),
                 new SqlServerStringMethodTranslator(sqlExpressionFactory),
                 new SqlServerTimeOnlyMethodTranslator(sqlExpressionFactory)
             });
