@@ -58,4 +58,21 @@ public static class CosmosTestModelBuilderExtensions
 
         return builder;
     }
+
+    public static ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> ToJsonProperty<TProperty>(
+        this ModelBuilderTest.TestPrimitiveCollectionBuilder<TProperty> builder,
+        string name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PrimitiveCollectionBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.ToJsonProperty(name);
+                break;
+            case IInfrastructure<PrimitiveCollectionBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.ToJsonProperty(name);
+                break;
+        }
+
+        return builder;
+    }
 }

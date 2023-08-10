@@ -30,6 +30,50 @@ public readonly record struct RelationalTypeMappingInfo
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
     /// </summary>
+    /// <param name="elementType">The collection element for which mapping is needed.</param>
+    /// <param name="storeTypeName">The provider-specific relational type name for which mapping is needed.</param>
+    /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
+    /// <param name="fallbackUnicode">Specifies Unicode or ANSI for the mapping or <see langword="null" /> for the default.</param>
+    /// <param name="fallbackFixedLength">Specifies a fixed length mapping, or <see langword="null" /> for the default.</param>
+    /// <param name="fallbackSize">
+    ///     Specifies a size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for the
+    ///     default.
+    /// </param>
+    /// <param name="fallbackPrecision">
+    ///     Specifies a precision for the mapping, in case one isn't found at the core level, or
+    ///     <see langword="null" /> for the default.
+    /// </param>
+    /// <param name="fallbackScale">
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
+    ///     the default.
+    /// </param>
+    public RelationalTypeMappingInfo(
+        IElementType elementType,
+        string? storeTypeName = null,
+        string? storeTypeNameBase = null,
+        bool? fallbackUnicode = null,
+        bool? fallbackFixedLength = null,
+        int? fallbackSize = null,
+        int? fallbackPrecision = null,
+        int? fallbackScale = null)
+    {
+        _coreTypeMappingInfo = new TypeMappingInfo(elementType, fallbackUnicode, fallbackSize, fallbackPrecision, fallbackScale);
+
+        fallbackFixedLength ??= elementType.IsFixedLength();
+        storeTypeName ??= (string?)elementType[RelationalAnnotationNames.StoreType];
+
+        var customConverter = elementType.GetValueConverter();
+        var mappingHints = customConverter?.MappingHints;
+
+        IsFixedLength = fallbackFixedLength ?? (mappingHints as RelationalConverterMappingHints)?.IsFixedLength;
+        DbType = (mappingHints as RelationalConverterMappingHints)?.DbType;
+        StoreTypeName = storeTypeName;
+        StoreTypeNameBase = storeTypeNameBase;
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
+    /// </summary>
     /// <param name="principals">The principal property chain for the property for which mapping is needed.</param>
     /// <param name="storeTypeName">The provider-specific relational type name for which mapping is needed.</param>
     /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
@@ -165,23 +209,6 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
-    ///     Creates a new instance of <see cref="TypeMappingInfo" /> with the given <see cref="RelationalTypeMapping" />
-    ///     for collection elements.
-    /// </summary>
-    /// <param name="source">The source info.</param>
-    /// <param name="elementMapping">The element mapping to use.</param>
-    public RelationalTypeMappingInfo(
-        in RelationalTypeMappingInfo source,
-        RelationalTypeMapping elementMapping)
-    {
-        _coreTypeMappingInfo = source._coreTypeMappingInfo.WithElementTypeMapping(elementMapping);
-        StoreTypeName = source.StoreTypeName;
-        StoreTypeNameBase = source.StoreTypeNameBase;
-        IsFixedLength = source.IsFixedLength;
-        DbType = source.DbType;
-    }
-
-    /// <summary>
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
@@ -306,15 +333,6 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
-    ///     The element type mapping, if the mapping is for a collection of primitives, or <see langword="null" /> otherwise.
-    /// </summary>
-    public CoreTypeMapping? ElementTypeMapping
-    {
-        get => _coreTypeMappingInfo.ElementTypeMapping;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ElementTypeMapping = value };
-    }
-
-    /// <summary>
     ///     The JSON reader/writer, if one has been provided, or <see langword="null" /> otherwise.
     /// </summary>
     public JsonValueReaderWriter? JsonValueReaderWriter
@@ -330,12 +348,4 @@ public readonly record struct RelationalTypeMappingInfo
     /// <returns>The new mapping info.</returns>
     public RelationalTypeMappingInfo WithConverter(in ValueConverterInfo converterInfo)
         => new(this, converterInfo);
-
-    /// <summary>
-    ///     Returns a new <see cref="RelationalTypeMappingInfo" /> with the given converter applied.
-    /// </summary>
-    /// <param name="elementMapping">The element mapping to use.</param>
-    /// <returns>The new mapping info.</returns>
-    public RelationalTypeMappingInfo WithElementTypeMapping(in RelationalTypeMapping elementMapping)
-        => new(this, elementMapping);
 }

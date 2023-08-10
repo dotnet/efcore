@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable VirtualMemberCallInConstructor

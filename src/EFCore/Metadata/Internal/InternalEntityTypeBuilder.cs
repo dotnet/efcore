@@ -4317,12 +4317,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             discriminatorProperty = null;
         }
 
-        return (InternalPropertyBuilder?)Metadata.GetRootType().Builder.Property(
-                type ?? discriminatorProperty?.ClrType ?? DefaultDiscriminatorType,
-                name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
-                typeConfigurationSource: type != null ? configurationSource : null,
-                configurationSource)
-            ?.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
+        return Metadata.GetRootType().Builder.Property(
+            type ?? discriminatorProperty?.ClrType ?? DefaultDiscriminatorType,
+            name ?? discriminatorProperty?.Name ?? DefaultDiscriminatorName,
+            typeConfigurationSource: type != null ? configurationSource : null,
+            configurationSource)?.AfterSave(PropertySaveBehavior.Throw, ConfigurationSource.Convention);
     }
 
     private DiscriminatorBuilder? DiscriminatorBuilder(

@@ -67,7 +67,7 @@ public static class RelationalPropertyExtensions
                 {
                     tableFound = true;
                 }
-                else if(property.DeclaringType is IReadOnlyEntityType declaringEntityType)
+                else if (property.DeclaringType is IReadOnlyEntityType declaringEntityType)
                 {
                     foreach (var containingType in declaringEntityType.GetDerivedTypesInclusive())
                     {
@@ -84,7 +84,7 @@ public static class RelationalPropertyExtensions
                     return null;
                 }
             }
-            else 
+            else
             {
                 var declaringEntityType = property.DeclaringType.ContainingEntityType;
                 if (declaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
@@ -213,7 +213,6 @@ public static class RelationalPropertyExtensions
             return sharedTablePrincipalConcurrencyProperty.GetColumnName(storeObject)!;
         }
 
-        
         StringBuilder? builder = null;
         var currentStoreObject = storeObject;
         if (property.DeclaringType is IReadOnlyEntityType entityType)
@@ -242,8 +241,8 @@ public static class RelationalPropertyExtensions
             }
         }
         else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
-                    || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
-                        .Any(f => f.StoreObject == currentStoreObject))
+                 || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
+                     .Any(f => f.StoreObject == currentStoreObject))
         {
             var complexType = (IReadOnlyComplexType)property.DeclaringType;
             builder ??= new StringBuilder();
@@ -414,6 +413,8 @@ public static class RelationalPropertyExtensions
     ///     be found.
     /// </returns>
     public static string? GetColumnType(this IReadOnlyProperty property)
+        // Note that the type-mapped store type is used in preference to the annotation, since the annotation may
+        // be an incomplete type name like `varchar` which will become `varchar(64)` after the max length facet is required.
         => (string?)(property.FindRelationalTypeMapping()?.StoreType
             ?? property.FindAnnotation(RelationalAnnotationNames.ColumnType)?.Value);
 
@@ -1176,7 +1177,7 @@ public static class RelationalPropertyExtensions
         return property.IsNullable
             || (property.DeclaringType is IReadOnlyEntityType entityType
                 && ((entityType.BaseType != null
-                    && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+                        && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
                     || IsOptionalSharingDependent(entityType, storeObject, 0)));
     }
 

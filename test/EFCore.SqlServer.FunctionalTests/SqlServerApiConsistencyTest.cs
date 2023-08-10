@@ -29,6 +29,8 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             typeof(SqlServerKeyBuilderExtensions),
             typeof(SqlServerModelBuilderExtensions),
             typeof(SqlServerPropertyBuilderExtensions),
+            typeof(SqlServerPrimitiveCollectionBuilderExtensions),
+            typeof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions),
             typeof(SqlServerEntityTypeBuilderExtensions),
             typeof(SqlServerServiceCollectionExtensions),
             typeof(SqlServerDbFunctionsExtensions),
@@ -102,6 +104,16 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
                         typeof(SqlServerIndexBuilderExtensions),
                         null
                     )
+                },
+                {
+                    typeof(IReadOnlyElementType),
+                    (
+                        null,
+                        null,
+                        null,
+                        typeof(SqlServerEntityTypeBuilderExtensions),
+                        null
+                    )
                 }
             };
 
@@ -114,6 +126,8 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
             MirrorTypes.Add(typeof(TemporalTableBuilder<>), typeof(OwnedNavigationTemporalTableBuilder<,>));
             MirrorTypes.Add(typeof(TemporalPeriodPropertyBuilder), typeof(OwnedNavigationTemporalPeriodPropertyBuilder));
             MirrorTypes.Add(typeof(SqlServerPropertyBuilderExtensions), typeof(SqlServerComplexTypePropertyBuilderExtensions));
+            MirrorTypes.Add(typeof(SqlServerPrimitiveCollectionBuilderExtensions), typeof(SqlServerPropertyBuilderExtensions));
+            MirrorTypes.Add(typeof(SqlServerComplexTypePrimitiveCollectionBuilderExtensions), typeof(SqlServerComplexTypePropertyBuilderExtensions));
 
             base.Initialize();
         }

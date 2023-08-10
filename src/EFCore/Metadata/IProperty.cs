@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -17,7 +18,8 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     ///     Gets the entity type that this property belongs to.
     /// </summary>
     [Obsolete("Use DeclaringType and cast to IEntityType or IComplexType")]
-    new IEntityType DeclaringEntityType => (IEntityType)DeclaringType;
+    new IEntityType DeclaringEntityType
+        => (IEntityType)DeclaringType;
 
     /// <summary>
     ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
@@ -98,8 +100,7 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <returns>The comparer.</returns>
     new ValueComparer GetProviderValueComparer();
 
-
-    internal const System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
+    internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties

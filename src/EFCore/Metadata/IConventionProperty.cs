@@ -30,7 +30,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     ///     Gets the entity type that this property belongs to.
     /// </summary>
     [Obsolete("Use DeclaringType and cast to IConventionEntityType or IConventionComplexType")]
-    new IConventionEntityType DeclaringEntityType => (IConventionEntityType)DeclaringType;
+    new IConventionEntityType DeclaringEntityType
+        => (IConventionEntityType)DeclaringType;
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyPropertyBase.ClrType" />.
@@ -335,7 +336,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -361,7 +363,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -402,7 +405,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -429,7 +433,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -454,4 +459,18 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetJsonValueReaderWriter" />.</returns>
     ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource();
+
+    /// <summary>
+    ///     Sets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <param name="primitiveCollection">If <see langword="true"/>, then this is a collection of primitive elements.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configuration for the elements.</returns>
+    IElementType? ElementType(bool primitiveCollection, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetElementType" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetElementType" />.</returns>
+    ConfigurationSource? GetElementTypeConfigurationSource();
 }

@@ -101,6 +101,20 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
                 .Metadata);
 
     /// <summary>
+    ///     Returns an object that can be used to configure a primitive collection property of the entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the property.</returns>
+    public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
+        => new(TypeBuilder.PrimitiveCollection(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
+                .Metadata);
+
+    /// <summary>
     ///     Configures a complex property of the complex type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>

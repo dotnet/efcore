@@ -46,8 +46,11 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(DiscriminatorBuilder<>),
             typeof(EntityTypeBuilder),
             typeof(EntityTypeBuilder<>),
+            typeof(ElementTypeBuilder),
             typeof(ComplexPropertyBuilder),
             typeof(ComplexPropertyBuilder<>),
+            typeof(ComplexTypePrimitiveCollectionBuilder),
+            typeof(ComplexTypePrimitiveCollectionBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
             typeof(TriggerBuilder),
@@ -64,6 +67,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(OwnershipBuilder<,>),
             typeof(PropertyBuilder),
             typeof(PropertyBuilder<>),
+            typeof(PrimitiveCollectionBuilder),
+            typeof(PrimitiveCollectionBuilder<>),
             typeof(ComplexTypePropertyBuilder),
             typeof(ComplexTypePropertyBuilder<>),
             typeof(ReferenceCollectionBuilder),
@@ -118,6 +123,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
         {
+            typeof(PropertyBuilder).GetMethod(
+                nameof(PropertyBuilder.HasValueGenerator), 0, new[] { typeof(Func<IProperty, ITypeBase, ValueGenerator>) }),
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(string) }),
             typeof(ComplexPropertyBuilder).GetMethod(

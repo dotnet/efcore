@@ -6,26 +6,8 @@
 namespace Microsoft.EntityFrameworkCore;
 
 [SpatialiteRequired]
-public class JsonTypesSqliteTest : JsonTypesTestBase<JsonTypesSqliteTest.JsonTypesSqliteFixture>
+public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 {
-    public JsonTypesSqliteTest(JsonTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-    }
-
-    public class JsonTypesSqliteFixture : JsonTypesFixtureBase
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        {
-            new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
-
-            return base.AddOptions(builder);
-        }
-
-        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection.AddEntityFrameworkSqliteNetTopologySuite());
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => base.OnConfiguring(optionsBuilder.UseSqlite(b => b.UseNetTopologySuite()));
 }

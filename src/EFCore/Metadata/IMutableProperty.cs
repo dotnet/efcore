@@ -25,7 +25,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     Gets the entity type that this property belongs to.
     /// </summary>
     [Obsolete("Use DeclaringType and cast to IMutableEntityType or IMutableComplexType")]
-    new IMutableEntityType DeclaringEntityType => (IMutableEntityType)DeclaringType;
+    new IMutableEntityType DeclaringEntityType
+        => (IMutableEntityType)DeclaringType;
 
     /// <summary>
     ///     Gets or sets a value indicating whether this property can contain <see langword="null" />.
@@ -204,7 +205,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     clear any previously set factory.
     /// </param>
     void SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory);
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory);
 
     /// <summary>
     ///     Sets the custom <see cref="ValueConverter" /> for this property.
@@ -259,7 +261,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
     /// </param>
     void SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType);
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType);
 
     /// <summary>
     ///     Sets the type of <see cref="JsonValueReaderWriter{TValue}" /> to use for this property for this property.
@@ -270,15 +273,21 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// </param>
     void SetJsonValueReaderWriterType(Type? readerWriterType);
 
-    /// <inheritdoc/>
-    bool IReadOnlyProperty.IsNullable =>
-        IsNullable;
+    /// <summary>
+    ///     Sets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <param name="elementType">If <see langword="true"/>, then this is a collection of primitive elements.</param>
+    void ElementType(bool elementType);
 
-    /// <inheritdoc/>
-    ValueGenerated IReadOnlyProperty.ValueGenerated =>
-        ValueGenerated;
+    /// <inheritdoc />
+    bool IReadOnlyProperty.IsNullable
+        => IsNullable;
 
-    /// <inheritdoc/>
-    bool IReadOnlyProperty.IsConcurrencyToken =>
-        IsConcurrencyToken;
+    /// <inheritdoc />
+    ValueGenerated IReadOnlyProperty.ValueGenerated
+        => ValueGenerated;
+
+    /// <inheritdoc />
+    bool IReadOnlyProperty.IsConcurrencyToken
+        => IsConcurrencyToken;
 }

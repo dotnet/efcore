@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
-using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -19,7 +19,8 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     Gets the entity type that this property belongs to.
     /// </summary>
     [Obsolete("Use DeclaringType and cast to IReadOnlyEntityType or IReadOnlyComplexType")]
-    IReadOnlyEntityType DeclaringEntityType => (IReadOnlyEntityType)DeclaringType;
+    IReadOnlyEntityType DeclaringEntityType
+        => (IReadOnlyEntityType)DeclaringType;
 
     /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.
@@ -70,8 +71,8 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     then this is the maximum number of characters.
     /// </summary>
     /// <returns>
-    /// The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
-    /// set.
+    ///     The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
+    ///     set.
     /// </returns>
     int? GetMaxLength();
 
@@ -171,6 +172,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     /// </summary>
     /// <returns>The reader/writer, or <see langword="null" /> if none has been set.</returns>
     JsonValueReaderWriter? GetJsonValueReaderWriter();
+
+    /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    IElementType? GetElementType();
 
     /// <summary>
     ///     Finds the first principal property that the given property is constrained by
@@ -411,6 +418,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             if (GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(GetPropertyAccessMode());
+            }
+
+            var elementType = GetElementType();
+            if (elementType != null)
+            {
+                builder.Append(" Element type: ").Append(elementType.ToDebugString());
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0

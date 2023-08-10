@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.Collections.ObjectModel;
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
@@ -192,6 +194,73 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Strange")!.GetCollation());
             Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Top")!.GetCollation());
             Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Bottom")!.GetCollation());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_store_type_for_primitive_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<CollectionQuarks>(
+                b =>
+                {
+                    b.PrimitiveCollection(e => e.Up).HasColumnType("national character varying(255)");
+                    b.PrimitiveCollection(e => e.Down).HasColumnType("nchar(10)");
+                    b.PrimitiveCollection<int[]>("Charm").HasColumnType("nvarchar(25)");
+                    b.PrimitiveCollection<string[]>("Strange").HasColumnType("text");
+                    b.PrimitiveCollection<ObservableCollection<int>>("Top").HasColumnType("char(100)");;
+                    b.PrimitiveCollection<ObservableCollection<string>?>("Bottom").HasColumnType("varchar(max)");;
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+
+            Assert.Equal("int", entityType.FindProperty(nameof(CollectionQuarks.Id))!.GetColumnType());
+            Assert.Equal("national character varying(255)", entityType.FindProperty("Up")!.GetColumnType());
+            Assert.Equal("nchar(10)", entityType.FindProperty("Down")!.GetColumnType());
+            Assert.Equal("nvarchar(25)", entityType.FindProperty("Charm")!.GetColumnType());
+            Assert.Equal("text", entityType.FindProperty("Strange")!.GetColumnType());
+            Assert.Equal("char(100)", entityType.FindProperty("Top")!.GetColumnType());
+            Assert.Equal("varchar(max)", entityType.FindProperty("Bottom")!.GetColumnType());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_fixed_length_for_primitive_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<CollectionQuarks>(
+                b =>
+                {
+                    b.PrimitiveCollection(e => e.Up).IsFixedLength(false);
+                    b.PrimitiveCollection(e => e.Down).IsFixedLength();
+                    b.PrimitiveCollection<int[]>("Charm").IsFixedLength(true);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+
+            Assert.False(entityType.FindProperty("Up")!.IsFixedLength());
+            Assert.True(entityType.FindProperty("Down")!.IsFixedLength());
+            Assert.True(entityType.FindProperty("Charm")!.IsFixedLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_collation_for_primitive_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<CollectionQuarks>(
+                b =>
+                {
+                    b.PrimitiveCollection(e => e.Up).UseCollation("Latin1_General_CS_AS_KS_WS");
+                    b.PrimitiveCollection(e => e.Down).UseCollation("Latin1_General_BIN");
+                    b.PrimitiveCollection<int[]>("Charm").UseCollation("Latin1_General_CI_AI");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(CollectionQuarks))!;
+
+            Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Up")!.GetCollation());
+            Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Down")!.GetCollation());
+            Assert.Equal("Latin1_General_CI_AI", entityType.FindProperty("Charm")!.GetCollation());
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -1257,7 +1326,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(5, entity.GetProperties().Count());
+            Assert.Equal(6, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
             Assert.Equal("historySchema", entity.GetHistoryTableSchema());
@@ -1306,7 +1375,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(5, entity.GetProperties().Count());
+            Assert.Equal(6, entity.GetProperties().Count());
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
@@ -1355,7 +1424,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(5, entity.GetProperties().Count());
+            Assert.Equal(6, entity.GetProperties().Count());
 
             Assert.Equal("ChangedHistoryTable", entity.GetHistoryTableName());
             Assert.Equal("changedHistorySchema", entity.GetHistoryTableSchema());
@@ -1405,7 +1474,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(5, entity.GetProperties().Count());
+            Assert.Equal(6, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1453,7 +1522,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Customer))!;
             Assert.True(entity.IsTemporal());
-            Assert.Equal(7, entity.GetProperties().Count());
+            Assert.Equal(8, entity.GetProperties().Count());
 
             Assert.Equal("HistoryTable", entity.GetHistoryTableName());
 
@@ -1496,7 +1565,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.False(entity.IsTemporal());
             Assert.Null(entity.GetPeriodStartPropertyName());
             Assert.Null(entity.GetPeriodEndPropertyName());
-            Assert.Equal(3, entity.GetProperties().Count());
+            Assert.Equal(4, entity.GetProperties().Count());
         }
 
         [ConditionalFact]

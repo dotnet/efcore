@@ -998,7 +998,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(this);
+        => (GetValueComparer(null) ?? TypeMapping?.Comparer).ToNullableComparer(ClrType);
 
     private ValueComparer? GetValueComparer(HashSet<Property>? checkedProperties)
     {
@@ -1043,7 +1043,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetKeyValueComparer()
-        => (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(this);
+        => (GetValueComparer(null) ?? TypeMapping?.KeyComparer).ToNullableComparer(ClrType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1166,34 +1166,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
-    {
-        return TryCreateReader((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType]);
-
-        static JsonValueReaderWriter? TryCreateReader(Type? readerWriterType)
-        {
-            if (readerWriterType != null)
-            {
-                var instanceProperty = readerWriterType.GetAnyProperty("Instance");
-                try
-                {
-                    return instanceProperty != null
-                        && instanceProperty.IsStatic()
-                        && instanceProperty.GetMethod?.IsPublic == true
-                        && readerWriterType.IsAssignableFrom(instanceProperty.PropertyType)
-                            ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
-                            : (JsonValueReaderWriter?)Activator.CreateInstance(readerWriterType);
-                }
-                catch (Exception e)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.CannotCreateJsonValueReaderWriter(
-                            readerWriterType.ShortDisplayName()), e);
-                }
-            }
-
-            return null;
-        }
-    }
+        => JsonValueReaderWriter.CreateFromType((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType]);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1225,6 +1198,69 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource()
         => FindAnnotation(CoreAnnotationNames.JsonValueReaderWriterType)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IElementType? GetElementType()
+        => (IElementType?)this[CoreAnnotationNames.ElementType];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IElementType? ElementType(
+        bool elementType,
+        ConfigurationSource configurationSource)
+    {
+        var existingElementType = GetElementType();
+        if (existingElementType == null
+            && elementType)
+        {
+            var elementClrType = ClrType.TryGetElementType(typeof(IEnumerable<>));
+            if (elementClrType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NotCollection(ClrType.ShortDisplayName(), Name));
+            }
+            var newElementType = new ElementType(elementClrType, this, configurationSource);
+            SetAnnotation(CoreAnnotationNames.ElementType, newElementType, configurationSource);
+            OnElementTypeSet(newElementType, null);
+            return newElementType;
+        }
+
+        if (existingElementType != null && !elementType)
+        {
+            ((ElementType)existingElementType).SetRemovedFromModel();
+            RemoveAnnotation(CoreAnnotationNames.ElementType);
+            OnElementTypeSet(null, existingElementType);
+            return null;
+        }
+
+        return existingElementType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual IElementType? OnElementTypeSet(IElementType? newElementType, IElementType? oldElementType)
+        => DeclaringType.Model.ConventionDispatcher.OnPropertyElementTypeChanged(Builder, newElementType, oldElementType);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetElementTypeConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.ElementType)?.GetConfigurationSource();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1971,6 +2007,18 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    JsonValueReaderWriter? IReadOnlyProperty.GetJsonValueReaderWriter()
-        => GetJsonValueReaderWriter();
+    IElementType? IConventionProperty.ElementType(bool elementType, bool fromDataAnnotation)
+        => ElementType(
+            elementType,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableProperty.ElementType(bool elementType)
+        => ElementType(elementType, ConfigurationSource.Explicit);
 }

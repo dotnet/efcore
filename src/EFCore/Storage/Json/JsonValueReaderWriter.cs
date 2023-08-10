@@ -64,7 +64,7 @@ public abstract class JsonValueReaderWriter
     public virtual object FromJsonString(string json, object? existingObject = null)
     {
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)));
-        return FromJson(ref readerManager);
+        return FromJson(ref readerManager, existingObject);
     }
 
     /// <summary>
@@ -84,4 +84,38 @@ public abstract class JsonValueReaderWriter
 
         return Encoding.UTF8.GetString(buffer);
     }
+
+    /// <summary>
+    ///     Creates a <see cref="JsonValueReaderWriter{TValue}"/> instance of the given type, using the <c>Instance</c>
+    ///     property to get th singleton instance if possible.
+    /// </summary>
+    /// <param name="readerWriterType">The type, which must inherit from <see cref="JsonValueReaderWriter{TValue}"/>.</param>
+    /// <returns>The reader/writer instance./</returns>
+    /// <exception cref="InvalidOperationException">if the type does not represent a
+    /// <see cref="JsonValueReaderWriter{TValue}"/> that can be instantiated.</exception>
+    public static JsonValueReaderWriter? CreateFromType(Type? readerWriterType)
+    {
+        if (readerWriterType != null)
+        {
+            var instanceProperty = readerWriterType.GetAnyProperty("Instance");
+            try
+            {
+                return instanceProperty != null
+                    && instanceProperty.IsStatic()
+                    && instanceProperty.GetMethod?.IsPublic == true
+                    && readerWriterType.IsAssignableFrom(instanceProperty.PropertyType)
+                        ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
+                        : (JsonValueReaderWriter?)Activator.CreateInstance(readerWriterType);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotCreateJsonValueReaderWriter(
+                        readerWriterType.ShortDisplayName()), e);
+            }
+        }
+
+        return null;
+    }
+
 }

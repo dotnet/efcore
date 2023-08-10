@@ -110,8 +110,8 @@ public abstract class CoreTypeMapping
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
         /// <param name="converter">The converter.</param>
-        /// <param name="elementMapping">The element mapping, or <see langword="null"/> for non-collection mappings.</param>
-        /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null"/> to leave unchanged.</param>
+        /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
+        /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public CoreTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
@@ -137,39 +137,6 @@ public abstract class CoreTypeMapping
                             JsonValueReaderWriter, converter)!
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)));
         }
-
-        /// <summary>
-        ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
-        ///     element type mapping.
-        /// </summary>
-        /// <param name="elementMapping">The element type mapping.</param>
-        /// <returns>The new parameter object.</returns>
-        public CoreTypeMappingParameters WithElementTypeMapping(CoreTypeMapping elementMapping)
-            => new(
-                ClrType,
-                Converter,
-                Comparer,
-                KeyComparer,
-                ProviderValueComparer,
-                ValueGeneratorFactory,
-                elementMapping,
-                JsonValueReaderWriter);
-
-        /// <summary>
-        ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given JSON reader/writer.
-        /// </summary>
-        /// <param name="jsonValueReaderWriter">The element type mapping.</param>
-        /// <returns>The new parameter object.</returns>
-        public CoreTypeMappingParameters WithJsonValueReaderWriter(JsonValueReaderWriter jsonValueReaderWriter)
-            => new(
-                ClrType,
-                Converter,
-                Comparer,
-                KeyComparer,
-                ProviderValueComparer,
-                ValueGeneratorFactory,
-                ElementTypeMapping,
-                jsonValueReaderWriter);
     }
 
     private ValueComparer? _comparer;
@@ -296,11 +263,13 @@ public abstract class CoreTypeMapping
     ///     added.
     /// </summary>
     /// <param name="converter">The converter to use.</param>
-    /// <param name="elementMapping">The element mapping, or <see langword="null"/> for non-collection mappings.</param>
-    /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null"/> to leave unchanged.</param>
+    /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
+    /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>A new type mapping</returns>
     public abstract CoreTypeMapping Clone(
-        ValueConverter? converter, CoreTypeMapping? elementMapping = null, JsonValueReaderWriter? jsonValueReaderWriter = null);
+        ValueConverter? converter,
+        CoreTypeMapping? elementMapping = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null);
 
     /// <summary>
     ///     Clones the type mapping to update any parameter if needed.

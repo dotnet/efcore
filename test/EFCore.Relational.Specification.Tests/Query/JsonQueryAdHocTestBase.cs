@@ -296,14 +296,12 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
         {
             var query = context.Entities.Where(x => x.Reference.IntArray[0] == 1);
 
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            }
-            else
-            {
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(1, result[0].Reference.IntArray[0]);
         }
     }
 
@@ -318,14 +316,12 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
         {
             var query = context.Entities.Where(x => x.Reference.ListOfString[1] == "Bar");
 
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            }
-            else
-            {
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal("Bar", result[0].Reference.ListOfString[1]);
         }
     }
 
@@ -338,17 +334,18 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
         using (var context = contextFactory.CreateContext())
         {
-            var query = context.Entities.Where(x => x.Reference.IntArray.AsQueryable().ElementAt(0) == 1
-                || x.Reference.ListOfString.AsQueryable().ElementAt(1) == "Bar");
+            var query = context.Entities.Where(
+                    x => x.Reference.IntArray.AsQueryable().ElementAt(0) == 1
+                        || x.Reference.ListOfString.AsQueryable().ElementAt(1) == "Bar")
+                .OrderBy(e => e.Id);
 
-            if (async)
-            {
-                await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync());
-            }
-            else
-            {
-                Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal(1, result[0].Reference.IntArray[0]);
+            Assert.Equal("Bar", result[0].Reference.ListOfString[1]);
         }
     }
 
