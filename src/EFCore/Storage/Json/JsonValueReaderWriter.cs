@@ -63,7 +63,7 @@ public abstract class JsonValueReaderWriter
     /// <returns>The read value.</returns>
     public virtual object FromJsonString(string json, object? existingObject = null)
     {
-        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)));
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
         return FromJson(ref readerManager, existingObject);
     }
 

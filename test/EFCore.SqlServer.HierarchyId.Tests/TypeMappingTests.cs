@@ -86,7 +86,7 @@ public class TypeMappingTests
 
         Assert.Equal(json, actual);
 
-        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer));
+        var readerManager = new Utf8JsonReaderManager(new JsonReaderData(buffer), null);
         readerManager.MoveNext();
         readerManager.MoveNext();
         readerManager.MoveNext();

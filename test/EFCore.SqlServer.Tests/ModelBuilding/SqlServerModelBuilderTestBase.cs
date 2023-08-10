@@ -1748,7 +1748,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_first()
+        public virtual void Json_entity_nested_enums_have_conversions_to_int_by_default_ToJson_first()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<JsonEntityWithNesting>(
@@ -1787,7 +1787,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.True(outerOwnedEntity.IsMappedToJson());
                 var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
-                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
@@ -1798,12 +1798,12 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.True(ownedEntity.IsMappedToJson());
                 var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
-                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
             }
         }
 
         [ConditionalFact]
-        public virtual void Json_entity_nested_enums_have_conversions_to_string_by_default_ToJson_last()
+        public virtual void Json_entity_nested_enums_have_conversions_to_int_by_default_ToJson_last()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<JsonEntityWithNesting>(
@@ -1842,7 +1842,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.True(outerOwnedEntity.IsMappedToJson());
                 var myEnum = outerOwnedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
-                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
             }
 
             var ownedEntities = model.FindEntityTypes(typeof(OwnedEntity));
@@ -1853,7 +1853,7 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
                 Assert.True(ownedEntity.IsMappedToJson());
                 var myEnum = ownedEntity.GetDeclaredProperties().Where(p => p.ClrType.IsEnum).Single();
                 var typeMapping = myEnum.FindRelationalTypeMapping()!;
-                Assert.True(typeMapping.Converter is EnumToStringConverter<MyJsonEnum>);
+                Assert.True(typeMapping.Converter is EnumToNumberConverter<MyJsonEnum, int>);
             }
         }
 

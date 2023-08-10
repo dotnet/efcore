@@ -2584,6 +2584,40 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.StringEnumValueInJson" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="enumType">The type.</param>
+    public static void StringEnumValueInJson(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        Type enumType)
+    {
+        var definition = CoreResources.LogStringEnumValueInJson(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, enumType.ShortDisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new TypeEventData(
+                definition,
+                StringEnumValueInJson,
+                enumType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string StringEnumValueInJson(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (TypeEventData)payload;
+        return d.GenerateMessage(p.ClrType.ShortDisplayName());
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.StartedTracking" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

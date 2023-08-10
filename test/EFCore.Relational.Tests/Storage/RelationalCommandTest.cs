@@ -1371,6 +1371,9 @@ public class RelationalCommandTest
 
         public WarningsConfiguration WarningsConfiguration
             => null;
+
+        public virtual bool ShouldWarnForEnumType(Type type)
+            => true;
     }
 
     private IRelationalCommand CreateRelationalCommand(

@@ -39,4 +39,11 @@ public interface ILoggingOptions : ISingletonOptions
     ///     Reflects the option set by <see cref="DbContextOptionsBuilder.ConfigureWarnings" />.
     /// </summary>
     WarningsConfiguration WarningsConfiguration { get; }
+
+    /// <summary>
+    ///    Returns <see langword="true"/> if a warning about string values for the given enum type has not yet been performed.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Whether or not a warning has been issued.</returns>
+    bool ShouldWarnForEnumType(Type type);
 }
