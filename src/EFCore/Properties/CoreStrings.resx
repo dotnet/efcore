@@ -1591,9 +1591,6 @@
   <data name="ValueCannotBeNull" xml:space="preserve">
     <value>The value for property '{1_entityType}.{0_property}' cannot be set to null because its type is '{propertyType}' which is not a nullable type.</value>
   </data>
-  <data name="ValueComplexType" xml:space="preserve">
-    <value>Adding the complex property '{type}.{property}' isn't supported because it's of a value type '{propertyType}'. See https://github.com/dotnet/efcore/issues/9906 for more information.</value>
-  </data>
   <data name="VisitIsNotAllowed" xml:space="preserve">
     <value>Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.</value>
   </data>

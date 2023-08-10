@@ -181,14 +181,7 @@ public class ModelValidator : IModelValidator
                         CoreStrings.ComplexPropertyOptional(typeBase.DisplayName(), complexProperty.Name));
                 }
 
-                if (complexProperty.ComplexType.ClrType.IsValueType)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.ValueComplexType(
-                            typeBase.DisplayName(), complexProperty.Name, complexProperty.ComplexType.ClrType.ShortDisplayName()));
-                }
-
-                if (complexProperty.ComplexType.GetMembers().Count() == 0)
+                if (!complexProperty.ComplexType.GetMembers().Any())
                 {
                     throw new InvalidOperationException(
                         CoreStrings.EmptyComplexType(complexProperty.ComplexType.DisplayName()));
