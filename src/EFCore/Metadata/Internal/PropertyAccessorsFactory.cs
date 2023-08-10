@@ -46,7 +46,7 @@ public class PropertyAccessorsFactory
         IPropertyBase propertyBase,
         bool useStoreGeneratedValues)
     {
-        var entityClrType = propertyBase.DeclaringType.ClrType;
+        var entityClrType = propertyBase.DeclaringType.ContainingEntityType.ClrType;
         var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();

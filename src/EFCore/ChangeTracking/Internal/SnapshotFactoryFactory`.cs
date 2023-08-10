@@ -19,9 +19,9 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<TInput, ISnapshot> Create(IRuntimeTypeBase typeBase)
+    public virtual Func<TInput, ISnapshot> Create(IRuntimeEntityType entityType)
     {
-        if (GetPropertyCount(typeBase) == 0)
+        if (GetPropertyCount(entityType) == 0)
         {
             return _ => Snapshot.Empty;
         }
@@ -29,7 +29,7 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
         var parameter = Expression.Parameter(typeof(TInput), "source");
 
         return Expression.Lambda<Func<TInput, ISnapshot>>(
-                CreateConstructorExpression(typeBase, parameter),
+                CreateConstructorExpression(entityType, parameter),
                 parameter)
             .Compile();
     }

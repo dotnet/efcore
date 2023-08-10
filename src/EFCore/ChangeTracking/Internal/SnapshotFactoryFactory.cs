@@ -21,11 +21,11 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<ISnapshot> CreateEmpty(IRuntimeTypeBase typeBase)
-        => GetPropertyCount(typeBase) == 0
+    public virtual Func<ISnapshot> CreateEmpty(IRuntimeEntityType entityType)
+        => GetPropertyCount(entityType) == 0
             ? (() => Snapshot.Empty)
             : Expression.Lambda<Func<ISnapshot>>(
-                    CreateConstructorExpression(typeBase, null!))
+                    CreateConstructorExpression(entityType, null!))
                 .Compile();
 
     /// <summary>
@@ -35,15 +35,15 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual Expression CreateConstructorExpression(
-        IRuntimeTypeBase typeBase,
+        IRuntimeEntityType entityType,
         ParameterExpression? parameter)
     {
-        var count = GetPropertyCount(typeBase);
+        var count = GetPropertyCount(entityType);
 
         var types = new Type[count];
         var propertyBases = new IPropertyBase?[count];
 
-        foreach (var propertyBase in typeBase.GetSnapshottableMembers())
+        foreach (var propertyBase in entityType.GetSnapshottableMembers())
         {
             var index = GetPropertyIndex(propertyBase);
             if (index >= 0)
@@ -62,7 +62,7 @@ public abstract class SnapshotFactoryFactory
             {
                 snapshotExpressions.Add(
                     CreateSnapshotExpression(
-                        typeBase.ClrType,
+                        entityType.ClrType,
                         parameter,
                         types.Skip(i).Take(Snapshot.MaxGenericTypes).ToArray(),
                         propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes).ToList()));
@@ -77,7 +77,7 @@ public abstract class SnapshotFactoryFactory
         }
         else
         {
-            constructorExpression = CreateSnapshotExpression(typeBase.ClrType, parameter, types, propertyBases);
+            constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
         }
 
         return constructorExpression;
@@ -116,6 +116,12 @@ public abstract class SnapshotFactoryFactory
             if (propertyBase is IProperty property)
             {
                 arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
+                continue;
+            }
+
+            if (propertyBase is IComplexProperty complexProperty)
+            {
+                arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, complexProperty), complexProperty);
                 continue;
             }
 
@@ -243,7 +249,7 @@ public abstract class SnapshotFactoryFactory
         => Expression.Call(
             parameter,
             InternalEntityEntry.MakeGetCurrentValueMethod(property.ClrType),
-            Expression.Constant(property, typeof(IProperty)));
+            Expression.Constant(property, typeof(IPropertyBase)));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -259,7 +265,7 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract int GetPropertyCount(IRuntimeTypeBase typeBase);
+    protected abstract int GetPropertyCount(IRuntimeEntityType entityType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

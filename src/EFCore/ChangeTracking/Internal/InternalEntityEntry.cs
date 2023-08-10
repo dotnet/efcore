@@ -24,7 +24,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     private SidecarValues _temporaryValues;
     private SidecarValues _storeGeneratedValues;
     private readonly ISnapshot _shadowValues;
-    private readonly ComplexEntries _complexEntries;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -42,9 +41,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         Entity = entity;
         _shadowValues = EntityType.EmptyShadowValuesFactory();
         _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
-        _complexEntries = new ComplexEntries(this);
 
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             if (property.IsShadowProperty())
             {
@@ -70,8 +68,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         Entity = entity;
         _shadowValues = EntityType.ShadowValuesFactory(valueBuffer);
         _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
-        // TODO: Set shadow properties on complex types
-        _complexEntries = new ComplexEntries(this);
     }
 
     /// <summary>
@@ -296,7 +292,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
             && newState != EntityState.Detached)
         {
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in entityType.GetFlattenedProperties())
             {
                 if (property.IsKey() && HasTemporaryValue(property))
                 {
@@ -316,17 +312,12 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
             _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.Modified, flagged: true);
 
             // Hot path; do not use LINQ
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in entityType.GetFlattenedProperties())
             {
                 if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
                 {
                     _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Modified, isFlagged: false);
                 }
-            }
-
-            foreach (var complexEntry in _complexEntries)
-            {
-                complexEntry.SetEntityState(EntityState.Modified, acceptChanges, modifyProperties);
             }
         }
 
@@ -340,11 +331,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
             _stateData.FlagAllProperties(
                 EntityType.PropertyCount, PropertyFlag.Modified,
                 flagged: false);
-
-            foreach (var complexEntry in _complexEntries)
-            {
-                complexEntry.SetEntityState(EntityState.Unchanged, acceptChanges, modifyProperties);
-            }
         }
 
         if (_stateData.EntityState != oldState)
@@ -705,8 +691,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         }
         else if (currentState == EntityState.Modified
                  && !isModified
-                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified)
-                 && _complexEntries.All(e => e.EntityState == EntityState.Unchanged))
+                 && !_stateData.AnyPropertiesFlagged(PropertyFlag.Modified))
         {
             _stateData.EntityState = EntityState.Unchanged;
         }
@@ -1244,15 +1229,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IInternalEntry GetComplexPropertyEntry(IComplexProperty property)
-        => _complexEntries.GetEntry(this, property);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public void RemoveFromCollectionSnapshot(
         INavigationBase navigation,
         object removedEntity)
@@ -1469,11 +1445,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                     SetIsLoaded(navigation, value != null);
                 }
 
-                if (propertyBase is IComplexProperty complexProperty)
-                {
-                    _complexEntries.SetValue(value, this, complexProperty);
-                }
-
                 StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
             }
         }
@@ -1526,7 +1497,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     {
         if (!_storeGeneratedValues.IsEmpty)
         {
-            foreach (var property in EntityType.GetProperties())
+            foreach (var property in EntityType.GetFlattenedProperties())
             {
                 var storeGeneratedIndex = property.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1
@@ -1544,11 +1515,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsStoreGenerated, false);
         _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsTemporary, false);
         _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.Unknown, false);
-
-        foreach (var complexEntry in _complexEntries)
-        {
-            complexEntry.AcceptChanges();
-        }
 
         var currentState = EntityState;
         switch (currentState)
@@ -1581,7 +1547,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
 
         if (EntityState == EntityState.Added)
         {
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in entityType.GetFlattenedProperties())
             {
                 if (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Throw
                     && !HasTemporaryValue(property)
@@ -1609,7 +1575,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         }
         else if (EntityState == EntityState.Modified)
         {
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in entityType.GetFlattenedProperties())
             {
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Throw
                     && IsModified(property))
@@ -1625,7 +1591,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         }
         else if (EntityState == EntityState.Deleted)
         {
-            foreach (var property in entityType.GetProperties())
+            foreach (var property in entityType.GetFlattenedProperties())
             {
                 CheckForUnknownKey(property);
             }
@@ -1731,7 +1697,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         }
         else
         {
-            var property = EntityType.GetProperties().FirstOrDefault(
+            var property = EntityType.GetFlattenedProperties().FirstOrDefault(
                 p => (EntityState != EntityState.Modified
                         || IsModified(p))
                     && _stateData.IsPropertyFlagged(p.GetIndex(), PropertyFlag.Null));
@@ -1767,11 +1733,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
         {
             _storeGeneratedValues = new SidecarValues();
             _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsStoreGenerated, false);
-        }
-
-        foreach (var complexEntry in _complexEntries)
-        {
-            complexEntry.DiscardStoreGeneratedValues();
         }
     }
 
@@ -1931,7 +1892,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     {
         if (string.IsNullOrEmpty(propertyName))
         {
-            foreach (var property in entityType.GetProperties()
+            foreach (var property in entityType.GetFlattenedProperties()
                          .Where(p => p.GetAfterSaveBehavior() == PropertySaveBehavior.Save))
             {
                 yield return property;
@@ -2099,7 +2060,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     IEntityType IUpdateEntry.EntityType
         => EntityType;
 
-    IRuntimeTypeBase IInternalEntry.StructuralType
+    IRuntimeEntityType IInternalEntry.EntityType
         => EntityType;
 
     object IInternalEntry.Object

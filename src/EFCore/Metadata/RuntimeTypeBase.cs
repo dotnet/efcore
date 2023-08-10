@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -28,13 +26,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     private readonly PropertyInfo? _indexerPropertyInfo;
     private readonly bool _isPropertyBag;
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
-
-    // Warning: Never access these fields directly as access needs to be thread-safe
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
-    private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
-    private Func<ISnapshot>? _emptyShadowValuesFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,15 +124,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
 
         return derivedTypes;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    protected abstract PropertyCounts Counts { get; }
 
     /// <summary>
     ///     Adds a property to this entity type.
@@ -488,56 +470,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public abstract IEnumerable<RuntimePropertyBase> FindMembersInHierarchy(string name);
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _originalValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetStoreGeneratedValuesFactory(Func<ISnapshot> factory)
-        => _storeGeneratedValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
-        => _temporaryValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetShadowValuesFactory(Func<ValueBuffer, ISnapshot> factory)
-        => _shadowValuesFactory = factory;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual void SetEmptyShadowValuesFactory(Func<ISnapshot> factory)
-        => _emptyShadowValuesFactory = factory;
-
-    /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
@@ -671,53 +603,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     [DebuggerStepThrough]
     IReadOnlyComplexProperty? IReadOnlyTypeBase.FindDeclaredComplexProperty(string name)
         => FindDeclaredComplexProperty(name);
-
-    /// <inheritdoc />
-    PropertyCounts IRuntimeTypeBase.Counts
-    {
-        [DebuggerStepThrough]
-        get => Counts;
-    }
-
-    /// <inheritdoc />
-    Func<IInternalEntry, ISnapshot> IRuntimeTypeBase.OriginalValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _originalValuesFactory, this,
-            static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new OriginalValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<ISnapshot> IRuntimeTypeBase.StoreGeneratedValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _storeGeneratedValuesFactory, this,
-            static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<IInternalEntry, ISnapshot> IRuntimeTypeBase.TemporaryValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _temporaryValuesFactory, this,
-            static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new TemporaryValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<ValueBuffer, ISnapshot> IRuntimeTypeBase.ShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _shadowValuesFactory, this,
-            static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new ShadowValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    Func<ISnapshot> IRuntimeTypeBase.EmptyShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _emptyShadowValuesFactory, this,
-            static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     [DebuggerStepThrough]

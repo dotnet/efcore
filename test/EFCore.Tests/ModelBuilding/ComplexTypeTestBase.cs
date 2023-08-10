@@ -378,11 +378,11 @@ public abstract partial class ModelBuilderTest
             Assert.False(complexType.FindProperty("Bottom").IsConcurrencyToken);
 
             Assert.Equal(-1, complexType.FindProperty(Customer.IdProperty.Name).GetOriginalValueIndex());
-            Assert.Equal(2, complexType.FindProperty("Up").GetOriginalValueIndex());
+            Assert.Equal(6, complexType.FindProperty("Up").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Down").GetOriginalValueIndex());
-            Assert.Equal(0, complexType.FindProperty("Charm").GetOriginalValueIndex());
+            Assert.Equal(4, complexType.FindProperty("Charm").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Strange").GetOriginalValueIndex());
-            Assert.Equal(1, complexType.FindProperty("Top").GetOriginalValueIndex());
+            Assert.Equal(5, complexType.FindProperty("Top").GetOriginalValueIndex());
             Assert.Equal(-1, complexType.FindProperty("Bottom").GetOriginalValueIndex());
 
             Assert.Equal(ChangeTrackingStrategy.ChangingAndChangedNotifications, complexType.GetChangeTrackingStrategy());

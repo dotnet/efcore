@@ -22,17 +22,10 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     private ConfigurationSource? _serviceOnlyConstructorBindingConfigurationSource;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
-    private PropertyCounts? _counts;
-
     // _serviceOnlyConstructorBinding needs to be set as well whenever _constructorBinding is set
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
 
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
-    private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
-    private Func<ISnapshot>? _emptyShadowValuesFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
 
@@ -361,95 +354,6 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     public override IEnumerable<PropertyBase> FindMembersInHierarchy(string name)
         => FindPropertiesInHierarchy(name)
             .Concat<PropertyBase>(FindComplexPropertiesInHierarchy(name));
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual PropertyCounts Counts
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _counts, this, static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return complexType.CalculateCounts();
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _originalValuesFactory, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return new OriginalValuesFactoryFactory().Create(complexType);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<ISnapshot> StoreGeneratedValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _storeGeneratedValuesFactory, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _temporaryValuesFactory, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return new TemporaryValuesFactoryFactory().Create(complexType);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _shadowValuesFactory, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return new ShadowValuesFactoryFactory().Create(complexType);
-            });
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual Func<ISnapshot> EmptyShadowValuesFactory
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _emptyShadowValuesFactory, this,
-            static complexType =>
-            {
-                complexType.EnsureReadOnly();
-                return new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType);
-            });
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

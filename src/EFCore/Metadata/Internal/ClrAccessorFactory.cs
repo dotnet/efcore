@@ -44,7 +44,7 @@ public abstract class ClrAccessorFactory<TAccessor>
     {
         var boundMethod = propertyBase != null
             ? GenericCreate.MakeGenericMethod(
-                propertyBase.DeclaringType.ClrType,
+                propertyBase.DeclaringType.ContainingEntityType.ClrType,
                 propertyBase.ClrType,
                 propertyBase.ClrType.UnwrapNullableType())
             : GenericCreate.MakeGenericMethod(

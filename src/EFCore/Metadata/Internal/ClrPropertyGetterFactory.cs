@@ -32,10 +32,12 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
+        var entityParameter = Expression.Parameter(entityClrType, "entity");
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TEntity);
 
         Expression readExpression;
-        if (memberInfo.DeclaringType!.IsAssignableFrom(typeof(TEntity)))
+        if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
         {
             readExpression = PropertyBase.CreateMemberAccess(propertyBase, entityParameter, memberInfo);
         }

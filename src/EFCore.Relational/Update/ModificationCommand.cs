@@ -604,7 +604,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 result.Path.Insert(0, pathEntry);
             }
 
-            var modifiedMembers = entry.EntityType.GetProperties().Where(entry.IsModified).ToList();
+            var modifiedMembers = entry.EntityType.GetFlattenedProperties().Where(entry.IsModified).ToList();
             if (modifiedMembers.Count == 1)
             {
                 result.Property = modifiedMembers[0];
@@ -854,7 +854,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         writer.WriteStartObject();
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             if (property.IsKey())
             {
@@ -1108,7 +1108,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     {
                         _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
                     }
-                    
+
                     _write = !_originalValueInitialized
                         || !mapping.Column.ProviderValueComparer.Equals(_originalValue, _currentValue);
 

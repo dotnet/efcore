@@ -44,22 +44,74 @@ public partial class DbContextTest
         {
             Id = 1,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         var principal = new Category
         {
             Id = 1,
             Name = "Beverages",
-            Products = new List<Product> { relatedDependent }
+            Products = new List<Product> { relatedDependent },
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
-        var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+        var relatedPrincipal = new Category { Id = 2, Name = "Foods",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var dependent = new Product
         {
             Id = 2,
             Name = "Bovril",
             Price = 4.99m,
-            Category = relatedPrincipal
+            Category = relatedPrincipal,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         var principalEntry = await categoryAdder(context, principal);
@@ -129,22 +181,74 @@ public partial class DbContextTest
         {
             Id = 1,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         var principal = new Category
         {
             Id = 1,
             Name = "Beverages",
-            Products = new List<Product> { relatedDependent }
+            Products = new List<Product> { relatedDependent },
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
-        var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+        var relatedPrincipal = new Category { Id = 2, Name = "Foods",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var dependent = new Product
         {
             Id = 2,
             Name = "Bovril",
             Price = 4.99m,
-            Category = relatedPrincipal
+            Category = relatedPrincipal,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         await adder(context, new object[] { principal, dependent });
@@ -202,12 +306,38 @@ public partial class DbContextTest
         EntityState expectedState)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category1 = new Category { Id = 0, Name = "Beverages" };
+        var category1 = new Category { Id = 0, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product1 = new Product
         {
             Id = 0,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         var categoryEntry1 = await categoryAdder(context, category1);
@@ -346,12 +476,38 @@ public partial class DbContextTest
         EntityState expectedState)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category1 = new Category { Id = 0, Name = "Beverages" };
+        var category1 = new Category { Id = 0, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product1 = new Product
         {
             Id = 0,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         await categoryAdder(context, new[] { category1 });
@@ -439,22 +595,74 @@ public partial class DbContextTest
         {
             Id = 1,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         var principal = new Category
         {
             Id = 1,
             Name = "Beverages",
-            Products = new List<Product> { relatedDependent }
+            Products = new List<Product> { relatedDependent },
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
-        var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+        var relatedPrincipal = new Category { Id = 2, Name = "Foods",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var dependent = new Product
         {
             Id = 2,
             Name = "Bovril",
             Price = 4.99m,
-            Category = relatedPrincipal
+            Category = relatedPrincipal,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         var principalEntry = await categoryAdder(context, principal);
@@ -524,22 +732,74 @@ public partial class DbContextTest
         {
             Id = 1,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         var principal = new Category
         {
             Id = 1,
             Name = "Beverages",
-            Products = new List<Product> { relatedDependent }
+            Products = new List<Product> { relatedDependent },
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
-        var relatedPrincipal = new Category { Id = 2, Name = "Foods" };
+        var relatedPrincipal = new Category { Id = 2, Name = "Foods",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var dependent = new Product
         {
             Id = 2,
             Name = "Bovril",
             Price = 4.99m,
-            Category = relatedPrincipal
+            Category = relatedPrincipal,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         await adder(context, new object[] { principal, dependent });
@@ -597,12 +857,38 @@ public partial class DbContextTest
         EntityState expectedState)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category1 = new Category { Id = 0, Name = "Beverages" };
+        var category1 = new Category { Id = 0, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product1 = new Product
         {
             Id = 0,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         var categoryEntry1 = await categoryAdder(context, category1);
@@ -669,12 +955,38 @@ public partial class DbContextTest
         EntityState expectedState)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category1 = new Category { Id = 0, Name = "Beverages" };
+        var category1 = new Category { Id = 0, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product1 = new Product
         {
             Id = 0,
             Name = "Marmite",
-            Price = 7.99m
+            Price = 7.99m,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         await categoryAdder(
@@ -848,7 +1160,20 @@ public partial class DbContextTest
         EntityState expectedState)
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var entity = new Category { Id = 1, Name = "Beverages" };
+        var entity = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var entry = context.Entry(entity);
 
         entry.State = initialState;
@@ -862,13 +1187,39 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_principal_first_fully_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -895,13 +1246,39 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_dependent_first_fully_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -926,13 +1303,39 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_principal_first_collection_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product>();
 
@@ -957,13 +1360,39 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product>();
 
@@ -988,12 +1417,38 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_principal_first_reference_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1018,12 +1473,38 @@ public partial class DbContextTest
     public void Can_attach_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1048,13 +1529,39 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_fully_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1081,13 +1588,39 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_fully_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1112,13 +1645,39 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_collection_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product>();
 
@@ -1143,13 +1702,39 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_collection_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product>();
 
@@ -1174,12 +1759,38 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_principal_first_reference_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1204,12 +1815,38 @@ public partial class DbContextTest
     public void Can_set_set_to_Unchanged_with_inconsistent_FK_dependent_first_reference_not_fixed_up()
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1235,15 +1872,54 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1272,16 +1948,55 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
 
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         category.Products = new List<Product> { product };
@@ -1314,14 +2029,40 @@ public partial class DbContextTest
         var category7 = context.Attach(
             new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
 
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         category.Products = new List<Product>();
@@ -1354,14 +2095,40 @@ public partial class DbContextTest
         var category7 = context.Attach(
             new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
 
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         category.Products = new List<Product>();
@@ -1394,12 +2161,38 @@ public partial class DbContextTest
         var category7 = context.Attach(
             new Category { Id = 7, Products = new List<Product>() }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1427,14 +2220,53 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1461,15 +2293,54 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1497,16 +2368,55 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
 
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         category.Products = new List<Product> { product };
@@ -1537,15 +2447,54 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product>();
 
@@ -1574,16 +2523,55 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
 
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
             Name = "Marmite",
-            Category = category
+            Category = category,
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
 
         category.Products = new List<Product>();
@@ -1614,14 +2602,53 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 
@@ -1649,14 +2676,53 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
-        var category = new Category { Id = 1, Name = "Beverages" };
+        var category = new Category { Id = 1, Name = "Beverages",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            } };
         var product = new Product
         {
             Id = 1,
             CategoryId = 7,
-            Name = "Marmite"
+            Name = "Marmite",
+            Stamp = new()
+            {
+                Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+            },
+            Tag = new()
+            {
+                Name = "Tanavast",
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                },
+                Notes = new[] { "A", "B" }
+            }
         };
         category.Products = new List<Product> { product };
 

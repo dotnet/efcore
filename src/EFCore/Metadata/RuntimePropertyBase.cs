@@ -116,7 +116,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
             ref _indexes, this,
             static property =>
             {
-                var _ = ((IRuntimeTypeBase)property.DeclaringType).Counts;
+                _ = ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).Counts;
             });
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
     }

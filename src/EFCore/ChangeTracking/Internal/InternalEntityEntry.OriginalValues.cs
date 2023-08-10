@@ -13,7 +13,7 @@ public sealed partial class InternalEntityEntry
 
         public OriginalValues(IInternalEntry entry)
         {
-            _values = entry.StructuralType.OriginalValuesFactory(entry);
+            _values = entry.EntityType.OriginalValuesFactory(entry);
         }
 
         public object? GetValue(IInternalEntry entry, IProperty property)
@@ -72,7 +72,7 @@ public sealed partial class InternalEntityEntry
                 return;
             }
 
-            foreach (var property in entry.StructuralType.GetProperties())
+            foreach (var property in entry.EntityType.GetFlattenedProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)
@@ -89,7 +89,7 @@ public sealed partial class InternalEntityEntry
                 return;
             }
 
-            foreach (var property in entry.StructuralType.GetProperties())
+            foreach (var property in entry.EntityType.GetFlattenedProperties())
             {
                 var index = property.GetOriginalValueIndex();
                 if (index >= 0)
