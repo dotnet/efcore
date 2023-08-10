@@ -50,5 +50,14 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
                     )
                 }
             };
+
+        protected override void Initialize()
+        {
+            MirrorTypes.Add(typeof(SqlitePropertyBuilderExtensions), typeof(SqliteComplexTypePropertyBuilderExtensions));
+            MirrorTypes.Add(typeof(SqlitePrimitiveCollectionBuilderExtensions), typeof(SqlitePropertyBuilderExtensions));
+            MirrorTypes.Add(typeof(SqliteComplexTypePrimitiveCollectionBuilderExtensions), typeof(SqliteComplexTypePropertyBuilderExtensions));
+
+            base.Initialize();
+        }
     }
 }

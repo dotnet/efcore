@@ -183,7 +183,9 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
             foreach (var method in tuple.Key.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
             {
-                if (!Fixture.UnmatchedMetadataMethods.Contains(method))
+                if (!Fixture.UnmatchedMetadataMethods.Contains(method)
+                    && !(Fixture.UnmatchedMirrorMethods.TryGetValue(tuple.Value, out var unmatchedMirrorMethods)
+                    && unmatchedMirrorMethods.Contains(method)))
                 {
                     MethodInfo matchingMethod = null;
                     foreach (var targetMethod in tuple.Value.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
@@ -1278,6 +1280,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new();
         public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new();
         public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new();
+        public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
         public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new();
 
@@ -1435,7 +1438,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
                         && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
                             parameterGenerator(
-                                type.IsGenericType ? type.GenericTypeArguments : Array.Empty<Type>(),
+                                type.IsGenericType ? type.GetGenericArguments() : Array.Empty<Type>(),
                                 mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>())));
 
         protected virtual void Initialize()

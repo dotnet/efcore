@@ -68,16 +68,6 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
                         typeof(CosmosPropertyBuilderExtensions),
                         null
                     )
-                },
-                {
-                    typeof(IReadOnlyElementType),
-                    (
-                        null,
-                        null,
-                        null,
-                        typeof(CosmosPrimitiveCollectionBuilderExtensions),
-                        null
-                    )
                 }
             };
     }

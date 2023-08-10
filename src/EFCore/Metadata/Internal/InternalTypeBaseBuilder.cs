@@ -333,7 +333,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     {
         var builder = Property(propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource);
 
-        builder?.ElementType(configurationSource!.Value);
+        builder?.ElementType(true, configurationSource!.Value);
 
         return builder;
     }

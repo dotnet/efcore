@@ -564,7 +564,7 @@ public class InternalPropertyBuilder
     {
         if (CanSetConverter(converterType, configurationSource))
         {
-            Metadata.IsPrimitiveCollection(false, configurationSource);
+            Metadata.ElementType(false, configurationSource);
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converterType, configurationSource);
 
@@ -776,11 +776,11 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalElementTypeBuilder? ElementType(ConfigurationSource configurationSource)
+    public virtual InternalElementTypeBuilder? ElementType(bool elementType, ConfigurationSource configurationSource)
     {
-        if (CanSetElementType(configurationSource))
+        if (CanSetElementType(elementType, configurationSource))
         {
-            Metadata.IsPrimitiveCollection(true, configurationSource);
+            Metadata.ElementType(elementType, configurationSource);
             Metadata.SetValueConverter((Type?)null, configurationSource);
             return new InternalElementTypeBuilder((ElementType)Metadata.GetElementType()!, ModelBuilder);
         }
@@ -794,8 +794,9 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetElementType(ConfigurationSource? configurationSource)
-        => configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource());
+    public virtual bool CanSetElementType(bool elementType, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource())
+            && (elementType != (Metadata.GetElementType() != null));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -905,10 +906,7 @@ public class InternalPropertyBuilder
         }
 
         var oldElementType = (ElementType?)Metadata.GetElementType();
-        var oldElementTypeConfigurationSource = Metadata.GetElementTypeConfigurationSource();
-        if (oldElementType != null
-            && oldElementTypeConfigurationSource.HasValue
-            && newPropertyBuilder.CanSetElementType(oldElementTypeConfigurationSource))
+        if (oldElementType != null)
         {
             var newElementType = (ElementType?)newPropertyBuilder.Metadata.GetElementType();
             if (newElementType != null)
@@ -1525,8 +1523,8 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionElementTypeBuilder? IConventionPropertyBuilder.ElementType(bool fromDataAnnotation)
-        => ElementType(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionElementTypeBuilder? IConventionPropertyBuilder.ElementType(bool elementType, bool fromDataAnnotation)
+        => ElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1534,7 +1532,6 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetElementType(bool fromDataAnnotation = false)
-        => (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-            .Overrides(Metadata.GetElementTypeConfigurationSource());
+    bool IConventionPropertyBuilder.CanSetElementType(bool elementType, bool fromDataAnnotation)
+        => CanSetElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

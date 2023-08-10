@@ -1214,26 +1214,26 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IElementType? IsPrimitiveCollection(
-        bool primitiveCollection,
+    public virtual IElementType? ElementType(
+        bool elementType,
         ConfigurationSource configurationSource)
     {
         var existingElementType = GetElementType();
         if (existingElementType == null
-            && primitiveCollection)
+            && elementType)
         {
             var elementClrType = ClrType.TryGetElementType(typeof(IEnumerable<>));
             if (elementClrType == null)
             {
                 throw new InvalidOperationException(CoreStrings.NotCollection(ClrType.ShortDisplayName(), Name));
             }
-            var elementType = new ElementType(elementClrType, this, configurationSource);
-            SetAnnotation(CoreAnnotationNames.ElementType, elementType, configurationSource);
-            OnElementTypeSet(elementType, null);
-            return elementType;
+            var newElementType = new ElementType(elementClrType, this, configurationSource);
+            SetAnnotation(CoreAnnotationNames.ElementType, newElementType, configurationSource);
+            OnElementTypeSet(newElementType, null);
+            return newElementType;
         }
 
-        if (existingElementType != null && !primitiveCollection)
+        if (existingElementType != null && !elementType)
         {
             ((ElementType)existingElementType).SetRemovedFromModel();
             RemoveAnnotation(CoreAnnotationNames.ElementType);
@@ -2007,9 +2007,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IElementType? IConventionProperty.IsPrimitiveCollection(bool primitiveCollection, bool fromDataAnnotation)
-        => IsPrimitiveCollection(
-            primitiveCollection,
+    IElementType? IConventionProperty.ElementType(bool elementType, bool fromDataAnnotation)
+        => ElementType(
+            elementType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -2019,6 +2019,6 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableProperty.IsPrimitiveCollection(bool primitiveCollection)
-        => IsPrimitiveCollection(primitiveCollection, ConfigurationSource.Explicit);
+    void IMutableProperty.ElementType(bool elementType)
+        => ElementType(elementType, ConfigurationSource.Explicit);
 }

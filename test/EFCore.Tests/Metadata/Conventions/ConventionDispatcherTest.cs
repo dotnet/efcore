@@ -3689,12 +3689,12 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            Assert.NotNull(propertyBuilder.ElementType(ConfigurationSource.Convention));
+            Assert.NotNull(propertyBuilder.ElementType(true, ConfigurationSource.Convention));
             elementType = (ElementType)propertyBuilder.Metadata.GetElementType()!;
         }
         else
         {
-            elementType = (ElementType)propertyBuilder.Metadata.IsPrimitiveCollection(true, ConfigurationSource.Convention);
+            elementType = (ElementType)propertyBuilder.Metadata.ElementType(true, ConfigurationSource.Convention);
         }
 
         if (useScope)
@@ -3710,19 +3710,26 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            Assert.NotNull(propertyBuilder.ElementType(ConfigurationSource.Convention));
+            Assert.Null(propertyBuilder.ElementType(true, ConfigurationSource.Convention));
             elementType = (ElementType)propertyBuilder.Metadata.GetElementType()!;
         }
         else
         {
-            elementType = (ElementType)propertyBuilder.Metadata.IsPrimitiveCollection(true, ConfigurationSource.Convention);
+            elementType = (ElementType)propertyBuilder.Metadata.ElementType(true, ConfigurationSource.Convention);
         }
 
         Assert.Equal(new (object, object)[] { (null, elementType) }, convention1.Calls);
         Assert.Equal(new (object, object)[] { (null, elementType) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
 
-        propertyBuilder.Metadata.IsPrimitiveCollection(false, ConfigurationSource.Convention);
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.ElementType(false, ConfigurationSource.Convention));
+        }
+        else
+        {
+            Assert.Null(propertyBuilder.Metadata.ElementType(false, ConfigurationSource.Convention));
+        }
 
         Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention1.Calls);
         Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention2.Calls);
@@ -5062,7 +5069,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var elementTypeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)!
             .Property(nameof(SpecialOrder.OrderIds), ConfigurationSource.Convention)!
-            .ElementType(ConfigurationSource.Convention)!;
+            .ElementType(true, ConfigurationSource.Convention)!;
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -5167,7 +5174,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(model);
         var elementTypeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)!
             .Property(nameof(SpecialOrder.Notes), ConfigurationSource.Convention)!
-            .ElementType(ConfigurationSource.Convention)!;
+            .ElementType(true, ConfigurationSource.Convention)!;
 
         if (useBuilder)
         {
