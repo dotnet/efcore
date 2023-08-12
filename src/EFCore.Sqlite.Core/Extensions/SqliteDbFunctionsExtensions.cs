@@ -44,6 +44,33 @@ public static class SqliteDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Hex)));
 
     /// <summary>
+    ///     Maps to the SQLite <c>unhex</c> function which returns a BLOB representing decoding of the hexadecimal string.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="bytes">The binary value.</param>
+    /// <returns>Decoded hexadecimal string as binary value.</returns>
+    public static byte[] Unhex(this DbFunctions _, byte[] bytes)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
+
+    /// <summary>
+    ///     Maps to the SQLite <c>unhex</c> function which returns a BLOB representing decoding of the hexadecimal string.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="bytes">The binary value.</param>
+    /// <param name="ignoreChars">Characters in Y that are not hexadecimal digits are ignored in X.</param>
+    /// <returns>Decoded hexadecimal string as binary value.</returns>
+    public static byte[] Unhex(this DbFunctions _, byte[] bytes, string ignoreChars)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
+
+    /// <summary>
     ///     Maps to the SQLite <c>substr</c> function which returns a subarray of the specified value. The subarray starts
     ///     at <paramref name="startIndex" /> and continues to the end of the value.
     /// </summary>
