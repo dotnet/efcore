@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
+
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore;
@@ -1542,6 +1543,70 @@ FROM "ObjectBackedDataTypes" AS "o"
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => string.Concat(e.Bytes.Select(b => b.ToString("X2")))).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_unhex_function()
+    {
+        using var context = CreateContext();
+
+        context.Set<ObjectBackedDataTypes>()
+            .ForEach(e =>
+            {
+                var bytes = Encoding.Default.GetBytes(e.String);
+                var hexString = Convert.ToHexString(bytes);
+                e.Bytes = Encoding.Default.GetBytes(hexString);
+            });
+
+        Assert.Equal(context.Set<ObjectBackedDataTypes>().Count(), context.SaveChanges());
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => EF.Functions.Unhex(e.Bytes)).ToList();
+
+        AssertSql(
+"""
+SELECT unhex("o"."Bytes")
+FROM "ObjectBackedDataTypes" AS "o"
+""");
+
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => Encoding.Default.GetBytes(e.String)).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_unhex_function_with_ignore_chars()
+    {
+        using var context = CreateContext();
+
+        context.Set<ObjectBackedDataTypes>()
+            .ForEach(e =>
+            {
+                var bytes = Encoding.Default.GetBytes(e.String);
+                var hexString = Convert.ToHexString(bytes);
+                e.Bytes = Encoding.Default.GetBytes(hexString + "!?");
+            });
+
+        Assert.Equal(context.Set<ObjectBackedDataTypes>().Count(), context.SaveChanges());
+
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => EF.Functions.Unhex(e.Bytes, "!?")).ToList();
+
+        AssertSql(
+"""
+SELECT unhex("o"."Bytes", '!?')
+FROM "ObjectBackedDataTypes" AS "o"
+""");
+
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => Encoding.Default.GetBytes(e.String)).ToList();
 
         Assert.Equal(expectedResults, results);
     }
