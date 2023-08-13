@@ -26,7 +26,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
+    protected override IClrPropertySetter CreateGeneric<TEntity, TStructuralType, TValue, TNonNullableEnumValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
@@ -82,7 +82,8 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 targetStructuralType = PropertyBase.CreateMemberAccess(
                     complexType.ComplexProperty,
                     typeParameter,
-                    complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false));
+                    complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
+                    fromStructuralType: false);
             }
 
             return propertyBase?.IsIndexerProperty() == true

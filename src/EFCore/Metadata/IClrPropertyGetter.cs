@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IClrPropertyGetter
 {
     /// <summary>
-    ///     Gets the property value.
+    ///     Gets the property value from the containing entity instance.
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <returns>The property value.</returns>
@@ -32,4 +32,18 @@ public interface IClrPropertyGetter
     /// <param name="entity">The entity instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
     bool HasSentinelValue(object entity);
+
+    /// <summary>
+    ///     Gets the property value from the declaring type.
+    /// </summary>
+    /// <param name="complexObject">The complex type instance instance.</param>
+    /// <returns>The property value.</returns>
+    object? GetStructuralTypeClrValue(object complexObject);
+
+    /// <summary>
+    ///     Checks whether or not the property is set to the CLR default for its type.
+    /// </summary>
+    /// <param name="complexObject">The complex type instance instance.</param>
+    /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
+    bool HasStructuralTypeSentinelValue(object complexObject);
 }

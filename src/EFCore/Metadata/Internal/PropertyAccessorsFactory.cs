@@ -71,7 +71,7 @@ public class PropertyAccessorsFactory
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
-            currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo);
+            currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo, fromStructuralType: false);
             hasSentinelValueExpression = currentValueExpression.MakeHasSentinelValue(propertyBase);
 
             if (currentValueExpression.Type != typeof(TProperty))

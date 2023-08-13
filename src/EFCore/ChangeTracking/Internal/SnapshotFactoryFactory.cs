@@ -132,7 +132,7 @@ public abstract class SnapshotFactoryFactory
             }
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
-            var memberAccess = PropertyBase.CreateMemberAccess(propertyBase, entityVariable!, memberInfo);
+            var memberAccess = PropertyBase.CreateMemberAccess(propertyBase, entityVariable!, memberInfo, fromStructuralType: false);
 
             if (memberAccess.Type != propertyBase.ClrType)
             {

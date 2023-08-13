@@ -25,6 +25,12 @@ public class ClrPropertyGetterFactoryTest
         public bool HasSentinelValue(object entity)
             => throw new NotImplementedException();
 
+        public object GetStructuralTypeClrValue(object complexObject)
+            => throw new NotImplementedException();
+
+        public bool HasStructuralTypeSentinelValue(object complexObject)
+            => throw new NotImplementedException();
+
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
             => throw new NotImplementedException();
 
@@ -179,6 +185,31 @@ public class ClrPropertyGetterFactoryTest
         Assert.Equal(
             "ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValue(new IndexedClass { Id = 7 }));
         Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValue(new IndexedClass { Id = 7 }));
+    }
+
+    [ConditionalFact]
+    public void Delegate_getter_is_returned_for_IProperty_complex_property()
+    {
+        var modelBuilder = CreateModelBuilder();
+        modelBuilder.Entity<Customer>(
+            b =>
+            {
+                b.Property(e => e.Id);
+                b.ComplexProperty(e => e.Fuel).Property(e => e.Volume);
+            });
+
+        var model = modelBuilder.FinalizeModel();
+
+        var volumeProperty = model.FindEntityType(typeof(Customer))!
+            .FindComplexProperty(nameof(Customer.Fuel))!
+            .ComplexType.FindProperty(nameof(Fuel.Volume))!;
+
+        Assert.Equal(
+            10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetClrValue(
+                new Customer { Id = 7, Fuel = new Fuel(10.0)}));
+
+        Assert.Equal(
+            10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetStructuralTypeClrValue(new Fuel(10.0)));
     }
 
     private static TestHelpers.TestModelBuilder CreateModelBuilder()
