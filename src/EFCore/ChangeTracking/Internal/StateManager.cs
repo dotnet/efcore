@@ -278,7 +278,7 @@ public class StateManager : IStateManager
         var runtimeEntityType = (IRuntimeEntityType)entityType;
         var valuesArray = new object?[runtimeEntityType.PropertyCount];
         var shadowPropertyValuesArray = new object?[runtimeEntityType.ShadowPropertyCount];
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             valuesArray[i++] = values.TryGetValue(property.Name, out var value)
                 ? value

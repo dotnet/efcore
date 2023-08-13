@@ -5,6 +5,7 @@ using System.Collections;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 
@@ -44,7 +45,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         _nullabilityCheckEnabled = nullabilityCheckEnabled;
         _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
-        var properties = entityType.GetProperties().ToList();
+        var properties = entityType.GetFlattenedProperties().ToList();
         _propertyCount = properties.Count;
 
         foreach (var property in properties)
@@ -163,7 +164,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     /// </summary>
     public virtual void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
-        var properties = entry.EntityType.GetProperties().ToList();
+        var properties = entry.EntityType.GetFlattenedProperties().ToList();
         var row = new object?[properties.Count];
         var nullabilityErrors = new List<IProperty>();
 
@@ -171,7 +172,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
         {
             var propertyValue = SnapshotValue(properties[index], properties[index].GetKeyValueComparer(), entry);
 
-            row[index] = propertyValue;
+            row[properties[index].GetIndex()] = propertyValue;
             HasNullabilityError(properties[index], propertyValue, nullabilityErrors);
         }
 
@@ -197,12 +198,12 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         if (_rows.TryGetValue(key, out var row))
         {
-            var properties = entry.EntityType.GetProperties().ToList();
+            var properties = entry.EntityType.GetFlattenedProperties().ToList();
             var concurrencyConflicts = new Dictionary<IProperty, object?>();
 
             for (var index = 0; index < properties.Count; index++)
             {
-                IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts);
+                IsConcurrencyConflict(entry, properties[index], row[properties[index].GetIndex()], concurrencyConflicts);
             }
 
             if (concurrencyConflicts.Count > 0)
@@ -266,7 +267,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
         if (_rows.TryGetValue(key, out var row))
         {
-            var properties = entry.EntityType.GetProperties().ToList();
+            var properties = entry.EntityType.GetFlattenedProperties().ToList();
             var comparers = GetKeyComparers(properties);
             var valueBuffer = new object?[properties.Count];
             var concurrencyConflicts = new Dictionary<IProperty, object?>();
@@ -274,19 +275,20 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
             for (var index = 0; index < valueBuffer.Length; index++)
             {
-                if (IsConcurrencyConflict(entry, properties[index], row[index], concurrencyConflicts))
+                var propertyIndex = properties[index].GetIndex();
+                if (IsConcurrencyConflict(entry, properties[index], row[propertyIndex], concurrencyConflicts))
                 {
                     continue;
                 }
 
-                if (HasNullabilityError(properties[index], row[index], nullabilityErrors))
+                if (HasNullabilityError(properties[index], row[propertyIndex], nullabilityErrors))
                 {
                     continue;
                 }
 
                 valueBuffer[index] = entry.IsModified(properties[index])
                     ? SnapshotValue(properties[index], comparers[index], entry)
-                    : row[index];
+                    : row[propertyIndex];
             }
 
             if (concurrencyConflicts.Count > 0)

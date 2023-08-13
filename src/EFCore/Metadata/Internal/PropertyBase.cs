@@ -338,7 +338,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             static property =>
             {
                 property.EnsureReadOnly();
-                var _ = ((IRuntimeTypeBase)property.DeclaringType).Counts;
+                _ = ((IRuntimeEntityType)(((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType)).Counts;
             });
 
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
@@ -426,7 +426,8 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     public static Expression CreateMemberAccess(
         IPropertyBase? property,
         Expression instanceExpression,
-        MemberInfo memberInfo)
+        MemberInfo memberInfo,
+        bool fromStructuralType)
     {
         if (property?.IsIndexerProperty() == true)
         {
@@ -443,6 +444,31 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             }
 
             return expression;
+        }
+
+        if (!fromStructuralType
+            && property?.DeclaringType is IComplexType complexType)
+        {
+            instanceExpression = CreateMemberAccess(
+                complexType.ComplexProperty,
+                instanceExpression,
+                complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
+                fromStructuralType);
+
+            if (!instanceExpression.Type.IsValueType
+                || instanceExpression.Type.IsNullableValueType())
+            {
+                var instanceVariable = Expression.Variable(instanceExpression.Type, "instance");
+                var block = Expression.Block(
+                    new[] { instanceVariable },
+                    Expression.Assign(instanceVariable, instanceExpression),
+                    Expression.Condition(
+                        Expression.Equal(instanceVariable, Expression.Constant(null)),
+                        Expression.Default(memberInfo.GetMemberType()),
+                        Expression.MakeMemberAccess(instanceVariable, memberInfo)));
+
+                return block;
+            }
         }
 
         return Expression.MakeMemberAccess(instanceExpression, memberInfo);

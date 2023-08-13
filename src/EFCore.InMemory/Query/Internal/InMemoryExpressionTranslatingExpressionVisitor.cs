@@ -1287,7 +1287,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 var propertyGetter = property.GetGetter();
                 foreach (var value in values)
                 {
-                    propertyValueList.Add(propertyGetter.GetClrValue(value));
+                    propertyValueList.Add(propertyGetter.GetStructuralTypeClrValue(value));
                 }
 
                 rewrittenSource = Expression.Constant(propertyValueList);
@@ -1435,7 +1435,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return Expression.Constant(
                     constantExpression.Value is null
                         ? null
-                        : property.GetGetter().GetClrValue(constantExpression.Value),
+                        : property.GetGetter().GetStructuralTypeClrValue(constantExpression.Value),
                     property.ClrType.MakeNullable());
 
             case MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
@@ -1478,7 +1478,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static T? ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
     {
         var baseParameter = context.ParameterValues[baseParameterName];
-        return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseParameter);
+        return baseParameter == null ? (T?)(object?)null : (T?)property.GetGetter().GetStructuralTypeClrValue(baseParameter);
     }
 
     private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
@@ -1492,7 +1492,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         var getter = property.GetGetter();
-        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
+        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetStructuralTypeClrValue(e) : (TProperty?)(object?)null).ToList();
     }
 
     private static ConstantExpression GetValue(Expression expression)

@@ -226,7 +226,7 @@ public class ChangeDetector : IChangeDetector
 
         OnDetectingEntityChanges(entry);
 
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in entityType.GetFlattenedProperties())
         {
             if (property.GetOriginalValueIndex() >= 0
                 && !entry.IsModified(property)

@@ -44,10 +44,12 @@ public abstract class ClrAccessorFactory<TAccessor>
     {
         var boundMethod = propertyBase != null
             ? GenericCreate.MakeGenericMethod(
+                propertyBase.DeclaringType.ContainingEntityType.ClrType,
                 propertyBase.DeclaringType.ClrType,
                 propertyBase.ClrType,
                 propertyBase.ClrType.UnwrapNullableType())
             : GenericCreate.MakeGenericMethod(
+                memberInfo.DeclaringType!,
                 memberInfo.DeclaringType!,
                 memberInfo.GetMemberType(),
                 memberInfo.GetMemberType().UnwrapNullableType());
@@ -70,7 +72,7 @@ public abstract class ClrAccessorFactory<TAccessor>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract TAccessor CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
+    protected abstract TAccessor CreateGeneric<TEntity, TStructuralType, TValue, TNonNullableEnumValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
         where TEntity : class;

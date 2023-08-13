@@ -3044,14 +3044,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, entityType, propertyType);
 
         /// <summary>
-        ///     Adding the complex property '{type}.{property}' isn't supported because it's of a value type '{propertyType}'. See https://github.com/dotnet/efcore/issues/9906 for more information.
-        /// </summary>
-        public static string ValueComplexType(object? type, object? property, object? propertyType)
-            => string.Format(
-                GetString("ValueComplexType", nameof(type), nameof(property), nameof(propertyType)),
-                type, property, propertyType);
-
-        /// <summary>
         ///     Calling '{visitMethodName}' is not allowed. Visit the expression manually for the relevant part in the visitor.
         /// </summary>
         public static string VisitIsNotAllowed(object? visitMethodName)

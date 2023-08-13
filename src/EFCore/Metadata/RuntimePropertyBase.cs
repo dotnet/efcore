@@ -116,7 +116,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
             ref _indexes, this,
             static property =>
             {
-                var _ = ((IRuntimeTypeBase)property.DeclaringType).Counts;
+                _ = ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).Counts;
             });
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
     }
@@ -150,9 +150,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     [EntityFrameworkInternal]
     public virtual void SetSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
         where TEntity : class
-    {
-        _setter = new ClrPropertySetter<TEntity, TValue>(setter);
-    }
+        => _setter = new ClrPropertySetter<TEntity, TValue>(setter);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -161,11 +159,14 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetGetter<TEntity, TValue>(Func<TEntity, TValue> getter, Func<TEntity, bool> hasDefaultValue)
+    public virtual void SetGetter<TEntity, TStructuralType, TValue>(
+        Func<TEntity, TValue> getter,
+        Func<TEntity, bool> hasDefaultValue,
+        Func<TStructuralType, TValue> structuralTypeGetter,
+        Func<TStructuralType, bool> hasStructuralTypeSentinelValue)
         where TEntity : class
-    {
-        _getter = new ClrPropertyGetter<TEntity, TValue>(getter, hasDefaultValue);
-    }
+        => _getter = new ClrPropertyGetter<TEntity, TStructuralType, TValue>(
+            getter, hasDefaultValue, structuralTypeGetter, hasStructuralTypeSentinelValue);
 
     /// <inheritdoc />
     IClrPropertySetter IRuntimePropertyBase.GetSetter()

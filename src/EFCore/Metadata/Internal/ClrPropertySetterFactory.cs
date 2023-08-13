@@ -26,11 +26,13 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override IClrPropertySetter CreateGeneric<TEntity, TValue, TNonNullableEnumValue>(
+    protected override IClrPropertySetter CreateGeneric<TEntity, TStructuralType, TValue, TNonNullableEnumValue>(
         MemberInfo memberInfo,
         IPropertyBase? propertyBase)
     {
-        var entityParameter = Expression.Parameter(typeof(TEntity), "entity");
+        var entityClrType = propertyBase?.DeclaringType.ContainingEntityType.ClrType ?? typeof(TEntity);
+        var entityParameter = Expression.Parameter(entityClrType, "entity");
+        var propertyDeclaringType = propertyBase?.DeclaringType.ClrType ?? typeof(TEntity);
         var valueParameter = Expression.Parameter(typeof(TValue), "value");
         var memberType = memberInfo.GetMemberType();
         var convertedParameter = memberType == typeof(TValue)
@@ -38,9 +40,9 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
             : Expression.Convert(valueParameter, memberType);
 
         Expression writeExpression;
-        if (memberInfo.DeclaringType!.IsAssignableFrom(typeof(TEntity)))
+        if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
         {
-            writeExpression = CreateMemberAssignment(entityParameter);
+            writeExpression = CreateMemberAssignment(propertyBase, entityParameter);
         }
         else
         {
@@ -56,7 +58,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                         Expression.TypeAs(entityParameter, memberInfo.DeclaringType)),
                     Expression.IfThen(
                         Expression.ReferenceNotEqual(converted, Expression.Constant(null)),
-                        CreateMemberAssignment(converted))
+                        CreateMemberAssignment(propertyBase, converted))
                 });
         }
 
@@ -72,12 +74,24 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                 ? new NullableEnumClrPropertySetter<TEntity, TValue, TNonNullableEnumValue>(setter)
                 : new ClrPropertySetter<TEntity, TValue>(setter);
 
-        Expression CreateMemberAssignment(Expression parameter)
-            => propertyBase?.IsIndexerProperty() == true
+        Expression CreateMemberAssignment(IPropertyBase? property, Expression typeParameter)
+        {
+            var targetStructuralType = typeParameter;
+            if (property?.DeclaringType is IComplexType complexType)
+            {
+                targetStructuralType = PropertyBase.CreateMemberAccess(
+                    complexType.ComplexProperty,
+                    typeParameter,
+                    complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
+                    fromStructuralType: false);
+            }
+
+            return propertyBase?.IsIndexerProperty() == true
                 ? Expression.Assign(
                     Expression.MakeIndex(
-                        entityParameter, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) }),
+                        targetStructuralType, (PropertyInfo)memberInfo, new List<Expression> { Expression.Constant(propertyBase.Name) }),
                     convertedParameter)
-                : Expression.MakeMemberAccess(parameter, memberInfo).Assign(convertedParameter);
+                : Expression.MakeMemberAccess(targetStructuralType, memberInfo).Assign(convertedParameter);
+        }
     }
 }

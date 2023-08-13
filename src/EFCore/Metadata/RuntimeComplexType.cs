@@ -18,9 +18,6 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
 
-    // Warning: Never access these fields directly as access needs to be thread-safe
-    private PropertyCounts? _counts;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -137,15 +134,6 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
         [DebuggerStepThrough]
         set => _serviceOnlyConstructorBinding = value;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override PropertyCounts Counts
-        => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static complexType => complexType.CalculateCounts());
 
     /// <summary>
     ///     Returns a string that represents the current object.

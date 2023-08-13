@@ -840,7 +840,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 var propertyGetter = property.GetGetter();
                 foreach (var value in values)
                 {
-                    propertyValueList.Add(propertyGetter.GetClrValue(value));
+                    propertyValueList.Add(propertyGetter.GetStructuralTypeClrValue(value));
                 }
 
                 rewrittenSource = Expression.Constant(propertyValueList);
@@ -971,7 +971,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         {
             case SqlConstantExpression sqlConstantExpression:
                 return Expression.Constant(
-                    property.GetGetter().GetClrValue(sqlConstantExpression.Value), property.ClrType.MakeNullable());
+                    property.GetGetter().GetStructuralTypeClrValue(sqlConstantExpression.Value!), property.ClrType.MakeNullable());
 
             case SqlParameterExpression sqlParameterExpression
                 when sqlParameterExpression.Name.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal):
@@ -1002,7 +1002,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static T ParameterValueExtractor<T>(QueryContext context, string baseParameterName, IProperty property)
     {
         var baseParameter = context.ParameterValues[baseParameterName];
-        return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetClrValue(baseParameter);
+        return baseParameter == null ? (T)(object)null : (T)property.GetGetter().GetStructuralTypeClrValue(baseParameter);
     }
 
     private static List<TProperty> ParameterListValueExtractor<TEntity, TProperty>(
@@ -1016,7 +1016,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         var getter = property.GetGetter();
-        return baseListParameter.Select(e => e != null ? (TProperty)getter.GetClrValue(e) : (TProperty)(object)null).ToList();
+        return baseListParameter.Select(e => e != null ? (TProperty)getter.GetStructuralTypeClrValue(e) : (TProperty)(object)null).ToList();
     }
 
     private static bool IsNullSqlConstantExpression(Expression expression)

@@ -917,7 +917,7 @@ public abstract partial class ModelBuilderTest
     {
         public int Id { get; set; }
         public ProductLabel Label { get; set; }
-        public ProductLabel? OldLabel { get; set; }
+        public ProductLabel OldLabel { get; set; }
         public (string, int) Tuple { get; set; }
     }
 
@@ -926,7 +926,9 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
-        public Customer? Customer { get; set; }
+        public Customer Customer { get; set; }
+
+        [NotMapped]
         public ValueComplexProperties Parent { get; set; }
     }
 

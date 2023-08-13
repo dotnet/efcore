@@ -46,7 +46,7 @@ public class PropertyAccessorsFactory
         IPropertyBase propertyBase,
         bool useStoreGeneratedValues)
     {
-        var entityClrType = propertyBase.DeclaringType.ClrType;
+        var entityClrType = propertyBase.DeclaringType.ContainingEntityType.ClrType;
         var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();
@@ -71,7 +71,7 @@ public class PropertyAccessorsFactory
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
-            currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo);
+            currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo, fromStructuralType: false);
             hasSentinelValueExpression = currentValueExpression.MakeHasSentinelValue(propertyBase);
 
             if (currentValueExpression.Type != typeof(TProperty))
