@@ -486,40 +486,6 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     /// </summary>
     new IEnumerable<ITrigger> GetDeclaredTriggers();
 
-    /// <summary>
-    ///     Returns all properties, including those on complex types.
-    /// </summary>
-    /// <returns>The properties.</returns>
-    IEnumerable<IProperty> GetFlattenedProperties()
-    {
-        foreach (var property in GetProperties())
-        {
-            yield return property;
-        }
-
-        foreach (var property in ReturnComplexProperties(GetComplexProperties()))
-        {
-            yield return property;
-        }
-
-        IEnumerable<IProperty> ReturnComplexProperties(IEnumerable<IComplexProperty> complexProperties)
-        {
-            foreach (var complexProperty in complexProperties)
-            {
-                var complexType = complexProperty.ComplexType;
-                foreach (var property in complexType.GetProperties())
-                {
-                    yield return property;
-                }
-
-                foreach (var property in ReturnComplexProperties(complexType.GetComplexProperties()))
-                {
-                    yield return property;
-                }
-            }
-        }
-    }
-
     internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors
