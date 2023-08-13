@@ -69,7 +69,8 @@ public abstract class NavigationEntry : MemberEntry
 
         if (navigation == null)
         {
-            if (internalEntry.EntityType.FindProperty(name) != null)
+            if (internalEntry.EntityType.FindProperty(name) != null
+                || internalEntry.EntityType.FindComplexProperty(name) != null)
             {
                 throw new InvalidOperationException(
                     CoreStrings.NavigationIsProperty(

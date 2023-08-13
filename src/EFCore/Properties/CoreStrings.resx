@@ -300,6 +300,9 @@
   <data name="ComplexPropertyIndexer" xml:space="preserve">
     <value>Adding the complex property '{type}.{property}' as an indexer property isn't supported. See https://github.com/dotnet/efcore/issues/31244 for more information.</value>
   </data>
+  <data name="ComplexPropertyNotFound" xml:space="preserve">
+    <value>The complex property '{type}.{property}' could not be found. Ensure that the property exists and has been included in the model as a complex property.</value>
+  </data>
   <data name="ComplexPropertyOptional" xml:space="preserve">
     <value>Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.</value>
   </data>
