@@ -115,8 +115,8 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         var foundServiceOnlyBindings = new List<InstantiationBinding>();
         var bindingFailures = new List<IEnumerable<ParameterInfo>>();
 
-        var constructors = type.ClrType.GetTypeInfo()
-            .DeclaredConstructors.Where(c => !c.IsStatic).ToList();
+        var clrType = type.ClrType.UnwrapNullableType();
+        var constructors = clrType.GetTypeInfo().DeclaredConstructors.Where(c => !c.IsStatic).ToList();
         foreach (var constructor in constructors)
         {
             // Trying to find the constructor with the most service properties
@@ -172,12 +172,12 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
 
         if (foundBindings.Count == 0
             && constructors.Count == 0
-            && type.ClrType.IsValueType)
+            && clrType.IsValueType)
         {
             foundBindings.Add(new FactoryMethodBinding(
                     _createInstance,
                     new ParameterBinding[0],
-                    type.ClrType));
+                    clrType));
         }
 
         if (foundBindings.Count == 0)
