@@ -6,10 +6,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class TPCInheritanceQuerySqliteTest : TPCInheritanceQueryTestBase<TPCInheritanceQuerySqliteFixture>
 {
     public TPCInheritanceQuerySqliteTest(TPCInheritanceQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

@@ -946,14 +946,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-        {
-            if (_expectedData == null)
-            {
-                _expectedData = new OwnedQueryData();
-            }
-
-            return _expectedData;
-        }
+            => _expectedData ??= new OwnedQueryData();
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {
@@ -1213,8 +1206,11 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 eb =>
                 {
                     eb.IndexerProperty<string>("Name");
-                    var ownedPerson = new OwnedPerson { Id = 1 };
-                    ownedPerson["Name"] = "Mona Cy";
+                    var ownedPerson = new OwnedPerson
+                    {
+                        Id = 1,
+                        ["Name"] = "Mona Cy"
+                    };
                     eb.HasData(ownedPerson);
 
                     eb.OwnsOne(
@@ -1673,77 +1669,144 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         private static IReadOnlyList<OwnedPerson> CreateOwnedPeople()
         {
-            var personAddress1 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
-            personAddress1["AddressLine"] = "804 S. Lakeshore Road";
-            personAddress1["ZipCode"] = 38654;
-            var ownedPerson1 = new OwnedPerson { Id = 1, PersonAddress = personAddress1 };
-            ownedPerson1["Name"] = "Mona Cy";
+            var personAddress1 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "USA", PlanetId = 1 },
+                ["AddressLine"] = "804 S. Lakeshore Road",
+                ["ZipCode"] = 38654
+            };
 
-            var personAddress2 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
-            personAddress2["AddressLine"] = "7 Church Dr.";
-            personAddress2["ZipCode"] = 28655;
-            var branchAddress2 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } };
-            branchAddress2["BranchName"] = "BranchA";
+            var ownedPerson1 = new OwnedPerson
+            {
+                Id = 1,
+                PersonAddress = personAddress1,
+                ["Name"] = "Mona Cy"
+            };
+
+            var personAddress2 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "USA", PlanetId = 1 },
+                ["AddressLine"] = "7 Church Dr.",
+                ["ZipCode"] = 28655
+            };
+
+            var branchAddress2 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "Canada", PlanetId = 1 },
+                ["BranchName"] = "BranchA"
+            };
 
             var ownedPerson2 = new Branch
             {
                 Id = 2,
                 PersonAddress = personAddress2,
-                BranchAddress = branchAddress2
+                BranchAddress = branchAddress2,
+                ["Name"] = "Antigonus Mitul"
             };
-            ownedPerson2["Name"] = "Antigonus Mitul";
 
-            var personAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
-            personAddress3["AddressLine"] = "72 Hickory Rd.";
-            personAddress3["ZipCode"] = 07728;
-            var branchAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Canada", PlanetId = 1 } };
-            branchAddress3["BranchName"] = "BranchB";
-            var leafAAddress3 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 } };
-            leafAAddress3["LeafType"] = 1;
+            var personAddress3 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "USA", PlanetId = 1 },
+                ["AddressLine"] = "72 Hickory Rd.",
+                ["ZipCode"] = 07728
+            };
+
+            var branchAddress3 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "Canada", PlanetId = 1 },
+                ["BranchName"] = "BranchB"
+            };
+
+            var leafAAddress3 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "Mexico", PlanetId = 1 },
+                ["LeafType"] = 1
+            };
+
             var ownedPerson3 = new LeafA
             {
                 Id = 3,
                 PersonAddress = personAddress3,
                 BranchAddress = branchAddress3,
-                LeafAAddress = leafAAddress3
+                LeafAAddress = leafAAddress3,
+                ["Name"] = "Madalena Morana"
             };
-            ownedPerson3["Name"] = "Madalena Morana";
 
-            var personAddress4 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "USA", PlanetId = 1 } };
-            personAddress4["AddressLine"] = "28 Strawberry St.";
-            personAddress4["ZipCode"] = 19053;
-            var leafBAddress4 = new OwnedAddress { PlaceType = "Land", Country = new OwnedCountry { Name = "Panama", PlanetId = 1 } };
-            leafBAddress4["LeafBType"] = "Green";
+            var personAddress4 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "USA", PlanetId = 1 },
+                ["AddressLine"] = "28 Strawberry St.",
+                ["ZipCode"] = 19053
+            };
+
+            var leafBAddress4 = new OwnedAddress
+            {
+                PlaceType = "Land",
+                Country = new OwnedCountry { Name = "Panama", PlanetId = 1 },
+                ["LeafBType"] = "Green"
+            };
+
             var ownedPerson4 = new LeafB
             {
                 Id = 4,
                 PersonAddress = personAddress4,
-                LeafBAddress = leafBAddress4
+                LeafBAddress = leafBAddress4,
+                ["Name"] = "Vanda Waldemar"
             };
-            ownedPerson4["Name"] = "Vanda Waldemar";
 
-            var order1 = new Order { Id = -10, Client = ownedPerson1 };
-            order1["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41");
-            order1.Details = new List<OrderDetail> { new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" } };
+            var order1 = new Order
+            {
+                Id = -10,
+                Client = ownedPerson1,
+                ["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41"),
+                Details = new List<OrderDetail>
+                {
+                    new() { Detail = "Discounted Order" },
+                    new() { Detail = "Full Price Order" }
+                }
+            };
 
-            var order2 = new Order { Id = -11, Client = ownedPerson1 };
-            order2["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59");
-            order2.Details = new List<OrderDetail>();
+            var order2 = new Order
+            {
+                Id = -11,
+                Client = ownedPerson1,
+                ["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59"),
+                Details = new List<OrderDetail>()
+            };
             ownedPerson1.Orders = new List<Order> { order1, order2 };
 
-            var order3 = new Order { Id = -20, Client = ownedPerson2 };
-            order3["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48");
-            order3.Details = new List<OrderDetail> { new() { Detail = "Internal Order" } };
+            var order3 = new Order
+            {
+                Id = -20,
+                Client = ownedPerson2,
+                ["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48"),
+                Details = new List<OrderDetail> { new() { Detail = "Internal Order" } }
+            };
             ownedPerson2.Orders = new List<Order> { order3 };
 
-            var order4 = new Order { Id = -30, Client = ownedPerson3 };
-            order4["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42");
-            order4.Details = new List<OrderDetail> { new() { Detail = "Bulk Order" } };
+            var order4 = new Order
+            {
+                Id = -30,
+                Client = ownedPerson3,
+                ["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42"),
+                Details = new List<OrderDetail> { new() { Detail = "Bulk Order" } }
+            };
             ownedPerson3.Orders = new List<Order> { order4 };
 
-            var order5 = new Order { Id = -40, Client = ownedPerson4 };
-            order5["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56");
-            order5.Details = new List<OrderDetail>();
+            var order5 = new Order
+            {
+                Id = -40,
+                Client = ownedPerson4,
+                ["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56"),
+                Details = new List<OrderDetail>()
+            };
             ownedPerson4.Orders = new List<Order> { order5 };
 
             return new List<OwnedPerson>

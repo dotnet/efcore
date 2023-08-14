@@ -19,7 +19,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             switch (extensionExpression)
             {
-                case EntityShaperExpression shaperExpression:
+                case StructuralTypeShaperExpression shaperExpression:
                 {
                     _currentEntityIndex++;
 

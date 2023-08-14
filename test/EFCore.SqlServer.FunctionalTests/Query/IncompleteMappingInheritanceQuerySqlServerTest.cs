@@ -6,16 +6,14 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<
+public class IncompleteMappingInheritanceQuerySqlServerTest : TPHInheritanceQueryTestBase<
     IncompleteMappingInheritanceQuerySqlServerFixture>
 {
     public IncompleteMappingInheritanceQuerySqlServerTest(
         IncompleteMappingInheritanceQuerySqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -285,6 +283,13 @@ FROM [Plants] AS [p]
 WHERE [p].[Genus] IN (1, 0)
 ORDER BY [p].[Species]
 """);
+    }
+
+    public override async Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
+    {
+        await base.Filter_on_property_inside_complex_type_on_derived_type(async);
+
+        AssertSql();
     }
 
     public override async Task Can_filter_all_animals(bool async)

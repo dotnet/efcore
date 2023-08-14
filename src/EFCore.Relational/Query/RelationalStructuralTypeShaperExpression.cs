@@ -15,41 +15,47 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class RelationalEntityShaperExpression : EntityShaperExpression
+public class RelationalStructuralTypeShaperExpression : StructuralTypeShaperExpression
 {
     /// <summary>
-    ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
+    ///     Creates a new instance of the <see cref="RelationalStructuralTypeShaperExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
+    /// <param name="structuralType">The entity type to shape.</param>
     /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
     /// <param name="nullable">A bool value indicating whether this entity instance can be null.</param>
-    public RelationalEntityShaperExpression(IEntityType entityType, Expression valueBufferExpression, bool nullable)
-        : base(entityType, valueBufferExpression, nullable, null)
+    public RelationalStructuralTypeShaperExpression(ITypeBase structuralType, Expression valueBufferExpression, bool nullable)
+        : base(structuralType, valueBufferExpression, nullable, null)
     {
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="RelationalEntityShaperExpression" /> class.
+    ///     Creates a new instance of the <see cref="RelationalStructuralTypeShaperExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
+    /// <param name="type">The entity type to shape.</param>
     /// <param name="valueBufferExpression">An expression of ValueBuffer to get values for properties of the entity.</param>
     /// <param name="nullable">Whether this entity instance can be null.</param>
     /// <param name="materializationCondition">
     ///     An expression of <see cref="Func{T,TResult}" /> to determine which entity type to
     ///     materialize.
     /// </param>
-    protected RelationalEntityShaperExpression(
-        IEntityType entityType,
+    protected RelationalStructuralTypeShaperExpression(
+        ITypeBase type,
         Expression valueBufferExpression,
         bool nullable,
         LambdaExpression? materializationCondition)
-        : base(entityType, valueBufferExpression, nullable, materializationCondition)
+        : base(type, valueBufferExpression, nullable, materializationCondition)
     {
     }
 
     /// <inheritdoc />
-    protected override LambdaExpression GenerateMaterializationCondition(IEntityType entityType, bool nullable)
+    protected override LambdaExpression GenerateMaterializationCondition(ITypeBase type, bool nullable)
     {
+        if (type is IComplexType)
+        {
+            return base.GenerateMaterializationCondition(type, nullable);
+        }
+
+        var entityType = (IEntityType)type;
         LambdaExpression baseCondition;
         // Generate discriminator condition
         var containsDiscriminatorProperty = entityType.FindDiscriminatorProperty() != null;
@@ -143,21 +149,21 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
     }
 
     /// <inheritdoc />
-    public override EntityShaperExpression WithEntityType(IEntityType entityType)
-        => entityType != EntityType
-            ? new RelationalEntityShaperExpression(entityType, ValueBufferExpression, IsNullable)
+    public override StructuralTypeShaperExpression WithType(ITypeBase type)
+        => type != StructuralType
+            ? new RelationalStructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable)
             : this;
 
     /// <inheritdoc />
-    public override EntityShaperExpression MakeNullable(bool nullable = true)
+    public override StructuralTypeShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of Discriminator condition
-            ? new RelationalEntityShaperExpression(EntityType, ValueBufferExpression, true)
+            ? new RelationalStructuralTypeShaperExpression(StructuralType, ValueBufferExpression, true)
             : this;
 
     /// <inheritdoc />
-    public override EntityShaperExpression Update(Expression valueBufferExpression)
+    public override StructuralTypeShaperExpression Update(Expression valueBufferExpression)
         => valueBufferExpression != ValueBufferExpression
-            ? new RelationalEntityShaperExpression(EntityType, valueBufferExpression, IsNullable, MaterializationCondition)
+            ? new RelationalStructuralTypeShaperExpression(StructuralType, valueBufferExpression, IsNullable, MaterializationCondition)
             : this;
 }

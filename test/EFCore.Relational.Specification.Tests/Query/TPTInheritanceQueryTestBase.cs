@@ -10,9 +10,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class TPTInheritanceQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
     where TFixture : TPTInheritanceQueryFixture, new()
 {
-    public TPTInheritanceQueryTestBase(TFixture fixture)
+    public TPTInheritanceQueryTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
+        Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     // Keyless entities does not have TPT

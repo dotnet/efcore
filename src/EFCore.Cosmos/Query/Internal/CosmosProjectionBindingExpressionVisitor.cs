@@ -92,7 +92,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
-        if (expression is NewExpression or MemberInitExpression or EntityShaperExpression)
+        if (expression is NewExpression or MemberInitExpression or StructuralTypeShaperExpression)
         {
             return base.Visit(expression);
         }
@@ -195,7 +195,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         switch (extensionExpression)
         {
-            case EntityShaperExpression entityShaperExpression:
+            case StructuralTypeShaperExpression entityShaperExpression:
             {
                 var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
                 VerifySelectExpression(projectionBindingExpression);
@@ -273,15 +273,15 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
         var innerExpression = Visit(memberExpression.Expression);
 
-        EntityShaperExpression shaperExpression;
+        StructuralTypeShaperExpression shaperExpression;
         switch (innerExpression)
         {
-            case EntityShaperExpression shaper:
+            case StructuralTypeShaperExpression shaper:
                 shaperExpression = shaper;
                 break;
 
             case UnaryExpression unaryExpression:
-                shaperExpression = unaryExpression.Operand as EntityShaperExpression;
+                shaperExpression = unaryExpression.Operand as StructuralTypeShaperExpression;
                 if (shaperExpression == null
                     || unaryExpression.NodeType != ExpressionType.Convert)
                 {
@@ -323,14 +323,14 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         switch (navigationProjection)
         {
             case EntityProjectionExpression entityProjection:
-                return new EntityShaperExpression(
+                return new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
                     Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                     nullable: true);
 
             case ObjectArrayProjectionExpression objectArrayProjectionExpression:
             {
-                var innerShaperExpression = new EntityShaperExpression(
+                var innerShaperExpression = new StructuralTypeShaperExpression(
                     navigation.TargetEntityType,
                     Expression.Convert(
                         Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
@@ -340,7 +340,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                     objectArrayProjectionExpression,
                     innerShaperExpression,
                     navigation,
-                    innerShaperExpression.EntityType.ClrType);
+                    innerShaperExpression.StructuralType.ClrType);
             }
 
             default:
@@ -454,15 +454,15 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
             var visitedSource = Visit(source);
 
-            EntityShaperExpression shaperExpression;
+            StructuralTypeShaperExpression shaperExpression;
             switch (visitedSource)
             {
-                case EntityShaperExpression shaper:
+                case StructuralTypeShaperExpression shaper:
                     shaperExpression = shaper;
                     break;
 
                 case UnaryExpression unaryExpression:
-                    shaperExpression = unaryExpression.Operand as EntityShaperExpression;
+                    shaperExpression = unaryExpression.Operand as StructuralTypeShaperExpression;
                     if (shaperExpression == null
                         || unaryExpression.NodeType != ExpressionType.Convert)
                     {
@@ -477,7 +477,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         return null;
                     }
 
-                    shaperExpression = (EntityShaperExpression)collectionShaper.InnerShaper;
+                    shaperExpression = (StructuralTypeShaperExpression)collectionShaper.InnerShaper;
                     break;
 
                 default:
@@ -523,14 +523,14 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             switch (navigationProjection)
             {
                 case EntityProjectionExpression entityProjection:
-                    return new EntityShaperExpression(
+                    return new StructuralTypeShaperExpression(
                         navigation.TargetEntityType,
                         Expression.Convert(Expression.Convert(entityProjection, typeof(object)), typeof(ValueBuffer)),
                         nullable: true);
 
                 case ObjectArrayProjectionExpression objectArrayProjectionExpression:
                 {
-                    var innerShaperExpression = new EntityShaperExpression(
+                    var innerShaperExpression = new StructuralTypeShaperExpression(
                         navigation.TargetEntityType,
                         Expression.Convert(
                             Expression.Convert(objectArrayProjectionExpression.InnerProjection, typeof(object)), typeof(ValueBuffer)),
@@ -540,7 +540,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                         objectArrayProjectionExpression,
                         innerShaperExpression,
                         navigation,
-                        innerShaperExpression.EntityType.ClrType);
+                        innerShaperExpression.StructuralType.ClrType);
                 }
 
                 default:

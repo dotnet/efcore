@@ -3,11 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class FiltersInheritanceBulkUpdatesSqlServerTest : FiltersInheritanceBulkUpdatesTestBase<
-    FiltersInheritanceBulkUpdatesSqlServerFixture>
+public class TPHFiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpdatesTestBase<TPHFiltersInheritanceBulkUpdatesSqliteFixture>
 {
-    public FiltersInheritanceBulkUpdatesSqlServerTest(
-        FiltersInheritanceBulkUpdatesSqlServerFixture fixture,
+    public TPHFiltersInheritanceBulkUpdatesSqliteTest(
+        TPHFiltersInheritanceBulkUpdatesSqliteFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -25,9 +24,28 @@ public class FiltersInheritanceBulkUpdatesSqlServerTest : FiltersInheritanceBulk
 
         AssertSql(
 """
-DELETE FROM [a]
-FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
+DELETE FROM "Animals" AS "a"
+WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
+""");
+    }
+
+    public override async Task Delete_where_hierarchy_subquery(bool async)
+    {
+        await base.Delete_where_hierarchy_subquery(async);
+
+        AssertSql(
+"""
+@__p_1='3'
+@__p_0='0'
+
+DELETE FROM "Animals" AS "a"
+WHERE "a"."Id" IN (
+    SELECT "a0"."Id"
+    FROM "Animals" AS "a0"
+    WHERE "a0"."CountryId" = 1 AND "a0"."Name" = 'Great spotted kiwi'
+    ORDER BY "a0"."Name"
+    LIMIT @__p_1 OFFSET @__p_0
+)
 """);
     }
 
@@ -37,9 +55,8 @@ WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
 
         AssertSql(
 """
-DELETE FROM [a]
-FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
+DELETE FROM "Animals" AS "a"
+WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """);
     }
 
@@ -49,12 +66,11 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1 AND [a].[Name] = N'G
 
         AssertSql(
 """
-DELETE FROM [c]
-FROM [Countries] AS [c]
+DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
-    FROM [Animals] AS [a]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
 """);
     }
 
@@ -64,13 +80,19 @@ WHERE (
 
         AssertSql(
 """
-DELETE FROM [c]
-FROM [Countries] AS [c]
+DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
-    FROM [Animals] AS [a]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] > 0) > 0
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
 """);
+    }
+
+    public override async Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
+    {
+        await base.Delete_where_keyless_entity_mapped_to_sql_query(async);
+
+        AssertSql();
     }
 
     public override async Task Delete_GroupBy_Where_Select_First(bool async)
@@ -93,45 +115,17 @@ WHERE (
 
         AssertSql(
 """
-DELETE FROM [a]
-FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Id] IN (
+DELETE FROM "Animals" AS "a"
+WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
     SELECT (
-        SELECT TOP(1) [a1].[Id]
-        FROM [Animals] AS [a1]
-        WHERE [a1].[CountryId] = 1 AND [a0].[CountryId] = [a1].[CountryId])
-    FROM [Animals] AS [a0]
-    WHERE [a0].[CountryId] = 1
-    GROUP BY [a0].[CountryId]
+        SELECT "a1"."Id"
+        FROM "Animals" AS "a1"
+        WHERE "a1"."CountryId" = 1 AND "a0"."CountryId" = "a1"."CountryId"
+        LIMIT 1)
+    FROM "Animals" AS "a0"
+    WHERE "a0"."CountryId" = 1
+    GROUP BY "a0"."CountryId"
     HAVING COUNT(*) < 3
-)
-""");
-    }
-
-    public override async Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
-    {
-        await base.Delete_where_keyless_entity_mapped_to_sql_query(async);
-
-        AssertSql();
-    }
-
-    public override async Task Delete_where_hierarchy_subquery(bool async)
-    {
-        await base.Delete_where_hierarchy_subquery(async);
-
-        AssertSql(
-"""
-@__p_0='0'
-@__p_1='3'
-
-DELETE FROM [a]
-FROM [Animals] AS [a]
-WHERE [a].[Id] IN (
-    SELECT [a0].[Id]
-    FROM [Animals] AS [a0]
-    WHERE [a0].[CountryId] = 1 AND [a0].[Name] = N'Great spotted kiwi'
-    ORDER BY [a0].[Name]
-    OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 )
 """);
     }
@@ -142,10 +136,9 @@ WHERE [a].[Id] IN (
 
         AssertExecuteUpdateSql(
 """
-UPDATE [a]
-SET [a].[Name] = N'Animal'
-FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
+UPDATE "Animals" AS "a"
+SET "Name" = 'Animal'
+WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """);
     }
 
@@ -155,10 +148,9 @@ WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
 
         AssertExecuteUpdateSql(
 """
-UPDATE [a]
-SET [a].[Name] = N'NewBird'
-FROM [Animals] AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'
+UPDATE "Animals" AS "a"
+SET "Name" = 'NewBird'
+WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
 """);
     }
 
@@ -175,10 +167,9 @@ WHERE [a].[CountryId] = 1 AND [a].[Discriminator] = N'Kiwi'
 
         AssertExecuteUpdateSql(
 """
-UPDATE [a]
-SET [a].[Name] = N'SomeOtherKiwi'
-FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1
+UPDATE "Animals" AS "a"
+SET "Name" = 'SomeOtherKiwi'
+WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
 
@@ -188,24 +179,9 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1
 
         AssertExecuteUpdateSql(
 """
-UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint)
-FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1
-""");
-    }
-
-    public override async Task Update_base_and_derived_types(bool async)
-    {
-        await base.Update_base_and_derived_types(async);
-
-        AssertExecuteUpdateSql(
-"""
-UPDATE [a]
-SET [a].[FoundOn] = CAST(0 AS tinyint),
-    [a].[Name] = N'Kiwi'
-FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1
+UPDATE "Animals" AS "a"
+SET "FoundOn" = 0
+WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
 
@@ -215,13 +191,25 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] = 1
 
         AssertExecuteUpdateSql(
 """
-UPDATE [c]
-SET [c].[Name] = N'Monovia'
-FROM [Countries] AS [c]
+UPDATE "Countries" AS "c"
+SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
-    FROM [Animals] AS [a]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."CountryId" > 0) > 0
+""");
+    }
+
+    public override async Task Update_base_and_derived_types(bool async)
+    {
+        await base.Update_base_and_derived_types(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE "Animals" AS "a"
+SET "FoundOn" = 0,
+    "Name" = 'Kiwi'
+WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
 """);
     }
 
@@ -231,13 +219,12 @@ WHERE (
 
         AssertExecuteUpdateSql(
 """
-UPDATE [c]
-SET [c].[Name] = N'Monovia'
-FROM [Countries] AS [c]
+UPDATE "Countries" AS "c"
+SET "Name" = 'Monovia'
 WHERE (
     SELECT COUNT(*)
-    FROM [Animals] AS [a]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[Discriminator] = N'Kiwi' AND [a].[CountryId] > 0) > 0
+    FROM "Animals" AS "a"
+    WHERE "a"."CountryId" = 1 AND "c"."Id" = "a"."CountryId" AND "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" > 0) > 0
 """);
     }
 

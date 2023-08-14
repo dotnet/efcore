@@ -6,12 +6,14 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class InheritanceRelationalQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
-    where TFixture : InheritanceQueryRelationalFixture, new()
+public abstract class TPHInheritanceQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
+    where TFixture : TPHInheritanceQueryFixture, new()
 {
-    protected InheritanceRelationalQueryTestBase(TFixture fixture)
+    protected TPHInheritanceQueryTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
+        Fixture.TestSqlLoggerFactory.Clear();
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

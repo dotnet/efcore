@@ -8,6 +8,6 @@ public class TPTFiltersInheritanceBulkUpdatesSqlServerFixture : TPTInheritanceBu
     protected override string StoreName
         => "TPTFiltersInheritanceBulkUpdatesTest";
 
-    protected override bool EnableFilters
+    public override bool EnableFilters
         => true;
 }

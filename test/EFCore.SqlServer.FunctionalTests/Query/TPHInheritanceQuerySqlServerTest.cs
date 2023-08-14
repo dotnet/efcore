@@ -6,13 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<InheritanceQuerySqlServerFixture>
+public class TPHInheritanceQuerySqlServerTest : TPHInheritanceQueryTestBase<TPHInheritanceQuerySqlServerFixture>
 {
-    public InheritanceQuerySqlServerTest(InheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+    public TPHInheritanceQuerySqlServerTest(TPHInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture, testOutputHelper)
     {
-        Fixture.TestSqlLoggerFactory.Clear();
-        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -269,6 +267,13 @@ SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plants] AS [p]
 ORDER BY [p].[Species]
 """);
+    }
+
+    public override async Task Filter_on_property_inside_complex_type_on_derived_type(bool async)
+    {
+        await base.Filter_on_property_inside_complex_type_on_derived_type(async);
+
+        AssertSql();
     }
 
     public override async Task Can_filter_all_animals(bool async)

@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class FiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<FiltersInheritanceQuerySqlServerFixture>
+public class TPHFiltersInheritanceQuerySqlServerTest : FiltersInheritanceQueryTestBase<TPHFiltersInheritanceQuerySqlServerFixture>
 {
-    public FiltersInheritanceQuerySqlServerTest(FiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
+    public TPHFiltersInheritanceQuerySqlServerTest(TPHFiltersInheritanceQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();

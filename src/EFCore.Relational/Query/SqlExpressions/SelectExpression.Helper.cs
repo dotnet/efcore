@@ -11,8 +11,8 @@ public sealed partial class SelectExpression
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression entityShaper
-                ? entityShaper.MakeNullable()
+            => extensionExpression is StructuralTypeShaperExpression shaper
+                ? shaper.MakeNullable()
                 : base.VisitExtension(extensionExpression);
     }
 
@@ -361,9 +361,9 @@ public sealed partial class SelectExpression
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
-            if (expression is ConcreteColumnExpression columnExpression)
+            if (expression is TableReferenceExpression tableReferenceExpression)
             {
-                columnExpression.UpdateTableReference(_oldSelect, _newSelect);
+                tableReferenceExpression.UpdateTableReference(_oldSelect, _newSelect);
             }
 
             return base.Visit(expression);
@@ -424,63 +424,6 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TableReferenceExpression : Expression
-    {
-        private SelectExpression _selectExpression;
-
-        public TableReferenceExpression(SelectExpression selectExpression, string alias)
-        {
-            _selectExpression = selectExpression;
-            Alias = alias;
-        }
-
-        public TableExpressionBase Table
-            => _selectExpression.Tables.Single(
-                e => string.Equals((e as JoinExpressionBase)?.Table.Alias ?? e.Alias, Alias, StringComparison.OrdinalIgnoreCase));
-
-        public string Alias { get; internal set; }
-
-        public override Type Type
-            => typeof(object);
-
-        public override ExpressionType NodeType
-            => ExpressionType.Extension;
-
-        public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
-        {
-            if (ReferenceEquals(oldSelect, _selectExpression))
-            {
-                _selectExpression = newSelect;
-            }
-        }
-
-        internal void Verify(SelectExpression selectExpression)
-        {
-            if (!ReferenceEquals(selectExpression, _selectExpression))
-            {
-                throw new InvalidOperationException("Dangling TableReferenceExpression.");
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is TableReferenceExpression tableReferenceExpression
-                    && Equals(tableReferenceExpression));
-
-        // Since table reference is owned by SelectExpression, the select expression should be the same reference if they are matching.
-        // That means we also don't need to compute the hashcode for it.
-        // This allows us to break the cycle in computation when traversing this graph.
-        private bool Equals(TableReferenceExpression tableReferenceExpression)
-            => string.Equals(Alias, tableReferenceExpression.Alias, StringComparison.OrdinalIgnoreCase)
-                && ReferenceEquals(_selectExpression, tableReferenceExpression._selectExpression);
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => 0;
-    }
-
     private sealed class ConcreteColumnExpression : ColumnExpression
     {
         private readonly TableReferenceExpression _table;
@@ -536,16 +479,20 @@ public sealed partial class SelectExpression
 
         /// <inheritdoc />
         protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => this;
+        {
+            // We only need to visit the table reference expression since TableReferenceUpdatingExpressionVisitor may need to modify it; it
+            // mutates TableReferenceExpression (a new TableReferenceExpression is never returned).
+            var newTable = (TableReferenceExpression)visitor.Visit(_table);
+            Check.DebugAssert(newTable == _table, $"New {nameof(TableReferenceExpression)} returned during visitation!");
+
+            return this;
+        }
 
         public override ConcreteColumnExpression MakeNullable()
             => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping, true);
 
         public override SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
             => new ConcreteColumnExpression(Name, _table, Type, typeMapping, IsNullable);
-
-        public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
-            => _table.UpdateTableReference(oldSelect, newSelect);
 
         internal void Verify(IReadOnlyList<TableReferenceExpression> tableReferences)
         {

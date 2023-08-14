@@ -45,7 +45,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     public virtual void Injected(DbContext context, object entity, ParameterBindingInfo bindingInfo)
     {
         _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
-        _entityType = bindingInfo.EntityType;
+        _entityType = bindingInfo.StructuralType as IEntityType ?? throw new NotImplementedException();
     }
 
     /// <summary>

@@ -525,8 +525,8 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     private sealed class EntityShaperNullableMarkingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression entityShaper
-                ? entityShaper.MakeNullable()
+            => extensionExpression is StructuralTypeShaperExpression shaper
+                ? shaper.MakeNullable()
                 : base.VisitExtension(extensionExpression);
     }
 

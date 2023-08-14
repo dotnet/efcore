@@ -109,7 +109,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
             return new ShapedQueryExpression(
                 selectExpression,
-                new RelationalEntityShaperExpression(
+                new RelationalStructuralTypeShaperExpression(
                     queryRootExpression.EntityType,
                     new ProjectionBindingExpression(
                         selectExpression,
@@ -287,7 +287,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         return new ShapedQueryExpression(
             selectExpression,
-            new RelationalEntityShaperExpression(
+            new RelationalStructuralTypeShaperExpression(
                 jsonQueryExpression.EntityType,
                 new ProjectionBindingExpression(
                     selectExpression,
@@ -422,11 +422,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override bool IsValidSelectExpressionForExecuteDelete(
         SelectExpression selectExpression,
-        EntityShaperExpression entityShaperExpression,
+        StructuralTypeShaperExpression shaper,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
         if (selectExpression.Offset == null
-            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
             && selectExpression.GroupBy.Count == 0
             && selectExpression.Having == null
             && selectExpression.Orderings.Count == 0)
@@ -438,9 +437,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
             else
             {
-                var projectionBindingExpression = (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression;
-                var entityProjectionExpression = (EntityProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
-                var column = entityProjectionExpression.BindProperty(entityShaperExpression.EntityType.GetProperties().First());
+                var projectionBindingExpression = (ProjectionBindingExpression)shaper.ValueBufferExpression;
+                var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
+                var column = projection.BindProperty(shaper.StructuralType.GetProperties().First());
                 table = column.Table;
                 if (table is JoinExpressionBase joinExpressionBase)
                 {

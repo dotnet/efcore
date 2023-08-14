@@ -68,15 +68,15 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
         {
             switch (extensionExpression)
             {
-                case EntityShaperExpression entityShaperExpression:
+                case StructuralTypeShaperExpression shaper:
                 {
-                    var key = entityShaperExpression.ValueBufferExpression;
+                    var key = shaper.ValueBufferExpression;
                     if (!_mapping.TryGetValue(key, out var variable))
                     {
-                        variable = Parameter(entityShaperExpression.EntityType.ClrType);
+                        variable = Parameter(shaper.StructuralType.ClrType);
                         _variables.Add(variable);
                         var innerShaper =
-                            _inMemoryShapedQueryCompilingExpressionVisitor.InjectEntityMaterializers(entityShaperExpression);
+                            _inMemoryShapedQueryCompilingExpressionVisitor.InjectEntityMaterializers(shaper);
                         innerShaper = Visit(innerShaper);
                         _expressions.Add(Assign(variable, innerShaper));
                         _mapping[key] = variable;
