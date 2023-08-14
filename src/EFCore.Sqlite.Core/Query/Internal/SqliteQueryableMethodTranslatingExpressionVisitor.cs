@@ -203,7 +203,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     /// </summary>
     protected override ShapedQueryExpression? TranslateCollection(
         SqlExpression sqlExpression,
-        RelationalTypeMapping? elementTypeMapping,
+        IProperty? property,
         string tableAlias)
     {
         // Support for JSON functions (e.g. json_each) was added in Sqlite 3.38.0 (2022-02-22, see https://www.sqlite.org/json1.html).
@@ -215,11 +215,18 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             return null;
         }
 
+        var elementTypeMapping = (RelationalTypeMapping?)sqlExpression.TypeMapping?.ElementTypeMapping;
         var elementClrType = sqlExpression.Type.GetSequenceType();
         var jsonEachExpression = new JsonEachExpression(tableAlias, sqlExpression);
 
-        // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
-        var isColumnNullable = elementClrType.IsNullableType();
+        // If this is a collection property, get the element's nullability out of metadata. Otherwise, this is a parameter property, in
+        // which case we only have the CLR type (note that we cannot produce different SQLs based on the nullability of an *element* in
+        // a parameter collection - our caching mechanism only supports varying by the nullability of the parameter itself (i.e. the
+        // collection).
+        // TODO: if property is non-null, GetElementType() should never be null, but we have #31469 for shadow properties
+        var isElementNullable = property?.GetElementType() is null
+            ? elementClrType.IsNullableType()
+            : property.GetElementType()!.IsNullable;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
@@ -227,7 +234,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             columnName: "value",
             columnType: elementClrType,
             columnTypeMapping: elementTypeMapping,
-            isColumnNullable,
+            isElementNullable,
             identifierColumnName: "key",
             identifierColumnType: typeof(int),
             identifierColumnTypeMapping: _typeMappingSource.FindMapping(typeof(int)));

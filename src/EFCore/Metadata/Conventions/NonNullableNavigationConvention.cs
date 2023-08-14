@@ -77,5 +77,6 @@ public class NonNullableNavigationConvention :
 
     private bool IsNonNullable(IConventionModelBuilder modelBuilder, IConventionNavigation navigation)
         => navigation.DeclaringEntityType.GetRuntimeProperties().Find(navigation.Name) is PropertyInfo propertyInfo
-            && IsNonNullableReferenceType(modelBuilder, propertyInfo);
+            && TryGetNullabilityInfo(modelBuilder, propertyInfo, out var nullabilityInfo)
+            && nullabilityInfo.ReadState == NullabilityState.NotNull;
 }

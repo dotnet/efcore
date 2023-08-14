@@ -3443,8 +3443,28 @@ public abstract class JsonTypesTestBase
 
             Assert.Equal(typeof(TModel).GetSequenceType(), element.ClrType);
             Assert.Same(property, element.CollectionProperty);
-            Assert.Equal(json.Contains("null", StringComparison.Ordinal) || !element.ClrType.IsValueType, element.IsNullable);
             Assert.Null(element.FindTypeMapping()!.ElementTypeMapping);
+
+            bool elementNullable;
+            if (element.ClrType.IsValueType)
+            {
+                elementNullable = element.ClrType.IsNullableType();
+            }
+            else
+            {
+                var nullabilityInfo = property switch
+                {
+                    { PropertyInfo: PropertyInfo p } => _nullabilityInfoContext.Create(p),
+                    { FieldInfo: FieldInfo f } => _nullabilityInfoContext.Create(f),
+                    _ => throw new UnreachableException()
+                };
+
+                elementNullable = nullabilityInfo is not
+                    { ElementType.ReadState: NullabilityState.NotNull } and not
+                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] };
+            }
+
+            Assert.Equal(elementNullable, element.IsNullable);
 
             var comparer = element.GetValueComparer()!;
             var elementReaderWriter = element.GetJsonValueReaderWriter()!;
@@ -3741,4 +3761,6 @@ public abstract class JsonTypesTestBase
                 CoreEventId.MappedEntityTypeIgnoredWarning,
                 CoreEventId.MappedPropertyIgnoredWarning,
                 CoreEventId.MappedNavigationIgnoredWarning));
+
+    private readonly NullabilityInfoContext _nullabilityInfoContext = new();
 }
