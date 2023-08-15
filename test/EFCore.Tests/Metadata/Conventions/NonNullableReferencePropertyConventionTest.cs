@@ -87,6 +87,25 @@ public class NonNullableReferencePropertyConventionTest
         Assert.True(entityTypeBuilder.Property("b").Metadata.IsNullable);
     }
 
+    [ConditionalFact]
+    public void Primitive_collection_with_non_nullable_element()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<A>();
+
+        Assert.False(
+            entityTypeBuilder.PrimitiveCollection(a => a.PrimitiveCollectionWithNonNullableElement).ElementType().Metadata.IsNullable);
+    }
+
+    [ConditionalFact]
+    public void Primitive_collection_with_nullable_element()
+    {
+        var modelBuilder = CreateModelBuilder();
+        var entityTypeBuilder = modelBuilder.Entity<A>();
+
+        Assert.True(entityTypeBuilder.PrimitiveCollection(a => a.PrimitiveCollectionWithNullableElement).ElementType().Metadata.IsNullable);
+    }
+
     private void RunConvention(InternalPropertyBuilder propertyBuilder)
     {
         var context = new ConventionContext<IConventionPropertyBuilder>(
@@ -145,6 +164,9 @@ public class NonNullableReferencePropertyConventionTest
 
         [Required]
         public string? RequiredAndNullable { get; set; }
+
+        public List<string> PrimitiveCollectionWithNonNullableElement { get; set; } = new();
+        public List<string?> PrimitiveCollectionWithNullableElement { get; set; } = new();
 
 #nullable disable
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' context.
