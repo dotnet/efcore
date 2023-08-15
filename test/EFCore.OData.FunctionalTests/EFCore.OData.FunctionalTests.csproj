@@ -41,7 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.1" />
   </ItemGroup>
 
   <ItemGroup>
