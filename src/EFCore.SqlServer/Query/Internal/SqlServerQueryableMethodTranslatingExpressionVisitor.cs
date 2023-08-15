@@ -129,7 +129,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override ShapedQueryExpression? TranslateCollection(
         SqlExpression sqlExpression,
-        RelationalTypeMapping? elementTypeMapping,
+        IProperty? property,
         string tableAlias)
     {
         if (_sqlServerCompatibilityLevel < 130)
@@ -145,6 +145,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // (i.e. with a columnInfo), which determines the type conversion to apply to the JSON elements coming out.
         // For parameter collections, the element type mapping will only be inferred and applied later (see
         // SqlServerInferredTypeMappingApplier below), at which point the we'll apply it to add the WITH clause.
+        var elementTypeMapping = (RelationalTypeMapping?)sqlExpression.TypeMapping?.ElementTypeMapping;
+
         var openJsonExpression = elementTypeMapping is null
             ? new SqlServerOpenJsonExpression(tableAlias, sqlExpression)
             : new SqlServerOpenJsonExpression(
@@ -159,9 +161,16 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     }
                 });
 
-        // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
         var elementClrType = sqlExpression.Type.GetSequenceType();
-        var isColumnNullable = elementClrType.IsNullableType();
+
+        // If this is a collection property, get the element's nullability out of metadata. Otherwise, this is a parameter property, in
+        // which case we only have the CLR type (note that we cannot produce different SQLs based on the nullability of an *element* in
+        // a parameter collection - our caching mechanism only supports varying by the nullability of the parameter itself (i.e. the
+        // collection).
+        // TODO: if property is non-null, GetElementType() should never be null, but we have #31469 for shadow properties
+        var isElementNullable = property?.GetElementType() is null
+            ? elementClrType.IsNullableType()
+            : property.GetElementType()!.IsNullable;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
@@ -169,7 +178,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             columnName: "value",
             columnType: elementClrType,
             columnTypeMapping: elementTypeMapping,
-            isColumnNullable,
+            isElementNullable,
             identifierColumnName: "key",
             identifierColumnType: typeof(string),
             identifierColumnTypeMapping: _typeMappingSource.FindMapping("nvarchar(4000)"));

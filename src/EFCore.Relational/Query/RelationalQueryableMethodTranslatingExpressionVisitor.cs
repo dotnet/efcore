@@ -219,7 +219,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
                 return TranslateCollection(
                         sqlParameterExpression,
-                        elementTypeMapping: null,
+                        property: null,
                         char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString())
                     ?? base.VisitExtension(extensionExpression);
 
@@ -265,20 +265,24 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         if (translated == QueryCompilationContext.NotTranslatedExpression)
         {
             // Attempt to translate access into a primitive collection property (i.e. array column)
-            if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var propertyAccessExpression)
-                && propertyAccessExpression is SqlExpression
+
+            // TODO: We should be detecting primitive collections by looking at GetElementType() of the property and not at its type
+            // mapping; but #31469 is blocking that for shadow properties.
+            if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var translatedExpression, out var property)
+                && property is IProperty regularProperty
+                && translatedExpression is SqlExpression
                 {
-                    TypeMapping.ElementTypeMapping: RelationalTypeMapping elementTypeMapping
-                } collectionPropertyAccessExpression)
+                    TypeMapping.ElementTypeMapping: RelationalTypeMapping
+                } sqlExpression)
             {
-                var tableAlias = collectionPropertyAccessExpression switch
+                var tableAlias = sqlExpression switch
                 {
                     ColumnExpression c => c.Name[..1].ToLowerInvariant(),
                     JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName[..1].ToLowerInvariant(),
                     _ => "j"
                 };
 
-                if (TranslateCollection(collectionPropertyAccessExpression, elementTypeMapping, tableAlias) is
+                if (TranslateCollection(sqlExpression, regularProperty, tableAlias) is
                     { } primitiveCollectionTranslation)
                 {
                     return primitiveCollectionTranslation;
@@ -316,17 +320,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     collections.
     /// </remarks>
     /// <param name="sqlExpression">The expression to try to translate as a primitive collection expression.</param>
-    /// <param name="elementTypeMapping">
-    ///     The type mapping of the collection's element, or <see langword="null" /> when it's not known (i.e. for parameters).
+    /// <param name="property">
+    ///     If the primitive collection is a property, contains the <see cref="IProperty" /> for that property. Otherwise, the collection
+    ///     represents a parameter, and this contains <see langword="null" />.
     /// </param>
     /// <param name="tableAlias">
     ///     Provides an alias to be used for the table returned from translation, which will represent the collection.
     /// </param>
     /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
-    protected virtual ShapedQueryExpression? TranslateCollection(
-        SqlExpression sqlExpression,
-        RelationalTypeMapping? elementTypeMapping,
-        string tableAlias)
+    protected virtual ShapedQueryExpression? TranslateCollection(SqlExpression sqlExpression, IProperty? property, string tableAlias)
         => null;
 
     /// <summary>

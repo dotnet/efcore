@@ -3,10 +3,27 @@
 
 #nullable enable
 
+using Xunit.Sdk;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
 public class JsonTypesCosmosTest : JsonTypesTestBase
 {
+    // #25765 - the Cosmos type mapping source doesn't support primitive collections, so we end up with a Property
+    // that has no ElementType; that causes the assertion on the element nullability to fail.
+    public override void Can_read_write_collection_of_string_JSON_values()
+        => Assert.Throws<EqualException>(() => base.Can_read_write_collection_of_string_JSON_values());
+
+    // #25765 - the Cosmos type mapping source doesn't support primitive collections, so we end up with a Property
+    // that has no ElementType; that causes the assertion on the element nullability to fail.
+    public override void Can_read_write_collection_of_binary_JSON_values()
+        => Assert.Throws<EqualException>(() => base.Can_read_write_collection_of_binary_JSON_values());
+
+    // #25765 - the Cosmos type mapping source doesn't support primitive collections, so we end up with a Property
+    // that has no ElementType; that causes the assertion on the element nullability to fail.
+    public override void Can_read_write_collection_of_nullable_string_JSON_values()
+        => Assert.Throws<EqualException>(() => base.Can_read_write_collection_of_nullable_string_JSON_values());
+
     public override void Can_read_write_point()
         // No built-in JSON support for spatial types in the Cosmos provider
         => Assert.Throws<InvalidOperationException>(() => base.Can_read_write_point());

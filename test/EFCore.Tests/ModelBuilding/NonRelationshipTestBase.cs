@@ -3061,7 +3061,7 @@ public abstract partial class ModelBuilderTest
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(CollectionQuarks))!;
 
             Assert.False(entityType.FindProperty(nameof(CollectionQuarks.Up))!.GetElementType()!.IsNullable);
-            Assert.True(entityType.FindProperty(nameof(CollectionQuarks.Down))!.GetElementType()!.IsNullable); // Issue #31416
+            Assert.False(entityType.FindProperty(nameof(CollectionQuarks.Down))!.GetElementType()!.IsNullable);
             Assert.True(entityType.FindProperty("Charm")!.GetElementType()!.IsNullable);
             Assert.True(entityType.FindProperty("Strange")!.GetElementType()!.IsNullable);
             Assert.True(entityType.FindProperty("Stranger")!.GetElementType()!.IsNullable);

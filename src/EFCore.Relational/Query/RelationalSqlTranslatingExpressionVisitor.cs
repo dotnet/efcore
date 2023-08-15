@@ -547,16 +547,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             else
             {
                 var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
-                if (discriminatorColumn != null)
-                {
-                    return match
-                        ? _sqlExpressionFactory.Equal(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
-                        : _sqlExpressionFactory.NotEqual(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
-                }
+                return match
+                    ? _sqlExpressionFactory.Equal(
+                        discriminatorColumn,
+                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()))
+                    : _sqlExpressionFactory.NotEqual(
+                        discriminatorColumn,
+                        _sqlExpressionFactory.Constant(derivedType.GetDiscriminatorValue()));
             }
 
             return QueryCompilationContext.NotTranslatedExpression;
@@ -739,8 +736,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         var innerExpression = Visit(memberExpression.Expression);
 
-        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member))
-            ?? (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
+        return TryBindMember(innerExpression, MemberIdentity.Create(memberExpression.Member), out var expression)
+            ? expression
+            : (TranslationFailed(memberExpression.Expression, innerExpression, out var sqlInnerExpression)
                 ? QueryCompilationContext.NotTranslatedExpression
                 : Dependencies.MemberTranslatorProvider.Translate(
                     sqlInnerExpression, memberExpression.Member, memberExpression.Type, _queryCompilationContext.Logger))
@@ -760,26 +758,28 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual bool TryTranslatePropertyAccess(Expression expression, [NotNullWhen(true)] out Expression? propertyAccessExpression)
+    public virtual bool TryTranslatePropertyAccess(
+        Expression expression,
+        [NotNullWhen(true)] out Expression? translatedExpression,
+        [NotNullWhen(true)] out IPropertyBase? property)
     {
         if (expression is MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression result)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out translatedExpression, out property))
             {
-                propertyAccessExpression = result;
                 return true;
             }
 
             if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression indexerResult)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out translatedExpression, out property))
             {
-                propertyAccessExpression = indexerResult;
                 return true;
             }
         }
 
-        propertyAccessExpression = null;
+        translatedExpression = null;
+        property = null;
         return false;
     }
 
@@ -789,7 +789,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         // EF.Property case
         if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
         {
-            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression result)
+            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var result))
             {
                 return result;
             }
@@ -807,7 +807,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         // EF Indexer property
         if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
-            && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is Expression indexerResult)
+            && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out var indexerResult))
         {
             return indexerResult;
         }
@@ -1129,21 +1129,16 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                 var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
-                if (discriminatorColumn != null)
-                {
-                    return concreteEntityTypes.Count == 1
-                        ? _sqlExpressionFactory.Equal(
-                            discriminatorColumn,
-                            _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                        : _sqlExpressionFactory.In(
-                            discriminatorColumn,
-                            concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
-                }
+                return concreteEntityTypes.Count == 1
+                    ? _sqlExpressionFactory.Equal(
+                        discriminatorColumn,
+                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                    : _sqlExpressionFactory.In(
+                        discriminatorColumn,
+                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
             }
-            else
-            {
-                return _sqlExpressionFactory.Constant(true);
-            }
+
+            return _sqlExpressionFactory.Constant(true);
         }
 
         return QueryCompilationContext.NotTranslatedExpression;
@@ -1207,22 +1202,36 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return QueryCompilationContext.NotTranslatedExpression;
     }
 
-    private Expression? TryBindMember(Expression? source, MemberIdentity member)
+    private bool TryBindMember(
+        Expression? source,
+        MemberIdentity member,
+        [NotNullWhen(true)] out Expression? expression)
+        => TryBindMember(source, member, out expression, out _);
+
+    private bool TryBindMember(
+        Expression? source,
+        MemberIdentity member,
+        [NotNullWhen(true)] out Expression? expression,
+        [NotNullWhen(true)] out IPropertyBase? property)
     {
         if (source is not StructuralTypeReferenceExpression typeReference)
         {
-            return null;
+            expression = null;
+            property = null;
+            return false;
         }
 
         var structuralType = typeReference.StructuralType;
 
-        var property = member.MemberInfo != null
+        var regularProperty = member.MemberInfo != null
             ? structuralType.FindProperty(member.MemberInfo)
             : structuralType.FindProperty(member.Name!);
 
-        if (property != null)
+        if (regularProperty != null)
         {
-            return BindProperty(typeReference, property);
+            expression = BindProperty(typeReference, regularProperty);
+            property = regularProperty;
+            return true;
         }
 
         var complexProperty = member.MemberInfo != null
@@ -1231,7 +1240,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         if (complexProperty is not null)
         {
-            return BindComplexProperty(typeReference, complexProperty);
+            expression = BindComplexProperty(typeReference, complexProperty);
+            property = complexProperty;
+            return true;
         }
 
         AddTranslationErrorDetails(
@@ -1239,103 +1250,109 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 member.Name,
                 typeReference.StructuralType.DisplayName()));
 
-        return null;
+        expression = null;
+        property = null;
+        return false;
     }
 
-    private SqlExpression? BindProperty(StructuralTypeReferenceExpression typeReference, IProperty property)
+    private SqlExpression BindProperty(StructuralTypeReferenceExpression typeReference, IProperty property)
     {
-        if (typeReference.Parameter != null)
+        switch (typeReference)
         {
-            var valueBufferExpression = Visit(typeReference.Parameter.ValueBufferExpression);
-            if (valueBufferExpression is JsonQueryExpression jsonQueryExpression)
+            case { Parameter: StructuralTypeShaperExpression shaper }:
             {
-                return jsonQueryExpression.BindProperty(property);
+                var valueBufferExpression = Visit(shaper.ValueBufferExpression);
+                if (valueBufferExpression is JsonQueryExpression jsonQueryExpression)
+                {
+                    return jsonQueryExpression.BindProperty(property);
+                }
+
+                var projection = (StructuralTypeProjectionExpression)valueBufferExpression;
+                var propertyAccess = projection.BindProperty(property);
+
+                if (typeReference.StructuralType is not IEntityType entityType
+                    || entityType.FindDiscriminatorProperty() != null
+                    || entityType.FindPrimaryKey() == null
+                    || entityType.GetRootType() != entityType
+                    || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+                {
+                    return propertyAccess;
+                }
+
+                var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
+                    ?? entityType.GetDefaultMappings().Single().Table;
+                if (!table.IsOptional(entityType))
+                {
+                    return propertyAccess;
+                }
+
+                // this is optional dependent sharing table
+                var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+                if (nonPrincipalSharedNonPkProperties.Contains(property))
+                {
+                    // The column is not being shared with principal side so we can always use directly
+                    return propertyAccess;
+                }
+
+                SqlExpression? condition = null;
+                // Property is being shared with principal side, so we need to make it conditional access
+                var allRequiredNonPkProperties =
+                    entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                if (allRequiredNonPkProperties.Count > 0)
+                {
+                    condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+                }
+
+                if (nonPrincipalSharedNonPkProperties.Count != 0
+                    && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                {
+                    // If all non principal shared properties are nullable then we need additional condition
+                    var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
+                        .Select(p => projection.BindProperty(p))
+                        .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                        .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
+
+                    condition = condition == null
+                        ? atLeastOneNonNullValueInNullableColumnsCondition
+                        : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
+                }
+
+                if (condition == null)
+                {
+                    // if we cannot compute condition then we just return property access (and hope for the best)
+                    return propertyAccess;
+                }
+
+                return _sqlExpressionFactory.Case(
+                    new List<CaseWhenClause> { new(condition, propertyAccess) },
+                    elseResult: null);
+
+                // We don't do above processing for subquery entity since it comes from after subquery which has been
+                // single result so either it is regular entity or a collection which always have their own table.
             }
 
-            var projection = (StructuralTypeProjectionExpression)valueBufferExpression;
-            var propertyAccess = projection.BindProperty(property);
-
-            if (typeReference.StructuralType is not IEntityType entityType
-                || entityType.FindDiscriminatorProperty() != null
-                || entityType.FindPrimaryKey() == null
-                || entityType.GetRootType() != entityType
-                || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+            case { Subquery: ShapedQueryExpression subquery }:
             {
-                return propertyAccess;
+                var entityShaper = (StructuralTypeShaperExpression)subquery.ShaperExpression;
+                var subSelectExpression = (SelectExpression)subquery.QueryExpression;
+
+                var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
+                var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
+                var innerProjection = projection.BindProperty(property);
+                subSelectExpression.ReplaceProjection(new List<Expression> { innerProjection });
+                subSelectExpression.ApplyProjection();
+
+                return new ScalarSubqueryExpression(subSelectExpression);
             }
 
-            var table = entityType.GetViewOrTableMappings().SingleOrDefault(e => e.IsSplitEntityTypePrincipal ?? true)?.Table
-                ?? entityType.GetDefaultMappings().Single().Table;
-            if (!table.IsOptional(entityType))
-            {
-                return propertyAccess;
-            }
-
-            // this is optional dependent sharing table
-            var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
-            if (nonPrincipalSharedNonPkProperties.Contains(property))
-            {
-                // The column is not being shared with principal side so we can always use directly
-                return propertyAccess;
-            }
-
-            SqlExpression? condition = null;
-            // Property is being shared with principal side, so we need to make it conditional access
-            var allRequiredNonPkProperties =
-                entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
-            if (allRequiredNonPkProperties.Count > 0)
-            {
-                condition = allRequiredNonPkProperties.Select(p => projection.BindProperty(p))
-                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
-                    .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
-            }
-
-            if (nonPrincipalSharedNonPkProperties.Count != 0
-                && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
-            {
-                // If all non principal shared properties are nullable then we need additional condition
-                var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
-                    .Select(p => projection.BindProperty(p))
-                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
-                    .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
-
-                condition = condition == null
-                    ? atLeastOneNonNullValueInNullableColumnsCondition
-                    : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
-            }
-
-            if (condition == null)
-            {
-                // if we cannot compute condition then we just return property access (and hope for the best)
-                return propertyAccess;
-            }
-
-            return _sqlExpressionFactory.Case(
-                new List<CaseWhenClause> { new(condition, propertyAccess) },
-                elseResult: null);
-
-            // We don't do above processing for subquery entity since it comes from after subquery which has been
-            // single result so either it is regular entity or a collection which always have their own table.
+            default:
+                throw new UnreachableException();
         }
-
-        if (typeReference.Subquery != null)
-        {
-            var entityShaper = (StructuralTypeShaperExpression)typeReference.Subquery.ShaperExpression;
-            var subSelectExpression = (SelectExpression)typeReference.Subquery.QueryExpression;
-
-            var projectionBindingExpression = (ProjectionBindingExpression)entityShaper.ValueBufferExpression;
-            var projection = (StructuralTypeProjectionExpression)subSelectExpression.GetProjection(projectionBindingExpression);
-            var innerProjection = projection.BindProperty(property);
-            subSelectExpression.ReplaceProjection(new List<Expression> { innerProjection });
-            subSelectExpression.ApplyProjection();
-
-            return new ScalarSubqueryExpression(subSelectExpression);
-        }
-
-        return null;
     }
 
-    private StructuralTypeReferenceExpression? BindComplexProperty(
+    private StructuralTypeReferenceExpression BindComplexProperty(
         StructuralTypeReferenceExpression typeReference,
         IComplexProperty complexProperty)
     {
@@ -1352,7 +1369,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 throw new InvalidOperationException(); // TODO: Figure this out; do we support it?
 
             default:
-                return null;
+                throw new UnreachableException();
         }
     }
 
