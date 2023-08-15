@@ -1,10 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-#pragma warning disable CS0414 // Field is assigned but its value is never used
-
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -89,14 +85,14 @@ public class EntityEntryTest
     {
         public int Id { get; set; }
 
-        public Dependent? Dependent { get; set; }
+        public Dependent Dependent { get; set; }
     }
 
     private class StoreGeneratedWithSentinel
     {
         public int Id { get; set; }
 
-        public DependentWithSentinel? Dependent { get; set; }
+        public DependentWithSentinel Dependent { get; set; }
     }
 
     private class NotStoreGenerated
@@ -126,14 +122,14 @@ public class EntityEntryTest
     {
         public int Id { get; set; }
 
-        public StoreGenerated? Principal { get; set; }
+        public StoreGenerated Principal { get; set; }
     }
 
     private class DependentWithSentinel
     {
         public int Id { get; set; }
 
-        public StoreGeneratedWithSentinel? Principal { get; set; }
+        public StoreGeneratedWithSentinel Principal { get; set; }
     }
 
     private class KeySetContext : DbContext
@@ -143,26 +139,13 @@ public class EntityEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(KeySetContext));
 
-        public DbSet<StoreGenerated> StoreGenerated
-            => Set<StoreGenerated>();
-
-        public DbSet<StoreGeneratedWithSentinel> StoreGeneratedWithSentinel
-            => Set<StoreGeneratedWithSentinel>();
-
-        public DbSet<NotStoreGenerated> NotStoreGenerated
-            => Set<NotStoreGenerated>();
-
-        public DbSet<CompositeStoreGenerated> CompositeStoreGenerated
-            => Set<CompositeStoreGenerated>();
-
-        public DbSet<CompositeStoreGeneratedWithSentinel> CompositeStoreGeneratedWithSentinel
-            => Set<CompositeStoreGeneratedWithSentinel>();
-
-        public DbSet<CompositeNotStoreGenerated> CompositeNotStoreGenerated
-            => Set<CompositeNotStoreGenerated>();
-
-        public DbSet<Dependent> Dependent
-            => Set<Dependent>();
+        public DbSet<StoreGenerated> StoreGenerated { get; set; }
+        public DbSet<StoreGeneratedWithSentinel> StoreGeneratedWithSentinel { get; set; }
+        public DbSet<NotStoreGenerated> NotStoreGenerated { get; set; }
+        public DbSet<CompositeStoreGenerated> CompositeStoreGenerated { get; set; }
+        public DbSet<CompositeStoreGeneratedWithSentinel> CompositeStoreGeneratedWithSentinel { get; set; }
+        public DbSet<CompositeNotStoreGenerated> CompositeNotStoreGenerated { get; set; }
+        public DbSet<Dependent> Dependent { get; set; }
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -207,7 +190,7 @@ public class EntityEntryTest
     public void Detached_entities_are_not_returned_from_the_change_tracker()
     {
         using var context = new FreezerContext();
-        var entity = CreateChunky(808);
+        var entity = new Chunky { Id = 808 };
         context.Attach(entity);
 
         Assert.Single(context.ChangeTracker.Entries());
@@ -229,7 +212,7 @@ public class EntityEntryTest
     public void Can_obtain_entity_instance()
     {
         using var context = new FreezerContext();
-        var entity = CreateChunky();
+        var entity = new Chunky();
         context.Add(entity);
 
         Assert.Same(entity, context.Entry(entity).Entity);
@@ -240,7 +223,7 @@ public class EntityEntryTest
     public void Can_obtain_context()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Same(context, context.Entry(entity).Context);
         Assert.Same(context, context.Entry((object)entity).Context);
@@ -250,7 +233,7 @@ public class EntityEntryTest
     public void Can_obtain_underlying_state_entry()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var entry = context.GetService<IStateManager>().GetOrCreateEntry(entity);
 
         Assert.Same(entry, context.Entry(entity).GetInfrastructure());
@@ -261,7 +244,7 @@ public class EntityEntryTest
     public void Can_get_metadata()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var entityType = context.Model.FindEntityType(typeof(Chunky));
 
         Assert.Same(entityType, context.Entry(entity).Metadata);
@@ -272,7 +255,7 @@ public class EntityEntryTest
     public void Can_get_and_change_state()
     {
         using var context = new FreezerContext();
-        var entity = CreateChunky();
+        var entity = new Chunky();
         var entry = context.Add(entity).GetInfrastructure();
 
         context.Entry(entity).State = EntityState.Modified;
@@ -288,7 +271,7 @@ public class EntityEntryTest
     public void Cannot_set_invalid_state()
     {
         using var context = new FreezerContext();
-        var entity = CreateChunky();
+        var entity = new Chunky();
 
         Assert.Equal(
             CoreStrings.InvalidEnumValue("-1", "value", typeof(EntityState).FullName),
@@ -352,7 +335,7 @@ public class EntityEntryTest
     private void ChangeStateOnEntry(EntityState initialState, EntityState expectedState)
     {
         using var context = new FreezerContext();
-        var entry = context.Add(CreateChunky());
+        var entry = context.Add(new Chunky());
 
         entry.State = initialState;
         entry.State = expectedState;
@@ -364,7 +347,7 @@ public class EntityEntryTest
     public void Can_get_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Monkey", context.Entry(entity).Property("Monkey").Metadata.Name);
         Assert.Equal("Monkey", context.Entry((object)entity).Property("Monkey").Metadata.Name);
@@ -374,7 +357,7 @@ public class EntityEntryTest
     public void Can_get_generic_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Monkey", context.Entry(entity).Property<int>("Monkey").Metadata.Name);
     }
@@ -383,7 +366,7 @@ public class EntityEntryTest
     public void Can_get_property_entry_by_IProperty()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var property = context.Entry(entity).Metadata.FindProperty("Monkey")!;
 
         Assert.Same(property, context.Entry(entity).Property(property).Metadata);
@@ -394,7 +377,7 @@ public class EntityEntryTest
     public void Can_get_generic_property_entry_by_IProperty()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var property = context.Entry(entity).Metadata.FindProperty("Monkey")!;
 
         Assert.Same(property, context.Entry(entity).Property<int>(property).Metadata);
@@ -404,7 +387,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_generic_type_is_used_while_getting_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.WrongGenericPropertyType("Monkey", entity.GetType().ShortDisplayName(), "int", "string"),
@@ -415,7 +398,7 @@ public class EntityEntryTest
     public void Can_get_generic_property_entry_by_lambda()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Monkey", context.Entry(entity).Property(e => e.Monkey).Metadata.Name);
     }
@@ -424,7 +407,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
@@ -441,7 +424,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Garcia", context.Entry(entity).Reference("Garcia").Metadata.Name);
         Assert.Equal("Garcia", context.Entry((object)entity).Reference("Garcia").Metadata.Name);
@@ -451,7 +434,7 @@ public class EntityEntryTest
     public void Can_get_generic_reference_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Garcia", context.Entry(entity).Reference<Cherry>("Garcia").Metadata.Name);
     }
@@ -460,7 +443,7 @@ public class EntityEntryTest
     public void Can_get_generic_reference_entry_by_lambda()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal("Garcia", context.Entry(entity).Reference(e => e.Garcia).Metadata.Name);
     }
@@ -469,7 +452,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_INavigationBase()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Garcia")!;
 
         Assert.Same(navigationBase, context.Entry(entity).Reference(navigationBase).Metadata);
@@ -480,7 +463,7 @@ public class EntityEntryTest
     public void Can_get_generic_reference_entry_by_INavigationBase()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Garcia")!;
 
         Assert.Same(navigationBase, context.Entry(entity).Reference<Cherry>(navigationBase).Metadata);
@@ -490,7 +473,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_reference_name_is_used_while_getting_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
@@ -507,7 +490,7 @@ public class EntityEntryTest
     public void Throws_when_accessing_property_as_reference()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.NavigationIsProperty(
@@ -537,7 +520,7 @@ public class EntityEntryTest
     public void Throws_when_accessing_collection_as_reference()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         Assert.Equal(
             CoreStrings.ReferenceIsCollection(
@@ -588,7 +571,7 @@ public class EntityEntryTest
     public void Can_get_collection_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         Assert.Equal("Monkeys", context.Entry(entity).Collection("Monkeys").Metadata.Name);
         Assert.Equal("Monkeys", context.Entry((object)entity).Collection("Monkeys").Metadata.Name);
@@ -598,7 +581,7 @@ public class EntityEntryTest
     public void Can_get_generic_collection_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         Assert.Equal("Monkeys", context.Entry(entity).Collection<Chunky>("Monkeys").Metadata.Name);
     }
@@ -607,16 +590,16 @@ public class EntityEntryTest
     public void Can_get_generic_collection_entry_by_lambda()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
-        Assert.Equal("Monkeys", context.Entry(entity).Collection(e => e.Monkeys!).Metadata.Name);
+        Assert.Equal("Monkeys", context.Entry(entity).Collection(e => e.Monkeys).Metadata.Name);
     }
 
     [ConditionalFact]
     public void Can_get_collection_entry_by_INavigationBase()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Monkeys")!;
 
         Assert.Same(navigationBase, context.Entry(entity).Collection(navigationBase).Metadata);
@@ -627,7 +610,7 @@ public class EntityEntryTest
     public void Can_get_generic_collection_entry_by_INavigationBase()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Monkeys")!;
 
         Assert.Same(navigationBase, context.Entry(entity).Collection<Chunky>(navigationBase).Metadata);
@@ -637,7 +620,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_collection_name_is_used_while_getting_property_entry_by_name()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         Assert.Equal(
             CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
@@ -656,7 +639,7 @@ public class EntityEntryTest
     public void Throws_when_accessing_property_as_collection()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         Assert.Equal(
             CoreStrings.NavigationIsProperty(
@@ -681,7 +664,7 @@ public class EntityEntryTest
     public void Throws_when_accessing_reference_as_collection()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.CollectionIsReference(
@@ -726,7 +709,7 @@ public class EntityEntryTest
     public void Can_get_property_entry_by_name_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         var entry = context.Entry(entity).Member("Monkey");
         Assert.Equal("Monkey", entry.Metadata.Name);
@@ -741,7 +724,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
@@ -755,7 +738,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_name_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         var entry = context.Entry(entity).Member("Garcia");
         Assert.Equal("Garcia", entry.Metadata.Name);
@@ -770,7 +753,7 @@ public class EntityEntryTest
     public void Can_get_collection_entry_by_name_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         var entry = context.Entry(entity).Member("Monkeys");
         Assert.Equal("Monkeys", entry.Metadata.Name);
@@ -785,7 +768,7 @@ public class EntityEntryTest
     public void Can_get_property_entry_by_IPropertyBase_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var propertyBase = (IPropertyBase)context.Entry(entity).Metadata.FindProperty("Monkey")!;
 
         var entry = context.Entry(entity).Member(propertyBase);
@@ -801,7 +784,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_IPropertyBase_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var propertyBase = (IPropertyBase)context.Entry(entity).Metadata.FindNavigation("Garcia")!;
 
         var entry = context.Entry(entity).Member(propertyBase);
@@ -817,7 +800,7 @@ public class EntityEntryTest
     public void Can_get_collection_entry_by_IPropertyBase_using_Member()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
         var propertyBase = (IPropertyBase)context.Entry(entity).Metadata.FindNavigation("Monkeys")!;
 
         var entry = context.Entry(entity).Member(propertyBase);
@@ -833,7 +816,7 @@ public class EntityEntryTest
     public void Throws_when_wrong_property_name_is_used_while_getting_property_entry_by_name_using_Navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.PropertyNotFound("Chimp", entity.GetType().Name),
@@ -848,7 +831,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_name_using_Navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         var entry = context.Entry(entity).Navigation("Garcia");
         Assert.Equal("Garcia", entry.Metadata.Name);
@@ -863,7 +846,7 @@ public class EntityEntryTest
     public void Can_get_collection_entry_by_name_using_Navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
 
         var entry = context.Entry(entity).Navigation("Monkeys");
         Assert.Equal("Monkeys", entry.Metadata.Name);
@@ -878,7 +861,7 @@ public class EntityEntryTest
     public void Can_get_reference_entry_by_INavigationBase_using_Navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Garcia")!;
 
         var entry = context.Entry(entity).Navigation(navigationBase);
@@ -894,7 +877,7 @@ public class EntityEntryTest
     public void Can_get_collection_entry_by_INavigationBase_using_Navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
+        var entity = context.Add(new Cherry()).Entity;
         var navigationBase = (INavigationBase)context.Entry(entity).Metadata.FindNavigation("Monkeys")!;
 
         var entry = context.Entry(entity).Navigation(navigationBase);
@@ -910,7 +893,7 @@ public class EntityEntryTest
     public void Throws_when_accessing_property_as_navigation()
     {
         using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
+        var entity = context.Add(new Chunky()).Entity;
 
         Assert.Equal(
             CoreStrings.NavigationIsProperty(
@@ -929,7 +912,7 @@ public class EntityEntryTest
     public void Can_get_all_modified_properties()
     {
         using var context = new FreezerContext();
-        var entity = context.Attach(CreateChunky()).Entity;
+        var entity = context.Attach(new Chunky()).Entity;
 
         var modified = context.Entry(entity).Properties
             .Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
@@ -959,23 +942,19 @@ public class EntityEntryTest
                 "GarciaId",
                 "Monkey",
                 "Nonkey",
-                "Culture",
-                "Milk",
                 "Garcia"
             },
-            context.Attach(CreateChunky()).Members.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Chunky()).Members.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string>
             {
                 "Id",
                 "Garcia",
-                "Culture",
-                "Milk",
                 "Baked",
                 "Monkeys"
             },
-            context.Attach(CreateCherry()).Members.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Cherry()).Members.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string>
@@ -1000,11 +979,11 @@ public class EntityEntryTest
                 "Monkey",
                 "Nonkey"
             },
-            context.Attach(CreateChunky()).Properties.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Chunky()).Properties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Id", "Garcia" },
-            context.Attach(CreateCherry()).Properties.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Cherry()).Properties.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string>
@@ -1022,11 +1001,11 @@ public class EntityEntryTest
         using var context = new FreezerContext();
         Assert.Equal(
             new List<string> { "Garcia" },
-            context.Attach(CreateChunky()).Navigations.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Chunky()).Navigations.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Baked", "Monkeys" },
-            context.Attach(CreateCherry()).Navigations.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Cherry()).Navigations.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Garcia" },
@@ -1039,11 +1018,11 @@ public class EntityEntryTest
         using var context = new FreezerContext();
         Assert.Equal(
             new List<string> { "Garcia" },
-            context.Attach(CreateChunky()).References.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Chunky()).References.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Baked" },
-            context.Attach(CreateCherry()).References.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Cherry()).References.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Garcia" },
@@ -1054,562 +1033,33 @@ public class EntityEntryTest
     public void Can_get_all_collection_entries()
     {
         using var context = new FreezerContext();
-        Assert.Empty(context.Attach(CreateChunky()).Collections.Select(e => e.Metadata.Name).ToList());
+        Assert.Empty(context.Attach(new Chunky()).Collections.Select(e => e.Metadata.Name).ToList());
 
         Assert.Equal(
             new List<string> { "Monkeys" },
-            context.Attach(CreateCherry()).Collections.Select(e => e.Metadata.Name).ToList());
+            context.Attach(new Cherry()).Collections.Select(e => e.Metadata.Name).ToList());
 
         Assert.Empty(context.Attach(new Half()).Collections.Select(e => e.Metadata.Name).ToList());
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_name()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty("Milk").Metadata.Name);
-        Assert.Equal("Culture", context.Entry((object)entity).ComplexProperty("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry((object)entity).ComplexProperty("Milk").Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_name()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty<Culture>("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty<Milk>("Milk").Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Can_get_property_complex_entry_by_IComplexProperty()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-        var cultureProperty = context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkProperty = context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        Assert.Same(cultureProperty, context.Entry(entity).ComplexProperty(cultureProperty).Metadata);
-        Assert.Same(milkProperty, context.Entry((object)entity).ComplexProperty(milkProperty).Metadata);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_IComplexProperty()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-        var cultureProperty = context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkProperty = context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        Assert.Same(cultureProperty, context.Entry(entity).ComplexProperty<Culture>(cultureProperty).Metadata);
-        Assert.Same(milkProperty, context.Entry(entity).ComplexProperty<Milk>(milkProperty).Metadata);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_wrong_generic_type_is_used_while_getting_complex_property_entry_by_name()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal(
-            CoreStrings.WrongGenericPropertyType("Culture", entity.GetType().ShortDisplayName(), "Culture", "string"),
-            Assert.Throws<ArgumentException>(() => context.Entry(entity).ComplexProperty<string>("Culture")).Message);
-
-        Assert.Equal(
-            CoreStrings.WrongGenericPropertyType("Milk", entity.GetType().ShortDisplayName(), "Milk", "string"),
-            Assert.Throws<ArgumentException>(() => context.Entry(entity).ComplexProperty<string>("Milk")).Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_lambda()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty(e => e.Culture).Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty(e => e.Milk).Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_wrong_complex_property_name_is_used_while_getting_property_entry_by_name()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).ComplexProperty("Chimp").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).ComplexProperty("Chimp").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).ComplexProperty<int>("Chimp").Metadata.Name).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_accessing_complex_property_as_reference()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Culture").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Culture").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Culture").Metadata.Name)
-                .Message);
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Milk").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Milk").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Milk").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Milk).Metadata.Name).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_accessing_complex_property_as_collection()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection("Culture").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Culture").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Random>("Culture").Metadata.Name)
-                .Message);
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection("Milk").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Collection("Milk").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Collection<Random>("Milk").Metadata.Name)
-                .Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_name_using_Member()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        var entry = context.Entry(entity).Member("Culture");
-        Assert.Equal("Culture", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member("Culture");
-        Assert.Equal("Culture", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry(entity).Member("Milk");
-        Assert.Equal("Milk", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member("Milk");
-        Assert.Equal("Milk", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_IPropertyBase_using_Member()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-        var cultureBase = (IPropertyBase)context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkBase = (IPropertyBase)context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        var entry = context.Entry(entity).Member(cultureBase);
-        Assert.Same(cultureBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member(cultureBase);
-        Assert.Same(cultureBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry(entity).Member(milkBase);
-        Assert.Same(milkBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member(milkBase);
-        Assert.Same(milkBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_accessing_complex_property_as_navigation()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateChunky()).Entity;
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Navigation("Culture").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Navigation("Culture").Metadata.Name)
-                .Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_all_complex_property_entries()
-    {
-        using var context = new FreezerContext();
-        Assert.Equal(
-            new List<string> { "Culture", "Milk" },
-            context.Attach(CreateChunky()).ComplexProperties.Select(e => e.Metadata.Name).ToList());
-
-        Assert.Equal(
-            new List<string> { "Culture", "Milk" },
-            context.Attach(CreateCherry()).ComplexProperties.Select(e => e.Metadata.Name).ToList());
-
-        Assert.Empty(context.Attach(new Half()).ComplexProperties);
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_name_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty("Milk").Metadata.Name);
-        Assert.Equal("Culture", context.Entry((object)entity).ComplexProperty("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry((object)entity).ComplexProperty("Milk").Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_name_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty<FieldCulture>("Culture").Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty<FieldMilk>("Milk").Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Can_get_property_complex_entry_by_IComplexProperty_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-        var cultureProperty = context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkProperty = context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        Assert.Same(cultureProperty, context.Entry(entity).ComplexProperty(cultureProperty).Metadata);
-        Assert.Same(milkProperty, context.Entry((object)entity).ComplexProperty(milkProperty).Metadata);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_IComplexProperty_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-        var cultureProperty = context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkProperty = context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        Assert.Same(cultureProperty, context.Entry(entity).ComplexProperty<FieldCulture>(cultureProperty).Metadata);
-        Assert.Same(milkProperty, context.Entry(entity).ComplexProperty<FieldMilk>(milkProperty).Metadata);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_wrong_generic_type_is_used_while_getting_complex_property_entry_by_name_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal(
-            CoreStrings.WrongGenericPropertyType("Culture", entity.GetType().ShortDisplayName(), "FieldCulture", "string"),
-            Assert.Throws<ArgumentException>(() => context.Entry(entity).ComplexProperty<string>("Culture")).Message);
-
-        Assert.Equal(
-            CoreStrings.WrongGenericPropertyType("Milk", entity.GetType().ShortDisplayName(), "FieldMilk", "string"),
-            Assert.Throws<ArgumentException>(() => context.Entry(entity).ComplexProperty<string>("Milk")).Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_generic_complex_property_entry_by_lambda_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal("Culture", context.Entry(entity).ComplexProperty(e => e.Culture).Metadata.Name);
-        Assert.Equal("Milk", context.Entry(entity).ComplexProperty(e => e.Milk).Metadata.Name);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_wrong_complex_property_name_is_used_while_getting_property_entry_by_name_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).ComplexProperty("Chimp").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).ComplexProperty("Chimp").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.ComplexPropertyNotFound(entity.GetType().Name, "Chimp"),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).ComplexProperty<int>("Chimp").Metadata.Name).Message);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_accessing_complex_property_as_reference_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Culture").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Culture").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Culture").Metadata.Name)
-                .Message);
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference("Milk").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Reference("Milk").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference<Random>("Milk").Metadata.Name)
-                .Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Milk", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Reference(e => e.Milk).Metadata.Name).Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_name_using_Member_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        var entry = context.Entry(entity).Member("Culture");
-        Assert.Equal("Culture", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member("Culture");
-        Assert.Equal("Culture", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry(entity).Member("Milk");
-        Assert.Equal("Milk", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member("Milk");
-        Assert.Equal("Milk", entry.Metadata.Name);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-    }
-
-    [ConditionalFact]
-    public void Can_get_complex_property_entry_by_IPropertyBase_using_Member_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-        var cultureBase = (IPropertyBase)context.Entry(entity).Metadata.FindComplexProperty("Culture")!;
-        var milkBase = (IPropertyBase)context.Entry(entity).Metadata.FindComplexProperty("Milk")!;
-
-        var entry = context.Entry(entity).Member(cultureBase);
-        Assert.Same(cultureBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member(cultureBase);
-        Assert.Same(cultureBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry(entity).Member(milkBase);
-        Assert.Same(milkBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-
-        entry = context.Entry((object)entity).Member(milkBase);
-        Assert.Same(milkBase, entry.Metadata);
-        Assert.IsType<ComplexPropertyEntry>(entry);
-    }
-
-    [ConditionalFact]
-    public void Throws_when_accessing_complex_property_as_navigation_using_fields()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(CreateCherry()).Entity;
-
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Navigation("Culture").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.NavigationIsProperty(
-                "Culture", entity.GetType().Name,
-                nameof(EntityEntry.Reference), nameof(EntityEntry.Collection), nameof(EntityEntry.Property)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Navigation("Culture").Metadata.Name)
-                .Message);
-    }
-
-    [ConditionalFact]
-    public void Can_get_all_complex_property_entries_using_fields()
-    {
-        using var context = new FreezerContext();
-        Assert.Equal(
-            new List<string> { "Culture", "Milk" },
-            context.Attach(CreateCherry(76)).ComplexProperties.Select(e => e.Metadata.Name).ToList());
-
-        Assert.Equal(
-            new List<string> { "Culture", "Milk" },
-            context.Attach(CreateCherry(77)).ComplexProperties.Select(e => e.Metadata.Name).ToList());
-
-        Assert.Empty(context.Attach(new Half()).ComplexProperties);
     }
 
     private class Chunky
     {
         public int Monkey { get; set; }
-        public string? Nonkey { get; set; }
+        public string Nonkey { get; set; }
         public int Id { get; set; }
 
         public int GarciaId { get; set; }
-        public Cherry? Garcia { get; set; }
-
-        public Culture Culture { get; set; }
-        public Milk Milk { get; set; } = null!;
+        public Cherry Garcia { get; set; }
     }
-
-    private static Chunky CreateChunky(int id = 0)
-        => new()
-        {
-            Id = id,
-            Culture = new()
-            {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
-                Rating = 8,
-                Species = "S1",
-                Validation = false
-            },
-            Milk = new()
-            {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
-                Rating = 8,
-                Species = "S1",
-                Validation = false
-            }
-        };
-
-    private static Cherry CreateCherry(int id = 0)
-        => new()
-        {
-            Id = id,
-            Culture = new()
-            {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
-                Rating = 8,
-                Species = "S1",
-                Validation = false
-            },
-            Milk = new()
-            {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
-                Rating = 8,
-                Species = "S1",
-                Validation = false
-            }
-        };
 
     private class Cherry
     {
         public int Garcia { get; set; }
         public int Id { get; set; }
 
-        public ICollection<Chunky>? Monkeys { get; set; }
+        public ICollection<Chunky> Monkeys { get; set; }
 
-        public Half? Baked { get; set; }
-
-        public FieldCulture Culture;
-        public FieldMilk Milk = null!;
+        public Half Baked { get; set; }
     }
 
     private class Half
@@ -1618,99 +1068,7 @@ public class EntityEntryTest
         public int Id { get; set; }
 
         public int? GarciaId { get; set; }
-        public Cherry? Garcia { get; set; }
-    }
-
-    private struct Culture
-    {
-        public string Species { get; set; }
-        public string? Subspecies { get; set; }
-        public int Rating { get; set; }
-        public bool? Validation  { get; set; }
-        public Manufacturer Manufacturer { get; set; }
-        public License License { get; set; }
-    }
-
-    private class Milk
-    {
-        public string Species { get; set; } = null!;
-        public string? Subspecies { get; set; }
-        public int Rating { get; set; }
-        public bool? Validation  { get; set; }
-        public Manufacturer Manufacturer { get; set; } = null!;
-        public License License { get; set; }
-    }
-
-    private class Manufacturer
-    {
-        public string? Name { get; set; }
-        public int Rating { get; set; }
-        public Tag Tag { get; set; } = null!;
-        public Tog Tog { get; set; }
-    }
-
-    private struct License
-    {
-        public string Title { get; set; }
-        public decimal Charge { get; set; }
-        public Tag Tag { get; set; }
-        public Tog Tog { get; set; }
-    }
-
-    private class Tag
-    {
-        public string? Text { get; set; }
-    }
-
-    private struct Tog
-    {
-        public string? Text { get; set; }
-    }
-
-    private struct FieldCulture
-    {
-        public string Species;
-        public string? Subspecies;
-        public int Rating;
-        public bool? Validation;
-        public FieldManufacturer Manufacturer;
-        public FieldLicense License;
-    }
-
-    private class FieldMilk
-    {
-        public string Species = null!;
-        public string? Subspecies;
-        public int Rating;
-        public bool? Validation ;
-        public FieldManufacturer Manufacturer = null!;
-        public FieldLicense License;
-    }
-
-    private class FieldManufacturer
-    {
-        public string? Name;
-        public int Rating;
-        public FieldTag Tag = null!;
-        public FieldTog Tog;
-    }
-
-    private struct FieldLicense
-    {
-        public string Title;
-        public decimal Charge;
-        public FieldTag Tag;
-        public FieldTog Tog;
-    }
-
-    private class FieldTag
-    {
-        public string? Text;
-    }
-
-    private struct FieldTog
-    {
-        public string? Text;
+        public Cherry Garcia { get; set; }
     }
 
     private class FreezerContext : DbContext
@@ -1720,90 +1078,12 @@ public class EntityEntryTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultServiceProvider)
                 .UseInMemoryDatabase(nameof(FreezerContext));
 
-        public DbSet<Chunky> Icecream
-            => Set<Chunky>();
+        public DbSet<Chunky> Icecream { get; set; }
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Chunky>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
-
-            modelBuilder.Entity<Cherry>(
-                b =>
-                {
-                    b.Property(e => e.Id).ValueGeneratedNever();
-
-                    b.ComplexProperty(
-                        e => e.Culture, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-
-                    b.ComplexProperty(
-                        e => e.Milk, b =>
-                        {
-                            b.ComplexProperty(
-                                e => e.License, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                            b.ComplexProperty(
-                                e => e.Manufacturer, b =>
-                                {
-                                    b.ComplexProperty(e => e.Tag);
-                                    b.ComplexProperty(e => e.Tog);
-                                });
-                        });
-                });
+            modelBuilder.Entity<Chunky>().Property(e => e.Id).ValueGeneratedNever();
+            modelBuilder.Entity<Cherry>().Property(e => e.Id).ValueGeneratedNever();
         }
     }
 }

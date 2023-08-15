@@ -7921,9 +7921,6 @@ namespace TestNamespace
                             AlternateId = new Guid(),
                             Dependent = new DependentBase<byte?>(1),
                             Owned = new OwnedType(c)
-                            {
-                                Principal = new PrincipalBase()
-                            }
                         });
 
                     //c.SaveChanges();

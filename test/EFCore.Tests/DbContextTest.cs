@@ -174,17 +174,7 @@ public partial class DbContextTest
                 new ServiceCollection().AddSingleton<ILoggerFactory>(loggerFactory));
 
         using var context = new ButTheHedgehogContext(provider);
-        context.Products.Add(
-            new Product
-            {
-                Stamp = new() { Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146") },
-                Tag = new()
-                {
-                    Name = "Tanavast",
-                    Stamp = new() { Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147") },
-                    Notes = new[] { "A", "B" }
-                }
-            });
+        context.Products.Add(new Product());
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => context.SaveChangesAsync(new CancellationToken(canceled: true)));
 
@@ -572,12 +562,19 @@ public partial class DbContextTest
 
             if (async)
             {
-                Assert.Equal(1, await context.SaveChangesAsync());
+                await context.SaveChangesAsync();
             }
             else
             {
-                Assert.Equal(1, context.SaveChanges());
+                context.SaveChanges();
             }
+        }
+
+        using (var context = new ButTheHedgehogContext(provider))
+        {
+            // TODO: In-memory complex type support, #31464
+            Assert.Throws<KeyNotFoundException>(() => context.Products.Single().Name);
+            // Assert.Equal("Cracked Cookies", context.Products.Single().Name);
         }
     }
 
@@ -622,12 +619,19 @@ public partial class DbContextTest
 
             if (async)
             {
-                Assert.Equal(0, await context.SaveChangesAsync());
+                await context.SaveChangesAsync();
             }
             else
             {
-                Assert.Equal(0, context.SaveChanges());
+                context.SaveChanges();
             }
+        }
+
+        using (var context = new ButTheHedgehogContext(provider))
+        {
+            // TODO: In-memory complex type support, #31464
+            Assert.Throws<KeyNotFoundException>(() => context.Products.Single().Name);
+            // Assert.Equal("Little Hedgehogs", context.Products.Single().Name);
         }
     }
 
