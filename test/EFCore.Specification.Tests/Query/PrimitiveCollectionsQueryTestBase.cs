@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -207,7 +207,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_strings_Contains(bool async)
+    public virtual Task Parameter_collection_of_strings_Contains_non_nullable_string(bool async)
     {
         var strings = new[] { "10", "999" };
 
@@ -215,6 +215,18 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.String)),
             entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
+    {
+        var strings = new[] { "999", null };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)),
+            entryCount: 3);
     }
 
     [ConditionalTheory]
@@ -261,11 +273,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Parameter_collection_null_Contains(bool async)
     {
-        int[] ints = null;
+        int[]? ints = null;
 
         await AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints!.Contains(c.Int)),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => false));
     }
 
@@ -300,6 +312,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains(null)),
             entryCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_of_nullable_strings_contains_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableStrings.Contains(null)),
+            entryCount: 3);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -363,6 +383,28 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints[999] == 10),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => false),
             entryCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nullable_reference_column_collection_index_equals_nullable_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.NullableStrings[2] == c.NullableString),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => (c.NullableStrings.Length > 2 ? c.NullableStrings[2] : default) == c.NullableString),
+            entryCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Non_nullable_reference_column_collection_index_equals_nullable_column(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.Strings.Any() && c.Strings[1] == c.NullableString),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.Strings.Any() && (c.Strings.Length > 1 ? c.Strings[1] : default) == c.NullableString),
+            entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -834,7 +876,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     public abstract class PrimitiveCollectionsQueryFixtureBase : SharedStoreFixtureBase<PrimitiveCollectionsContext>, IQueryFixtureBase
     {
-        private PrimitiveArrayData _expectedData;
+        private PrimitiveArrayData? _expectedData;
 
         protected override string StoreName
             => "PrimitiveCollectionsTest";
@@ -851,12 +893,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         public virtual ISetSource GetExpectedData()
             => _expectedData ??= new PrimitiveArrayData();
 
-        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+        public IReadOnlyDictionary<Type, object?> EntitySorters { get; } = new Dictionary<Type, Func<object?, object?>>
         {
-            { typeof(PrimitiveCollectionsEntity), e => ((PrimitiveCollectionsEntity)e)?.Id }
-        }.ToDictionary(e => e.Key, e => (object)e.Value);
+            { typeof(PrimitiveCollectionsEntity), e => ((PrimitiveCollectionsEntity?)e)?.Id }
+        }.ToDictionary(e => e.Key, e => (object?)e.Value);
 
-        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object?, object?>>
         {
             {
                 typeof(PrimitiveCollectionsEntity), (e, a) =>
@@ -865,7 +907,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
                     if (a != null)
                     {
-                        var ee = (PrimitiveCollectionsEntity)e;
+                        var ee = (PrimitiveCollectionsEntity)e!;
                         var aa = (PrimitiveCollectionsEntity)a;
 
                         Assert.Equal(ee.Id, aa.Id);
@@ -892,19 +934,21 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     {
         public int Id { get; set; }
 
-        public string String { get; set; }
+        public required string String { get; set; }
         public int Int { get; set; }
         public DateTime DateTime { get; set; }
         public bool Bool { get; set; }
         public MyEnum Enum { get; set; }
         public int? NullableInt { get; set; }
+        public string? NullableString { get; set; }
 
-        public string[] Strings { get; set; }
-        public int[] Ints { get; set; }
-        public DateTime[] DateTimes { get; set; }
-        public bool[] Bools { get; set; }
-        public MyEnum[] Enums { get; set; }
-        public int?[] NullableInts { get; set; }
+        public required string[] Strings { get; set; }
+        public required int[] Ints { get; set; }
+        public required DateTime[] DateTimes { get; set; }
+        public required bool[] Bools { get; set; }
+        public required MyEnum[] Enums { get; set; }
+        public required int?[] NullableInts { get; set; }
+        public required string?[] NullableStrings { get; set; }
     }
 
     public enum MyEnum { Value1, Value2, Value3, Value4 }
@@ -913,7 +957,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     {
         public IReadOnlyList<PrimitiveCollectionsEntity> PrimitiveArrayEntities { get; }
 
-        public PrimitiveArrayData(PrimitiveCollectionsContext context = null)
+        public PrimitiveArrayData(PrimitiveCollectionsContext? context = null)
         {
             PrimitiveArrayEntities = CreatePrimitiveArrayEntities();
 
@@ -948,6 +992,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bool = true,
                     Enum = MyEnum.Value1,
                     NullableInt = 10,
+                    NullableString = "10",
 
                     Ints = new[] { 1, 10 },
                     Strings = new[] { "1", "10" },
@@ -959,6 +1004,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bools = new[] { true, false },
                     Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
                     NullableInts = new int?[] { 1, 10 },
+                    NullableStrings = new[] { "1", "10" }
                 },
                 new()
                 {
@@ -970,6 +1016,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bool = false,
                     Enum = MyEnum.Value2,
                     NullableInt = null,
+                    NullableString = null,
 
                     Ints = new[] { 1, 11, 111 },
                     Strings = new[] { "1", "11", "111" },
@@ -982,6 +1029,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bools = new[] { false },
                     Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
                     NullableInts = new int?[] { 1, 11, null },
+                    NullableStrings = new[] { "1", "11", null }
                 },
                 new()
                 {
@@ -993,6 +1041,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bool = true,
                     Enum = MyEnum.Value1,
                     NullableInt = 20,
+                    NullableString = "20",
 
                     Ints = new[] { 1, 1, 10, 10, 10, 1, 10 },
                     Strings = new[] { "1", "10", "10", "1", "1" },
@@ -1007,6 +1056,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bools = new[] { true, false },
                     Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
                     NullableInts = new int?[] { 1, 1, 10, 10, null, 1 },
+                    NullableStrings = new[] { "1", "1", "10", "10", null, "1" }
                 },
                 new()
                 {
@@ -1018,6 +1068,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bool = false,
                     Enum = MyEnum.Value2,
                     NullableInt = null,
+                    NullableString = null,
 
                     Ints = new[] { 1, 1, 111, 11, 1, 111 },
                     Strings = new[] { "1", "11", "111", "11" },
@@ -1035,6 +1086,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bools = new[] { false },
                     Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
                     NullableInts = new int?[] { null, null },
+                    NullableStrings = new string?[] { null, null }
                 },
                 new()
                 {
@@ -1046,6 +1098,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bool = false,
                     Enum = MyEnum.Value1,
                     NullableInt = null,
+                    NullableString = null,
 
                     Ints = Array.Empty<int>(),
                     Strings = Array.Empty<string>(),
@@ -1053,6 +1106,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Bools = Array.Empty<bool>(),
                     Enums = Array.Empty<MyEnum>(),
                     NullableInts = Array.Empty<int?>(),
+                    NullableStrings = Array.Empty<string?>()
                 }
             };
     }

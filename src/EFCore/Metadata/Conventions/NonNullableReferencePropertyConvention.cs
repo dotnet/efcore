@@ -29,16 +29,29 @@ public class NonNullableReferencePropertyConvention : NonNullableConventionBase,
     private void Process(IConventionPropertyBuilder propertyBuilder)
     {
         if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-            && IsNonNullableReferenceType(propertyBuilder.ModelBuilder, memberInfo))
+            && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo))
         {
-            propertyBuilder.IsRequired(true);
+            if (nullabilityInfo.ReadState == NullabilityState.NotNull)
+            {
+                propertyBuilder.IsRequired(true);
+            }
+
+            // If there's an element type, this is a primitive collection; check and apply the element's nullability as well.
+            if (propertyBuilder.Metadata.GetElementType() is IConventionElementType elementType
+                && nullabilityInfo is
+                    { ElementType.ReadState: NullabilityState.NotNull } or
+                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] })
+            {
+                elementType.SetIsNullable(false);
+            }
         }
     }
 
     private void Process(IConventionComplexPropertyBuilder propertyBuilder)
     {
         if (propertyBuilder.Metadata.GetIdentifyingMemberInfo() is MemberInfo memberInfo
-            && IsNonNullableReferenceType(propertyBuilder.ModelBuilder, memberInfo))
+            && TryGetNullabilityInfo(propertyBuilder.ModelBuilder, memberInfo, out var nullabilityInfo)
+            && nullabilityInfo.ReadState == NullabilityState.NotNull)
         {
             propertyBuilder.IsRequired(true);
         }
