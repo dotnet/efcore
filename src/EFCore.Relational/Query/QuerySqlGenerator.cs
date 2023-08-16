@@ -736,6 +736,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         _relationalCommandBuilder.Append(" LIKE ");
+
         Visit(likeExpression.Pattern);
 
         if (likeExpression.EscapeChar != null)

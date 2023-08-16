@@ -1029,7 +1029,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
         => parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true
-            ? new SqlParameterExpression(parameterExpression, null)
+            ? new SqlParameterExpression(parameterExpression.Name, parameterExpression.Type, null)
             : throw new InvalidOperationException(CoreStrings.TranslationFailed(parameterExpression.Print()));
 
     /// <inheritdoc />

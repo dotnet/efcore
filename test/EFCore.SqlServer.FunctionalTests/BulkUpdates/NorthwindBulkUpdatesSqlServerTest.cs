@@ -357,7 +357,7 @@ DELETE FROM [o]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE [c].[CustomerID] IS NOT NULL AND [c].[CustomerID] LIKE N'F%'
+WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
@@ -503,7 +503,7 @@ DELETE FROM [o]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] IS NOT NULL AND [c].[City] LIKE N'Se%'
+WHERE [c].[City] LIKE N'Se%'
 """);
     }
 
@@ -1324,7 +1324,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[City] IS NOT NULL AND [c0].[City] LIKE N'S%'
+    WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 LEFT JOIN (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1347,7 +1347,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[City] IS NOT NULL AND [c0].[City] LIKE N'S%'
+    WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 CROSS APPLY (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -1370,7 +1370,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[City] IS NOT NULL AND [c0].[City] LIKE N'S%'
+    WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 OUTER APPLY (
     SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]

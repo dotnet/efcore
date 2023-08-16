@@ -30,7 +30,21 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("M" != null) AND STARTSWITH(c["ContactName"], "M"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
+""");
+    }
+
+    public override async Task String_StartsWith_Parameter(bool async)
+    {
+        await base.String_StartsWith_Parameter(async);
+
+        AssertSql(
+"""
+@__pattern_0='M'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], @__pattern_0))
 """);
     }
 
@@ -42,8 +56,9 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["ContactName"] != null) AND ((c["ContactName"] != null) AND STARTSWITH(c["ContactName"], c["ContactName"])))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["ContactName"]))
 """);
+
     }
 
     public override async Task String_StartsWith_Column(bool async)
@@ -54,7 +69,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["Co
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["ContactName"] != null) AND ((c["ContactName"] != null) AND STARTSWITH(c["ContactName"], c["ContactName"])))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], c["ContactName"]))
 """);
     }
 
@@ -66,7 +81,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["Co
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("M" != null) AND STARTSWITH(c["ContactName"], "M"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["ContactName"], "M"))
 """);
     }
 
@@ -78,7 +93,21 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("b" != null) AND ENDSWITH(c["ContactName"], "b"))))
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "b"))
+""");
+    }
+
+    public override async Task String_EndsWith_Parameter(bool async)
+    {
+        await base.String_EndsWith_Parameter(async);
+
+        AssertSql(
+"""
+@__pattern_0='b'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], @__pattern_0))
 """);
     }
 
@@ -90,7 +119,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["ContactName"] != null) AND ((c["ContactName"] != null) AND ENDSWITH(c["ContactName"], c["ContactName"])))))
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["ContactName"]))
 """);
     }
 
@@ -102,7 +131,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["Co
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["ContactName"] != null) AND ((c["ContactName"] != null) AND ENDSWITH(c["ContactName"], c["ContactName"])))))
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], c["ContactName"]))
 """);
     }
 
@@ -114,7 +143,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] = "") OR ((c["Co
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["ContactName"] != null) AND (("m" != null) AND ENDSWITH(c["ContactName"], "m"))))
+WHERE ((c["Discriminator"] = "Customer") AND ENDSWITH(c["ContactName"], "m"))
 """);
     }
 

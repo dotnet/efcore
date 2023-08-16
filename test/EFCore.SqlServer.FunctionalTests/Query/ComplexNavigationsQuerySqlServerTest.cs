@@ -270,7 +270,7 @@ WHERE [l0].[Id] > 5
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE [l0].[Name] IS NOT NULL AND [l0].[Name] LIKE N'L%'
+WHERE [l0].[Name] LIKE N'L%'
 """);
     }
 
@@ -283,7 +283,7 @@ WHERE [l0].[Name] IS NOT NULL AND [l0].[Name] LIKE N'L%'
 SELECT [l].[Id], [l].[Level2_Optional_Id], [l].[Level2_Required_Id], [l].[Name], [l].[OneToMany_Optional_Inverse3Id], [l].[OneToMany_Optional_Self_Inverse3Id], [l].[OneToMany_Required_Inverse3Id], [l].[OneToMany_Required_Self_Inverse3Id], [l].[OneToOne_Optional_PK_Inverse3Id], [l].[OneToOne_Optional_Self3Id]
 FROM [LevelThree] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Level2_Required_Id] = [l0].[Id]
-WHERE [l0].[Name] IS NOT NULL AND [l0].[Name] LIKE N'L%'
+WHERE [l0].[Name] LIKE N'L%'
 """);
     }
 
@@ -296,7 +296,7 @@ WHERE [l0].[Name] IS NOT NULL AND [l0].[Name] LIKE N'L%'
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] IS NOT NULL AND [l0].[Name] LIKE N'L%'
+WHERE [l0].[Name] LIKE N'L%'
 """);
     }
 
@@ -322,7 +322,7 @@ WHERE [l0].[Name] = N'L2 01'
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] IS NOT NULL AND UPPER([l0].[Name]) LIKE N'L%'
+WHERE UPPER([l0].[Name]) LIKE N'L%'
 """);
     }
 
@@ -335,7 +335,7 @@ WHERE [l0].[Name] IS NOT NULL AND UPPER([l0].[Name]) LIKE N'L%'
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE [l0].[Name] = N'' OR ([l0].[Name] IS NOT NULL AND LEFT([l0].[Name], LEN([l0].[Name])) = [l0].[Name])
+WHERE [l0].[Name] IS NOT NULL AND LEFT([l0].[Name], LEN([l0].[Name])) = [l0].[Name]
 """);
     }
 

@@ -1900,7 +1900,7 @@ ORDER BY [l].[Id]
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 ORDER BY CASE
-    WHEN [l].[Name] IS NOT NULL AND [l].[Name] LIKE N'%03' THEN 1
+    WHEN [l].[Name] LIKE N'%03' THEN 1
     ELSE 2
 END, [l].[Id]
 """,
@@ -1910,7 +1910,7 @@ SELECT [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_
 FROM [LevelOne] AS [l]
 INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ORDER BY CASE
-    WHEN [l].[Name] IS NOT NULL AND [l].[Name] LIKE N'%03' THEN 1
+    WHEN [l].[Name] LIKE N'%03' THEN 1
     ELSE 2
 END, [l].[Id]
 """);

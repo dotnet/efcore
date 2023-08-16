@@ -58,7 +58,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [JoinOneToTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[TwoId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[OneId] AND [e0].[Name] NOT LIKE N'%B%')
+    WHERE [e].[Id] = [j].[OneId] AND ([e0].[Name] NOT LIKE N'%B%' OR [e0].[Name] IS NULL))
 """);
     }
 
@@ -142,7 +142,7 @@ ORDER BY (
         FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
         WHERE [e0].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] IS NOT NULL AND [t].[Name] LIKE N'L%'), [e].[Id]
+    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] LIKE N'L%'), [e].[Id]
 """);
     }
 
@@ -174,7 +174,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
     INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] IS NOT NULL AND [e1].[Name] LIKE N'L%') DESC, [e].[Id]
+    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] LIKE N'L%') DESC, [e].[Id]
 """);
     }
 

@@ -110,7 +110,7 @@ WHERE "p"."Id" IN (
     SELECT "p0"."Id"
     FROM "Posts" AS "p0"
     LEFT JOIN "Blogs" AS "b" ON "p0"."BlogId" = "b"."Id"
-    WHERE "b"."Title" IS NOT NULL AND "b"."Title" LIKE 'Arthur%'
+    WHERE "b"."Title" LIKE 'Arthur%'
 )
 """);
     }
