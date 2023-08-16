@@ -513,6 +513,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 type, property);
 
         /// <summary>
+        ///     The complex property '{type}.{property}' could not be found. Ensure that the property exists and has been included in the model as a complex property.
+        /// </summary>
+        public static string ComplexPropertyNotFound(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyNotFound", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     Configuring the complex property '{type}.{property}' as optional is not supported, call 'IsRequired()'. See https://github.com/dotnet/efcore/issues/31376 for more information.
         /// </summary>
         public static string ComplexPropertyOptional(object? type, object? property)
