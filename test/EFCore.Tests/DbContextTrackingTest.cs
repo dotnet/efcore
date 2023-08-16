@@ -2027,7 +2027,20 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
         var category = new Category { Id = 1, Name = "Beverages",
             Stamp = new()
@@ -2093,7 +2106,23 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category
+            {
+                Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                }
+            }).Entity;
 
         var category = new Category { Id = 1, Name = "Beverages",
             Stamp = new()
@@ -2159,7 +2188,20 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         var category7 = context.Attach(
-            new Category { Id = 7, Products = new List<Product>() }).Entity;
+            new Category { Id = 7, Products = new List<Product>(),
+                Stamp = new()
+                {
+                    Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146")
+                },
+                Tag = new()
+                {
+                    Name = "Tanavast",
+                    Stamp = new()
+                    {
+                        Code = new Guid("984ade3c-2f7b-4651-a351-642e92ab7147")
+                    },
+                    Notes = new[] { "A", "B" }
+                } }).Entity;
 
         var category = new Category { Id = 1, Name = "Beverages",
             Stamp = new()
