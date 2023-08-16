@@ -161,7 +161,7 @@ public class SqlNullabilityProcessor
                 var newTable = Visit(innerJoinExpression.Table);
                 var newJoinPredicate = ProcessJoinPredicate(innerJoinExpression.JoinPredicate);
 
-                return TryGetBoolConstantValue(newJoinPredicate) == true
+                return IsTrue(newJoinPredicate)
                     ? new CrossJoinExpression(newTable)
                     : innerJoinExpression.Update(newTable, newJoinPredicate);
             }
@@ -301,7 +301,7 @@ public class SqlNullabilityProcessor
         var predicate = Visit(selectExpression.Predicate, allowOptimizedExpansion: true, out _);
         changed |= predicate != selectExpression.Predicate;
 
-        if (TryGetBoolConstantValue(predicate) == true)
+        if (IsTrue(predicate))
         {
             predicate = null;
             changed = true;
@@ -333,7 +333,7 @@ public class SqlNullabilityProcessor
         var having = Visit(selectExpression.Having, allowOptimizedExpansion: true, out _);
         changed |= having != selectExpression.Having;
 
-        if (TryGetBoolConstantValue(having) == true)
+        if (IsTrue(having))
         {
             having = null;
             changed = true;
@@ -519,20 +519,17 @@ public class SqlNullabilityProcessor
             var test = Visit(
                 whenClause.Test, allowOptimizedExpansion: testIsCondition, preserveColumnNullabilityInformation: true, out _);
 
-            if (TryGetBoolConstantValue(test) is bool testConstantBool)
+            if (IsTrue(test))
             {
-                if (testConstantBool)
-                {
-                    testEvaluatesToTrue = true;
-                }
-                else
-                {
-                    // if test evaluates to 'false' we can remove the WhenClause
-                    RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
-                    RestoreNullValueColumnsList(currentNullValueColumnsCount);
+                testEvaluatesToTrue = true;
+            }
+            else if (IsFalse(test))
+            {
+                // if test evaluates to 'false' we can remove the WhenClause
+                RestoreNonNullableColumnsList(currentNonNullableColumnsCount);
+                RestoreNullValueColumnsList(currentNullValueColumnsCount);
 
-                    continue;
-                }
+                continue;
             }
 
             var newResult = Visit(whenClause.Result, out var resultNullable);
@@ -570,7 +567,7 @@ public class SqlNullabilityProcessor
         // if there is only one When clause and it's test evaluates to 'true' AND there is no else block, simply return the result
         return elseResult == null
             && whenClauses.Count == 1
-            && TryGetBoolConstantValue(whenClauses[0].Test) == true
+            && IsTrue(whenClauses[0].Test)
                 ? whenClauses[0].Result
                 : caseExpression.Update(operand, whenClauses, elseResult);
     }
@@ -635,7 +632,7 @@ public class SqlNullabilityProcessor
 
         // if subquery has predicate which evaluates to false, we can simply return false
         // if the exists is negated we need to return true instead
-        return TryGetBoolConstantValue(subquery.Predicate) == false
+        return IsFalse(subquery.Predicate)
             ? _sqlExpressionFactory.Constant(false, existsExpression.TypeMapping)
             : existsExpression.Update(subquery);
     }
@@ -658,7 +655,7 @@ public class SqlNullabilityProcessor
             var subquery = Visit(inExpression.Subquery);
 
             // a IN (SELECT * FROM table WHERE false) => false
-            if (TryGetBoolConstantValue(subquery.Predicate) == false)
+            if (IsFalse(subquery.Predicate))
             {
                 nullable = false;
 
@@ -967,9 +964,64 @@ public class SqlNullabilityProcessor
         var pattern = Visit(likeExpression.Pattern, out var patternNullable);
         var escapeChar = Visit(likeExpression.EscapeChar, out var escapeCharNullable);
 
-        nullable = matchNullable || patternNullable || escapeCharNullable;
+        SqlExpression result = likeExpression.Update(match, pattern, escapeChar);
 
-        return likeExpression.Update(match, pattern, escapeChar);
+        if (UseRelationalNulls)
+        {
+            nullable = matchNullable || patternNullable || escapeCharNullable;
+
+            return result;
+        }
+
+        nullable = false;
+
+        // The null semantics behavior we implement for LIKE is that it only returns true when both sides are non-null and match; any other
+        // input returns false:
+        // foo LIKE f% -> true
+        // foo LIKE null -> false
+        // null LIKE f% -> false
+        // null LIKE null -> false
+
+        if (IsNull(match) || IsNull(pattern) || IsNull(escapeChar))
+        {
+            return _sqlExpressionFactory.Constant(false, likeExpression.TypeMapping);
+        }
+
+        // A constant match-all pattern (%) returns true for all cases, except where the match string is null:
+        // nullable_foo LIKE % -> foo IS NOT NULL
+        // non_nullable_foo LIKE % -> true
+        if (pattern is SqlConstantExpression { Value: "%" })
+        {
+            return matchNullable
+                ? _sqlExpressionFactory.IsNotNull(match)
+                : _sqlExpressionFactory.Constant(true, likeExpression.TypeMapping);
+        }
+
+        if (!allowOptimizedExpansion)
+        {
+            if (matchNullable)
+            {
+                result = _sqlExpressionFactory.AndAlso(result, GenerateNotNullCheck(match));
+            }
+
+            if (patternNullable)
+            {
+                result = _sqlExpressionFactory.AndAlso(result, GenerateNotNullCheck(pattern));
+            }
+
+            if (escapeChar is not null && escapeCharNullable)
+            {
+                result = _sqlExpressionFactory.AndAlso(result, GenerateNotNullCheck(escapeChar));
+            }
+        }
+
+        return result;
+
+        SqlExpression GenerateNotNullCheck(SqlExpression operand)
+            => OptimizeNonNullableNotExpression(
+                _sqlExpressionFactory.Not(
+                    ProcessNullNotNull(
+                        _sqlExpressionFactory.IsNull(operand), operandNullable: true)));
     }
 
     /// <summary>
@@ -1395,8 +1447,28 @@ public class SqlNullabilityProcessor
     /// </summary>
     protected virtual bool PreferExistsToComplexIn => false;
 
-    private static bool? TryGetBoolConstantValue(SqlExpression? expression)
-        => expression is SqlConstantExpression { Value: bool boolValue } ? boolValue : null;
+    // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
+    private bool IsNull(SqlExpression? expression)
+        => expression is SqlConstantExpression { Value: null }
+            || expression is SqlParameterExpression { Name: string parameterName } && ParameterValues[parameterName] is null;
+
+    private bool IsTrue(SqlExpression? expression)
+        => expression is SqlConstantExpression { Value: true };
+
+    private bool IsFalse(SqlExpression? expression)
+        => expression is SqlConstantExpression { Value: false };
+
+    private bool TryGetBool(SqlExpression? expression, out bool value)
+    {
+        if (expression is SqlConstantExpression { Value: bool b })
+        {
+            value = b;
+            return true;
+        }
+
+        value = false;
+        return false;
+    }
 
     private void RestoreNonNullableColumnsList(int counter)
     {
@@ -1486,7 +1558,7 @@ public class SqlNullabilityProcessor
             return result;
         }
 
-        if (TryGetBoolConstantValue(right) is bool rightBoolValue
+        if (TryGetBool(right, out var rightBoolValue)
             && !leftNullable
             && left.TypeMapping!.Converter == null)
         {
@@ -1502,7 +1574,7 @@ public class SqlNullabilityProcessor
                 : left;
         }
 
-        if (TryGetBoolConstantValue(left) is bool leftBoolValue
+        if (TryGetBool(left, out var leftBoolValue)
             && !rightNullable
             && right.TypeMapping!.Converter == null)
         {
@@ -2068,10 +2140,6 @@ public class SqlNullabilityProcessor
 
     private static bool IsLogicalNot(SqlUnaryExpression? sqlUnaryExpression)
         => sqlUnaryExpression is { OperatorType: ExpressionType.Not } && sqlUnaryExpression.Type == typeof(bool);
-
-    private bool IsNull(SqlExpression expression)
-        => expression is SqlConstantExpression { Value: null }
-            || expression is SqlParameterExpression { Name: string parameterName } && ParameterValues[parameterName] is null;
 
     // ?a == ?b -> [(a == b) && (a != null && b != null)] || (a == null && b == null))
     //

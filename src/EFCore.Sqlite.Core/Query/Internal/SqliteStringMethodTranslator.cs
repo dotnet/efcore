@@ -65,14 +65,8 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
         = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) })!;
 
-    private static readonly MethodInfo StartsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
-
     private static readonly MethodInfo ContainsMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) })!;
-
-    private static readonly MethodInfo EndsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(
@@ -85,7 +79,6 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 && m.GetParameters().Length == 1).MakeGenericMethod(typeof(char));
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
-    private const char LikeEscapeChar = '\\';
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -214,28 +207,20 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                 instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
                 pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
 
-                return _sqlExpressionFactory.OrElse(
-                    _sqlExpressionFactory.Equal(
-                        pattern,
-                        _sqlExpressionFactory.Constant(string.Empty, stringTypeMapping)),
-                    _sqlExpressionFactory.GreaterThan(
-                        _sqlExpressionFactory.Function(
-                            "instr",
-                            new[] { instance, pattern },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, true },
-                            typeof(int)),
-                        _sqlExpressionFactory.Constant(0)));
-            }
-
-            if (StartsWithMethodInfo.Equals(method))
-            {
-                return TranslateStartsEndsWith(instance, arguments[0], true);
-            }
-
-            if (EndsWithMethodInfo.Equals(method))
-            {
-                return TranslateStartsEndsWith(instance, arguments[0], false);
+                // Note: we add IS NOT NULL checks here since we don't do null semantics/compensation for comparison (greater-than)
+                return
+                    _sqlExpressionFactory.AndAlso(
+                        _sqlExpressionFactory.IsNotNull(instance),
+                        _sqlExpressionFactory.AndAlso(
+                            _sqlExpressionFactory.IsNotNull(pattern),
+                            _sqlExpressionFactory.GreaterThan(
+                                _sqlExpressionFactory.Function(
+                                    "instr",
+                                    new[] { instance, pattern },
+                                    nullable: true,
+                                    argumentsPropagateNullability: new[] { true, true },
+                                    typeof(int)),
+                                _sqlExpressionFactory.Constant(0))));
             }
         }
 
@@ -289,124 +274,6 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
         }
 
         return null;
-    }
-
-    private SqlExpression TranslateStartsEndsWith(SqlExpression instance, SqlExpression pattern, bool startsWith)
-    {
-        var stringTypeMapping = ExpressionExtensions.InferTypeMapping(instance, pattern);
-
-        instance = _sqlExpressionFactory.ApplyTypeMapping(instance, stringTypeMapping);
-        pattern = _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping);
-
-        if (pattern is SqlConstantExpression constantExpression)
-        {
-            // The pattern is constant. Aside from null or empty, we escape all special characters (%, _, \)
-            // in C# and send a simple LIKE
-            if (!(constantExpression.Value is string constantString))
-            {
-                return _sqlExpressionFactory.Like(instance, _sqlExpressionFactory.Constant(null, stringTypeMapping));
-            }
-
-            if (constantString.Length == 0)
-            {
-                return _sqlExpressionFactory.Constant(true);
-            }
-
-            return constantString.Any(c => IsLikeWildChar(c))
-                ? _sqlExpressionFactory.Like(
-                    instance,
-                    _sqlExpressionFactory.Constant(
-                        startsWith
-                            ? EscapeLikePattern(constantString) + '%'
-                            : '%' + EscapeLikePattern(constantString)),
-                    _sqlExpressionFactory.Constant(
-                        LikeEscapeChar.ToString())) // SQL Server has no char mapping, avoid value conversion warning)
-                : _sqlExpressionFactory.Like(
-                    instance,
-                    _sqlExpressionFactory.Constant(startsWith ? constantString + '%' : '%' + constantString));
-        }
-
-        // The pattern is non-constant, we use LEFT or RIGHT to extract substring and compare.
-        // For StartsWith we also first run a LIKE to quickly filter out most non-matching results (sargable, but imprecise
-        // because of wildcards).
-        if (startsWith)
-        {
-            return _sqlExpressionFactory.OrElse(
-                _sqlExpressionFactory.AndAlso(
-                    _sqlExpressionFactory.Like(
-                        instance,
-                        _sqlExpressionFactory.Add(
-                            pattern,
-                            _sqlExpressionFactory.Constant("%"))),
-                    _sqlExpressionFactory.Equal(
-                        _sqlExpressionFactory.Function(
-                            "substr",
-                            new[]
-                            {
-                                instance,
-                                _sqlExpressionFactory.Constant(1),
-                                _sqlExpressionFactory.Function(
-                                    "length",
-                                    new[] { pattern },
-                                    nullable: true,
-                                    argumentsPropagateNullability: new[] { true },
-                                    typeof(int))
-                            },
-                            nullable: true,
-                            argumentsPropagateNullability: new[] { true, false, true },
-                            typeof(string),
-                            stringTypeMapping),
-                        pattern)),
-                _sqlExpressionFactory.Equal(
-                    pattern,
-                    _sqlExpressionFactory.Constant(string.Empty)));
-        }
-
-        return _sqlExpressionFactory.OrElse(
-            _sqlExpressionFactory.Equal(
-                _sqlExpressionFactory.Function(
-                    "substr",
-                    new[]
-                    {
-                        instance,
-                        _sqlExpressionFactory.Negate(
-                            _sqlExpressionFactory.Function(
-                                "length",
-                                new[] { pattern },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                typeof(int)))
-                    },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true, true },
-                    typeof(string),
-                    stringTypeMapping),
-                pattern),
-            _sqlExpressionFactory.Equal(
-                pattern,
-                _sqlExpressionFactory.Constant(string.Empty)));
-    }
-
-    // See https://www.sqlite.org/lang_expr.html
-    private static bool IsLikeWildChar(char c)
-        => c is '%' or '_';
-
-    private static string EscapeLikePattern(string pattern)
-    {
-        var builder = new StringBuilder();
-        for (var i = 0; i < pattern.Length; i++)
-        {
-            var c = pattern[i];
-            if (IsLikeWildChar(c)
-                || c == LikeEscapeChar)
-            {
-                builder.Append(LikeEscapeChar);
-            }
-
-            builder.Append(c);
-        }
-
-        return builder.ToString();
     }
 
     private SqlExpression? ProcessTrimMethod(SqlExpression instance, IReadOnlyList<SqlExpression> arguments, string functionName)

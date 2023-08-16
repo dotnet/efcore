@@ -310,6 +310,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => from e1 in ss.Set<Level1>()
                   where e1.OneToOne_Optional_FK1.Name.StartsWith(e1.OneToOne_Optional_FK1.Name)
+                  select e1,
+            ss => from e1 in ss.Set<Level1>()
+                  where e1.OneToOne_Optional_FK1.Name.MaybeScalar(x => x.StartsWith(e1.OneToOne_Optional_FK1.Name)) == true
                   select e1);
 
     [ConditionalTheory]

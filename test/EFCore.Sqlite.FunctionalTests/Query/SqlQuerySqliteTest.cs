@@ -23,7 +23,7 @@ SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."Con
 FROM (
     SELECT * FROM "Customers"
 ) AS "m"
-WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 
@@ -73,7 +73,7 @@ FROM (
     )
     SELECT * FROM "Customers2"
 ) AS "m"
-WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+WHERE instr("m"."ContactName", 'z') > 0
 """);
     }
 

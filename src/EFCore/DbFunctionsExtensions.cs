@@ -31,10 +31,7 @@ public static class DbFunctionsExtensions
     /// <param name="matchExpression">The string that is to be matched.</param>
     /// <param name="pattern">The pattern which may involve wildcards <c>%,_,[,],^</c>.</param>
     /// <returns><see langword="true" /> if there is a match.</returns>
-    public static bool Like(
-        this DbFunctions _,
-        string matchExpression,
-        string pattern)
+    public static bool Like(this DbFunctions _, string? matchExpression, string? pattern)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
     /// <summary>
@@ -59,11 +56,7 @@ public static class DbFunctionsExtensions
     ///     if they are not used as wildcards.
     /// </param>
     /// <returns><see langword="true" /> if there is a match.</returns>
-    public static bool Like(
-        this DbFunctions _,
-        string matchExpression,
-        string pattern,
-        string escapeCharacter)
+    public static bool Like(this DbFunctions _, string? matchExpression, string? pattern, string? escapeCharacter)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Like)));
 
     /// <summary>

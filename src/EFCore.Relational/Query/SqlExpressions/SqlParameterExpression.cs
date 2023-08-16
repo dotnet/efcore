@@ -6,32 +6,30 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// <summary>
 ///     An expression that represents a parameter in a SQL tree.
 /// </summary>
-/// <remarks>
-///     This is a simple wrapper around a <see cref="ParameterExpression" /> in the SQL tree.
-///     Instances of this type cannot be constructed by application or database provider code. If this is a problem for your
-///     application or provider, then please file an issue at
-///     <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
-/// </remarks>
 public sealed class SqlParameterExpression : SqlExpression
 {
-    private readonly ParameterExpression _parameterExpression;
-    private readonly string _name;
-
-    internal SqlParameterExpression(ParameterExpression parameterExpression, RelationalTypeMapping? typeMapping)
-        : base(parameterExpression.Type.UnwrapNullableType(), typeMapping)
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SqlParameterExpression" /> class.
+    /// </summary>
+    /// <param name="name">The parameter name.</param>
+    /// <param name="type">The <see cref="Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    public SqlParameterExpression(string name, Type type, RelationalTypeMapping? typeMapping)
+        : this(name, type.UnwrapNullableType(), type.IsNullableType(), typeMapping)
     {
-        Check.DebugAssert(parameterExpression.Name != null, "Parameter must have name.");
+    }
 
-        _parameterExpression = parameterExpression;
-        _name = parameterExpression.Name;
-        IsNullable = parameterExpression.Type.IsNullableType();
+    private SqlParameterExpression(string name, Type type, bool nullable, RelationalTypeMapping? typeMapping)
+        : base(type, typeMapping)
+    {
+        Name = name;
+        IsNullable = nullable;
     }
 
     /// <summary>
     ///     The name of the parameter.
     /// </summary>
-    public string Name
-        => _name;
+    public string Name { get; }
 
     /// <summary>
     ///     The bool value indicating if this parameter can have null values.
@@ -44,7 +42,7 @@ public sealed class SqlParameterExpression : SqlExpression
     /// <param name="typeMapping">A relational type mapping to apply.</param>
     /// <returns>A new expression which has supplied type mapping.</returns>
     public SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-        => new SqlParameterExpression(_parameterExpression, typeMapping);
+        => new SqlParameterExpression(Name, Type, IsNullable, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -52,7 +50,7 @@ public sealed class SqlParameterExpression : SqlExpression
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append("@" + _parameterExpression.Name);
+        => expressionPrinter.Append("@" + Name);
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

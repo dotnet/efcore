@@ -1182,7 +1182,7 @@ END OR [e].[NullableStringC] IS NULL
 """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE ([e].[NullableStringB] LIKE N'' OR CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0) AND [e].[BoolA] = CAST(1 AS bit)
+WHERE [e].[NullableStringA] IS NOT NULL AND [e].[NullableStringB] IS NOT NULL AND (CHARINDEX([e].[NullableStringB], [e].[NullableStringA]) > 0 OR [e].[NullableStringB] LIKE N'') AND [e].[BoolA] = CAST(1 AS bit)
 """);
     }
 
@@ -3248,6 +3248,95 @@ FROM [Entities1] AS [e]
 SELECT COALESCE([e].[NullableIntA], [e].[NullableIntB], [e0].[NullableIntC], [e0].[NullableIntB], [e].[NullableIntC], [e0].[NullableIntA])
 FROM [Entities1] AS [e]
 INNER JOIN [Entities2] AS [e0] ON [e].[Id] = [e0].[Id]
+""");
+    }
+
+    public override async Task Like(bool async)
+    {
+        await base.Like(async);
+
+        AssertSql(
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] LIKE [e].[StringB]
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] LIKE [e].[NullableStringB]
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] LIKE [e].[StringB]
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] LIKE [e].[NullableStringB]
+""");
+    }
+
+    public override async Task Like_negated(bool async)
+    {
+        await base.Like_negated(async);
+
+        AssertSql(
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] NOT LIKE [e].[StringB]
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] NOT LIKE [e].[NullableStringB] OR [e].[NullableStringB] IS NULL
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] NOT LIKE [e].[StringB] OR [e].[NullableStringA] IS NULL
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[NullableStringA] NOT LIKE [e].[NullableStringB] OR [e].[NullableStringA] IS NULL OR [e].[NullableStringB] IS NULL
+""");
+    }
+
+    public override async Task Like_with_escape_char(bool async)
+    {
+        await base.Like_with_escape_char(async);
+
+        AssertSql(
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] LIKE [e].[StringB] ESCAPE N'\'
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE [e].[StringA] NOT LIKE [e].[StringB] ESCAPE N'\'
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
+WHERE 0 = 1
+""",
+            //
+"""
+SELECT [e].[Id]
+FROM [Entities1] AS [e]
 """);
     }
 

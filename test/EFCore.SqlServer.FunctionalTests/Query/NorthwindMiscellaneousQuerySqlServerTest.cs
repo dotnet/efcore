@@ -1488,7 +1488,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'A%') THEN CAST(1 AS bit)
+        WHERE [c].[ContactName] LIKE N'A%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -1505,7 +1505,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1520,7 +1520,7 @@ FROM [Customers] AS [c]
 WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1535,7 +1535,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
 """);
     }
 
@@ -1550,7 +1550,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1565,7 +1565,7 @@ FROM [Customers] AS [c]
 WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1580,7 +1580,7 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
 """);
     }
 
@@ -1609,7 +1609,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE [c].[ContactName] IS NULL OR [c].[ContactName] NOT LIKE N'A%') THEN CAST(1 AS bit)
+        WHERE [c].[ContactName] NOT LIKE N'A%' OR [c].[ContactName] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -1625,7 +1625,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE ([c].[ContactName] <> N'' OR [c].[ContactName] IS NULL) AND ([c].[ContactName] IS NULL OR LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName])) THEN CAST(1 AS bit)
+        WHERE [c].[ContactName] IS NULL OR LEFT([c].[ContactName], LEN([c].[ContactName])) <> [c].[ContactName]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -3041,12 +3041,12 @@ WHERE [o].[OrderDate] > @__p_0
 
         AssertSql(
 """
-@__NewLine_0='
-' (Size = 5)
+@__NewLine_0_rewritten='%
+%' (Size = 5)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__NewLine_0 LIKE N'' OR CHARINDEX(@__NewLine_0, [c].[CustomerID]) > 0
+WHERE [c].[CustomerID] LIKE @__NewLine_0_rewritten ESCAPE N'\'
 """);
     }
 
@@ -4786,12 +4786,11 @@ FROM (
 
         AssertSql(
 """
-@__prefix_0='A' (Size = 4000)
-@__prefix_0_1='A' (Size = 5)
+@__prefix_0_rewritten='A%' (Size = 5)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE @__prefix_0 = N'' OR LEFT([c].[CustomerID], LEN(@__prefix_0_1)) = @__prefix_0_1
+WHERE [c].[CustomerID] LIKE @__prefix_0_rewritten ESCAPE N'\'
 """);
     }
 
@@ -4846,7 +4845,7 @@ FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
+WHERE [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
 ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }
@@ -4862,7 +4861,7 @@ FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
+WHERE [o].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
 ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }

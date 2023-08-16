@@ -29,6 +29,30 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
                     .Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation_complex(
                         async))).Message);
 
+    public override async Task Group_by_on_StartsWith_with_null_parameter_as_argument(bool async)
+        => Assert.Equal(
+            "Value cannot be null. (Parameter 'value')",
+            (await Assert.ThrowsAsync<ArgumentNullException>(
+                () => base.Group_by_on_StartsWith_with_null_parameter_as_argument(async))).Message);
+
+    public override async Task Group_by_with_having_StartsWith_with_null_parameter_as_argument(bool async)
+        => Assert.Equal(
+            "Value cannot be null. (Parameter 'value')",
+            (await Assert.ThrowsAsync<ArgumentNullException>(
+                () => base.Group_by_with_having_StartsWith_with_null_parameter_as_argument(async))).Message);
+
+    public override async Task OrderBy_StartsWith_with_null_parameter_as_argument(bool async)
+        => Assert.Equal(
+            "Value cannot be null. (Parameter 'value')",
+            (await Assert.ThrowsAsync<ArgumentNullException>(
+                () => base.OrderBy_StartsWith_with_null_parameter_as_argument(async))).Message);
+
+    public override async Task Select_StartsWith_with_null_parameter_as_argument(bool async)
+        => Assert.Equal(
+            "Value cannot be null. (Parameter 'value')",
+            (await Assert.ThrowsAsync<ArgumentNullException>(
+                () => base.Select_StartsWith_with_null_parameter_as_argument(async))).Message);
+
     public override async Task Projecting_entity_as_well_as_correlated_collection_followed_by_Distinct(bool async)
         // Distinct. Issue #24325.
         => Assert.Equal(
