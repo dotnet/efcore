@@ -1151,7 +1151,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual string? CheckValueComparer(ValueComparer? comparer)
         => comparer != null
-            && comparer.Type.UnwrapNullableType() != ClrType.UnwrapNullableType()
+            && !comparer.Type.UnwrapNullableType().IsAssignableFrom(ClrType.UnwrapNullableType())
                 ? CoreStrings.ComparerPropertyMismatch(
                     comparer.Type.ShortDisplayName(),
                     DeclaringType.DisplayName(),
