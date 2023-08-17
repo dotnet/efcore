@@ -156,27 +156,13 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
                 yield return property;
             }
 
-            foreach (var property in ReturnComplexProperties(type.GetComplexProperties()))
+            foreach (var complexProperty in type.GetComplexProperties())
             {
-                yield return property;
-            }
+                yield return complexProperty;
 
-            static IEnumerable<RuntimePropertyBase> ReturnComplexProperties(IEnumerable<RuntimeComplexProperty> complexProperties)
-            {
-                foreach (var complexProperty in complexProperties)
+                foreach (var propertyBase in complexProperty.ComplexType.GetSnapshottableMembers())
                 {
-                    yield return complexProperty;
-
-                    var complexType = complexProperty.ComplexType;
-                    foreach (var property in ((IComplexType)complexType).GetProperties())
-                    {
-                        yield return (RuntimePropertyBase)property;
-                    }
-
-                    foreach (var property in ReturnComplexProperties(complexType.GetComplexProperties()))
-                    {
-                        yield return property;
-                    }
+                    yield return propertyBase;
                 }
             }
         }
