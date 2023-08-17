@@ -191,14 +191,12 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
                 .Clone(
                     (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                            elementType!),
-                        collectionReaderWriter!)!,
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
                     (ValueComparer?)Activator.CreateInstance(
                         elementType.IsNullableValueType()
                             ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                            : typeof(ListComparer<>).MakeGenericType(elementType),
-                        elementMapping?.Comparer),
+                            : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
+                        elementMapping!.Comparer),
                     elementMapping,
                     collectionReaderWriter)
             : null;

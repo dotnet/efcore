@@ -112,7 +112,7 @@ public sealed class ListComparer<TElement> : ValueComparer<IEnumerable<TElement>
                     typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
         }
 
-        if (sourceList.GetType().IsArray)
+        if (sourceList.IsReadOnly)
         {
             var snapshot = new TElement[sourceList.Count];
 
@@ -129,7 +129,7 @@ public sealed class ListComparer<TElement> : ValueComparer<IEnumerable<TElement>
         }
         else
         {
-            var snapshot = source is List<TElement>
+            var snapshot = (source is List<TElement> || sourceList.IsReadOnly)
                 ? new List<TElement>(sourceList.Count)
                 : (IList<TElement>)Activator.CreateInstance(source.GetType())!;
 

@@ -87,7 +87,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
                 typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
-                typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
     }
 
     private static int GetHashCode(IEnumerable<TElement?> source, ValueComparer<TElement> elementComparer)
@@ -110,10 +110,10 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
                     typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
+                    typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
         }
 
-        if (sourceList.GetType().IsArray)
+        if (sourceList.IsReadOnly)
         {
             var snapshot = new TElement?[sourceList.Count];
 
@@ -127,7 +127,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
         }
         else
         {
-            var snapshot = source is List<TElement?>
+            var snapshot = source is List<TElement?> || sourceList.IsReadOnly
                 ? new List<TElement?>(sourceList.Count)
                 : (IList<TElement?>)Activator.CreateInstance(source.GetType())!;
 
