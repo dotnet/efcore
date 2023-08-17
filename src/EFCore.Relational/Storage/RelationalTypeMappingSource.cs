@@ -190,13 +190,13 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                                 }
                             }
 
-                            mapping ??= self.TryFindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                            mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                         }
                     }
                 }
                 else if (sourceType != null)
                 {
-                    mapping = self.TryFindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                 }
 
                 if (mapping != null
@@ -219,7 +219,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <param name="providerType">The provider type.</param>
     /// <param name="elementMapping">The element mapping, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    protected virtual RelationalTypeMapping? TryFindCollectionMapping(
+    protected virtual RelationalTypeMapping? FindCollectionMapping(
         RelationalTypeMappingInfo info,
         Type modelType,
         Type? providerType,

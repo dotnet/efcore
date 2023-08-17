@@ -61,7 +61,7 @@ public abstract class JsonValueReaderWriter
     /// <param name="json">The JSON to parse.</param>
     /// <param name="existingObject">Can be used to update an existing object, rather than create a new one.</param>
     /// <returns>The read value.</returns>
-    public virtual object FromJsonString(string json, object? existingObject = null)
+    public object FromJsonString(string json, object? existingObject = null)
     {
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
         return FromJson(ref readerManager, existingObject);
@@ -72,7 +72,7 @@ public abstract class JsonValueReaderWriter
     /// </summary>
     /// <param name="value">The value to write.</param>
     /// <returns>The JSON representation of the given value.</returns>
-    public virtual string ToJsonString(object value)
+    public string ToJsonString(object value)
     {
         using var stream = new MemoryStream();
         using var writer = new Utf8JsonWriter(stream);

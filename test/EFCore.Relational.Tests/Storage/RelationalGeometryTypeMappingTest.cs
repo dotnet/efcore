@@ -20,7 +20,7 @@ public class RelationalGeometryTypeMappingTest
     private class FakeRelationalGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMapping<TGeometry, TGeometry>
     {
         public FakeRelationalGeometryTypeMapping()
-            : base(new NullValueConverter(), null, "geometry")
+            : base(new NullValueConverter(), "geometry", null)
         {
         }
 
@@ -32,7 +32,7 @@ public class RelationalGeometryTypeMappingTest
         protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
             => new FakeRelationalGeometryTypeMapping<TGeometry>(parameters);
 
-        protected override Type WKTReaderType { get; }
+        protected override Type WktReaderType { get; }
 
         protected override string AsText(object value)
             => throw new NotImplementedException();

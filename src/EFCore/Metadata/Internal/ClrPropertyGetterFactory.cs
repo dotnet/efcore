@@ -40,8 +40,8 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
         var readExpression = CreateReadExpression(entityParameter, false);
         var structuralReadExpression = CreateReadExpression(structuralParameter, true);
 
-        var hasSentinelValueExpression = readExpression.MakeHasSentinelValue(propertyBase);
-        var hasStructuralSentinelValueExpression = structuralReadExpression.MakeHasSentinelValue(propertyBase);
+        var hasSentinelValueExpression = readExpression.MakeHasSentinel(propertyBase);
+        var hasStructuralSentinelValueExpression = structuralReadExpression.MakeHasSentinel(propertyBase);
 
         readExpression = ConvertReadExpression(readExpression, hasSentinelValueExpression);
         structuralReadExpression = ConvertReadExpression(structuralReadExpression, hasStructuralSentinelValueExpression);

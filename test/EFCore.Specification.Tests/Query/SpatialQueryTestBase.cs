@@ -106,7 +106,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementAsserter: (e, a) =>
             {
                 Assert.Equal(e.Id, a.Id);
-                Assert.Equal(e.Text, a.Text, WKTComparer.Instance);
+                Assert.Equal(e.Text, a.Text, WktComparer.Instance);
             });
 
     [ConditionalTheory]
@@ -1085,7 +1085,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementAsserter: (e, a) =>
             {
                 Assert.Equal(e.Id, a.Id);
-                Assert.Equal(e.Text, a.Text, WKTComparer.Instance);
+                Assert.Equal(e.Text, a.Text, WktComparer.Instance);
             });
 
     [ConditionalTheory]
