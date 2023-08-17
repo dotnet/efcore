@@ -224,7 +224,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-        => TryFindJsonCollectionMapping(
+    {
+        var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
+
+        return TryFindJsonCollectionMapping(
             info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter)
             ? (RelationalTypeMapping)FindMapping(
                     info.WithConverter(
@@ -232,12 +235,16 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
                 .Clone(
                     (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
-                            modelType.TryGetElementType(typeof(IEnumerable<>))!),
-                        collectionReaderWriter!)!,
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
+                    (ValueComparer?)Activator.CreateInstance(
+                        elementType.IsNullableValueType()
+                            ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
+                            : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
+                        elementMapping!.Comparer),
                     elementMapping,
                     collectionReaderWriter)
             : null;
+    }
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.

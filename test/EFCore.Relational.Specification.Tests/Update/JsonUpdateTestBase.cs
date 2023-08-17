@@ -1703,8 +1703,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                     '\\'
                 };
                 entity.Collection[0].TestCharacterCollection.Add((char)0);
-                // TODO: This should be change-detected.
-                context.Entry(entity.Collection[0]).Property(e => e.TestCharacterCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1730,9 +1728,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestDateTimeCollection.Add(DateTime.Parse("01/01/3000 12:34:56"));
                 entity.Collection[0].TestDateTimeCollection.Add(DateTime.Parse("01/01/3000 12:34:56"));
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestDateTimeCollection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestDateTimeCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1830,9 +1825,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestDoubleCollection.Add(-1.23579);
                 entity.Collection[0].TestDoubleCollection.Add(-1.23579);
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestDoubleCollection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestDoubleCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1933,9 +1925,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestInt64Collection.Clear();
                 entity.Collection[0].TestInt64Collection.Clear();
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestInt64Collection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestInt64Collection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1986,9 +1975,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestSingleCollection.RemoveAt(0);
                 entity.Collection[0].TestSingleCollection.RemoveAt(1);
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestSingleCollection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestSingleCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2014,9 +2000,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.Reference.TestTimeSpanCollection[0] = new TimeSpan(0, 10, 1, 1, 7);
                 entity.Collection[0].TestTimeSpanCollection[1] = new TimeSpan(0, 10, 1, 1, 7);
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestTimeSpanCollection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestTimeSpanCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2120,8 +2103,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 entity.Reference.TestNullableInt32Collection.Add(77);
                 entity.Reference.TestNullableInt32Collection.Add(null);
                 entity.Collection[0].TestNullableInt32Collection = new ObservableCollection<int?> { null, 77 };
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestNullableInt32Collection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2275,9 +2256,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 entity.Reference.TestNullableEnumWithIntConverterCollection.RemoveAt(1);
                 entity.Collection[0].TestNullableEnumWithIntConverterCollection.Add(JsonEnum.Two);
                 entity.Collection[0].TestNullableEnumWithIntConverterCollection.RemoveAt(2);
-                // TODO: This should be change-detected.
-                context.Entry(entity.Reference).Property(e => e.TestNullableEnumWithIntConverterCollection).IsModified = true;
-                context.Entry(entity.Collection[0]).Property(e => e.TestNullableEnumWithIntConverterCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2458,8 +2436,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestDateTimeCollection.Add(DateTime.Parse("01/01/3000 12:34:56"));
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestDateTimeCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2537,8 +2513,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestDoubleCollection.Add(-1.23579);
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestDoubleCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2627,8 +2601,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestInt64Collection.Clear();
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestInt64Collection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2673,8 +2645,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestSingleCollection.RemoveAt(0);
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestSingleCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2697,8 +2667,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestTimeSpanCollection[0] = new TimeSpan(0, 10, 1, 1, 7);
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestTimeSpanCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2789,8 +2757,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestNullableInt32Collection.Add(77);
                 entity.TestNullableInt32Collection.Add(null);
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestNullableInt32Collection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2925,8 +2891,6 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var entity = query.Single(x => x.Id == 1);
                 entity.TestNullableEnumWithIntConverterCollection.Add(JsonEnum.Two);
                 entity.TestNullableEnumWithIntConverterCollection.RemoveAt(1);
-                // TODO: This should be change-detected.
-                context.Entry(entity).Property(e => e.TestNullableEnumWithIntConverterCollection).IsModified = true;
 
                 ClearLog();
                 await context.SaveChangesAsync();

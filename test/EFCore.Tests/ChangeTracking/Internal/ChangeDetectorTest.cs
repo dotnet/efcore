@@ -313,9 +313,10 @@ public class ChangeDetectorTest
 
         public override CoreTypeMapping Clone(
             ValueConverter converter,
+            ValueComparer comparer = null,
             CoreTypeMapping elementMapping = null,
             JsonValueReaderWriter jsonValueReaderWriter = null)
-            => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
+            => new ConcreteTypeMapping(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
 
         protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
             => new ConcreteTypeMapping(parameters);
