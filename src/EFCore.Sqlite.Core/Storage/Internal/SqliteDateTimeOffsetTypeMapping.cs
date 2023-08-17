@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -35,7 +36,7 @@ public class SqliteDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
         DbType? dbType = System.Data.DbType.DateTimeOffset)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTimeOffset), jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance),
+                new CoreTypeMappingParameters(typeof(DateTimeOffset), jsonValueReaderWriter: SqliteJsonDateTimeOffsetReaderWriter.Instance),
                 storeType,
                 dbType: dbType))
     {

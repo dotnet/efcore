@@ -806,7 +806,7 @@ FROM "Tags" AS "t"
 """,
             //
 """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+@__tags_0='["34C8D86E-A4AC-4BE5-827F-584DDA348A07","70534E05-782C-4052-8720-C2C54481CE5F","A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69","A8AD98F9-E023-4E2A-9A70-C2728455BD34","B39A6FBA-9026-4D69-828E-FD7068673E57","DF36F493-463F-4123-83F9-6B135DEEB7BA"]' (Size = 235)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
@@ -815,7 +815,7 @@ LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId"
 WHERE "c"."Location" IS NOT NULL AND EXISTS (
     SELECT 1
     FROM json_each(@__tags_0) AS "t0"
-    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -3665,7 +3665,7 @@ FROM "Tags" AS "t"
 """,
             //
 """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+@__tags_0='["34C8D86E-A4AC-4BE5-827F-584DDA348A07","70534E05-782C-4052-8720-C2C54481CE5F","A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69","A8AD98F9-E023-4E2A-9A70-C2728455BD34","B39A6FBA-9026-4D69-828E-FD7068673E57","DF36F493-463F-4123-83F9-6B135DEEB7BA"]' (Size = 235)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
@@ -3673,7 +3673,7 @@ LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId"
 WHERE "t"."Id" IS NOT NULL AND EXISTS (
     SELECT 1
     FROM json_each(@__tags_0) AS "t0"
-    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -4832,7 +4832,7 @@ FROM "Tags" AS "t"
 """,
             //
 """
-@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+@__tags_0='["34C8D86E-A4AC-4BE5-827F-584DDA348A07","70534E05-782C-4052-8720-C2C54481CE5F","A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69","A8AD98F9-E023-4E2A-9A70-C2728455BD34","B39A6FBA-9026-4D69-828E-FD7068673E57","DF36F493-463F-4123-83F9-6B135DEEB7BA"]' (Size = 235)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
@@ -4840,7 +4840,7 @@ LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId"
 WHERE "t"."Id" IS NOT NULL AND EXISTS (
     SELECT 1
     FROM json_each(@__tags_0) AS "t0"
-    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -7974,12 +7974,12 @@ ORDER BY "g"."FullName"
 
         AssertSql(
 """
-@__ids_0='["d2c26679-562b-44d1-ab96-23d1775e0926","23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3","ab1b82d7-88db-42bd-a132-7eef9aa68af4"]' (Size = 118)
+@__ids_0='["D2C26679-562B-44D1-AB96-23D1775E0926","23CBCF9B-CE14-45CF-AAFA-2C2667EBFDD3","AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4"]' (Size = 118)
 
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
 WHERE "t"."Id" IN (
-    SELECT upper("i"."value") AS "value"
+    SELECT "i"."value"
     FROM json_each(@__ids_0) AS "i"
 )
 """);

@@ -169,17 +169,14 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
                 // To get an actual unquoted true/false value, we pass "true"/"false" string through the json() minifier, which does this.
                 // See https://sqlite.org/forum/info/91d09974c3754ea6.
                 // SqliteModificationCommand converted the .NET bool to a "true"/"false" string, here we add the enclosing json().
-                //
-                // For decimal, Microsoft.Data.Sqlite maps decimal to TEXT instead of to REAL, but we don't want decimals to be stored as
-                // strings inside JSON. So we again use json() to "unwrap" it.
-                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
+                if (providerClrType == typeof(bool))
                 {
                     stringBuilder.Append("json(");
                 }
 
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
 
-                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
+                if (providerClrType == typeof(bool))
                 {
                     stringBuilder.Append(")");
                 }
