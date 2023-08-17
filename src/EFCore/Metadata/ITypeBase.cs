@@ -201,42 +201,20 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     new IEnumerable<IPropertyBase> FindMembersInHierarchy(string name);
 
     /// <summary>
+    ///     Returns all members that may need a snapshot value when change tracking.
+    /// </summary>
+    /// <returns>The members.</returns>
+    IEnumerable<IPropertyBase> GetSnapshottableMembers();
+
+    /// <summary>
     ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
-    IEnumerable<IProperty> GetFlattenedProperties()
-    {
-        foreach (var property in GetProperties())
-        {
-            yield return property;
-        }
-
-        foreach (var complexProperty in GetComplexProperties())
-        {
-            foreach (var property in complexProperty.ComplexType.GetFlattenedProperties())
-            {
-                yield return property;
-            }
-        }
-    }
+    IEnumerable<IProperty> GetFlattenedProperties();
 
     /// <summary>
     ///     Returns all declared properties that implement <see cref="IProperty"/>, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
-    IEnumerable<IProperty> GetFlattenedDeclaredProperties()
-    {
-        foreach (var property in GetDeclaredProperties())
-        {
-            yield return property;
-        }
-
-        foreach (var complexProperty in GetDeclaredComplexProperties())
-        {
-            foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
-            {
-                yield return property;
-            }
-        }
-    }
+    IEnumerable<IProperty> GetFlattenedDeclaredProperties();
 }

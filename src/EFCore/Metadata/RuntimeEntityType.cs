@@ -58,6 +58,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
+    private RuntimePropertyBase[]? _snapshottableProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -749,9 +750,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetRelationshipSnapshotFactory(Func<InternalEntityEntry, ISnapshot> factory)
-    {
-        _relationshipSnapshotFactory = factory;
-    }
+        => _relationshipSnapshotFactory = factory;
 
     /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
@@ -797,6 +796,42 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     public virtual PropertyCounts Counts
         => NonCapturingLazyInitializer.EnsureInitialized(ref _counts, this, static entityType => entityType.CalculateCounts());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<RuntimePropertyBase> GetSnapshottableMembers()
+    {
+        return NonCapturingLazyInitializer.EnsureInitialized(
+            ref _snapshottableProperties, this,
+            static type => Create(type).ToArray());
+
+        static IEnumerable<RuntimePropertyBase> Create(RuntimeEntityType type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                yield return property;
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                yield return complexProperty;
+
+                foreach (var property in complexProperty.ComplexType.GetSnapshottableMembers())
+                {
+                    yield return property;
+                }
+            }
+
+            foreach (var navigation in type.GetNavigations())
+            {
+                yield return navigation;
+            }
+        }
+    }
 
     /// <summary>
     ///     Returns a string that represents the current object.

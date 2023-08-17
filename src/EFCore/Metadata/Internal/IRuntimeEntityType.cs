@@ -34,49 +34,6 @@ public interface IRuntimeEntityType : IEntityType, IRuntimeTypeBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IEnumerable<IPropertyBase> GetSnapshottableMembers()
-    {
-        foreach (var property in GetProperties())
-        {
-            yield return property;
-        }
-
-        foreach (var property in ReturnComplexProperties(GetComplexProperties()))
-        {
-            yield return property;
-        }
-
-        IEnumerable<IPropertyBase> ReturnComplexProperties(IEnumerable<IComplexProperty> complexProperties)
-        {
-            foreach (var complexProperty in complexProperties)
-            {
-                yield return complexProperty;
-
-                var complexType = complexProperty.ComplexType;
-                foreach (var property in complexType.GetProperties())
-                {
-                    yield return property;
-                }
-
-                foreach (var property in ReturnComplexProperties(complexType.GetComplexProperties()))
-                {
-                    yield return property;
-                }
-            }
-        }
-
-        foreach (var navigation in GetNavigations())
-        {
-            yield return navigation;
-        }
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     PropertyCounts Counts { get; }
 
     /// <summary>

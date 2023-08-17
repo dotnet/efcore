@@ -52,11 +52,11 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
             Expression.Lambda<Func<TStructuralType, TValue>>(structuralReadExpression, structuralParameter).Compile(),
             Expression.Lambda<Func<TStructuralType, bool>>(hasStructuralSentinelValueExpression, structuralParameter).Compile());
 
-        Expression CreateReadExpression(ParameterExpression parameter, bool fromStructuralType)
+        Expression CreateReadExpression(ParameterExpression parameter, bool fromContainingType)
         {
             if (memberInfo.DeclaringType!.IsAssignableFrom(propertyDeclaringType))
             {
-                return PropertyBase.CreateMemberAccess(propertyBase, parameter, memberInfo, fromStructuralType);
+                return PropertyBase.CreateMemberAccess(propertyBase, parameter, memberInfo, fromContainingType);
             }
 
             // This path handles properties that exist only on proxy types and so only exist if the instance is a proxy
@@ -72,7 +72,7 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
                     Expression.Condition(
                         Expression.ReferenceEqual(converted, Expression.Constant(null)),
                         Expression.Default(memberInfo.GetMemberType()),
-                        PropertyBase.CreateMemberAccess(propertyBase, converted, memberInfo, fromStructuralType))
+                        PropertyBase.CreateMemberAccess(propertyBase, converted, memberInfo, fromContainingType))
                 });
         }
 
