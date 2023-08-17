@@ -57,7 +57,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
 
     private static readonly LongTypeMapping Integer = new(IntegerTypeName);
     private static readonly DoubleTypeMapping Real = new(RealTypeName);
-    private static readonly ByteArrayTypeMapping Blob = new(BlobTypeName);
+    private static readonly SqliteByteArrayTypeMapping Blob = new(BlobTypeName);
     private static readonly SqliteStringTypeMapping Text = SqliteStringTypeMapping.Default;
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings = new()
