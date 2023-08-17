@@ -230,15 +230,17 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
         /// <param name="converter">The converter.</param>
+        /// <param name="comparer">The comparer.</param>
         /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
         /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public RelationalTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
+            ValueComparer? comparer,
             CoreTypeMapping? elementMapping,
             JsonValueReaderWriter? jsonValueReaderWriter)
             => new(
-                CoreParameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter),
+                CoreParameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter),
                 StoreType,
                 StoreTypePostfix,
                 DbType,
@@ -428,9 +430,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <inheritdoc />
     public override CoreTypeMapping Clone(
         ValueConverter? converter,
+        ValueComparer? comparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => Clone(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
+        => Clone(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     Clones the type mapping to update facets from the mapping info, if needed.

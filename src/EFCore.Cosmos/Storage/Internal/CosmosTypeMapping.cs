@@ -62,9 +62,10 @@ public class CosmosTypeMapping : CoreTypeMapping
     /// </summary>
     public override CoreTypeMapping Clone(
         ValueConverter? converter,
+        ValueComparer? comparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => new CosmosTypeMapping(Parameters.WithComposedConverter(converter, elementMapping, jsonValueReaderWriter));
+        => new CosmosTypeMapping(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

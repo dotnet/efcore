@@ -110,11 +110,13 @@ public abstract class CoreTypeMapping
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
         /// <param name="converter">The converter.</param>
+        /// <param name="comparer">The comparer.</param>
         /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
         /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public CoreTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
+            ValueComparer? comparer,
             CoreTypeMapping? elementMapping,
             JsonValueReaderWriter? jsonValueReaderWriter)
         {
@@ -123,7 +125,7 @@ public abstract class CoreTypeMapping
             return new CoreTypeMappingParameters(
                 ClrType,
                 converter ?? Converter,
-                Comparer,
+                comparer ?? Comparer,
                 KeyComparer,
                 ProviderValueComparer,
                 ValueGeneratorFactory,
@@ -263,11 +265,13 @@ public abstract class CoreTypeMapping
     ///     added.
     /// </summary>
     /// <param name="converter">The converter to use.</param>
+    /// <param name="comparer">The comparer to use, or <see langword="null" /> for to keep the default.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>A new type mapping</returns>
     public abstract CoreTypeMapping Clone(
         ValueConverter? converter,
+        ValueComparer? comparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null);
 
