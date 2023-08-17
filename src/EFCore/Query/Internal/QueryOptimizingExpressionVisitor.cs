@@ -38,14 +38,6 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo StringCompareWithoutComparisonMethod =
         typeof(string).GetRuntimeMethod(nameof(string.Compare), new[] { typeof(string), typeof(string) })!;
 
-    private static readonly MethodInfo StartsWithMethodInfo =
-        typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
-
-    private static readonly MethodInfo EndsWithMethodInfo =
-        typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
-
-    private static readonly Expression ConstantNullString = Expression.Constant(null, typeof(string));
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -180,33 +172,6 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (Equals(StartsWithMethodInfo, methodCallExpression.Method)
-            || Equals(EndsWithMethodInfo, methodCallExpression.Method))
-        {
-            if (methodCallExpression.Arguments[0] is ConstantExpression { Value: "" })
-            {
-                // every string starts/ends with empty string.
-                return Expression.Constant(true);
-            }
-
-            var newObject = Visit(methodCallExpression.Object)!;
-            var newArgument = Visit(methodCallExpression.Arguments[0]);
-
-            var result = Expression.AndAlso(
-                Expression.NotEqual(newObject, ConstantNullString),
-                Expression.AndAlso(
-                    Expression.NotEqual(newArgument, ConstantNullString),
-                    methodCallExpression.Update(newObject, new[] { newArgument })));
-
-            return newArgument is ConstantExpression
-                ? result
-                : Expression.OrElse(
-                    Expression.Equal(
-                        newArgument,
-                        Expression.Constant(string.Empty)),
-                    result);
-        }
-
         // Normalize x.Any(i => i == foo) to x.Contains(foo)
         // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
@@ -335,38 +300,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
-    {
-        if (unaryExpression is { NodeType: ExpressionType.Not, Operand: MethodCallExpression innerMethodCall }
-            && (Equals(StartsWithMethodInfo, innerMethodCall.Method)
-                || Equals(EndsWithMethodInfo, innerMethodCall.Method)))
-        {
-            if (innerMethodCall.Arguments[0] is ConstantExpression { Value: "" })
-            {
-                // every string starts/ends with empty string.
-                return Expression.Constant(false);
-            }
-
-            var newObject = Visit(innerMethodCall.Object)!;
-            var newArgument = Visit(innerMethodCall.Arguments[0]);
-
-            var result = Expression.AndAlso(
-                Expression.NotEqual(newObject, ConstantNullString),
-                Expression.AndAlso(
-                    Expression.NotEqual(newArgument, ConstantNullString),
-                    Expression.Not(innerMethodCall.Update(newObject, new[] { newArgument }))));
-
-            return newArgument is ConstantExpression
-                ? result
-                : Expression.AndAlso(
-                    Expression.NotEqual(
-                        newArgument,
-                        Expression.Constant(string.Empty)),
-                    result);
-        }
-
-        return unaryExpression.Update(
-            Visit(unaryExpression.Operand));
-    }
+        => unaryExpression.Update(Visit(unaryExpression.Operand));
 
     private static Expression MatchExpressionType(Expression expression, Type typeToMatch)
         => expression.Type != typeToMatch

@@ -384,7 +384,7 @@ FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Customers] AS [c0] ON [o0].[CustomerID] = [c0].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%' AND [o0].[CustomerID] IS NOT NULL AND [o0].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
+WHERE [o].[CustomerID] LIKE N'A%' AND [o0].[CustomerID] LIKE N'A%' AND ([c].[CustomerID] = [c0].[CustomerID] OR ([c].[CustomerID] IS NULL AND [c0].[CustomerID] IS NULL))
 """);
     }
 
@@ -701,7 +701,7 @@ END AS [all], (
     FROM [Order Details] AS [o3]
     WHERE [o].[OrderID] = [o3].[OrderID]) AS [collection2]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 """);
     }
 

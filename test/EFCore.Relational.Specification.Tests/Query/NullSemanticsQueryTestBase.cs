@@ -2044,6 +2044,75 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
                   select (e1.NullableIntA ?? (e1.NullableIntB ?? (e2.NullableIntC ?? e2.NullableIntB)))
                       ?? e1.NullableIntC ?? (e2.NullableIntA ?? e2.NullableIntC ?? e1.NullableIntA));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Like(bool async)
+    {
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.StringA, e.StringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => LikeLite(e.StringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.StringA, e.NullableStringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => LikeLite(e.StringA, e.NullableStringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.NullableStringA, e.StringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => LikeLite(e.NullableStringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.NullableStringA, e.NullableStringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => LikeLite(e.NullableStringA, e.NullableStringB)).Select(e => e.Id));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Like_negated(bool async)
+    {
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.StringA, e.StringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !LikeLite(e.StringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.StringA, e.NullableStringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !LikeLite(e.StringA, e.NullableStringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.NullableStringA, e.StringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !LikeLite(e.NullableStringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.NullableStringA, e.NullableStringB)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !LikeLite(e.NullableStringA, e.NullableStringB)).Select(e => e.Id));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Like_with_escape_char(bool async)
+    {
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.StringA, e.StringB, "\\")).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => LikeLite(e.StringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.StringA, e.StringB, "\\")).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !LikeLite(e.StringA, e.StringB)).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => EF.Functions.Like(e.StringA, e.StringB, null)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => false).Select(e => e.Id));
+
+        await AssertQueryScalar(async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => !EF.Functions.Like(e.StringA, e.StringB, null)).Select(e => e.Id),
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => true).Select(e => e.Id));
+    }
+
+    // We can't client-evaluate Like (for the expected results).
+    // However, since the test data has no LIKE wildcards, it effectively functions like equality - except that 'null like null' returns
+    // false instead of true. So we have this "lite" implementation which doesn't support wildcards.
+    private bool LikeLite(string s, string pattern)
+        => s == pattern && s is not null && pattern is not null;
+
     private string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

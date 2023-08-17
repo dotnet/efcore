@@ -3139,7 +3139,7 @@ FROM [Factions] AS [f]
 WHERE EXISTS (
     SELECT 1
     FROM [Leaders] AS [l]
-    WHERE [l].[Name] IS NOT NULL AND [l].[Name] LIKE N'Bran%' AND [l].[Name] = N'Crach an Craite')
+    WHERE [l].[Name] LIKE N'Bran%' AND [l].[Name] = N'Crach an Craite')
 """);
         }
     }

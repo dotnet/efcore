@@ -2035,7 +2035,7 @@ OUTER APPLY (
     FROM [Products] AS [p0]
     GROUP BY [p0].[ProductID]
 ) AS [t0]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 ORDER BY [o].[OrderID], [t].[ProductID]
 """);
     }
@@ -3179,7 +3179,7 @@ ORDER BY [t].[CustomerID]
 SELECT [t].[Key], COUNT(*) AS [Count]
 FROM (
     SELECT CASE
-        WHEN [o].[CustomerID] LIKE N'A%' THEN CAST(1 AS bit)
+        WHEN [o].[CustomerID] LIKE N'A%' AND [o].[CustomerID] IS NOT NULL THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [Key]
     FROM [Orders] AS [o]
@@ -3294,7 +3294,7 @@ END), 0) AS [Sum1], COALESCE(SUM(CASE
     ELSE 0
 END), 0) AS [Sum2]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 GROUP BY [o].[CustomerID]
 """);
     }
@@ -3478,7 +3478,7 @@ FROM (
     SELECT DISTINCT [c].[City]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+    WHERE [o].[CustomerID] LIKE N'A%'
 ) AS [t]
 OUTER APPLY (
     SELECT [p].[ProductID]
@@ -3523,7 +3523,7 @@ FROM (
     SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
-    HAVING [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+    HAVING [o].[CustomerID] LIKE N'F%'
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID]

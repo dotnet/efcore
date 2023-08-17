@@ -116,7 +116,7 @@ LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
 DELETE FROM [p]
 FROM [Posts] AS [p]
 LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
-WHERE [b].[Title] IS NOT NULL AND [b].[Title] LIKE N'Arthur%'
+WHERE [b].[Title] LIKE N'Arthur%'
 """);
     }
 
