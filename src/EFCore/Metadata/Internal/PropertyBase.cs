@@ -427,7 +427,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
         IPropertyBase? property,
         Expression instanceExpression,
         MemberInfo memberInfo,
-        bool fromStructuralType)
+        bool fromContainingType)
     {
         if (property?.IsIndexerProperty() == true)
         {
@@ -446,14 +446,14 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             return expression;
         }
 
-        if (!fromStructuralType
+        if (!fromContainingType
             && property?.DeclaringType is IComplexType complexType)
         {
             instanceExpression = CreateMemberAccess(
                 complexType.ComplexProperty,
                 instanceExpression,
                 complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
-                fromStructuralType);
+                fromContainingType);
 
             // TODO: Handle null/default complex types #31376
             // if (!instanceExpression.Type.IsValueType)

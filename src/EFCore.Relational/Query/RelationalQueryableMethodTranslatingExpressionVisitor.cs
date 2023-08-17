@@ -217,7 +217,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 var sqlParameterExpression =
                     _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
                 Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
-                return TranslateCollection(
+                return TranslatePrimitiveCollection(
                         sqlParameterExpression,
                         property: null,
                         char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString())
@@ -282,7 +282,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     _ => "j"
                 };
 
-                if (TranslateCollection(sqlExpression, regularProperty, tableAlias) is
+                if (TranslatePrimitiveCollection(sqlExpression, regularProperty, tableAlias) is
                     { } primitiveCollectionTranslation)
                 {
                     return primitiveCollectionTranslation;
@@ -311,8 +311,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <summary>
-    ///     Translates a parameter or column collection. Providers can override this to translate e.g. int[] columns/parameters/constants to
-    ///     a queryable table (OPENJSON on SQL Server, unnest on PostgreSQL...). The default implementation always returns
+    ///     Translates a parameter or column collection of primitive values. Providers can override this to translate e.g. int[] columns or
+    ///     parameters to a queryable table (OPENJSON on SQL Server, unnest on PostgreSQL...). The default implementation always returns
     ///     <see langword="null" /> (no translation).
     /// </summary>
     /// <remarks>
@@ -328,7 +328,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     Provides an alias to be used for the table returned from translation, which will represent the collection.
     /// </param>
     /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
-    protected virtual ShapedQueryExpression? TranslateCollection(SqlExpression sqlExpression, IProperty? property, string tableAlias)
+    protected virtual ShapedQueryExpression? TranslatePrimitiveCollection(SqlExpression sqlExpression, IProperty? property, string tableAlias)
         => null;
 
     /// <summary>

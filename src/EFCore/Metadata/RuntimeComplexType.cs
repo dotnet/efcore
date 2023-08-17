@@ -15,8 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
 {
+    // Warning: Never access these fields directly as access needs to be thread-safe
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
+    private RuntimePropertyBase[]? _snapshottableProperties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -133,6 +135,37 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
 
         [DebuggerStepThrough]
         set => _serviceOnlyConstructorBinding = value;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<RuntimePropertyBase> GetSnapshottableMembers()
+    {
+        return NonCapturingLazyInitializer.EnsureInitialized(
+            ref _snapshottableProperties, this,
+            static type => Create(type).ToArray());
+
+        static IEnumerable<RuntimePropertyBase> Create(RuntimeComplexType type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                yield return property;
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                yield return complexProperty;
+
+                foreach (var propertyBase in complexProperty.ComplexType.GetSnapshottableMembers())
+                {
+                    yield return propertyBase;
+                }
+            }
+        }
     }
 
     /// <summary>

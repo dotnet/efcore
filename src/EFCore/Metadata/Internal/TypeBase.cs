@@ -16,12 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, ITypeBase
 {
     private readonly SortedDictionary<string, Property> _properties;
-
-    private readonly SortedDictionary<string, ComplexProperty> _complexProperties =
-        new SortedDictionary<string, ComplexProperty>(StringComparer.Ordinal);
-
-    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
-        = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, ComplexProperty> _complexProperties = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers = new(StringComparer.Ordinal);
 
     private TypeBase? _baseType;
     private readonly SortedSet<TypeBase> _directlyDerivedTypes = new(TypeBaseNameComparer.Instance);
@@ -1311,6 +1307,70 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
             : new[] { element };
 
     /// <summary>
+    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    public virtual IEnumerable<Property> GetFlattenedProperties()
+    {
+        foreach (var property in GetProperties())
+        {
+            yield return property;
+        }
+
+        foreach (var complexProperty in GetComplexProperties())
+        {
+            foreach (var property in complexProperty.ComplexType.GetFlattenedProperties())
+            {
+                yield return property;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    public virtual IEnumerable<Property> GetFlattenedDeclaredProperties()
+    {
+        foreach (var property in GetDeclaredProperties())
+        {
+            yield return property;
+        }
+
+        foreach (var complexProperty in GetDeclaredComplexProperties())
+        {
+            foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
+            {
+                yield return property;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<PropertyBase> GetSnapshottableMembers()
+    {
+        foreach (var property in GetProperties())
+        {
+            yield return property;
+        }
+
+        foreach (var complexProperty in GetComplexProperties())
+        {
+            yield return complexProperty;
+
+            foreach (var propertyBase in complexProperty.ComplexType.GetSnapshottableMembers())
+            {
+                yield return propertyBase;
+            }
+        }
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -2130,4 +2190,25 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     [DebuggerStepThrough]
     IEnumerable<IPropertyBase> ITypeBase.FindMembersInHierarchy(string name)
         => FindMembersInHierarchy(name);
+
+    /// <summary>
+    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IPropertyBase> ITypeBase.GetSnapshottableMembers()
+        => GetSnapshottableMembers();
+
+    /// <summary>
+    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
+        => GetFlattenedProperties();
+
+    /// <summary>
+    ///     Returns all properties declared properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()
+        => GetFlattenedDeclaredProperties();
 }

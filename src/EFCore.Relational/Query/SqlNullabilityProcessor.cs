@@ -728,7 +728,7 @@ public class SqlNullabilityProcessor
 
                     // On SQL Server, EXISTS isn't less efficient than IN, and the additional COALESCE (and CASE/WHEN which it requires)
                     // add unneeded clutter (and possibly hurt perf). So allow providers to prefer EXISTS.
-                    if (PreferExistsToComplexIn)
+                    if (PreferExistsToInWithCoalesce)
                     {
                         goto TransformToExists;
                     }
@@ -1445,7 +1445,7 @@ public class SqlNullabilityProcessor
     ///     Determines whether an <see cref="InExpression" /> will be transformed to an <see cref="ExistsExpression" /> when it would
     ///     otherwise require complex compensation for null semantics.
     /// </summary>
-    protected virtual bool PreferExistsToComplexIn => false;
+    protected virtual bool PreferExistsToInWithCoalesce => false;
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
