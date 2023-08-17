@@ -709,6 +709,15 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IPropertyBase> FindMembersInHierarchy(string name)
             => throw new NotImplementedException();
 
+        public IEnumerable<IPropertyBase> GetSnapshottableMembers()
+            => throw new NotImplementedException();
+
+        public IEnumerable<IProperty> GetFlattenedProperties()
+            => throw new NotImplementedException();
+
+        public IEnumerable<IProperty> GetFlattenedDeclaredProperties()
+            => throw new NotImplementedException();
+
         IEnumerable<IReadOnlyPropertyBase> IReadOnlyTypeBase.GetMembers()
             => throw new NotImplementedException();
 

@@ -27,6 +27,10 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     private readonly bool _isPropertyBag;
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
 
+    // Warning: Never access these fields directly as access needs to be thread-safe
+    private RuntimeProperty[]? _flattenedProperties;
+    private RuntimeProperty[]? _flattenedDeclaredProperties;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,7 +38,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public RuntimeTypeBase(
+    protected RuntimeTypeBase(
         string name,
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         RuntimeModel model,
@@ -475,6 +479,68 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
 
     /// <summary>
+    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    public virtual IEnumerable<RuntimeProperty> GetFlattenedProperties()
+    {
+        return NonCapturingLazyInitializer.EnsureInitialized(
+            ref _flattenedProperties, this,
+            static type => Create(type).ToArray());
+
+        static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                yield return property;
+            }
+
+            foreach (var complexProperty in type.GetComplexProperties())
+            {
+                foreach (var property in complexProperty.ComplexType.GetFlattenedProperties())
+                {
+                    yield return property;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    public virtual IEnumerable<RuntimeProperty> GetFlattenedDeclaredProperties()
+    {
+        return NonCapturingLazyInitializer.EnsureInitialized(
+            ref _flattenedDeclaredProperties, this,
+            static type => Create(type).ToArray());
+
+        static IEnumerable<RuntimeProperty> Create(RuntimeTypeBase type)
+        {
+            foreach (var property in type.GetDeclaredProperties())
+            {
+                yield return property;
+            }
+
+            foreach (var complexProperty in type.GetDeclaredComplexProperties())
+            {
+                foreach (var property in complexProperty.ComplexType.GetFlattenedDeclaredProperties())
+                {
+                    yield return property;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract IEnumerable<RuntimePropertyBase> GetSnapshottableMembers();
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -660,4 +726,25 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     [DebuggerStepThrough]
     IEnumerable<IPropertyBase> ITypeBase.FindMembersInHierarchy(string name)
         => FindMembersInHierarchy(name);
+
+    /// <summary>
+    ///     Returns all members that may need a snapshot value when change tracking.
+    /// </summary>
+    /// <returns>The members.</returns>
+    IEnumerable<IPropertyBase> ITypeBase.GetSnapshottableMembers()
+        => GetSnapshottableMembers();
+
+    /// <summary>
+    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
+        => GetFlattenedProperties();
+
+    /// <summary>
+    ///     Returns all properties declared properties that implement <see cref="IProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()
+        => GetFlattenedDeclaredProperties();
 }
