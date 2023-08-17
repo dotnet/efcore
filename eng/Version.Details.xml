@@ -1,58 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Dependencies>
   <ProductDependencies>
-    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Caching.Memory" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Configuration.Json" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Configuration" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Configuration" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.DependencyModel" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.HostFactoryResolver.Sources" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.Logging" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.Extensions.Logging" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="System.Text.Json" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="System.Text.Json" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Ref" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.NETCore.App.Ref" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
     <!-- NB: Using BrowserDebugHost to represent the nonshipping version of Microsoft.NETCore.App -->
-    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.0-rc.1.23402.2">
+    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.0-rc.1.23416.31">
       <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>0d6d6c343556d8aaae49347c82b09281f8968196</Sha>
+      <Sha>ce54acdc1c2e820f06d6f813d6b6ed6ce0a1b64d</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
