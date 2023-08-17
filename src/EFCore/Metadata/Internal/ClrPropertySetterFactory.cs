@@ -83,7 +83,7 @@ public class ClrPropertySetterFactory : ClrAccessorFactory<IClrPropertySetter>
                     complexType.ComplexProperty,
                     typeParameter,
                     complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
-                    fromStructuralType: false);
+                    fromContainingType: false);
             }
 
             return propertyBase?.IsIndexerProperty() == true
