@@ -36,7 +36,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
 
     /// <summary>
     ///     Indicates that a <see cref="ParameterExpression" /> can be converted to a <see cref="ParameterQueryRootExpression" />;
-    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateCollection" /> for
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslatePrimitiveCollection" /> for
     ///     translation to a provider-specific SQL expansion mechanism, e.g. <c>OPENJSON</c> on SQL Server.
     /// </summary>
     protected override bool ShouldConvertToParameterQueryRoot(ParameterExpression constantExpression)
