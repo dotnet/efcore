@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
 /// <typeparam name="TElement">The element type.</typeparam>
-public class JsonNullableStructsCollectionReaderWriter<TCollection, TConcreteCollection, TElement> :
+public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteCollection, TElement> :
     JsonValueReaderWriter<IEnumerable<TElement?>>,
     ICompositeJsonValueReaderWriter
     where TElement : struct
@@ -25,7 +25,7 @@ public class JsonNullableStructsCollectionReaderWriter<TCollection, TConcreteCol
     ///     Creates a new instance of this collection reader/writer, using the given reader/writer for its elements.
     /// </summary>
     /// <param name="elementReaderWriter">The reader/writer to use for each element.</param>
-    public JsonNullableStructsCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
+    public JsonNullableStructCollectionReaderWriter(JsonValueReaderWriter<TElement> elementReaderWriter)
     {
         _elementReaderWriter = elementReaderWriter;
     }

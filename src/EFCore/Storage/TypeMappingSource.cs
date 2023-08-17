@@ -146,13 +146,13 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                                 }
                             }
 
-                            mapping ??= self.TryFindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                            mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                         }
                     }
                 }
                 else if (sourceType != null)
                 {
-                    mapping = self.TryFindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                 }
 
                 if (mapping != null
@@ -175,7 +175,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <param name="providerType">The provider type.</param>
     /// <param name="elementMapping">The element mapping, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
-    protected virtual CoreTypeMapping? TryFindCollectionMapping(
+    protected virtual CoreTypeMapping? FindCollectionMapping(
         TypeMappingInfo info,
         Type modelType,
         Type? providerType,

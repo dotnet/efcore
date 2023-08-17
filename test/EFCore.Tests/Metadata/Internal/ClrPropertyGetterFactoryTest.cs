@@ -22,7 +22,7 @@ public class ClrPropertyGetterFactoryTest
         public object GetClrValue(object entity)
             => throw new NotImplementedException();
 
-        public bool HasSentinelValue(object entity)
+        public bool HasSentinel(object entity)
             => throw new NotImplementedException();
 
         public object GetStructuralTypeClrValue(object complexObject)

@@ -5,13 +5,13 @@ using NetTopologySuite.IO;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class WKTComparer : IEqualityComparer<string>
+public class WktComparer : IEqualityComparer<string>
 {
     private static readonly WKTReader _reader = new();
 
-    public static WKTComparer Instance { get; } = new();
+    public static WktComparer Instance { get; } = new();
 
-    private WKTComparer()
+    private WktComparer()
     {
     }
 

@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable once CheckNamespace
