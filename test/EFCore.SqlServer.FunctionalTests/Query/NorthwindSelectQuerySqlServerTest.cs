@@ -2307,7 +2307,7 @@ SELECT [t].[OrderID], [t].[OrderDate], [t0].[OrderID], [t0].[ProductID], [t0].[D
 FROM (
     SELECT TOP(1) [o].[OrderID], [o].[OrderDate]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+    WHERE [o].[CustomerID] LIKE N'F%'
 ) AS [t]
 OUTER APPLY (
     SELECT [t1].[OrderID], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock], [t1].[UnitPrice] AS [UnitPrice0], [t1].[ProductID] AS [ProductID0]
@@ -2411,7 +2411,7 @@ ORDER BY [c].[CustomerID]
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 """);
     }
 

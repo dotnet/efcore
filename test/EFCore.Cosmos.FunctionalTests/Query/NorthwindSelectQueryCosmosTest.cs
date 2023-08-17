@@ -119,7 +119,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["EmployeeID"] = 1))
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 ORDER BY c["CustomerID"]
 """);
     }
@@ -426,7 +426,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 """
 SELECT 1
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 """);
     }
 
@@ -903,7 +903,7 @@ WHERE (c["Discriminator"] = "Order")
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 """);
     }
 
@@ -915,7 +915,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 """);
     }
 
@@ -1292,7 +1292,7 @@ ORDER BY c["CustomerID"]
 
 SELECT VALUE {"Aggregate" : ((c["CustomerID"] || " ") || c["City"])}
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
 ORDER BY c["CustomerID"]
 OFFSET 0 LIMIT @__p_0
 """);
@@ -1632,7 +1632,7 @@ ORDER BY c["EmployeeID"]
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND ((c["CustomerID"] != null) AND (("A" != null) AND STARTSWITH(c["CustomerID"], "A"))))
+WHERE ((c["Discriminator"] = "Order") AND STARTSWITH(c["CustomerID"], "A"))
 """);
     }
 
@@ -1824,7 +1824,7 @@ WHERE (c["Discriminator"] = "Customer")
 """
 SELECT c["CustomerID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] != null) AND (("F" != null) AND STARTSWITH(c["CustomerID"], "F"))))
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "F"))
 """);
     }
 

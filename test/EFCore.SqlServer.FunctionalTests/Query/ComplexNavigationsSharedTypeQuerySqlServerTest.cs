@@ -3127,7 +3127,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] IS NOT NULL AND [t].[Level2_Name] LIKE N'L%'
+WHERE [t].[Level2_Name] LIKE N'L%'
 """);
     }
 
@@ -4103,7 +4103,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] = N'' OR ([t].[Level2_Name] IS NOT NULL AND LEFT([t].[Level2_Name], LEN([t].[Level2_Name])) = [t].[Level2_Name])
+WHERE [t].[Level2_Name] IS NOT NULL AND LEFT([t].[Level2_Name], LEN([t].[Level2_Name])) = [t].[Level2_Name]
 """);
     }
 
@@ -4417,7 +4417,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] IS NOT NULL AND UPPER([t].[Level2_Name]) LIKE N'L%'
+WHERE UPPER([t].[Level2_Name]) LIKE N'L%'
 """);
     }
 
@@ -4457,7 +4457,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
-WHERE [t].[Level2_Name] IS NOT NULL AND [t].[Level2_Name] LIKE N'L%'
+WHERE [t].[Level2_Name] LIKE N'L%'
 """);
     }
 
@@ -6531,7 +6531,7 @@ LEFT JOIN (
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
     WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level2_Name] IS NOT NULL AND [t1].[Level2_Name] LIKE N'L%'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level2_Name] LIKE N'L%'
 """);
     }
 

@@ -42,6 +42,18 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_StartsWith_Parameter(bool async)
+    {
+        var pattern = "M";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.StartsWith(pattern)),
+            entryCount: 12);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task String_StartsWith_Identity(bool async)
         => AssertQuery(
             async,
@@ -71,6 +83,18 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith("b")),
             entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_EndsWith_Parameter(bool async)
+    {
+        var pattern = "b";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ContactName.EndsWith(pattern)),
+            entryCount: 1);
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
