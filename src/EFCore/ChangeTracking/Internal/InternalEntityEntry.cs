@@ -594,7 +594,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
             {
                 if (FlaggedAsTemporary(propertyIndex)
                     && !FlaggedAsStoreGenerated(propertyIndex)
-                    && !HasSentinelValue(property))
+                    && !HasSentinel(property))
                 {
                     _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, false);
                 }
@@ -1285,7 +1285,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                 }
 
                 if (FlaggedAsTemporary(propertyIndex)
-                    && HasSentinelValue(property))
+                    && HasSentinel(property))
                 {
                     return _temporaryValues.GetValue(storeGeneratedIndex);
                 }
@@ -1415,7 +1415,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                             _temporaryValues.SetValue(asProperty!, value, storeGeneratedIndex);
                             _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, isFlagged: true);
                             _stateData.FlagProperty(propertyIndex, PropertyFlag.IsStoreGenerated, isFlagged: false);
-                            if (!HasSentinelValue(asProperty!))
+                            if (!HasSentinel(asProperty!))
                             {
                                 WritePropertyValue(propertyBase, value, isMaterialization);
                             }
@@ -1761,14 +1761,14 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool HasExplicitValue(IProperty property)
-        => !HasSentinelValue(property)
+        => !HasSentinel(property)
             || _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
             || _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsTemporary);
 
-    private bool HasSentinelValue(IProperty property)
+    private bool HasSentinel(IProperty property)
         => property.IsShadowProperty()
             ? AreEqual(_shadowValues[property.GetShadowIndex()], property.Sentinel, property)
-            : property.GetGetter().HasSentinelValue(Entity);
+            : property.GetGetter().HasSentinel(Entity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

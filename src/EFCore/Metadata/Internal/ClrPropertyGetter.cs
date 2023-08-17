@@ -55,7 +55,7 @@ public sealed class ClrPropertyGetter<TEntity, TStructuralType, TValue> : IClrPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasSentinelValue(object entity)
+    public bool HasSentinel(object entity)
         => _hasSentinelValue((TEntity)entity);
 
     /// <summary>

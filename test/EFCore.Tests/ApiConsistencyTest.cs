@@ -97,7 +97,9 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(StateManager).GetMethod("get_ChangeDetector"),
             typeof(JsonValueReaderWriter<>).GetMethod(nameof(JsonValueReaderWriter.FromJson)),
             typeof(JsonValueReaderWriter<>).GetMethod(nameof(JsonValueReaderWriter.ToJson)),
-            typeof(JsonValueReaderWriter<>).GetMethod("get_ValueType")
+            typeof(JsonValueReaderWriter<>).GetMethod("get_ValueType"),
+            typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.FromJsonString)),
+            typeof(JsonValueReaderWriter).GetMethod(nameof(JsonValueReaderWriter.ToJsonString))
         };
 
         public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = new()

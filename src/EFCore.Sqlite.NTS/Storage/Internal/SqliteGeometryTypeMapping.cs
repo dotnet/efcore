@@ -34,7 +34,8 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
     public SqliteGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
         : base(
             new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)),
-            SqliteJsonGeometryWktReaderWriter.Instance, storeType)
+            storeType,
+            SqliteJsonGeometryWktReaderWriter.Instance)
     {
     }
 
@@ -121,7 +122,7 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Type WKTReaderType
+    protected override Type WktReaderType
         => typeof(WKTReader);
 
     private static GaiaGeoReader CreateReader(NtsGeometryServices geometryServices)

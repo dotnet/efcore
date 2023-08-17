@@ -11950,7 +11950,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration;
+using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;

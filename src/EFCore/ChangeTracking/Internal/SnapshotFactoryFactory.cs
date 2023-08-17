@@ -136,7 +136,7 @@ public abstract class SnapshotFactoryFactory
 
             if (memberAccess.Type != propertyBase.ClrType)
             {
-                var hasDefaultValueExpression = memberAccess.MakeHasSentinelValue(propertyBase);
+                var hasDefaultValueExpression = memberAccess.MakeHasSentinel(propertyBase);
 
                 memberAccess = Expression.Condition(
                     hasDefaultValueExpression,

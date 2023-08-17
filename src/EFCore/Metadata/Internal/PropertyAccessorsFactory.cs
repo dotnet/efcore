@@ -61,7 +61,7 @@ public class PropertyAccessorsFactory
                 InternalEntityEntry.MakeReadShadowValueMethod(typeof(TProperty)),
                 Expression.Constant(shadowIndex));
 
-            hasSentinelValueExpression = currentValueExpression.MakeHasSentinelValue(propertyBase);
+            hasSentinelValueExpression = currentValueExpression.MakeHasSentinel(propertyBase);
         }
         else
         {
@@ -72,7 +72,7 @@ public class PropertyAccessorsFactory
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
 
             currentValueExpression = PropertyBase.CreateMemberAccess(propertyBase, convertedExpression, memberInfo, fromStructuralType: false);
-            hasSentinelValueExpression = currentValueExpression.MakeHasSentinelValue(propertyBase);
+            hasSentinelValueExpression = currentValueExpression.MakeHasSentinel(propertyBase);
 
             if (currentValueExpression.Type != typeof(TProperty))
             {
