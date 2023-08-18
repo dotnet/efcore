@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -35,7 +35,7 @@ public class SqliteGuidTypeMapping : GuidTypeMapping
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
                     typeof(Guid),
-                    jsonValueReaderWriter: JsonGuidReaderWriter.Instance),
+                    jsonValueReaderWriter: SqliteJsonGuidReaderWriter.Instance),
                 storeType,
                 dbType: dbType))
     {

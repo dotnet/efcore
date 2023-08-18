@@ -1,26 +1,26 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
 
 /// <summary>
+///     The Sqlite-specific JsonValueReaderWrite for DateTime. Generates a ISO8601 string representation with a space instead of a T
+///     separating the date and time components, in order to match our SQLite non-JSON representation.
+/// </summary>
+/// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-/// </summary>
-public class SqliteDecimalTypeMapping : DecimalTypeMapping
+/// </remarks>
+public sealed class SqliteJsonDateTimeOffsetReaderWriter : JsonValueReaderWriter<DateTimeOffset>
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static new SqliteDecimalTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
+    private const string DateTimeOffsetFormatConst = @"{0:yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz}";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -28,14 +28,9 @@ public class SqliteDecimalTypeMapping : DecimalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDecimalTypeMapping(string storeType, DbType? dbType = System.Data.DbType.Decimal)
-        : this(
-            new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(
-                    typeof(decimal),
-                    jsonValueReaderWriter: SqliteJsonDecimalReaderWriter.Instance),
-                storeType,
-                dbType: dbType))
+    public static SqliteJsonDateTimeOffsetReaderWriter Instance { get; } = new();
+
+    private SqliteJsonDateTimeOffsetReaderWriter()
     {
     }
 
@@ -45,18 +40,9 @@ public class SqliteDecimalTypeMapping : DecimalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqliteDecimalTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
-    {
-    }
-
-    /// <summary>
-    ///     Creates a copy of this mapping.
-    /// </summary>
-    /// <param name="parameters">The parameters for this mapping.</param>
-    /// <returns>The newly created mapping.</returns>
-    protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqliteDecimalTypeMapping(parameters);
+    public override DateTimeOffset FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
+        // => manager.CurrentReader.GetDateTimeOffset();
+        => DateTimeOffset.Parse(manager.CurrentReader.GetString()!, CultureInfo.InvariantCulture);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -64,6 +50,10 @@ public class SqliteDecimalTypeMapping : DecimalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override string SqlLiteralFormatString
-        => "'" + base.SqlLiteralFormatString + "'";
+    public override void ToJsonTyped(Utf8JsonWriter writer, DateTimeOffset value)
+        // We use UnsafeRelaxedJsonEscaping to prevent the DateTimeOffset plus (+) sign from getting escaped
+        => writer.WriteStringValue(
+            JsonEncodedText.Encode(
+                string.Format(CultureInfo.InvariantCulture, DateTimeOffsetFormatConst, value),
+                JavaScriptEncoder.UnsafeRelaxedJsonEscaping));
 }
