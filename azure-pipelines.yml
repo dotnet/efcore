@@ -292,15 +292,16 @@ stages:
                       arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
                     env:
                       Token: $(dn-bot-dnceng-artifact-feeds-rw)
-                - script: restore.cmd -ci /p:configuration=$(_BuildConfig)
+                - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
                   displayName: Restore packages
-                - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog
+                - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
                   displayName: Send job to helix
                   env:
                     HelixAccessToken: $(_HelixAccessToken)
                     SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
                     MSSQL_SA_PASSWORD: "Password12!"
                     COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
+                    DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
   - template: eng\common\templates\post-build\post-build.yml
