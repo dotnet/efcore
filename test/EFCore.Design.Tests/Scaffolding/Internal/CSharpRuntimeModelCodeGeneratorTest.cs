@@ -11732,6 +11732,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using NetTopologySuite.Geometries;
 
@@ -11777,7 +11778,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.Data).GetProperty("Blob", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.Data).GetField("<Blob>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
-            blob.TypeMapping = ByteArrayTypeMapping.Default.Clone(
+            blob.TypeMapping = SqliteByteArrayTypeMapping.Default.Clone(
                 comparer: new ValueComparer<byte[]>(
                     (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
                     (Byte[] v) => v.GetHashCode(),
@@ -11789,9 +11790,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 providerValueComparer: new ValueComparer<byte[]>(
                     (Byte[] v1, Byte[] v2) => StructuralComparisons.StructuralEqualityComparer.Equals((object)v1, (object)v2),
                     (Byte[] v) => StructuralComparisons.StructuralEqualityComparer.GetHashCode((object)v),
-                    (Byte[] source) => source.ToArray()),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "BLOB"));
+                    (Byte[] source) => source.ToArray()));
 
             var point = runtimeEntityType.AddProperty(
                 "Point",

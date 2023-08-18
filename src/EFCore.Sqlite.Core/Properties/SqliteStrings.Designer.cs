@@ -90,14 +90,6 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 type);
 
         /// <summary>
-        ///     Querying JSON collections with element provider type '{type}' isn't supported because of SQLite limitations.
-        /// </summary>
-        public static string QueryingJsonCollectionOfGivenTypeNotSupported(object? type)
-            => string.Format(
-                GetString("QueryingJsonCollectionOfGivenTypeNotSupported", nameof(type)),
-                type);
-
-        /// <summary>
         ///     SQLite does not support sequences. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string SequencesNotSupported

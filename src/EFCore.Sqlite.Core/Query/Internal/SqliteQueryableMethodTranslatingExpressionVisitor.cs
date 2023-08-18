@@ -671,54 +671,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         bool isNullable)
         => typeMapping switch
         {
-            // The "default" JSON representation of a GUID is a lower-case string, but we do upper-case GUIDs in our non-JSON
-            // implementation.
-            SqliteGuidTypeMapping
-                => sqlExpressionFactory.Function("upper", new[] { expression }, isNullable, new[] { true }, typeof(Guid), typeMapping),
-
-            // The "standard" JSON timestamp representation is ISO8601, with a T between date and time; but SQLite's representation has
-            // no T. The following performs a reliable conversions on the string values coming out of json_each.
-            // Unfortunately, the SQLite datetime() function doesn't present fractional seconds, so we generate the following lovely thing:
-            // rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', $value), '0'), '.')
-            SqliteDateTimeTypeMapping
-                => sqlExpressionFactory.Function(
-                    "rtrim",
-                    new SqlExpression[]
-                    {
-                        sqlExpressionFactory.Function(
-                            "rtrim",
-                            new SqlExpression[]
-                            {
-                                sqlExpressionFactory.Function(
-                                    "strftime",
-                                    new[]
-                                    {
-                                        sqlExpressionFactory.Constant("%Y-%m-%d %H:%M:%f"),
-                                        expression
-                                    },
-                                    isNullable, new[] { true }, typeof(DateTime), typeMapping),
-                                sqlExpressionFactory.Constant("0")
-                            },
-                            isNullable, new[] { true }, typeof(DateTime), typeMapping),
-                        sqlExpressionFactory.Constant(".")
-                    },
-                    isNullable, new[] { true }, typeof(DateTime), typeMapping),
-
-            // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string).
-            // We can cast the 1 to TEXT, but we'd still get "1" not "1.0".
-            SqliteDecimalTypeMapping
-                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("decimal")),
-
-            // The JSON representation for new[] { 1, 2 } is AQI= (base64), and SQLite has no built-in base64 conversion function.
             ByteArrayTypeMapping
-                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("byte[]")),
-
-            // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
-            // is 2023-01-01 12:30:00+02:00 (no T).
-            // Note that datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00', converting to UTC (removing the timezone), so
-            // we can't use that.
-            SqliteDateTimeOffsetTypeMapping
-                => throw new InvalidOperationException(SqliteStrings.QueryingJsonCollectionOfGivenTypeNotSupported("DateTimeOffset")),
+                => sqlExpressionFactory.Function("unhex", new[] { expression }, isNullable, new[] { true }, typeof(byte[]), typeMapping),
 
             _ => expression
         };
