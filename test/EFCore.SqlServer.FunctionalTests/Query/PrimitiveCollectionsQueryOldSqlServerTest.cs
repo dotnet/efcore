@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -10,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     This exercises the older translation paths for e.g. Contains, to make sure things work for providers with no queryable constant/
 ///     parameter support.
 /// </summary>
-public class PrimitiveCollectionsQueryOldSqlServerTest : PrimitiveCollectionsQueryTestBase<
+public class PrimitiveCollectionsQueryOldSqlServerTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQueryOldSqlServerTest.PrimitiveCollectionsQueryOldSqlServerFixture>
 {
     public PrimitiveCollectionsQueryOldSqlServerTest(PrimitiveCollectionsQueryOldSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -464,9 +465,9 @@ WHERE [p].[Ints] = @__ints_0
 """);
     }
 
-    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection_not_supported(bool async)
+    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
     {
-        await base.Column_collection_Concat_parameter_collection_equality_inline_collection_not_supported(async);
+        await base.Column_collection_Concat_parameter_collection_equality_inline_collection(async);
 
         AssertSql();
     }
@@ -510,8 +511,9 @@ WHERE [p].[Ints] = N'[1,10]'
     public override Task Column_collection_in_subquery_Union_parameter_collection(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_in_subquery_Union_parameter_collection(async));
 
+    // Base implementation asserts that a different exception is thrown
     public override Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
-        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async));
+        => Assert.ThrowsAsync<EqualException>(() => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async));
 
     public override async Task Project_collection_of_ints_simple(bool async)
     {
@@ -533,9 +535,9 @@ ORDER BY [p].[Id]
         // we don't propagate error details from projection
         => AssertTranslationFailed(() => base.Project_collection_of_datetimes_filtered(async));
 
-    public override async Task Project_collection_of_ints_with_paging(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
     {
-        await base.Project_collection_of_ints_with_paging(async);
+        await base.Project_collection_of_nullable_ints_with_paging(async);
 
         // client eval
         AssertSql(
@@ -546,13 +548,13 @@ ORDER BY [p].[Id]
 """);
     }
 
-    public override Task Project_collection_of_ints_with_paging2(bool async)
+    public override Task Project_collection_of_nullable_ints_with_paging2(bool async)
         // we don't propagate error details from projection
-        => AssertTranslationFailed(() => base.Project_collection_of_ints_with_paging2(async));
+        => AssertTranslationFailed(() => base.Project_collection_of_nullable_ints_with_paging2(async));
 
-    public override async Task Project_collection_of_ints_with_paging3(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging3(bool async)
     {
-        await base.Project_collection_of_ints_with_paging3(async);
+        await base.Project_collection_of_nullable_ints_with_paging3(async);
 
         // client eval
         AssertSql(

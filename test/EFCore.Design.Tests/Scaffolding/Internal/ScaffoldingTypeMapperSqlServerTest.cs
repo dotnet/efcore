@@ -404,6 +404,5 @@ public class ScaffoldingTypeMapperSqlServerTest
         => new(
             new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                new SqlServerSingletonOptions()));
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()));
 }

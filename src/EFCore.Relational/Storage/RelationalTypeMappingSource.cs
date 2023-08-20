@@ -225,11 +225,12 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         Type? providerType,
         CoreTypeMapping? elementMapping)
     {
-        var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
+        if (TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
+        {
+            var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
 
-        return TryFindJsonCollectionMapping(
-            info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter)
-            ? (RelationalTypeMapping)FindMapping(
+            return (RelationalTypeMapping)FindMapping(
                     info.WithConverter(
                         // Note that the converter info is only used temporarily here and never creates an instance.
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
@@ -242,8 +243,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                             : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
                         elementMapping!.Comparer),
                     elementMapping,
-                    collectionReaderWriter)
-            : null;
+                    collectionReaderWriter);
+        }
+
+        return null;
     }
 
     /// <summary>

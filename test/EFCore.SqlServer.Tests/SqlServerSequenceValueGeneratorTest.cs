@@ -77,8 +77,7 @@ public class SqlServerSequenceValueGeneratorTest
                         new RelationalSqlGenerationHelperDependencies()),
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        new SqlServerSingletonOptions()))),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
             state,
             CreateConnection(),
             new FakeRelationalCommandDiagnosticsLogger());
@@ -132,8 +131,7 @@ public class SqlServerSequenceValueGeneratorTest
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                    new SqlServerSingletonOptions())));
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -184,8 +182,7 @@ public class SqlServerSequenceValueGeneratorTest
                         new RelationalSqlGenerationHelperDependencies()),
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        new SqlServerSingletonOptions()))),
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))),
             state,
             CreateConnection(),
             new FakeRelationalCommandDiagnosticsLogger());

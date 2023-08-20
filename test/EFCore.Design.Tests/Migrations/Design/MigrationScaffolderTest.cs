@@ -58,8 +58,7 @@ public class MigrationsScaffolderTest
         var idGenerator = new MigrationsIdGenerator();
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
         var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
             new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
         var code = new CSharpHelper(sqlServerTypeMappingSource);

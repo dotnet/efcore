@@ -20,8 +20,7 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -57,8 +56,7 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 

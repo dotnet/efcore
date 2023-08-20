@@ -7769,8 +7769,7 @@ namespace RootNamespace
                 new IRelationalTypeMappingSourcePlugin[]
                 {
                     new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                }),
-            new SqlServerSingletonOptions());
+                }));
 
         var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 

@@ -92,12 +92,9 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
 
                         table = table switch
                         {
-                            InnerJoinExpression ij => ij.Update(newOpenJsonExpression, ij.JoinPredicate),
-                            LeftJoinExpression lj => lj.Update(newOpenJsonExpression, lj.JoinPredicate),
-                            CrossJoinExpression cj => cj.Update(newOpenJsonExpression),
-                            CrossApplyExpression ca => ca.Update(newOpenJsonExpression),
-                            OuterApplyExpression oa => oa.Update(newOpenJsonExpression),
-                            _ => newOpenJsonExpression,
+                            JoinExpressionBase j => j.Update(newOpenJsonExpression),
+                            SqlServerOpenJsonExpression => newOpenJsonExpression,
+                            _ => throw new UnreachableException()
                         };
 
                         foreach (var columnInfo in openJsonExpression.ColumnInfos!)

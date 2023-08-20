@@ -38,7 +38,7 @@ public class CrossJoinExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual CrossJoinExpression Update(TableExpressionBase table)
+    public override CrossJoinExpression Update(TableExpressionBase table)
         => table != Table
             ? new CrossJoinExpression(table, GetAnnotations())
             : this;

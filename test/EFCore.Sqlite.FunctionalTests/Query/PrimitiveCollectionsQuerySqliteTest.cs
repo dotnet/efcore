@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class PrimitiveCollectionsQuerySqliteTest : PrimitiveCollectionsQueryTestBase<
+public class PrimitiveCollectionsQuerySqliteTest : PrimitiveCollectionsQueryRelationalTestBase<
     PrimitiveCollectionsQuerySqliteTest.PrimitiveCollectionsQuerySqlServerFixture>
 {
     public PrimitiveCollectionsQuerySqliteTest(PrimitiveCollectionsQuerySqlServerFixture fixture, ITestOutputHelper testOutputHelper)
@@ -858,9 +858,9 @@ WHERE "p"."Ints" = @__ints_0
 """);
     }
 
-    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection_not_supported(bool async)
+    public override async Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
     {
-        await base.Column_collection_Concat_parameter_collection_equality_inline_collection_not_supported(async);
+        await base.Column_collection_Concat_parameter_collection_equality_inline_collection(async);
 
         AssertSql();
     }
@@ -908,10 +908,9 @@ WHERE (
 
     public override async Task Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async))).Message;
+        await base.Parameter_collection_in_subquery_Union_another_parameter_collection_as_compiled_query(async);
 
-        Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
+        AssertSql();
     }
 
     public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
@@ -1056,23 +1055,23 @@ ORDER BY "p"."Id"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_collection_of_datetimes_filtered(async))).Message);
 
-    public override async Task Project_collection_of_ints_with_paging(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_collection_of_ints_with_paging(async))).Message);
+                () => base.Project_collection_of_nullable_ints_with_paging(async))).Message);
 
-    public override async Task Project_collection_of_ints_with_paging2(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging2(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_collection_of_ints_with_paging2(async))).Message);
+                () => base.Project_collection_of_nullable_ints_with_paging2(async))).Message);
 
-    public override async Task Project_collection_of_ints_with_paging3(bool async)
+    public override async Task Project_collection_of_nullable_ints_with_paging3(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Project_collection_of_ints_with_paging3(async))).Message);
+                () => base.Project_collection_of_nullable_ints_with_paging3(async))).Message);
 
     public override async Task Project_collection_of_ints_with_distinct(bool async)
         => Assert.Equal(

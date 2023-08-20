@@ -183,8 +183,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static RelationalTypeMapping GetMapping(Type type)
         => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                new SqlServerSingletonOptions())
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
             .FindMapping(type);
 
     public override void ByteArray_literal_generated_correctly()
@@ -418,8 +417,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     protected virtual void Test_GenerateCodeLiteral_helper(
         RelationalTypeMapping typeMapping,
@@ -428,8 +426,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
         var csharpHelper = new CSharpHelper(typeMappingSource);
 

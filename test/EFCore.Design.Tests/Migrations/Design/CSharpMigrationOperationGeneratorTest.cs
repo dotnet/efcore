@@ -20,8 +20,7 @@ public class CSharpMigrationOperationGeneratorTest
                 new CSharpHelper(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-                        new SqlServerSingletonOptions()))));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
 
         var builder = new IndentedStringBuilder();
 
@@ -3160,8 +3159,7 @@ mb.AlterTable(
                             new IRelationalTypeMappingSourcePlugin[]
                             {
                                 new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                            }),
-                        new SqlServerSingletonOptions()))));
+                            })))));
 
         var builder = new IndentedStringBuilder();
         generator.Generate("mb", new[] { operation }, builder);

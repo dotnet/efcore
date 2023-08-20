@@ -1682,8 +1682,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>() with
             {
                 Plugins = new[] { new FakeTypeMappingSourcePlugin() }
-            },
-            new SqlServerSingletonOptions());
+            });
 
         Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
     }
@@ -1697,8 +1696,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
         => new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     private enum LongEnum : long
     {
