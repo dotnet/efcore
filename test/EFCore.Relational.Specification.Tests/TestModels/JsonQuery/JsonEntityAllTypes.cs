@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
@@ -73,7 +74,10 @@ public class JsonEntityAllTypes
     }
 
     public byte[] TestByteCollection { get; set; }
+
+    [Required]
     public List<Guid> TestGuidCollection { get; set; }
+
     public IList<ushort> TestUnsignedInt16Collection { get; set; }
     public uint[] TestUnsignedInt32Collection { get; set; }
     public ObservableCollection<ulong> TestUnsignedInt64Collection { get; set; }
