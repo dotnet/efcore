@@ -2971,6 +2971,21 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.False(result.NewCollectionSet);
             });
 
+    [ConditionalFact]
+    public virtual async Task SaveChanges_throws_when_required_primitive_collection_is_null()
+        => await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var entity = new JsonEntityAllTypes { TestGuidCollection = null };
+                context.Add(entity);
+
+                Assert.Equal(
+                    CoreStrings.NullRequiredPrimitiveCollection(nameof(JsonEntityAllTypes), nameof(JsonEntityAllTypes.TestGuidCollection)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())).Message);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

@@ -1571,6 +1571,14 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
 
                     throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                 }
+
+                if (property.GetElementType() != null
+                    && !property.IsNullable
+                    && GetCurrentValue(property) == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NullRequiredPrimitiveCollection(EntityType.DisplayName(), property.Name));
+                }
             }
         }
         else if (EntityState == EntityState.Modified)
