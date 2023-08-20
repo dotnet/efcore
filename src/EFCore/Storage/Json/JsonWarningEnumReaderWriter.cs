@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 ///     happens, a warning is generated.
 /// </summary>
 public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<TEnum>
-    where TEnum : struct
+    where TEnum : struct, Enum
 {
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
