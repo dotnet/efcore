@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
 /// </remarks>
 public class StringToEnumConverter<TEnum> : StringEnumConverter<string, TEnum, TEnum>
-    where TEnum : struct
+    where TEnum : struct, Enum
 {
     /// <summary>
     ///     Creates a new instance of this converter. This converter does not preserve order.
