@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class StringEnumConverter<TModel, TProvider, TEnum> : ValueConverter<TModel, TProvider>
-    where TEnum : struct
+    where TEnum : struct, Enum
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

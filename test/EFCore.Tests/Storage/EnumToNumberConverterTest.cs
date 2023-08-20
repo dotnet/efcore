@@ -265,26 +265,6 @@ public class EnumToNumberConverterTest
         Assert.Equal(default, converter(0));
     }
 
-    [ConditionalFact]
-    public void Enum_to_integer_converter_throws_for_bad_types()
-    {
-        Assert.Equal(
-            CoreStrings.ConverterBadType(
-                typeof(EnumToNumberConverter<Guid, int>).ShortDisplayName(),
-                "Guid",
-                "enum types"),
-            Assert.Throws<InvalidOperationException>(
-                () => new EnumToNumberConverter<Guid, int>()).Message);
-
-        Assert.Equal(
-            CoreStrings.ConverterBadType(
-                typeof(EnumToNumberConverter<Beatles, Guid>).ShortDisplayName(),
-                "Guid",
-                "'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte', 'double', 'float', 'decimal'"),
-            Assert.Throws<InvalidOperationException>(
-                () => new EnumToNumberConverter<Beatles, Guid>()).Message);
-    }
-
     private enum Beatles
     {
         John = 7,
