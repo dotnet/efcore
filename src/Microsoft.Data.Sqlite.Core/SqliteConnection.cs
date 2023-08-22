@@ -32,7 +32,7 @@ namespace Microsoft.Data.Sqlite
 
         private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
 
-        private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_aggregate_step? func_step,
+        private Dictionary<(string name, int arity), (int flags, delegate_function_aggregate_step? func_step,
             delegate_function_aggregate_final? func_final)>? _aggregates;
 
         private HashSet<(string file, string? proc)>? _extensions;
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Sqlite
                     foreach (var item in _aggregates)
                     {
                         rc = sqlite3_create_function(
-                            Handle, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
+                            Handle, item.Key.name, item.Key.arity, null, item.Value.func_step, item.Value.func_final);
                         SqliteException.ThrowExceptionForRC(rc, Handle);
                     }
                 }
@@ -821,9 +821,11 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_step? func_step = null;
             if (func != null)
             {
-                func_step = (ctx, user_data, args) =>
+                func_step = (ctx, _, args) =>
                 {
-                    var context = (AggregateContext<TAccumulate>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(seed);
+
+                    var context = (AggregateContext<TAccumulate>)ctx.state;
                     if (context.Exception != null)
                     {
                         return;
@@ -848,9 +850,11 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_final? func_final = null;
             if (resultSelector != null)
             {
-                func_final = (ctx, user_data) =>
+                func_final = (ctx, _) =>
                 {
-                    var context = (AggregateContext<TAccumulate>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(seed);
+
+                    var context = (AggregateContext<TAccumulate>)ctx.state!;
 
                     if (context.Exception == null)
                     {
@@ -881,7 +885,6 @@ namespace Microsoft.Data.Sqlite
             }
 
             var flags = isDeterministic ? SQLITE_DETERMINISTIC : 0;
-            var state = new AggregateContext<TAccumulate>(seed);
 
             if (State == ConnectionState.Open)
             {
@@ -890,16 +893,16 @@ namespace Microsoft.Data.Sqlite
                     name,
                     arity,
                     flags,
-                    state,
+                    null,
                     func_step,
                     func_final);
                 SqliteException.ThrowExceptionForRC(rc, Handle);
             }
 
             _aggregates ??=
-                new Dictionary<(string, int), (int, object?, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
+                new Dictionary<(string, int), (int, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
                     FunctionsKeyComparer.Instance);
-            _aggregates[(name, arity)] = (flags, state, func_step, func_final);
+            _aggregates[(name, arity)] = (flags, func_step, func_final);
         }
 
         private static Func<TState, SqliteValueReader, TResult>? IfNotNull<TState, TResult>(
