@@ -42,11 +42,6 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
-  <!-- HACK: Work around ericsink/SQLitePCL.raw#543 -->
-  <ItemGroup>
-    <RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" />
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
     <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
   </PropertyGroup>
