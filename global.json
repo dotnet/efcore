@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "8.0.100-rc.1.23407.2",
+    "version": "8.0.100-rc.2.23422.11",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
   "tools": {
-    "dotnet": "8.0.100-rc.1.23407.2",
+    "dotnet": "8.0.100-rc.2.23422.11",
     "runtimes": {
       "dotnet": [
         "$(MicrosoftNETCoreBrowserDebugHostTransportVersion)"
