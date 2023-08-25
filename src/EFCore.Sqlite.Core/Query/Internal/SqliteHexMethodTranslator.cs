@@ -17,10 +17,10 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
         .GetMethod(nameof(SqliteDbFunctionsExtensions.Hex), new[] { typeof(DbFunctions), typeof(byte[]) })!;
 
     private static readonly MethodInfo UnhexMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(byte[]) })!;
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string) })!;
 
     private static readonly MethodInfo UnhexWithIgnoreCharsMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(byte[]), typeof(string) })!;
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

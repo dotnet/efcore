@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 namespace Microsoft.EntityFrameworkCore;
@@ -1552,29 +1551,17 @@ FROM "ObjectBackedDataTypes" AS "o"
     {
         using var context = CreateContext();
 
-        context.Set<ObjectBackedDataTypes>()
-            .ForEach(e =>
-            {
-                var bytes = Encoding.Default.GetBytes(e.String);
-                var hexString = Convert.ToHexString(bytes);
-                e.Bytes = Encoding.Default.GetBytes(hexString);
-            });
-
-        Assert.Equal(context.Set<ObjectBackedDataTypes>().Count(), context.SaveChanges());
-
-        Fixture.TestSqlLoggerFactory.Clear();
-
         var results = context.Set<ObjectBackedDataTypes>()
-            .Select(e => EF.Functions.Unhex(e.Bytes)).ToList();
+            .Select(e => EF.Functions.Unhex(EF.Functions.Hex(e.Bytes))).ToList();
 
         AssertSql(
 """
-SELECT unhex("o"."Bytes")
+SELECT unhex(hex("o"."Bytes"))
 FROM "ObjectBackedDataTypes" AS "o"
 """);
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
-            .Select(e => Encoding.Default.GetBytes(e.String)).ToList();
+            .Select(e => e.Bytes).ToList();
 
         Assert.Equal(expectedResults, results);
     }
@@ -1584,29 +1571,17 @@ FROM "ObjectBackedDataTypes" AS "o"
     {
         using var context = CreateContext();
 
-        context.Set<ObjectBackedDataTypes>()
-            .ForEach(e =>
-            {
-                var bytes = Encoding.Default.GetBytes(e.String);
-                var hexString = Convert.ToHexString(bytes);
-                e.Bytes = Encoding.Default.GetBytes(hexString + "!?");
-            });
-
-        Assert.Equal(context.Set<ObjectBackedDataTypes>().Count(), context.SaveChanges());
-
-        Fixture.TestSqlLoggerFactory.Clear();
-
         var results = context.Set<ObjectBackedDataTypes>()
-            .Select(e => EF.Functions.Unhex(e.Bytes, "!?")).ToList();
+            .Select(e => EF.Functions.Unhex(EF.Functions.Hex(e.Bytes) + "!?", "!?")).ToList();
 
         AssertSql(
 """
-SELECT unhex("o"."Bytes", '!?')
+SELECT unhex(COALESCE(hex("o"."Bytes"), '') || '!?', '!?')
 FROM "ObjectBackedDataTypes" AS "o"
 """);
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
-            .Select(e => Encoding.Default.GetBytes(e.String)).ToList();
+            .Select(e => e.Bytes).ToList();
 
         Assert.Equal(expectedResults, results);
     }
