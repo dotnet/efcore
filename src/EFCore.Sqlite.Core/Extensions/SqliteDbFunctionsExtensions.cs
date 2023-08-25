@@ -51,9 +51,9 @@ public static class SqliteDbFunctionsExtensions
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="bytes">The binary value.</param>
+    /// <param name="value">The hexadecimal string.</param>
     /// <returns>Decoded hexadecimal string as binary value.</returns>
-    public static byte[] Unhex(this DbFunctions _, byte[] bytes)
+    public static byte[] Unhex(this DbFunctions _, string value)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
 
     /// <summary>
@@ -64,10 +64,10 @@ public static class SqliteDbFunctionsExtensions
     ///     <see href="https://aka.ms/efcore-docs-sqlite">Accessing SQLite databases with EF Core</see> for more information and examples.
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="bytes">The binary value.</param>
-    /// <param name="ignoreChars">Characters in Y that are not hexadecimal digits are ignored in X.</param>
+    /// <param name="value">The hexadecimal string.</param>
+    /// <param name="ignoreChars">Characters that are ignored in <paramref name="value"/>.</param>
     /// <returns>Decoded hexadecimal string as binary value.</returns>
-    public static byte[] Unhex(this DbFunctions _, byte[] bytes, string ignoreChars)
+    public static byte[] Unhex(this DbFunctions _, string value, string ignoreChars)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(Unhex)));
 
     /// <summary>
