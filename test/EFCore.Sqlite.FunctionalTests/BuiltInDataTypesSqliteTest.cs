@@ -1547,6 +1547,46 @@ FROM "ObjectBackedDataTypes" AS "o"
     }
 
     [ConditionalFact]
+    public virtual void Can_query_using_unhex_function()
+    {
+        using var context = CreateContext();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => EF.Functions.Unhex(EF.Functions.Hex(e.Bytes))).ToList();
+
+        AssertSql(
+"""
+SELECT unhex(hex("o"."Bytes"))
+FROM "ObjectBackedDataTypes" AS "o"
+""");
+
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => e.Bytes).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
+    public virtual void Can_query_using_unhex_function_with_ignore_chars()
+    {
+        using var context = CreateContext();
+
+        var results = context.Set<ObjectBackedDataTypes>()
+            .Select(e => EF.Functions.Unhex(EF.Functions.Hex(e.Bytes) + "!?", "!?")).ToList();
+
+        AssertSql(
+"""
+SELECT unhex(COALESCE(hex("o"."Bytes"), '') || '!?', '!?')
+FROM "ObjectBackedDataTypes" AS "o"
+""");
+
+        var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
+            .Select(e => e.Bytes).ToList();
+
+        Assert.Equal(expectedResults, results);
+    }
+
+    [ConditionalFact]
     public virtual void Can_query_using_substr_function()
     {
         using var context = CreateContext();
