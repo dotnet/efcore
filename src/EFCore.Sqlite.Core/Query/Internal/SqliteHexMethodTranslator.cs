@@ -13,8 +13,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteHexMethodTranslator : IMethodCallTranslator
 {
-    private static readonly MethodInfo MethodInfo = typeof(SqliteDbFunctionsExtensions)
+    private static readonly MethodInfo HexMethodInfo = typeof(SqliteDbFunctionsExtensions)
         .GetMethod(nameof(SqliteDbFunctionsExtensions.Hex), new[] { typeof(DbFunctions), typeof(byte[]) })!;
+
+    private static readonly MethodInfo UnhexMethodInfo = typeof(SqliteDbFunctionsExtensions)
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string) })!;
+
+    private static readonly MethodInfo UnhexWithIgnoreCharsMethodInfo = typeof(SqliteDbFunctionsExtensions)
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
@@ -41,7 +47,7 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (method.Equals(MethodInfo))
+        if (method.Equals(HexMethodInfo))
         {
             return _sqlExpressionFactory.Function(
                 "hex",
@@ -49,6 +55,17 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
                 nullable: true,
                 argumentsPropagateNullability: new[] { true },
                 typeof(string));
+        }
+
+        if (method.Equals(UnhexMethodInfo)
+            || method.Equals(UnhexWithIgnoreCharsMethodInfo))
+        {
+            return _sqlExpressionFactory.Function(
+                "unhex",
+                arguments.Skip(1),
+                nullable: true,
+                arguments.Skip(1).Select(_ => true).ToArray(),
+                typeof(byte[]));
         }
 
         return null;
