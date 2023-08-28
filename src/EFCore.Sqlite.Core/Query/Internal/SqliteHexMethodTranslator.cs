@@ -65,8 +65,7 @@ public class SqliteHexMethodTranslator : IMethodCallTranslator
                 arguments.Skip(1),
                 nullable: true,
                 arguments.Skip(1).Select(_ => true).ToArray(),
-                typeof(byte[]),
-                arguments[1].TypeMapping);
+                typeof(byte[]));
         }
 
         return null;
