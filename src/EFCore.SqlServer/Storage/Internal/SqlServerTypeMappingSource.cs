@@ -220,8 +220,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     public SqlServerTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies,
-        ISqlServerSingletonOptions sqlServerSingletonOptions)
+        RelationalTypeMappingSourceDependencies relationalDependencies)
         : base(dependencies, relationalDependencies)
     {
     }

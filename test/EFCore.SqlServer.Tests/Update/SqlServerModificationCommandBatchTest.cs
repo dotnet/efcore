@@ -156,8 +156,7 @@ public class SqlServerModificationCommandBatchTest
     private static SqlServerTypeMappingSource CreateTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
-            new SqlServerSingletonOptions());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     private static INonTrackedModificationCommand CreateModificationCommand(
         string name,

@@ -38,7 +38,7 @@ public class OuterApplyExpression : JoinExpressionBase
     /// </summary>
     /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual OuterApplyExpression Update(TableExpressionBase table)
+    public override OuterApplyExpression Update(TableExpressionBase table)
         => table != Table
             ? new OuterApplyExpression(table, GetAnnotations())
             : this;

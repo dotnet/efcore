@@ -104,7 +104,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
 
     private static IList<TElement?> Snapshot(IEnumerable<TElement?> source, ValueComparer<TElement> elementComparer)
     {
-        if (!(source is IList<TElement?> sourceList))
+        if (source is not IList<TElement?> sourceList)
         {
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
