@@ -32,7 +32,7 @@ namespace Microsoft.Data.Sqlite
 
         private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_scalar? func)>? _functions;
 
-        private Dictionary<(string name, int arity), (int flags, delegate_function_aggregate_step? func_step,
+        private Dictionary<(string name, int arity), (int flags, object? state, delegate_function_aggregate_step? func_step,
             delegate_function_aggregate_final? func_final)>? _aggregates;
 
         private HashSet<(string file, string? proc)>? _extensions;
@@ -276,7 +276,7 @@ namespace Microsoft.Data.Sqlite
                     foreach (var item in _aggregates)
                     {
                         rc = sqlite3_create_function(
-                            Handle, item.Key.name, item.Key.arity, null, item.Value.func_step, item.Value.func_final);
+                            Handle, item.Key.name, item.Key.arity, item.Value.state, item.Value.func_step, item.Value.func_final);
                         SqliteException.ThrowExceptionForRC(rc, Handle);
                     }
                 }
@@ -821,9 +821,10 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_step? func_step = null;
             if (func != null)
             {
-                func_step = (ctx, _, args) =>
+                func_step = static (ctx, user_data, args) =>
                 {
-                    ctx.state ??= new AggregateContext<TAccumulate>(seed);
+                    var definition = (AggregateDefinition<TAccumulate, TResult>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(definition.Seed);
 
                     var context = (AggregateContext<TAccumulate>)ctx.state;
                     if (context.Exception != null)
@@ -832,13 +833,12 @@ namespace Microsoft.Data.Sqlite
                     }
 
                     // TODO: Avoid allocation when niladic
-                    var reader = new SqliteParameterReader(name, args);
+                    var reader = new SqliteParameterReader(definition.Name, args);
 
                     try
                     {
-                        // TODO: Avoid closure by passing func via user_data
                         // NB: No need to set ctx.state since we just mutate the instance
-                        context.Accumulate = func(context.Accumulate, reader);
+                        context.Accumulate = definition.Func!(context.Accumulate, reader);
                     }
                     catch (Exception ex)
                     {
@@ -850,18 +850,18 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_final? func_final = null;
             if (resultSelector != null)
             {
-                func_final = (ctx, _) =>
+                func_final = static (ctx, user_data) =>
                 {
-                    ctx.state ??= new AggregateContext<TAccumulate>(seed);
+                    var definition = (AggregateDefinition<TAccumulate, TResult>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(definition.Seed);
 
-                    var context = (AggregateContext<TAccumulate>)ctx.state!;
+                    var context = (AggregateContext<TAccumulate>)ctx.state;
 
                     if (context.Exception == null)
                     {
                         try
                         {
-                            // TODO: Avoid closure by passing resultSelector via user_data
-                            var result = resultSelector(context.Accumulate);
+                            var result = definition.ResultSelector!(context.Accumulate);
 
                             new SqliteResultBinder(ctx, result).Bind();
                         }
@@ -885,6 +885,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var flags = isDeterministic ? SQLITE_DETERMINISTIC : 0;
+            var state = new AggregateDefinition<TAccumulate, TResult>(name, seed, func, resultSelector);
 
             if (State == ConnectionState.Open)
             {
@@ -893,16 +894,16 @@ namespace Microsoft.Data.Sqlite
                     name,
                     arity,
                     flags,
-                    null,
+                    state,
                     func_step,
                     func_final);
                 SqliteException.ThrowExceptionForRC(rc, Handle);
             }
 
             _aggregates ??=
-                new Dictionary<(string, int), (int, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
+                new Dictionary<(string, int), (int, object?, delegate_function_aggregate_step?, delegate_function_aggregate_final?)>(
                     FunctionsKeyComparer.Instance);
-            _aggregates[(name, arity)] = (flags, func_step, func_final);
+            _aggregates[(name, arity)] = (flags, state, func_step, func_final);
         }
 
         private static Func<TState, SqliteValueReader, TResult>? IfNotNull<TState, TResult>(
@@ -916,6 +917,22 @@ namespace Microsoft.Data.Sqlite
             reader.GetValues(values);
 
             return values;
+        }
+
+        private sealed class AggregateDefinition<TAccumulate, TResult>
+        {
+            public AggregateDefinition(string name, TAccumulate seed, Func<TAccumulate, SqliteValueReader, TAccumulate>? func, Func<TAccumulate, TResult>? resultSelector)
+            {
+                Name = name;
+                Seed = seed;
+                Func = func;
+                ResultSelector = resultSelector;
+            }
+
+            public string Name { get; }
+            public TAccumulate Seed { get; }
+            public Func<TAccumulate, SqliteValueReader, TAccumulate>? Func { get; }
+            public Func<TAccumulate, TResult>? ResultSelector { get; }
         }
 
         private sealed class AggregateContext<T>
