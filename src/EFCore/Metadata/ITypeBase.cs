@@ -213,6 +213,12 @@ public interface ITypeBase : IReadOnlyTypeBase, IAnnotatable
     IEnumerable<IProperty> GetFlattenedProperties();
 
     /// <summary>
+    ///     Returns all properties that implement <see cref="IComplexProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IComplexProperty> GetFlattenedComplexProperties();
+
+    /// <summary>
     ///     Returns all declared properties that implement <see cref="IProperty"/>, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>

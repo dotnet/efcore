@@ -1327,6 +1327,23 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     }
 
     /// <summary>
+    ///     Returns all <see cref="ComplexProperty"/> members from this type and all nested complex types, if any.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    public virtual IEnumerable<ComplexProperty> GetFlattenedComplexProperties()
+    {
+        foreach (var complexProperty in GetComplexProperties())
+        {
+            yield return complexProperty;
+
+            foreach (var nestedComplexProperty in complexProperty.ComplexType.GetFlattenedComplexProperties())
+            {
+                yield return nestedComplexProperty;
+            }
+        }
+    }
+
+    /// <summary>
     ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
@@ -2204,6 +2221,13 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
+
+    /// <summary>
+    ///     Returns all properties that implement <see cref="IComplexProperty"/>, including those on complex types.
+    /// </summary>
+    /// <returns>The properties.</returns>
+    IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
+        => GetFlattenedComplexProperties();
 
     /// <summary>
     ///     Returns all properties declared properties that implement <see cref="IProperty"/>, including those on complex types.
