@@ -1639,11 +1639,153 @@ WHERE "b"."Id" = 13
     }
 
     [ConditionalFact]
-    public virtual void Projecting_aritmetic_operations_on_decimals()
+    public virtual void Character_to_integer_conversion()
+    {
+        using var context = CreateContext();
+
+        context.Add(
+            new BuiltInDataTypes
+            {
+                Id = 290,
+                TestCharacter = '0'
+            });
+
+        context.SaveChanges();
+
+        var expected = context.Set<BuiltInDataTypes>()
+            .Where(e => e.Id == 290)
+            .AsEnumerable()
+            .Select(
+                b => new
+                {
+                    Sbyte = (sbyte)b.TestCharacter,
+                    Byte = (byte)b.TestCharacter,
+                    Short = (short)b.TestCharacter,
+                    Ushort = (ushort)b.TestCharacter,
+                    Int = (int)b.TestCharacter,
+                    Uint = (uint)b.TestCharacter,
+                    Long = (long)b.TestCharacter,
+                    Ulong = (ulong)b.TestCharacter
+                })
+            .First();
+
+        Fixture.ListLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInDataTypes>()
+            .Where(e => e.Id == 290)
+            .Select(
+                b => new
+                {
+                    Sbyte = (sbyte)b.TestCharacter,
+                    Byte = (byte)b.TestCharacter,
+                    Short = (short)b.TestCharacter,
+                    Ushort = (ushort)b.TestCharacter,
+                    Int = (int)b.TestCharacter,
+                    Uint = (uint)b.TestCharacter,
+                    Long = (long)b.TestCharacter,
+                    Ulong = (ulong)b.TestCharacter
+                })
+            .ToList();
+
+        var actual = Assert.Single(query);
+        Assert.Equal(expected.Sbyte, actual.Sbyte);
+        Assert.Equal(expected.Byte, actual.Byte);
+        Assert.Equal(expected.Short, actual.Short);
+        Assert.Equal(expected.Ushort, actual.Ushort);
+        Assert.Equal(expected.Int, actual.Int);
+        Assert.Equal(expected.Uint, actual.Uint);
+        Assert.Equal(expected.Long, actual.Long);
+        Assert.Equal(expected.Ulong, actual.Ulong);
+
+        AssertSql(
+"""
+SELECT unicode("b"."TestCharacter") AS "Sbyte", unicode("b"."TestCharacter") AS "Byte", unicode("b"."TestCharacter") AS "Short", unicode("b"."TestCharacter") AS "Ushort", unicode("b"."TestCharacter") AS "Int", unicode("b"."TestCharacter") AS "Uint", unicode("b"."TestCharacter") AS "Long", unicode("b"."TestCharacter") AS "Ulong"
+FROM "BuiltInDataTypes" AS "b"
+WHERE "b"."Id" = 290
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void Integer_to_character_conversion()
+    {
+        using var context = CreateContext();
+
+        context.Add(
+            new BuiltInDataTypes
+            {
+                Id = 291,
+                TestSignedByte = 0,
+                TestByte = 0,
+                TestInt16 = 0,
+                TestUnsignedInt16 = 0,
+                TestInt32 = 0,
+                TestUnsignedInt32 = 0,
+                TestInt64 = 0,
+                TestUnsignedInt64 = 0
+            });
+
+        context.SaveChanges();
+
+        var expected = context.Set<BuiltInDataTypes>()
+            .Where(e => e.Id == 291)
+            .AsEnumerable()
+            .Select(
+                b => new
+                {
+                    Sbyte = (char)b.TestSignedByte,
+                    Byte = (char)b.TestByte,
+                    Short = (char)b.TestInt16,
+                    Ushort = (char)b.TestUnsignedInt16,
+                    Int = (char)b.TestInt32,
+                    Uint = (char)b.TestUnsignedInt32,
+                    Long = (char)b.TestInt64,
+                    Ulong = (char)b.TestUnsignedInt64
+                })
+            .First();
+
+        Fixture.ListLoggerFactory.Clear();
+
+        var query = context.Set<BuiltInDataTypes>()
+            .Where(e => e.Id == 291)
+            .Select(
+                b => new
+                {
+                    Sbyte = (char)b.TestSignedByte,
+                    Byte = (char)b.TestByte,
+                    Short = (char)b.TestInt16,
+                    Ushort = (char)b.TestUnsignedInt16,
+                    Int = (char)b.TestInt32,
+                    Uint = (char)b.TestUnsignedInt32,
+                    Long = (char)b.TestInt64,
+                    Ulong = (char)b.TestUnsignedInt64
+                })
+            .ToList();
+
+        var actual = Assert.Single(query);
+        Assert.Equal(expected.Sbyte, actual.Sbyte);
+        Assert.Equal(expected.Byte, actual.Byte);
+        Assert.Equal(expected.Short, actual.Short);
+        Assert.Equal(expected.Ushort, actual.Ushort);
+        Assert.Equal(expected.Int, actual.Int);
+        Assert.Equal(expected.Uint, actual.Uint);
+        Assert.Equal(expected.Long, actual.Long);
+        Assert.Equal(expected.Ulong, actual.Ulong);
+
+        AssertSql(
+"""
+SELECT char("b"."TestSignedByte") AS "Sbyte", char("b"."TestByte") AS "Byte", char("b"."TestInt16") AS "Short", char("b"."TestUnsignedInt16") AS "Ushort", char("b"."TestInt32") AS "Int", char("b"."TestUnsignedInt32") AS "Uint", char("b"."TestInt64") AS "Long", char("b"."TestUnsignedInt64") AS "Ulong"
+FROM "BuiltInDataTypes" AS "b"
+WHERE "b"."Id" = 291
+""");
+    }
+
+    [ConditionalFact]
+    public virtual void Projecting_arithmetic_operations_on_decimals()
     {
         using var context = CreateContext();
         var expected = (from dt1 in context.Set<BuiltInDataTypes>().ToList()
                         from dt2 in context.Set<BuiltInDataTypes>().ToList()
+                        where dt2.TestDecimal != 0m
                         orderby dt1.Id, dt2.Id
                         select new
                         {
@@ -1658,6 +1800,7 @@ WHERE "b"."Id" = 13
 
         var actual = (from dt1 in context.Set<BuiltInDataTypes>()
                       from dt2 in context.Set<BuiltInDataTypes>()
+                      where dt2.TestDecimal != 0m
                       orderby dt1.Id, dt2.Id
                       select new
                       {
@@ -1683,6 +1826,7 @@ WHERE "b"."Id" = 13
 SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_negate("b"."TestDecimal") AS "negate"
 FROM "BuiltInDataTypes" AS "b"
 CROSS JOIN "BuiltInDataTypes" AS "b0"
+WHERE "b0"."TestDecimal" <> '0.0'
 ORDER BY "b"."Id", "b0"."Id"
 """);
     }

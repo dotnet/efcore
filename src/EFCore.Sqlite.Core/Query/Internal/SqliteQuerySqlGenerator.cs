@@ -313,6 +313,27 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     {
         switch (sqlUnaryExpression.OperatorType)
         {
+            case ExpressionType.Convert:
+                if (sqlUnaryExpression.Operand.Type == typeof(char)
+                    && sqlUnaryExpression.Type.IsInteger())
+                {
+                    Sql.Append("unicode(");
+                    Visit(sqlUnaryExpression.Operand);
+                    Sql.Append(")");
+
+                    return sqlUnaryExpression;
+                }
+                else if (sqlUnaryExpression.Operand.Type.IsInteger()
+                    && sqlUnaryExpression.Type == typeof(char))
+                {
+                    Sql.Append("char(");
+                    Visit(sqlUnaryExpression.Operand);
+                    Sql.Append(")");
+
+                    return sqlUnaryExpression;
+                }
+                goto default;
+
             case ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool):
                 switch (sqlUnaryExpression.Operand)
                 {
