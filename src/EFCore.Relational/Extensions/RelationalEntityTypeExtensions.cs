@@ -1379,13 +1379,16 @@ public static class RelationalEntityTypeExtensions
             return excluded.Value;
         }
 
-        if (entityType.BaseType != null)
+        if (entityType.BaseType != null
+            && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
         {
             return entityType.GetRootType().IsTableExcludedFromMigrations();
         }
 
         var ownership = entityType.FindOwnership();
-        if (ownership is { IsUnique: true })
+        if (ownership is { IsUnique: true }
+            && ownership.DeclaringEntityType.GetTableName() == entityType.GetTableName()
+            && ownership.DeclaringEntityType.GetSchema() == entityType.GetSchema())
         {
             return ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
         }
