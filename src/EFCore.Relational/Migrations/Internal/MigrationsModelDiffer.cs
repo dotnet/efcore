@@ -558,7 +558,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         DiffContext diffContext)
     {
         if (source.IsExcludedFromMigrations
-            && target.IsExcludedFromMigrations)
+            || target.IsExcludedFromMigrations)
         {
             // Populate column mapping
             foreach (var _ in Diff(source.Columns, target.Columns, diffContext))
