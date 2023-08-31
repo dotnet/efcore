@@ -1572,9 +1572,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                     throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                 }
 
-                CheckForNullComplexProperties();
                 CheckForNullCollection(property);
             }
+            CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Modified)
         {
@@ -1589,10 +1589,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                             EntityType.DisplayName()));
                 }
 
-                CheckForNullComplexProperties();
                 CheckForNullCollection(property);
                 CheckForUnknownKey(property);
             }
+            CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Deleted)
         {
