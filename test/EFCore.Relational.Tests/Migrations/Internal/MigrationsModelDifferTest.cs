@@ -8285,6 +8285,62 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Change_TPT_to_TPC_with_excluded_base()
+        => Execute(
+            common =>
+            {
+                common.Entity(
+                    "Order",
+                    x =>
+                    {
+                        x.ToTable("Order", t => t.ExcludeFromMigrations());
+                        x.Property<int>("Id");
+                        x.Property<string>("Address");
+                    });
+                common.Entity(
+                    "DetailedOrder",
+                    x =>
+                    {
+                        x.ToTable("DetailedOrder");
+                        x.HasBaseType("Order");
+                        x.Property<string>("Description").HasColumnName("Description");
+                    });
+            },
+            _ => { },
+            target =>
+            {
+                target.Entity("Order").UseTpcMappingStrategy();
+            },
+            upOperations =>
+            {
+                Assert.Equal(2, upOperations.Count);
+
+                var dropForeignKeyOperation = Assert.IsType<DropForeignKeyOperation>(upOperations[0]);
+                Assert.Null(dropForeignKeyOperation.Schema);
+                Assert.Equal("DetailedOrder", dropForeignKeyOperation.Table);
+                Assert.Equal("FK_DetailedOrder_Order_Id", dropForeignKeyOperation.Name);
+
+                var addColumnOperation = Assert.IsType<AddColumnOperation>(upOperations[1]);
+                Assert.Null(addColumnOperation.Schema);
+                Assert.Equal("DetailedOrder", addColumnOperation.Table);
+                Assert.Equal("Address", addColumnOperation.Name);
+            },
+            downOperations =>
+            {
+                Assert.Equal(2, downOperations.Count);
+
+                var dropColumnOperation = Assert.IsType<DropColumnOperation>(downOperations[0]);
+                Assert.Null(dropColumnOperation.Schema);
+                Assert.Equal("DetailedOrder", dropColumnOperation.Table);
+                Assert.Equal("Address", dropColumnOperation.Name);
+
+                var addForeignKeyOperation = Assert.IsType<AddForeignKeyOperation>(downOperations[1]);
+                Assert.Null(addForeignKeyOperation.Schema);
+                Assert.Equal("DetailedOrder", addForeignKeyOperation.Table);
+                Assert.Equal("FK_DetailedOrder_Order_Id", addForeignKeyOperation.Name);
+            });
+
+    [ConditionalFact]
     public void Add_foreign_key_on_base_type()
         => Execute(
             modelBuilder =>

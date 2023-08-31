@@ -88,7 +88,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
             exception.Message);
     }
 
-    [ConditionalFact(Skip = "Issue #runtime/issues/89118")]
+    [ConditionalFact]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
         var connectionMode = ConnectionMode.Direct;
