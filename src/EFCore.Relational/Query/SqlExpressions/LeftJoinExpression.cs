@@ -48,9 +48,20 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
     /// <param name="joinPredicate">The <see cref="PredicateJoinExpressionBase.JoinPredicate" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
+    public override LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
             ? new LeftJoinExpression(table, joinPredicate, GetAnnotations())
+            : this;
+
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public override LeftJoinExpression Update(TableExpressionBase table)
+        => table != Table
+            ? new LeftJoinExpression(table, JoinPredicate, GetAnnotations())
             : this;
 
     /// <inheritdoc />

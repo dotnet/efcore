@@ -44,6 +44,15 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     /// </summary>
     public virtual SqlExpression JoinPredicate { get; }
 
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="table">The <see cref="JoinExpressionBase.Table" /> property of the result.</param>
+    /// <param name="joinPredicate">The <see cref="PredicateJoinExpressionBase.JoinPredicate" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public abstract PredicateJoinExpressionBase Update(TableExpressionBase table, SqlExpression joinPredicate);
+
     /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj != null

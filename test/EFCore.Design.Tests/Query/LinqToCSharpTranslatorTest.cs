@@ -1835,8 +1835,7 @@ catch
     {
        var typeMappingSource = new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                new RelationalTypeMappingSourceDependencies(new IRelationalTypeMappingSourcePlugin[0]),
-                new SqlServerSingletonOptions());
+                new RelationalTypeMappingSourceDependencies(new IRelationalTypeMappingSourcePlugin[0]));
 
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();

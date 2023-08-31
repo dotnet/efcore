@@ -182,15 +182,17 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 if (expression is MethodCallExpression methodCallExpression)
                 {
-                    if (methodCallExpression.Method.IsGenericMethod
-                        && methodCallExpression.Method.DeclaringType == typeof(Enumerable)
-                        && methodCallExpression.Method.Name == nameof(Enumerable.ToList)
-                        && methodCallExpression.Arguments.Count == 1
-                        && methodCallExpression.Arguments[0].Type.TryGetElementType(typeof(IQueryable<>)) != null)
+                    if (methodCallExpression is
+                        {
+                            Method.IsGenericMethod: true,
+                            Method.Name: nameof(Enumerable.ToList),
+                            Method: var method,
+                            Arguments: [var argument]
+                        }
+                        && method.DeclaringType == typeof(Enumerable)
+                        && argument.Type.TryGetElementType(typeof(IQueryable<>)) != null)
                     {
-                        var subquery = _queryableMethodTranslatingExpressionVisitor.TranslateSubquery(
-                            methodCallExpression.Arguments[0]);
-                        if (subquery != null)
+                        if (_queryableMethodTranslatingExpressionVisitor.TranslateSubquery(argument) is ShapedQueryExpression subquery)
                         {
                             _clientProjections!.Add(subquery);
                             // expression.Type here will be List<T>

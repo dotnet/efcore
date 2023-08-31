@@ -599,14 +599,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Column_collection_Concat_parameter_collection_equality_inline_collection_not_supported(bool async)
+    public virtual async Task Column_collection_Concat_parameter_collection_equality_inline_collection(bool async)
     {
         var ints = new[] { 1, 10 };
 
-        await AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Concat(ints) == new[] { 1, 11, 111, 1, 10 })));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Concat(ints) == new[] { 1, 11, 111, 1, 10 }),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Concat(ints).SequenceEqual(new[] { 1, 11, 111, 1, 10 })),
+            entryCount: 1);
     }
 
     [ConditionalTheory]
@@ -620,15 +621,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    public virtual async Task Column_collection_equality_inline_collection_with_parameters(bool async)
     {
         var (i, j) = (1, 10);
 
-        return AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { i, j }),
-                entryCount: 1));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { i, j }),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(new[] { i, j })),
+            entryCount: 1);
     }
 
     [ConditionalTheory]
@@ -696,19 +697,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     [ConditionalFact]
     public virtual void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
-        // The array indexing is translated as a subquery over e.g. OPENJSON with LIMIT/OFFSET.
-        // Since there's a CAST over that, the type mapping inference from the other side (p.String) doesn't propagate inside to the
-        // subquery. In this case, the CAST operand gets the default CLR type mapping, but that's object in this case.
-        // We should apply the default type mapping to the parameter, but need to figure out the exact rules when to do this.
         var query = EF.CompileQuery(
             (PrimitiveCollectionsContext context, object[] parameters)
                 => context.Set<PrimitiveCollectionsEntity>().Where(p => p.String == (string)parameters[0]));
 
         using var context = Fixture.CreateContext();
 
-        var exception = Assert.Throws<InvalidOperationException>(() => query(context, new[] { "foo" }).ToList());
-
-        Assert.Contains("in the SQL tree does not have a type mapping assigned", exception.Message);
+        _ = query(context, new[] { "foo" }).ToList();
     }
 
     [ConditionalTheory]
@@ -723,12 +718,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         var ints1 = new[] { 10, 111 };
         var ints2 = new[] { 7, 42 };
 
-        compiledQuery(context, ints1, ints2).ToList();
-
-        //var message = Assert.Throws<InvalidOperationException>(
-        //    () => compiledQuery(context, ints1, ints2).ToList()).Message;
-
-        //Assert.Equal(RelationalStrings.SetOperationsRequireAtLeastOneSideWithValidTypeMapping("Union"), message);
+        _ = compiledQuery(context, ints1, ints2).ToList();
     }
 
     [ConditionalTheory]
@@ -774,7 +764,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Project_collection_of_ints_with_paging(bool async)
+    public virtual Task Project_collection_of_nullable_ints_with_paging(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.Take(20).ToList()),
@@ -783,7 +773,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Project_collection_of_ints_with_paging2(bool async)
+    public virtual Task Project_collection_of_nullable_ints_with_paging2(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.OrderBy(x => x).Skip(1).ToList()),
@@ -792,7 +782,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Project_collection_of_ints_with_paging3(bool async)
+    public virtual Task Project_collection_of_nullable_ints_with_paging3(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.NullableInts.Skip(2).ToList()),
