@@ -7,7 +7,9 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -52,38 +54,50 @@ namespace Microsoft.Data.Sqlite
                 ?.GetRuntimeMethod("Init", Type.EmptyTypes)
                 ?.Invoke(null, null);
 
-            var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET");
-
-            var storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
-                ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
-
-            object? currentAppData = null;
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
-            }
-            catch (TargetInvocationException)
-            {
-                // Ignore "The process has no package identity."
-            }
-
-            if (currentAppData != null)
-            {
-                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
-                var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
-                if (localFolderPath != null)
+                Type? appDataType = null;
+                Type? storageFolderType = null;
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                        ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET");
+
+                    storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
+                        ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
+                }
+                catch (FileLoadException)
+                {
+                    // Ignore "Could not load assembly."
                 }
 
-                var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
-                var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
-                if (tempFolderPath != null)
+                object? currentAppData = null;
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
+                }
+                catch (TargetInvocationException)
+                {
+                    // Ignore "The process has no package identity."
+                }
+
+                if (currentAppData != null)
+                {
+                    var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                    var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
+                    if (localFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
+
+                    var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                    var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                    if (tempFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
                 }
             }
         }
