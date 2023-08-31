@@ -851,6 +851,65 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void CreateAggregate_works_called_twice()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            connection.ExecuteNonQuery("CREATE TABLE dual2 (dummy1, dummy2); INSERT INTO dual2 (dummy1, dummy2) VALUES ('X', 'Y');");
+            connection.CreateAggregate(
+                "test",
+                "A",
+                (string a, string x, string y) => a + x + y,
+                a => a + "Z");
+
+            var result = connection.ExecuteScalar<string>("SELECT test(dummy1, dummy2) FROM dual2;");
+            Assert.Equal("AXYZ", result);
+
+            result = connection.ExecuteScalar<string>("SELECT test(dummy1, dummy2) FROM dual2;");
+            Assert.Equal("AXYZ", result);
+        }
+
+        [Fact]
+        public void CreateAggregate_works_called_twice_in_same_query()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            connection.ExecuteNonQuery("CREATE TABLE dual2 (dummy1, dummy2); INSERT INTO dual2 (dummy1, dummy2) VALUES ('X', 'Y');");
+            connection.CreateAggregate(
+                "test",
+                "A",
+                (string a, string x, string y) => a + x + y,
+                a => a + "Z");
+
+            using (var reader = connection.ExecuteReader("SELECT test(dummy1, dummy2), test(dummy2, dummy1) FROM dual2;"))
+            {
+                Assert.True(reader.Read());
+
+                Assert.Equal("AXYZ", reader.GetString(0));
+                Assert.Equal("AYXZ", reader.GetString(1));
+
+                Assert.False(reader.Read());
+            }
+        }
+
+        [Fact]
+        public void CreateAggregate_works_when_no_rows()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            connection.ExecuteNonQuery("CREATE TABLE dual2 (dummy1, dummy2);");
+            connection.CreateAggregate(
+                "test",
+                "A",
+                (string a, string x, string y) => a + x + y,
+                a => a + "Z");
+
+            var result = connection.ExecuteScalar<string>("SELECT test(dummy1, dummy2) FROM dual2;");
+
+            Assert.Equal("AZ", result);
+        }
+
+        [Fact]
         public void CreateAggregate_works_when_params()
         {
             using var connection = new SqliteConnection("Data Source=:memory:");

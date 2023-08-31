@@ -7,7 +7,9 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -52,38 +54,50 @@ namespace Microsoft.Data.Sqlite
                 ?.GetRuntimeMethod("Init", Type.EmptyTypes)
                 ?.Invoke(null, null);
 
-            var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET");
-
-            var storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
-                ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
-
-            object? currentAppData = null;
-            try
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
-            }
-            catch (TargetInvocationException)
-            {
-                // Ignore "The process has no package identity."
-            }
-
-            if (currentAppData != null)
-            {
-                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
-                var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
-                if (localFolderPath != null)
+                Type? appDataType = null;
+                Type? storageFolderType = null;
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                        ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET");
+
+                    storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
+                        ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
+                }
+                catch (FileLoadException)
+                {
+                    // Ignore "Could not load assembly."
                 }
 
-                var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
-                var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
-                if (tempFolderPath != null)
+                object? currentAppData = null;
+                try
                 {
-                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
-                    Debug.Assert(rc == SQLITE_OK);
+                    currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
+                }
+                catch (TargetInvocationException)
+                {
+                    // Ignore "The process has no package identity."
+                }
+
+                if (currentAppData != null)
+                {
+                    var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                    var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
+                    if (localFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
+
+                    var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                    var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                    if (tempFolderPath != null)
+                    {
+                        var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                        Debug.Assert(rc == SQLITE_OK);
+                    }
                 }
             }
         }
@@ -821,22 +835,24 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_step? func_step = null;
             if (func != null)
             {
-                func_step = (ctx, user_data, args) =>
+                func_step = static (ctx, user_data, args) =>
                 {
-                    var context = (AggregateContext<TAccumulate>)user_data;
+                    var definition = (AggregateDefinition<TAccumulate, TResult>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(definition.Seed);
+
+                    var context = (AggregateContext<TAccumulate>)ctx.state;
                     if (context.Exception != null)
                     {
                         return;
                     }
 
                     // TODO: Avoid allocation when niladic
-                    var reader = new SqliteParameterReader(name, args);
+                    var reader = new SqliteParameterReader(definition.Name, args);
 
                     try
                     {
-                        // TODO: Avoid closure by passing func via user_data
                         // NB: No need to set ctx.state since we just mutate the instance
-                        context.Accumulate = func(context.Accumulate, reader);
+                        context.Accumulate = definition.Func!(context.Accumulate, reader);
                     }
                     catch (Exception ex)
                     {
@@ -848,16 +864,18 @@ namespace Microsoft.Data.Sqlite
             delegate_function_aggregate_final? func_final = null;
             if (resultSelector != null)
             {
-                func_final = (ctx, user_data) =>
+                func_final = static (ctx, user_data) =>
                 {
-                    var context = (AggregateContext<TAccumulate>)user_data;
+                    var definition = (AggregateDefinition<TAccumulate, TResult>)user_data;
+                    ctx.state ??= new AggregateContext<TAccumulate>(definition.Seed);
+
+                    var context = (AggregateContext<TAccumulate>)ctx.state;
 
                     if (context.Exception == null)
                     {
                         try
                         {
-                            // TODO: Avoid closure by passing resultSelector via user_data
-                            var result = resultSelector(context.Accumulate);
+                            var result = definition.ResultSelector!(context.Accumulate);
 
                             new SqliteResultBinder(ctx, result).Bind();
                         }
@@ -881,7 +899,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var flags = isDeterministic ? SQLITE_DETERMINISTIC : 0;
-            var state = new AggregateContext<TAccumulate>(seed);
+            var state = new AggregateDefinition<TAccumulate, TResult>(name, seed, func, resultSelector);
 
             if (State == ConnectionState.Open)
             {
@@ -913,6 +931,22 @@ namespace Microsoft.Data.Sqlite
             reader.GetValues(values);
 
             return values;
+        }
+
+        private sealed class AggregateDefinition<TAccumulate, TResult>
+        {
+            public AggregateDefinition(string name, TAccumulate seed, Func<TAccumulate, SqliteValueReader, TAccumulate>? func, Func<TAccumulate, TResult>? resultSelector)
+            {
+                Name = name;
+                Seed = seed;
+                Func = func;
+                ResultSelector = resultSelector;
+            }
+
+            public string Name { get; }
+            public TAccumulate Seed { get; }
+            public Func<TAccumulate, SqliteValueReader, TAccumulate>? Func { get; }
+            public Func<TAccumulate, TResult>? ResultSelector { get; }
         }
 
         private sealed class AggregateContext<T>
