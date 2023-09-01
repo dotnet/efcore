@@ -11,10 +11,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerOptionsExtension : RelationalOptionsExtension
+public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextOptionsExtension
 {
     private DbContextOptionsExtensionInfo? _info;
     private int? _compatibilityLevel;
+    private bool? _azureSql;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,6 +53,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension
         : base(copyFrom)
     {
         _compatibilityLevel = copyFrom._compatibilityLevel;
+        _azureSql = copyFrom._azureSql;
     }
 
     /// <summary>
@@ -103,6 +105,50 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension
         clone._compatibilityLevel = compatibilityLevel;
 
         return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsAzureSql
+        => _azureSql ?? IsAzureSqlDefault;
+
+    private bool IsAzureSqlDefault
+        => (ConnectionString ?? Connection?.ConnectionString)
+            ?.Contains(".database.windows.net", StringComparison.InvariantCultureIgnoreCase) == true;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlServerOptionsExtension WithAzureSql(bool enable)
+    {
+        var clone = (SqlServerOptionsExtension)Clone();
+
+        clone._azureSql = enable;
+
+        return clone;
+    }
+
+    /// <inheritdoc/>
+    public virtual IDbContextOptionsExtension ApplyDefaults(IDbContextOptions options)
+    {
+        if (!IsAzureSql)
+        {
+            return this;
+        }
+
+        if (ExecutionStrategyFactory == null)
+        {
+            return WithExecutionStrategyFactory(c => new SqlServerRetryingExecutionStrategy(c));
+        }
+
+        return this;
     }
 
     /// <summary>

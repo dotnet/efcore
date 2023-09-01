@@ -90,7 +90,7 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
             context.ChangeTracker.AcceptAllChanges();
 
             var retryMessage =
-                "A transient exception occurred during execution. The operation will be retried after 0ms."
+                "A transient exception occurred during execution. The operation will be retried after 5000ms."
                 + Environment.NewLine
                 + "Microsoft.Data.SqlClient.SqlException (0x80131904): Bang!";
             if (realFailure)

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
 ///         error numbers for transient errors that can be retried. Additional error numbers to retry on can also be supplied.
 ///     </para>
 ///     <para>
@@ -29,6 +29,11 @@ namespace Microsoft.EntityFrameworkCore;
 public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
 {
     private readonly HashSet<int>? _additionalErrorNumbers;
+
+    /// <summary>
+    ///     The default minimum time delay between retries for Azure SQL.
+    /// </summary>
+    protected static readonly TimeSpan DefaultMinDelayAzureSql = TimeSpan.FromSeconds(5);
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -139,6 +144,11 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     }
 
     /// <summary>
+    ///     Additional SQL error numbers that should be considered transient.
+    /// </summary>
+    public virtual IEnumerable<int>? AdditionalErrorNumbers => _additionalErrorNumbers;
+
+    /// <summary>
     ///     Determines whether the specified exception represents a transient failure that can be
     ///     compensated by a retry. Additional exceptions to retry on can be passed to the constructor.
     /// </summary>
@@ -181,7 +191,9 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
 
         return CallOnWrappedException(lastException, IsMemoryOptimizedError)
             ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
-            : baseDelay;
+            : CallOnWrappedException(lastException, IsThrottlingError)
+                ? baseDelay + DefaultMinDelayAzureSql
+                : baseDelay;
     }
 
     private static bool IsMemoryOptimizedError(Exception exception)
@@ -197,6 +209,60 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
                     case 41305:
                     case 41325:
                     case 41839:
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool IsThrottlingError(Exception exception)
+    {
+        if (exception is SqlException sqlException)
+        {
+            foreach (SqlError err in sqlException.Errors)
+            {
+                switch (err.Number)
+                {
+                    case 49977:
+                    case 49920:
+                    case 49919:
+                    case 49918:
+                    case 45319:
+                    case 45182:
+                    case 45161:
+                    case 45157:
+                    case 45156:
+                    case 41840:
+                    case 41823:
+                    case 40903:
+                    case 40890:
+                    case 40675:
+                    case 40648:
+                    case 40642:
+                    case 40613:
+                    case 40501:
+                    case 40189:
+                    case 39110:
+                    case 39108:
+                    case 37327:
+                    case 30085:
+                    case 25740:
+                    case 25738:
+                    case 22498:
+                    case 22335:
+                    case 17889:
+                    case 14355:
+                    case 10930:
+                    case 10929:
+                    case 9985:
+                    case 3950:
+                    case 3935:
+                    case 1404:
+                    case 1204:
+                    case 233:
+                    case -2:
                         return true;
                 }
             }
