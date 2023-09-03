@@ -141,17 +141,15 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
 
                 var sourceType = mappingInfo.ClrType;
-                RelationalTypeMapping? mapping = null;
+                var mapping = providerClrType == null
+                    || providerClrType == mappingInfo.ClrType
+                        ? self.FindMapping(mappingInfo)
+                        : null;
 
-                if (elementMapping == null
-                    || customConverter != null)
+                if (mapping == null)
                 {
-                    mapping = providerClrType == null
-                        || providerClrType == mappingInfo.ClrType
-                            ? self.FindMapping(mappingInfo)
-                            : null;
-
-                    if (mapping == null)
+                    if (elementMapping == null
+                        || customConverter != null)
                     {
                         if (sourceType != null)
                         {
@@ -193,10 +191,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                             mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                         }
                     }
-                }
-                else if (sourceType != null)
-                {
-                    mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    else if (sourceType != null)
+                    {
+                        mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    }
                 }
 
                 if (mapping != null

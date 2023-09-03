@@ -342,6 +342,15 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
+    ///     The element type of the mapping, if any.
+    /// </summary>
+    public IElementType? ElementType
+    {
+        get => _coreTypeMappingInfo.ElementType;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ElementType = value };
+    }
+
+    /// <summary>
     ///     Returns a new <see cref="RelationalTypeMappingInfo" /> with the given converter applied.
     /// </summary>
     /// <param name="converterInfo">The converter to apply.</param>

@@ -97,17 +97,15 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
 
                 var sourceType = mappingInfo.ClrType;
-                CoreTypeMapping? mapping = null;
+                var mapping = providerClrType == null
+                    || providerClrType == mappingInfo.ClrType
+                        ? self.FindMapping(mappingInfo)
+                        : null;
 
-                if (elementMapping == null
-                    || customConverter != null)
+                if (mapping == null)
                 {
-                    mapping = providerClrType == null
-                        || providerClrType == mappingInfo.ClrType
-                            ? self.FindMapping(mappingInfo)
-                            : null;
-
-                    if (mapping == null)
+                    if (elementMapping == null
+                        || customConverter != null)
                     {
                         if (sourceType != null)
                         {
@@ -149,10 +147,10 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                             mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                         }
                     }
-                }
-                else if (sourceType != null)
-                {
-                    mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    else if (sourceType != null)
+                    {
+                        mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    }
                 }
 
                 if (mapping != null

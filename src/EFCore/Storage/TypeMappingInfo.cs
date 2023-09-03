@@ -181,6 +181,7 @@ public readonly record struct TypeMappingInfo
         var mappingHints = customConverter?.MappingHints;
         var property = principals[0];
 
+        ElementType = property.GetElementType();
         IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;
         IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
@@ -273,6 +274,11 @@ public readonly record struct TypeMappingInfo
 
         JsonValueReaderWriter = source.JsonValueReaderWriter;
     }
+
+    /// <summary>
+    ///     The element type of the mapping, if any.
+    /// </summary>
+    public IElementType? ElementType { get; init; }
 
     /// <summary>
     ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
