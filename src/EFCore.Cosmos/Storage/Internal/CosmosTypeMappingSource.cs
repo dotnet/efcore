@@ -72,7 +72,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
     {
         var clrType = mappingInfo.ClrType!;
 
-        if (mappingInfo.ElementType != null)
+        if (mappingInfo.ElementTypeMapping != null)
         {
             return null;
         }

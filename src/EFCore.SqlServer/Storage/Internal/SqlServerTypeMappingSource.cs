@@ -349,7 +349,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                     return Rowversion;
                 }
 
-                if (mappingInfo.ElementType == null)
+                if (mappingInfo.ElementTypeMapping == null)
                 {
                     var isFixedLength = mappingInfo.IsFixedLength == true;
 

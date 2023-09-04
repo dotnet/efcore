@@ -41,7 +41,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     }
 
     private CoreTypeMapping? FindMappingWithConversion(
-        in TypeMappingInfo mappingInfo,
+        TypeMappingInfo mappingInfo,
         IReadOnlyList<IProperty>? principals)
     {
         Type? providerClrType = null;
@@ -70,15 +70,19 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                     }
                 }
 
-                var element = principal.GetElementType();
-                if (element != null)
+                if (elementMapping == null)
                 {
-                    elementMapping = FindMapping(element);
+                    var element = principal.GetElementType();
+                    if (element != null)
+                    {
+                        elementMapping = FindMapping(element);
+                        mappingInfo = mappingInfo with { ElementTypeMapping = elementMapping };
+                    }
                 }
             }
         }
 
-        var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter, elementMapping);
+        var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
 
         ValidateMapping(resolvedMapping, principals?[0]);
 
@@ -88,10 +92,9 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     private CoreTypeMapping? FindMappingWithConversion(
         TypeMappingInfo mappingInfo,
         Type? providerClrType,
-        ValueConverter? customConverter,
-        CoreTypeMapping? elementMapping)
+        ValueConverter? customConverter)
         => _explicitMappings.GetOrAdd(
-            (mappingInfo, providerClrType, customConverter, elementMapping),
+            (mappingInfo, providerClrType, customConverter, mappingInfo.ElementTypeMapping),
             static (k, self) =>
             {
                 var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
@@ -230,7 +233,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         var resolvedMapping = FindMappingWithConversion(
             new TypeMappingInfo(
                 elementType, elementType.IsUnicode(), elementType.GetMaxLength(), elementType.GetPrecision(), elementType.GetScale()),
-            providerClrType, customConverter, null);
+            providerClrType, customConverter);
 
         ValidateMapping(resolvedMapping, null);
 
@@ -275,7 +278,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         ValueConverter? customConverter = null;
         if (typeConfiguration == null)
         {
-            mappingInfo = new TypeMappingInfo(type);
+            mappingInfo = new TypeMappingInfo(type, elementMapping);
         }
         else
         {
@@ -283,13 +286,14 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
             customConverter = typeConfiguration.GetValueConverter();
             mappingInfo = new TypeMappingInfo(
                 customConverter?.ProviderClrType ?? type,
+                elementMapping,
                 unicode: typeConfiguration.IsUnicode(),
                 size: typeConfiguration.GetMaxLength(),
                 precision: typeConfiguration.GetPrecision(),
                 scale: typeConfiguration.GetScale());
         }
 
-        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter, elementMapping);
+        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
     }
 
     /// <summary>

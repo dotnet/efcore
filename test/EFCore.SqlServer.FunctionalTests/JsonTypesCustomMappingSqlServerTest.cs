@@ -22,7 +22,7 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
             var mapping = base.FindMapping(in mappingInfo);
 
             if ((mapping == null
-                    || (mappingInfo.CoreTypeMappingInfo.ElementType != null
+                    || (mappingInfo.CoreTypeMappingInfo.ElementTypeMapping != null
                         && mapping.ElementTypeMapping == null))
                 && mappingInfo.ClrType != null
                 && mappingInfo.ClrType != typeof(string))
@@ -32,7 +32,7 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
                 mapping = CustomFindCollectionMapping(
                     mappingInfo, mappingInfo.ClrType,
                     null,
-                    mappingInfo.CoreTypeMappingInfo.ElementType?.FindTypeMapping() ?? FindMapping(elementClrType));
+                    mappingInfo.CoreTypeMappingInfo.ElementTypeMapping ?? FindMapping(elementClrType));
             }
 
             return mapping;

@@ -476,12 +476,16 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     public void Does_IndexAttribute_column_SQL_Server_primitive_collection_mapping(bool? unicode, bool? fixedLength)
     {
         var entityType = CreateEntityType<MyTypeWithIndexAttributeOnCollection>();
-        var property = entityType.FindProperty("Ints");
+        var property = entityType.FindProperty("Ints")!;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        entityType.Model.FinalizeModel();
 
-        var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
+        var model = entityType.Model.FinalizeModel();
+        var typeMappingSource = CreateRelationalTypeMappingSource();
+        model.ModelDependencies = new RuntimeModelDependencies(typeMappingSource, null!, null!);
+
+        var runtimeProperty = model.FindEntityType(typeof(MyTypeWithIndexAttributeOnCollection))!.FindProperty("Ints")!;
+        var typeMapping = typeMappingSource.GetMapping(runtimeProperty);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(450)", typeMapping.StoreType);
@@ -861,12 +865,16 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     public void Does_IndexAttribute_column_SQL_Server_primitive_collection_mapping_ansi(bool? fixedLength)
     {
         var entityType = CreateEntityType<MyTypeWithIndexAttributeOnCollection>();
-        var property = entityType.FindProperty("Ints");
+        var property = entityType.FindProperty("Ints")!;
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
-        entityType.Model.FinalizeModel();
 
-        var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
+        var model = entityType.Model.FinalizeModel();
+        var typeMappingSource = CreateRelationalTypeMappingSource();
+        model.ModelDependencies = new RuntimeModelDependencies(typeMappingSource, null!, null!);
+
+        var runtimeProperty = model.FindEntityType(typeof(MyTypeWithIndexAttributeOnCollection))!.FindProperty("Ints")!;
+        var typeMapping = typeMappingSource.GetMapping(runtimeProperty);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(900)", typeMapping.StoreType);
