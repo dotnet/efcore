@@ -13,7 +13,7 @@ public class TestSqlServerConnection : SqlServerConnection
     {
     }
 
-    public int ErrorNumber { get; set; } = -2;
+    public int ErrorNumber { get; set; } = 64;
     public Queue<bool?> OpenFailures { get; } = new();
     public int OpenCount { get; set; }
     public Queue<bool?> CommitFailures { get; } = new();

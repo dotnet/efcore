@@ -41,11 +41,7 @@ public static class SqlServerDbContextOptionsExtensions
     {
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     /// <summary>
@@ -68,11 +64,7 @@ public static class SqlServerDbContextOptionsExtensions
         var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
@@ -132,11 +124,7 @@ public static class SqlServerDbContextOptionsExtensions
         var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection, contextOwnsConnection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     /// <summary>
@@ -248,6 +236,18 @@ public static class SqlServerDbContextOptionsExtensions
     private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
             ?? new SqlServerOptionsExtension();
+
+    private static DbContextOptionsBuilder ApplyConfiguration(DbContextOptionsBuilder optionsBuilder, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction)
+    {
+        ConfigureWarnings(optionsBuilder);
+
+        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
+
+        var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        return optionsBuilder;
+    }
 
     private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
     {
