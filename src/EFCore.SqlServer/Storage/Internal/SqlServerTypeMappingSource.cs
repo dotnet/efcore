@@ -349,20 +349,23 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                     return Rowversion;
                 }
 
-                var isFixedLength = mappingInfo.IsFixedLength == true;
-
-                var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
-                if (size is < 0 or > 8000)
+                if (mappingInfo.ElementTypeMapping == null)
                 {
-                    size = isFixedLength ? 8000 : null;
-                }
+                    var isFixedLength = mappingInfo.IsFixedLength == true;
 
-                return size == null
-                    ? VariableLengthMaxBinary
-                    : new SqlServerByteArrayTypeMapping(
-                        size: size,
-                        fixedLength: isFixedLength,
-                        storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
+                    var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
+                    if (size is < 0 or > 8000)
+                    {
+                        size = isFixedLength ? 8000 : null;
+                    }
+
+                    return size == null
+                        ? VariableLengthMaxBinary
+                        : new SqlServerByteArrayTypeMapping(
+                            size: size,
+                            fixedLength: isFixedLength,
+                            storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
+                }
             }
         }
 

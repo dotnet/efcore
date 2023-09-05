@@ -181,6 +181,7 @@ public readonly record struct TypeMappingInfo
         var mappingHints = customConverter?.MappingHints;
         var property = principals[0];
 
+        ElementTypeMapping = property.GetElementType()?.FindTypeMapping();
         IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;
         IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
@@ -195,17 +196,19 @@ public readonly record struct TypeMappingInfo
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="member">The property or field for which mapping is needed.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
     /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
     /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
     public TypeMappingInfo(
         MemberInfo member,
+        CoreTypeMapping? elementTypeMapping = null,
         bool? unicode = null,
         int? size = null,
         int? precision = null,
         int? scale = null)
-        : this(member.GetMemberType())
+        : this(member.GetMemberType(), elementTypeMapping)
     {
         IsUnicode = unicode;
         Size = size;
@@ -217,6 +220,7 @@ public readonly record struct TypeMappingInfo
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
     /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
     /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
     /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
@@ -225,6 +229,7 @@ public readonly record struct TypeMappingInfo
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
     public TypeMappingInfo(
         Type? type = null,
+        CoreTypeMapping? elementTypeMapping = null,
         bool keyOrIndex = false,
         bool? unicode = null,
         int? size = null,
@@ -233,6 +238,7 @@ public readonly record struct TypeMappingInfo
         int? scale = null)
     {
         ClrType = type?.UnwrapNullableType();
+        ElementTypeMapping = elementTypeMapping;
 
         IsKeyOrIndex = keyOrIndex;
         Size = size;
@@ -272,7 +278,13 @@ public readonly record struct TypeMappingInfo
         ClrType = converter.ProviderClrType.UnwrapNullableType();
 
         JsonValueReaderWriter = source.JsonValueReaderWriter;
+        ElementTypeMapping = source.ElementTypeMapping;
     }
+
+    /// <summary>
+    ///     The element type mapping of the mapping, if any.
+    /// </summary>
+    public CoreTypeMapping? ElementTypeMapping { get; init; }
 
     /// <summary>
     ///     Returns a new <see cref="TypeMappingInfo" /> with the given converter applied.
