@@ -33,6 +33,14 @@ public interface IDbContextOptionsExtension
     void ApplyServices(IServiceCollection services);
 
     /// <summary>
+    ///     Gives the extension a chance to configure defaults based on other options.
+    ///     Most extensions do not have dynamic defaults and so this will be a no-op.
+    /// </summary>
+    /// <param name="options">The options being validated.</param>
+    IDbContextOptionsExtension ApplyDefaults(IDbContextOptions options)
+        => this;
+
+    /// <summary>
     ///     Gives the extension a chance to validate that all options in the extension are valid.
     ///     Most extensions do not have invalid combinations and so this will be a no-op.
     ///     If options are invalid, then an exception should be thrown.
