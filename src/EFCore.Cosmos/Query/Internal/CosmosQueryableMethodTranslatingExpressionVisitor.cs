@@ -154,6 +154,24 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                     return true;
                 }
             }
+            else if (joinCondition is MethodCallExpression methodCallExpression
+                && methodCallExpression.Method.Name == "Equals"
+                && methodCallExpression.Object is null
+                && methodCallExpression.Arguments.Count == 2
+                && methodCallExpression.Arguments[0] is MethodCallExpression equalsMethodCallExpression
+                && equalsMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName)
+                && methodCallExpression.Arguments[1] is ParameterExpression parameterExpresion)
+            {
+                var property = entityType.FindProperty(propertyName);
+                if (property == null)
+                {
+                    return false;
+                }
+
+                properties.Add(property);
+                parameterNames.Add(parameterExpresion.Name);
+                return true;
+            }
 
             return false;
         }
