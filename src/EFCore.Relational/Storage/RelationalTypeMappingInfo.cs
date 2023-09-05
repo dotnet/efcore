@@ -151,7 +151,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale)
     {
         // Note: Empty string is allowed for store type name because SQLite
-        _coreTypeMappingInfo = new TypeMappingInfo(null, false, unicode, size, null, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(null, null, false, unicode, size, null, precision, scale);
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
         IsFixedLength = null;
@@ -161,6 +161,7 @@ public readonly record struct RelationalTypeMappingInfo
     ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
     /// </summary>
     /// <param name="member">The property or field for which mapping is needed.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
     /// <param name="storeTypeName">The provider-specific relational type name for which mapping is needed.</param>
     /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
     /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
@@ -169,6 +170,7 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
     public RelationalTypeMappingInfo(
         MemberInfo member,
+        RelationalTypeMapping? elementTypeMapping = null,
         string? storeTypeName = null,
         string? storeTypeNameBase = null,
         bool? unicode = null,
@@ -176,7 +178,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? precision = null,
         int? scale = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(member, unicode, size, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(member, elementTypeMapping, unicode, size, precision, scale);
 
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
@@ -212,6 +214,7 @@ public readonly record struct RelationalTypeMappingInfo
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
     /// <param name="storeTypeName">The database type name.</param>
     /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
     /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
@@ -224,6 +227,7 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="dbType">The suggested <see cref="DbType"/>, or <see langword="null" /> for default.</param>
     public RelationalTypeMappingInfo(
         Type? type = null,
+        RelationalTypeMapping? elementTypeMapping = null,
         string? storeTypeName = null,
         string? storeTypeNameBase = null,
         bool keyOrIndex = false,
@@ -235,7 +239,7 @@ public readonly record struct RelationalTypeMappingInfo
         int? scale = null,
         DbType? dbType = null)
     {
-        _coreTypeMappingInfo = new TypeMappingInfo(type, keyOrIndex, unicode, size, rowVersion, precision, scale);
+        _coreTypeMappingInfo = new TypeMappingInfo(type, elementTypeMapping, keyOrIndex, unicode, size, rowVersion, precision, scale);
 
         IsFixedLength = fixedLength;
         StoreTypeName = storeTypeName;
@@ -339,6 +343,15 @@ public readonly record struct RelationalTypeMappingInfo
     {
         get => _coreTypeMappingInfo.JsonValueReaderWriter;
         init => _coreTypeMappingInfo = _coreTypeMappingInfo with { JsonValueReaderWriter = value };
+    }
+
+    /// <summary>
+    ///     The element type of the mapping, if any.
+    /// </summary>
+    public RelationalTypeMapping? ElementTypeMapping
+    {
+        get => (RelationalTypeMapping?)_coreTypeMappingInfo.ElementTypeMapping;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { ElementTypeMapping = value };
     }
 
     /// <summary>

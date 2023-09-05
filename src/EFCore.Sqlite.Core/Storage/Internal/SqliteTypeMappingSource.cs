@@ -136,6 +136,11 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType;
+        if (clrType == typeof(byte[]) && mappingInfo.ElementTypeMapping != null)
+        {
+            return null;
+        }
+
         if (clrType != null
             && _clrTypeMappings.TryGetValue(clrType, out var mapping))
         {

@@ -668,27 +668,31 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
                 "1"
             });
 
-        // See #25343
-        await Can_add_update_delete_with_collection(
-            new List<EntityType>
+        await Assert.ThrowsAsync<ArgumentException>( // #31616
+            async () =>
             {
-                EntityType.Base,
-                EntityType.Derived,
-                EntityType.Derived
-            },
-            c =>
-            {
-                c.Collection.Clear();
-                c.Collection.Add(EntityType.Base);
-            },
-            new List<EntityType> { EntityType.Base },
-            modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<EntityType>>>(
-                c =>
-                    c.Property(s => s.Collection)
-                        .HasConversion(
-                            m => m.Select(v => (int)v).ToList(), p => p.Select(v => (EntityType)v).ToList(),
-                            new ListComparer<EntityType, List<EntityType>>(
-                                ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
+                // See #25343
+                await Can_add_update_delete_with_collection(
+                    new List<EntityType>
+                    {
+                        EntityType.Base,
+                        EntityType.Derived,
+                        EntityType.Derived
+                    },
+                    c =>
+                    {
+                        c.Collection.Clear();
+                        c.Collection.Add(EntityType.Base);
+                    },
+                    new List<EntityType> { EntityType.Base },
+                    modelBuilder => modelBuilder.Entity<CustomerWithCollection<List<EntityType>>>(
+                        c =>
+                            c.Property(s => s.Collection)
+                                .HasConversion(
+                                    m => m.Select(v => (int)v).ToList(), p => p.Select(v => (EntityType)v).ToList(),
+                                    new ListComparer<EntityType, List<EntityType>>(
+                                        ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
+            });
 
         await Can_add_update_delete_with_collection(
             new[] { 1f, 2 },

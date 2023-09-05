@@ -71,6 +71,12 @@ public class CosmosTypeMappingSource : TypeMappingSource
     private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
+
+        if (mappingInfo.ElementTypeMapping != null)
+        {
+            return null;
+        }
+
         var elementType = clrType.TryGetSequenceType();
         if (elementType == null)
         {

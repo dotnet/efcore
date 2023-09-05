@@ -85,7 +85,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             RelationalStrings.NoneRelationalTypeMappingOnARelationalTypeMappingSource);
 
     private RelationalTypeMapping? FindMappingWithConversion(
-        in RelationalTypeMappingInfo mappingInfo,
+        RelationalTypeMappingInfo mappingInfo,
         IReadOnlyList<IProperty>? principals)
     {
         Type? providerClrType = null;
@@ -114,15 +114,19 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                     }
                 }
 
-                var element = principal.GetElementType();
-                if (element != null)
+                if (elementMapping == null)
                 {
-                    elementMapping = FindMapping(element);
+                    var element = principal.GetElementType();
+                    if (element != null)
+                    {
+                        elementMapping = FindMapping(element);
+                        mappingInfo = mappingInfo with { ElementTypeMapping = (RelationalTypeMapping?)elementMapping };
+                    }
                 }
             }
         }
 
-        var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter, elementMapping);
+        var resolvedMapping = FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
 
         ValidateMapping(resolvedMapping, principals?[0]);
 
@@ -132,26 +136,23 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     private RelationalTypeMapping? FindMappingWithConversion(
         RelationalTypeMappingInfo mappingInfo,
         Type? providerClrType,
-        ValueConverter? customConverter,
-        CoreTypeMapping? elementMapping)
+        ValueConverter? customConverter)
         => _explicitMappings.GetOrAdd(
-            (mappingInfo, providerClrType, customConverter, elementMapping),
+            (mappingInfo, providerClrType, customConverter, mappingInfo.ElementTypeMapping),
             static (k, self) =>
             {
                 var (mappingInfo, providerClrType, customConverter, elementMapping) = k;
 
                 var sourceType = mappingInfo.ClrType;
-                RelationalTypeMapping? mapping = null;
+                var mapping = providerClrType == null
+                    || providerClrType == mappingInfo.ClrType
+                        ? self.FindMapping(mappingInfo)
+                        : null;
 
-                if (elementMapping == null
-                    || customConverter != null)
+                if (mapping == null)
                 {
-                    mapping = providerClrType == null
-                        || providerClrType == mappingInfo.ClrType
-                            ? self.FindMapping(mappingInfo)
-                            : null;
-
-                    if (mapping == null)
+                    if (elementMapping == null
+                        || customConverter != null)
                     {
                         if (sourceType != null)
                         {
@@ -193,10 +194,10 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                             mapping ??= self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
                         }
                     }
-                }
-                else if (sourceType != null)
-                {
-                    mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    else if (sourceType != null)
+                    {
+                        mapping = self.FindCollectionMapping(mappingInfo, sourceType, providerClrType, elementMapping);
+                    }
                 }
 
                 if (mapping != null
@@ -312,7 +313,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
         var resolvedMapping = FindMappingWithConversion(
             new RelationalTypeMappingInfo(elementType, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale),
-            providerClrType, customConverter, null);
+            providerClrType, customConverter);
 
         ValidateMapping(resolvedMapping, null);
 
@@ -357,7 +358,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         ValueConverter? customConverter = null;
         if (typeConfiguration == null)
         {
-            mappingInfo = new RelationalTypeMappingInfo(type);
+            mappingInfo = new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping);
         }
         else
         {
@@ -379,6 +380,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
             mappingInfo = new RelationalTypeMappingInfo(
                 customConverter?.ProviderClrType ?? type,
+                (RelationalTypeMapping?)elementMapping,
                 storeTypeName,
                 storeTypeBaseName,
                 keyOrIndex: false,
@@ -390,7 +392,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 scale: scale);
         }
 
-        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter, (RelationalTypeMapping?)elementMapping);
+        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
     }
 
     /// <summary>
@@ -422,7 +424,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 attribute.TypeName, ref unicode, ref size, ref precision, ref scale);
 
             return FindMappingWithConversion(
-                new RelationalTypeMappingInfo(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+                new RelationalTypeMappingInfo(member, null, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
         }
 
         return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
@@ -496,7 +498,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
         return FindMappingWithConversion(
             new RelationalTypeMappingInfo(
-                type, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
+                type, null, storeTypeName, storeTypeBaseName, keyOrIndex, unicode, size, rowVersion, fixedLength, precision, scale), null);
     }
 
     /// <inheritdoc />
