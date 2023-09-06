@@ -1260,7 +1260,7 @@ OFFSET 0 LIMIT 1
     {
         var options = Fixture.CreateOptions();
 
-        var customer = new Customer { Id = 42, Name = "Theon" };
+        var customer = new CustomerGuid { Id = Guid.NewGuid(), Name = "Theon" };
 
         await using (var context = new PartitionKeyContextPrimaryKey(options))
         {
@@ -1273,11 +1273,11 @@ OFFSET 0 LIMIT 1
 
         await using (var context = new PartitionKeyContextPrimaryKey(options))
         {
-            var customerFromStore = context.Set<Customer>().Find(42);
+            var customerFromStore = context.Set<CustomerGuid>().Find(customer.Id);
 
-            Assert.Equal(42, customerFromStore.Id);
+            Assert.Equal(customer.Id, customerFromStore.Id);
             Assert.Equal("Theon", customerFromStore.Name);
-            AssertSql(context, @"ReadItem(42, 42)");
+            AssertSql(context, @$"ReadItem({customer.Id}, {customer.Id})");
         }
     }
 
@@ -1404,11 +1404,10 @@ OFFSET 0 LIMIT 1
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>(
+            => modelBuilder.Entity<CustomerGuid>(
                 cb =>
                 {
-                    cb.HasNoDiscriminator();
-                    cb.Property(c => c.Id).HasConversion<string>();
+                    cb.Property(c => c.Id).ToJsonProperty("id");
                     cb.HasPartitionKey(c => c.Id);
                 });
     }
