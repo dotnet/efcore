@@ -41,6 +41,11 @@ public class SingletonCosmosClientWrapper : ISingletonCosmosClientWrapper
             configuration.ApplicationRegion = options.Region;
         }
 
+        if (options.PreferredRegions != null)
+        {
+            configuration.ApplicationPreferredRegions = options.PreferredRegions;
+        }
+
         if (options.LimitToEndpoint != null)
         {
             configuration.LimitToEndpoint = options.LimitToEndpoint.Value;

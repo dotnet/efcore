@@ -23,6 +23,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     private string? _connectionString;
     private string? _databaseName;
     private string? _region;
+    private IReadOnlyList<string>? _preferredRegions;
     private ConnectionMode? _connectionMode;
     private bool? _limitToEndpoint;
     private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
@@ -61,6 +62,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
         _databaseName = copyFrom._databaseName;
         _connectionString = copyFrom._connectionString;
         _region = copyFrom._region;
+        _preferredRegions = copyFrom._preferredRegions;
         _connectionMode = copyFrom._connectionMode;
         _limitToEndpoint = copyFrom._limitToEndpoint;
         _executionStrategyFactory = copyFrom._executionStrategyFactory;
@@ -243,6 +245,30 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._region = region;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyList<string>? PreferredRegions
+        => _preferredRegions;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosOptionsExtension WithPreferredRegions(IReadOnlyList<string>? regions)
+    {
+        var clone = Clone();
+
+        clone._preferredRegions = regions;
 
         return clone;
     }
