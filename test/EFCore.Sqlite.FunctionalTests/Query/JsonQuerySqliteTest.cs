@@ -298,6 +298,83 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
                 () => base.Json_collection_skip_take_in_projection_with_json_reference_access_as_final_operation(async)))
             .Message);
 
+    public override async Task Json_collection_distinct_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_distinct_in_projection(async)))
+            .Message);
+
+    public override async Task Json_collection_filter_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_filter_in_projection(async)))
+            .Message);
+
+    public override async Task Json_collection_leaf_filter_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_leaf_filter_in_projection(async)))
+            .Message);
+
+    public override async Task Json_branch_collection_distinct_and_other_collection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_branch_collection_distinct_and_other_collection(async)))
+            .Message);
+
+    public override async Task Json_leaf_collection_distinct_and_other_collection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_leaf_collection_distinct_and_other_collection(async)))
+            .Message);
+
+    public override async Task Json_multiple_collection_projections(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_multiple_collection_projections(async)))
+            .Message);
+
+    public override async Task Json_collection_SelectMany(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_SelectMany(async)))
+            .Message);
+
+    public override async Task Json_collection_skip_take_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_collection_skip_take_in_projection(async)))
+            .Message);
+
+    public override async Task Json_nested_collection_anonymous_projection_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_nested_collection_anonymous_projection_in_projection(async)))
+            .Message);
+
+    public override async Task Json_nested_collection_filter_in_projection(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_nested_collection_filter_in_projection(async)))
+            .Message);
+
+    public override async Task Json_nested_collection_SelectMany(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Json_nested_collection_SelectMany(async)))
+            .Message);
+
     public override async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
