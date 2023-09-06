@@ -61,6 +61,12 @@ public static class RelationalEntityTypeExtensions
             return entityType.GetRootType().GetTableName();
         }
 
+        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            && !entityType.ClrType.IsInstantiable())
+        {
+            return null;
+        }
+
         var ownership = entityType.FindOwnership();
         if (ownership != null
             && (ownership.IsUnique || entityType.IsMappedToJson()))
@@ -79,12 +85,6 @@ public static class RelationalEntityTypeExtensions
             name = ownerTypeTable != null
                 ? $"{ownerTypeTable}_{ownership.PrincipalToDependent.Name}"
                 : $"{ownership.PrincipalToDependent.Name}_{name}";
-        }
-
-        if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
-            && !entityType.ClrType.IsInstantiable())
-        {
-            return null;
         }
 
         return truncate
