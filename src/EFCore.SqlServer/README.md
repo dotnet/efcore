@@ -1,4 +1,4 @@
-Microsoft.EntityFrameworkCore.SqlServer is Microsoft SQL Server EF Core Database Provider, which enables you to use Entity Framework Core with Microsoft SQL Server (including Azure SQL Database).
+Microsoft.EntityFrameworkCore.SqlServer is the database provider for Microsoft SQL Server and Azure SQL. This providers allows you to use Entity Framework Core with Microsoft SQL Server and Azure SQL databases.
 
 ## Getting started
 
