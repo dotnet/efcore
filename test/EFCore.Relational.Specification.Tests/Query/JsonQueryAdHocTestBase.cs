@@ -704,6 +704,112 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region LazyLoadingProxies
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Project_proxies_entity_with_json(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContextLazyLoadingProxies>(
+            seed: SeedLazyLoadingProxies,
+            onConfiguring: OnConfiguringLazyLoadingProxies,
+            addServices: AddServicesLazyLoadingProxies);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.Entities;
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(2, result.Count);
+        }
+    }
+
+    protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseLazyLoadingProxies();
+
+    protected void AddServicesLazyLoadingProxies(IServiceCollection addServices)
+        => addServices.AddEntityFrameworkProxies();
+
+    private void SeedLazyLoadingProxies(MyContextLazyLoadingProxies ctx)
+    {
+        var r1 = new MyJsonEntityLazyLoadingProxiesWithCtor("r1", 1);
+        var c11 = new MyJsonEntityLazyLoadingProxies { Name = "c11", Number = 11 };
+        var c12 = new MyJsonEntityLazyLoadingProxies { Name = "c12", Number = 12 };
+        var c13 = new MyJsonEntityLazyLoadingProxies { Name = "c13", Number = 13 };
+
+        var r2 = new MyJsonEntityLazyLoadingProxiesWithCtor("r2", 2);
+        var c21 = new MyJsonEntityLazyLoadingProxies { Name = "c21", Number = 21 };
+        var c22 = new MyJsonEntityLazyLoadingProxies { Name = "c22", Number = 22 };
+
+        var e1 = new MyEntityLazyLoadingProxies
+        {
+            Id = 1,
+            Name = "e1",
+            Reference = r1,
+            Collection = new List<MyJsonEntityLazyLoadingProxies> { c11, c12, c13 }
+        };
+
+        var e2 = new MyEntityLazyLoadingProxies
+        {
+            Id = 2,
+            Name = "e2",
+            Reference = r2,
+            Collection = new List<MyJsonEntityLazyLoadingProxies> { c21, c22 }
+        };
+
+        ctx.Entities.AddRange(e1, e2);
+        ctx.SaveChanges();
+    }
+
+    protected class MyContextLazyLoadingProxies : DbContext
+    {
+        public MyContextLazyLoadingProxies(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<MyEntityLazyLoadingProxies> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyEntityLazyLoadingProxies>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsOne(x => x.Reference, b => b.ToJson());
+            modelBuilder.Entity<MyEntityLazyLoadingProxies>().OwnsMany(x => x.Collection, b => b.ToJson());
+        }
+    }
+
+    public class MyEntityLazyLoadingProxies
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+
+        public virtual MyJsonEntityLazyLoadingProxiesWithCtor Reference { get; set; }
+        public virtual List<MyJsonEntityLazyLoadingProxies> Collection { get; set; }
+    }
+
+    public class MyJsonEntityLazyLoadingProxiesWithCtor
+    {
+        public MyJsonEntityLazyLoadingProxiesWithCtor(string name, int number)
+        {
+            Name = name;
+            Number = number;
+        }
+
+        public string Name { get; set; }
+        public int Number { get; set; }
+    }
+
+    public class MyJsonEntityLazyLoadingProxies
+    {
+        public string Name { get; set; }
+        public int Number { get; set; }
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 }
