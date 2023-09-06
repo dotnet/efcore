@@ -24,15 +24,7 @@ In this example, we're using the (localdb)\mssqllocaldb server with the MyDataba
 
 ## Features
 
-The SQL Server provider for Entity Framework Core supports a variety of features, including:
-
-- Basic CRUD operations
-- Transactions
-- Stored procedures
-- Views
-- Table-valued functions
-- Identity columns
-- In-memory tables
+The SQL Server provider  supports all common features of [Entity Framework Core](https://learn.microsoft.com/ef/core/) as well as some [SQL Server-specific features](https://learn.microsoft.com/ef/core/providers/sql-server/?tabs=dotnet-core-cli) including temporal tables and memory-optimized tables.
 
 ## Additional documentation
 
