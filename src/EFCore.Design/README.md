@@ -3,7 +3,11 @@ Microsoft.EntityFrameworkCore.Design is for cross-platform command line tooling.
 
 ## Getting started
 
-The Package Manager Console (PMC) tools for Entity Framework Core perform design-time development tasks. For example, they create migrations, apply migrations, and generate code for a model based on an existing database. The commands run inside of Visual Studio using the Package Manager Console. These tools work with both .NET Framework and .NET Core projects.
+`Microsoft.EntityFrameworkCore.Design` contains all the design-time logic for Entity Framework Core. It's the code that all of the various tools (PMC cmdlets like `Add-Migration`, `dotnet ef` & `ef.exe`) call into.
+
+If you don't use Migrations or Reverse Engineering, you don't need it.
+
+And when you do need it, we encourage `PrivateAssets="All" `so it doesn't get published to the server where you almost certainly won't need it.
 
 ### Prerequisites
 

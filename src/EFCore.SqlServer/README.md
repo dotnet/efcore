@@ -2,11 +2,7 @@ Microsoft.EntityFrameworkCore.SqlServer is the database provider for Microsoft S
 
 ## Getting started
 
-`Microsoft.EntityFrameworkCore.Design` contains all the design-time logic for Entity Framework Core. It's the code that all of the various tools (PMC cmdlets like `Add-Migration`, `dotnet ef` & `ef.exe`) call into.
-
-If you don't use Migrations or Reverse Engineering, you don't need it.
-
-And when you do need it, we encourage `PrivateAssets="All" `so it doesn't get published to the server where you almost certainly won't need it.
+`Microsoft.EntityFrameworkCore.SqlServer` is the EF Core provider for Microsoft SQL Server and Azure SQL. See [Getting Started](https://learn.microsoft.com/ef/core/modeling/#use-fluent-api-to-configure-a-model) for more information.
 
 ### Prerequisites
 
