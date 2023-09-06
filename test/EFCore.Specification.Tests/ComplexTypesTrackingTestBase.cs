@@ -7,15 +7,10 @@ using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFixture>
+public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) : IClassFixture<TFixture>
     where TFixture : ComplexTypesTrackingTestBase<TFixture>.FixtureBase
 {
-    protected ComplexTypesTrackingTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected TFixture Fixture { get; }
+    protected TFixture Fixture { get; } = fixture;
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -94,6 +89,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructs());
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs());
 
     [ConditionalTheory]
     [InlineData(false)]
@@ -208,6 +209,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
         => MarkModifiedTest(trackFromQuery, CreateFieldPubWithReadonlyStructs());
+
+    [ConditionalTheory(Skip = "Constructor binding")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_read_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
+        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs());
 
     [ConditionalTheory(Skip = "Constructor binding")]
     [InlineData(false)]
@@ -457,6 +464,63 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
         Assert.True(coverChargeEntry.IsModified);
         Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
         Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Throws_only_when_saving_with_null_top_level_complex_property(bool async)
+    {
+        using var context = CreateContext();
+
+        var yogurt = CreateYogurt(nullMilk: true);
+        var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+        entry.State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+        entry.State = EntityState.Modified;
+
+        Assert.Equal(
+            CoreStrings.NullRequiredComplexProperty("Yogurt", "Milk"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Throws_only_when_saving_with_null_second_level_complex_property(bool async)
+    {
+        using var context = CreateContext();
+
+        var yogurt = CreateYogurt(nullManufacturer: true);
+        var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+        entry.State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+        entry.State = EntityState.Modified;
+
+        Assert.Equal(
+            CoreStrings.NullRequiredComplexProperty("Culture", "Manufacturer"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Throws_only_when_saving_with_null_third_level_complex_property(bool async)
+    {
+        using var context = CreateContext();
+
+        var yogurt = CreateYogurt(nullTag: true);
+        var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
+        entry.State = EntityState.Unchanged;
+        context.ChangeTracker.DetectChanges();
+        entry.State = EntityState.Modified;
+
+        Assert.Equal(
+            CoreStrings.NullRequiredComplexProperty("License", "Tag"),
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => async ? context.SaveChangesAsync() : Task.FromResult(context.SaveChanges()))).Message);
     }
 
     [ConditionalTheory]
@@ -952,15 +1016,53 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
                     b.ComplexProperty(e => e.FeaturedTeam);
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
+
+            modelBuilder.Entity<Yogurt>(
+                b =>
+                {
+                    b.ComplexProperty(
+                        e => e.Culture, b =>
+                        {
+                            b.ComplexProperty(
+                                e => e.License, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                            b.ComplexProperty(
+                                e => e.Manufacturer, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                        });
+
+                    b.ComplexProperty(
+                        e => e.Milk, b =>
+                        {
+                            b.ComplexProperty(
+                                e => e.License, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                            b.ComplexProperty(
+                                e => e.Manufacturer, b =>
+                                {
+                                    b.ComplexProperty(e => e.Tag);
+                                    b.ComplexProperty(e => e.Tog);
+                                });
+                        });
+                });
         }
     }
 
-    protected static Pub CreatePub()
+    protected static Pub CreatePub(bool nullActivity = false, bool nullChampions = false, bool nullRunnersUp = false)
         => new()
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = nullActivity ? null! : new()
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -968,7 +1070,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = nullChampions ? null! : new()
                 {
                     Name = "Clueless",
                     Members =
@@ -978,7 +1080,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = nullRunnersUp ? null! : new()
                 {
                     Name = "ZZ",
                     Members =
@@ -1641,5 +1743,110 @@ public abstract class ComplexTypesTrackingTestBase<TFixture> : IClassFixture<TFi
         public string Name = null!;
         public List<string> Members = null!;
     }
+
+    protected class Yogurt
+    {
+        public Guid Id { get; set; }
+        public Culture Culture { get; set; }
+        public Milk Milk { get; set; } = null!;
+    }
+
+    protected struct Culture
+    {
+        public string Species { get; set; }
+        public string? Subspecies { get; set; }
+        public int Rating { get; set; }
+        public bool? Validation  { get; set; }
+        public Manufacturer Manufacturer { get; set; }
+        public License License { get; set; }
+    }
+
+    protected class Milk
+    {
+        public string Species { get; set; } = null!;
+        public string? Subspecies { get; set; }
+        public int Rating { get; set; }
+        public bool? Validation  { get; set; }
+        public Manufacturer Manufacturer { get; set; } = null!;
+        public License License { get; set; }
+    }
+
+    protected class Manufacturer
+    {
+        public string? Name { get; set; }
+        public int Rating { get; set; }
+        public Tag Tag { get; set; } = null!;
+        public Tog Tog { get; set; }
+    }
+
+    protected struct License
+    {
+        public string Title { get; set; }
+        public decimal Charge { get; set; }
+        public Tag Tag { get; set; }
+        public Tog Tog { get; set; }
+    }
+
+    protected class Tag
+    {
+        public string? Text { get; set; }
+    }
+
+    protected struct Tog
+    {
+        public string? Text { get; set; }
+    }
+
+    protected static Yogurt CreateYogurt(bool nullMilk = false, bool nullManufacturer = false, bool nullTag = false)
+        => new()
+        {
+            Id = Guid.NewGuid(),
+            Culture = new()
+            {
+                License = new()
+                {
+                    Charge = 1.0m,
+                    Tag = nullTag ? null! : new() { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new() { Text = "To1" }
+                },
+                Manufacturer = nullManufacturer
+                    ? null!
+                    : new()
+                    {
+                        Name = "M1",
+                        Rating = 7,
+                        Tag = nullTag ? null! : new() { Text = "Ta2" },
+                        Tog = new() { Text = "To2" }
+                    },
+                Rating = 8,
+                Species = "S1",
+                Validation = false
+            },
+            Milk = nullMilk
+                ? null!
+                : new()
+                {
+                    License = new()
+                    {
+                        Charge = 1.0m,
+                        Tag = nullTag ? null! : new() { Text = "Ta1" },
+                        Title = "Ti1",
+                        Tog = new() { Text = "To1" }
+                    },
+                    Manufacturer = nullManufacturer
+                        ? null!
+                        : new()
+                        {
+                            Name = "M1",
+                            Rating = 7,
+                            Tag = nullTag ? null! : new() { Text = "Ta2" },
+                            Tog = new() { Text = "To2" }
+                        },
+                    Rating = 8,
+                    Species = "S1",
+                    Validation = false
+                }
+        };
 }
 

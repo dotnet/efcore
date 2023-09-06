@@ -29,7 +29,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -48,7 +48,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -67,7 +67,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
     ///         error numbers for transient errors that can be retried.
     ///     </para>
     ///     <para>
@@ -87,7 +87,7 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         This strategy is specifically tailored to SQL Server (including SQL Azure). It is pre-configured with
+    ///         This strategy is specifically tailored to SQL Server (including Azure SQL). It is pre-configured with
     ///         error numbers for transient errors that can be retried, but additional error numbers can also be supplied.
     ///     </para>
     ///     <para>
@@ -116,4 +116,11 @@ public class SqlServerDbContextOptionsBuilder
     /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithCompatibilityLevel(compatibilityLevel));
+
+    /// <summary>
+    ///     Configures the context to use defaults optimized for Azure SQL, including retries on errors.
+    /// </summary>
+    /// <param name="enable">Whether the defaults should be enabled.</param>
+    public virtual SqlServerDbContextOptionsBuilder UseAzureSql(bool enable = true)
+        => WithOption(e => e.WithAzureSql(enable));
 }

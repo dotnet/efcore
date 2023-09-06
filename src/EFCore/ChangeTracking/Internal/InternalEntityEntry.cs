@@ -1572,14 +1572,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                     throw new InvalidOperationException(CoreStrings.UnknownKeyValue(entityType.DisplayName(), property.Name));
                 }
 
-                if (property.GetElementType() != null
-                    && !property.IsNullable
-                    && GetCurrentValue(property) == null)
-                {
-                    throw new InvalidOperationException(
-                        CoreStrings.NullRequiredPrimitiveCollection(EntityType.DisplayName(), property.Name));
-                }
+                CheckForNullCollection(property);
             }
+            CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Modified)
         {
@@ -1594,8 +1589,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                             EntityType.DisplayName()));
                 }
 
+                CheckForNullCollection(property);
                 CheckForUnknownKey(property);
             }
+            CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Deleted)
         {
@@ -1615,6 +1612,31 @@ public sealed partial class InternalEntityEntry : IUpdateEntry, IInternalEntry
                 && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.Unknown))
             {
                 throw new InvalidOperationException(CoreStrings.UnknownShadowKeyValue(entityType.DisplayName(), property.Name));
+            }
+        }
+
+        void CheckForNullCollection(IProperty property)
+        {
+            if (property.GetElementType() != null
+                && !property.IsNullable
+                && GetCurrentValue(property) == null)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.NullRequiredPrimitiveCollection(EntityType.DisplayName(), property.Name));
+            }
+        }
+
+        void CheckForNullComplexProperties()
+        {
+            foreach (var complexProperty in entityType.GetFlattenedComplexProperties())
+            {
+                if (!complexProperty.IsNullable
+                    && this[complexProperty] == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NullRequiredComplexProperty(
+                            complexProperty.DeclaringType.ClrType.ShortDisplayName(), complexProperty.Name));
+                }
             }
         }
     }

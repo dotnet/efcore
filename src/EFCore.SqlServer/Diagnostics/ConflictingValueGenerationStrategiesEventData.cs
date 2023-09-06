@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public class ConflictingValueGenerationStrategiesEventData : EventData

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public static class SqlServerDbContextOptionsExtensions
@@ -28,7 +28,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -41,11 +41,7 @@ public static class SqlServerDbContextOptionsExtensions
     {
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(GetOrCreateExtension(optionsBuilder));
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     /// <summary>
@@ -53,7 +49,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
@@ -68,11 +64,7 @@ public static class SqlServerDbContextOptionsExtensions
         var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnectionString(connectionString);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     // Note: Decision made to use DbConnection not SqlConnection: Issue #772
@@ -81,7 +73,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
@@ -105,7 +97,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="optionsBuilder">The builder being used to configure the context.</param>
@@ -132,11 +124,7 @@ public static class SqlServerDbContextOptionsExtensions
         var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).WithConnection(connection, contextOwnsConnection);
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
-        ConfigureWarnings(optionsBuilder);
-
-        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
-
-        return optionsBuilder;
+        return ApplyConfiguration(optionsBuilder, sqlServerOptionsAction);
     }
 
     /// <summary>
@@ -151,7 +139,7 @@ public static class SqlServerDbContextOptionsExtensions
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///         <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///         for more information and examples.
     ///     </para>
     /// </remarks>
@@ -170,7 +158,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
@@ -192,7 +180,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
@@ -219,7 +207,7 @@ public static class SqlServerDbContextOptionsExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <typeparam name="TContext">The type of context to be configured.</typeparam>
@@ -248,6 +236,18 @@ public static class SqlServerDbContextOptionsExtensions
     private static SqlServerOptionsExtension GetOrCreateExtension(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
             ?? new SqlServerOptionsExtension();
+
+    private static DbContextOptionsBuilder ApplyConfiguration(DbContextOptionsBuilder optionsBuilder, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction)
+    {
+        ConfigureWarnings(optionsBuilder);
+
+        sqlServerOptionsAction?.Invoke(new SqlServerDbContextOptionsBuilder(optionsBuilder));
+
+        var extension = (SqlServerOptionsExtension)GetOrCreateExtension(optionsBuilder).ApplyDefaults(optionsBuilder.Options);
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
+
+        return optionsBuilder;
+    }
 
     private static void ConfigureWarnings(DbContextOptionsBuilder optionsBuilder)
     {

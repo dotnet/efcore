@@ -11,6 +11,9 @@ public class MaterializationInterceptionCosmosTest : MaterializationInterception
     {
     }
 
+    public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async)
+        => Task.CompletedTask;
+
     public class CosmosLibraryContext : LibraryContext
     {
         public CosmosLibraryContext(DbContextOptions options)

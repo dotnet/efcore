@@ -15,20 +15,14 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => base.OnConfiguring(optionsBuilder.UseSqlite(b => b.UseNetTopologySuite()));
 
     public override void Can_read_write_binary_JSON_values(string value, string json)
-    {
-        // Cannot override since the base test contains [InlineData] attributes which still apply, and which contain data we need
-        // to override. See Can_read_write_binary_JSON_values_sqlite instead.
-    }
-
-    [ConditionalTheory]
-    [InlineData("0,0,0,1", """{"Prop":"00000001"}""")]
-    [InlineData("255,255,255,255", """{"Prop":"FFFFFFFF"}""")]
-    [InlineData("", """{"Prop":""}""")]
-    [InlineData("1,2,3,4", """{"Prop":"01020304"}""")]
-    public virtual void Can_read_write_binary_JSON_values_sqlite(string value, string json)
-        => Can_read_and_write_JSON_value<BytesType, byte[]>(
-            nameof(BytesType.Bytes),
-            value == "" ? Array.Empty<byte>() : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
+        => base.Can_read_write_binary_JSON_values(value, value switch
+        {
+            "" => json,
+            "0,0,0,1" => """{"Prop":"00000001"}""",
+            "1,2,3,4" => """{"Prop":"01020304"}""",
+            "255,255,255,255" => """{"Prop":"FFFFFFFF"}""",
+            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+        });
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_decimal_JSON_values()

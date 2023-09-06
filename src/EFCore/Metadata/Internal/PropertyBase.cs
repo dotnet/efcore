@@ -455,30 +455,18 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
                 complexType.ComplexProperty.GetMemberInfo(forMaterialization: false, forSet: false),
                 fromContainingType);
 
-            // TODO: Handle null/default complex types #31376
-            // if (!instanceExpression.Type.IsValueType)
-            // {
-            //     var instanceVariable = Expression.Variable(instanceExpression.Type, "instance");
-            //     return Expression.Block(
-            //         new[] { instanceVariable },
-            //         Expression.Assign(instanceVariable, instanceExpression),
-            //         Expression.Condition(
-            //             Expression.Equal(instanceVariable, Expression.Constant(null)),
-            //             forWrite
-            //                 ? Expression.Block(
-            //                     Expression.Throw(Expression.Constant(new InvalidOperationException())),
-            //                     Expression.Default(memberInfo.GetMemberType()))
-            //                 : Expression.Default(memberInfo.GetMemberType()),
-            //             Expression.MakeMemberAccess(instanceExpression, memberInfo)));
-            // }
-
-            // if (instanceExpression.Type.IsNullableValueType())
-            // {
-            //     return Expression.Condition(
-            //             Expression.Equal(instanceExpression, Expression.Constant(null)),
-            //             Expression.Default(memberInfo.GetMemberType()),
-            //             Expression.MakeMemberAccess(instanceExpression, memberInfo));
-            // }
+            if (!instanceExpression.Type.IsValueType
+                || instanceExpression.Type.IsNullableValueType())
+            {
+                var instanceVariable = Expression.Variable(instanceExpression.Type, "instance");
+                return Expression.Block(
+                    new[] { instanceVariable },
+                    Expression.Assign(instanceVariable, instanceExpression),
+                    Expression.Condition(
+                        Expression.Equal(instanceVariable, Expression.Constant(null)),
+                        Expression.Default(memberInfo.GetMemberType()),
+                        Expression.MakeMemberAccess(instanceExpression, memberInfo)));
+            }
         }
 
         return Expression.MakeMemberAccess(instanceExpression, memberInfo);

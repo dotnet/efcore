@@ -37,7 +37,7 @@ public class InMemoryTypeMappingSource : TypeMappingSource
 
         if (clrType.IsValueType
             || clrType == typeof(string)
-            || clrType == typeof(byte[]))
+            || (clrType == typeof(byte[]) && mappingInfo.ElementTypeMapping == null))
         {
             return new InMemoryTypeMapping(
                 clrType, jsonValueReaderWriter: jsonValueReaderWriter);
