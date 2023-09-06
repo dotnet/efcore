@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <FrameworkReference Update="Microsoft.NETCore.App"
-                        Condition="'$(TargetFramework)' == 'net8.0'"
+                        Condition="'$(TargetFramework)' == 'net9.0'"
                         RuntimeFrameworkVersion="$(MicrosoftNETCoreAppRuntimewinx64Version)"
                         TargetingPackVersion="$(MicrosoftNETCoreAppRefVersion)" />
   </ItemGroup>
