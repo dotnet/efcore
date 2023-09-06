@@ -2160,6 +2160,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property);
 
         /// <summary>
+        ///     The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.
+        /// </summary>
+        public static string NullRequiredComplexProperty(object? type, object? property)
+            => string.Format(
+                GetString("NullRequiredComplexProperty", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     The primitive collection property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Either mark the property as optional (nullable) or set a non-null value.
         /// </summary>
         public static string NullRequiredPrimitiveCollection(object? type, object? property)

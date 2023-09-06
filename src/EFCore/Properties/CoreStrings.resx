@@ -1246,6 +1246,9 @@
   <data name="NullableKey" xml:space="preserve">
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>
+  <data name="NullRequiredComplexProperty" xml:space="preserve">
+    <value>The complex type property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Only non-null complex properties are supported by EF Core 8.</value>
+  </data>
   <data name="NullRequiredPrimitiveCollection" xml:space="preserve">
     <value>The primitive collection property '{type}.{property}' is configured as required (non-nullable) but has a null value when saving changes. Either mark the property as optional (nullable) or set a non-null value.</value>
   </data>

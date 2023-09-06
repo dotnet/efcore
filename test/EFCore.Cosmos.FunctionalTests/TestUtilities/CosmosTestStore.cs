@@ -715,6 +715,9 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IProperty> GetFlattenedProperties()
             => throw new NotImplementedException();
 
+        public IEnumerable<IComplexProperty> GetFlattenedComplexProperties()
+            => throw new NotImplementedException();
+
         public IEnumerable<IProperty> GetFlattenedDeclaredProperties()
             => throw new NotImplementedException();
 
