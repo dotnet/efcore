@@ -342,6 +342,30 @@ public class RelationalModelBuilderTest : ModelBuilderTest
     public abstract class RelationalComplexTypeTestBase : ComplexTypeTestBase
     {
         [ConditionalFact]
+        public virtual void Can_use_TPH()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexPropertiesBase>();
+
+            modelBuilder
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer)
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
+                .Property(c => c.Name).IsRequired();
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single();
+            var property = complexProperty.ComplexType.FindProperty(nameof(Customer.Name))!;
+
+            Assert.True(property.IsColumnNullable());
+        }
+
+        [ConditionalFact]
         public virtual void Can_use_table_splitting()
         {
             var modelBuilder = CreateModelBuilder();
