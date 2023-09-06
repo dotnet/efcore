@@ -1976,9 +1976,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var currentVariable = Variable(parameter!.Type);
                             return Block(
                                 new[] { currentVariable },
-                                Assign(
-                                    currentVariable,
-                                    MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                                MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                    .Assign(currentVariable),
                                 IfThenElse(
                                     OrElse(
                                         ReferenceEqual(currentVariable, Constant(null)),
@@ -1991,7 +1990,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 ));
                         }
 
-                        return MakeBinary(node.NodeType, Visit(node.Left), parameter!);
+                        var visitedLeft = Visit(node.Left);
+                        return node.NodeType == ExpressionType.Assign
+                            && visitedLeft is MemberExpression memberExpression
+                                ? memberExpression.Assign(parameter!)
+                                : MakeBinary(node.NodeType, visitedLeft, parameter!);
                     }
 
                     return base.VisitBinary(node);

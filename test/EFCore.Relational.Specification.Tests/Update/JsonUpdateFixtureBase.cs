@@ -192,6 +192,13 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
                         x => x == true ? "Y" : "N"));
             });
 
+        modelBuilder.Entity<JsonEntityBasicForReference>(
+            b =>
+            {
+                b.Property(x => x.Id);
+                b.Property(x => x.Name);
+            });
+
         base.OnModelCreating(modelBuilder, context);
     }
 

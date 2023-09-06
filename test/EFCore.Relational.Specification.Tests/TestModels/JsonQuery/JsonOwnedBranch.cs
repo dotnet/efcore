@@ -9,9 +9,9 @@ public class JsonOwnedBranch
     public decimal Fraction { get; set; }
 
     public JsonEnum Enum { get; set; }
-    public JsonEnum? NullableEnum { get; set; }
-    public JsonEnum[] Enums { get; set; }
-    public JsonEnum?[] NullableEnums { get; set; }
+    public JsonEnum? NullableEnum { get; init; }
+    public JsonEnum[] Enums { get; init; }
+    public JsonEnum?[] NullableEnums { get; init; }
 
     public JsonOwnedLeaf OwnedReferenceLeaf { get; set; }
     public List<JsonOwnedLeaf> OwnedCollectionLeaf { get; set; }

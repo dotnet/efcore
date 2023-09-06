@@ -19,11 +19,11 @@ public class JsonEntityAllTypes
     private Collection<JsonEnum?> _testNullableEnumWithIntConverterCollectionX = new() { JsonEnum.Three };
 
     public int Id { get; set; }
-    public JsonOwnedAllTypes Reference { get; set; }
-    public List<JsonOwnedAllTypes> Collection { get; set; }
+    public JsonOwnedAllTypes Reference { get; init; }
+    public List<JsonOwnedAllTypes> Collection { get; init; }
 
-    public string[] TestDefaultStringCollection { get; set; }
-    public List<string> TestMaxLengthStringCollection { get; set; }
+    public string[] TestDefaultStringCollection { get; init; }
+    public List<string> TestMaxLengthStringCollection { get; init; }
     public IList<short> TestInt16Collection { get; set; }
 
     public int[] TestInt32Collection { get; set; } = Array.Empty<int>();
