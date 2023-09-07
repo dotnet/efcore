@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
@@ -66,6 +65,12 @@ public class ModelSnapshotSqlServerTest
         public MultiPolygon SpatialCMultiPolygon { get; set; }
         public Point SpatialCPoint { get; set; }
         public Polygon SpatialCPolygon { get; set; }
+        public int[] Int32Collection { get; set; }
+        public double[] DoubleCollection { get; set; }
+        public string[] StringCollection { get; set; }
+        public DateTime[] DateTimeCollection { get; set; }
+        public bool[] BoolCollection { get; set; }
+        public byte[][] BytesCollection { get; set; }
     }
 
     private enum Enum64 : long
@@ -5452,8 +5457,11 @@ namespace RootNamespace
                     {
                         b.ComplexProperty(eo => eo.EntityWithTwoProperties, eb =>
                         {
+                            eb.IsRequired();
                             eb.Property(e => e.AlternateId).HasColumnOrder(1);
-                            eb.ComplexProperty(e => e.EntityWithStringKey);
+                            eb.ComplexProperty(e => e.EntityWithStringKey).IsRequired();
+                            eb.HasPropertyAnnotation("PropertyAnnotation", 1);
+                            eb.HasTypeAnnotation("TypeAnnotation", 2);
                         });
                     });
             },
@@ -5470,6 +5478,8 @@ namespace RootNamespace
 
                     b.ComplexProperty<Dictionary<string, object>>("EntityWithTwoProperties", "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", b1 =>
                         {
+                            b1.IsRequired();
+
                             b1.Property<int>("AlternateId")
                                 .HasColumnType("int")
                                 .HasColumnOrder(1);
@@ -5479,9 +5489,15 @@ namespace RootNamespace
 
                             b1.ComplexProperty<Dictionary<string, object>>("EntityWithStringKey", "Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", b2 =>
                                 {
+                                    b2.IsRequired();
+
                                     b2.Property<string>("Id")
                                         .HasColumnType("nvarchar(max)");
                                 });
+
+                            b1.HasPropertyAnnotation("PropertyAnnotation", 1);
+
+                            b1.HasTypeAnnotation("TypeAnnotation", 2);
                         });
 
                     b.HasKey("Id");
@@ -5496,17 +5512,19 @@ namespace RootNamespace
 
                 var complexProperty = entityWithOneProperty.FindComplexProperty(nameof(EntityWithOneProperty.EntityWithTwoProperties));
                 Assert.False(complexProperty.IsCollection);
-                Assert.True(complexProperty.IsNullable);
+                Assert.False(complexProperty.IsNullable);
                 var complexType = complexProperty.ComplexType;
                 Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", complexType.Name);
                 Assert.Equal("EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties", complexType.DisplayName());
                 Assert.Equal(nameof(EntityWithOneProperty), complexType.GetTableName());
                 var alternateIdProperty = complexType.FindProperty(nameof(EntityWithTwoProperties.AlternateId));
                 Assert.Equal(1, alternateIdProperty.GetColumnOrder());
+                Assert.Equal(1, complexProperty["PropertyAnnotation"]);
+                Assert.Equal(2, complexProperty.ComplexType["TypeAnnotation"]);
 
                 var nestedComplexProperty = complexType.FindComplexProperty(nameof(EntityWithTwoProperties.EntityWithStringKey));
                 Assert.False(nestedComplexProperty.IsCollection);
-                Assert.True(nestedComplexProperty.IsNullable);
+                Assert.False(nestedComplexProperty.IsNullable);
                 var nestedComplexType = nestedComplexProperty.ComplexType;
                 Assert.Equal("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", nestedComplexType.Name);
                 Assert.Equal("EntityWithOneProperty.EntityWithTwoProperties#EntityWithTwoProperties.EntityWithStringKey#EntityWithStringKey", nestedComplexType.DisplayName());
@@ -7220,7 +7238,13 @@ namespace RootNamespace
                                 SpatialCMultiPoint = multiPoint,
                                 SpatialCMultiPolygon = multiPolygon,
                                 SpatialCPoint = point1,
-                                SpatialCPolygon = polygon1
+                                SpatialCPolygon = polygon1,
+                                Int32Collection = new[] { 1, 2, 3, 4 },
+                                DoubleCollection = new[] { 1.2, 3.4 },
+                                StringCollection = new[] { "AB", "CD" },
+                                DateTimeCollection = new[] { new DateTime(2023, 9, 7), new DateTime(2023, 11, 14) },
+                                BoolCollection = new[] { true, false },
+                                BytesCollection = new[] { new byte[] { 1, 2 }, new byte[] { 3, 4 } }
                             },
                             new
                             {
@@ -7288,6 +7312,9 @@ namespace RootNamespace
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("BoolCollection")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("Boolean")
                         .HasColumnType("bit");
 
@@ -7297,12 +7324,18 @@ namespace RootNamespace
                     b.Property<byte[]>("Bytes")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("BytesCollection")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Character")
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DateTimeCollection")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset>("DateTimeOffset")
                         .HasColumnType("datetimeoffset");
@@ -7312,6 +7345,9 @@ namespace RootNamespace
 
                     b.Property<double>("Double")
                         .HasColumnType("float");
+
+                    b.Property<string>("DoubleCollection")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<short>("Enum16")
                         .HasColumnType("smallint");
@@ -7342,6 +7378,9 @@ namespace RootNamespace
 
                     b.Property<int>("Int32")
                         .HasColumnType("int");
+
+                    b.Property<string>("Int32Collection")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("Int64")
                         .HasColumnType("bigint");
@@ -7400,6 +7439,9 @@ namespace RootNamespace
                     b.Property<string>("String")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StringCollection")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<TimeSpan>("TimeSpan")
                         .HasColumnType("time");
 
@@ -7420,14 +7462,18 @@ namespace RootNamespace
                         new
                         {
                             Id = 42,
+                            BoolCollection = "[true,false]",
                             Boolean = true,
                             Byte = (byte)55,
                             Bytes = new byte[] { 44, 45 },
+                            BytesCollection = "[\"AQI=\",\"AwQ=\"]",
                             Character = "9",
                             DateTime = new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Utc),
+                            DateTimeCollection = "[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]",
                             DateTimeOffset = new DateTimeOffset(new DateTime(1973, 9, 3, 12, 10, 42, 344, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                             Decimal = 50.0m,
                             Double = 49.0,
+                            DoubleCollection = "[1.2,3.4]",
                             Enum16 = (short)1,
                             Enum32 = 1,
                             Enum64 = 1L,
@@ -7438,6 +7484,7 @@ namespace RootNamespace
                             EnumU64 = 1234567890123456789m,
                             Int16 = (short)46,
                             Int32 = 47,
+                            Int32Collection = "[1,2,3,4]",
                             Int64 = 48L,
                             SignedByte = (short)60,
                             Single = 54f,
@@ -7456,6 +7503,7 @@ namespace RootNamespace
                             SpatialCPoint = (NetTopologySuite.Geometries.Point)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POINT Z(1.1 2.2 3.3)"),
                             SpatialCPolygon = (NetTopologySuite.Geometries.Polygon)new NetTopologySuite.IO.WKTReader().Read("SRID=4326;POLYGON ((1.1 2.2, 2.2 2.2, 2.2 1.1, 1.1 2.2))"),
                             String = "FortyThree",
+                            StringCollection = "[\"AB\",\"CD\"]",
                             TimeSpan = new TimeSpan(2, 3, 52, 53, 0),
                             UnsignedInt16 = 56,
                             UnsignedInt32 = 57L,
@@ -7583,6 +7631,13 @@ namespace RootNamespace
                         Assert.Equal(4326, ((Geometry)seed["SpatialCMultiPolygon"]).SRID);
                         Assert.Equal(4326, ((Geometry)seed["SpatialCPoint"]).SRID);
                         Assert.Equal(4326, ((Geometry)seed["SpatialCPolygon"]).SRID);
+
+                        Assert.Equal("[1,2,3,4]", seed["Int32Collection"]);
+                        Assert.Equal("[1.2,3.4]", seed["DoubleCollection"]);
+                        Assert.Equal("[\"AB\",\"CD\"]", seed["StringCollection"]);
+                        Assert.Equal("[\"2023-09-07T00:00:00\",\"2023-11-14T00:00:00\"]", seed["DateTimeCollection"]);
+                        Assert.Equal("[true,false]", seed["BoolCollection"]);
+                        Assert.Equal("[\"AQI=\",\"AwQ=\"]", seed["BytesCollection"]);
                     },
                     seed =>
                     {
