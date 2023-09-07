@@ -55,6 +55,11 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
                     info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
             {
                 var elementType = TryGetElementType(modelType, typeof(IEnumerable<>))!;
+                var comparer = (ValueComparer?)Activator.CreateInstance(
+                    IsNullableValueType(elementType)
+                        ? typeof(NullableValueTypeListComparer<>).MakeGenericType(UnwrapNullableType(elementType))
+                        : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
+                    elementMapping!.Comparer);
 
                 return (RelationalTypeMapping)FindMapping(
                         info.WithConverter(
@@ -63,11 +68,8 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
                     .Clone(
                         (ValueConverter)Activator.CreateInstance(
                             typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
-                        (ValueComparer?)Activator.CreateInstance(
-                            IsNullableValueType(elementType)
-                                ? typeof(NullableValueTypeListComparer<>).MakeGenericType(UnwrapNullableType(elementType))
-                                : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                            elementMapping!.Comparer),
+                        comparer,
+                        comparer,
                         elementMapping,
                         collectionReaderWriter);
             }
