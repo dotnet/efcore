@@ -329,7 +329,8 @@ public class JsonQueryData : ISetSource
 
     public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
     {
-        var entity1 = new JsonEntityBasicForReference { Id = 1, Name = "EntityReference1" };
+        var entity1 = new JsonEntityBasicForReference();
+        entity1.SetIdAndName(1, "EntityReference1");
 
         return new List<JsonEntityBasicForReference> { entity1 };
     }

@@ -5,8 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonEntityBasicForCollection
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public int Id { get; init; }
+    public string Name { get; init; }
 
     public int? ParentId { get; set; }
     public JsonEntityBasic Parent { get; set; }
