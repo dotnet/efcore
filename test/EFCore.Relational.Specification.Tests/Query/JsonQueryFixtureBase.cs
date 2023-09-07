@@ -393,6 +393,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.TestSignedByte, actual.TestSignedByte);
         Assert.Equal(expected.TestSingle, actual.TestSingle);
         Assert.Equal(expected.TestTimeSpan, actual.TestTimeSpan);
+        Assert.Equal(expected.TestDateOnly, actual.TestDateOnly);
+        Assert.Equal(expected.TestTimeOnly, actual.TestTimeOnly);
         Assert.Equal(expected.TestUnsignedInt16, actual.TestUnsignedInt16);
         Assert.Equal(expected.TestUnsignedInt32, actual.TestUnsignedInt32);
         Assert.Equal(expected.TestUnsignedInt64, actual.TestUnsignedInt64);
@@ -417,6 +419,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         AssertPrimitiveCollection(expected.TestSignedByteCollection, actual.TestSignedByteCollection);
         AssertPrimitiveCollection(expected.TestSingleCollection, actual.TestSingleCollection);
         AssertPrimitiveCollection(expected.TestTimeSpanCollection, actual.TestTimeSpanCollection);
+        AssertPrimitiveCollection(expected.TestDateOnlyCollection, actual.TestDateOnlyCollection);
+        AssertPrimitiveCollection(expected.TestTimeOnlyCollection, actual.TestTimeOnlyCollection);
         AssertPrimitiveCollection(expected.TestUnsignedInt16Collection, actual.TestUnsignedInt16Collection);
         AssertPrimitiveCollection(expected.TestUnsignedInt32Collection, actual.TestUnsignedInt32Collection);
         AssertPrimitiveCollection(expected.TestUnsignedInt64Collection, actual.TestUnsignedInt64Collection);

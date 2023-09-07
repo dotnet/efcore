@@ -698,6 +698,8 @@ public class JsonQueryData : ISetSource
             TestDateTime = DateTime.Parse("01/01/2000 12:34:56"),
             TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/2000 12:34:56"), TimeSpan.FromHours(-8.0)),
             TestTimeSpan = new TimeSpan(0, 10, 9, 8, 7),
+            TestDateOnly = new DateOnly(2023, 10, 10),
+            TestTimeOnly = new TimeOnly(11, 12, 13),
             TestSingle = -1.234F,
             TestBoolean = true,
             TestByte = 255,
@@ -748,6 +750,8 @@ public class JsonQueryData : ISetSource
                 -1.234F
             },
             TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7) },
+            TestDateOnlyCollection = new[] { new DateOnly(1234, 1, 23), new DateOnly(4321, 1, 21) },
+            TestTimeOnlyCollection = new[] { new TimeOnly(11, 42, 23), new TimeOnly(7, 17, 27) },
             TestUnsignedInt16Collection = new List<ushort>
             {
                 ushort.MinValue,
@@ -801,6 +805,8 @@ public class JsonQueryData : ISetSource
             TestDateTime = DateTime.Parse("01/01/3000 12:34:56"),
             TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-8.0)),
             TestTimeSpan = new TimeSpan(0, 5, 9, 8, 7),
+            TestDateOnly = new DateOnly(2123, 7, 8),
+            TestTimeOnly = new TimeOnly(9, 10, 11),
             TestSingle = -1.24F,
             TestBoolean = true,
             TestByte = 25,
@@ -851,6 +857,8 @@ public class JsonQueryData : ISetSource
                 -1.234F
             },
             TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7) },
+            TestDateOnlyCollection = new[] { new DateOnly(2234, 1, 23), new DateOnly(5321, 1, 21) },
+            TestTimeOnlyCollection = new[] { new TimeOnly(21, 42, 23), new TimeOnly(17, 17, 27) },
             TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
             TestUnsignedInt32Collection = new[] { uint.MinValue, (uint)0, uint.MaxValue },
             TestUnsignedInt64Collection = new ObservableCollection<ulong>
@@ -899,6 +907,8 @@ public class JsonQueryData : ISetSource
             TestDateTime = DateTime.Parse("11/11/2100 12:34:56"),
             TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("11/11/2200 12:34:56"), TimeSpan.FromHours(-5.0)),
             TestTimeSpan = new TimeSpan(0, 6, 5, 4, 3),
+            TestDateOnly = new DateOnly(2323, 4, 3),
+            TestTimeOnly = new TimeOnly(5, 7, 8),
             TestSingle = -1.4F,
             TestBoolean = false,
             TestByte = 25,
@@ -949,6 +959,8 @@ public class JsonQueryData : ISetSource
                 -1.234F
             },
             TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7) },
+            TestDateOnlyCollection = new[] { new DateOnly(3234, 1, 23), new DateOnly(4331, 1, 21) },
+            TestTimeOnlyCollection = new[] { new TimeOnly(13, 42, 23), new TimeOnly(7, 17, 25) },
             TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
             TestUnsignedInt32Collection = new[] { uint.MinValue, (uint)0, uint.MaxValue },
             TestUnsignedInt64Collection = new ObservableCollection<ulong>
@@ -997,6 +1009,8 @@ public class JsonQueryData : ISetSource
             TestDateTime = DateTime.Parse("11/11/3100 12:34:56"),
             TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("11/11/3200 12:34:56"), TimeSpan.FromHours(-5.0)),
             TestTimeSpan = new TimeSpan(0, 6, 5, 2, 3),
+            TestDateOnly = new DateOnly(4019, 2, 25),
+            TestTimeOnly = new TimeOnly(5, 30, 42),
             TestSingle = -1.4F,
             TestBoolean = false,
             TestByte = 25,
@@ -1047,6 +1061,8 @@ public class JsonQueryData : ISetSource
                 -1.234F
             },
             TestTimeSpanCollection = new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, -10, 9, 8, 7) },
+            TestDateOnlyCollection = new[] { new DateOnly(1638, 1, 23), new DateOnly(4321, 1, 21) },
+            TestTimeOnlyCollection = new[] { new TimeOnly(8, 22, 23), new TimeOnly(7, 27, 37) },
             TestUnsignedInt16Collection = new[] { ushort.MinValue, (ushort)0, ushort.MaxValue },
             TestUnsignedInt32Collection = new[] { uint.MinValue, (uint)0, uint.MaxValue },
             TestUnsignedInt64Collection = new ObservableCollection<ulong>
