@@ -1521,6 +1521,39 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     //sometimes we have shadow value buffer and sometimes not, but type initializer always comes last
                     switch (body.Expressions[^1])
                     {
+                        case UnaryExpression { Operand: BlockExpression innerBlock } jsonEntityTypeInitializerUnary
+                        when jsonEntityTypeInitializerUnary.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked:
+                        {
+                            // in case of proxies, the entity initializer block is wrapped around Convert node
+                            // that converts from the proxy type to the actual entity type.
+                            // We normalize that into a block by pushing the convert inside the inner block. Rather than:
+                            //
+                            // return (MyEntity)
+                            // {
+                            //     ProxyEntity instance;
+                            //     (...)
+                            //     return instance;
+                            // }
+                            //
+                            // we produce:
+                            // return
+                            // {
+                            //     ProxyEntity instance;
+                            //     MyEntity actualInstance;
+                            //     (...)
+                            //     actualInstance = (MyEntity)instance;
+                            //     return actualInstance;
+                            // }
+                            var newVariables = innerBlock.Variables.ToList();
+                            var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
+                            newVariables.Add(proxyConversionVariable);
+                            var newExpressions = innerBlock.Expressions.ToList()[..^1];
+                            newExpressions.Add(Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                            newExpressions.Add(proxyConversionVariable);
+                            jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
+                            break;
+                        }
+
                         case BlockExpression b:
                             jsonEntityTypeInitializerBlock = b;
                             break;
@@ -1976,9 +2009,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var currentVariable = Variable(parameter!.Type);
                             return Block(
                                 new[] { currentVariable },
-                                Assign(
-                                    currentVariable,
-                                    MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))),
+                                MakeMemberAccess(_instance, property.GetMemberInfo(forMaterialization: true, forSet: false))
+                                    .Assign(currentVariable),
                                 IfThenElse(
                                     OrElse(
                                         ReferenceEqual(currentVariable, Constant(null)),
@@ -1991,7 +2023,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 ));
                         }
 
-                        return MakeBinary(node.NodeType, Visit(node.Left), parameter!);
+                        var visitedLeft = Visit(node.Left);
+                        return node.NodeType == ExpressionType.Assign
+                            && visitedLeft is MemberExpression memberExpression
+                                ? memberExpression.Assign(parameter!)
+                                : MakeBinary(node.NodeType, visitedLeft, parameter!);
                     }
 
                     return base.VisitBinary(node);

@@ -894,9 +894,13 @@ public abstract partial class ModelBuilderTest
         int Property { get; set; }
     }
 
-    protected class ComplexProperties
+    protected class ComplexPropertiesBase
     {
         public int Id { get; set; }
+    }
+
+    protected class ComplexProperties : ComplexPropertiesBase
+    {
         public required Customer Customer { get; set; }
         public required DoubleProperty DoubleProperty { get; set; }
         public required IndexedClass IndexedClass { get; set; }
