@@ -27,6 +27,8 @@ public class JsonOwnedAllTypes
     public DateTime TestDateTime { get; set; }
     public DateTimeOffset TestDateTimeOffset { get; set; }
     public TimeSpan TestTimeSpan { get; set; }
+    public DateOnly TestDateOnly { get; set; }
+    public TimeOnly TestTimeOnly { get; set; }
     public float TestSingle { get; set; }
     public bool TestBoolean { get; set; }
     public byte TestByte { get; set; }
@@ -73,6 +75,8 @@ public class JsonOwnedAllTypes
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
     public TimeSpan[] TestTimeSpanCollection { get; set; } = { new(1, 1, 1) };
+    public DateOnly[] TestDateOnlyCollection { get; set; }
+    public TimeOnly[] TestTimeOnlyCollection { get; set; }
 
     public List<float> TestSingleCollection
     {

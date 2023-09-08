@@ -1072,6 +1072,50 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual Task Edit_single_property_dateonly()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestDateOnly = new DateOnly(1023, 1, 1);
+                entity.Collection[0].TestDateOnly = new DateOnly(2000, 2, 4);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new DateOnly(1023, 1, 1), result.Reference.TestDateOnly);
+                Assert.Equal(new DateOnly(2000, 2, 4), result.Collection[0].TestDateOnly);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_timeonly()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestTimeOnly = new TimeOnly(1, 1, 7);
+                entity.Collection[0].TestTimeOnly = new TimeOnly(1, 1, 7);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(new TimeOnly(1, 1, 7), result.Reference.TestTimeOnly);
+                Assert.Equal(new TimeOnly(1, 1, 7), result.Collection[0].TestTimeOnly);
+            });
+
+    [ConditionalFact]
     public virtual Task Edit_single_property_uint16()
         => TestHelpers.ExecuteWithStrategyInTransactionAsync(
             CreateContext,
@@ -2011,6 +2055,60 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                     new[] { new TimeSpan(0, 10, 1, 1, 7), new TimeSpan(0, -10, 9, 8, 7) }, result.Reference.TestTimeSpanCollection);
                 Assert.Equal(
                     new[] { new TimeSpan(0, 10, 9, 8, 7), new TimeSpan(0, 10, 1, 1, 7) }, result.Collection[0].TestTimeSpanCollection);
+
+                Assert.False(result.Reference.NewCollectionSet);
+                Assert.False(result.Collection[0].NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_collection_of_dateonly()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestDateOnlyCollection[0] = new DateOnly(1, 1, 7);
+                entity.Collection[0].TestDateOnlyCollection[1] = new DateOnly(1, 1, 7);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new[] { new DateOnly(1, 1, 7), new DateOnly(4321, 1, 21) }, result.Reference.TestDateOnlyCollection);
+                Assert.Equal(
+                    new[] { new DateOnly(3234, 1, 23), new DateOnly(1, 1, 7) }, result.Collection[0].TestDateOnlyCollection);
+
+                Assert.False(result.Reference.NewCollectionSet);
+                Assert.False(result.Collection[0].NewCollectionSet);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_collection_of_timeonly()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesAllTypes.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.TestTimeOnlyCollection[0] = new TimeOnly(1, 1, 7);
+                entity.Collection[0].TestTimeOnlyCollection[1] = new TimeOnly(1, 1, 7);
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(
+                    new[] { new TimeOnly(1, 1, 7), new TimeOnly(7, 17, 27) }, result.Reference.TestTimeOnlyCollection);
+                Assert.Equal(
+                    new[] { new TimeOnly(13, 42, 23), new TimeOnly(1, 1, 7) }, result.Collection[0].TestTimeOnlyCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
