@@ -2197,6 +2197,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     x.Reference.TestSignedByte,
                     x.Reference.TestSingle,
                     x.Reference.TestTimeSpan,
+                    x.Reference.TestDateOnly,
+                    x.Reference.TestTimeOnly,
                     x.Reference.TestUnsignedInt16,
                     x.Reference.TestUnsignedInt32,
                     x.Reference.TestUnsignedInt64,
@@ -2363,6 +2365,22 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeSpan != new TimeSpan(3, 2, 0)),
+            entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_dateonly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateOnly != new DateOnly(3, 2, 1)),
+            entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_timeonly(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeOnly != new TimeOnly(3, 2, 0)),
             entryCount: 6);
 
     [ConditionalTheory]
