@@ -576,7 +576,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 {
                     stringBuilder
                         .AppendLine()
-                        .Append(".IsRequired()");
+                        .Append(complexTypeBuilderName)
+                        .AppendLine(".IsRequired();");
                 }
 
                 GenerateProperties(complexTypeBuilderName, complexType.GetDeclaredProperties(), stringBuilder);
