@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
-using ValueComparer = Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -177,37 +177,27 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <param name="providerType">The provider type.</param>
     /// <param name="elementMapping">The element mapping, if known.</param>
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    [EntityFrameworkInternal]
     protected virtual CoreTypeMapping? FindCollectionMapping(
         TypeMappingInfo info,
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-    {
-        if (TryFindJsonCollectionMapping(
-                info, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
-        {
-            var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
-            var comparer = (ValueComparer?)Activator.CreateInstance(
-                elementType.IsNullableValueType()
-                    ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                    : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                elementMapping!.Comparer);
-
-            return FindMapping(
+        => TryFindJsonCollectionMapping(
+            info, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
+            ? FindMapping(
                     info.WithConverter(
                         // Note that the converter info is only used temporarily here and never creates an instance.
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
                 .WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(modelType.TryGetElementType(typeof(IEnumerable<>))!),
+                        collectionReaderWriter!)!,
                     comparer,
                     comparer,
                     elementMapping,
-                    collectionReaderWriter);
-        }
-
-        return null;
-    }
+                    collectionReaderWriter)
+            : null;
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.
