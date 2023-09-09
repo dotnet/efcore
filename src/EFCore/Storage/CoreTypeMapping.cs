@@ -111,12 +111,14 @@ public abstract class CoreTypeMapping
         /// </summary>
         /// <param name="converter">The converter.</param>
         /// <param name="comparer">The comparer.</param>
+        /// <param name="keyComparer">The key comparer.</param>
         /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
         /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public CoreTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
             ValueComparer? comparer,
+            ValueComparer? keyComparer,
             CoreTypeMapping? elementMapping,
             JsonValueReaderWriter? jsonValueReaderWriter)
         {
@@ -126,7 +128,7 @@ public abstract class CoreTypeMapping
                 ClrType,
                 converter ?? Converter,
                 comparer ?? Comparer,
-                KeyComparer,
+                keyComparer?? KeyComparer,
                 ProviderValueComparer,
                 ValueGeneratorFactory,
                 elementMapping ?? ElementTypeMapping,
@@ -266,12 +268,14 @@ public abstract class CoreTypeMapping
     /// </summary>
     /// <param name="converter">The converter to use.</param>
     /// <param name="comparer">The comparer to use, or <see langword="null" /> for to keep the default.</param>
+    /// <param name="keyComparer">The comparer to use when the value is a key, or <see langword="null" /> for to keep the default.</param>
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>A new type mapping</returns>
     public abstract CoreTypeMapping Clone(
         ValueConverter? converter,
         ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null);
 

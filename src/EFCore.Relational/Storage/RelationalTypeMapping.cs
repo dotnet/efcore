@@ -231,16 +231,18 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         /// </summary>
         /// <param name="converter">The converter.</param>
         /// <param name="comparer">The comparer.</param>
+        /// <param name="keyComparer">The key comparer.</param>
         /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
         /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public RelationalTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
             ValueComparer? comparer,
+            ValueComparer? keyComparer,
             CoreTypeMapping? elementMapping,
             JsonValueReaderWriter? jsonValueReaderWriter)
             => new(
-                CoreParameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter),
+                CoreParameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter),
                 StoreType,
                 StoreTypePostfix,
                 DbType,
@@ -431,9 +433,10 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     public override CoreTypeMapping Clone(
         ValueConverter? converter,
         ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => Clone(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
+        => Clone(Parameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     Clones the type mapping to update facets from the mapping info, if needed.
