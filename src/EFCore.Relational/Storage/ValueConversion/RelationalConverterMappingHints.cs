@@ -77,7 +77,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
                 (hints as RelationalConverterMappingHints)?.DbType ?? DbType);
 
     /// <inheritdoc />
-    public override ConverterMappingHints Override(ConverterMappingHints? hints)
+    public override ConverterMappingHints OverrideWith(ConverterMappingHints? hints)
         => hints == null
             ? this
             : new RelationalConverterMappingHints(

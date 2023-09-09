@@ -365,7 +365,7 @@ public class PrimitiveCollectionBuilder : IInfrastructure<IConventionPropertyBui
     /// </summary>
     /// <returns>A builder to configure the collection element type.</returns>
     public virtual ElementTypeBuilder ElementType()
-        => new((IMutableElementType)Builder.Metadata.GetElementType()!);
+        => new(Builder.Metadata.GetElementType()!);
 
     /// <summary>
     ///     Configures the elements of this collection.

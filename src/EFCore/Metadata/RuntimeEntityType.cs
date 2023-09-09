@@ -53,8 +53,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
+    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
@@ -1293,7 +1293,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetOriginalValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+    public virtual void SetOriginalValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
         => _originalValuesFactory = factory;
 
     /// <summary>
@@ -1313,7 +1313,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetTemporaryValuesFactory(Func<IInternalEntry, ISnapshot> factory)
+    public virtual void SetTemporaryValuesFactory(Func<InternalEntityEntry, ISnapshot> factory)
         => _temporaryValuesFactory = factory;
 
     /// <summary>
@@ -1343,7 +1343,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
+    public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
@@ -1371,7 +1371,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
+    public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported

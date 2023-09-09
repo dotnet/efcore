@@ -272,7 +272,7 @@ public abstract class CoreTypeMapping
     /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
     /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>A new type mapping</returns>
-    public abstract CoreTypeMapping Clone(
+    public abstract CoreTypeMapping WithComposedConverter(
         ValueConverter? converter,
         ValueComparer? comparer = null,
         ValueComparer? keyComparer = null,

@@ -129,7 +129,7 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
 
         return mapping != null
             && mappingInfo.StoreTypeName != null
-                ? mapping.Clone(mappingInfo.StoreTypeName, null)
+                ? mapping.WithStoreTypeAndSize(mappingInfo.StoreTypeName, null)
                 : mapping;
     }
 

@@ -94,7 +94,7 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
 
         if (_checkEquality)
         {
-            var oldValue = property.GetGetter().GetClrValue(invocation.Proxy);
+            var oldValue = property.GetGetter().GetClrValueUsingContainingEntity(invocation.Proxy);
 
             invocation.Proceed();
 

@@ -233,7 +233,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
         => base.FindMapping(mappingInfo)
-            ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+            ?? FindRawMapping(mappingInfo)?.WithTypeMappingInfo(mappingInfo);
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {

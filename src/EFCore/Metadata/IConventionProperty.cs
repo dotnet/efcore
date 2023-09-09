@@ -461,16 +461,26 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource();
 
     /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    new IConventionElementType? GetElementType();
+
+    /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
-    /// <param name="primitiveCollection">If <see langword="true"/>, then this is a collection of primitive elements.</param>
+    /// <param name="elementType">If <see langword="true"/>, then the type mapping has an element type, otherwise it is removed.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configuration for the elements.</returns>
-    IElementType? ElementType(bool primitiveCollection, bool fromDataAnnotation = false);
+    IConventionElementType? SetElementType(bool elementType, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetElementType" />.
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetElementType" />.</returns>
     ConfigurationSource? GetElementTypeConfigurationSource();
+
+    /// <inheritdoc />
+    IReadOnlyElementType? IReadOnlyProperty.GetElementType()
+        => GetElementType();
 }

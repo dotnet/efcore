@@ -100,6 +100,12 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <returns>The comparer.</returns>
     new ValueComparer GetProviderValueComparer();
 
+    /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    new IElementType? GetElementType();
+
     internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors

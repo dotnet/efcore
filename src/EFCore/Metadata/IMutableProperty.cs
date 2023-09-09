@@ -274,10 +274,16 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     void SetJsonValueReaderWriterType(Type? readerWriterType);
 
     /// <summary>
+    ///     Gets the configuration for elements of the primitive collection represented by this property.
+    /// </summary>
+    /// <returns>The configuration for the elements.</returns>
+    new IMutableElementType? GetElementType();
+
+    /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
     /// <param name="elementType">If <see langword="true"/>, then this is a collection of primitive elements.</param>
-    void ElementType(bool elementType);
+    void SetElementType(bool elementType);
 
     /// <inheritdoc />
     bool IReadOnlyProperty.IsNullable
@@ -290,4 +296,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <inheritdoc />
     bool IReadOnlyProperty.IsConcurrencyToken
         => IsConcurrencyToken;
+
+    /// <inheritdoc />
+    IReadOnlyElementType? IReadOnlyProperty.GetElementType()
+        => GetElementType();
 }

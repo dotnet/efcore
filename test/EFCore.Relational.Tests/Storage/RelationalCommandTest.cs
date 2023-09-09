@@ -1372,7 +1372,7 @@ public class RelationalCommandTest
         public WarningsConfiguration WarningsConfiguration
             => null;
 
-        public virtual bool ShouldWarnForEnumType(Type type)
+        public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
             => true;
     }
 

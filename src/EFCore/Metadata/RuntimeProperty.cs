@@ -326,6 +326,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         => ((IReadOnlyProperty)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     /// <inheritdoc />
+    IReadOnlyElementType? IReadOnlyProperty.GetElementType()
+        => GetElementType();
+
+    /// <inheritdoc />
     bool IReadOnlyProperty.IsNullable
     {
         [DebuggerStepThrough]

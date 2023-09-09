@@ -94,7 +94,7 @@ public class PropertyDiscoveryConvention :
             var propertyBuilder = entityTypeBuilder.Property(propertyInfo);
             if (mapping?.ElementTypeMapping != null)
             {
-                propertyBuilder?.ElementType(true);
+                propertyBuilder?.SetElementType(true);
             }
         }
     }
