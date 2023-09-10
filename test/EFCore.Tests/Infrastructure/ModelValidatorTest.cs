@@ -184,6 +184,27 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Throws_when_mapping_concrete_sealed_type_that_does_not_implement_IList()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithStringCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.SomeString);
+            });
+
+        VerifyError(CoreStrings.BadListType("string", "IList<char>"), modelBuilder, sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithStringCollection
+    {
+        public int Id { get; set; }
+        public string SomeString { get; set; }
+    }
+
+    [ConditionalFact]
     public virtual void Ignores_binary_keys_and_strings_without_custom_comparer()
     {
         var modelBuilder = CreateConventionlessModelBuilder();

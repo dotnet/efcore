@@ -2309,10 +2309,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
             }
 
-            // TODO: Check that the property is a primitive collection property directly once we have that in metadata, rather than
-            // looking at the type mapping.
             var property = type.FindProperty(memberName);
-            if (property?.GetRelationalTypeMapping().ElementTypeMapping is null)
+            if (property?.IsPrimitiveCollection != true)
             {
                 return null;
             }

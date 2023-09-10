@@ -155,7 +155,8 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         SetAnnotation(CoreAnnotationNames.ElementType, elementType);
 
-        IsPrimitiveCollection = ClrType.TryGetElementType(typeof(IEnumerable<>))?.IsAssignableFrom(clrType) == true;
+        IsPrimitiveCollection = ClrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
+            .IsAssignableFrom(clrType.UnwrapNullableType()) == true;
 
         return elementType;
     }
