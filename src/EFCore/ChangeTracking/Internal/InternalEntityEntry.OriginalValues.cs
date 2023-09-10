@@ -11,12 +11,12 @@ public sealed partial class InternalEntityEntry
     {
         private readonly ISnapshot _values;
 
-        public OriginalValues(IInternalEntry entry)
+        public OriginalValues(InternalEntityEntry  entry)
         {
             _values = entry.EntityType.OriginalValuesFactory(entry);
         }
 
-        public object? GetValue(IInternalEntry entry, IProperty property)
+        public object? GetValue(InternalEntityEntry  entry, IProperty property)
         {
             var index = property.GetOriginalValueIndex();
             if (index == -1)
@@ -28,7 +28,7 @@ public sealed partial class InternalEntityEntry
             return IsEmpty ? entry[property] : _values[index];
         }
 
-        public T GetValue<T>(IInternalEntry entry, IProperty property, int index)
+        public T GetValue<T>(InternalEntityEntry  entry, IProperty property, int index)
         {
             if (index == -1)
             {
@@ -65,7 +65,7 @@ public sealed partial class InternalEntityEntry
             _values[index] = SnapshotValue(property, value);
         }
 
-        public void RejectChanges(IInternalEntry entry)
+        public void RejectChanges(InternalEntityEntry entry)
         {
             if (IsEmpty)
             {
@@ -82,7 +82,7 @@ public sealed partial class InternalEntityEntry
             }
         }
 
-        public void AcceptChanges(IInternalEntry entry)
+        public void AcceptChanges(InternalEntityEntry entry)
         {
             if (IsEmpty)
             {

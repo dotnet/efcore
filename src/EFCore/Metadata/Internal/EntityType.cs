@@ -61,8 +61,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private InstantiationBinding? _serviceOnlyConstructorBinding;
 
     private Func<InternalEntityEntry, ISnapshot>? _relationshipSnapshotFactory;
-    private Func<IInternalEntry, ISnapshot>? _originalValuesFactory;
-    private Func<IInternalEntry, ISnapshot>? _temporaryValuesFactory;
+    private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
+    private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
@@ -2285,7 +2285,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<IInternalEntry, ISnapshot> OriginalValuesFactory
+    public virtual Func<InternalEntityEntry, ISnapshot> OriginalValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static entityType =>
@@ -2315,7 +2315,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<IInternalEntry, ISnapshot> TemporaryValuesFactory
+    public virtual Func<InternalEntityEntry, ISnapshot> TemporaryValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static entityType =>

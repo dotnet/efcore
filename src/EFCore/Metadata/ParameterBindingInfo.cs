@@ -17,7 +17,7 @@ public readonly struct ParameterBindingInfo
     /// <param name="structuralType">The entity or complex type for this binding.</param>
     /// <param name="materializationContextExpression">The expression tree from which the parameter value will come.</param>
     public ParameterBindingInfo(
-        IEntityType structuralType,
+        ITypeBase structuralType,
         Expression materializationContextExpression)
     {
         Check.NotNull(structuralType, nameof(structuralType));

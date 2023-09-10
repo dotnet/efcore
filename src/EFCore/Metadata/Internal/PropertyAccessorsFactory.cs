@@ -42,12 +42,12 @@ public class PropertyAccessorsFactory
             property == null ? null : CreateValueBufferGetter(property));
     }
 
-    private static Func<IInternalEntry, TProperty> CreateCurrentValueGetter<TProperty>(
+    private static Func<InternalEntityEntry, TProperty> CreateCurrentValueGetter<TProperty>(
         IPropertyBase propertyBase,
         bool useStoreGeneratedValues)
     {
         var entityClrType = propertyBase.DeclaringType.ContainingEntityType.ClrType;
-        var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
+        var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();
         var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
@@ -66,7 +66,7 @@ public class PropertyAccessorsFactory
         else
         {
             var convertedExpression = Expression.Convert(
-                Expression.Property(entryParameter, nameof(IInternalEntry.Object)),
+                Expression.Property(entryParameter, nameof(InternalEntityEntry.Entity)),
                 entityClrType);
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);
@@ -133,18 +133,18 @@ public class PropertyAccessorsFactory
                     currentValueExpression));
         }
 
-        return Expression.Lambda<Func<IInternalEntry, TProperty>>(
+        return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
                 currentValueExpression,
                 entryParameter)
             .Compile();
     }
 
-    private static Func<IInternalEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)
+    private static Func<InternalEntityEntry, TProperty> CreateOriginalValueGetter<TProperty>(IProperty property)
     {
-        var entryParameter = Expression.Parameter(typeof(IInternalEntry), "entry");
+        var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
         var originalValuesIndex = property.GetOriginalValueIndex();
 
-        return Expression.Lambda<Func<IInternalEntry, TProperty>>(
+        return Expression.Lambda<Func<InternalEntityEntry, TProperty>>(
                 originalValuesIndex >= 0
                     ? Expression.Call(
                         entryParameter,

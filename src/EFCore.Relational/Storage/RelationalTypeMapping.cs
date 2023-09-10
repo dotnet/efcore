@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -231,16 +232,18 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         /// </summary>
         /// <param name="converter">The converter.</param>
         /// <param name="comparer">The comparer.</param>
+        /// <param name="keyComparer">The key comparer.</param>
         /// <param name="elementMapping">The element mapping, or <see langword="null" /> for non-collection mappings.</param>
         /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
         /// <returns>The new parameter object.</returns>
         public RelationalTypeMappingParameters WithComposedConverter(
             ValueConverter? converter,
             ValueComparer? comparer,
+            ValueComparer? keyComparer,
             CoreTypeMapping? elementMapping,
             JsonValueReaderWriter? jsonValueReaderWriter)
             => new(
-                CoreParameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter),
+                CoreParameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter),
                 StoreType,
                 StoreTypePostfix,
                 DbType,
@@ -276,7 +279,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <summary>
     ///     Gets the mapping to be used when the only piece of information is that there is a null value.
     /// </summary>
-    public static readonly NullTypeMapping NullMapping = NullTypeMapping.Default;
+    public static readonly RelationalTypeMapping NullMapping = NullTypeMapping.Default;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RelationalTypeMapping" /> class.
@@ -415,7 +418,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="storeType">The name of the database type.</param>
     /// <param name="size">The size of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(string storeType, int? size)
+    public virtual RelationalTypeMapping WithStoreTypeAndSize(string storeType, int? size)
         => Clone(Parameters.WithStoreTypeAndSize(storeType, size));
 
     /// <summary>
@@ -424,51 +427,26 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="precision">The precision of data the property is configured to store, or null if no size is configured.</param>
     /// <param name="scale">The scale of data the property is configured to store, or null if no size is configured.</param>
     /// <returns>The newly created mapping.</returns>
-    public virtual RelationalTypeMapping Clone(int? precision, int? scale)
+    public virtual RelationalTypeMapping WithPrecisionAndScale(int? precision, int? scale)
         => Clone(Parameters.WithPrecisionAndScale(precision, scale));
 
     /// <inheritdoc />
-    public override CoreTypeMapping Clone(
+    public override CoreTypeMapping WithComposedConverter(
         ValueConverter? converter,
         ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => Clone(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
+        => Clone(Parameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     Clones the type mapping to update facets from the mapping info, if needed.
     /// </summary>
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
-    public virtual RelationalTypeMapping Clone(
+    public virtual RelationalTypeMapping WithTypeMappingInfo(
         in RelationalTypeMappingInfo mappingInfo)
         => Clone(Parameters.WithTypeMappingInfo(mappingInfo));
-
-    /// <inheritdoc />
-    public override CoreTypeMapping Clone(
-        in TypeMappingInfo? mappingInfo = null,
-        Type? clrType = null,
-        ValueConverter? converter = null,
-        ValueComparer? comparer = null,
-        ValueComparer? keyComparer = null,
-        ValueComparer? providerValueComparer = null,
-        CoreTypeMapping? elementMapping = null,
-        JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => Clone(
-            mappingInfo == null
-            ? null
-            : new RelationalTypeMappingInfo(
-                unicode: mappingInfo.Value.IsUnicode,
-                size: mappingInfo.Value.Size,
-                precision: mappingInfo.Value.Precision,
-                scale: mappingInfo.Value.Scale),
-            clrType,
-            converter,
-            comparer,
-            keyComparer,
-            providerValueComparer,
-            elementMapping,
-            jsonValueReaderWriter);
 
     /// <summary>
     ///     Clones the type mapping to update any parameter if needed.

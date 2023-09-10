@@ -45,7 +45,7 @@ public sealed class ClrPropertyGetter<TEntity, TStructuralType, TValue> : IClrPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public object? GetClrValue(object entity)
+    public object? GetClrValueUsingContainingEntity(object entity)
         => _getter((TEntity)entity);
 
     /// <summary>
@@ -55,7 +55,7 @@ public sealed class ClrPropertyGetter<TEntity, TStructuralType, TValue> : IClrPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasSentinel(object entity)
+    public bool HasSentinelUsingContainingEntity(object entity)
         => _hasSentinelValue((TEntity)entity);
 
     /// <summary>
@@ -65,8 +65,8 @@ public sealed class ClrPropertyGetter<TEntity, TStructuralType, TValue> : IClrPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public object? GetStructuralTypeClrValue(object complexObject)
-        => _structuralTypeGetter((TStructuralType)complexObject);
+    public object? GetClrValue(object structuralObject)
+        => _structuralTypeGetter((TStructuralType)structuralObject);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,6 +75,6 @@ public sealed class ClrPropertyGetter<TEntity, TStructuralType, TValue> : IClrPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasStructuralTypeSentinelValue(object complexObject)
-        => _hasStructuralTypeSentinelValue((TStructuralType)complexObject);
+    public bool HasSentinel(object structuralObject)
+        => _hasStructuralTypeSentinelValue((TStructuralType)structuralObject);
 }

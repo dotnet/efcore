@@ -74,7 +74,7 @@ public abstract class RelationalTypeMappingTest
 
     protected static RelationalTypeMapping AssertClone(Type type, RelationalTypeMapping mapping)
     {
-        var clone = mapping.Clone("<clone>", null);
+        var clone = mapping.WithStoreTypeAndSize("<clone>", null);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());
@@ -89,7 +89,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
 
         var newConverter = CreateConverter(typeof(object), type);
-        clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+        clone = (RelationalTypeMapping)mapping.WithComposedConverter(newConverter);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());
@@ -130,7 +130,7 @@ public abstract class RelationalTypeMappingTest
             null,
             null);
 
-        var clone = mapping.Clone("<clone>", 66);
+        var clone = mapping.WithStoreTypeAndSize("<clone>", 66);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());
@@ -150,7 +150,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
         var newConverter = CreateConverter(typeof(object), type);
-        clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+        clone = (RelationalTypeMapping)mapping.WithComposedConverter(newConverter);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());
@@ -194,7 +194,7 @@ public abstract class RelationalTypeMappingTest
             null,
             null);
 
-        var clone = mapping.Clone("<clone>", 66);
+        var clone = mapping.WithStoreTypeAndSize("<clone>", 66);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());
@@ -216,7 +216,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
 
         var newConverter = CreateConverter(typeof(object), type);
-        clone = (RelationalTypeMapping)mapping.Clone(newConverter);
+        clone = (RelationalTypeMapping)mapping.WithComposedConverter(newConverter);
 
         Assert.NotSame(mapping, clone);
         Assert.Same(mapping.GetType(), clone.GetType());

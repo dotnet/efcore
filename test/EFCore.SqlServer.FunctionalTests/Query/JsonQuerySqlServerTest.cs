@@ -1338,7 +1338,7 @@ OUTER APPLY (
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o]
 ) AS [t]
-ORDER BY [j].[Id], [t].[Name]
+ORDER BY [j].[Id], [t].[Name], [t].[Names], [t].[Number]
 """);
     }
 
@@ -1400,7 +1400,7 @@ OUTER APPLY (
     ) AS [t2]
 ) AS [t1]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
-ORDER BY [j].[Id], [t].[c], [t].[key], [t0].[Name], [t0].[Number], [t1].[c1], [t1].[key], [t1].[c10], [t1].[key0]
+ORDER BY [j].[Id], [t].[c], [t].[key], [t0].[Name], [t0].[Names], [t0].[Number], [t0].[Numbers], [t1].[c1], [t1].[key], [t1].[c10], [t1].[key0]
 """);
     }
 
@@ -1426,7 +1426,7 @@ OUTER APPLY (
     ) AS [o]
 ) AS [t]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
-ORDER BY [j].[Id], [t].[Date], [t].[Enum], [t].[Fraction], [t].[NullableEnum]
+ORDER BY [j].[Id], [t].[Date], [t].[Enum], [t].[Enums], [t].[Fraction], [t].[NullableEnum], [t].[NullableEnums]
 """);
     }
 

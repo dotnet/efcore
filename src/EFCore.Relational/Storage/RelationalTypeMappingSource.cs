@@ -174,7 +174,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
                                         if (mapping != null)
                                         {
-                                            mapping = (RelationalTypeMapping)mapping.Clone(
+                                            mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
                                                 secondConverterInfo.Create(),
                                                 jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
                                             break;
@@ -184,7 +184,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
                                 if (mapping != null)
                                 {
-                                    mapping = (RelationalTypeMapping)mapping.Clone(
+                                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
                                         converterInfo.Create(),
                                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                                     break;
@@ -203,7 +203,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 if (mapping != null
                     && customConverter != null)
                 {
-                    mapping = (RelationalTypeMapping)mapping.Clone(
+                    mapping = (RelationalTypeMapping)mapping.WithComposedConverter(
                         customConverter,
                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                 }
@@ -231,18 +231,21 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         {
             var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
 
+            var comparer = (ValueComparer?)Activator.CreateInstance(
+                elementType.IsNullableValueType()
+                    ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
+                    : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
+                elementMapping!.Comparer);
+
             return (RelationalTypeMapping)FindMapping(
                     info.WithConverter(
                         // Note that the converter info is only used temporarily here and never creates an instance.
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                .Clone(
+                .WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(
                         typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
-                    (ValueComparer?)Activator.CreateInstance(
-                        elementType.IsNullableValueType()
-                            ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                            : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                        elementMapping!.Comparer),
+                    comparer,
+                    comparer,
                     elementMapping,
                     collectionReaderWriter);
         }

@@ -49,7 +49,7 @@ public abstract class EntryPropertyValues : PropertyValues
         {
             foreach (var property in Properties.Where(p => !p.IsShadowProperty()))
             {
-                SetValueInternal(property, property.GetGetter().GetClrValue(obj));
+                SetValueInternal(property, property.GetGetter().GetClrValueUsingContainingEntity(obj));
             }
         }
         else

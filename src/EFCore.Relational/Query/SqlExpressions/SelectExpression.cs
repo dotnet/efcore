@@ -808,8 +808,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // (OPENJSON, json_each, etc), but we can't use it for distinct, as it would warp the results.
                         // Instead, we will treat every non-key property as identifier.
 
-                        // TODO: hack/workaround, see #31398
-                        foreach (var property in entityType.GetDeclaredProperties().Where(p => !p.IsPrimaryKey() && p.GetRelationalTypeMapping().ElementTypeMapping == null))
+                        foreach (var property in entityType.GetDeclaredProperties().Where(p => !p.IsPrimaryKey()))
                         {
                             typeProjectionIdentifiers.Add(entityProjection.BindProperty(property));
                             typeProjectionValueComparers.Add(property.GetKeyValueComparer());
@@ -826,8 +825,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // entity type would have wiped the identifiers when generating the join.
                         Check.DebugAssert(primaryKey != null, "primary key is null.");
 
-                        // TODO: hack/workaround, see #31398
-                        foreach (var property in primaryKey.Properties.Where(x => x.GetRelationalTypeMapping().ElementTypeMapping == null))
+                        foreach (var property in primaryKey.Properties)
                         {
                             typeProjectionIdentifiers.Add(entityProjection.BindProperty(property));
                             typeProjectionValueComparers.Add(property.GetKeyValueComparer());
@@ -1851,7 +1849,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         ownerEntity = ownership.PrincipalEntityType;
                     }
-                } 
+                }
                 while (ownerEntity.IsMappedToJson());
 
                 var keyPropertyCount = ownerEntity.FindPrimaryKey()!.Properties.Count;

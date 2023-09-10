@@ -564,7 +564,7 @@ public class InternalPropertyBuilder
     {
         if (CanSetConverter(converterType, configurationSource))
         {
-            Metadata.ElementType(false, configurationSource);
+            Metadata.SetElementType(false, configurationSource);
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converterType, configurationSource);
 
@@ -776,11 +776,11 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalElementTypeBuilder? ElementType(bool elementType, ConfigurationSource configurationSource)
+    public virtual InternalElementTypeBuilder? SetElementType(bool elementType, ConfigurationSource configurationSource)
     {
         if (CanSetElementType(elementType, configurationSource))
         {
-            Metadata.ElementType(elementType, configurationSource);
+            Metadata.SetElementType(elementType, configurationSource);
             Metadata.SetValueConverter((Type?)null, configurationSource);
             return new InternalElementTypeBuilder((ElementType)Metadata.GetElementType()!, ModelBuilder);
         }
@@ -1523,8 +1523,8 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionElementTypeBuilder? IConventionPropertyBuilder.ElementType(bool elementType, bool fromDataAnnotation)
-        => ElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionElementTypeBuilder? IConventionPropertyBuilder.SetElementType(bool elementType, bool fromDataAnnotation)
+        => SetElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

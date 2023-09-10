@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using ValueComparer = Microsoft.EntityFrameworkCore.ChangeTracking.ValueComparer;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -130,7 +131,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                                         if (mapping != null)
                                         {
-                                            mapping = mapping.Clone(
+                                            mapping = mapping.WithComposedConverter(
                                                 secondConverterInfo.Create(),
                                                 jsonValueReaderWriter: mappingInfoUsed.JsonValueReaderWriter);
                                             break;
@@ -140,7 +141,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
 
                                 if (mapping != null)
                                 {
-                                    mapping = mapping.Clone(
+                                    mapping = mapping.WithComposedConverter(
                                         converterInfo.Create(),
                                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                                     break;
@@ -159,7 +160,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
                 if (mapping != null
                     && customConverter != null)
                 {
-                    mapping = mapping.Clone(
+                    mapping = mapping.WithComposedConverter(
                         customConverter,
                         jsonValueReaderWriter: mappingInfo.JsonValueReaderWriter);
                 }
@@ -182,25 +183,30 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
         Type? providerType,
         CoreTypeMapping? elementMapping)
     {
-        var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
+        if (TryFindJsonCollectionMapping(
+                info, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
+        {
+            var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
+            var comparer = (ValueComparer?)Activator.CreateInstance(
+                elementType.IsNullableValueType()
+                    ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
+                    : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
+                elementMapping!.Comparer);
 
-        return TryFindJsonCollectionMapping(
-            info, modelType, providerType, ref elementMapping, out var collectionReaderWriter)
-            ? FindMapping(
+            return FindMapping(
                     info.WithConverter(
                         // Note that the converter info is only used temporarily here and never creates an instance.
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                .Clone(
+                .WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(
                         typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
-                    (ValueComparer?)Activator.CreateInstance(
-                        elementType.IsNullableValueType()
-                            ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                            : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                        elementMapping!.Comparer),
+                    comparer,
+                    comparer,
                     elementMapping,
-                    collectionReaderWriter)
-            : null;
+                    collectionReaderWriter);
+        }
+
+        return null;
     }
 
     /// <summary>

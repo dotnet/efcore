@@ -177,7 +177,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     Gets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
     /// <returns>The configuration for the elements.</returns>
-    IElementType? GetElementType();
+    IReadOnlyElementType? GetElementType();
 
     /// <summary>
     ///     Finds the first principal property that the given property is constrained by

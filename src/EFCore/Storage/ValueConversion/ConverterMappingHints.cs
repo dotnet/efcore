@@ -59,7 +59,7 @@ public class ConverterMappingHints
 #pragma warning disable CS0612 // Type or member is obsolete
                     hints.ValueGeneratorFactory ?? ValueGeneratorFactory)
 #pragma warning restore CS0612 // Type or member is obsolete
-                : hints.Override(this);
+                : hints.OverrideWith(this);
 
     /// <summary>
     ///     Adds hints from the given object to this one. Hints that are already specified are overridden.
@@ -69,7 +69,7 @@ public class ConverterMappingHints
     /// </remarks>
     /// <param name="hints">The hints to add.</param>
     /// <returns>The combined hints.</returns>
-    public virtual ConverterMappingHints Override(ConverterMappingHints? hints)
+    public virtual ConverterMappingHints OverrideWith(ConverterMappingHints? hints)
         => hints == null
             ? this
             : GetType().IsAssignableFrom(hints.GetType())

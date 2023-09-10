@@ -53,12 +53,13 @@ public class InMemoryTypeMapping : CoreTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override CoreTypeMapping Clone(
+    public override CoreTypeMapping WithComposedConverter(
         ValueConverter? converter,
         ValueComparer? comparer = null,
+        ValueComparer? keyComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => new InMemoryTypeMapping(Parameters.WithComposedConverter(converter, comparer, elementMapping, jsonValueReaderWriter));
+        => new InMemoryTypeMapping(Parameters.WithComposedConverter(converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -25,25 +25,6 @@ public static class UpdateEntryExtensions
     /// <param name="property">The property to get the value for.</param>
     /// <returns>The value for the property.</returns>
     public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
-        => GetCurrentProviderValue((IInternalEntry)updateEntry, property);
-
-    /// <summary>
-    ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.
-    /// </summary>
-    /// <param name="updateEntry">The entry.</param>
-    /// <param name="property">The property to get the value for.</param>
-    /// <returns>The value for the property.</returns>
-    public static object? GetOriginalProviderValue(this IUpdateEntry updateEntry, IProperty property)
-        => GetOriginalProviderValue((IInternalEntry)updateEntry, property);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static object? GetCurrentProviderValue(this IInternalEntry updateEntry, IProperty property)
     {
         var value = updateEntry.GetCurrentValue(property);
         var typeMapping = property.GetTypeMapping();
@@ -61,13 +42,12 @@ public static class UpdateEntryExtensions
     }
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.
     /// </summary>
-    [EntityFrameworkInternal]
-    public static object? GetOriginalProviderValue(this IInternalEntry updateEntry, IProperty property)
+    /// <param name="updateEntry">The entry.</param>
+    /// <param name="property">The property to get the value for.</param>
+    /// <returns>The value for the property.</returns>
+    public static object? GetOriginalProviderValue(this IUpdateEntry updateEntry, IProperty property)
     {
         var value = updateEntry.GetOriginalValue(property);
         var typeMapping = property.GetTypeMapping();
@@ -324,31 +304,6 @@ public static class UpdateEntryExtensions
     public static string BuildCurrentValuesString(
         this IUpdateEntry entry,
         IEnumerable<IPropertyBase> properties)
-        => BuildCurrentValuesString((IInternalEntry)entry, properties);
-
-    /// <summary>
-    ///     Creates a formatted string representation of the given properties and their original
-    ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
-    ///     the properties.
-    /// </summary>
-    /// <param name="entry">The entry from which values will be obtained.</param>
-    /// <param name="properties">The properties to format.</param>
-    /// <returns>The string representation.</returns>
-    public static string BuildOriginalValuesString(
-        this IUpdateEntry entry,
-        IEnumerable<IPropertyBase> properties)
-        => BuildOriginalValuesString((IInternalEntry)entry, properties);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public static string BuildCurrentValuesString(
-        this IInternalEntry entry,
-        IEnumerable<IPropertyBase> properties)
         => "{"
             + string.Join(
                 ", ", properties.Select(
@@ -364,14 +319,15 @@ public static class UpdateEntryExtensions
             + "}";
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Creates a formatted string representation of the given properties and their original
+    ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
+    ///     the properties.
     /// </summary>
-    [EntityFrameworkInternal]
+    /// <param name="entry">The entry from which values will be obtained.</param>
+    /// <param name="properties">The properties to format.</param>
+    /// <returns>The string representation.</returns>
     public static string BuildOriginalValuesString(
-        this IInternalEntry entry,
+        this IUpdateEntry entry,
         IEnumerable<IPropertyBase> properties)
         => "{"
             + string.Join(

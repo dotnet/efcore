@@ -220,7 +220,7 @@ public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
             {
                 return storeTypeName != null
                     && !mapping.StoreType.Equals(storeTypeName, StringComparison.Ordinal)
-                        ? mapping.Clone(storeTypeName, mapping.Size)
+                        ? mapping.WithStoreTypeAndSize(storeTypeName, mapping.Size)
                         : mapping;
             }
         }
