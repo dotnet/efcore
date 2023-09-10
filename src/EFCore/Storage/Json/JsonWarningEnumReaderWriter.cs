@@ -29,7 +29,7 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
     {
         if (manager.CurrentReader.TokenType == JsonTokenType.String)
         {
-            if (manager.QueryLogger?.Options.ShouldWarnForEnumType(typeof(TEnum)) == true)
+            if (manager.QueryLogger?.Options.ShouldWarnForStringEnumValueInJson(typeof(TEnum)) == true)
             {
                 manager.QueryLogger.StringEnumValueInJson(typeof(TEnum));
             }

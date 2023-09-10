@@ -311,7 +311,7 @@ public class ChangeDetectorTest
         {
         }
 
-        public override CoreTypeMapping Clone(
+        public override CoreTypeMapping WithComposedConverter(
             ValueConverter converter,
             ValueComparer comparer = null,
             ValueComparer keyComparer = null,

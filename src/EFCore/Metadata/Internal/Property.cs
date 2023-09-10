@@ -1205,8 +1205,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IElementType? GetElementType()
-        => (IElementType?)this[CoreAnnotationNames.ElementType];
+    public virtual ElementType? GetElementType()
+        => (ElementType?)this[CoreAnnotationNames.ElementType];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1214,7 +1214,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IElementType? ElementType(
+    public virtual ElementType? SetElementType(
         bool elementType,
         ConfigurationSource configurationSource)
     {
@@ -1235,7 +1235,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (existingElementType != null && !elementType)
         {
-            ((ElementType)existingElementType).SetRemovedFromModel();
+            existingElementType.SetRemovedFromModel();
             RemoveAnnotation(CoreAnnotationNames.ElementType);
             OnElementTypeSet(null, existingElementType);
             return null;
@@ -1392,6 +1392,16 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         [DebuggerStepThrough]
         get => Builder;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IReadOnlyElementType? IReadOnlyProperty.GetElementType()
+        => GetElementType();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -2007,8 +2017,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IElementType? IConventionProperty.ElementType(bool elementType, bool fromDataAnnotation)
-        => ElementType(
+    IConventionElementType? IConventionProperty.SetElementType(bool elementType, bool fromDataAnnotation)
+        => SetElementType(
             elementType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -2019,6 +2029,36 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableProperty.ElementType(bool elementType)
-        => ElementType(elementType, ConfigurationSource.Explicit);
+    void IMutableProperty.SetElementType(bool elementType)
+        => SetElementType(elementType, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableElementType? IMutableProperty.GetElementType()
+        => GetElementType();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IElementType? IProperty.GetElementType()
+        => GetElementType();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionElementType? IConventionProperty.GetElementType()
+        => GetElementType();
 }

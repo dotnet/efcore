@@ -65,7 +65,7 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
                         info.WithConverter(
                             // Note that the converter info is only used temporarily here and never creates an instance.
                             new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
-                    .Clone(
+                    .WithComposedConverter(
                         (ValueConverter)Activator.CreateInstance(
                             typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
                         comparer,

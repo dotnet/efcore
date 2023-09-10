@@ -56,7 +56,7 @@ public class ArrayPropertyValues : PropertyValues
             {
                 if (!Properties[i].IsShadowProperty())
                 {
-                    SetValue(i, Properties[i].GetGetter().GetClrValue(obj));
+                    SetValue(i, Properties[i].GetGetter().GetClrValueUsingContainingEntity(obj));
                 }
             }
         }

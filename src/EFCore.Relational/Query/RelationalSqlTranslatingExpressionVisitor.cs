@@ -1684,7 +1684,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 var propertyGetter = property.GetGetter();
                 foreach (var value in values)
                 {
-                    propertyValueList.Add(propertyGetter.GetStructuralTypeClrValue(value));
+                    propertyValueList.Add(propertyGetter.GetClrValue(value));
                 }
 
                 rewrittenSource = Expression.Constant(propertyValueList);
@@ -1974,14 +1974,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 return Expression.Constant(
                     sqlConstantExpression.Value is null
                         ? null
-                        : property.GetGetter().GetStructuralTypeClrValue(sqlConstantExpression.Value),
+                        : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
                     property.ClrType.MakeNullable());
 
             case ConstantExpression sqlConstantExpression:
                 return Expression.Constant(
                     sqlConstantExpression.Value is null
                         ? null
-                        : property.GetGetter().GetStructuralTypeClrValue(sqlConstantExpression.Value),
+                        : property.GetGetter().GetClrValue(sqlConstantExpression.Value),
                     property.ClrType.MakeNullable());
 
             case SqlParameterExpression sqlParameterExpression
@@ -2035,7 +2035,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         => target switch
         {
             SqlConstantExpression constant => Expression.Constant(
-                constant.Value is null ? null : complexProperty.GetGetter().GetStructuralTypeClrValue(constant.Value),
+                constant.Value is null ? null : complexProperty.GetGetter().GetClrValue(constant.Value),
                 complexProperty.ClrType.MakeNullable()),
 
             SqlParameterExpression sqlParameterExpression
@@ -2070,11 +2070,11 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     break;
                 }
 
-                baseValue = complexProperty.GetGetter().GetStructuralTypeClrValue(baseValue);
+                baseValue = complexProperty.GetGetter().GetClrValue(baseValue);
             }
         }
 
-        return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetStructuralTypeClrValue(baseValue);
+        return baseValue == null ? (T?)(object?)null : (T?)property.GetGetter().GetClrValue(baseValue);
     }
 
     private static List<TProperty?>? ParameterListValueExtractor<TEntity, TProperty>(
@@ -2088,7 +2088,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         var getter = property.GetGetter();
-        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetStructuralTypeClrValue(e) : (TProperty?)(object?)null).ToList();
+        return baseListParameter.Select(e => e != null ? (TProperty?)getter.GetClrValue(e) : (TProperty?)(object?)null).ToList();
     }
 
     private sealed class ParameterBasedComplexPropertyChainExpression : Expression

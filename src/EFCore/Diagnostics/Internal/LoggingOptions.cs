@@ -104,14 +104,14 @@ public class LoggingOptions : ILoggingOptions
     public virtual WarningsConfiguration WarningsConfiguration { get; private set; } = null!;
 
     /// <inheritdoc />
-    public virtual bool ShouldWarnForEnumType(Type type)
+    public virtual bool ShouldWarnForStringEnumValueInJson(Type enumType)
     {
-        if (_warnedForStringEnums.ContainsKey(type))
+        if (_warnedForStringEnums.ContainsKey(enumType))
         {
             return false;
         }
 
-        _warnedForStringEnums[type] = true;
+        _warnedForStringEnums[enumType] = true;
         return true;
     }
 }
