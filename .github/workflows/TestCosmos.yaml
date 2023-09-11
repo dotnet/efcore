@@ -13,11 +13,17 @@ jobs:
   build:
     runs-on: windows-latest
 
+    env:
+      Test__SqlServer__DefaultConnection: Data Source=(local)\MSSQLSERVER;Initial Catalog=master;User ID=sa;Password=Password12!;Connect Timeout=60;ConnectRetryCount=0
+
     steps:
       - name: Start Cosmos Emulator
         run: |
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Start-CosmosDbEmulator -Timeout 360
+
+      - name: Start SQL Server
+        run: docker run -d -p 1433:1433 -e SA_PASSWORD=Password12! -e ACCEPT_EULA=Y mcr.microsoft.com/mssql/server
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,11 +33,11 @@ jobs:
         shell: cmd
 
       - name: Build
-        run: build.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        run: build.cmd "/p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj;${{ github.workspace }}\test\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj"
         shell: cmd
 
       - name: Test on Cosmos
-        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
+        run: test.cmd "/p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj;${{ github.workspace }}\test\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj"
         shell: cmd
 
       - name: Publish Test Results

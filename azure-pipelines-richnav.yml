@@ -15,7 +15,6 @@ stages:
         enableMicrobuild: true
         enableRichCodeNavigation: true
         richCodeNavigationEnvironment: production
-        helixRepo: dotnet/efcore
         jobs:
           - job: Windows
             timeoutInMinutes: 90
