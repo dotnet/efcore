@@ -531,6 +531,42 @@ public class PropertyTest
                 () => property.GetJsonValueReaderWriter()).Message);
     }
 
+    [ConditionalFact]
+    public void Can_set_element_type_for_primitive_collection()
+    {
+        var model = CreateModel();
+        var entityType = model.AddEntityType(typeof(object));
+        var property = entityType.AddProperty("Random", typeof(IList<int>));
+        property.SetElementType(typeof(int));
+
+        Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
+        Assert.True(property.IsPrimitiveCollection);
+    }
+
+    [ConditionalFact]
+    public void Can_set_derived_element_type_for_primitive_collection()
+    {
+        var model = CreateModel();
+        var entityType = model.AddEntityType(typeof(object));
+        var property = entityType.AddProperty("Random", typeof(IList<object>));
+        property.SetElementType(typeof(int));
+
+        Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
+        Assert.True(property.IsPrimitiveCollection);
+    }
+
+    [ConditionalFact]
+    public void Can_set_element_type_for_non_primitive_collection()
+    {
+        var model = CreateModel();
+        var entityType = model.AddEntityType(typeof(object));
+        var property = entityType.AddProperty("Random", typeof(Random));
+        property.SetElementType(typeof(int));
+
+        Assert.Equal(typeof(int), property.GetElementType()!.ClrType);
+        Assert.False(property.IsPrimitiveCollection);
+    }
+
     private class SimpleJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
         public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)

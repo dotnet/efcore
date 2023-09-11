@@ -180,6 +180,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     IReadOnlyElementType? GetElementType();
 
     /// <summary>
+    ///     A property is a primitive collection if it has an element type that matches the element type of the CLR type.
+    /// </summary>
+    /// <returns><see langword="true"/> if the property represents a primitive collection.</returns>
+    bool IsPrimitiveCollection { get; }
+
+    /// <summary>
     ///     Finds the first principal property that the given property is constrained by
     ///     if the given property is part of a foreign key.
     /// </summary>
