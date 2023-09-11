@@ -333,7 +333,16 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     {
         var builder = Property(propertyType, propertyName, memberInfo, typeConfigurationSource, configurationSource);
 
-        builder?.SetElementType(true, configurationSource!.Value);
+        if (builder != null)
+        {
+            var elementClrType = builder.Metadata.ClrType.TryGetElementType(typeof(IEnumerable<>));
+            if (elementClrType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NotCollection(builder.Metadata.ClrType.ShortDisplayName(), propertyName));
+            }
+
+            builder.SetElementType(elementClrType, configurationSource!.Value);
+        }
 
         return builder;
     }

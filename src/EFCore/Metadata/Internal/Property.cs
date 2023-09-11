@@ -1214,26 +1214,38 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool IsPrimitiveCollection
+    {
+        get
+        {
+            var elementType = GetElementType();
+            return elementType != null
+                && ClrType.TryGetElementType(typeof(IEnumerable<>))?.IsAssignableFrom(elementType!.ClrType) == true;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual ElementType? SetElementType(
-        bool elementType,
+        Type? elementType,
         ConfigurationSource configurationSource)
     {
         var existingElementType = GetElementType();
-        if (existingElementType == null
-            && elementType)
+        if (elementType != null
+            && elementType != existingElementType?.ClrType)
         {
-            var elementClrType = ClrType.TryGetElementType(typeof(IEnumerable<>));
-            if (elementClrType == null)
-            {
-                throw new InvalidOperationException(CoreStrings.NotCollection(ClrType.ShortDisplayName(), Name));
-            }
-            var newElementType = new ElementType(elementClrType, this, configurationSource);
+            var newElementType = new ElementType(elementType, this, configurationSource);
             SetAnnotation(CoreAnnotationNames.ElementType, newElementType, configurationSource);
             OnElementTypeSet(newElementType, null);
             return newElementType;
         }
 
-        if (existingElementType != null && !elementType)
+        if (elementType == null
+            && existingElementType != null)
         {
             existingElementType.SetRemovedFromModel();
             RemoveAnnotation(CoreAnnotationNames.ElementType);
@@ -2017,7 +2029,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionElementType? IConventionProperty.SetElementType(bool elementType, bool fromDataAnnotation)
+    IConventionElementType? IConventionProperty.SetElementType(Type? elementType, bool fromDataAnnotation)
         => SetElementType(
             elementType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -2029,7 +2041,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableProperty.SetElementType(bool elementType)
+    void IMutableProperty.SetElementType(Type? elementType)
         => SetElementType(elementType, ConfigurationSource.Explicit);
 
     /// <summary>

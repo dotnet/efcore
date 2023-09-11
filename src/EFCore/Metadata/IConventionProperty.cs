@@ -472,7 +472,7 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="elementType">If <see langword="true"/>, then the type mapping has an element type, otherwise it is removed.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configuration for the elements.</returns>
-    IConventionElementType? SetElementType(bool elementType, bool fromDataAnnotation = false);
+    IConventionElementType? SetElementType(Type? elementType, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetElementType" />.

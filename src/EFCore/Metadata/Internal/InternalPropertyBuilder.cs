@@ -564,7 +564,7 @@ public class InternalPropertyBuilder
     {
         if (CanSetConverter(converterType, configurationSource))
         {
-            Metadata.SetElementType(false, configurationSource);
+            Metadata.SetElementType(null, configurationSource);
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converterType, configurationSource);
 
@@ -776,13 +776,13 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalElementTypeBuilder? SetElementType(bool elementType, ConfigurationSource configurationSource)
+    public virtual InternalElementTypeBuilder? SetElementType(Type? elementType, ConfigurationSource configurationSource)
     {
         if (CanSetElementType(elementType, configurationSource))
         {
             Metadata.SetElementType(elementType, configurationSource);
             Metadata.SetValueConverter((Type?)null, configurationSource);
-            return new InternalElementTypeBuilder((ElementType)Metadata.GetElementType()!, ModelBuilder);
+            return new InternalElementTypeBuilder(Metadata.GetElementType()!, ModelBuilder);
         }
 
         return null;
@@ -794,9 +794,9 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetElementType(bool elementType, ConfigurationSource? configurationSource)
+    public virtual bool CanSetElementType(Type? elementType, ConfigurationSource? configurationSource)
         => configurationSource.Overrides(Metadata.GetElementTypeConfigurationSource())
-            && (elementType != (Metadata.GetElementType() != null));
+            && (elementType != Metadata.GetElementType()?.ClrType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1523,7 +1523,7 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionElementTypeBuilder? IConventionPropertyBuilder.SetElementType(bool elementType, bool fromDataAnnotation)
+    IConventionElementTypeBuilder? IConventionPropertyBuilder.SetElementType(Type? elementType, bool fromDataAnnotation)
         => SetElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1532,6 +1532,6 @@ public class InternalPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBuilder.CanSetElementType(bool elementType, bool fromDataAnnotation)
+    bool IConventionPropertyBuilder.CanSetElementType(Type? elementType, bool fromDataAnnotation)
         => CanSetElementType(elementType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

@@ -103,6 +103,8 @@ public class ClrPropertySetterFactoryTest
         IReadOnlyElementType IReadOnlyProperty.GetElementType()
             => GetElementType();
 
+        public bool IsPrimitiveCollection { get; }
+
         public IElementType GetElementType()
             => throw new NotImplementedException();
 
