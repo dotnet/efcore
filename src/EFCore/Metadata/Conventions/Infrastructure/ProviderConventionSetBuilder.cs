@@ -100,6 +100,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new BackingFieldConvention(Dependencies));
         conventionSet.Add(new QueryFilterRewritingConvention(Dependencies));
         conventionSet.Add(new RuntimeModelConvention(Dependencies));
+        conventionSet.Add(new ElementMappingConvention(Dependencies));
 
         return conventionSet;
     }

@@ -2003,7 +2003,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (node.Right is MethodCallExpression methodCallExpression
                         && IsPropertyAssignment(methodCallExpression, out var property, out var parameter))
                     {
-                        if (property!.GetTypeMapping().ElementTypeMapping != null
+                        if (property!.IsPrimitiveCollection
                             && !property.ClrType.IsArray)
                         {
                             var currentVariable = Variable(parameter!.Type);

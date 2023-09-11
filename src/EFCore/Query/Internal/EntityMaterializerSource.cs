@@ -163,9 +163,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         static Expression CreateMemberAssignment(Expression parameter, MemberInfo memberInfo, IPropertyBase property, Expression value)
         {
-            if (property is IProperty prop
-                && prop.GetTypeMapping().ElementTypeMapping != null
-                && !prop.ClrType.IsArray)
+            if (property is IProperty { IsPrimitiveCollection: true, ClrType.IsArray: false })
             {
                 var currentVariable = Expression.Variable(property.ClrType);
                 return Expression.Block(
