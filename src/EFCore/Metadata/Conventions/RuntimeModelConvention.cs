@@ -62,7 +62,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 var elementType = property.GetElementType();
                 if (elementType != null)
                 {
-                    var runtimeElementType = Create(runtimeProperty, elementType);
+                    var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
                     CreateAnnotations(
                         elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                             convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
@@ -398,7 +398,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 property.GetJsonValueReaderWriter(),
                 property.GetTypeMapping());
 
-    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element)
+    private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element, bool primitiveCollection)
         => runtimeProperty.SetElementType(
                 element.ClrType,
                 element.IsNullable,
@@ -410,7 +410,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 element.GetValueConverter(),
                 element.GetValueComparer(),
                 element.GetJsonValueReaderWriter(),
-                element.GetTypeMapping());
+                element.GetTypeMapping(),
+                primitiveCollection);
 
     /// <summary>
     ///     Updates the property annotations that will be set on the read-only object.
@@ -524,7 +525,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var elementType = property.GetElementType();
             if (elementType != null)
             {
-                var runtimeElementType = Create(runtimeProperty, elementType);
+                var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
                 CreateAnnotations(
                     elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                         convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));
@@ -571,7 +572,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             var elementType = property.GetElementType();
             if (elementType != null)
             {
-                var runtimeElementType = Create(runtimeProperty, elementType);
+                var runtimeElementType = Create(runtimeProperty, elementType, property.IsPrimitiveCollection);
                 CreateAnnotations(
                     elementType, runtimeElementType, static (convention, annotations, source, target, runtime) =>
                         convention.ProcessElementTypeAnnotations(annotations, source, target, runtime));

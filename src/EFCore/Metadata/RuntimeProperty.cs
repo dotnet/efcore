@@ -125,6 +125,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
     /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
+    /// <param name="primitiveCollection">A value indicating whether this property represents a primitive collection.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeElementType SetElementType(
         Type clrType,
@@ -137,7 +138,8 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         ValueConverter? valueConverter = null,
         ValueComparer? valueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
-        CoreTypeMapping? typeMapping = null)
+        CoreTypeMapping? typeMapping = null,
+        bool primitiveCollection = false)
     {
         var elementType = new RuntimeElementType(
             clrType,
@@ -155,8 +157,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         SetAnnotation(CoreAnnotationNames.ElementType, elementType);
 
-        IsPrimitiveCollection = ClrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
-            .IsAssignableFrom(clrType.UnwrapNullableType()) == true;
+        IsPrimitiveCollection = primitiveCollection;
 
         return elementType;
     }
