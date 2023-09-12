@@ -60,6 +60,7 @@ public class ModelValidator : IModelValidator
         ValidateQueryFilters(model, logger);
         ValidateData(model, logger);
         ValidateTypeMappings(model, logger);
+        ValidatePrimitiveCollections(model, logger);
         ValidateTriggers(model, logger);
         LogShadowProperties(model, logger);
     }
@@ -993,6 +994,43 @@ public class ModelValidator : IModelValidator
                             property.DeclaringType.DisplayName(),
                             property.Name,
                             actualProviderClrType.ShortDisplayName()));
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                Validate(complexProperty.ComplexType, logger);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the mapping of primitive collection properties the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidatePrimitiveCollections(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            Validate(entityType, logger);
+        }
+
+        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                var elementClrType = property.GetElementType()?.ClrType;
+                if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false, ClrType.IsSealed: true }
+                    && elementClrType is { IsSealed: true }
+                    && elementClrType.TryGetElementType(typeof(IList<>)) == null)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.BadListType(
+                            property.ClrType.ShortDisplayName(),
+                            typeof(IList<>).MakeGenericType(elementClrType).ShortDisplayName()));
                 }
             }
 

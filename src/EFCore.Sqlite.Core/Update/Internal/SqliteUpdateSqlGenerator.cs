@@ -159,8 +159,7 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
             stringBuilder.Append(columnModification.JsonPath);
             stringBuilder.Append("', ");
 
-            if (columnModification.Property != null
-                && columnModification.Property.GetTypeMapping().ElementTypeMapping == null)
+            if (columnModification.Property is { IsPrimitiveCollection: false })
             {
                 var providerClrType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
                     ?? columnModification.Property.ClrType).UnwrapNullableType();

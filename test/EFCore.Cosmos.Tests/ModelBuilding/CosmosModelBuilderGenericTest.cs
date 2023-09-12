@@ -333,6 +333,35 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
 
     public class CosmosGenericComplexType : GenericComplexType
     {
+        public override void Can_set_complex_property_annotation()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer)
+                .HasTypeAnnotation("foo", "bar")
+                .HasPropertyAnnotation("foo2", "bar2")
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders);
+
+            var model = modelBuilder.FinalizeModel();
+            var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
+
+            Assert.Equal("bar", complexProperty.ComplexType["foo"]);
+            Assert.Equal("bar2", complexProperty["foo2"]);
+            Assert.Equal(typeof(Customer).Name, complexProperty.Name);
+            Assert.Equal(
+                @"Customer (Customer) Required
+  ComplexType: ComplexProperties.Customer#Customer
+    Properties: " + @"
+      AlternateKey (Guid) Required
+      Id (int) Required
+      Name (string)
+      Notes (List<string>)", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+        }
+
         public override void Properties_can_have_provider_type_set_for_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());

@@ -129,7 +129,7 @@ public partial class NavigationExpandingExpressionVisitor
                     : memberIdentity.Name is not null
                         ? entityType.FindProperty(memberIdentity.Name)
                         : null;
-                if (property?.GetTypeMapping().ElementTypeMapping != null)
+                if (property?.IsPrimitiveCollection == true)
                 {
                     return new PrimitiveCollectionReference(root, property);
                 }

@@ -39,7 +39,7 @@ public abstract partial class ModelBuilderTest
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
-      Notes (List<string>)", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+      Notes (List<string>) Element type: string", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]

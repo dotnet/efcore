@@ -504,15 +504,15 @@ public class CollectionComparerTest
         var comparer = new ListComparer<string>(new ValueComparer<string>(favorStructuralComparisons: false));
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<string>", "ListComparer<string>", "IList<string>"),
+            CoreStrings.BadListType("HashSet<string>", "IList<string>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Equals(new List<string>(), new HashSet<string>())).Message);
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<string>", "ListComparer<string>", "IList<string>"),
+            CoreStrings.BadListType("HashSet<string>", "IList<string>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Equals(new HashSet<string>(), new List<string>())).Message);
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<string>", "ListComparer<string>", "IList<string>"),
+            CoreStrings.BadListType("HashSet<string>", "IList<string>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Snapshot(new HashSet<string>())).Message);
     }
 
@@ -522,15 +522,15 @@ public class CollectionComparerTest
         var comparer = new NullableValueTypeListComparer<int>(new ValueComparer<int?>(favorStructuralComparisons: false));
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<int?>", "NullableValueTypeListComparer<int>", "IList<int?>"),
+            CoreStrings.BadListType("HashSet<int?>", "IList<int?>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Equals(new List<int?>(), new HashSet<int?>())).Message);
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<int?>", "NullableValueTypeListComparer<int>", "IList<int?>"),
+            CoreStrings.BadListType("HashSet<int?>", "IList<int?>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Equals(new HashSet<int?>(), new List<int?>())).Message);
 
         Assert.Equal(
-            CoreStrings.BadListType("HashSet<int?>", "NullableValueTypeListComparer<int>", "IList<int?>"),
+            CoreStrings.BadListType("HashSet<int?>", "IList<int?>"),
             Assert.Throws<InvalidOperationException>(() => comparer.Snapshot(new HashSet<int?>())).Message);
     }
 

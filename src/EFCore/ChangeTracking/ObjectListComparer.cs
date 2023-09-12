@@ -91,7 +91,6 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
         throw new InvalidOperationException(
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(ListComparer<TElement?>).ShortDisplayName(),
                 typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
     }
 
@@ -128,7 +127,6 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(ListComparer<TElement?>).ShortDisplayName(),
                     typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
         }
 

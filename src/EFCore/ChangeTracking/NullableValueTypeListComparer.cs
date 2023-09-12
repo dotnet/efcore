@@ -93,7 +93,6 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
         throw new InvalidOperationException(
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
                 typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
     }
 
@@ -130,7 +129,6 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
                     typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
         }
 
