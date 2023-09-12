@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -213,45 +214,32 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             this);
 
     /// <summary>
-    ///     Attempts to find a type mapping for a collection of primitive types.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="info">The mapping info being used.</param>
-    /// <param name="modelType">The model type.</param>
-    /// <param name="providerType">The provider type.</param>
-    /// <param name="elementMapping">The element mapping, if known.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    [EntityFrameworkInternal]
     protected virtual RelationalTypeMapping? FindCollectionMapping(
         RelationalTypeMappingInfo info,
         Type modelType,
         Type? providerType,
         CoreTypeMapping? elementMapping)
-    {
-        if (TryFindJsonCollectionMapping(
-                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
-        {
-            var elementType = modelType.TryGetElementType(typeof(IEnumerable<>))!;
-
-            var comparer = (ValueComparer?)Activator.CreateInstance(
-                elementType.IsNullableValueType()
-                    ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
-                    : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                elementMapping!.Comparer);
-
-            return (RelationalTypeMapping)FindMapping(
+        => TryFindJsonCollectionMapping(
+            info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
+            ? (RelationalTypeMapping)FindMapping(
                     info.WithConverter(
                         // Note that the converter info is only used temporarily here and never creates an instance.
                         new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
                 .WithComposedConverter(
                     (ValueConverter)Activator.CreateInstance(
-                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
+                        typeof(CollectionToJsonStringConverter<>).MakeGenericType(
+                            modelType.TryGetElementType(typeof(IEnumerable<>))!), collectionReaderWriter!)!,
                     comparer,
                     comparer,
                     elementMapping,
-                    collectionReaderWriter);
-        }
-
-        return null;
-    }
+                    collectionReaderWriter)
+            : null;
 
     /// <summary>
     ///     Finds the type mapping for a given <see cref="IProperty" />.

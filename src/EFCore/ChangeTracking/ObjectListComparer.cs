@@ -9,22 +9,20 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         This comparer should be used for nullable value types. Use <see cref="NullableValueTypeListComparer{TElement}"/> for reference
-///         types and non-nullable value types.
+///         This comparer should be used when the element of the comparer is typed as <see cref="object"/>.
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 ///     </para>
 /// </remarks>
 /// <typeparam name="TElement">The element type.</typeparam>
-public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnumerable<TElement?>>
-    where TElement : struct
+public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TElement>>
 {
     /// <summary>
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
-    public NullableValueTypeListComparer(ValueComparer<TElement?> elementComparer)
+    public ObjectListComparer(ValueComparer elementComparer)
         : base(
             (a, b) => Compare(a, b, elementComparer),
             o => GetHashCode(o, elementComparer),
@@ -39,7 +37,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public static bool Compare(IEnumerable<TElement?>? a, IEnumerable<TElement?>? b, ValueComparer<TElement?> elementComparer)
+    public static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, ValueComparer elementComparer)
     {
         if (ReferenceEquals(a, b))
         {
@@ -56,7 +54,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
             return false;
         }
 
-        if (a is IList<TElement?> aList && b is IList<TElement?> bList)
+        if (a is IList<object?> aList && b is IList<object?> bList)
         {
             if (aList.Count != bList.Count)
             {
@@ -93,8 +91,8 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
         throw new InvalidOperationException(
             CoreStrings.BadListType(
                 (a is IList<TElement?> ? b : a).GetType().ShortDisplayName(),
-                typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
-                typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
+                typeof(ListComparer<TElement?>).ShortDisplayName(),
+                typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
     }
 
     /// <summary>
@@ -104,7 +102,7 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public static int GetHashCode(IEnumerable<TElement?> source, ValueComparer<TElement?> elementComparer)
+    public static int GetHashCode(IEnumerable<TElement> source, ValueComparer elementComparer)
     {
         var hash = new HashCode();
 
@@ -123,38 +121,41 @@ public sealed class NullableValueTypeListComparer<TElement> : ValueComparer<IEnu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public static IList<TElement?> Snapshot(IEnumerable<TElement?> source, ValueComparer<TElement?> elementComparer)
+    public static IList<TElement> Snapshot(IEnumerable<TElement> source, ValueComparer elementComparer)
     {
-        if (source is not IList<TElement?> sourceList)
+        if (source is not IList<TElement> sourceList)
         {
             throw new InvalidOperationException(
                 CoreStrings.BadListType(
                     source.GetType().ShortDisplayName(),
-                    typeof(NullableValueTypeListComparer<TElement>).ShortDisplayName(),
-                    typeof(IList<>).MakeGenericType(elementComparer.Type.MakeNullable()).ShortDisplayName()));
+                    typeof(ListComparer<TElement?>).ShortDisplayName(),
+                    typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
         }
 
         if (sourceList.IsReadOnly)
         {
-            var snapshot = new TElement?[sourceList.Count];
+            var snapshot = new TElement[sourceList.Count];
 
             for (var i = 0; i < sourceList.Count; i++)
             {
                 var instance = sourceList[i];
-                snapshot[i] = instance == null ? null : elementComparer.Snapshot(instance);
+                if (instance != null)
+                {
+                    snapshot[i] = (TElement)elementComparer.Snapshot(instance);
+                }
             }
 
             return snapshot;
         }
         else
         {
-            var snapshot = source is List<TElement?> || sourceList.IsReadOnly
-                ? new List<TElement?>(sourceList.Count)
-                : (IList<TElement?>)Activator.CreateInstance(source.GetType())!;
+            var snapshot = (source is List<TElement> || sourceList.IsReadOnly)
+                ? new List<TElement>(sourceList.Count)
+                : (IList<TElement>)Activator.CreateInstance(source.GetType())!;
 
             foreach (var e in sourceList)
             {
-                snapshot.Add(e == null ? null : elementComparer.Snapshot(e));
+                snapshot.Add(e == null ? (TElement)(object?)null! : (TElement)elementComparer.Snapshot(e));
             }
 
             return snapshot;
