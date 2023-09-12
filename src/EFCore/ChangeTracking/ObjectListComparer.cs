@@ -30,7 +30,14 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
     {
     }
 
-    private static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, ValueComparer elementComparer)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static bool Compare(IEnumerable<TElement>? a, IEnumerable<TElement>? b, ValueComparer elementComparer)
     {
         if (ReferenceEquals(a, b))
         {
@@ -88,7 +95,14 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
                 typeof(IList<>).MakeGenericType(elementComparer.Type).ShortDisplayName()));
     }
 
-    private static int GetHashCode(IEnumerable<TElement> source, ValueComparer elementComparer)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static int GetHashCode(IEnumerable<TElement> source, ValueComparer elementComparer)
     {
         var hash = new HashCode();
 
@@ -100,7 +114,14 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
         return hash.ToHashCode();
     }
 
-    private static IList<TElement> Snapshot(IEnumerable<TElement> source, ValueComparer elementComparer)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static IList<TElement> Snapshot(IEnumerable<TElement> source, ValueComparer elementComparer)
     {
         if (source is not IList<TElement> sourceList)
         {
