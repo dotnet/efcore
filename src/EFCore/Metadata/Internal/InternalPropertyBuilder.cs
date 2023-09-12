@@ -496,6 +496,7 @@ public class InternalPropertyBuilder
     {
         if (CanSetConversion(converter, configurationSource))
         {
+            Metadata.SetElementType(null, configurationSource);
             Metadata.SetProviderClrType(null, configurationSource);
             Metadata.SetValueConverter(converter, configurationSource);
 
@@ -531,6 +532,7 @@ public class InternalPropertyBuilder
     {
         if (CanSetConversion(providerClrType, configurationSource))
         {
+            Metadata.SetElementType(null, configurationSource);
             Metadata.SetValueConverter((ValueConverter?)null, configurationSource);
             Metadata.SetProviderClrType(providerClrType, configurationSource);
 

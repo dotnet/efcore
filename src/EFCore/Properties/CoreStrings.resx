@@ -184,7 +184,7 @@
     <value>The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit json reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.</value>
   </data>
   <data name="BadListType" xml:space="preserve">
-    <value>The type '{givenType}' cannot be used with '{comparerType}' because it does not implement '{listType}'. Collections of primitive types must be ordered lists.</value>
+    <value>The type '{givenType}' cannot be used as a primitive collection because it is not an array and does not implement '{listType}'. Collections of primitive types must be arrays or ordered lists.</value>
   </data>
   <data name="BadValueComparerType" xml:space="preserve">
     <value>The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.</value>

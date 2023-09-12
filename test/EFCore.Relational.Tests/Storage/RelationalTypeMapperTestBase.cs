@@ -85,7 +85,7 @@ public abstract class RelationalTypeMapperTestBase
                     }
                 }).FinalizeModel();
 
-            return CreateRelationalTypeMappingSource().GetMapping(propertyType, model);
+            return CreateRelationalTypeMappingSource(model).GetMapping(propertyType, model);
         }
         else
         {
@@ -135,12 +135,12 @@ public abstract class RelationalTypeMapperTestBase
             }
 
             var model = modelBuilder.Model.FinalizeModel();
-            return CreateRelationalTypeMappingSource().GetMapping(model.FindEntityType(typeof(MyType)).FindProperty(property.Name));
+            return CreateRelationalTypeMappingSource(model).GetMapping(model.FindEntityType(typeof(MyType)).FindProperty(property.Name));
         }
     }
 
     protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null);
-    protected abstract IRelationalTypeMappingSource CreateRelationalTypeMappingSource();
+    protected abstract IRelationalTypeMappingSource CreateRelationalTypeMappingSource(IModel model);
 
     protected class MyType
     {

@@ -203,12 +203,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 givenType);
 
         /// <summary>
-        ///     The type '{givenType}' cannot be used with '{comparerType}' because it does not implement '{listType}'. Collections of primitive types must be ordered lists.
+        ///     The type '{givenType}' cannot be used as a primitive collection because it is not an array and does not implement '{listType}'. Collections of primitive types must be arrays or ordered lists.
         /// </summary>
-        public static string BadListType(object? givenType, object? comparerType, object? listType)
+        public static string BadListType(object? givenType, object? listType)
             => string.Format(
-                GetString("BadListType", nameof(givenType), nameof(comparerType), nameof(listType)),
-                givenType, comparerType, listType);
+                GetString("BadListType", nameof(givenType), nameof(listType)),
+                givenType, listType);
 
         /// <summary>
         ///     The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.

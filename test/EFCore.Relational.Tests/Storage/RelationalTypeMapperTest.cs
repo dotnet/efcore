@@ -103,7 +103,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Key_with_store_type_is_picked_up_by_FK()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "money",
@@ -118,7 +118,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Does_default_type_mapping_from_decimal()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "default_decimal_mapping",
@@ -129,7 +129,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Does_type_mapping_from_decimal_with_precision_only()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "decimal_mapping(16)",
@@ -140,7 +140,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Does_type_mapping_from_decimal_with_precision_and_scale()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "decimal_mapping(18,7)",
@@ -237,22 +237,22 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
         Assert.False(mapping.IsFixedLength);
     }
 
-    protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
+    protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource(IModel model)
         => new TestRelationalTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
     public RelationalTypeMapping GetMapping(Type type)
-        => CreateRelationalTypeMappingSource().FindMapping(type);
+        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(type);
 
     public RelationalTypeMapping GetMapping(IProperty property)
-        => CreateRelationalTypeMappingSource().FindMapping(property);
+        => CreateRelationalTypeMappingSource(CreateModel()).FindMapping(property);
 
     [ConditionalFact]
     public void String_key_with_max_fixed_length_is_picked_up_by_FK()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "just_string_fixed(200)",
@@ -267,7 +267,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Binary_key_with_max_fixed_length_is_picked_up_by_FK()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "just_binary_fixed(100)",
@@ -282,7 +282,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void String_key_with_unicode_is_picked_up_by_FK()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "ansi_string(900)",
@@ -297,7 +297,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Key_store_type_is_preferred_if_specified()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "money",
@@ -312,7 +312,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void String_FK_max_length_is_preferred_if_specified()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "just_string_fixed(200)",
@@ -327,7 +327,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void Binary_FK_max_length_is_preferred_if_specified()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "just_binary_fixed(100)",
@@ -342,7 +342,7 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
     public void String_FK_unicode_is_preferred_if_specified()
     {
         var model = CreateModel();
-        var mapper = CreateRelationalTypeMappingSource();
+        var mapper = CreateRelationalTypeMappingSource(model);
 
         Assert.Equal(
             "ansi_string(900)",

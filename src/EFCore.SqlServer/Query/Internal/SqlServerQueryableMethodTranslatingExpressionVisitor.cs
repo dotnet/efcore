@@ -167,10 +167,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // which case we only have the CLR type (note that we cannot produce different SQLs based on the nullability of an *element* in
         // a parameter collection - our caching mechanism only supports varying by the nullability of the parameter itself (i.e. the
         // collection).
-        // TODO: if property is non-null, GetElementType() should never be null, but we have #31469 for shadow properties
-        var isElementNullable = property?.GetElementType() is null
-            ? elementClrType.IsNullableType()
-            : property.GetElementType()!.IsNullable;
+        var isElementNullable = property?.GetElementType()!.IsNullable;
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(

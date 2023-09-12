@@ -266,14 +266,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             // Attempt to translate access into a primitive collection property (i.e. array column)
 
-            // TODO: We should be detecting primitive collections by looking at GetElementType() of the property and not at its type
-            // mapping; but #31469 is blocking that for shadow properties.
             if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var translatedExpression, out var property)
-                && property is IProperty regularProperty
-                && translatedExpression is SqlExpression
-                {
-                    TypeMapping.ElementTypeMapping: RelationalTypeMapping
-                } sqlExpression)
+                && property is IProperty { IsPrimitiveCollection: true } regularProperty
+                && translatedExpression is SqlExpression sqlExpression)
             {
                 var tableAlias = sqlExpression switch
                 {
@@ -2309,10 +2304,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
             }
 
-            // TODO: Check that the property is a primitive collection property directly once we have that in metadata, rather than
-            // looking at the type mapping.
             var property = type.FindProperty(memberName);
-            if (property?.GetRelationalTypeMapping().ElementTypeMapping is null)
+            if (property?.IsPrimitiveCollection != true)
             {
                 return null;
             }
