@@ -51,7 +51,6 @@ jobs:
           SA_PASSWORD: Password12!
           ACCEPT_EULA: Y
         ports: [1433]
-        options:
 
     env:
       Test__SqlServer__DefaultConnection: Data Source=(local)\MSSQLSERVER;Initial Catalog=master;User ID=sa;Password=Password12!;Connect Timeout=60;ConnectRetryCount=0
