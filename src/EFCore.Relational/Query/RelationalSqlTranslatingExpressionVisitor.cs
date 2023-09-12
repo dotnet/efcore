@@ -1890,7 +1890,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 // TODO: when we support optional complex types - or projecting required complex types via optional navigations - we'll
                 // be able to translate this.
-                throw new InvalidOperationException(); // TODO: Message
+                throw new InvalidOperationException(RelationalStrings.CannotCompareComplexTypeToNull);
             }
 
             var leftComplexType = leftReference?.StructuralType as IComplexType;

@@ -607,13 +607,13 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
             // First, find the collection type mapping and apply it to the parameter
             if (_typeMappingSource.FindMapping(parameterExpression.Type, Model, elementTypeMapping) is not SqlServerStringTypeMapping
-                parameterTypeMapping)
+                    {
+                        ElementTypeMapping: not null
+                    }
+                    parameterTypeMapping)
             {
-                // TODO: Message
-                throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqlServerStringTypeMapping");
+                throw new UnreachableException("A SqlServerStringTypeMapping collection type mapping could not be found");
             }
-
-            Check.DebugAssert(parameterTypeMapping.ElementTypeMapping != null, "Collection type mapping missing element mapping.");
 
             return openJsonExpression.Update(
                 parameterExpression.ApplyTypeMapping(parameterTypeMapping),

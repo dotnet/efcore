@@ -162,6 +162,13 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Complex_type_equals_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.ShippingAddress == null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Subquery_over_complex_type(bool async)
     {
         var address = new Address
