@@ -358,22 +358,43 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         ICSharpHelper codeHelper)
     {
         var mainBuilder = parameters.MainBuilder;
-        AddNamespace(typeof(ValueConverter<,>), parameters.Namespaces);
-        AddNamespace(converter.ModelClrType, parameters.Namespaces);
-        AddNamespace(converter.ProviderClrType, parameters.Namespaces);
+        var constructor = converter.GetType().GetDeclaredConstructor(new[] { typeof(JsonValueReaderWriter) });
+        var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
+        if (constructor == null
+            || jsonReaderWriterProperty == null)
+        {
+            AddNamespace(typeof(ValueConverter<,>), parameters.Namespaces);
+            AddNamespace(converter.ModelClrType, parameters.Namespaces);
+            AddNamespace(converter.ProviderClrType, parameters.Namespaces);
 
-        mainBuilder
-            .Append("new ValueConverter<")
-            .Append(codeHelper.Reference(converter.ModelClrType))
-            .Append(", ")
-            .Append(codeHelper.Reference(converter.ProviderClrType))
-            .AppendLine(">(")
-            .IncrementIndent()
-            .Append(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces))
-            .AppendLine(",")
-            .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces))
-            .Append(")")
-            .DecrementIndent();
+            mainBuilder
+                .Append("new ValueConverter<")
+                .Append(codeHelper.Reference(converter.ModelClrType))
+                .Append(", ")
+                .Append(codeHelper.Reference(converter.ProviderClrType))
+                .AppendLine(">(")
+                .IncrementIndent()
+                .Append(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces))
+                .AppendLine(",")
+                .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces))
+                .Append(")")
+                .DecrementIndent();
+        }
+        else
+        {
+            AddNamespace(converter.GetType(), parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(converter.GetType()))
+                .Append("(");
+
+            CreateJsonValueReaderWriter((JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!, parameters, codeHelper);
+
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+        }
     }
 
     /// <summary>
@@ -388,21 +409,43 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         ICSharpHelper codeHelper)
     {
         var mainBuilder = parameters.MainBuilder;
-        AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
-        AddNamespace(comparer.Type, parameters.Namespaces);
 
-        mainBuilder
-            .Append("new ValueComparer<")
-            .Append(codeHelper.Reference(comparer.Type))
-            .AppendLine(">(")
-            .IncrementIndent()
-            .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces), skipFinalNewline: true)
-            .AppendLine(",")
-            .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces), skipFinalNewline: true)
-            .Append(")")
-            .DecrementIndent();
+        var constructor = comparer.GetType().GetDeclaredConstructor(new[] { typeof(ValueComparer) });
+        var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListComparer<object>.ElementComparer));
+        if (constructor == null
+            || elementComparerProperty == null)
+        {
+            AddNamespace(typeof(ValueComparer<>), parameters.Namespaces);
+            AddNamespace(comparer.Type, parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ValueComparer<")
+                .Append(codeHelper.Reference(comparer.Type))
+                .AppendLine(">(")
+                .IncrementIndent()
+                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLine(",")
+                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces), skipFinalNewline: true)
+                .Append(")")
+                .DecrementIndent();
+        }
+        else
+        {
+            AddNamespace(comparer.GetType(), parameters.Namespaces);
+
+            mainBuilder
+                .Append("new ")
+                .Append(codeHelper.Reference(comparer.GetType()))
+                .Append("(");
+
+            Create((ValueComparer)elementComparerProperty.GetValue(comparer)!, parameters, codeHelper);
+
+            mainBuilder
+                .Append(")")
+                .DecrementIndent();
+        }
     }
 
     /// <summary>
@@ -435,7 +478,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .Append(")")
                 .DecrementIndent();
             return;
-        } 
+        }
 
         if (jsonValueReaderWriter is ICompositeJsonValueReaderWriter compositeJsonValueReaderWriter)
         {

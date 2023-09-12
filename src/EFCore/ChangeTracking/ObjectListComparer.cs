@@ -28,7 +28,13 @@ public sealed class ObjectListComparer<TElement> : ValueComparer<IEnumerable<TEl
             o => GetHashCode(o, elementComparer),
             source => Snapshot(source, elementComparer))
     {
+        ElementComparer = elementComparer;
     }
+
+    /// <summary>
+    ///     The comparer to use for comparing elements.
+    /// </summary>
+    public ValueComparer ElementComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

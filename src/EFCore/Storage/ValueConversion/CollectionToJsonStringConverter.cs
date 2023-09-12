@@ -22,5 +22,11 @@ public class CollectionToJsonStringConverter<TElement> : ValueConverter<IEnumera
             v => collectionJsonReaderWriter.ToJsonString(v),
             v => (IEnumerable<TElement>)collectionJsonReaderWriter.FromJsonString(v, null))
     {
+        JsonReaderWriter = collectionJsonReaderWriter;
     }
+
+    /// <summary>
+    ///     The reader/writer to use.
+    /// </summary>
+    public virtual JsonValueReaderWriter JsonReaderWriter { get; }
 }
