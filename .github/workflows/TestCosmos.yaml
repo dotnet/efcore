@@ -13,17 +13,11 @@ jobs:
   build:
     runs-on: windows-latest
 
-    env:
-      Test__SqlServer__DefaultConnection: Data Source=(local)\MSSQLSERVER;Initial Catalog=master;User ID=sa;Password=Password12!;Connect Timeout=60;ConnectRetryCount=0
-
     steps:
       - name: Start Cosmos Emulator
         run: |
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Start-CosmosDbEmulator -Timeout 360
-
-      - name: Start SQL Server
-        run: docker run -d -p 1433:1433 -e SA_PASSWORD=Password12! -e ACCEPT_EULA=Y mcr.microsoft.com/mssql/server
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -33,11 +27,11 @@ jobs:
         shell: cmd
 
       - name: Build
-        run: build.cmd "/p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj;${{ github.workspace }}\test\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj"
+        run: build.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
 
       - name: Test on Cosmos
-        run: test.cmd "/p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj;${{ github.workspace }}\test\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj"
+        run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
 
       - name: Publish Test Results
@@ -46,3 +40,40 @@ jobs:
         with:
           name: test-results
           path: artifacts/log/Debug/*
+
+  build-mssql:
+    runs-on: ubuntu-latest
+
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        env:
+          SA_PASSWORD: Password12!
+          ACCEPT_EULA: Y
+        ports: 1433
+        options:
+
+    env:
+      Test__SqlServer__DefaultConnection: Data Source=(local)\MSSQLSERVER;Initial Catalog=master;User ID=sa;Password=Password12!;Connect Timeout=60;ConnectRetryCount=0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Restore
+        run: restore.cmd
+        shell: cmd
+
+      - name: Build
+        run: ./build.sh /p:Projects=${{ github.workspace }}/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj
+
+      - name: Test on Cosmos
+        run: ./test.sh /p:Projects=${{ github.workspace }}/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-mssql
+          path: artifacts/log/Debug/*
+
