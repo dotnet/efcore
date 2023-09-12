@@ -50,7 +50,7 @@ jobs:
         env:
           SA_PASSWORD: Password12!
           ACCEPT_EULA: Y
-        ports: 1433
+        ports: [1433]
         options:
 
     env:
