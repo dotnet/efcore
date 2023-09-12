@@ -1,6 +1,6 @@
 {
   "tools": {
-    "dotnet": "6.0.121",
+    "dotnet": "6.0.122",
     "runtimes": {
       "dotnet": [
         "3.1.32",
@@ -13,7 +13,7 @@
     }
   },
   "sdk": {
-    "version": "6.0.121",
+    "version": "6.0.122",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
