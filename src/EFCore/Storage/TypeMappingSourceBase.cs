@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -143,6 +144,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <param name="modelClrType">The model CLR type.</param>
     /// <param name="providerClrType">The provider CLR type.</param>
     /// <param name="elementMapping">The type mapping for elements of the collection.</param>
+    /// <param name="elementComparer">The element comparer.</param>
     /// <param name="collectionReaderWriter">The reader/writer for the collection.</param>
     /// <returns><see langword="true" /> if a collection mapping was found; <see langword="false" /> otherwise.</returns>
     protected virtual bool TryFindJsonCollectionMapping(
@@ -150,6 +152,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         Type modelClrType,
         Type? providerClrType,
         ref CoreTypeMapping? elementMapping,
+        out ValueComparer? elementComparer,
         out JsonValueReaderWriter? collectionReaderWriter)
     {
         if ((providerClrType == null || providerClrType == typeof(string))
@@ -163,7 +166,8 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
             {
                 var elementReader = elementMapping.JsonValueReaderWriter!;
 
-                if (!elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType()))
+                if (elementReader.ValueType.IsNullableValueType()
+                    || !elementReader.ValueType.IsAssignableFrom(elementType.UnwrapNullableType()))
                 {
                     elementReader = (JsonValueReaderWriter)Activator.CreateInstance(
                         typeof(JsonCastValueReaderWriter<>).MakeGenericType(elementType.UnwrapNullableType()), elementReader)!;
@@ -178,6 +182,14 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                             : typeof(JsonCollectionReaderWriter<,,>))
                         .MakeGenericType(modelClrType, typeToInstantiate, elementType.UnwrapNullableType()),
                         elementReader);
+
+                elementComparer = (ValueComparer?)Activator.CreateInstance(
+                    elementType.IsNullableValueType()
+                        ? typeof(NullableValueTypeListComparer<>).MakeGenericType(elementType.UnwrapNullableType())
+                        : elementMapping.Comparer.Type.IsAssignableFrom(elementType)
+                            ? typeof(ListComparer<>).MakeGenericType(elementType)
+                            : typeof(ObjectListComparer<>).MakeGenericType(elementType),
+                    elementMapping.Comparer.ToNullableComparer(elementType)!);
 
                 return true;
 
@@ -205,6 +217,7 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
         }
 
         elementMapping = null;
+        elementComparer = null;
         collectionReaderWriter = null;
         return false;
     }

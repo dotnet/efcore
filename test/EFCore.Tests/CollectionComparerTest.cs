@@ -519,7 +519,7 @@ public class CollectionComparerTest
     [ConditionalFact]
     public void Nullable_list_comparer_throws_when_used_with_non_list()
     {
-        var comparer = new NullableValueTypeListComparer<int>(new ValueComparer<int>(favorStructuralComparisons: false));
+        var comparer = new NullableValueTypeListComparer<int>(new ValueComparer<int?>(favorStructuralComparisons: false));
 
         Assert.Equal(
             CoreStrings.BadListType("HashSet<int?>", "NullableValueTypeListComparer<int>", "IList<int?>"),

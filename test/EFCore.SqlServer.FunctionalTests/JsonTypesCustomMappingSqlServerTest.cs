@@ -50,32 +50,21 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
             Type modelType,
             Type? providerType,
             CoreTypeMapping? elementMapping)
-        {
-            if (TryFindJsonCollectionMapping(
-                    info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var collectionReaderWriter))
-            {
-                var elementType = TryGetElementType(modelType, typeof(IEnumerable<>))!;
-                var comparer = (ValueComparer?)Activator.CreateInstance(
-                    IsNullableValueType(elementType)
-                        ? typeof(NullableValueTypeListComparer<>).MakeGenericType(UnwrapNullableType(elementType))
-                        : typeof(ListComparer<>).MakeGenericType(elementMapping!.Comparer.Type),
-                    elementMapping!.Comparer);
-
-                return (RelationalTypeMapping)FindMapping(
+            => TryFindJsonCollectionMapping(
+                info.CoreTypeMappingInfo, modelType, providerType, ref elementMapping, out var comparer, out var collectionReaderWriter)
+                ? (RelationalTypeMapping)FindMapping(
                         info.WithConverter(
                             // Note that the converter info is only used temporarily here and never creates an instance.
                             new ValueConverterInfo(modelType, typeof(string), _ => null!)))!
                     .WithComposedConverter(
                         (ValueConverter)Activator.CreateInstance(
-                            typeof(CollectionToJsonStringConverter<>).MakeGenericType(elementType), collectionReaderWriter!)!,
+                            typeof(CollectionToJsonStringConverter<>).MakeGenericType(TryGetElementType(modelType, typeof(IEnumerable<>))!),
+                            collectionReaderWriter!)!,
                         comparer,
                         comparer,
                         elementMapping,
-                        collectionReaderWriter);
-            }
-
-            return null;
-        }
+                        collectionReaderWriter)
+                : null;
 
         private static Type? TryGetElementType(Type type, Type interfaceOrBaseType)
         {
