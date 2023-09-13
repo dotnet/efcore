@@ -54,6 +54,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
+        ///     Comparing complex types to null is not supported.
+        /// </summary>
+        public static string CannotCompareComplexTypeToNull
+            => GetString("CannotCompareComplexTypeToNull");
+
+        /// <summary>
         ///     Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.
         /// </summary>
         public static string CannotConfigureTriggerNonRootTphEntity(object? entityType, object? rootEntityType)

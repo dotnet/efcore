@@ -307,7 +307,7 @@ public class StructuralTypeProjectionExpression : Expression
     {
         if (StructuralType is not IEntityType entityType)
         {
-            throw new InvalidOperationException(); // TODO: Message
+            throw new UnreachableException("Navigations are only supported on entity types");
         }
 
         if (!entityType.IsAssignableFrom(navigation.DeclaringEntityType)
@@ -330,7 +330,7 @@ public class StructuralTypeProjectionExpression : Expression
     {
         if (StructuralType is not IEntityType entityType)
         {
-            throw new InvalidOperationException(); // TODO: Message
+            throw new UnreachableException("Navigations are only supported on entity types");
         }
 
         if (!entityType.IsAssignableFrom(navigation.DeclaringEntityType)
