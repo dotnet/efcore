@@ -39,6 +39,7 @@ variables:
     - name: PostBuildSign
       value: true
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+    - group: DotNet-HelixApi-Access
     - group: DotNetBuilds storage account read tokens
     - group: AzureDevOps-Artifact-Feeds-Pats
     - name: _InternalRuntimeDownloadArgs
@@ -81,6 +82,7 @@ stages:
         publishAssetsImmediately: true
         enableSourceIndex: ${{ and(ne(variables['System.TeamProject'], 'public'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}
         enableTelemetry: true
+        helixRepo: dotnet/efcore
         jobs:
           - job: Windows
             enablePublishTestResults: ${{ ne(variables.runCodeQL3000, 'true') }}
@@ -250,6 +252,56 @@ stages:
                     artifactName: $(Agent.Os)_$(Agent.JobName) TestResults
                     artifactType: Container
                     parallel: true
+
+            - job: Helix
+              timeoutInMinutes: 180
+              pool:
+                ${{ if eq(variables['System.TeamProject'], 'public') }}:
+                  name: $(DncEngPublicBuildPool)
+                  demands: ImageOverride -equals 1es-windows-2019-open
+                ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                  name: $(DncEngInternalBuildPool)
+                  demands: ImageOverride -equals 1es-windows-2019
+              variables:
+                # Rely on task Arcade injects, not auto-injected build step.
+                - skipComponentGovernanceDetection: true
+                - name: _HelixBuildConfig
+                  value: $(_BuildConfig)
+                - ${{ if eq(variables['System.TeamProject'], 'public') }}:
+                  - name: HelixTargetQueues
+                    value: OSX.1100.Amd64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                  - name: _HelixAccessToken
+                    value: '' # Needed for public queues
+                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                  - name: HelixTargetQueues
+                    value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-20.04-helix-sqlserver-amd64
+                  - name: _HelixAccessToken
+                    value: $(HelixApiAccessToken) # Needed for internal queues
+              steps:
+                - task: NuGetCommand@2
+                  displayName: 'Clear NuGet caches'
+                  condition: succeeded()
+                  inputs:
+                    command: custom
+                    arguments: 'locals all -clear'
+                - ${{ if ne(variables['System.TeamProject'], 'public') }}:
+                  - task: PowerShell@2
+                    displayName: Setup Private Feeds Credentials
+                    inputs:
+                      filePath: $(Build.SourcesDirectory)/eng/common/SetupNugetSources.ps1
+                      arguments: -ConfigFile $(Build.SourcesDirectory)/NuGet.config -Password $Env:Token
+                    env:
+                      Token: $(dn-bot-dnceng-artifact-feeds-rw)
+                - script: restore.cmd -ci /p:configuration=$(_BuildConfig) $(_InternalRuntimeDownloadArgs)
+                  displayName: Restore packages
+                - script: .dotnet\dotnet build eng\helix.proj /restore /t:Test /p:configuration=$(_BuildConfig) /bl:$(Build.SourcesDirectory)/artifacts/log/$(_BuildConfig)/SendToHelix.binlog $(_InternalRuntimeDownloadArgs)
+                  displayName: Send job to helix
+                  env:
+                    HelixAccessToken: $(_HelixAccessToken)
+                    SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
+                    MSSQL_SA_PASSWORD: "Password12!"
+                    COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
+                    DotNetBuildsInternalReadSasToken: $(dotnetbuilds-internal-container-read-token)
 
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
   - template: eng\common\templates\post-build\post-build.yml
