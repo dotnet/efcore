@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public abstract class RelationalTypeMapping : CoreTypeMapping
 {
+    private static readonly bool UseOldBehavior30592
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30592", out var enabled30592) && enabled30592;
+
     /// <summary>
     ///     Parameter object for use in the <see cref="RelationalTypeMapping" /> hierarchy.
     /// </summary>
@@ -298,7 +301,11 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
             var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
             if (openParen >= 0)
             {
-                storeType = storeType[..openParen].TrimEnd();
+                storeType = storeType[..openParen];
+                if (!UseOldBehavior30592)
+                {
+                    storeType = storeType.TrimEnd();
+                }
             }
 
             return storeType;
