@@ -882,7 +882,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         ExpressionSyntax GenerateValue(object? value)
             => value switch
             {
-                int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal
+                int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
                     => (ExpressionSyntax)_g.LiteralExpression(constant.Value),
 
                 string or bool or null => (ExpressionSyntax)_g.LiteralExpression(constant.Value),

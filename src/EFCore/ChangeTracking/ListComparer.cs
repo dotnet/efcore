@@ -23,13 +23,19 @@ public sealed class ListComparer<TElement> : ValueComparer<IEnumerable<TElement>
     ///     Creates a new instance of the list comparer.
     /// </summary>
     /// <param name="elementComparer">The comparer to use for comparing elements.</param>
-    public ListComparer(ValueComparer<TElement> elementComparer)
+    public ListComparer(ValueComparer elementComparer)
         : base(
-            (a, b) => Compare(a, b, elementComparer),
-            o => GetHashCode(o, elementComparer),
-            source => Snapshot(source, elementComparer))
+            (a, b) => Compare(a, b, (ValueComparer<TElement>)elementComparer),
+            o => GetHashCode(o, (ValueComparer<TElement>)elementComparer),
+            source => Snapshot(source, (ValueComparer<TElement>)elementComparer))
     {
+        ElementComparer = elementComparer;
     }
+
+    /// <summary>
+    ///     The comparer to use for comparing elements.
+    /// </summary>
+    public ValueComparer ElementComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
