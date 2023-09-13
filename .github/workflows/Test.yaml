@@ -1,4 +1,4 @@
-name: Test Cosmos
+name: Test
 
 on:
   pull_request:
@@ -10,7 +10,8 @@ on:
 permissions: {}
 
 jobs:
-  build:
+  cosmos:
+    name: Azure Cosmos DB Emulator
     runs-on: windows-latest
 
     steps:
@@ -38,10 +39,11 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test-results
+          name: test-results-cosmos
           path: artifacts/log/Debug/*
 
-  build-mssql:
+  mssql:
+    name: SQL Server on Linux
     runs-on: ubuntu-latest
 
     services:
@@ -65,7 +67,7 @@ jobs:
       - name: Build
         run: ./build.sh /p:Projects=${{ github.workspace }}/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj
 
-      - name: Test on Cosmos
+      - name: Test
         run: ./test.sh /p:Projects=${{ github.workspace }}/test/EFCore.SqlServer.FunctionalTests/EFCore.SqlServer.FunctionalTests.csproj
 
       - name: Publish Test Results
