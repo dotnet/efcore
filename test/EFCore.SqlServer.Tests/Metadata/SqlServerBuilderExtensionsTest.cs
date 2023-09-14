@@ -1078,6 +1078,72 @@ public class SqlServerBuilderExtensionsTest
             });
     }
 
+    [ConditionalFact]
+    public void Can_set_index_with_sortintempdb()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Name)
+            .IsSortedInTempDb();
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.True(index.GetIsSortedInTempDb());
+    }
+
+    [ConditionalFact]
+    public void Can_set_index_with_sortintempdb_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasIndex("Name")
+            .IsSortedInTempDb();
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.True(index.GetIsSortedInTempDb());
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None)]
+    [InlineData(DataCompressionType.Row)]
+    [InlineData(DataCompressionType.Page)]
+    public void Can_set_index_with_datacompression(DataCompressionType dataCompression)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .HasIndex(e => e.Name)
+            .UseDataCompression(dataCompression);
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.Equal(dataCompression, index.GetDataCompression());
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None)]
+    [InlineData(DataCompressionType.Row)]
+    [InlineData(DataCompressionType.Page)]
+    public void Can_set_index_with_datacompression_non_generic(DataCompressionType dataCompression)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .HasIndex("Name")
+            .UseDataCompression(dataCompression);
+
+        var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
+
+        Assert.Equal(dataCompression, index.GetDataCompression());
+    }
+
     #region UseSqlOutputClause
 
     [ConditionalFact]

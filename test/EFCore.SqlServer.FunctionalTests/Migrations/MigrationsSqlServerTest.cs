@@ -2226,6 +2226,105 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
     }
 
     [ConditionalFact]
+    public virtual async Task Create_index_unique_with_include_fillfactor_and_sortintempdb()
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName");
+                    e.Property<string>("LastName");
+                    e.Property<string>("Name").IsRequired();
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasIndex("Name")
+                .IsUnique()
+                .IncludeProperties("FirstName", "LastName")
+                .HasFillFactor(75)
+                .IsSortedInTempDb(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.True(index.IsUnique);
+                Assert.Null(index.Filter);
+                Assert.Equal(1, index.Columns.Count);
+                Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+                var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
+                Assert.Null(includedColumns);
+                Assert.Equal(75, index[SqlServerAnnotationNames.FillFactor]);
+                Assert.Null(index[SqlServerAnnotationNames.SortedInTempDb]);
+            });
+
+        AssertSql(
+"""
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
+""",
+//
+"""
+CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (FILLFACTOR = 75, SORT_IN_TEMPDB = ON);
+""");
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None, "NONE")]
+    [InlineData(DataCompressionType.Row, "ROW")]
+    [InlineData(DataCompressionType.Page, "PAGE")]
+    public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(DataCompressionType dataCompression, string dataCompressionSql)
+    {
+        await Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("FirstName");
+                    e.Property<string>("LastName");
+                    e.Property<string>("Name").IsRequired();
+                }),
+            builder => { },
+            builder => builder.Entity("People").HasIndex("Name")
+                .IsUnique()
+                .IncludeProperties("FirstName", "LastName")
+                .IsSortedInTempDb()
+                .UseDataCompression(dataCompression),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var index = Assert.Single(table.Indexes);
+                Assert.True(index.IsUnique);
+                Assert.Null(index.Filter);
+                Assert.Equal(1, index.Columns.Count);
+                Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
+                var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
+                Assert.Null(includedColumns);
+                Assert.Null(index[SqlServerAnnotationNames.SortedInTempDb]);
+                Assert.Null(index[SqlServerAnnotationNames.DataCompression]);
+            });
+
+        AssertSql(
+"""
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[People]') AND [c].[name] = N'Name');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
+""",
+//
+$"""
+CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (SORT_IN_TEMPDB = ON, DATA_COMPRESSION = {dataCompressionSql});
+""");
+    }
+
+    [ConditionalFact]
     [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
     public virtual async Task Create_index_memoryOptimized_unique_nullable()
     {
