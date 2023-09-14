@@ -92,6 +92,12 @@ public static class SqlServerTransientExceptionDetector
                     // Management Service is not currently available. Please retry the operation later. If the problem persists,
                     // contact customer support, and provide them the session tracing ID of '%ls'.
                     case 45153:
+                    // SQL Error Code: 42109
+                    // The SQL pool is warming up. Please try again.
+                    case 42109:
+                    // SQL Error Code: 42108
+                    // Can not connect to the SQL pool since it is paused. Please resume the SQL pool and try again.
+                    case 42108:
                     // SQL Error Code: 42029
                     // An internal error happened while generating a new DBTS for database %.*ls. Please retry the operation.
                     case 42029:
