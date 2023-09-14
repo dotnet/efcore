@@ -590,6 +590,9 @@ public static class SqlServerTransientExceptionDetector
                     // SQL Error Code: 1232
                     // Failed to acquire lock with lock manager service, it could be due to many reasons including transient service failure.
                     case 1232:
+                    // SQL Error Code: 1222
+                    // Lock request time out period exceeded.
+                    case 1222:
                     // SQL Error Code: 1221
                     // The Database Engine is attempting to release a group of locks that are not currently held by the transaction.
                     // Retry the transaction. If the problem persists, contact your support provider.
