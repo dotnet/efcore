@@ -384,6 +384,13 @@ public static class ExpressionExtensions
             propertyType = propertyType.MakeNullable();
         }
 
+        // EF.Property expects an object as its first argument. If the target is a struct (complex type), we need an explicit up-cast to
+        // object.
+        if (target.Type.IsValueType)
+        {
+            target = Expression.Convert(target, typeof(object));
+        }
+
         return Expression.Call(
             EF.MakePropertyMethod(propertyType),
             target,
