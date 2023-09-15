@@ -1791,19 +1791,23 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         if (allNonPrincipalSharedNonPkProperties.Count != 0
                             && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
                         {
-                            var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
+                            // if we don't have any required properties to properly check the nullability,
+                            // we rely on optional ones (somewhat unreliably)
+                            // - if entity is to be null, all the properties must be null
+                            // - if the entity is to be not null, at least one property must be not null
+                            var optionalPropertiesCondition = allNonPrincipalSharedNonPkProperties
                                 .Select(
                                     p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
                                         CreatePropertyAccessExpression(nonNullEntityReference, p),
                                         Expression.Constant(null, p.ClrType.MakeNullable()),
                                         nodeType != ExpressionType.Equal))
-                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
 
                             condition = condition == null
-                                ? atLeastOneNonNullValueInNullablePropertyCondition
+                                ? optionalPropertiesCondition
                                 : nodeType == ExpressionType.Equal
-                                    ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
-                                    : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                                    ? Expression.OrElse(condition, optionalPropertiesCondition)
+                                    : Expression.AndAlso(condition, optionalPropertiesCondition);
                         }
 
                         if (condition != null)

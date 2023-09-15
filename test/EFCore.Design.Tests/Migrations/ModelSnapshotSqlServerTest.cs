@@ -6209,6 +6209,117 @@ namespace RootNamespace
                 Assert.Equal("Name", Assert.Single(index.GetIncludeProperties()));
             });
 
+    [ConditionalFact]
+    public virtual void IndexAttribute_HasFillFactor_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithStringProperty>(
+                x =>
+                {
+                    x.HasIndex(e => e.Id).HasFillFactor(29);
+                }),
+            AddBoilerPlate(
+                GetHeading() +
+"""
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    SqlServerIndexBuilderExtensions.HasFillFactor(b.HasIndex("Id"), 29);
+
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
+                });
+"""),
+            model =>
+            {
+                var index = model.GetEntityTypes().First().GetIndexes().First();
+                Assert.Equal(29, index.GetFillFactor());
+            });
+
+    [ConditionalFact]
+    public virtual void IndexAttribute_UseDataCompression_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithStringProperty>(
+                x =>
+                {
+                    x.HasIndex(e => e.Id).UseDataCompression(DataCompressionType.Row);
+                }),
+            AddBoilerPlate(
+                GetHeading() +
+"""
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    SqlServerIndexBuilderExtensions.UseDataCompression(b.HasIndex("Id"), DataCompressionType.Row);
+
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
+                });
+"""),
+            model =>
+            {
+                var index = model.GetEntityTypes().First().GetIndexes().First();
+                Assert.Equal(DataCompressionType.Row, index.GetDataCompression());
+            });
+
+    [ConditionalFact]
+    public virtual void IndexAttribute_IsSortedInTempDb_is_stored_in_snapshot()
+        => Test(
+            builder => builder.Entity<EntityWithStringProperty>(
+                x =>
+                {
+                    x.HasIndex(e => e.Id).IsSortedInTempDb(true);
+                }),
+            AddBoilerPlate(
+                GetHeading() +
+"""
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id");
+
+                    SqlServerIndexBuilderExtensions.IsSortedInTempDb(b.HasIndex("Id"), true);
+
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
+                });
+"""),
+            model =>
+            {
+                var index = model.GetEntityTypes().First().GetIndexes().First();
+                Assert.True(index.GetIsSortedInTempDb());
+            });
+
     #endregion
 
     #region ForeignKey

@@ -403,6 +403,38 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_duplicate_index_names_within_hierarchy_different_sort_in_tempdb()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+        modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").IsSortedInTempDb();
+
+        VerifyError(
+            SqlServerStrings.DuplicateIndexSortInTempDbMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "IX_Animal_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_duplicate_index_names_within_hierarchy_different_data_compression()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
+        modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").UseDataCompression(DataCompressionType.Page);
+
+        VerifyError(
+            SqlServerStrings.DuplicateIndexDataCompressionMismatch(
+                "{'" + nameof(Dog.Name) + "'}", nameof(Dog),
+                "{'" + nameof(Cat.Name) + "'}", nameof(Cat),
+                nameof(Animal), "IX_Animal_Name"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_duplicate_index_names_within_hierarchy_with_different_different_include()
     {
         var modelBuilder = CreateConventionModelBuilder();

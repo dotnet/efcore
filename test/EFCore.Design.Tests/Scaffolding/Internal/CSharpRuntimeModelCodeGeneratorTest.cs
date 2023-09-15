@@ -14827,6 +14827,14 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIncludeProperties()).Message);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.SortedInTempDb]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIsSortedInTempDb()).Message);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.DataCompression]);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetDataCompression()).Message);
 
                     Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
 
@@ -15045,7 +15053,9 @@ namespace TestNamespace
                             .HasFilter("AlternateId <> NULL")
                             .IsCreatedOnline()
                             .HasFillFactor(40)
-                            .IncludeProperties(e => e.Id);
+                            .IncludeProperties(e => e.Id)
+                            .IsSortedInTempDb()
+                            .UseDataCompression(DataCompressionType.Page);
                     });
 
                 modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
