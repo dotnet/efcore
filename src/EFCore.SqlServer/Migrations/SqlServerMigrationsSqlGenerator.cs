@@ -1851,7 +1851,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             options.Add("ONLINE = ON");
         }
 
-        if (operation[SqlServerAnnotationNames.SortedInTempDb] is bool isSortedInTempDb && isSortedInTempDb)
+        if (operation[SqlServerAnnotationNames.SortInTempDb] is bool sortInTempDb && sortInTempDb)
         {
             options.Add("SORT_IN_TEMPDB = ON");
         }

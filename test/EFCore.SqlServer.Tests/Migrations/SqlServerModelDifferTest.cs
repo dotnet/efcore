@@ -1403,7 +1403,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         x.Property<string>("Zip");
                         x.Property<string>("City");
                         x.HasIndex("Zip")
-                            .IsSortedInTempDb();
+                            .SortInTempDb();
                     }),
             target => target
                 .Entity(
@@ -1414,7 +1414,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         x.Property<string>("Zip");
                         x.Property<string>("City");
                         x.HasIndex("Zip")
-                            .IsSortedInTempDb();
+                            .SortInTempDb();
                     }),
             operations => Assert.Equal(0, operations.Count));
 
@@ -1443,7 +1443,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         x.Property<string>("City");
                         x.Property<string>("Street");
                         x.HasIndex("Zip")
-                            .IsSortedInTempDb();
+                            .SortInTempDb();
                     }),
             upOps =>
             {
@@ -1459,7 +1459,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("Address", operation1.Table);
                 Assert.Equal("IX_Address_Zip", operation1.Name);
 
-                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.SortedInTempDb);
+                var annotation = operation2.GetAnnotation(SqlServerAnnotationNames.SortInTempDb);
                 Assert.NotNull(annotation);
 
                 var annotationValue = Assert.IsType<bool>(annotation.Value);

@@ -1086,11 +1086,11 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity<Customer>()
             .HasIndex(e => e.Name)
-            .IsSortedInTempDb();
+            .SortInTempDb();
 
         var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
-        Assert.True(index.GetIsSortedInTempDb());
+        Assert.True(index.GetSortInTempDb());
     }
 
     [ConditionalFact]
@@ -1101,11 +1101,11 @@ public class SqlServerBuilderExtensionsTest
         modelBuilder
             .Entity(typeof(Customer))
             .HasIndex("Name")
-            .IsSortedInTempDb();
+            .SortInTempDb();
 
         var index = modelBuilder.Model.FindEntityType(typeof(Customer)).GetIndexes().Single();
 
-        Assert.True(index.GetIsSortedInTempDb());
+        Assert.True(index.GetSortInTempDb());
     }
 
     [ConditionalTheory]

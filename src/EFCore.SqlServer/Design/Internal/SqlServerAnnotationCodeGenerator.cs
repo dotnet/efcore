@@ -79,11 +79,11 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerIndexBuilderExtensions.HasFillFactor), new[] { typeof(IndexBuilder), typeof(int) })!;
 
-    private static readonly MethodInfo IndexIsSortedInTempDbInfo
+    private static readonly MethodInfo IndexSortInTempDbMethodInfo
     = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-        nameof(SqlServerIndexBuilderExtensions.IsSortedInTempDb), new[] { typeof(IndexBuilder), typeof(bool) })!;
+        nameof(SqlServerIndexBuilderExtensions.SortInTempDb), new[] { typeof(IndexBuilder), typeof(bool) })!;
 
-    private static readonly MethodInfo IndexUseDataCompressionInfo
+    private static readonly MethodInfo IndexUseDataCompressionMethodInfo
     = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
         nameof(SqlServerIndexBuilderExtensions.UseDataCompression), new[] { typeof(IndexBuilder), typeof(DataCompressionType) })!;
 
@@ -349,8 +349,8 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
             SqlServerAnnotationNames.Include => new MethodCallCodeFragment(IndexIncludePropertiesMethodInfo, annotation.Value),
             SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(IndexHasFillFactorMethodInfo, annotation.Value),
-            SqlServerAnnotationNames.SortedInTempDb => new MethodCallCodeFragment(IndexIsSortedInTempDbInfo, annotation.Value),
-            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(IndexUseDataCompressionInfo, annotation.Value),
+            SqlServerAnnotationNames.SortInTempDb => new MethodCallCodeFragment(IndexSortInTempDbMethodInfo, annotation.Value),
+            SqlServerAnnotationNames.DataCompression => new MethodCallCodeFragment(IndexUseDataCompressionMethodInfo, annotation.Value),
 
             _ => null
         };
