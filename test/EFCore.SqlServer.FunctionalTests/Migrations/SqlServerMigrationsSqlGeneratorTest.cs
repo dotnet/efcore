@@ -40,7 +40,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
                 Schema = "dbo",
                 Columns = new[] { "FirstName", "LastName" },
                 IsUnique = true,
-                [SqlServerAnnotationNames.SortedInTempDb] = true
+                [SqlServerAnnotationNames.SortInTempDb] = true
             });
 
         AssertSql(

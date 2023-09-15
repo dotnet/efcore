@@ -408,7 +408,7 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().HasIndex(c => c.Name).HasDatabaseName("IX_Animal_Name");
-        modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").IsSortedInTempDb();
+        modelBuilder.Entity<Dog>().HasIndex(d => d.Name).HasDatabaseName("IX_Animal_Name").SortInTempDb();
 
         VerifyError(
             SqlServerStrings.DuplicateIndexSortInTempDbMismatch(

@@ -14827,10 +14827,10 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIncludeProperties()).Message);
-                    Assert.Null(alternateIndex[SqlServerAnnotationNames.SortedInTempDb]);
+                    Assert.Null(alternateIndex[SqlServerAnnotationNames.SortInTempDb]);
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
-                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetIsSortedInTempDb()).Message);
+                        Assert.Throws<InvalidOperationException>(() => alternateIndex.GetSortInTempDb()).Message);
                     Assert.Null(alternateIndex[SqlServerAnnotationNames.DataCompression]);
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
@@ -15054,7 +15054,7 @@ namespace TestNamespace
                             .IsCreatedOnline()
                             .HasFillFactor(40)
                             .IncludeProperties(e => e.Id)
-                            .IsSortedInTempDb()
+                            .SortInTempDb()
                             .UseDataCompression(DataCompressionType.Page);
                     });
 

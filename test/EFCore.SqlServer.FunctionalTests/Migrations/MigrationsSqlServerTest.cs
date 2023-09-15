@@ -2242,7 +2242,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
                 .IsUnique()
                 .IncludeProperties("FirstName", "LastName")
                 .HasFillFactor(75)
-                .IsSortedInTempDb(),
+                .SortInTempDb(),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2254,7 +2254,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
                 var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                 Assert.Null(includedColumns);
                 Assert.Equal(75, index[SqlServerAnnotationNames.FillFactor]);
-                Assert.Null(index[SqlServerAnnotationNames.SortedInTempDb]);
+                Assert.Null(index[SqlServerAnnotationNames.SortInTempDb]);
             });
 
         AssertSql(
@@ -2292,7 +2292,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             builder => builder.Entity("People").HasIndex("Name")
                 .IsUnique()
                 .IncludeProperties("FirstName", "LastName")
-                .IsSortedInTempDb()
+                .SortInTempDb()
                 .UseDataCompression(dataCompression),
             model =>
             {
@@ -2304,7 +2304,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
                 Assert.Contains(table.Columns.Single(c => c.Name == "Name"), index.Columns);
                 var includedColumns = (IReadOnlyList<string>?)index[SqlServerAnnotationNames.Include];
                 Assert.Null(includedColumns);
-                Assert.Null(index[SqlServerAnnotationNames.SortedInTempDb]);
+                Assert.Null(index[SqlServerAnnotationNames.SortInTempDb]);
                 Assert.Null(index[SqlServerAnnotationNames.DataCompression]);
             });
 

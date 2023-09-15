@@ -6284,12 +6284,12 @@ namespace RootNamespace
             });
 
     [ConditionalFact]
-    public virtual void IndexAttribute_IsSortedInTempDb_is_stored_in_snapshot()
+    public virtual void IndexAttribute_SortInTempDb_is_stored_in_snapshot()
         => Test(
             builder => builder.Entity<EntityWithStringProperty>(
                 x =>
                 {
-                    x.HasIndex(e => e.Id).IsSortedInTempDb(true);
+                    x.HasIndex(e => e.Id).SortInTempDb(true);
                 }),
             AddBoilerPlate(
                 GetHeading() +
@@ -6309,7 +6309,7 @@ namespace RootNamespace
 
                     b.HasIndex("Id");
 
-                    SqlServerIndexBuilderExtensions.IsSortedInTempDb(b.HasIndex("Id"), true);
+                    SqlServerIndexBuilderExtensions.SortInTempDb(b.HasIndex("Id"), true);
 
                     b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
@@ -6317,7 +6317,7 @@ namespace RootNamespace
             model =>
             {
                 var index = model.GetEntityTypes().First().GetIndexes().First();
-                Assert.True(index.GetIsSortedInTempDb());
+                Assert.True(index.GetSortInTempDb());
             });
 
     #endregion

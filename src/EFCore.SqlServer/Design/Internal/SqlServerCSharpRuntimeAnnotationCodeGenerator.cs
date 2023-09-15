@@ -104,7 +104,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
             annotations.Remove(SqlServerAnnotationNames.Include);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
-            annotations.Remove(SqlServerAnnotationNames.SortedInTempDb);
+            annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 
@@ -121,7 +121,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
             annotations.Remove(SqlServerAnnotationNames.Include);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
-            annotations.Remove(SqlServerAnnotationNames.SortedInTempDb);
+            annotations.Remove(SqlServerAnnotationNames.SortInTempDb);
             annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
 

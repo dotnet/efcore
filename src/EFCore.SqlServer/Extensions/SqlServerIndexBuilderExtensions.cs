@@ -401,11 +401,11 @@ public static class SqlServerIndexBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="sortedInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
     /// <returns>A builder to further configure the index.</returns>
-    public static IndexBuilder IsSortedInTempDb(this IndexBuilder indexBuilder, bool sortedInTempDb = true)
+    public static IndexBuilder SortInTempDb(this IndexBuilder indexBuilder, bool sortInTempDb = true)
     {
-        indexBuilder.Metadata.SetIsSortedInTempDb(sortedInTempDb);
+        indexBuilder.Metadata.SetSortInTempDb(sortInTempDb);
 
         return indexBuilder;
     }
@@ -419,12 +419,12 @@ public static class SqlServerIndexBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="sortedInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
     /// <returns>A builder to further configure the index.</returns>
-    public static IndexBuilder<TEntity> IsSortedInTempDb<TEntity>(
+    public static IndexBuilder<TEntity> SortInTempDb<TEntity>(
         this IndexBuilder<TEntity> indexBuilder,
-        bool sortedInTempDb = true)
-        => (IndexBuilder<TEntity>)IsSortedInTempDb((IndexBuilder)indexBuilder, sortedInTempDb);
+        bool sortInTempDb = true)
+        => (IndexBuilder<TEntity>)SortInTempDb((IndexBuilder)indexBuilder, sortInTempDb);
 
     /// <summary>
     ///     Configures whether the index is created with sort in tempdb option when targeting SQL Server.
@@ -435,20 +435,20 @@ public static class SqlServerIndexBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="sortedInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    public static IConventionIndexBuilder? IsSortedInTempDb(
+    public static IConventionIndexBuilder? SortInTempDb(
         this IConventionIndexBuilder indexBuilder,
-        bool? sortedInTempDb,
+        bool? sortInTempDb,
         bool fromDataAnnotation = false)
     {
-        if (indexBuilder.CanSetIsSortedInTempDb(sortedInTempDb, fromDataAnnotation))
+        if (indexBuilder.CanSetSortInTempDb(sortInTempDb, fromDataAnnotation))
         {
-            indexBuilder.Metadata.SetIsSortedInTempDb(sortedInTempDb, fromDataAnnotation);
+            indexBuilder.Metadata.SetSortInTempDb(sortInTempDb, fromDataAnnotation);
 
             return indexBuilder;
         }
@@ -465,18 +465,18 @@ public static class SqlServerIndexBuilderExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
-    /// <param name="sortedInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
+    /// <param name="sortInTempDb">A value indicating whether the index is created with sort in tempdb option.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
     /// <returns><see langword="true" /> if the index can be configured with sort in tempdb option when targeting SQL Server.</returns>
-    public static bool CanSetIsSortedInTempDb(
+    public static bool CanSetSortInTempDb(
         this IConventionIndexBuilder indexBuilder,
-        bool? sortedInTempDb,
+        bool? sortInTempDb,
         bool fromDataAnnotation = false)
-        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.SortedInTempDb, sortedInTempDb, fromDataAnnotation);
+        => indexBuilder.CanSetAnnotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb, fromDataAnnotation);
 
     /// <summary>
     ///     Configures whether the index is created with data compression option when targeting SQL Server.

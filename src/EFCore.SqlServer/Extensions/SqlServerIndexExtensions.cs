@@ -303,10 +303,10 @@ public static class SqlServerIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns><see langword="true" /> if the index is sorted in tempdb.</returns>
-    public static bool? GetIsSortedInTempDb(this IReadOnlyIndex index)
+    public static bool? GetSortInTempDb(this IReadOnlyIndex index)
         => (index is RuntimeIndex)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (bool?)index[SqlServerAnnotationNames.SortedInTempDb];
+            : (bool?)index[SqlServerAnnotationNames.SortInTempDb];
 
     /// <summary>
     ///     Returns a value indicating whether the index is sorted in tempdb.
@@ -314,47 +314,47 @@ public static class SqlServerIndexExtensions
     /// <param name="index">The index.</param>
     /// <param name="storeObject">The identifier of the store object.</param>
     /// <returns><see langword="true" /> if the index is sorted in tempdb.</returns>
-    public static bool? GetIsSortedInTempDb(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    public static bool? GetSortInTempDb(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
         if (index is RuntimeIndex)
         {
             throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
         }
 
-        var annotation = index.FindAnnotation(SqlServerAnnotationNames.SortedInTempDb);
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.SortInTempDb);
         if (annotation != null)
         {
             return (bool?)annotation.Value;
         }
 
         var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
-        return sharedTableRootIndex?.GetIsSortedInTempDb(storeObject);
+        return sharedTableRootIndex?.GetSortInTempDb(storeObject);
     }
 
     /// <summary>
     ///     Sets a value indicating whether the index is sorted in tempdb.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <param name="sortedInTempDb">The value to set.</param>
-    public static void SetIsSortedInTempDb(this IMutableIndex index, bool? sortedInTempDb)
+    /// <param name="sortInTempDb">The value to set.</param>
+    public static void SetSortInTempDb(this IMutableIndex index, bool? sortInTempDb)
         => index.SetAnnotation(
-            SqlServerAnnotationNames.SortedInTempDb,
-            sortedInTempDb);
+            SqlServerAnnotationNames.SortInTempDb,
+            sortInTempDb);
 
     /// <summary>
     ///     Sets a value indicating whether the index is sorted in tempdb.
     /// </summary>
     /// <param name="index">The index.</param>
-    /// <param name="sortedInTempDb">The value to set.</param>
+    /// <param name="sortInTempDb">The value to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
-    public static bool? SetIsSortedInTempDb(
+    public static bool? SetSortInTempDb(
         this IConventionIndex index,
-        bool? sortedInTempDb,
+        bool? sortInTempDb,
         bool fromDataAnnotation = false)
         => (bool?)index.SetAnnotation(
-            SqlServerAnnotationNames.SortedInTempDb,
-            sortedInTempDb,
+            SqlServerAnnotationNames.SortInTempDb,
+            sortInTempDb,
             fromDataAnnotation)?.Value;
 
     /// <summary>
@@ -362,8 +362,8 @@ public static class SqlServerIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index is sorted in tempdb.</returns>
-    public static ConfigurationSource? GetIsSortedInTempDbConfigurationSource(this IConventionIndex index)
-        => index.FindAnnotation(SqlServerAnnotationNames.SortedInTempDb)?.GetConfigurationSource();
+    public static ConfigurationSource? GetSortInTempDbConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.SortInTempDb)?.GetConfigurationSource();
 
     /// <summary>
     ///     Returns the data compression that the index uses.
