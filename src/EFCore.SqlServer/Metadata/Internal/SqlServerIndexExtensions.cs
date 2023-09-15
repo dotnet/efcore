@@ -100,7 +100,7 @@ public static class SqlServerIndexExtensions
             return false;
         }
 
-        if (index.GetIsSortedInTempDb() != duplicateIndex.GetIsSortedInTempDb())
+        if (index.GetSortInTempDb() != duplicateIndex.GetSortInTempDb())
         {
             if (shouldThrow)
             {

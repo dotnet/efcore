@@ -204,9 +204,9 @@ public class SqlServerAnnotationProvider : RelationalAnnotationProvider
             yield return new Annotation(SqlServerAnnotationNames.FillFactor, fillFactor);
         }
 
-        if (modelIndex.GetIsSortedInTempDb(table) is bool isSortedInTempDb)
+        if (modelIndex.GetSortInTempDb(table) is bool sortInTempDb)
         {
-            yield return new Annotation(SqlServerAnnotationNames.SortedInTempDb, isSortedInTempDb);
+            yield return new Annotation(SqlServerAnnotationNames.SortInTempDb, sortInTempDb);
         }
 
         if (modelIndex.GetDataCompression(table) is DataCompressionType dataCompressionType)
