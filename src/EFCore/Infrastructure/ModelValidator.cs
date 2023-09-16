@@ -1023,14 +1023,21 @@ public class ModelValidator : IModelValidator
             foreach (var property in typeBase.GetDeclaredProperties())
             {
                 var elementClrType = property.GetElementType()?.ClrType;
-                if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false, ClrType.IsSealed: true }
-                    && elementClrType is { IsSealed: true }
-                    && elementClrType.TryGetElementType(typeof(IList<>)) == null)
+                if (property is { IsPrimitiveCollection: true, ClrType.IsArray: false })
                 {
-                    throw new InvalidOperationException(
-                        CoreStrings.BadListType(
-                            property.ClrType.ShortDisplayName(),
-                            typeof(IList<>).MakeGenericType(elementClrType).ShortDisplayName()));
+                    if (property.ClrType.IsSealed && property.ClrType.TryGetElementType(typeof(IList<>)) == null)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.BadListType(
+                                property.ClrType.ShortDisplayName(),
+                                typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
+                    }
+
+                    if (property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>)
+                        || property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
+                    {
+                        throw new InvalidOperationException(CoreStrings.ReadOnlyListType(property.ClrType.ShortDisplayName()));
+                    }
                 }
             }
 

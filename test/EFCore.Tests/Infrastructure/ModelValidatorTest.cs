@@ -205,6 +205,52 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Throws_when_mapping_an_IReadOnlyCollection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        VerifyError(
+            CoreStrings.ReadOnlyListType("IReadOnlyCollection<int>"),
+            modelBuilder, sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithReadOnlyCollection
+    {
+        public int Id { get; set; }
+        public IReadOnlyCollection<int> Tags { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Throws_when_mapping_an_IReadOnlyList()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithReadOnlyList>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        VerifyError(
+            CoreStrings.ReadOnlyListType("IReadOnlyList<char>"),
+            modelBuilder, sensitiveDataLoggingEnabled: false);
+    }
+
+    protected class WithReadOnlyList
+    {
+        public int Id { get; set; }
+        public IReadOnlyList<char> Tags { get; set; }
+    }
+
+    [ConditionalFact]
     public virtual void Ignores_binary_keys_and_strings_without_custom_comparer()
     {
         var modelBuilder = CreateConventionlessModelBuilder();
