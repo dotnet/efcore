@@ -1417,6 +1417,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     methodIdentifier),
                 ArgumentList(SeparatedList(arguments[1..])));
         }
+        else if (call.Method is { Name: "op_Equality", IsHideBySig: true, IsSpecialName: true })
+        {
+            Result = BinaryExpression(
+                SyntaxKind.EqualsExpression,
+                Translate<ExpressionSyntax>(call.Arguments[0]),
+                Translate<ExpressionSyntax>(call.Arguments[1]));
+        }
         else
         {
             ExpressionSyntax expression;
@@ -1440,12 +1447,23 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 expression = Translate<ExpressionSyntax>(call.Object);
             }
 
-            Result = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
+            if (call.Method.Name.StartsWith("get_", StringComparison.Ordinal)
+                     && call.Method.GetParameters().Length == 1
+                     && call.Method is { IsHideBySig: true, IsSpecialName: true })
+            {
+                Result = ElementAccessExpression(
                     expression,
-                    methodIdentifier),
-                ArgumentList(SeparatedList(arguments)));
+                    BracketedArgumentList(SeparatedList(arguments)));
+            }
+            else
+            {
+                Result = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        expression,
+                        methodIdentifier),
+                    ArgumentList(SeparatedList(arguments)));
+            }
         }
 
         if (call.Method.DeclaringType.Namespace is { } ns)
@@ -1904,7 +1922,11 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
     /// <inheritdoc />
     protected override Expression VisitUnary(UnaryExpression unary)
     {
-        if (unary.Method is not null)
+        if (unary.Method is not null
+            && !unary.Method.IsHideBySig
+            && !unary.Method.IsSpecialName
+            && unary.Method.Name != "op_Implicit"
+            && unary.Method.Name != "op_Explicit")
         {
             throw new NotImplementedException("Unary node with non-null method");
         }

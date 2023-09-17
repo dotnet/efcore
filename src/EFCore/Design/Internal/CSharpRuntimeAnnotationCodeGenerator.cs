@@ -392,8 +392,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             CreateJsonValueReaderWriter((JsonValueReaderWriter)jsonReaderWriterProperty.GetValue(converter)!, parameters, codeHelper);
 
             mainBuilder
-                .Append(")")
-                .DecrementIndent();
+                .Append(")");
         }
     }
 
@@ -443,8 +442,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
             Create((ValueComparer)elementComparerProperty.GetValue(comparer)!, parameters, codeHelper);
 
             mainBuilder
-                .Append(")")
-                .DecrementIndent();
+                .Append(")");
         }
     }
 
