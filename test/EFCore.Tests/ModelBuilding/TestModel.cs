@@ -484,7 +484,7 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
 
         [NotMapped]
-        public int PrincipalEntityId { get; set; }
+        public int? PrincipalEntityId { get; set; }
 
         public required PrincipalEntity Nav { get; set; }
     }

@@ -88,7 +88,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
             if (property.IsNullable)
             {
                 shouldBeRequired = false;
-                relationshipBuilder.IsRequired(false);
+                relationshipBuilder = relationshipBuilder.IsRequired(false) ?? relationshipBuilder;
                 break;
             }
         }
