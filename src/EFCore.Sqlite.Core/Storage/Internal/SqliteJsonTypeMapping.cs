@@ -32,7 +32,7 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly SqliteJsonTypeMapping Default = new(SqliteTypeMappingSource.TextTypeName);
+    public static SqliteJsonTypeMapping Default { get; } = new(SqliteTypeMappingSource.TextTypeName);
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteJsonTypeMapping" /> class.

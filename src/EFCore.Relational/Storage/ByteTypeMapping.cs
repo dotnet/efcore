@@ -27,7 +27,7 @@ public class ByteTypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static ByteArrayTypeMapping Default { get; } = new("tinyint");
+    public static ByteTypeMapping Default { get; } = new("tinyint");
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="ByteTypeMapping" /> class.
