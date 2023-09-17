@@ -32,7 +32,7 @@ public class Int128TypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static Int128TypeMapping Default { get; } = new("char(40)");
+    public static Int128TypeMapping Default { get; } = new($"char({ColumnWidth})");
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="IntTypeMapping" /> class.

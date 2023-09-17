@@ -24,7 +24,7 @@ public class UInt128TypeMapping : RelationalTypeMapping
     /// <summary>
     ///  Column width in bytes
     /// </summary>
-    public const int ColumnWidth = 40;
+    public const int ColumnWidth = 39;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -32,7 +32,7 @@ public class UInt128TypeMapping : RelationalTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static UInt128TypeMapping Default { get; } = new("char(40)");
+    public static UInt128TypeMapping Default { get; } = new($"char({ColumnWidth})");
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="UIntTypeMapping" /> class.
