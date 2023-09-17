@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Numerics;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -66,6 +67,75 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
         connection.Close();
     }
 
+    private class BlackHole
+    {
+        [Key]
+        public Int128 Id { get; set; }
+
+        public BigInteger Mass { get; set; }
+
+        public UInt128 DistanceFromSun { get; set; }
+    }
+
+    private class BlackHoleContext : DbContext
+    {
+        private readonly SqliteConnection _connection;
+
+        public BlackHoleContext(SqliteConnection connection)
+        {
+            _connection = connection;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlite(_connection);
+
+        public DbSet<BlackHole> BlackHoles { get; set; }
+    }
+
+    [ConditionalFact]
+    public void SQLite_BigInteger_type_mapping_works()
+    {
+        using var connection = new SqliteConnection("DataSource=:memory:");
+        connection.Open();
+
+        using (var context = new BlackHoleContext(connection))
+        {
+            context.Database.EnsureCreated();
+
+            context.Add(
+                new BlackHole { Id = 1, DistanceFromSun = UInt128.MaxValue, Mass = BigInteger.Pow(UInt128.MaxValue, 2) });
+            context.SaveChanges();
+        }
+
+        using (var context = new BlackHoleContext(connection))
+        {
+            var blackHole = context.BlackHoles.Single();
+            Assert.Equal(1, blackHole.Id);
+            Assert.Equal(UInt128.MaxValue, blackHole.DistanceFromSun);
+            Assert.Equal(BigInteger.Pow(UInt128.MaxValue, 2), blackHole.Mass);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(typeof(Int128))]
+    [InlineData(typeof(BigInteger))]
+    public void BigInteger_literal_generated_correctly(Type mappingType)
+    {
+        var typeMapping = GetMapping(mappingType);
+
+        Test_GenerateSqlLiteral_helper(typeMapping, Int128.MinValue, "'-170141183460469231731687303715884105728'");
+        Test_GenerateSqlLiteral_helper(typeMapping, Int128.MaxValue, "'170141183460469231731687303715884105727'");
+    }
+
+    [ConditionalFact]
+    public void UInt128_literal_generated_correctly()
+    {
+        var typeMapping = GetMapping(typeof(UInt128));
+
+        Test_GenerateSqlLiteral_helper(typeMapping, 0, "'0'");
+        Test_GenerateSqlLiteral_helper(typeMapping, UInt128.MaxValue, "'340282366920938463463374607431768211455'");
+    }
+
     protected override DbCommand CreateTestCommand()
         => new SqliteCommand();
 
@@ -75,6 +145,9 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
     [InlineData(typeof(SqliteDecimalTypeMapping), typeof(decimal))]
     [InlineData(typeof(SqliteGuidTypeMapping), typeof(Guid))]
     [InlineData(typeof(SqliteULongTypeMapping), typeof(ulong))]
+    [InlineData(typeof(SqliteBigIntegerTypeMapping), typeof(BigInteger))]
+    [InlineData(typeof(SqliteBigIntegerTypeMapping), typeof(Int128))]
+    [InlineData(typeof(SqliteBigIntegerTypeMapping), typeof(UInt128))]
     public override void Create_and_clone_with_converter(Type mappingType, Type type)
         => base.Create_and_clone_with_converter(mappingType, type);
 

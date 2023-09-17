@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Numerics;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -52,6 +53,7 @@ public abstract class RelationalTypeMappingTest
     [InlineData(typeof(FloatTypeMapping), typeof(float))]
     [InlineData(typeof(GuidTypeMapping), typeof(Guid))]
     [InlineData(typeof(IntTypeMapping), typeof(int))]
+    [InlineData(typeof(Int128TypeMapping), typeof(Int128))]
     [InlineData(typeof(LongTypeMapping), typeof(long))]
     [InlineData(typeof(SByteTypeMapping), typeof(sbyte))]
     [InlineData(typeof(ShortTypeMapping), typeof(short))]
@@ -59,6 +61,8 @@ public abstract class RelationalTypeMappingTest
     [InlineData(typeof(UIntTypeMapping), typeof(uint))]
     [InlineData(typeof(ULongTypeMapping), typeof(ulong))]
     [InlineData(typeof(UShortTypeMapping), typeof(ushort))]
+    [InlineData(typeof(UInt128TypeMapping), typeof(UInt128))]
+    [InlineData(typeof(BigIntegerTypeMapping), typeof(BigInteger))]
     public virtual void Create_and_clone_with_converter(Type mappingType, Type type)
     {
         var mapping = (RelationalTypeMapping)Activator.CreateInstance(

@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using Microsoft.Data.Sqlite.Properties;
 using static SQLitePCL.raw;
@@ -140,6 +141,16 @@ namespace Microsoft.Data.Sqlite
                 : GetInt64Core(ordinal);
 
         protected abstract long GetInt64Core(int ordinal);
+#if NET7_0_OR_GREATER
+        public virtual Int128 GetInt128(int ordinal)
+            => (Int128)GetBigInteger(ordinal);
+        public virtual UInt128 GetUInt128(int ordinal)
+            => (UInt128)GetBigInteger(ordinal);
+#endif
+        public virtual BigInteger GetBigInteger(int ordinal)
+            => IsDBNull(ordinal)
+                ? throw new InvalidOperationException(GetOnNullErrorMsg(ordinal))
+                : BigInteger.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
 
         public virtual string GetString(int ordinal)
             => IsDBNull(ordinal)
@@ -217,7 +228,16 @@ namespace Microsoft.Data.Sqlite
             {
                 return (T)(object)GetInt64(ordinal);
             }
-
+#if NET7_0_OR_GREATER
+            if (typeof(T) == typeof(Int128))
+            {
+                return (T)(object)GetInt128(ordinal);
+            }
+            if (typeof(T) == typeof(UInt128))
+            {
+                return (T)(object)checked(GetUInt128(ordinal));
+            }
+#endif
             if (typeof(T) == typeof(sbyte))
             {
                 return (T)(object)checked((sbyte)GetInt64(ordinal));
@@ -241,6 +261,11 @@ namespace Microsoft.Data.Sqlite
             if (typeof(T) == typeof(ulong))
             {
                 return (T)(object)((ulong)GetInt64(ordinal));
+            }
+
+            if (typeof(T) == typeof(BigInteger))
+            {
+                return (T)(object)GetBigInteger(ordinal);
             }
 
             if (typeof(T) == typeof(ushort))
