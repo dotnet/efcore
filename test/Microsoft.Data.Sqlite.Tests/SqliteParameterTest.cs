@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 using Microsoft.Data.Sqlite.TestUtilities;
 using Xunit;
@@ -241,6 +243,11 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(coercedValue, result);
             }
         }
+
+        [Theory]
+        [MemberData(nameof(BigIntegerTypesData))]
+        public void Bind_works_when_big_integer(object value, object coercedValue)
+            => Bind_works(value, coercedValue);
 
         [Theory]
         [InlineData(double.NaN)]
@@ -599,6 +606,10 @@ namespace Microsoft.Data.Sqlite
             new object[] { default(DateOnly), SqliteType.Text },
             new object[] { default(TimeOnly), SqliteType.Text },
 #endif
+#if NET7_0_OR_GREATER
+            new object[] { default(Int128), SqliteType.Text },
+            new object[] { default(UInt128), SqliteType.Text },
+#endif
             new object[] { 'A', SqliteType.Text },
             new object[] { "", SqliteType.Text },
             new object[] { false, SqliteType.Integer },
@@ -610,9 +621,20 @@ namespace Microsoft.Data.Sqlite
             new object[] { 0u, SqliteType.Integer },
             new object[] { 0ul, SqliteType.Integer },
             new object[] { (ushort)0, SqliteType.Integer },
+            new object[] { (BigInteger)0, SqliteType.Text },
             new object[] { 0.0, SqliteType.Real },
             new object[] { 0f, SqliteType.Real },
             new object[] { new byte[0], SqliteType.Blob },
+        };
+
+        public static IEnumerable<object[]> BigIntegerTypesData
+        => new List<object[]>
+        {
+            new object[] { BigInteger.One, "1" },
+#if NET7_0_OR_GREATER
+            new object[] { Int128.MaxValue, Int128.MaxValue.ToString() },
+            new object[] { UInt128.MaxValue, UInt128.MaxValue.ToString() },
+#endif
         };
 
         private enum MyEnum

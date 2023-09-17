@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
@@ -521,6 +522,31 @@ CREATE TABLE IF NOT EXISTS ClrTypeWithData (
 );
 
 INSERT INTO ClrTypeWithData VALUES ({value});",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+            },
+            "DROP TABLE ClrTypeWithData");
+
+    [ConditionalTheory]
+    [InlineData("TEXT", "0", "340282366920938000000000000000000000000", typeof(UInt128))]
+    [InlineData("TEXT", "-1", "170141183460469231731687303715884105727", typeof(Int128))]
+    [InlineData("TEXT", "-170141183460469231731687303715884105728", "0", typeof(Int128))]
+    [InlineData("TEXT", "-3402823669209384634633746074317682114550", "0", typeof(BigInteger))]
+    [InlineData("TEXT", "0", "3402823669209384634633746074317682114550", typeof(BigInteger))]
+    public void Column_ClrType_is_set_when_big_integers(string storeType, string min, string max, Type expected)
+        => Test(
+            $@"
+CREATE TABLE IF NOT EXISTS ClrTypeWithData (
+    ColumnWithData {storeType}
+);
+
+INSERT INTO ClrTypeWithData VALUES ({min});
+INSERT INTO ClrTypeWithData VALUES ({max});",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
             model =>

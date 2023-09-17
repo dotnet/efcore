@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -59,6 +60,9 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         Assert.Equal("don't", entity.SomeString);
         Assert.Equal("G", entity.Text);
         Assert.Equal(new byte[] { 86 }, entity.Blob);
+        Assert.Equal(BigInteger.One, entity.SomeBigInteger);
+        Assert.Equal(Int128.MinValue, entity.SomeInt128);
+        Assert.Equal(UInt128.MaxValue, entity.SomeUInt128);
     }
 
     private static MappedDataTypes CreateMappedDataTypes(int id)
@@ -70,7 +74,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = new byte[] { 86 },
+            SomeBigInteger = BigInteger.One,
+            SomeInt128 = Int128.MinValue,
+            SomeUInt128 = UInt128.MaxValue
         };
 
     [ConditionalFact]
@@ -97,6 +104,9 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         Assert.Equal("don't", entity.SomeString);
         Assert.Equal("G", entity.Text);
         Assert.Equal(new byte[] { 86 }, entity.Blob);
+        Assert.Equal(BigInteger.One, entity.SomeBigInteger);
+        Assert.Equal(Int128.MinValue, entity.SomeInt128);
+        Assert.Equal(UInt128.MaxValue, entity.SomeUInt128);
     }
 
     private static MappedNullableDataTypes CreateMappedNullableDataTypes(int id)
@@ -108,7 +118,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = new byte[] { 86 },
+            SomeBigInteger = BigInteger.One,
+            SomeInt128 = Int128.MinValue,
+            SomeUInt128 = UInt128.MaxValue
         };
 
     [ConditionalFact]
@@ -137,6 +150,9 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         Assert.Null(entity.SomeString);
         Assert.Null(entity.Blob);
         Assert.Null(entity.Int);
+        Assert.Null(entity.SomeBigInteger);
+        Assert.Null(entity.SomeInt128);
+        Assert.Null(entity.SomeUInt128);
     }
 
     [ConditionalFact]
@@ -1879,6 +1895,9 @@ ORDER BY "b"."Id", "b0"."Id"
                     b.Property(e => e.Blob).HasColumnType("Blob").IsRequired();
                     b.Property(e => e.SomeString).HasColumnType("SomeString").IsRequired();
                     b.Property(e => e.Int).HasColumnType("Int");
+                    b.Property(e => e.SomeBigInteger).HasColumnType("Text");
+                    b.Property(e => e.SomeInt128).HasColumnType("Text");
+                    b.Property(e => e.SomeUInt128).HasColumnType("Text");
                 });
 
             modelBuilder.Entity<MappedNullableDataTypes>(
@@ -1891,6 +1910,9 @@ ORDER BY "b"."Id", "b0"."Id"
                     b.Property(e => e.Blob).HasColumnType("Blob");
                     b.Property(e => e.SomeString).HasColumnType("SomeString");
                     b.Property(e => e.Int).HasColumnType("Int");
+                    b.Property(e => e.SomeBigInteger).HasColumnType("Text");
+                    b.Property(e => e.SomeInt128).HasColumnType("Text");
+                    b.Property(e => e.SomeUInt128).HasColumnType("Text");
                 });
 
             modelBuilder.Entity<MappedSizedDataTypes>(
@@ -1976,6 +1998,9 @@ ORDER BY "b"."Id", "b0"."Id"
         public byte[] Blob { get; set; }
         public string SomeString { get; set; }
         public int Int { get; set; }
+        public BigInteger SomeBigInteger { get; set; }
+        public Int128 SomeInt128 { get; set; }
+        public UInt128 SomeUInt128 { get; set; }
     }
 
     protected class MappedSizedDataTypes
@@ -2009,6 +2034,9 @@ ORDER BY "b"."Id", "b0"."Id"
         public byte[] Blob { get; set; }
         public string SomeString { get; set; }
         public int? Int { get; set; }
+        public BigInteger? SomeBigInteger { get; set; }
+        public Int128? SomeInt128 { get; set; }
+        public UInt128? SomeUInt128 { get; set; }
     }
 
     protected class MappedDataTypesWithIdentity
@@ -2059,4 +2087,11 @@ ORDER BY "b"."Id", "b0"."Id"
         public string SomeString { get; set; }
         public int? Int { get; set; }
     }
+
+    //protected class MappedBigIntegerDataTypes
+    //{
+    //    public BigInteger Id { get; set; }
+    //    public Int128 Integer128 { get; set; }
+    //    public UInt128 UInteger128 { get; set; }
+    //}
 }

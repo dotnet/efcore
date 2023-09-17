@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class SqliteBuilderExtensionsTest
@@ -57,6 +59,21 @@ public class SqliteBuilderExtensionsTest
             .Metadata;
 
         Assert.Equal(1, property.GetSrid());
+    }
+
+    [Theory]
+    [MemberData(nameof(BigIntegerTypesData))]
+    public void Can_set_default_value_for_big_integer(Type propertyType, string propertyName, object defaultValue)
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        var property = modelBuilder
+            .Entity<BlackHole>()
+            .Property(propertyType, propertyName)
+            .HasDefaultValue(defaultValue)
+            .Metadata;
+
+        Assert.Equal(defaultValue, property.GetDefaultValue());
     }
 
     #region UseSqlReturningClause
@@ -181,4 +198,19 @@ public class SqliteBuilderExtensionsTest
         public int Id { get; set; }
         public string Geometry { get; set; }
     }
+
+    private class BlackHole
+    {
+        public Int128 Id { get; set; }
+        public UInt128 DistanceFromSun { get; set; }
+        public BigInteger Mass { get; set; }
+    }
+
+    public static IEnumerable<object[]> BigIntegerTypesData
+        => new List<object[]>
+        {
+            new object[] { typeof(Int128), "Id", Int128.MinValue },
+            new object[] { typeof(UInt128), "DistanceFromSun", UInt128.MaxValue },
+            new object[] { typeof(BigInteger), "Mass", BigInteger.One }
+        };
 }

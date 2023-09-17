@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Globalization;
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -322,4 +323,16 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
             },
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""",
             mappedCollection: true);
+
+    [ConditionalTheory]
+    public override void Can_read_write_Int128_JSON_values(Int128 value, string json)
+        => Can_read_and_write_JSON_value<Int128Type, Int128>(nameof(Int128Type.SomeInt128), value, json);
+
+    [ConditionalTheory]
+    public override void Can_read_write_UInt128_JSON_values(UInt128 value, string json)
+        => Can_read_and_write_JSON_value<UInt128Type, UInt128>(nameof(UInt128Type.SomeUInt128), value, json);
+
+    [ConditionalTheory]
+    public override void Can_read_write_BigInteger_JSON_values(BigInteger value, string json)
+        => Can_read_and_write_JSON_value<BigIntegerType, BigInteger>(nameof(BigIntegerType.SomeBigInteger), value, json);
 }

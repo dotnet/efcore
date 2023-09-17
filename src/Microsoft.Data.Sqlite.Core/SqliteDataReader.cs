@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using Microsoft.Data.Sqlite.Properties;
@@ -491,6 +492,44 @@ namespace Microsoft.Data.Sqlite
                 : _record == null
                     ? throw new InvalidOperationException(Resources.NoData)
                     : _record.GetInt64(ordinal);
+
+#if NET7_0_OR_GREATER
+        /// <summary>
+        ///     Gets the value of the specified column as a <see cref="Int128" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the column.</returns>
+        public Int128 GetInt128(int ordinal)
+            => _closed
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetInt128)))
+                : _record == null
+                    ? throw new InvalidOperationException(Resources.NoData)
+                    : _record.GetInt128(ordinal);
+
+        /// <summary>
+        ///     Gets the value of the specified column as a <see cref="UInt128" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the column.</returns>
+        public UInt128 GetUInt128(int ordinal)
+            => _closed
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetUInt128)))
+                : _record == null
+                    ? throw new InvalidOperationException(Resources.NoData)
+                    : _record.GetUInt128(ordinal);
+#endif
+
+        /// <summary>
+        ///     Gets the value of the specified column as a <see cref="BigInteger" />.
+        /// </summary>
+        /// <param name="ordinal">The zero-based column ordinal.</param>
+        /// <returns>The value of the column.</returns>        
+        public BigInteger GetBigInteger(int ordinal)
+            => _closed
+                ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetBigInteger)))
+                : _record == null
+                    ? throw new InvalidOperationException(Resources.NoData)
+                    : _record.GetBigInteger(ordinal);
 
         /// <summary>
         ///     Gets the value of the specified column as a <see cref="string" />.

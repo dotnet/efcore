@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 
 namespace Microsoft.Data.Sqlite
@@ -144,6 +145,18 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 #endif
+#if NET7_0_OR_GREATER
+            else if (type == typeof(UInt128))
+            {
+                var value = ToString((UInt128)_value);
+                BindText(value);
+            }
+            else if (type == typeof(Int128))
+            {
+                var value = ToString((Int128)_value);
+                BindText(value);
+            }
+#endif
             else if (type == typeof(DBNull))
             {
                 BindNull();
@@ -186,6 +199,11 @@ namespace Microsoft.Data.Sqlite
             {
                 var value = (long)_value;
                 BindInt64(value);
+            }
+            else if (type == typeof(BigInteger))
+            {
+                var value = ToString((BigInteger)_value);
+                BindText(value);
             }
             else if (type == typeof(sbyte))
             {
@@ -250,6 +268,10 @@ namespace Microsoft.Data.Sqlite
                 { typeof(DateOnly), SqliteType.Text },
                 { typeof(TimeOnly), SqliteType.Text },
 #endif
+#if NET7_0_OR_GREATER
+                { typeof(Int128), SqliteType.Text },
+                { typeof(UInt128), SqliteType.Text },
+#endif
                 { typeof(DBNull), SqliteType.Text },
                 { typeof(decimal), SqliteType.Text },
                 { typeof(double), SqliteType.Real },
@@ -257,6 +279,7 @@ namespace Microsoft.Data.Sqlite
                 { typeof(Guid), SqliteType.Text },
                 { typeof(int), SqliteType.Integer },
                 { typeof(long), SqliteType.Integer },
+                { typeof(BigInteger), SqliteType.Text },
                 { typeof(sbyte), SqliteType.Integer },
                 { typeof(short), SqliteType.Integer },
                 { typeof(string), SqliteType.Text },
@@ -315,6 +338,11 @@ namespace Microsoft.Data.Sqlite
             var iJD = hour * 3600000 + minute * 60000 + (long)((second + millisecond / 1000.0) * 1000);
 
             return iJD / 86400000.0;
+        }
+
+        private static string ToString(IFormattable bigInt)
+        {
+            return bigInt.ToString("R", CultureInfo.InvariantCulture);
         }
     }
 }

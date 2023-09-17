@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Numerics;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
@@ -21,6 +22,15 @@ public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
 
     private static readonly RelationalTypeMapping _defaultCharMapping
         = new CharTypeMapping("default_char_mapping", dbType: DbType.Int32);
+
+    private static readonly RelationalTypeMapping _defaultBigIntegerMapping
+        = new BigIntegerTypeMapping("ansi_string(4000)", dbType: DbType.String);
+
+    private static readonly RelationalTypeMapping _defaultInt128Mapping
+        = new Int128TypeMapping("ansi_string(40)", dbType: DbType.String);
+
+    private static readonly RelationalTypeMapping _defaultUInt128Mapping
+        = new UInt128TypeMapping("ansi_string(40)", dbType: DbType.String);
 
     private static readonly RelationalTypeMapping _defaultLongMapping
         = new LongTypeMapping("default_long_mapping", dbType: DbType.Int64);
@@ -91,6 +101,9 @@ public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
         {
             { typeof(int), _defaultIntMapping },
             { typeof(long), _defaultLongMapping },
+            { typeof(UInt128), _defaultUInt128Mapping },
+            { typeof(Int128), _defaultInt128Mapping },
+            { typeof(BigInteger), _defaultBigIntegerMapping },
             { typeof(DateTime), _defaultDateTimeMapping },
             { typeof(Guid), _defaultGuidMapping },
             { typeof(bool), _defaultBoolMapping },

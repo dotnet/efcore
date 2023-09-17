@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using System.Numerics;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
@@ -145,6 +147,38 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
         Assert.Equal(
             "decimal_mapping(18,7)",
             GetMapping(mapper, model.FindEntityType(typeof(MyPrecisionType)).FindProperty("PrecisionAndScale")).StoreType);
+    }
+
+    [ConditionalTheory]
+    [InlineData("ansi_string(40)", "Id")]
+    [InlineData("ansi_string(40)", "MyInt128")]
+    [InlineData("ansi_string(4000)", "MyBigInteger")]
+    public void Does_default_type_mapping_from_MyBigIntegersType(string storeType, string propertyName)
+    {
+        var model = CreateModel();
+        var mapper = CreateRelationalTypeMappingSource(model);
+
+        Assert.Equal(
+            storeType,
+            GetMapping(mapper, model.FindEntityType(typeof(MyBigIntegersType)).FindProperty(propertyName)).StoreType);
+    }
+
+    [ConditionalFact]
+    public void Does_type_mapping_from_BigInteger_with_configuration()
+    {
+        var mapping = GetTypeMapping(
+            typeof(BigInteger),
+            maxLength: 8000,
+            unicode: true,
+            fixedLength: true,
+            useConfiguration: true);
+
+        // TODO: decide if BigIntegerMapping should be able to alter StoreType width
+        Assert.Equal("ansi_string(4000)", mapping.StoreType);
+        Assert.Equal("ansi_string", mapping.StoreTypeNameBase);
+        Assert.Null(mapping.Size);
+        Assert.False(mapping.IsUnicode);
+        Assert.False(mapping.IsFixedLength);
     }
 
     [ConditionalFact]

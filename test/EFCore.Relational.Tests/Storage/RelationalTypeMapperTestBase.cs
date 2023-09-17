@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public abstract class RelationalTypeMapperTestBase
@@ -19,6 +21,7 @@ public abstract class RelationalTypeMapperTestBase
         builder.Entity<MyRelatedType4>().Property(e => e.Relationship2Id).IsUnicode();
         builder.Entity<MyPrecisionType>().Property(e => e.PrecisionOnly).HasPrecision(16);
         builder.Entity<MyPrecisionType>().Property(e => e.PrecisionAndScale).HasPrecision(18, 7);
+        builder.Entity<MyBigIntegersType>();
         builder.Entity<MyTypeWithIndexAttribute>();
         builder.Entity<MyTypeWithIndexAttributeOnCollection>();
 
@@ -145,6 +148,13 @@ public abstract class RelationalTypeMapperTestBase
     protected class MyType
     {
         public decimal Id { get; set; }
+    }
+
+    protected class MyBigIntegersType
+    {
+        public UInt128 Id { get; set; }
+        public Int128 MyInt128 { get; set; }
+        public BigInteger MyBigInteger { get; set; }
     }
 
     protected class MyPrecisionType

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Net;
 using System.Net.NetworkInformation;
+using System.Numerics;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -72,6 +73,58 @@ public abstract class JsonTypesTestBase
     {
         public long Int64 { get; set; }
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(Int128InlineData))]
+    public virtual void Can_read_write_Int128_JSON_values(Int128 value, string json)
+        => Expression.Empty();
+
+    protected class Int128Type
+    {
+        public Int128 SomeInt128 { get; set; }
+    }
+
+    public static IEnumerable<object[]> Int128InlineData => new List<object[]>
+    {
+        new object[] { Int128.MinValue, """{"Prop":"-170141183460469231731687303715884105728"}""" },
+        new object[] { Int128.MaxValue, """{"Prop":"170141183460469231731687303715884105727"}""" },
+        new object[] { Int128.Zero, """{"Prop":"0"}""" },
+        new object[] { Int128.One, """{"Prop":"1"}""" },
+    };
+
+    [ConditionalTheory]
+    [MemberData(nameof(UInt128InlineData))]
+    public virtual void Can_read_write_UInt128_JSON_values(UInt128 value, string json)
+        => Expression.Empty();
+
+    protected class UInt128Type
+    {
+        public UInt128 SomeUInt128 { get; set; }
+    }
+
+    public static IEnumerable<object[]> UInt128InlineData => new List<object[]>
+    {
+        new object[] { UInt128.MaxValue, """{"Prop":"340282366920938463463374607431768211455"}""" },
+        new object[] { UInt128.Zero, """{"Prop":"0"}""" },
+        new object[] { UInt128.One, """{"Prop":"1"}""" },
+    };
+
+    [ConditionalTheory]
+    [MemberData(nameof(BigIntegerInlineData))]
+    public virtual void Can_read_write_BigInteger_JSON_values(BigInteger value, string json)
+        => Expression.Empty();
+
+    protected class BigIntegerType
+    {
+        public BigInteger SomeBigInteger { get; set; }
+    }
+
+    public static IEnumerable<object[]> BigIntegerInlineData => new List<object[]>
+    {
+        new object[] { BigInteger.Pow(UInt128.MaxValue, 2), """{"Prop":"115792089237316195423570985008687907852589419931798687112530834793049593217025"}""" },
+        new object[] { BigInteger.Zero, """{"Prop":"0"}""" },
+        new object[] { BigInteger.One, """{"Prop":"1"}""" },
+    };
 
     [ConditionalTheory]
     [InlineData(byte.MinValue, """{"Prop":0}""")]
@@ -3460,8 +3513,8 @@ public abstract class JsonTypesTestBase
                 };
 
                 elementNullable = nullabilityInfo is not
-                    { ElementType.ReadState: NullabilityState.NotNull } and not
-                    { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] };
+                { ElementType.ReadState: NullabilityState.NotNull } and not
+                { GenericTypeArguments: [{ ReadState: NullabilityState.NotNull }] };
             }
 
             Assert.Equal(elementNullable, element.IsNullable);

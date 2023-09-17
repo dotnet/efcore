@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
+using System.Numerics;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 
@@ -742,6 +743,26 @@ namespace Microsoft.Data.Sqlite
                 new TimeOnly(13, 10, 15, 500));
 #endif
 
+#if NET7_0_OR_GREATER
+        [Fact]
+        public void GetFieldValue_of_UInt128_works()
+            => GetFieldValue_works(
+                "SELECT '0';",
+                UInt128.MinValue);
+
+        [Fact]
+        public void GetFieldValue_of_Int128_works()
+            => GetFieldValue_works(
+                "SELECT '-170141183460469231731687303715884105728';",
+                Int128.MinValue);        
+#endif
+
+        [Fact]
+        public void GetFieldValue_of_BigInteger_works()
+            => GetFieldValue_works(
+                "SELECT '115792089237316195423570985008687907852589419931798687112530834793049593217025';",
+                BigInteger.Parse("115792089237316195423570985008687907852589419931798687112530834793049593217025"));
+
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]
         [InlineData("SELECT 3.14;", "REAL")]
@@ -1270,6 +1291,29 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetInt64_throws_when_non_query()
             => X_throws_when_non_query(r => r.GetInt64(0));
+
+#if NET7_0_OR_GREATER
+        [Fact]
+        public void GetInt128_works()
+            => GetX_works(
+                "SELECT '170141183460469231731687303715884105727';",
+                r => ((SqliteDataReader)r).GetInt128(0),
+                Int128.MaxValue);
+
+        [Fact]
+        public void GetUInt128_works()
+          => GetX_works(
+              "SELECT '0';",
+              r => ((SqliteDataReader)r).GetUInt128(0),
+              UInt128.MinValue);
+#endif
+
+        [Fact]
+        public void GetBigInteger_works()
+            => GetX_works(
+                "SELECT '1';",
+                r => ((SqliteDataReader)r).GetBigInteger(0),
+                new BigInteger(1));
 
         [Fact]
         public void GetName_works()

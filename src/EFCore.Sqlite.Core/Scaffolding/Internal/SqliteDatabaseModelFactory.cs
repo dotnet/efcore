@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using System.Globalization;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
@@ -741,6 +743,18 @@ ORDER BY "cid"
                     }
 
                     column["ClrType"] = typeof(TimeSpan);
+
+                    continue;
+                }
+
+                if (BigInteger.TryParse(max, NumberStyles.Float, null, out var maxBigInt)
+                        && BigInteger.TryParse(min, NumberStyles.Float, null, out var minBigInt))
+                {
+                    column["ClrType"] = (minBigInt >= 0 && maxBigInt <= UInt128.MaxValue)
+                        ? typeof(UInt128)
+                        : (minBigInt >= Int128.MinValue && maxBigInt <= Int128.MaxValue)
+                            ? typeof(Int128)
+                            : typeof(BigInteger);
 
                     continue;
                 }
