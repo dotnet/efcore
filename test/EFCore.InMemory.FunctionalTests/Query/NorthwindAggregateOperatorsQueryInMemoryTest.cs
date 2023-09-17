@@ -44,4 +44,16 @@ public class NorthwindAggregateOperatorsQueryInMemoryTest : NorthwindAggregateOp
     public override Task Collection_Last_member_access_in_projection_translated(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Collection_Last_member_access_in_projection_translated(async));
+
+    // Issue #31776
+    public override async Task Contains_with_local_enumerable_inline(bool async)
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline(async));
+
+    // Issue #31776
+    public override async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+        => await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline_closure_mix(async));
 }

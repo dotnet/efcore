@@ -1793,6 +1793,262 @@ WHERE [c].[CustomerID] IN (
 """);
     }
 
+    public override async Task Contains_with_local_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure(async);
+
+        AssertSql(
+"""
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""",
+            //
+"""
+@__ids_0='["ABCDE"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_object_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_enumerable_closure(async);
+
+        AssertSql(
+"""
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure_all_null(async);
+
+        AssertSql(
+"""
+@__ids_0='[]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_enumerable_inline(bool async)
+    {
+        // Issue #31776
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+    {
+        // Issue #31776
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline_closure_mix(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure(async);
+
+        AssertSql(
+"""
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""",
+            //
+"""
+@__ids_0='["ABCDE"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_object_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_ordered_enumerable_closure(async);
+
+        AssertSql(
+"""
+@__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure_all_null(async);
+
+        AssertSql(
+"""
+@__ids_0='[null,null]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_inline(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+""");
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline_closure_mix(async);
+
+        AssertSql(
+"""
+@__Order_0='["ABCDE","ALFKI"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o].[value]
+    FROM OPENJSON(@__Order_0) WITH ([value] nchar(5) '$') AS [o]
+)
+""",
+            //
+"""
+@__Order_0='["ABCDE","ANATR"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o].[value]
+    FROM OPENJSON(@__Order_0) WITH ([value] nchar(5) '$') AS [o]
+)
+""");
+    }
+
+    public override async Task Contains_with_local_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_closure(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+""",
+            //
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ABCDE'
+""");
+    }
+
+    public override async Task Contains_with_local_object_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_object_read_only_collection_closure(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+""");
+    }
+
+    public override async Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_read_only_collection_all_null(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE 0 = 1
+""");
+    }
+
+    public override async Task Contains_with_local_read_only_collection_inline(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+""");
+    }
+
+    public override async Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline_closure_mix(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
+""",
+            //
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] IN (N'ABCDE', N'ANATR')
+""");
+    }
+
     public override async Task Contains_with_local_non_primitive_list_closure_mix(bool async)
     {
         await base.Contains_with_local_non_primitive_list_closure_mix(async);
