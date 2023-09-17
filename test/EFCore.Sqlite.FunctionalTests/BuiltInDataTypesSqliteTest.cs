@@ -2087,11 +2087,4 @@ ORDER BY "b"."Id", "b0"."Id"
         public string SomeString { get; set; }
         public int? Int { get; set; }
     }
-
-    //protected class MappedBigIntegerDataTypes
-    //{
-    //    public BigInteger Id { get; set; }
-    //    public Int128 Integer128 { get; set; }
-    //    public UInt128 UInteger128 { get; set; }
-    //}
 }
