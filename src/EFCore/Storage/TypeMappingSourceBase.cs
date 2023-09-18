@@ -200,18 +200,23 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
                         return modelClrType;
                     }
 
-                    if (!modelClrType.IsAbstract)
-                    {
-                        var constructor = modelClrType.GetDeclaredConstructor(null);
-                        if (constructor?.IsPublic == true)
-                        {
-                            return modelClrType;
-                        }
-                    }
-
                     var listOfT = typeof(List<>).MakeGenericType(elementType);
 
-                    return modelClrType.IsAssignableFrom(listOfT) ? listOfT : modelClrType;
+                    if (modelClrType.IsAssignableFrom(listOfT))
+                    {
+                        if (!modelClrType.IsAbstract)
+                        {
+                            var constructor = modelClrType.GetDeclaredConstructor(null);
+                            if (constructor?.IsPublic == true)
+                            {
+                                return modelClrType;
+                            }
+                        }
+
+                        return listOfT;
+                    }
+
+                    return modelClrType;
                 }
             }
         }

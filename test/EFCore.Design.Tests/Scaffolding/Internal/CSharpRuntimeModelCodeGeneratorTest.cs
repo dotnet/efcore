@@ -28647,7 +28647,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -31247,7 +31247,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -31811,7 +31811,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -32309,7 +32309,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -34283,15 +34283,7 @@ namespace TestNamespace
             ScaffoldedFile file)
         {
             Assert.Equal(expectedPath, file.Path);
-            try
-            {
-                Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
         }
     }
 

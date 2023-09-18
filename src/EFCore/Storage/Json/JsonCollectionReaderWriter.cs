@@ -16,7 +16,6 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
     JsonValueReaderWriter<IEnumerable<TElement?>>,
     ICompositeJsonValueReaderWriter
     where TCollection : IEnumerable<TElement?>
-    where TConcreteCollection : IList<TElement?>
 {
     private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
 
@@ -39,7 +38,7 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
         }
         else if (existingObject == null)
         {
-            collection = Activator.CreateInstance<TConcreteCollection>();
+            collection = (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
         }
         else
         {

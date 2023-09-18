@@ -4,7 +4,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 /// <summary>
 ///     The Sqlite-specific JsonValueReaderWrite for byte[]. Generates the SQLite representation (e.g. X'0102') rather than base64, in order
