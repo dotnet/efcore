@@ -64,7 +64,8 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
     public virtual RuntimeComplexType ComplexType { get; }
 
     /// <inheritdoc />
-    public override object? Sentinel => null;
+    public override object? Sentinel
+        => null;
 
     /// <summary>
     ///     Returns a string that represents the current object.
@@ -98,6 +99,7 @@ public class RuntimeComplexProperty : RuntimePropertyBase, IComplexProperty
         [DebuggerStepThrough]
         get => DeclaringType;
     }
+
     /// <inheritdoc />
 
     IComplexType IComplexProperty.ComplexType

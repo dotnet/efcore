@@ -1,9 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using NetTopologySuite.Geometries;
-
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NonSharedPrimitiveCollectionsQuerySqliteTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
@@ -129,7 +126,7 @@ LIMIT 2
         await base.Array_of_DateTime_with_milliseconds();
 
         AssertSql(
-"""
+            """
 SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
 FROM "TestEntity" AS "t"
 WHERE (
@@ -155,6 +152,7 @@ WHERE (
 LIMIT 2
 """);
     }
+
     public override async Task Array_of_DateOnly()
     {
         await base.Array_of_DateOnly();
@@ -193,7 +191,7 @@ LIMIT 2
         await base.Array_of_TimeOnly_with_milliseconds();
 
         AssertSql(
-"""
+            """
 SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
 FROM "TestEntity" AS "t"
 WHERE (
@@ -209,7 +207,7 @@ LIMIT 2
         await base.Array_of_TimeOnly_with_microseconds();
 
         AssertSql(
-"""
+            """
 SELECT "t"."Id", "t"."Ints", "t"."SomeArray"
 FROM "TestEntity" AS "t"
 WHERE (

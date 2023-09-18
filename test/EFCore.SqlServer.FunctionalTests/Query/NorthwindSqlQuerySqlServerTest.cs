@@ -22,7 +22,7 @@ public class NorthwindSqlQuerySqlServerTest : NorthwindSqlQueryTestBase<Northwin
         await base.SqlQueryRaw_over_int(async);
 
         AssertSql(
-"""
+            """
 SELECT "ProductID" FROM "Products"
 """);
     }
@@ -32,7 +32,7 @@ SELECT "ProductID" FROM "Products"
         await base.SqlQuery_composed_Contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] IN (
@@ -49,7 +49,7 @@ WHERE [o].[OrderID] IN (
         await base.SqlQuery_composed_Join(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CAST([t].[Value] AS int) AS [p]
 FROM [Orders] AS [o]
 INNER JOIN (
@@ -63,7 +63,7 @@ INNER JOIN (
         await base.SqlQuery_over_int_with_parameter(async);
 
         AssertSql(
-"""
+            """
 p0='10'
 
 SELECT "ProductID" FROM "Products" WHERE "ProductID" = @p0

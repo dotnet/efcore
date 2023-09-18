@@ -36,7 +36,7 @@ public class TPTFiltersInheritanceBulkUpdatesSqlServerTest : TPTFiltersInheritan
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -54,7 +54,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -107,7 +107,7 @@ WHERE (
         await base.Update_base_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [a]
 SET [a].[Name] = N'Animal'
 FROM [Animals] AS [a]
@@ -120,7 +120,7 @@ WHERE [a].[CountryId] = 1 AND [a].[Name] = N'Great spotted kiwi'
         await base.Update_base_type_with_OfType(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [a]
 SET [a].[Name] = N'NewBird'
 FROM [Animals] AS [a]
@@ -141,7 +141,7 @@ WHERE [a].[CountryId] = 1 AND [k].[Id] IS NOT NULL
         await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [a]
 SET [a].[Name] = N'SomeOtherKiwi'
 FROM [Animals] AS [a]
@@ -156,7 +156,7 @@ WHERE [a].[CountryId] = 1
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [k]
 SET [k].[FoundOn] = CAST(0 AS tinyint)
 FROM [Animals] AS [a]
@@ -178,7 +178,7 @@ WHERE [a].[CountryId] = 1
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
@@ -197,7 +197,7 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]

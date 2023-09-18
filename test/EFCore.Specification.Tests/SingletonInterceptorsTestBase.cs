@@ -68,7 +68,6 @@ public abstract class SingletonInterceptorsTestBase<TContext>
         public string Value { get; set; }
     }
 
-
     public abstract class LibraryContext : PoolableDbContext
     {
         protected LibraryContext(DbContextOptions options)

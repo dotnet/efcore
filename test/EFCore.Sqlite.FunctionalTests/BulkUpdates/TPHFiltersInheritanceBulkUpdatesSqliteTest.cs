@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPHFiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpdatesTestBase<TPHFiltersInheritanceBulkUpdatesSqliteFixture>
+public class TPHFiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulkUpdatesTestBase<
+    TPHFiltersInheritanceBulkUpdatesSqliteFixture>
 {
     public TPHFiltersInheritanceBulkUpdatesSqliteTest(
         TPHFiltersInheritanceBulkUpdatesSqliteFixture fixture,
@@ -23,7 +24,7 @@ public class TPHFiltersInheritanceBulkUpdatesSqliteTest : FiltersInheritanceBulk
         await base.Delete_where_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """);
@@ -34,7 +35,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
         await base.Delete_where_hierarchy_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_1='3'
 @__p_0='0'
 
@@ -54,7 +55,7 @@ WHERE "a"."Id" IN (
         await base.Delete_where_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
 """);
@@ -65,7 +66,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1 AND "a"."Name" = 'Gre
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -79,7 +80,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -114,7 +115,7 @@ WHERE (
         await base.Delete_GroupBy_Where_Select_First_3(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
     SELECT (
@@ -135,7 +136,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Id" IN (
         await base.Update_base_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'Animal'
 WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
@@ -147,7 +148,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
         await base.Update_base_type_with_OfType(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'NewBird'
 WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
@@ -166,7 +167,7 @@ WHERE "a"."CountryId" = 1 AND "a"."Discriminator" = 'Kiwi'
         await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'SomeOtherKiwi'
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
@@ -178,7 +179,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
@@ -190,7 +191,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -205,7 +206,7 @@ WHERE (
         await base.Update_base_and_derived_types(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0,
     "Name" = 'Kiwi'
@@ -218,7 +219,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."CountryId" = 1
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (

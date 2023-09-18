@@ -10,7 +10,7 @@ public class MappingQuerySqlServerTest : MappingQueryTestBase<MappingQuerySqlSer
         base.All_customers();
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[CompanyName]
 FROM [dbo].[Customers] AS [c]
 """);
@@ -21,7 +21,7 @@ FROM [dbo].[Customers] AS [c]
         base.All_employees();
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City]
 FROM [dbo].[Employees] AS [e]
 """);
@@ -32,7 +32,7 @@ FROM [dbo].[Employees] AS [e]
         base.All_orders();
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]
 """);
@@ -43,7 +43,7 @@ FROM [dbo].[Orders] AS [o]
         base.Project_nullable_enum();
 
         AssertSql(
-"""
+            """
 SELECT [o].[ShipVia]
 FROM [dbo].[Orders] AS [o]
 """);

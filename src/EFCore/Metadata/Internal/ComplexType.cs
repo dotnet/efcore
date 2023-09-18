@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -135,7 +134,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    new public virtual ComplexType? BaseType
+    public new virtual ComplexType? BaseType
         => (ComplexType?)base.BaseType;
 
     /// <summary>
@@ -155,7 +154,8 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
             newBaseType?.UpdateConfigurationSource(configurationSource);
             return newBaseType;
         }
-        else if (BaseType == null)
+
+        if (BaseType == null)
         {
             throw new NotImplementedException();
         }

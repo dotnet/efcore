@@ -480,7 +480,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public abstract InstantiationBinding? ConstructorBinding { get; set; }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedProperties()
@@ -507,7 +507,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="RuntimeComplexProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="RuntimeComplexProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeComplexProperty> GetFlattenedComplexProperties()
@@ -531,7 +531,7 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<RuntimeProperty> GetFlattenedDeclaredProperties()
@@ -760,21 +760,21 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
         => GetSnapshottableMembers();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty"/>, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
         => GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all properties declared properties that implement <see cref="IProperty"/>, including those on complex types.
+    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()

@@ -521,10 +521,10 @@ public partial class RelationalModelValidatorTest
     private class ValidatorJsonOwnedRoot
     {
         public string Name { get; set; }
-        public int Number { get; set; }
+        public int Number { get; }
 
-        public ValidatorJsonOwnedBranch NestedReference { get; set; }
-        public List<ValidatorJsonOwnedBranch> NestedCollection { get; set; }
+        public ValidatorJsonOwnedBranch NestedReference { get; }
+        public List<ValidatorJsonOwnedBranch> NestedCollection { get; }
     }
 
     private class ValidatorJsonOwnedBranch
@@ -557,8 +557,8 @@ public partial class RelationalModelValidatorTest
     {
         public string Foo { get; set; }
 
-        public int? Fk { get; set; }
-        public ValidatorJsonEntityReferencedEntity Reference { get; set; }
+        public int? Fk { get; }
+        public ValidatorJsonEntityReferencedEntity Reference { get; }
     }
 
     private class ValidatorJsonEntityReferencedEntity

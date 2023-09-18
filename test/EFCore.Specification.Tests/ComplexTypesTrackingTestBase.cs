@@ -366,7 +366,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         AssertPropertiesModified(entry, false);
 
         var membersEntry = entry.ComplexProperty("LunchtimeActivity").ComplexProperty("Champions").Property("Members");
-        membersEntry.CurrentValue = new List<string> { "1", "2", "3" };
+        membersEntry.CurrentValue = new List<string>
+        {
+            "1",
+            "2",
+            "3"
+        };
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
@@ -398,7 +403,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         AssertPropertiesModified(entry, false);
 
         var membersEntry = entry.ComplexProperty("EveningActivity").ComplexProperty("Champions").Property("Members");
-        membersEntry.OriginalValue = new List<string> { "1", "2", "3" };
+        membersEntry.OriginalValue = new List<string>
+        {
+            "1",
+            "2",
+            "3"
+        };
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.CurrentValue);
@@ -539,7 +549,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
         var eveningActivity = pub.EveningActivity;
         var champions = eveningActivity.Champions;
-        champions.Members = new()
+        champions.Members = new List<string>
         {
             "1",
             "2",
@@ -595,7 +605,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         AssertPropertyValues(entry);
         AssertPropertiesModified(entry, false);
 
-        pub.EveningActivity = new()
+        pub.EveningActivity = new ActivityReadonlyStruct
         {
             Name = "Music Quiz",
             Day = DayOfWeek.Friday,
@@ -603,17 +613,17 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Notes = Array.Empty<string>(),
             CoverCharge = 5.0m,
             IsTeamBased = true,
-            Champions = new()
+            Champions = new TeamReadonlyStruct
             {
                 Name = "Dazed and Confused",
-                Members = new()
+                Members = new List<string>
                 {
                     "1",
                     "2",
                     "3"
                 }
             },
-            RunnersUp = new() { Name = "Banksy", Members = new() }
+            RunnersUp = new TeamReadonlyStruct { Name = "Banksy", Members = new List<string>() }
         };
 
         context.ChangeTracker.DetectChanges();
@@ -624,7 +634,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
         Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
 
-        pub.LunchtimeActivity = new()
+        pub.LunchtimeActivity = new ActivityReadonlyStruct
         {
             Name = "Pub Quiz",
             Day = DayOfWeek.Wednesday,
@@ -632,20 +642,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Notes = new[] { "One", "Two", "Three" },
             CoverCharge = 2.0m,
             IsTeamBased = true,
-            Champions = new()
+            Champions = new TeamReadonlyStruct
             {
                 Name = "Clueless",
-                Members = new()
+                Members = new List<string>
                 {
                     "Boris",
                     "David",
                     "Theresa"
                 }
             },
-            RunnersUp = new()
+            RunnersUp = new TeamReadonlyStruct
             {
                 Name = "ZZ",
-                Members = new()
+                Members = new List<string>
                 {
                     "Has Beard",
                     "Has Beard",
@@ -662,7 +672,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
         Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
 
-        pub.EveningActivity = new()
+        pub.EveningActivity = new ActivityReadonlyStruct
         {
             Name = "Music Quiz",
             Day = DayOfWeek.Friday,
@@ -670,17 +680,17 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Notes = Array.Empty<string>(),
             CoverCharge = 3.0m,
             IsTeamBased = true,
-            Champions = new()
+            Champions = new TeamReadonlyStruct
             {
                 Name = "Dazed and Confused",
-                Members = new()
+                Members = new List<string>
                 {
                     "1",
                     "2",
                     "3"
                 }
             },
-            RunnersUp = new() { Name = "Banksy", Members = new() }
+            RunnersUp = new TeamReadonlyStruct { Name = "Banksy", Members = new List<string>() }
         };
 
         context.ChangeTracker.DetectChanges();
@@ -710,7 +720,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Champions = pub.EveningActivity.Champions with
             {
-                Members = new()
+                Members = new List<string>
                 {
                     "1",
                     "2",
@@ -1062,36 +1072,42 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = nullActivity ? null! : new()
-            {
-                Name = "Pub Quiz",
-                Day = DayOfWeek.Monday,
-                Description = "A general knowledge pub quiz.",
-                Notes = new[] { "One", "Two", "Three" },
-                CoverCharge = 2.0m,
-                IsTeamBased = true,
-                Champions = nullChampions ? null! : new()
+            LunchtimeActivity = nullActivity
+                ? null!
+                : new Activity
                 {
-                    Name = "Clueless",
-                    Members =
-                    {
-                        "Boris",
-                        "David",
-                        "Theresa"
-                    }
+                    Name = "Pub Quiz",
+                    Day = DayOfWeek.Monday,
+                    Description = "A general knowledge pub quiz.",
+                    Notes = new[] { "One", "Two", "Three" },
+                    CoverCharge = 2.0m,
+                    IsTeamBased = true,
+                    Champions = nullChampions
+                        ? null!
+                        : new Team
+                        {
+                            Name = "Clueless",
+                            Members =
+                            {
+                                "Boris",
+                                "David",
+                                "Theresa"
+                            }
+                        },
+                    RunnersUp = nullRunnersUp
+                        ? null!
+                        : new Team
+                        {
+                            Name = "ZZ",
+                            Members =
+                            {
+                                "Has Beard",
+                                "Has Beard",
+                                "Is Called Beard"
+                            }
+                        },
                 },
-                RunnersUp = nullRunnersUp ? null! : new()
-                {
-                    Name = "ZZ",
-                    Members =
-                    {
-                        "Has Beard",
-                        "Has Beard",
-                        "Is Called Beard"
-                    }
-                },
-            },
-            EveningActivity = new()
+            EveningActivity = new Activity
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1099,7 +1115,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new Team
                 {
                     Name = "Dazed and Confused",
                     Members =
@@ -1110,20 +1126,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new()
-                {
-                    Name = "Banksy", Members = new()
-                },
+                RunnersUp = new Team { Name = "Banksy", Members = new List<string>() },
             },
-            FeaturedTeam = new()
-            {
-                Name = "Not In This Lifetime",
-                Members =
-                {
-                    "Slash",
-                    "Axl"
-                }
-            }
+            FeaturedTeam = new Team { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } }
         };
 
     protected class Pub
@@ -1158,7 +1163,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new ActivityStruct
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1166,20 +1171,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamStruct
                 {
                     Name = "Clueless",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Boris",
                         "David",
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new TeamStruct
                 {
                     Name = "ZZ",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Has Beard",
                         "Has Beard",
@@ -1187,7 +1192,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new ActivityStruct
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1195,10 +1200,10 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamStruct
                 {
                     Name = "Dazed and Confused",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Robert",
                         "Jimmy",
@@ -1206,9 +1211,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new() { Name = "Banksy", Members = new() }
+                RunnersUp = new TeamStruct { Name = "Banksy", Members = new List<string>() }
             },
-            FeaturedTeam = new() { Name = "Not In This Lifetime", Members = new() { "Slash", "Axl" } }
+            FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
     protected class PubWithStructs
@@ -1243,7 +1248,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new ActivityReadonlyStruct
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1251,20 +1256,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamReadonlyStruct
                 {
                     Name = "Clueless",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Boris",
                         "David",
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new TeamReadonlyStruct
                 {
                     Name = "ZZ",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Has Beard",
                         "Has Beard",
@@ -1272,7 +1277,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new ActivityReadonlyStruct
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1280,10 +1285,10 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamReadonlyStruct
                 {
                     Name = "Dazed and Confused",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Robert",
                         "Jimmy",
@@ -1291,9 +1296,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new() { Name = "Banksy", Members = new() }
+                RunnersUp = new TeamReadonlyStruct { Name = "Banksy", Members = new List<string>() }
             },
-            FeaturedTeam = new() { Name = "Not In This Lifetime", Members = new() { "Slash", "Axl" } }
+            FeaturedTeam = new TeamReadonlyStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
     protected class PubWithReadonlyStructs
@@ -1328,7 +1333,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new ActivityRecord
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1336,20 +1341,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamRecord
                 {
                     Name = "Clueless",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Boris",
                         "David",
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new TeamRecord
                 {
                     Name = "ZZ",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Has Beard",
                         "Has Beard",
@@ -1357,7 +1362,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new ActivityRecord
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1365,10 +1370,10 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new TeamRecord
                 {
                     Name = "Dazed and Confused",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Robert",
                         "Jimmy",
@@ -1376,9 +1381,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new() { Name = "Banksy", Members = new() }
+                RunnersUp = new TeamRecord { Name = "Banksy", Members = new List<string>() }
             },
-            FeaturedTeam = new() { Name = "Not In This Lifetime", Members = new() { "Slash", "Axl" } }
+            FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
     protected class PubWithRecords
@@ -1413,7 +1418,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new FieldActivity
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1421,7 +1426,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new Team
                 {
                     Name = "Clueless",
                     Members =
@@ -1431,7 +1436,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new Team
                 {
                     Name = "ZZ",
                     Members =
@@ -1442,7 +1447,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new FieldActivity
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1450,7 +1455,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new Team
                 {
                     Name = "Dazed and Confused",
                     Members =
@@ -1461,20 +1466,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new()
-                {
-                    Name = "Banksy", Members = new()
-                },
+                RunnersUp = new Team { Name = "Banksy", Members = new List<string>() },
             },
-            FeaturedTeam = new()
-            {
-                Name = "Not In This Lifetime",
-                Members =
-                {
-                    "Slash",
-                    "Axl"
-                }
-            }
+            FeaturedTeam = new FieldTeam { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } }
         };
 
     protected class FieldPub
@@ -1509,7 +1503,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new FieldActivityStruct
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1517,20 +1511,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new FieldTeamStruct
                 {
                     Name = "Clueless",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Boris",
                         "David",
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new FieldTeamStruct
                 {
                     Name = "ZZ",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Has Beard",
                         "Has Beard",
@@ -1538,7 +1532,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new FieldActivityStruct
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1546,10 +1540,10 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new FieldTeamStruct
                 {
                     Name = "Dazed and Confused",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Robert",
                         "Jimmy",
@@ -1557,9 +1551,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new() { Name = "Banksy", Members = new() }
+                RunnersUp = new FieldTeamStruct { Name = "Banksy", Members = new List<string>() }
             },
-            FeaturedTeam = new() { Name = "Not In This Lifetime", Members = new() { "Slash", "Axl" } }
+            FeaturedTeam = new FieldTeamStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
     protected class FieldPubWithStructs
@@ -1595,33 +1589,33 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             Id = Guid.NewGuid(),
             Name = "The FBI",
             LunchtimeActivity =
-                new(
+                new FieldActivityReadonlyStruct(
                     "Pub Quiz", 2.0m, true, "A general knowledge pub quiz.", new[] { "One", "Two", "Three" }, DayOfWeek.Monday,
-                    new(
-                        "Clueless", new()
+                    new FieldTeamReadonlyStruct(
+                        "Clueless", new List<string>
                         {
                             "Boris",
                             "David",
                             "Theresa"
-                        }), new(
-                        "ZZ", new()
+                        }), new FieldTeamReadonlyStruct(
+                        "ZZ", new List<string>
                         {
                             "Has Beard",
                             "Has Beard",
                             "Is Called Beard"
                         })),
             EveningActivity =
-                new(
+                new FieldActivityReadonlyStruct(
                     "Music Quiz", 5.0m, true, "A music pub quiz.", Array.Empty<string>(), DayOfWeek.Friday,
-                    new(
-                        "Dazed and Confused", new()
+                    new FieldTeamReadonlyStruct(
+                        "Dazed and Confused", new List<string>
                         {
                             "Robert",
                             "Jimmy",
                             "John",
                             "Jason"
-                        }), new("Banksy", new())),
-            FeaturedTeam = new("Not In This Lifetime", new() { "Slash", "Axl" })
+                        }), new FieldTeamReadonlyStruct("Banksy", new List<string>())),
+            FeaturedTeam = new FieldTeamReadonlyStruct("Not In This Lifetime", new List<string> { "Slash", "Axl" })
         };
 
     protected class FieldPubWithReadonlyStructs
@@ -1664,7 +1658,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         {
             Id = Guid.NewGuid(),
             Name = "The FBI",
-            LunchtimeActivity = new()
+            LunchtimeActivity = new FieldActivityRecord
             {
                 Name = "Pub Quiz",
                 Day = DayOfWeek.Monday,
@@ -1672,20 +1666,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = new[] { "One", "Two", "Three" },
                 CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new FieldTeamRecord
                 {
                     Name = "Clueless",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Boris",
                         "David",
                         "Theresa"
                     }
                 },
-                RunnersUp = new()
+                RunnersUp = new FieldTeamRecord
                 {
                     Name = "ZZ",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Has Beard",
                         "Has Beard",
@@ -1693,7 +1687,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     }
                 },
             },
-            EveningActivity = new()
+            EveningActivity = new FieldActivityRecord
             {
                 Name = "Music Quiz",
                 Day = DayOfWeek.Friday,
@@ -1701,10 +1695,10 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Notes = Array.Empty<string>(),
                 CoverCharge = 5.0m,
                 IsTeamBased = true,
-                Champions = new()
+                Champions = new FieldTeamRecord
                 {
                     Name = "Dazed and Confused",
-                    Members = new()
+                    Members = new List<string>
                     {
                         "Robert",
                         "Jimmy",
@@ -1712,9 +1706,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                         "Jason"
                     }
                 },
-                RunnersUp = new() { Name = "Banksy", Members = new() }
+                RunnersUp = new FieldTeamRecord { Name = "Banksy", Members = new List<string>() }
             },
-            FeaturedTeam = new() { Name = "Not In This Lifetime", Members = new() { "Slash", "Axl" } }
+            FeaturedTeam = new FieldTeamRecord { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
     protected class FieldPubWithRecords
@@ -1756,7 +1750,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public string Species { get; set; }
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public License License { get; set; }
     }
@@ -1766,7 +1760,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public string Species { get; set; } = null!;
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; } = null!;
         public License License { get; set; }
     }
@@ -1801,23 +1795,23 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         => new()
         {
             Id = Guid.NewGuid(),
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = nullTag ? null! : new() { Text = "Ta1" },
+                    Tag = nullTag ? null! : new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
                 Manufacturer = nullManufacturer
                     ? null!
-                    : new()
+                    : new Manufacturer
                     {
                         Name = "M1",
                         Rating = 7,
-                        Tag = nullTag ? null! : new() { Text = "Ta2" },
-                        Tog = new() { Text = "To2" }
+                        Tag = nullTag ? null! : new Tag { Text = "Ta2" },
+                        Tog = new Tog { Text = "To2" }
                     },
                 Rating = 8,
                 Species = "S1",
@@ -1825,23 +1819,23 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             },
             Milk = nullMilk
                 ? null!
-                : new()
+                : new Milk
                 {
-                    License = new()
+                    License = new License
                     {
                         Charge = 1.0m,
-                        Tag = nullTag ? null! : new() { Text = "Ta1" },
+                        Tag = nullTag ? null! : new Tag { Text = "Ta1" },
                         Title = "Ti1",
-                        Tog = new() { Text = "To1" }
+                        Tog = new Tog { Text = "To1" }
                     },
                     Manufacturer = nullManufacturer
                         ? null!
-                        : new()
+                        : new Manufacturer
                         {
                             Name = "M1",
                             Rating = 7,
-                            Tag = nullTag ? null! : new() { Text = "Ta2" },
-                            Tog = new() { Text = "To2" }
+                            Tag = nullTag ? null! : new Tag { Text = "Ta2" },
+                            Tog = new Tog { Text = "To2" }
                         },
                     Rating = 8,
                     Species = "S1",
@@ -1849,4 +1843,3 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 }
         };
 }
-

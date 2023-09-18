@@ -24,7 +24,7 @@ public class BackingFieldAttributeConvention :
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         BackingFieldAttribute attribute,
@@ -32,7 +32,7 @@ public class BackingFieldAttributeConvention :
         IConventionContext context)
         => propertyBuilder.HasField(attribute.Name, fromDataAnnotation: true);
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         BackingFieldAttribute attribute,

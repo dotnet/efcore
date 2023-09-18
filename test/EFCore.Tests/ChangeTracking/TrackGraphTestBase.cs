@@ -1325,9 +1325,9 @@ public abstract class TrackGraphTestBase
 
     private class ProductDetailsTagDetails
     {
-        public int Id { get; set; }
+        public int Id { get; }
 
-        public ProductDetailsTag Tag { get; set; }
+        public ProductDetailsTag Tag { get; }
     }
 
     private class Order
@@ -1336,7 +1336,7 @@ public abstract class TrackGraphTestBase
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; set; }
+        public List<OrderDetails> OrderDetails { get; }
     }
 
     private class OrderDetails
@@ -1377,7 +1377,7 @@ public abstract class TrackGraphTestBase
         public Sweet Sweet { get; set; }
         public AreMade Are { get; set; }
         public AreMade Made { get; set; }
-        public OfThis OfThis { get; set; }
+        public OfThis OfThis { get; }
     }
 
     private class AreMade

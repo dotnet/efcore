@@ -278,6 +278,7 @@ public class SequenceEndToEndTest : IDisposable
             _databaseName = databaseName;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -383,6 +384,7 @@ public class SequenceEndToEndTest : IDisposable
             _useSequence = useSequence;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Unicon> Unicons { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -137,12 +137,14 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Complex_type_equals_constant(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ShippingAddress == new Address
-            {
-                AddressLine1 = "804 S. Lakeshore Road",
-                ZipCode = 38654,
-                Country = new Country { FullName = "United States", Code = "US" }
-            }));
+            ss => ss.Set<Customer>().Where(
+                c => c.ShippingAddress
+                    == new Address
+                    {
+                        AddressLine1 = "804 S. Lakeshore Road",
+                        ZipCode = 38654,
+                        Country = new Country { FullName = "United States", Code = "US" }
+                    }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

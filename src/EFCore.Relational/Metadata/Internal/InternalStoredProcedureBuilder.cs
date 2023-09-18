@@ -428,7 +428,10 @@ public class InternalStoredProcedureBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionStoredProcedureBuilder?)base.HasNonNullAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

@@ -4300,7 +4300,6 @@ public class OwnedFixupTest
         Assert.Same(dependent2, subDependent2.Parent);
     }
 
-
     [ConditionalTheory]
     [InlineData(EntityState.Added, true, true, true)]
     [InlineData(EntityState.Modified, true, true, true)]

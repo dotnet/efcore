@@ -995,5 +995,3 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         }
     }
 }
-
-#nullable restore

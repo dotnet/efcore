@@ -205,6 +205,7 @@ public class NamedDatabaseTest
             _serviceProvider = serviceProvider;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pusheen> Pusheens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

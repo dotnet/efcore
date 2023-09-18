@@ -26,7 +26,7 @@ public class NorthwindQueryFiltersQuerySqlServerTest : NorthwindQueryFiltersQuer
         await base.Count_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT COUNT(*)
@@ -40,7 +40,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Materialized_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -54,7 +54,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Find(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 @__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
@@ -69,7 +69,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\' 
         await base.Materialized_query_parameter(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='F%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -83,7 +83,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Materialized_query_parameter_new_context(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -91,7 +91,7 @@ FROM [Customers] AS [c]
 WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
 """,
             //
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='T%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -105,7 +105,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Projection_query_parameter(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='F%' (Size = 40)
 
 SELECT [c].[CustomerID]
@@ -119,7 +119,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Projection_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [c].[CustomerID]
@@ -133,7 +133,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         await base.Include_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0]
@@ -158,7 +158,7 @@ ORDER BY [c].[CustomerID], [t0].[OrderID]
         await base.Include_query_opt_out(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -171,7 +171,7 @@ ORDER BY [c].[CustomerID]
         await base.Included_many_to_one_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -190,7 +190,7 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         await base.Project_reference_that_itself_has_query_filter_with_another_reference(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_1_rewritten='B%' (Size = 40)
 @__ef_filter___quantity_0='50'
 
@@ -215,7 +215,7 @@ WHERE [o].[Quantity] > @__ef_filter___quantity_0
         await base.Navs_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 @__ef_filter___quantity_1='50'
 
@@ -261,7 +261,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\' 
         }
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
@@ -283,7 +283,7 @@ WHERE [m].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\'
         }
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [m].[OrderID], [m].[CustomerID], [m].[EmployeeID], [m].[OrderDate]
@@ -304,7 +304,7 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         base.Compiled_query();
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 @__customerID='BERGS' (Size = 5) (DbType = StringFixedLength)
 
@@ -313,7 +313,7 @@ FROM [Customers] AS [c]
 WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\' AND [c].[CustomerID] = @__customerID
 """,
             //
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 @__customerID='BLAUS' (Size = 5) (DbType = StringFixedLength)
 
@@ -328,7 +328,7 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_rewritten ESCAPE N'\' 
         await base.Entity_Equality(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -354,7 +354,7 @@ WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
         await base.Included_many_to_one_query2(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 40)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]

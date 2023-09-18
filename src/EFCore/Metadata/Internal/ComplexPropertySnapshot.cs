@@ -52,8 +52,12 @@ public class ComplexPropertySnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ComplexProperty ComplexProperty => ComplexPropertyBuilder.Metadata;
-    private ComplexType ComplexType => ComplexTypeBuilder.Metadata;
+    public virtual ComplexProperty ComplexProperty
+        => ComplexPropertyBuilder.Metadata;
+
+    private ComplexType ComplexType
+        => ComplexTypeBuilder.Metadata;
+
     private PropertiesSnapshot Properties { [DebuggerStepThrough] get; }
 
     /// <summary>
@@ -180,5 +184,5 @@ public class ComplexPropertySnapshot
             parameterBinding.ConsumedProperties.Select(
                 property =>
                     (IPropertyBase?)complexType.FindProperty(property.Name)
-                        ?? complexType.FindComplexProperty(property.Name)!).ToArray());
+                    ?? complexType.FindComplexProperty(property.Name)!).ToArray());
 }

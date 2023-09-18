@@ -29,7 +29,7 @@ public readonly struct PathSegment
     /// <summary>
     ///     Creates a new <see cref="PathSegment" /> struct representing JSON array element access.
     /// </summary>
-    /// <param name="arrayIndex"><see langword="abstract"/>An index of an element which is being accessed in the JSON array.</param>
+    /// <param name="arrayIndex"><see langword="abstract" />An index of an element which is being accessed in the JSON array.</param>
     public PathSegment(SqlExpression arrayIndex)
     {
         ArrayIndex = arrayIndex;
@@ -48,13 +48,14 @@ public readonly struct PathSegment
 
     /// <inheritdoc />
     public override string ToString()
-        => PropertyName ?? ArrayIndex switch
-        {
-            null => "",
-            SqlConstantExpression { Value: not null } sqlConstant => $"[{sqlConstant.Value}]",
-            SqlParameterExpression sqlParameter => $"[{sqlParameter.Name}]",
-            _ => "[(...)]"
-        };
+        => PropertyName
+            ?? ArrayIndex switch
+            {
+                null => "",
+                SqlConstantExpression { Value: not null } sqlConstant => $"[{sqlConstant.Value}]",
+                SqlParameterExpression sqlParameter => $"[{sqlParameter.Name}]",
+                _ => "[(...)]"
+            };
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

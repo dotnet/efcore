@@ -43,8 +43,8 @@ public class StoreStoredProcedureReturnValue : ColumnBase<ColumnMappingBase>, IS
     /// </summary>
     protected override RelationalTypeMapping GetDefaultStoreTypeMapping()
         => PropertyMappings.Count != 0
-                ? PropertyMappings[0].TypeMapping
-                : (RelationalTypeMapping)Table.Model.Model.GetModelDependencies().TypeMappingSource.FindMapping(typeof(int))!;
+            ? PropertyMappings[0].TypeMapping
+            : (RelationalTypeMapping)Table.Model.Model.GetModelDependencies().TypeMappingSource.FindMapping(typeof(int))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

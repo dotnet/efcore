@@ -2173,7 +2173,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         using (var context = CreateContext())
         {
             var query = context.Orders
-                .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id).Select(x => x.CustomerId).Contains(25))
+                .Where(
+                    c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id)
+                        .Select(x => x.CustomerId).Contains(25))
                 .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
                 .GroupBy(x => new { x.LastName })
                 .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })

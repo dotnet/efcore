@@ -77,7 +77,7 @@ public interface IDatabaseFacadeDependencies
     IAdHocMapper AdHocMapper { get; }
 
     /// <summary>
-    ///    The <see cref="TypeMappingSource"/>.
+    ///     The <see cref="TypeMappingSource" />.
     /// </summary>
     ITypeMappingSource TypeMappingSource { get; }
 }

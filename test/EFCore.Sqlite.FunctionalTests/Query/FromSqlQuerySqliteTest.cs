@@ -18,7 +18,7 @@ public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteF
         await base.FromSqlRaw_queryable_composed(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
     SELECT * FROM "Customers"
@@ -65,7 +65,7 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
         await base.FromSqlRaw_composed_with_common_table_expression(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
     WITH "Customers2" AS (

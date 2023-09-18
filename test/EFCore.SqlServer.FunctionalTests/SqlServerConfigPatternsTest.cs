@@ -480,7 +480,6 @@ public class SqlServerConfigPatternsTest
             private readonly bool _isAzure;
 
             public NorthwindContext(bool azure)
-                : base()
             {
                 _isAzure = azure;
             }
@@ -528,7 +527,6 @@ public class SqlServerConfigPatternsTest
             private readonly bool _isAzure;
 
             public NorthwindContext(bool azure)
-                : base()
             {
                 _isAzure = azure;
             }
@@ -544,7 +542,7 @@ public class SqlServerConfigPatternsTest
                         {
                             if (_isAzure)
                             {
-                                a.UseAzureSql(true);
+                                a.UseAzureSql();
                             }
                         });
 

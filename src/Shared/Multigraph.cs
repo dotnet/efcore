@@ -333,7 +333,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                 && _predecessorMap[vertex].Any(
                     kv =>
                         (kv.Value is Edge { RequiresBatchingBoundary: true }
-                         || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
+                            || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
                         && currentBatchSet.Contains(kv.Key)))
             {
                 batchBoundaryRequired = true;

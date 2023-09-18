@@ -793,7 +793,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo FlaggedAsTemporaryMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.FlaggedAsTemporary))!;
+        = typeof(InternalEntityEntry).GetMethod(nameof(FlaggedAsTemporary))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -802,7 +802,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly MethodInfo FlaggedAsStoreGeneratedMethod
-        = typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.FlaggedAsStoreGenerated))!;
+        = typeof(InternalEntityEntry).GetMethod(nameof(FlaggedAsStoreGenerated))!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1574,6 +1574,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
                 CheckForNullCollection(property);
             }
+
             CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Modified)
@@ -1592,6 +1593,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 CheckForNullCollection(property);
                 CheckForUnknownKey(property);
             }
+
             CheckForNullComplexProperties();
         }
         else if (EntityState == EntityState.Deleted)

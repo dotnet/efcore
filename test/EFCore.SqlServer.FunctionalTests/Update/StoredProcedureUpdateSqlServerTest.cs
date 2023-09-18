@@ -9,7 +9,7 @@ public class StoredProcedureUpdateSqlServerTest : StoredProcedureUpdateTestBase
     {
         await base.Insert_with_output_parameter(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
 AS BEGIN
     INSERT INTO [Entity] ([Name]) VALUES (@Name);
@@ -18,7 +18,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='New' (Size = 4000)
 @p1='1' (Direction = Output)
 
@@ -31,7 +31,7 @@ EXEC [Entity_Insert] @p0, @p1 OUTPUT;
     {
         await base.Insert_twice_with_output_parameter(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
 AS BEGIN
     INSERT INTO [Entity] ([Name]) VALUES (@Name);
@@ -40,7 +40,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='New1' (Size = 4000)
 @p1='1' (Direction = Output)
 @p2='New2' (Size = 4000)
@@ -56,13 +56,13 @@ EXEC [Entity_Insert] @p2, @p3 OUTPUT;
     {
         await base.Insert_with_result_column(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max))
 AS INSERT INTO [Entity] ([Name]) OUTPUT [Inserted].[Id] VALUES (@Name)
 """);
 
         AssertSql(
-"""
+            """
 @p0='Foo' (Size = 4000)
 
 SET NOCOUNT ON;
@@ -74,13 +74,13 @@ EXEC [Entity_Insert] @p0;
     {
         await base.Insert_with_two_result_columns(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Name varchar(max))
 AS INSERT INTO [EntityWithAdditionalProperty] ([Name]) OUTPUT [Inserted].[AdditionalProperty], [Inserted].[Id] VALUES (@Name)
 """);
 
         AssertSql(
-"""
+            """
 @p0='Foo' (Size = 4000)
 
 SET NOCOUNT ON;
@@ -92,7 +92,7 @@ EXEC [EntityWithAdditionalProperty_Insert] @p0;
     {
         await base.Insert_with_output_parameter_and_result_column(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Id int OUT, @Name varchar(max))
 AS BEGIN
     INSERT INTO [EntityWithAdditionalProperty] ([Name]) VALUES (@Name);
@@ -102,7 +102,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
 @p1='Foo' (Size = 4000)
 
@@ -115,13 +115,13 @@ EXEC [EntityWithAdditionalProperty_Insert] @p0 OUTPUT, @p1;
     {
         await base.Update(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
 AS UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @id
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 
@@ -134,13 +134,13 @@ EXEC [Entity_Update] @p0, @p1;
     {
         await base.Update_partial(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
 AS UPDATE [EntityWithAdditionalProperty] SET [Name] = @Name, [AdditionalProperty] = @AdditionalProperty WHERE [Id] = @id
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2='8'
@@ -154,7 +154,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2;
     {
         await base.Update_with_output_parameter_and_rows_affected_result_column(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
 AS BEGIN
     UPDATE [EntityWithAdditionalProperty] SET [Name] = @Name, @AdditionalProperty = [AdditionalProperty] WHERE [Id] = @Id;
@@ -163,7 +163,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
@@ -177,7 +177,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2 OUTPUT;
     {
         await base.Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
 AS BEGIN
     UPDATE [EntityWithAdditionalProperty] SET [Name] = @Name, @AdditionalProperty = [AdditionalProperty] WHERE [Id] = @Id;
@@ -186,7 +186,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
@@ -200,13 +200,13 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2 OUTPUT;
     {
         await base.Delete(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Delete(@Id int)
 AS DELETE FROM [Entity] WHERE [Id] = @Id
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 
 SET NOCOUNT ON;
@@ -218,7 +218,7 @@ EXEC [Entity_Delete] @p0;
     {
         await base.Delete_and_insert(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
 AS BEGIN
     INSERT INTO [Entity] ([Name]) VALUES (@Name);
@@ -232,7 +232,7 @@ AS DELETE FROM [Entity] WHERE [Id] = @Id;
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Entity2' (Size = 4000)
 @p2='2' (Direction = Output)
@@ -247,7 +247,7 @@ EXEC [Entity_Insert] @p1, @p2 OUTPUT;
     {
         await base.Rows_affected_parameter(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -256,7 +256,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2='1' (Direction = Output)
@@ -270,7 +270,7 @@ EXEC [Entity_Update] @p0, @p1, @p2 OUTPUT;
     {
         await base.Rows_affected_parameter_and_concurrency_failure(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -279,7 +279,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2='0' (Direction = Output)
@@ -293,7 +293,7 @@ EXEC [Entity_Update] @p0, @p1, @p2 OUTPUT;
     {
         await base.Rows_affected_result_column(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -302,7 +302,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 
@@ -315,7 +315,7 @@ EXEC [Entity_Update] @p0, @p1;
     {
         await base.Rows_affected_result_column_and_concurrency_failure(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -324,7 +324,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 
@@ -337,7 +337,7 @@ EXEC [Entity_Update] @p0, @p1;
     {
         await base.Rows_affected_return_value(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -346,7 +346,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1='1'
 @p2='Updated' (Size = 4000)
@@ -360,7 +360,7 @@ EXEC @p0 = [Entity_Update] @p1, @p2;
     {
         await base.Rows_affected_return_value_and_concurrency_failure(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @Name varchar(max))
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id;
@@ -369,7 +369,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='0' (Direction = Output)
 @p1='1'
 @p2='Updated' (Size = 4000)
@@ -383,7 +383,7 @@ EXEC @p0 = [Entity_Update] @p1, @p2;
     {
         await base.Store_generated_concurrency_token_as_in_out_parameter(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
@@ -408,7 +408,7 @@ EXEC [Entity_Update] @p0, @p1 OUTPUT, @p2, @p3 OUTPUT;",
     {
         await base.Store_generated_concurrency_token_as_two_parameters(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @ConcurrencyTokenIn rowversion, @Name varchar(max), @ConcurrencyTokenOut rowversion OUT, @RowsAffected int OUT)
 AS BEGIN
     UPDATE [Entity] SET [Name] = @Name, @ConcurrencyTokenOut = [ConcurrencyToken] WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyTokenIn;
@@ -432,7 +432,7 @@ EXEC [Entity_Update] @p0, @p1, @p2, @p3 OUTPUT, @p4 OUTPUT;",
     {
         await base.User_managed_concurrency_token(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Update(@Id int, @ConcurrencyTokenOriginal int, @Name varchar(max), @ConcurrencyTokenCurrent int, @RowsAffected int OUT)
 AS BEGIN
     UPDATE [EntityWithAdditionalProperty] SET [Name] = @Name, [AdditionalProperty] = @ConcurrencyTokenCurrent WHERE [Id] = @Id AND [AdditionalProperty] = @ConcurrencyTokenOriginal;
@@ -441,7 +441,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='8'
 @p2='Updated' (Size = 4000)
@@ -457,7 +457,7 @@ EXEC [EntityWithAdditionalProperty_Update] @p0, @p1, @p2, @p3, @p4 OUTPUT;
     {
         await base.Original_and_current_value_on_non_concurrency_token(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Update(@Id int, @NameCurrent varchar(max), @NameOriginal varchar(max))
 AS BEGIN
     IF @NameCurrent <> @NameOriginal
@@ -468,7 +468,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1'
 @p1='Updated' (Size = 4000)
 @p2='Initial' (Size = 4000)
@@ -482,7 +482,7 @@ EXEC [Entity_Update] @p0, @p1, @p2;
     {
         await base.Input_or_output_parameter_with_input(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Id int OUT, @Name varchar(max) OUT)
 AS BEGIN
     IF @Name IS NULL
@@ -501,7 +501,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1=NULL (Nullable = false) (Size = 4000) (Direction = InputOutput)
 
@@ -514,7 +514,7 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
     {
         await base.Input_or_output_parameter_with_output(
             async,
-"""
+            """
 CREATE PROCEDURE Entity_Insert(@Id int OUT, @Name varchar(max) OUT)
 AS BEGIN
     IF @Name IS NULL
@@ -533,7 +533,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1='Some default value' (Nullable = false) (Size = 4000) (Direction = InputOutput)
 
@@ -546,7 +546,7 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
     {
         await base.Tph(
             async,
-"""
+            """
 CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
 AS BEGIN
     DECLARE @Table table ([Child2OutputParameterProperty] int);
@@ -558,7 +558,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
 @p1='Child1' (Nullable = false) (Size = 8)
 @p2='Child' (Size = 4000)
@@ -575,7 +575,7 @@ EXEC [Tph_Insert] @p0 OUTPUT, @p1, @p2, @p3, @p4 OUTPUT, @p5;
     {
         await base.Tpt(
             async,
-"""
+            """
 CREATE PROCEDURE Parent_Insert(@Id int OUT, @Name varchar(max))
 AS BEGIN
     INSERT INTO [Parent] ([Name]) VALUES (@Name);
@@ -592,7 +592,7 @@ END;
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1='Child' (Size = 4000)
 
@@ -600,7 +600,7 @@ SET NOCOUNT ON;
 EXEC [Parent_Insert] @p0 OUTPUT, @p1;
 """,
             //
-"""
+            """
 @p2='1'
 @p3='8'
 
@@ -613,7 +613,7 @@ EXEC [Child1_Insert] @p2, @p3;
     {
         await base.Tpt_mixed_sproc_and_non_sproc(
             async,
-"""
+            """
 CREATE PROCEDURE Parent_Insert(@Id int OUT, @Name varchar(max))
 AS BEGIN
     INSERT INTO [Parent] ([Name]) VALUES (@Name);
@@ -622,7 +622,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1='Child' (Size = 4000)
 
@@ -630,7 +630,7 @@ SET NOCOUNT ON;
 EXEC [Parent_Insert] @p0 OUTPUT, @p1;
 """,
             //
-"""
+            """
 @p2='1'
 @p3='8'
 
@@ -645,7 +645,7 @@ VALUES (@p2, @p3);
     {
         await base.Tpc(
             async,
-"""
+            """
 CREATE PROCEDURE Child1_Insert(@Id int OUT, @Name varchar(max), @Child1Property int)
 AS BEGIN
     DECLARE @Table table ([Id] int);
@@ -655,7 +655,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p0='1' (Direction = Output)
 @p1='Child' (Size = 4000)
 @p2='8'
@@ -669,7 +669,7 @@ EXEC [Child1_Insert] @p0 OUTPUT, @p1, @p2;
     {
         await base.Non_sproc_followed_by_sproc_commands_in_the_same_batch(
             async,
-"""
+            """
 CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Name varchar(max), @Id int OUT, @AdditionalProperty int)
 AS BEGIN
     INSERT INTO [EntityWithAdditionalProperty] ([Name], [AdditionalProperty]) VALUES (@Name, @AdditionalProperty);
@@ -678,7 +678,7 @@ END
 """);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='2'
 @p3='1'

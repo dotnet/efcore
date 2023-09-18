@@ -36,12 +36,13 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
                 Type RuntimeExtensions)> MetadataExtensionTypes
-        { get; }
+        {
+            get;
+        }
             = new()
             {
                 {
-                    typeof(IReadOnlyModel),
-                    (
+                    typeof(IReadOnlyModel), (
                         typeof(CosmosModelExtensions),
                         typeof(CosmosModelExtensions),
                         typeof(CosmosModelExtensions),
@@ -50,8 +51,7 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
                     )
                 },
                 {
-                    typeof(IReadOnlyEntityType),
-                    (
+                    typeof(IReadOnlyEntityType), (
                         typeof(CosmosEntityTypeExtensions),
                         typeof(CosmosEntityTypeExtensions),
                         typeof(CosmosEntityTypeExtensions),
@@ -60,8 +60,7 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
                     )
                 },
                 {
-                    typeof(IReadOnlyProperty),
-                    (
+                    typeof(IReadOnlyProperty), (
                         typeof(CosmosPropertyExtensions),
                         typeof(CosmosPropertyExtensions),
                         typeof(CosmosPropertyExtensions),

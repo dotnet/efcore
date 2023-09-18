@@ -416,7 +416,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     }
 
     private static string? ConstructLikePatternParameter(
-        QueryContext queryContext, string baseParameterName, bool startsWith)
+        QueryContext queryContext,
+        string baseParameterName,
+        bool startsWith)
         => queryContext.ParameterValues[baseParameterName] switch
         {
             null => null,

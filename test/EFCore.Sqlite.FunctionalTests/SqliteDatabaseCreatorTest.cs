@@ -157,7 +157,8 @@ public class SqliteDatabaseCreatorTest
 
         using (var context = new ShowerContext(connection))
         {
-            _ = async ? await context.Database.EnsureCreatedAsync()
+            _ = async
+                ? await context.Database.EnsureCreatedAsync()
                 : context.Database.EnsureCreated();
 
             context.Add(new Soap());
@@ -168,13 +169,15 @@ public class SqliteDatabaseCreatorTest
         {
             Assert.NotNull(context.Soap.FirstOrDefault());
 
-            _ = async ? await context.Database.EnsureDeletedAsync()
+            _ = async
+                ? await context.Database.EnsureDeletedAsync()
                 : context.Database.EnsureDeleted();
         }
 
         using (var context = new ShowerContext(connection))
         {
-            _ = async ? await context.Database.EnsureCreatedAsync()
+            _ = async
+                ? await context.Database.EnsureCreatedAsync()
                 : context.Database.EnsureCreated();
 
             Assert.Null(context.Soap.FirstOrDefault());

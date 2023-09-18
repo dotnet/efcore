@@ -86,7 +86,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         _discriminatorValue = discriminatorValue;
     }
 
-    private new RuntimeEntityType? BaseType => (RuntimeEntityType?)base.BaseType;
+    private new RuntimeEntityType? BaseType
+        => (RuntimeEntityType?)base.BaseType;
 
     /// <summary>
     ///     Re-parents this entity type to the given model.
@@ -378,7 +379,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     }
 
     /// <summary>
-    ///    Gets the navigations with the given name on this type, base types or derived types.
+    ///     Gets the navigations with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type navigations.</returns>
     public virtual IEnumerable<RuntimeNavigation> FindNavigationsInHierarchy(string name)
@@ -477,7 +478,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     }
 
     /// <summary>
-    ///    Gets the skip navigations with the given name on this type, base types or derived types.
+    ///     Gets the skip navigations with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type skip navigations.</returns>
     public virtual IEnumerable<RuntimeSkipNavigation> FindSkipNavigationsInHierarchy(string name)
@@ -645,7 +646,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     }
 
     /// <summary>
-    ///    Gets the service properties with the given name on this type, base types or derived types.
+    ///     Gets the service properties with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type service properties.</returns>
     public virtual IEnumerable<RuntimeServiceProperty> FindServicePropertiesInHierarchy(string propertyName)
@@ -1347,8 +1348,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _originalValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new OriginalValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new OriginalValuesFactoryFactory().Create(complexType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1361,8 +1362,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _storeGeneratedValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new StoreGeneratedValuesFactoryFactory().CreateEmpty(complexType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1375,8 +1376,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _temporaryValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new TemporaryValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new TemporaryValuesFactoryFactory().Create(complexType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1389,8 +1390,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _shadowValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new ShadowValuesFactoryFactory().Create(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new ShadowValuesFactoryFactory().Create(complexType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1403,6 +1404,6 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _emptyShadowValuesFactory, this,
             static complexType => RuntimeFeature.IsDynamicCodeSupported
-                        ? new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                ? new EmptyShadowValuesFactoryFactory().CreateEmpty(complexType)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 }

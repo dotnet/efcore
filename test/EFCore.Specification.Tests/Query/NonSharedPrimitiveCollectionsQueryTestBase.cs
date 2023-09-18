@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-using static System.Linq.Expressions.Expression;
+using static Expression;
 
 public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedModelTestBase
 {
@@ -268,7 +268,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
                 Call(
                     EnumerableMethods.CountWithPredicate.MakeGenericMethod(typeof(TElement)),
                     efPropertyCall,
-                    Lambda(Equal(elementParam, Constant(value1)),
+                    Lambda(
+                        Equal(elementParam, Constant(value1)),
                         elementParam)),
                 Constant(2)),
             entityParam);

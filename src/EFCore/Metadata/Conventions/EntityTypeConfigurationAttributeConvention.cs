@@ -24,7 +24,7 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         EntityTypeConfigurationAttribute attribute,
@@ -46,7 +46,7 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
             .Invoke(null, new object[] { entityTypeBuilder.Metadata, entityTypeConfigurationType });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessComplexTypeAdded(
         IConventionComplexTypeBuilder complexTypeBuilder,
         EntityTypeConfigurationAttribute attribute,

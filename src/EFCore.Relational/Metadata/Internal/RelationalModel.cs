@@ -675,7 +675,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     continue;
                 }
 
-                var column = (ViewColumn?)view.FindColumn(columnName);
+                var column = view.FindColumn(columnName);
                 if (column == null)
                 {
                     column = new ViewColumn(columnName, property.GetColumnType(mappedView), view)
@@ -1295,7 +1295,6 @@ public class RelationalModel : Annotatable, IRelationalModel
                         position,
                         storeStoredProcedure,
                         typeMapping);
-
                 }
                 else
                 {
@@ -1592,7 +1591,6 @@ public class RelationalModel : Annotatable, IRelationalModel
                     var constraint = table.ForeignKeyConstraints.FirstOrDefault(fk => fk.Name == name);
                     if (constraint != null)
                     {
-
                         GetOrCreateForeignKeyConstraints(foreignKey).Add(constraint);
 
                         constraint.MappedForeignKeys.Add(foreignKey);
@@ -1679,14 +1677,16 @@ public class RelationalModel : Annotatable, IRelationalModel
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static void CreateColumnMapping(
-        ColumnBase<ColumnMappingBase> column, IProperty property, TableMappingBase<ColumnMappingBase> tableMapping)
+        ColumnBase<ColumnMappingBase> column,
+        IProperty property,
+        TableMappingBase<ColumnMappingBase> tableMapping)
     {
         var columnMapping = new ColumnMappingBase(property, column, tableMapping);
         tableMapping.AddColumnMapping(columnMapping);
         column.AddPropertyMapping(columnMapping);
 
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
-                is not SortedSet<ColumnMappingBase> columnMappings)
+            is not SortedSet<ColumnMappingBase> columnMappings)
         {
             columnMappings = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
             property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
@@ -1708,7 +1708,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         column.AddPropertyMapping(columnMapping);
 
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableColumnMappings)
-                is not SortedSet<ColumnMapping> columnMappings)
+            is not SortedSet<ColumnMapping> columnMappings)
         {
             columnMappings = new SortedSet<ColumnMapping>(ColumnMappingBaseComparer.Instance);
             property.AddRuntimeAnnotation(RelationalAnnotationNames.TableColumnMappings, columnMappings);
@@ -1730,7 +1730,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         column.AddPropertyMapping(columnMapping);
 
         if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.ViewColumnMappings)
-                is not SortedSet<ViewColumnMapping> columnMappings)
+            is not SortedSet<ViewColumnMapping> columnMappings)
         {
             columnMappings = new SortedSet<ViewColumnMapping>(ColumnMappingBaseComparer.Instance);
             property.AddRuntimeAnnotation(RelationalAnnotationNames.ViewColumnMappings, columnMappings);
@@ -1807,7 +1807,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 => RelationalAnnotationNames.DeleteStoredProcedureParameterMappings,
             StoreObjectType.UpdateStoredProcedure
                 => RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
-            _ => throw new Exception("Unexpected stored procedure type: "
+            _ => throw new Exception(
+                "Unexpected stored procedure type: "
                 + storedProcedureMapping.StoredProcedureIdentifier.StoreObjectType)
         };
 
@@ -1843,7 +1844,8 @@ public class RelationalModel : Annotatable, IRelationalModel
                 => RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings,
             StoreObjectType.UpdateStoredProcedure
                 => RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings,
-            _ => throw new Exception("Unexpected stored procedure type: "
+            _ => throw new Exception(
+                "Unexpected stored procedure type: "
                 + storedProcedureMapping.StoredProcedureIdentifier.StoreObjectType)
         };
 
@@ -1866,7 +1868,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     public static SortedSet<UniqueConstraint> GetOrCreateUniqueConstraints(IKey key)
     {
         if (key.FindRuntimeAnnotationValue(RelationalAnnotationNames.UniqueConstraintMappings)
-                is not SortedSet<UniqueConstraint> uniqueConstraints)
+            is not SortedSet<UniqueConstraint> uniqueConstraints)
         {
             uniqueConstraints = new SortedSet<UniqueConstraint>(UniqueConstraintComparer.Instance);
             key.AddRuntimeAnnotation(RelationalAnnotationNames.UniqueConstraintMappings, uniqueConstraints);
@@ -1884,7 +1886,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     public static SortedSet<TableIndex> GetOrCreateTableIndexes(IIndex index)
     {
         if (index.FindRuntimeAnnotationValue(RelationalAnnotationNames.TableIndexMappings)
-                is not SortedSet<TableIndex> tableIndexes)
+            is not SortedSet<TableIndex> tableIndexes)
         {
             tableIndexes = new SortedSet<TableIndex>(TableIndexComparer.Instance);
             index.AddRuntimeAnnotation(RelationalAnnotationNames.TableIndexMappings, tableIndexes);
@@ -1902,7 +1904,7 @@ public class RelationalModel : Annotatable, IRelationalModel
     public static SortedSet<ForeignKeyConstraint> GetOrCreateForeignKeyConstraints(IForeignKey foreignKey)
     {
         if (foreignKey.FindRuntimeAnnotationValue(RelationalAnnotationNames.ForeignKeyMappings)
-                is not SortedSet<ForeignKeyConstraint> foreignKeyConstraints)
+            is not SortedSet<ForeignKeyConstraint> foreignKeyConstraints)
         {
             foreignKeyConstraints = new SortedSet<ForeignKeyConstraint>(ForeignKeyConstraintComparer.Instance);
             foreignKey.AddRuntimeAnnotation(RelationalAnnotationNames.ForeignKeyMappings, foreignKeyConstraints);

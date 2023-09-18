@@ -5,7 +5,6 @@ using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -222,12 +221,10 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
 
     [ConditionalFact]
     public override void DateOnly_literal_generated_correctly()
-    {
-        Test_GenerateSqlLiteral_helper(
+        => Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(DateOnly)),
             new DateOnly(2015, 3, 12),
             "'2015-03-12'");
-    }
 
     [ConditionalFact]
     public override void Timespan_literal_generated_correctly()

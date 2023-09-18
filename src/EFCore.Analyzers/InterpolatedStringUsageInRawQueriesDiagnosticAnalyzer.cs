@@ -50,11 +50,12 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         if (report)
         {
-            context.ReportDiagnostic(Diagnostic.Create(
-                Descriptor,
-                GetTargetLocation(invocation.Syntax),
-                targetMethod.Name,
-                GetReplacementMethodName(targetMethod.Name)));
+            context.ReportDiagnostic(
+                Diagnostic.Create(
+                    Descriptor,
+                    GetTargetLocation(invocation.Syntax),
+                    targetMethod.Name,
+                    GetReplacementMethodName(targetMethod.Name)));
         }
 
         static Location GetTargetLocation(SyntaxNode syntax)
@@ -85,14 +86,15 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         }
     }
 
-    internal static string GetReplacementMethodName(string oldName) => oldName switch
-    {
-        "FromSqlRaw" => "FromSql",
-        "ExecuteSqlRaw" => "ExecuteSql",
-        "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
-        "SqlQueryRaw" => "SqlQuery",
-        _ => oldName
-    };
+    internal static string GetReplacementMethodName(string oldName)
+        => oldName switch
+        {
+            "FromSqlRaw" => "FromSql",
+            "ExecuteSqlRaw" => "ExecuteSql",
+            "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
+            "SqlQueryRaw" => "SqlQuery",
+            _ => oldName
+        };
 
     private static bool AnalyzeFromSqlRawInvocation(IInvocationOperation invocation)
     {
@@ -105,9 +107,9 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         Debug.Assert(correctFromSqlRaw is not null, "Unable to find original `FromSqlRaw` method");
 
         // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
-        if (correctFromSqlRaw is null ||
-            !targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default) ||
-            invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        if (correctFromSqlRaw is null
+            || !targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default)
+            || invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
         {
             return false;
         }
@@ -170,9 +172,9 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         Debug.Assert(correctSqlQueryRaw is not null, "Unable to find original `SqlQueryRaw` method");
 
         // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
-        if (correctSqlQueryRaw is null ||
-            !targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default) ||
-            invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        if (correctSqlQueryRaw is null
+            || !targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default)
+            || invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
         {
             return false;
         }

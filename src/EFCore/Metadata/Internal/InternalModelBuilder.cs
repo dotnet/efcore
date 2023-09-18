@@ -987,7 +987,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     /// </summary>
     [DebuggerStepThrough]
     bool IConventionModelBuilder.CanRemoveEntity(IConventionEntityType entityType, bool fromDataAnnotation)
-        => CanRemoveEntityType((EntityType)entityType,
+        => CanRemoveEntityType(
+            (EntityType)entityType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1113,4 +1114,5 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     [DebuggerStepThrough]
     bool IConventionModelBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
-            propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);}
+            propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+}

@@ -183,9 +183,9 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQueryScalar(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select g.Count());
+                  group o by o
+                  into g
+                  select g.Count());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -193,9 +193,9 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new { g.Key.Id, Count = g.Count() });
+                  group o by o
+                  into g
+                  select new { g.Key.Id, Count = g.Count() });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -203,14 +203,14 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new
-                    {
-                        g.Key.Id,
-                        g.Key.Alias,
-                        Count = g.Count()
-                    });
+                  group o by o
+                  into g
+                  select new
+                  {
+                      g.Key.Id,
+                      g.Key.Alias,
+                      Count = g.Count()
+                  });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -218,14 +218,14 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => from o in ss.Set<ArubaOwner>()
-                    group o by o
-                    into g
-                    select new
-                    {
-                        g.Key.Id,
-                        Sum = g.Sum(x => x.Id),
-                        Count = g.Count()
-                    });
+                  group o by o
+                  into g
+                  select new
+                  {
+                      g.Key.Id,
+                      Sum = g.Sum(x => x.Id),
+                      Count = g.Count()
+                  });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -1417,35 +1417,35 @@ CREATE TABLE DefaultComputedValues (
             },
             "DROP TABLE DefaultComputedValues;");
 
-        [ConditionalFact]
-        public void Non_literal_bool_default_values_are_passed_through()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Non_literal_bool_default_values_are_passed_through()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A bit DEFAULT (CHOOSE(1, 0, 1, 2)),
     B bit DEFAULT ((CONVERT([bit],(CHOOSE(1, 0, 1, 2))))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("(choose((1),(0),(1),(2)))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(choose((1),(0),(1),(2)))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([bit],choose((1),(0),(1),(2))))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([bit],choose((1),(0),(1),(2))))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_int_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_int_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A int DEFAULT -1,
@@ -1459,173 +1459,173 @@ CREATE TABLE MyTable (
     I int DEFAULT CONVERT(""int"",(-7)),
     J int DEFAULT ( ( CONVERT([int],((-8))))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1))", column.DefaultValueSql);
-                    Assert.Equal(-1, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1))", column.DefaultValueSql);
+                Assert.Equal(-1, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal(0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal(0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal(0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal(0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("((-2))", column.DefaultValueSql);
-                    Assert.Equal(-2, column.DefaultValue);
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("((-2))", column.DefaultValueSql);
+                Assert.Equal(-2, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "E");
-                    Assert.Equal("((2))", column.DefaultValueSql);
-                    Assert.Equal(2, column.DefaultValue);
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("((2))", column.DefaultValueSql);
+                Assert.Equal(2, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "F");
-                    Assert.Equal("((3))", column.DefaultValueSql);
-                    Assert.Equal(3, column.DefaultValue);
+                column = columns.Single(c => c.Name == "F");
+                Assert.Equal("((3))", column.DefaultValueSql);
+                Assert.Equal(3, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "G");
-                    Assert.Equal("((4))", column.DefaultValueSql);
-                    Assert.Equal(4, column.DefaultValue);
+                column = columns.Single(c => c.Name == "G");
+                Assert.Equal("((4))", column.DefaultValueSql);
+                Assert.Equal(4, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "H");
-                    Assert.Equal("(CONVERT([int],(6)))", column.DefaultValueSql);
-                    Assert.Equal(6, column.DefaultValue);
+                column = columns.Single(c => c.Name == "H");
+                Assert.Equal("(CONVERT([int],(6)))", column.DefaultValueSql);
+                Assert.Equal(6, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "I");
-                    Assert.Equal("(CONVERT([int],(-7)))", column.DefaultValueSql);
-                    Assert.Equal(-7, column.DefaultValue);
+                column = columns.Single(c => c.Name == "I");
+                Assert.Equal("(CONVERT([int],(-7)))", column.DefaultValueSql);
+                Assert.Equal(-7, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "J");
-                    Assert.Equal("(CONVERT([int],(-8)))", column.DefaultValueSql);
-                    Assert.Equal(-8, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "J");
+                Assert.Equal("(CONVERT([int],(-8)))", column.DefaultValueSql);
+                Assert.Equal(-8, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_short_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_short_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A smallint DEFAULT -1,
     B smallint DEFAULT (0),
     C smallint DEFAULT ((CONVERT ( ""smallint"", ( (-7) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1))", column.DefaultValueSql);
-                    Assert.Equal((short)-1, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1))", column.DefaultValueSql);
+                Assert.Equal((short)-1, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal((short)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((short)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("(CONVERT([smallint],(-7)))", column.DefaultValueSql);
-                    Assert.Equal((short)-7, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("(CONVERT([smallint],(-7)))", column.DefaultValueSql);
+                Assert.Equal((short)-7, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_long_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_long_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A bigint DEFAULT -1,
     B bigint DEFAULT (0),
     C bigint DEFAULT ((CONVERT ( ""bigint"", ( (-7) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1))", column.DefaultValueSql);
-                    Assert.Equal((long)-1, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1))", column.DefaultValueSql);
+                Assert.Equal((long)-1, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal((long)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((long)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("(CONVERT([bigint],(-7)))", column.DefaultValueSql);
-                    Assert.Equal((long)-7, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("(CONVERT([bigint],(-7)))", column.DefaultValueSql);
+                Assert.Equal((long)-7, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_byte_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_byte_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A tinyint DEFAULT 1,
     B tinyint DEFAULT (0),
     C tinyint DEFAULT ((CONVERT ( ""tinyint"", ( (7) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((1))", column.DefaultValueSql);
-                    Assert.Equal((byte)1, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((1))", column.DefaultValueSql);
+                Assert.Equal((byte)1, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal((byte)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((byte)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("(CONVERT([tinyint],(7)))", column.DefaultValueSql);
-                    Assert.Equal((byte)7, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("(CONVERT([tinyint],(7)))", column.DefaultValueSql);
+                Assert.Equal((byte)7, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Non_literal_int_default_values_are_passed_through()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Non_literal_int_default_values_are_passed_through()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A int DEFAULT (CHOOSE(1, 0, 1, 2)),
     B int DEFAULT ((CONVERT([int],(CHOOSE(1, 0, 1, 2))))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("(choose((1),(0),(1),(2)))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(choose((1),(0),(1),(2)))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([int],choose((1),(0),(1),(2))))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([int],choose((1),(0),(1),(2))))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_double_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_double_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A float DEFAULT -1.1111,
@@ -1633,34 +1633,34 @@ CREATE TABLE MyTable (
     C float DEFAULT (1.1000000000000001e+000),
     D float DEFAULT ((CONVERT ( ""float"", ( (1.1234) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1.1111))", column.DefaultValueSql);
-                    Assert.Equal(-1.1111, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1.1111))", column.DefaultValueSql);
+                Assert.Equal(-1.1111, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0.0))", column.DefaultValueSql);
-                    Assert.Equal((double)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0.0))", column.DefaultValueSql);
+                Assert.Equal((double)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("((1.1000000000000001e+000))", column.DefaultValueSql);
-                    Assert.Equal(1.1000000000000001e+000, column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((1.1000000000000001e+000))", column.DefaultValueSql);
+                Assert.Equal(1.1000000000000001e+000, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("(CONVERT([float],(1.1234)))", column.DefaultValueSql);
-                    Assert.Equal(1.1234, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([float],(1.1234)))", column.DefaultValueSql);
+                Assert.Equal(1.1234, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_float_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_float_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A real DEFAULT -1.1111,
@@ -1668,34 +1668,34 @@ CREATE TABLE MyTable (
     C real DEFAULT (1.1000000000000001e+000),
     D real DEFAULT ((CONVERT ( ""real"", ( (1.1234) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1.1111))", column.DefaultValueSql);
-                    Assert.Equal((float)-1.1111, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1.1111))", column.DefaultValueSql);
+                Assert.Equal((float)-1.1111, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0.0))", column.DefaultValueSql);
-                    Assert.Equal((float)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0.0))", column.DefaultValueSql);
+                Assert.Equal((float)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("((1.1000000000000001e+000))", column.DefaultValueSql);
-                    Assert.Equal((float)1.1000000000000001e+000, column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((1.1000000000000001e+000))", column.DefaultValueSql);
+                Assert.Equal((float)1.1000000000000001e+000, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("(CONVERT([real],(1.1234)))", column.DefaultValueSql);
-                    Assert.Equal((float)1.1234, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([real],(1.1234)))", column.DefaultValueSql);
+                Assert.Equal((float)1.1234, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_decimal_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_decimal_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A decimal DEFAULT -1.1111,
@@ -1703,34 +1703,34 @@ CREATE TABLE MyTable (
     C decimal DEFAULT (0),
     D decimal DEFAULT ((CONVERT ( ""decimal"", ( (1.1234) ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((-1.1111))", column.DefaultValueSql);
-                    Assert.Equal((decimal)-1.1111, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((-1.1111))", column.DefaultValueSql);
+                Assert.Equal((decimal)-1.1111, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((0.0))", column.DefaultValueSql);
-                    Assert.Equal((decimal)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((0.0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal((decimal)0, column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal((decimal)0, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
-                    Assert.Equal((decimal)1.1234, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
+                Assert.Equal((decimal)1.1234, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_bool_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A bit DEFAULT 0,
@@ -1741,46 +1741,46 @@ CREATE TABLE MyTable (
     F bit DEFAULT ('tRuE'),
     G bit DEFAULT ((CONVERT ( ""bit"", ( ('tRUE') ) ))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal(false, column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal(false, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("((1))", column.DefaultValueSql);
-                    Assert.Equal(true, column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("((1))", column.DefaultValueSql);
+                Assert.Equal(true, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("((0))", column.DefaultValueSql);
-                    Assert.Equal(false, column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("((0))", column.DefaultValueSql);
+                Assert.Equal(false, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("((1))", column.DefaultValueSql);
-                    Assert.Equal(true, column.DefaultValue);
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("((1))", column.DefaultValueSql);
+                Assert.Equal(true, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "E");
-                    Assert.Equal("('FaLse')", column.DefaultValueSql);
-                    Assert.Equal(false, column.DefaultValue);
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("('FaLse')", column.DefaultValueSql);
+                Assert.Equal(false, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "F");
-                    Assert.Equal("('tRuE')", column.DefaultValueSql);
-                    Assert.Equal(true, column.DefaultValue);
+                column = columns.Single(c => c.Name == "F");
+                Assert.Equal("('tRuE')", column.DefaultValueSql);
+                Assert.Equal(true, column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "G");
-                    Assert.Equal("(CONVERT([bit],'tRUE'))", column.DefaultValueSql);
-                    Assert.Equal(true, column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "G");
+                Assert.Equal("(CONVERT([bit],'tRUE'))", column.DefaultValueSql);
+                Assert.Equal(true, column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_DateTime_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_DateTime_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A datetime DEFAULT '1973-09-03T12:00:01.0020000',
@@ -1788,195 +1788,195 @@ CREATE TABLE MyTable (
     C datetime2 DEFAULT (CONVERT ([datetime2],('1973-09-03T01:02:03'))),
     D datetime DEFAULT (CONVERT(datetime,'12:12:12')),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('1973-09-03T12:00:01.0020000')", column.DefaultValueSql);
-                    Assert.Equal(new DateTime(1973, 9, 3, 12, 0, 1, 2, DateTimeKind.Unspecified), column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('1973-09-03T12:00:01.0020000')", column.DefaultValueSql);
+                Assert.Equal(new DateTime(1973, 9, 3, 12, 0, 1, 2, DateTimeKind.Unspecified), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
-                    Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                Assert.Equal(new DateTime(1968, 10, 23, 0, 0, 0, 0, DateTimeKind.Unspecified), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("(CONVERT([datetime2],'1973-09-03T01:02:03'))", column.DefaultValueSql);
-                    Assert.Equal(new DateTime(1973, 9, 3, 1, 2, 3, 0, DateTimeKind.Unspecified), column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("(CONVERT([datetime2],'1973-09-03T01:02:03'))", column.DefaultValueSql);
+                Assert.Equal(new DateTime(1973, 9, 3, 1, 2, 3, 0, DateTimeKind.Unspecified), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("(CONVERT([datetime],'12:12:12'))", column.DefaultValueSql);
-                    Assert.Equal(12, ((DateTime)column.DefaultValue!).Hour);
-                    Assert.Equal(12, ((DateTime)column.DefaultValue!).Minute);
-                    Assert.Equal(12, ((DateTime)column.DefaultValue!).Second);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(CONVERT([datetime],'12:12:12'))", column.DefaultValueSql);
+                Assert.Equal(12, ((DateTime)column.DefaultValue!).Hour);
+                Assert.Equal(12, ((DateTime)column.DefaultValue!).Minute);
+                Assert.Equal(12, ((DateTime)column.DefaultValue!).Second);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Non_literal_or_non_parsable_DateTime_default_values_are_passed_through()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Non_literal_or_non_parsable_DateTime_default_values_are_passed_through()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A datetime2 DEFAULT (CONVERT([datetime2],(getdate()))),
     B datetime DEFAULT getdate(),
     C datetime2 DEFAULT ((CONVERT([datetime2],('12-01-16 12:32')))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("(CONVERT([datetime2],getdate()))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(CONVERT([datetime2],getdate()))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(getdate())", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(getdate())", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("(CONVERT([datetime2],'12-01-16 12:32'))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("(CONVERT([datetime2],'12-01-16 12:32'))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_DateOnly_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_DateOnly_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A date DEFAULT ('1968-10-23'),
     B date DEFAULT (CONVERT([date],('1973-09-03T01:02:03'))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('1968-10-23')", column.DefaultValueSql);
-                    Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('1968-10-23')", column.DefaultValueSql);
+                Assert.Equal(new DateOnly(1968, 10, 23), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([date],'1973-09-03T01:02:03'))", column.DefaultValueSql);
-                    Assert.Equal(new DateOnly(1973, 9, 3), column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([date],'1973-09-03T01:02:03'))", column.DefaultValueSql);
+                Assert.Equal(new DateOnly(1973, 9, 3), column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_TimeOnly_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_TimeOnly_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A time DEFAULT ('12:00:01.0020000'),
     B time DEFAULT (CONVERT([time],('1973-09-03T01:02:03'))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('12:00:01.0020000')", column.DefaultValueSql);
-                    Assert.Equal(new TimeOnly(12, 0, 1, 2), column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('12:00:01.0020000')", column.DefaultValueSql);
+                Assert.Equal(new TimeOnly(12, 0, 1, 2), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([time],'1973-09-03T01:02:03'))", column.DefaultValueSql);
-                    Assert.Equal(new TimeOnly(1, 2, 3), column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([time],'1973-09-03T01:02:03'))", column.DefaultValueSql);
+                Assert.Equal(new TimeOnly(1, 2, 3), column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_DateTimeOffset_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_DateTimeOffset_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A datetimeoffset DEFAULT ('1973-09-03T12:00:01.0000000+10:00'),
     B datetimeoffset DEFAULT (CONVERT([datetimeoffset],('1973-09-03T01:02:03'))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('1973-09-03T12:00:01.0000000+10:00')", column.DefaultValueSql);
-                    Assert.Equal(
-                        new DateTimeOffset(new DateTime(1973, 9, 3, 12, 0, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 10, 0, 0, 0)),
-                        column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('1973-09-03T12:00:01.0000000+10:00')", column.DefaultValueSql);
+                Assert.Equal(
+                    new DateTimeOffset(new DateTime(1973, 9, 3, 12, 0, 1, 0, DateTimeKind.Unspecified), new TimeSpan(0, 10, 0, 0, 0)),
+                    column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([datetimeoffset],'1973-09-03T01:02:03'))", column.DefaultValueSql);
-                    Assert.Equal(
-                        new DateTime(1973, 9, 3, 1, 2, 3, 0, DateTimeKind.Unspecified),
-                        ((DateTimeOffset)column.DefaultValue!).DateTime);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([datetimeoffset],'1973-09-03T01:02:03'))", column.DefaultValueSql);
+                Assert.Equal(
+                    new DateTime(1973, 9, 3, 1, 2, 3, 0, DateTimeKind.Unspecified),
+                    ((DateTimeOffset)column.DefaultValue!).DateTime);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_Guid_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A uniqueidentifier DEFAULT ('0E984725-C51C-4BF4-9960-E1C80E27ABA0'),
     B uniqueidentifier DEFAULT (CONVERT([uniqueidentifier],('0E984725-C51C-4BF4-9960-E1C80E27ABA0'))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('0E984725-C51C-4BF4-9960-E1C80E27ABA0')", column.DefaultValueSql);
-                    Assert.Equal(new Guid("0E984725-C51C-4BF4-9960-E1C80E27ABA0"), column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('0E984725-C51C-4BF4-9960-E1C80E27ABA0')", column.DefaultValueSql);
+                Assert.Equal(new Guid("0E984725-C51C-4BF4-9960-E1C80E27ABA0"), column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(CONVERT([uniqueidentifier],'0E984725-C51C-4BF4-9960-E1C80E27ABA0'))", column.DefaultValueSql);
-                    Assert.Equal(new Guid("0E984725-C51C-4BF4-9960-E1C80E27ABA0"), column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(CONVERT([uniqueidentifier],'0E984725-C51C-4BF4-9960-E1C80E27ABA0'))", column.DefaultValueSql);
+                Assert.Equal(new Guid("0E984725-C51C-4BF4-9960-E1C80E27ABA0"), column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Non_literal_Guid_default_values_are_passed_through()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Non_literal_Guid_default_values_are_passed_through()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A uniqueidentifier DEFAULT (CONVERT([uniqueidentifier],(newid()))),
     B uniqueidentifier DEFAULT NEWSEQUENTIALID(),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("(CONVERT([uniqueidentifier],newid()))", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("(CONVERT([uniqueidentifier],newid()))", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("(newsequentialid())", column.DefaultValueSql);
-                    Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("(newsequentialid())", column.DefaultValueSql);
+                Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+            },
+            "DROP TABLE MyTable;");
 
-        [ConditionalFact]
-        public void Simple_string_literals_are_parsed_for_HasDefaultValue()
-            => Test(
-                @"
+    [ConditionalFact]
+    public void Simple_string_literals_are_parsed_for_HasDefaultValue()
+        => Test(
+            @"
 CREATE TABLE MyTable (
     Id int,
     A nvarchar(max) DEFAULT 'Hot',
@@ -1987,41 +1987,41 @@ CREATE TABLE MyTable (
     F nvarchar(20) DEFAULT  (CONVERT([nvarchar](20),('Scones'))) ,
     G varchar(max) DEFAULT (CONVERT(character varying(max),('Toasted teacakes'))),
 );",
-                Enumerable.Empty<string>(),
-                Enumerable.Empty<string>(),
-                dbModel =>
-                {
-                    var columns = dbModel.Tables.Single().Columns;
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            dbModel =>
+            {
+                var columns = dbModel.Tables.Single().Columns;
 
-                    var column = columns.Single(c => c.Name == "A");
-                    Assert.Equal("('Hot')", column.DefaultValueSql);
-                    Assert.Equal("Hot", column.DefaultValue);
+                var column = columns.Single(c => c.Name == "A");
+                Assert.Equal("('Hot')", column.DefaultValueSql);
+                Assert.Equal("Hot", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "B");
-                    Assert.Equal("('Buttered')", column.DefaultValueSql);
-                    Assert.Equal("Buttered", column.DefaultValue);
+                column = columns.Single(c => c.Name == "B");
+                Assert.Equal("('Buttered')", column.DefaultValueSql);
+                Assert.Equal("Buttered", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "C");
-                    Assert.Equal("('')", column.DefaultValueSql);
-                    Assert.Equal("", column.DefaultValue);
+                column = columns.Single(c => c.Name == "C");
+                Assert.Equal("('')", column.DefaultValueSql);
+                Assert.Equal("", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "D");
-                    Assert.Equal("(N'')", column.DefaultValueSql);
-                    Assert.Equal("", column.DefaultValue);
+                column = columns.Single(c => c.Name == "D");
+                Assert.Equal("(N'')", column.DefaultValueSql);
+                Assert.Equal("", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "E");
-                    Assert.Equal("(N' Toast! ')", column.DefaultValueSql);
-                    Assert.Equal(" Toast! ", column.DefaultValue);
+                column = columns.Single(c => c.Name == "E");
+                Assert.Equal("(N' Toast! ')", column.DefaultValueSql);
+                Assert.Equal(" Toast! ", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "F");
-                    Assert.Equal("(CONVERT([nvarchar](20),'Scones'))", column.DefaultValueSql);
-                    Assert.Equal("Scones", column.DefaultValue);
+                column = columns.Single(c => c.Name == "F");
+                Assert.Equal("(CONVERT([nvarchar](20),'Scones'))", column.DefaultValueSql);
+                Assert.Equal("Scones", column.DefaultValue);
 
-                    column = columns.Single(c => c.Name == "G");
-                    Assert.Equal("(CONVERT([varchar](max),'Toasted teacakes'))", column.DefaultValueSql);
-                    Assert.Equal("Toasted teacakes", column.DefaultValue);
-                },
-                "DROP TABLE MyTable;");
+                column = columns.Single(c => c.Name == "G");
+                Assert.Equal("(CONVERT([varchar](max),'Toasted teacakes'))", column.DefaultValueSql);
+                Assert.Equal("Toasted teacakes", column.DefaultValue);
+            },
+            "DROP TABLE MyTable;");
 
     [ConditionalFact]
     public void ValueGenerated_is_set_for_identity_and_computed_column()

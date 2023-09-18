@@ -15,7 +15,8 @@ internal readonly struct SharedStopwatch
         _started = started;
     }
 
-    public TimeSpan Elapsed => Stopwatch.Elapsed - _started;
+    public TimeSpan Elapsed
+        => Stopwatch.Elapsed - _started;
 
     public static SharedStopwatch StartNew()
     {
@@ -34,5 +35,5 @@ internal readonly struct SharedStopwatch
     }
 
     private static SharedStopwatch StartNewCore()
-        => new SharedStopwatch(Stopwatch.Elapsed);
+        => new(Stopwatch.Elapsed);
 }

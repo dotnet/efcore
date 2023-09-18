@@ -566,9 +566,11 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
 
-        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ValueConverter"),
+        Assert.Equal(
+            CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ValueConverter"),
             Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
-        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ProviderClrType"),
+        Assert.Equal(
+            CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ProviderClrType"),
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
@@ -977,7 +979,8 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
         var model = modelBuilder.Model;
         var customerEntity = model.AddEntityType("Customer");
-        customerEntity.AddComplexProperty("CustomerDetails", typeof(SponsorDetails), customerEntity.FindIndexerPropertyInfo()!, typeof(SponsorDetails));
+        customerEntity.AddComplexProperty(
+            "CustomerDetails", typeof(SponsorDetails), customerEntity.FindIndexerPropertyInfo()!, typeof(SponsorDetails));
 
         VerifyError(
             CoreStrings.ComplexPropertyIndexer("Customer (Dictionary<string, object>)", "CustomerDetails"),

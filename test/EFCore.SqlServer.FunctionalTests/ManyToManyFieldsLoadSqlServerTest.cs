@@ -18,7 +18,7 @@ public class ManyToManyFieldsLoadSqlServerTest : ManyToManyFieldsLoadTestBase<
         await base.Load_collection(state, queryTrackingBehavior, async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t0].[OneId], [t0].[TwoId], [t0].[Id], [t0].[Name]
@@ -44,7 +44,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
         await base.Load_collection_using_Query_with_Include_for_inverse(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name]
@@ -70,7 +70,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include_for_same_collection(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
@@ -101,7 +101,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
@@ -132,7 +132,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
@@ -164,7 +164,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include_and_projection(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[Name], (
@@ -192,7 +192,7 @@ ORDER BY [t].[Id]
         await base.Load_collection_using_Query_with_join(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId], [t2].[Id], [t2].[Name], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]

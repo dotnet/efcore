@@ -647,8 +647,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Select(
                     b => new
                     {
-                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
-                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                     }));
 
     [ConditionalTheory]
@@ -8202,7 +8201,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Using_indexer_on_byte_array_and_string_in_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Squad>().Select(x => new { x.Id, ByteArray = x.Banner[0], String = x.Name[1] }),
+            ss => ss.Set<Squad>().Select(
+                x => new
+                {
+                    x.Id,
+                    ByteArray = x.Banner[0],
+                    String = x.Name[1]
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -8215,30 +8220,34 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [MemberData(nameof(IsAsyncData))]
     public virtual Task DateTimeOffset_to_unix_time_milliseconds(bool async)
     {
-        long unixEpochMilliseconds = DateTimeOffset.UnixEpoch.ToUnixTimeMilliseconds();
+        var unixEpochMilliseconds = DateTimeOffset.UnixEpoch.ToUnixTimeMilliseconds();
 
         return AssertQuery(
             async,
             ss => ss.Set<Gear>()
                 .Include(g => g.Squad.Missions)
-                .Where(s => s.Squad.Missions
-                    .Where(m => unixEpochMilliseconds == m.Mission.Timeline.ToUnixTimeMilliseconds())
-                    .FirstOrDefault() == null));
+                .Where(
+                    s => s.Squad.Missions
+                            .Where(m => unixEpochMilliseconds == m.Mission.Timeline.ToUnixTimeMilliseconds())
+                            .FirstOrDefault()
+                        == null));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task DateTimeOffset_to_unix_time_seconds(bool async)
     {
-        long unixEpochSeconds = DateTimeOffset.UnixEpoch.ToUnixTimeSeconds();
+        var unixEpochSeconds = DateTimeOffset.UnixEpoch.ToUnixTimeSeconds();
 
         return AssertQuery(
             async,
             ss => ss.Set<Gear>()
                 .Include(g => g.Squad.Missions)
-                .Where(s => s.Squad.Missions
-                    .Where(m => unixEpochSeconds == m.Mission.Timeline.ToUnixTimeSeconds())
-                    .FirstOrDefault() == null));
+                .Where(
+                    s => s.Squad.Missions
+                            .Where(m => unixEpochSeconds == m.Mission.Timeline.ToUnixTimeSeconds())
+                            .FirstOrDefault()
+                        == null));
     }
 
     [ConditionalTheory]

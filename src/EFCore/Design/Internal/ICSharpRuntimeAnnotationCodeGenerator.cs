@@ -114,7 +114,8 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
         CoreTypeMapping typeMapping,
         IProperty property,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
-        => Create(typeMapping, parameters,
+        => Create(
+            typeMapping, parameters,
             property.GetValueComparer(), property.GetKeyValueComparer(), property.GetProviderValueComparer());
 
     /// <summary>

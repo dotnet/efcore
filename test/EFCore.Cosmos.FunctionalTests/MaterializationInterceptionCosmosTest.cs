@@ -3,7 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
-public class MaterializationInterceptionCosmosTest : MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>,
+public class MaterializationInterceptionCosmosTest :
+    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>,
     IClassFixture<MaterializationInterceptionCosmosTest.MaterializationInterceptionCosmosFixture>
 {
     public MaterializationInterceptionCosmosTest(MaterializationInterceptionCosmosFixture fixture)

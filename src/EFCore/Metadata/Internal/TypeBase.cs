@@ -138,7 +138,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalTypeBaseBuilder Builder => BaseBuilder;
+    public virtual InternalTypeBaseBuilder Builder
+        => BaseBuilder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -166,7 +167,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SortedSet<TypeBase> DirectlyDerivedTypes => _directlyDerivedTypes;
+    protected virtual SortedSet<TypeBase> DirectlyDerivedTypes
+        => _directlyDerivedTypes;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -692,7 +694,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SortedDictionary<string, Property> Properties => _properties;
+    protected virtual SortedDictionary<string, Property> Properties
+        => _properties;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -990,7 +993,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         return _directlyDerivedTypes.Count == 0
             ? Enumerable.Empty<ComplexProperty>()
             : (IEnumerable<ComplexProperty>)GetDerivedTypes()
-              .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
+                .Select(et => et.FindDeclaredComplexProperty(propertyName)).Where(p => p != null);
     }
 
     /// <summary>
@@ -1307,7 +1310,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
             : new[] { element };
 
     /// <summary>
-    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<Property> GetFlattenedProperties()
@@ -1327,7 +1330,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     }
 
     /// <summary>
-    ///     Returns all <see cref="ComplexProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="ComplexProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<ComplexProperty> GetFlattenedComplexProperties()
@@ -1344,7 +1347,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     }
 
     /// <summary>
-    ///     Returns all <see cref="IProperty"/> members from this type and all nested complex types, if any.
+    ///     Returns all <see cref="IProperty" /> members from this type and all nested complex types, if any.
     /// </summary>
     /// <returns>The properties.</returns>
     public virtual IEnumerable<Property> GetFlattenedDeclaredProperties()
@@ -1806,8 +1809,13 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IMutableComplexProperty IMutableTypeBase.AddComplexProperty(
-        string name, Type propertyType, Type targetType, string? complexTypeName, bool collection)
-        => AddComplexProperty(name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
+        string name,
+        Type propertyType,
+        Type targetType,
+        string? complexTypeName,
+        bool collection)
+        => AddComplexProperty(
+            name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
             ConfigurationSource.Explicit)!;
 
     /// <summary>
@@ -1818,8 +1826,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexProperty? IConventionTypeBase.AddComplexProperty(
-        string name, Type propertyType, Type targetType, string? complexTypeName, bool collection, bool fromDataAnnotation)
-        => AddComplexProperty(name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
+        string name,
+        Type propertyType,
+        Type targetType,
+        string? complexTypeName,
+        bool collection,
+        bool fromDataAnnotation)
+        => AddComplexProperty(
+            name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>
@@ -1830,7 +1844,12 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IMutableComplexProperty IMutableTypeBase.AddComplexProperty(
-        string name, Type propertyType, MemberInfo memberInfo, Type targetType, string? complexTypeName, bool collection)
+        string name,
+        Type propertyType,
+        MemberInfo memberInfo,
+        Type targetType,
+        string? complexTypeName,
+        bool collection)
         => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, targetType, collection, ConfigurationSource.Explicit)!;
 
     /// <summary>
@@ -1841,8 +1860,15 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexProperty? IConventionTypeBase.AddComplexProperty(
-        string name, Type propertyType, MemberInfo memberInfo, Type targetType, string? complexTypeName, bool collection, bool fromDataAnnotation)
-        => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, targetType, collection,
+        string name,
+        Type propertyType,
+        MemberInfo memberInfo,
+        Type targetType,
+        string? complexTypeName,
+        bool collection,
+        bool fromDataAnnotation)
+        => AddComplexProperty(
+            name, propertyType, memberInfo, complexTypeName, targetType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>
@@ -2209,28 +2235,28 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         => FindMembersInHierarchy(name);
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IPropertyBase> ITypeBase.GetSnapshottableMembers()
         => GetSnapshottableMembers();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IProperty"/>, including those on complex types.
+    ///     Returns all properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedProperties()
         => GetFlattenedProperties();
 
     /// <summary>
-    ///     Returns all properties that implement <see cref="IComplexProperty"/>, including those on complex types.
+    ///     Returns all properties that implement <see cref="IComplexProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IComplexProperty> ITypeBase.GetFlattenedComplexProperties()
         => GetFlattenedComplexProperties();
 
     /// <summary>
-    ///     Returns all properties declared properties that implement <see cref="IProperty"/>, including those on complex types.
+    ///     Returns all properties declared properties that implement <see cref="IProperty" />, including those on complex types.
     /// </summary>
     /// <returns>The properties.</returns>
     IEnumerable<IProperty> ITypeBase.GetFlattenedDeclaredProperties()

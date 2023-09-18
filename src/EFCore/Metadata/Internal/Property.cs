@@ -1221,7 +1221,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             var elementType = GetElementType();
             return elementType != null
                 && ClrType.TryGetElementType(typeof(IEnumerable<>))?.UnwrapNullableType()
-                    .IsAssignableFrom(elementType.ClrType.UnwrapNullableType()) == true;
+                    .IsAssignableFrom(elementType.ClrType.UnwrapNullableType())
+                == true;
         }
     }
 

@@ -27,7 +27,7 @@ public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryR
         await base.Select_Where_Navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -40,7 +40,7 @@ WHERE [c].[City] = N'Seattle'
         await base.Select_Where_Navigation_Contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -53,7 +53,7 @@ WHERE [c].[City] LIKE N'%Sea%'
         await base.Select_Where_Navigation_Deep(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
@@ -70,7 +70,7 @@ ORDER BY [o].[OrderID], [o].[ProductID]
         await base.Take_Select_Navigation(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
@@ -96,7 +96,7 @@ ORDER BY [t].[CustomerID]
         await base.Select_collection_FirstOrDefault_project_single_column1(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT TOP(@__p_0) (
@@ -114,7 +114,7 @@ ORDER BY [c].[CustomerID]
         await base.Select_collection_FirstOrDefault_project_single_column2(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT TOP(@__p_0) (
@@ -132,7 +132,7 @@ ORDER BY [c].[CustomerID]
         await base.Select_collection_FirstOrDefault_project_anonymous_type(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
@@ -159,7 +159,7 @@ ORDER BY [t].[CustomerID]
         await base.Select_collection_FirstOrDefault_project_anonymous_type_client_eval(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
@@ -186,7 +186,7 @@ ORDER BY [t].[CustomerID]
         await base.Select_collection_FirstOrDefault_project_entity(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
@@ -212,7 +212,7 @@ ORDER BY [t].[CustomerID]
         await base.Skip_Select_Navigation(async);
 
         AssertSql(
-"""
+            """
 @__p_0='20'
 
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
@@ -239,7 +239,7 @@ ORDER BY [t].[CustomerID]
         await base.Select_Where_Navigation_Included(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -252,7 +252,7 @@ WHERE [c].[City] = N'Seattle'
         await base.Include_with_multiple_optional_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
@@ -266,7 +266,7 @@ WHERE [c].[City] = N'London'
         await base.Select_Navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -278,7 +278,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
         await base.Select_Navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -290,7 +290,7 @@ LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
         await base.Select_Where_Navigation_Multiple_Access(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -303,7 +303,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         await base.Select_Navigations_Where_Navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -316,7 +316,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         await base.Select_Singleton_Navigation_With_Member_Access(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -329,7 +329,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         await base.Select_count_plus_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COALESCE(SUM(CAST([o0].[Quantity] AS int)), 0)
     FROM [Order Details] AS [o0]
@@ -346,7 +346,7 @@ FROM [Orders] AS [o]
         await base.Singleton_Navigation_With_Member_Access(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[City] AS [B]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -359,7 +359,7 @@ WHERE [c].[City] = N'Seattle' AND ([c].[Phone] <> N'555 555 5555' OR [c].[Phone]
         await base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar_Projected(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[CustomerID], [t].[CustomerID] AS [C2]
 FROM [Orders] AS [o]
 CROSS JOIN (
@@ -378,7 +378,7 @@ WHERE [o].[OrderID] < 10300 AND ([c].[City] = [c0].[City] OR ([c].[City] IS NULL
         await base.Select_Where_Navigation_Equals_Navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o]
 CROSS JOIN [Orders] AS [o0]
@@ -393,7 +393,7 @@ WHERE [o].[CustomerID] LIKE N'A%' AND [o0].[CustomerID] LIKE N'A%' AND ([c].[Cus
         await base.Select_Where_Navigation_Null(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
@@ -406,7 +406,7 @@ WHERE [e0].[EmployeeID] IS NULL
         await base.Select_Where_Navigation_Null_Deep(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
@@ -420,7 +420,7 @@ WHERE [e1].[EmployeeID] IS NULL
         await base.Select_Where_Navigation_Null_Reverse(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 LEFT JOIN [Employees] AS [e0] ON [e].[ReportsTo] = [e0].[EmployeeID]
@@ -433,7 +433,7 @@ WHERE [e0].[EmployeeID] IS NULL
         await base.Select_collection_navigation_simple(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -447,7 +447,7 @@ ORDER BY [c].[CustomerID]
         await base.Select_collection_navigation_simple2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
@@ -463,7 +463,7 @@ ORDER BY [c].[CustomerID]
         await base.Select_collection_navigation_simple_followed_by_ordering_by_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -477,7 +477,7 @@ ORDER BY [c].[CustomerID]
         await base.Select_collection_navigation_multi_part(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [c].[CustomerID], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -492,7 +492,7 @@ ORDER BY [o].[OrderID], [c].[CustomerID]
         await base.Select_collection_navigation_multi_part2(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
@@ -508,7 +508,7 @@ ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]
         await base.Collection_select_nav_prop_any(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN EXISTS (
         SELECT 1
@@ -525,7 +525,7 @@ FROM [Customers] AS [c]
         await base.Collection_select_nav_prop_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN (
         SELECT COUNT(*)
@@ -542,7 +542,7 @@ FROM [Customers] AS [c]
         await base.Collection_where_nav_prop_any(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE EXISTS (
@@ -557,7 +557,7 @@ WHERE EXISTS (
         await base.Collection_where_nav_prop_any_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE EXISTS (
@@ -572,7 +572,7 @@ WHERE EXISTS (
         await base.Collection_select_nav_prop_all(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
@@ -589,7 +589,7 @@ FROM [Customers] AS [c]
         await base.Collection_where_nav_prop_all(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE NOT EXISTS (
@@ -604,7 +604,7 @@ WHERE NOT EXISTS (
         await base.Collection_select_nav_prop_count(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM [Orders] AS [o]
@@ -618,7 +618,7 @@ FROM [Customers] AS [c]
         await base.Collection_where_nav_prop_count(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
@@ -633,7 +633,7 @@ WHERE (
         await base.Collection_where_nav_prop_count_reverse(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 5 < (
@@ -648,7 +648,7 @@ WHERE 5 < (
         await base.Collection_orderby_nav_prop_count(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY (
@@ -663,7 +663,7 @@ ORDER BY (
         await base.Collection_select_nav_prop_long_count(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT_BIG(*)
     FROM [Orders] AS [o]
@@ -677,7 +677,7 @@ FROM [Customers] AS [c]
         await base.Select_multiple_complex_projections(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM [Order Details] AS [o0]
@@ -710,7 +710,7 @@ WHERE [o].[CustomerID] LIKE N'A%'
         await base.Collection_select_nav_prop_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COALESCE(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
@@ -724,7 +724,7 @@ FROM [Customers] AS [c]
         await base.Collection_select_nav_prop_sum_plus_one(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COALESCE(SUM([o].[OrderID]), 0)
     FROM [Orders] AS [o]
@@ -738,7 +738,7 @@ FROM [Customers] AS [c]
         await base.Collection_where_nav_prop_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE (
@@ -753,7 +753,7 @@ WHERE (
         await base.Collection_select_nav_prop_first_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -773,7 +773,7 @@ ORDER BY [c].[CustomerID]
         await base.Collection_select_nav_prop_first_or_default_then_nav_prop(async);
 
         AssertSql(
-"""
+            """
 @__orderIds_0='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
 
 SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
@@ -801,7 +801,7 @@ ORDER BY [c].[CustomerID]
         await base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [c0].[City]
     FROM [Orders] AS [o]
@@ -817,7 +817,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
         await base.Collection_select_nav_prop_single_or_default_then_nav_prop_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [c0].[City]
     FROM [Orders] AS [o]
@@ -833,7 +833,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
         await base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_using_property_method(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [c0].[City]
     FROM [Orders] AS [o]
@@ -849,7 +849,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
         await base.Collection_select_nav_prop_first_or_default_then_nav_prop_nested_with_orderby(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [c0].[City]
     FROM [Orders] AS [o]
@@ -866,7 +866,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
         await base.Navigation_fk_based_inside_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -879,7 +879,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         await base.Navigation_inside_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -892,7 +892,7 @@ WHERE [c].[City] IN (N'Novigrad', N'Seattle')
         await base.Navigation_inside_contains_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
@@ -906,7 +906,7 @@ WHERE [c].[City] IN (N'Novigrad', N'Seattle')
         await base.Navigation_from_join_clause_inside_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
@@ -934,7 +934,7 @@ WHERE [c].[Country] IN (N'USA', N'Redania')
         await base.Navigation_in_subquery_referencing_outer_query(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -952,7 +952,7 @@ WHERE (
         await base.Project_single_scalar_value_subquery_is_properly_inlined(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], (
     SELECT TOP(1) [o].[OrderID]
     FROM [Orders] AS [o]
@@ -967,7 +967,7 @@ FROM [Customers] AS [c]
         await base.Project_single_entity_value_subquery_works(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -988,7 +988,7 @@ ORDER BY [c].[CustomerID]
         await base.Project_single_scalar_value_subquery_in_query_with_optional_navigation_works(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[OrderID], COALESCE((
@@ -1011,7 +1011,7 @@ ORDER BY [t].[OrderID]
         await base.GroupJoin_with_complex_subquery_and_LOJ_gets_flattened(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -1028,7 +1028,7 @@ LEFT JOIN (
         await base.GroupJoin_with_complex_subquery_and_LOJ_gets_flattened2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -1045,7 +1045,7 @@ LEFT JOIN (
         await base.Navigation_with_collection_with_nullable_type_key(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -1061,7 +1061,7 @@ WHERE (
         await base.Multiple_include_with_multiple_optional_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
@@ -1076,7 +1076,7 @@ WHERE [c].[City] = N'London'
         await base.Navigation_in_subquery_referencing_outer_query_with_client_side_result_operator_and_count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
@@ -1097,7 +1097,7 @@ WHERE [o].[OrderID] IN (10643, 10692) AND (
         await base.Select_Where_Navigation_Scalar_Equals_Navigation_Scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
 FROM [Orders] AS [o]
 CROSS JOIN (

@@ -41,7 +41,7 @@ public interface ILoggingOptions : ISingletonOptions
     WarningsConfiguration WarningsConfiguration { get; }
 
     /// <summary>
-    ///    Returns <see langword="true"/> if a warning about string values for the given enum type has not yet been performed.
+    ///     Returns <see langword="true" /> if a warning about string values for the given enum type has not yet been performed.
     /// </summary>
     /// <param name="enumType">The type to check.</param>
     /// <returns>Whether or not a warning has been issued.</returns>

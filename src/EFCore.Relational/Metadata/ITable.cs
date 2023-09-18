@@ -66,7 +66,7 @@ public interface ITable : ITableBase
     /// <summary>
     ///     Gets the comment for this table.
     /// </summary>
-    public virtual string? Comment
+    public string? Comment
         => EntityTypeMappings.Select(e => (e.TypeBase as IEntityType)?.GetComment()).FirstOrDefault(c => c != null);
 
     /// <summary>

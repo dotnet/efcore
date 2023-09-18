@@ -44,7 +44,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasColumnName<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? name)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnName((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnName(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
 
     /// <summary>
     ///     Configures the order of the column the property is mapped to.
@@ -52,7 +53,9 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <param name="primitiveCollectionBuilder">The builder of the property being configured.</param>
     /// <param name="order">The column order.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder HasColumnOrder(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder, int? order)
+    public static ComplexTypePrimitiveCollectionBuilder HasColumnOrder(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
+        int? order)
     {
         primitiveCollectionBuilder.Metadata.SetColumnOrder(order);
 
@@ -65,8 +68,11 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <param name="primitiveCollectionBuilder">The builder of the property being configured.</param>
     /// <param name="order">The column order.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasColumnOrder<TProperty>(this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder, int? order)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnOrder((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, order);
+    public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasColumnOrder<TProperty>(
+        this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
+        int? order)
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnOrder(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, order);
 
     /// <summary>
     ///     Configures the data type of the column that the property maps to when targeting a relational database.
@@ -103,7 +109,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasColumnType<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? typeName)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnType((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, typeName);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasColumnType(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, typeName);
 
     /// <summary>
     ///     Configures the property as capable of storing only fixed-length data, such as strings.
@@ -136,7 +143,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> IsFixedLength<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         bool fixedLength = true)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsFixedLength((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, fixedLength);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsFixedLength(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, fixedLength);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a
@@ -154,7 +162,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValueSql(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
+    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValueSql(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
     {
         primitiveCollectionBuilder.Metadata.SetDefaultValueSql(string.Empty);
 
@@ -200,7 +209,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
 
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a relational database.
@@ -215,7 +225,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValueSql<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValueSql(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -232,7 +243,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder HasComputedColumnSql(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
+    public static ComplexTypePrimitiveCollectionBuilder HasComputedColumnSql(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
     {
         primitiveCollectionBuilder.Metadata.SetComputedColumnSql(string.Empty);
 
@@ -302,7 +314,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasComputedColumnSql<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComputedColumnSql((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComputedColumnSql(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
 
     /// <summary>
     ///     Configures the property to map to a computed column when targeting a relational database.
@@ -338,7 +351,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? sql,
         bool? stored)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComputedColumnSql((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, stored);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComputedColumnSql(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sql, stored);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -356,7 +370,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// </remarks>
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValue(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
+    public static ComplexTypePrimitiveCollectionBuilder HasDefaultValue(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
     {
         primitiveCollectionBuilder.Metadata.SetDefaultValue(DBNull.Value);
 
@@ -401,7 +416,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValue<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder);
 
     /// <summary>
     ///     Configures the default value for the column that the property maps
@@ -417,7 +433,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasDefaultValue<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         object? value)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, value);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasDefaultValue(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, value);
 
     /// <summary>
     ///     Configures a comment to be applied to the column
@@ -450,7 +467,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasComment<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? comment)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComment((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, comment);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasComment(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, comment);
 
     /// <summary>
     ///     Configures the property to use the given collation. The database column will be created with the given
@@ -462,7 +480,9 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="collation">The collation for the column.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder UseCollation(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder, string? collation)
+    public static ComplexTypePrimitiveCollectionBuilder UseCollation(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
+        string? collation)
     {
         Check.NullButNotEmpty(collation, nameof(collation));
 
@@ -484,7 +504,8 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> UseCollation<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? collation)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)UseCollation((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, collation);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)UseCollation(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, collation);
 
     /// <summary>
     ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,
@@ -514,5 +535,6 @@ public static class RelationalComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> HasJsonPropertyName<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         string? name)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasJsonPropertyName((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)HasJsonPropertyName(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, name);
 }

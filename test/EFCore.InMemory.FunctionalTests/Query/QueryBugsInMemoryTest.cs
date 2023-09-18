@@ -119,7 +119,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
             builder.HasMany(i => i.Motors).WithOne(a => a.Inspection).HasForeignKey(i => i.VehicleInspectionId);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<VehicleInspection> VehicleInspections { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Motor> Motors { get; set; }
     }
 
@@ -174,6 +176,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private abstract class Base3595
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DateTime Modified { get; set; }
     }
 
@@ -200,8 +203,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class Context3595 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Exam3595> Exams { get; set; }
         public DbSet<Question3595> Questions { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<ExamQuestion3595> ExamQuestions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -413,8 +418,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext3101 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Entity3101> Entities { get; set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Child3101> Children { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -569,6 +576,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     private class MyContext5456 : DbContext
     {
         public DbSet<Blog5456> Blogs { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Post5456> Posts { get; set; }
         public DbSet<Comment5456> Comments { get; set; }
         public DbSet<Author5456> Authors { get; set; }
@@ -687,7 +695,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext19708 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Customer19708> Customers { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -862,6 +872,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext21768 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Book21768> Books { get; set; }
         public DbSet<BookCover21768> BookCovers { get; set; }
         public DbSet<CoverIllustration21768> CoverIllustrations { get; set; }
@@ -977,22 +988,26 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
     [Owned]
     private class Owned120729
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int Value { get; set; }
     }
 
     [Owned]
     private class Owned220729
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public Other20729 Other { get; set; }
     }
 
     private class Other20729
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int Id { get; set; }
     }
 
     private class MyContext20729 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Owner20729> Owners { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1141,7 +1156,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext19253 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<A19253> A { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<B19253> B { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1261,6 +1278,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext23285 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Root23285> Table { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1324,6 +1342,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext23687 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Root23687> Table { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1416,7 +1435,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext23593 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<StatusMap23593> StatusMaps { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<StatusMapEvent23593> StatusMapEvents { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1478,6 +1499,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext23926 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<History23926> History { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1572,6 +1594,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext18435 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<RootEntity18435> TestEntities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1619,6 +1642,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext19425 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<FooTable19425> FooTable { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1667,6 +1691,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext19667 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<MyEntity19667> Entities { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1738,6 +1763,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext20359 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Root20359> Root { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1943,6 +1969,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext18394 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<A18394> As { get; set; }
         public DbSet<B18394> Bs { get; set; }
         public DbSet<C18394> Cs { get; set; }
@@ -2011,8 +2038,10 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class MyContext23934 : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Outer23934> Outers { get; set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Inner23934> Inners { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -694,7 +694,6 @@ public class RelationalModelValidator : ModelValidator
 #pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
-
     }
 
     /// <summary>
@@ -2259,7 +2258,7 @@ public class RelationalModelValidator : ModelValidator
                 throw new InvalidOperationException(
                     RelationalStrings.EntitySplittingMissingRequiredPropertiesOptionalDependent(
                         entityType.DisplayName(), mainObject.DisplayName(),
-                        $".Navigation(p => p.{rowInternalFk.PrincipalToDependent!.Name}).IsRequired()" ));
+                        $".Navigation(p => p.{rowInternalFk.PrincipalToDependent!.Name}).IsRequired()"));
             }
 
             return mainObject;
@@ -2369,7 +2368,6 @@ public class RelationalModelValidator : ModelValidator
                         }
                     }
                 }
-                yield break;
             }
         }
         else

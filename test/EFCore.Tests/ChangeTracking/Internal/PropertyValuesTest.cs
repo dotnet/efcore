@@ -57,6 +57,7 @@ public class PropertyValuesTest
 
     private class CurrentValuesDb : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<SimpleEntity> SimpleEntities { get; set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

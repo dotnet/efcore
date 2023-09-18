@@ -290,7 +290,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     {
         Check.NotNull(propertyType, nameof(propertyType));
 
-        return new(
+        return new PropertyBuilder(
             DependentEntityType.Builder.IndexerProperty(
                 propertyType,
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);

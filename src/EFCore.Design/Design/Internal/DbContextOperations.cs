@@ -222,6 +222,7 @@ public class DbContextOperations
             {
                 ex = ex.InnerException!;
             }
+
             throw new OperationException(DesignStrings.CannotCreateContextInstance(contextType, ex.Message), ex);
         }
     }
@@ -322,6 +323,7 @@ public class DbContextOperations
             {
                 ex = ex.InnerException!;
             }
+
             throw new OperationException(DesignStrings.CannotFindDbContextTypes(ex.Message), ex);
         }
 

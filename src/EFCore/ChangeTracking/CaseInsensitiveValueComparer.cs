@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 public class CaseInsensitiveValueComparer : ValueComparer<string?>
 {
     /// <summary>
-    ///    Creates a value comparer instance.
+    ///     Creates a value comparer instance.
     /// </summary>
     public CaseInsensitiveValueComparer()
         : base(

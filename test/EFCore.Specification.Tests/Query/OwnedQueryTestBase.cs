@@ -887,12 +887,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<OwnedPerson>()
-                    .GroupBy(e => e.Id)
-                    .Select(e => new
-                    {
-                        e.Key,
-                        Sum = e.Sum(i => i.PersonAddress.Country.PlanetId)
-                    }),
+                .GroupBy(e => e.Id)
+                .Select(e => new { e.Key, Sum = e.Sum(i => i.PersonAddress.Country.PlanetId) }),
             elementSorter: e => e.Key,
             elementAsserter: (e, a) =>
             {
@@ -1206,11 +1202,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 eb =>
                 {
                     eb.IndexerProperty<string>("Name");
-                    var ownedPerson = new OwnedPerson
-                    {
-                        Id = 1,
-                        ["Name"] = "Mona Cy"
-                    };
+                    var ownedPerson = new OwnedPerson { Id = 1, ["Name"] = "Mona Cy" };
                     eb.HasData(ownedPerson);
 
                     eb.OwnsOne(
@@ -1766,11 +1758,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -10,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41"),
-                Details = new List<OrderDetail>
-                {
-                    new() { Detail = "Discounted Order" },
-                    new() { Detail = "Full Price Order" }
-                }
+                Details = new List<OrderDetail> { new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" } }
             };
 
             var order2 = new Order

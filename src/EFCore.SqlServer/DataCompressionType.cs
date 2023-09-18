@@ -2,13 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
 ///     Indicates type of data compression used on a index.
 /// </summary>
 /// <remarks>
-///     See <see href="https://docs.microsoft.com/sql/relational-databases/data-compression">Data Compression</see> for more information on data compression.
+///     See <see href="https://docs.microsoft.com/sql/relational-databases/data-compression">Data Compression</see> for more information on
+///     data compression.
 /// </remarks>
 public enum DataCompressionType
 {

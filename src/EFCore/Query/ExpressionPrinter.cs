@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -1072,7 +1071,7 @@ public class ExpressionPrinter : ExpressionVisitor
         return invocationExpression;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override Expression VisitLoop(LoopExpression loopExpression)
     {
         _stringBuilder.AppendLine($"Loop(Break: {loopExpression.BreakLabel?.Name} Continue: {loopExpression.ContinueLabel?.Name})");

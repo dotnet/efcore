@@ -34,15 +34,13 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IRowForeignKeyValueFactory Create(IForeignKeyConstraint foreignKey)
-    {
-        return foreignKey.Columns.Count == 1
+        => foreignKey.Columns.Count == 1
             ? (IRowForeignKeyValueFactory)CreateMethod
                 .MakeGenericMethod(
                     foreignKey.PrincipalColumns.First().ProviderClrType,
                     foreignKey.Columns.First().ProviderClrType)
                 .Invoke(null, new object[] { foreignKey, _valueConverterSelector })!
             : new CompositeRowForeignKeyValueFactory(foreignKey, _valueConverterSelector);
-    }
 
     private static readonly MethodInfo CreateMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreateSimple))!;

@@ -213,7 +213,7 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
         await base.Select_datetimeoffset_comparison_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT "m"."Timeline"
 FROM "Missions" AS "m"
 """);
@@ -224,7 +224,7 @@ FROM "Missions" AS "m"
         await base.Byte_array_contains_literal(async);
 
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
 WHERE instr("s"."Banner", X'01') > 0
@@ -236,7 +236,7 @@ WHERE instr("s"."Banner", X'01') > 0
         await base.Byte_array_contains_parameter(async);
 
         AssertSql(
-"""
+            """
 @__someByte_0='1'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
@@ -250,7 +250,7 @@ WHERE instr("s"."Banner", char(@__someByte_0)) > 0
         await base.Byte_array_filter_by_length_literal(async);
 
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
 WHERE length("s"."Banner") = 1
@@ -262,7 +262,7 @@ WHERE length("s"."Banner") = 1
         await base.Byte_array_filter_by_length_parameter(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
@@ -276,7 +276,7 @@ WHERE length("s"."Banner") = @__p_0
         base.Byte_array_filter_by_length_parameter_compiled();
 
         AssertSql(
-"""
+            """
 @__byteArrayParam='0x2A80' (Size = 2)
 
 SELECT COUNT(*)
@@ -290,7 +290,7 @@ WHERE length("s"."Banner") = length(@__byteArrayParam)
         await base.Byte_array_filter_by_SequenceEqual(async);
 
         AssertSql(
-"""
+            """
 @__byteArrayParam_0='0x0405060708' (Size = 5)
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
@@ -367,7 +367,7 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
         Assert.Equal("SQLite Error 1: 'no such column: s.Id'.", message);
 
         AssertSql(
-"""
+            """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
 WHERE (

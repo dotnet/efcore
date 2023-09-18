@@ -136,16 +136,19 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
         public InternalGrouping(TKey key)
         {
             Key = key;
-            _elements = new();
+            _elements = new List<TElement>();
         }
 
-        internal void Add(TElement element) => _elements.Add(element);
+        internal void Add(TElement element)
+            => _elements.Add(element);
 
         public TKey Key { get; }
 
-        public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
+        public IEnumerator<TElement> GetEnumerator()
+            => _elements.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
     }
 
     private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
@@ -252,7 +255,8 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                             {
                                 // Check if grouping key changed
                                 if (!CompareIdentifiers(
-                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                        _keyIdentifierValueComparers, keyIdentifier,
+                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                                 {
                                     _resultCoordinator.HasNext = true;
                                     Current = group;
@@ -394,11 +398,11 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                     if (_dataReader == null)
                     {
                         await _relationalQueryContext.ExecutionStrategy.ExecuteAsync(
-                                    this,
-                                    static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
-                                    null,
-                                    _cancellationToken)
-                                .ConfigureAwait(false);
+                                this,
+                                static (_, enumerator, cancellationToken) => InitializeReaderAsync(enumerator, cancellationToken),
+                                null,
+                                _cancellationToken)
+                            .ConfigureAwait(false);
                     }
 
                     var hasNext = _resultCoordinator!.HasNext ?? await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false);
@@ -417,7 +421,7 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                             if (_relatedDataLoaders != null)
                             {
                                 await _relatedDataLoaders(
-                                    _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
+                                        _relationalQueryContext, _relationalQueryContext.ExecutionStrategy, _resultCoordinator)
                                     .ConfigureAwait(false);
                                 element = _elementSelector(
                                     _relationalQueryContext, _dbDataReader!, _resultCoordinator.ResultContext, _resultCoordinator);
@@ -429,7 +433,8 @@ public class GroupBySplitQueryingEnumerable<TKey, TElement>
                             {
                                 // Check if grouping key changed
                                 if (!CompareIdentifiers(
-                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                        _keyIdentifierValueComparers, keyIdentifier,
+                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                                 {
                                     _resultCoordinator.HasNext = true;
                                     Current = group;

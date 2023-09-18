@@ -604,18 +604,18 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>(
-                    b =>
-                    {
-                        ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+                b =>
+                {
+                    ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
 
-                        b.UpdateUsingStoredProcedure(
-                            nameof(Entity) + "_Update",
-                            spb => spb
-                                .HasOriginalValueParameter(w => w.Id)
-                                .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
-                                .HasParameter(w => w.Name)
-                                .HasRowsAffectedParameter());
-                    }),
+                    b.UpdateUsingStoredProcedure(
+                        nameof(Entity) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
+                            .HasParameter(w => w.Name)
+                            .HasRowsAffectedParameter());
+                }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
         await using var context1 = contextFactory.CreateContext();
@@ -783,16 +783,16 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     {
         var contextFactory = await InitializeAsync<DbContext>(
             modelBuilder => modelBuilder.Entity<Entity>(
-                    b =>
-                    {
-                        b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+                b =>
+                {
+                    b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
 
-                        b.InsertUsingStoredProcedure(
-                            nameof(Entity) + "_Insert",
-                            spb => spb
-                                .HasParameter(w => w.Id, pb => pb.IsOutput())
-                                .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
-                    }),
+                    b.InsertUsingStoredProcedure(
+                        nameof(Entity) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+                }),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
         await using var context = contextFactory.CreateContext();

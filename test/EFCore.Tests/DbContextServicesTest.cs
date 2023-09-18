@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore
 {
     public partial class DbContextTest
     {
-        protected static readonly Guid GuidSentinel = new Guid("56D3784D-6F7F-4935-B7F6-E77DC6E1D91E");
+        protected static readonly Guid GuidSentinel = new("56D3784D-6F7F-4935-B7F6-E77DC6E1D91E");
         protected static readonly int IntSentinel = 667;
 
         [ConditionalFact]

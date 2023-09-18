@@ -50,7 +50,6 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                         ? CreateProviderValueComparer(
                             parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel))
-
                 }))
     {
         SpatialConverter = converter;

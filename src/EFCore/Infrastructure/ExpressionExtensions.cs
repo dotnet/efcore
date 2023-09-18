@@ -309,7 +309,8 @@ public static class ExpressionExtensions
     public static readonly MethodInfo ValueBufferTryReadValueMethod
         = typeof(ExpressionExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ValueBufferTryReadValue))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "ValueBufferTryReadValueMethod has no DynamicallyAccessedMembers annotations and is safe to construct.")]
     private static MethodInfo MakeValueBufferTryReadValueMethod(Type type)
         => ValueBufferTryReadValueMethod.MakeGenericMethod(type);

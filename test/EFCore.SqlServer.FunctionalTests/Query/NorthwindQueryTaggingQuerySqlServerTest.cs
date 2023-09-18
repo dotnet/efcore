@@ -26,7 +26,7 @@ public class NorthwindQueryTaggingQuerySqlServerTest : NorthwindQueryTaggingQuer
         base.Single_query_tag();
 
         AssertSql(
-"""
+            """
 -- Yanni
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -40,7 +40,7 @@ ORDER BY [c].[CustomerID]
         base.Single_query_multiple_tags();
 
         AssertSql(
-"""
+            """
 -- Yanni
 -- Enya
 
@@ -55,7 +55,7 @@ ORDER BY [c].[CustomerID]
         base.Tags_on_subquery();
 
         AssertSql(
-"""
+            """
 -- Yanni
 -- Laurel
 
@@ -75,7 +75,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         base.Duplicate_tags();
 
         AssertSql(
-"""
+            """
 -- Yanni
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -89,7 +89,7 @@ ORDER BY [c].[CustomerID]
         base.Tag_on_include_query();
 
         AssertSql(
-"""
+            """
 -- Yanni
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -118,7 +118,7 @@ ORDER BY [t].[CustomerID]
         Assert.NotNull(customer);
 
         AssertSql(
-"""
+            """
 -- Yanni
 
 SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -126,7 +126,7 @@ FROM [Customers] AS [c]
 ORDER BY [c].[CustomerID]
 """,
             //
-"""
+            """
 -- Yanni
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
@@ -145,7 +145,7 @@ ORDER BY [t].[CustomerID]
         base.Tag_on_scalar_query();
 
         AssertSql(
-"""
+            """
 -- Yanni
 
 SELECT TOP(1) [o].[OrderDate]
@@ -159,7 +159,7 @@ ORDER BY [o].[OrderID]
         base.Single_query_multiline_tag();
 
         AssertSql(
-"""
+            """
 -- Yanni
 -- AND
 -- Laurel
@@ -175,7 +175,7 @@ ORDER BY [c].[CustomerID]
         base.Single_query_multiple_multiline_tag();
 
         AssertSql(
-"""
+            """
 -- Yanni
 -- AND
 -- Laurel
@@ -195,7 +195,7 @@ ORDER BY [c].[CustomerID]
         base.Single_query_multiline_tag_with_empty_lines();
 
         AssertSql(
-"""
+            """
 -- Yanni
 -- 
 -- AND

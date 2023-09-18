@@ -658,8 +658,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     }
 
     /// <summary>
-    /// Wraps the given expression with any SQL logic necessary to convert a value coming out of a JSON document into the relational value
-    /// represented by the given type mapping.
+    ///     Wraps the given expression with any SQL logic necessary to convert a value coming out of a JSON document into the relational value
+    ///     represented by the given type mapping.
     /// </summary>
     private static SqlExpression ApplyJsonSqlConversion(
         SqlExpression expression,
@@ -677,18 +677,28 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     private sealed class FakeMemberInfo : MemberInfo
     {
         public FakeMemberInfo(string name)
-            => Name = name;
+        {
+            Name = name;
+        }
 
         public override string Name { get; }
 
         public override object[] GetCustomAttributes(bool inherit)
             => throw new NotSupportedException();
+
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
             => throw new NotSupportedException();
+
         public override bool IsDefined(Type attributeType, bool inherit)
             => throw new NotSupportedException();
-        public override Type? DeclaringType => throw new NotSupportedException();
-        public override MemberTypes MemberType => throw new NotSupportedException();
-        public override Type? ReflectedType => throw new NotSupportedException();
+
+        public override Type? DeclaringType
+            => throw new NotSupportedException();
+
+        public override MemberTypes MemberType
+            => throw new NotSupportedException();
+
+        public override Type? ReflectedType
+            => throw new NotSupportedException();
     }
 }

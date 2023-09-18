@@ -101,7 +101,7 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
             }
         }
         else if (!EntityType.IsAssignableFrom(entityType)
-            && !entityType.IsAssignableFrom(EntityType))
+                 && !entityType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));

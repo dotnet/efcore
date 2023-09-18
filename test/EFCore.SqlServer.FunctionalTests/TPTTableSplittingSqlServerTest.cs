@@ -18,7 +18,7 @@ public class TPTTableSplittingSqlServerTest : TPTTableSplittingTestBase
         await base.Can_use_with_redundant_relationships();
 
         AssertSql(
-"""
+            """
 SELECT [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
@@ -73,7 +73,7 @@ ORDER BY [v].[Name]
         await base.Can_query_shared();
 
         AssertSql(
-"""
+            """
 SELECT [v].[Name], [v].[Operator_Name], [l].[LicenseType], CASE
     WHEN [l].[VehicleName] IS NOT NULL THEN N'LicensedOperator'
 END AS [Discriminator]
@@ -87,7 +87,7 @@ LEFT JOIN [LicensedOperators] AS [l] ON [v].[Name] = [l].[VehicleName]
         await base.Can_query_shared_nonhierarchy();
 
         AssertSql(
-"""
+            """
 SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 """);
@@ -98,7 +98,7 @@ FROM [Vehicles] AS [v]
         await base.Can_query_shared_nonhierarchy_with_nonshared_dependent();
 
         AssertSql(
-"""
+            """
 SELECT [v].[Name], [v].[Operator_Name]
 FROM [Vehicles] AS [v]
 """);
@@ -109,7 +109,7 @@ FROM [Vehicles] AS [v]
         await base.Can_query_shared_derived_hierarchy();
 
         AssertSql(
-"""
+            """
 SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType], [s].[GrainGeometry], CASE
     WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
 END AS [Discriminator]
@@ -124,7 +124,7 @@ WHERE [c].[Capacity] IS NOT NULL
         await base.Can_query_shared_derived_nonhierarchy();
 
         AssertSql(
-"""
+            """
 SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 WHERE [c].[Capacity] IS NOT NULL
@@ -136,7 +136,7 @@ WHERE [c].[Capacity] IS NOT NULL
         await base.Can_query_shared_derived_nonhierarchy_all_required();
 
         AssertSql(
-"""
+            """
 SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
 WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL
@@ -147,7 +147,7 @@ WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL
     {
         await base.Can_change_dependent_instance_non_derived();
         AssertSql(
-"""
+            """
 @p0='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p1='Repair' (Size = 4000)
 @p3='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
@@ -161,7 +161,7 @@ OUTPUT 1
 WHERE [Name] = @p3;
 """,
             //
-"""
+            """
 SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
@@ -185,7 +185,7 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'
         await base.Can_change_principal_instance_non_derived();
 
         AssertSql(
-"""
+            """
 @p1='Trek Pro Fit Madone 6 Series' (Nullable = false) (Size = 450)
 @p0='2'
 
@@ -196,7 +196,7 @@ OUTPUT 1
 WHERE [Name] = @p1;
 """,
             //
-"""
+            """
 SELECT TOP(2) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
@@ -220,7 +220,7 @@ WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'
         await base.Optional_dependent_materialized_when_no_properties();
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [v].[Name], [v].[SeatingCapacity], [c].[AttachedVehicleName], CASE
     WHEN [c].[Name] IS NOT NULL THEN N'CompositeVehicle'
     WHEN [p].[Name] IS NOT NULL THEN N'PoweredVehicle'
@@ -248,8 +248,6 @@ ORDER BY [v].[Name]
     }
 
     public override Task Can_insert_dependent_with_just_one_parent()
-    {
         // This scenario is not valid for TPT
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 }

@@ -16,7 +16,7 @@ public class ComplexTypeBulkUpdatesSqlServerTest : ComplexTypeBulkUpdatesTestBas
         await base.Delete_entity_type_with_complex_type(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Customer] AS [c]
 WHERE [c].[Name] = N'Monty Elias'
@@ -35,7 +35,7 @@ WHERE [c].[Name] = N'Monty Elias'
         await base.Update_property_inside_complex_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[ShippingAddress_ZipCode] = 12345
 FROM [Customer] AS [c]
@@ -48,7 +48,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
         await base.Update_property_inside_nested_complex_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[ShippingAddress_Country_FullName] = N'United States Modified'
 FROM [Customer] AS [c]
@@ -61,7 +61,7 @@ WHERE [c].[ShippingAddress_Country_Code] = N'US'
         await base.Update_multiple_properties_inside_multiple_complex_types_and_on_entity_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[BillingAddress_ZipCode] = 54321,
     [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode],
@@ -76,7 +76,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
         await base.Update_projected_complex_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[ShippingAddress_ZipCode] = 12345
 FROM [Customer] AS [c]
@@ -88,7 +88,7 @@ FROM [Customer] AS [c]
         await base.Update_multiple_projected_complex_types_via_anonymous_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[BillingAddress_ZipCode] = 54321,
     [c].[ShippingAddress_ZipCode] = [c].[BillingAddress_ZipCode]

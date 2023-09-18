@@ -162,7 +162,8 @@ public class GlobalDatabaseTest
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
-                .UseInMemoryDatabase(nameof(ChangeNullabilityChecksCacheContext),
+                .UseInMemoryDatabase(
+                    nameof(ChangeNullabilityChecksCacheContext),
                     b => b.EnableNullChecks(_enableNullChecks));
     }
 

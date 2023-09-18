@@ -3,6 +3,7 @@
 
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -386,9 +387,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         || innerQueryableElementType != genericType)
                     {
                         while (innerArgument is UnaryExpression
-                            {
-                                NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
-                            } unaryExpression
+                               {
+                                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+                               } unaryExpression
                                && unaryExpression.Type.TryGetElementType(typeof(IEnumerable<>)) != null)
                         {
                             innerArgument = unaryExpression.Operand;
@@ -659,11 +660,11 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     outerKeySelector.Parameters[0],
                     resultSelector.Parameters[0],
                     Expression.AndAlso(
-                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                        ExpressionExtensions.CreateEqualsExpression(
                             outerKeySelector.Body,
                             Expression.Constant(null),
                             negated: true),
-                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                        ExpressionExtensions.CreateEqualsExpression(
                             outerKeySelector.Body,
                             innerKeySelector.Body)));
 

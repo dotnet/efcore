@@ -169,10 +169,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
             return _connection;
         }
-        set
-        {
-            SetDbConnection(value, contextOwnsConnection: false);
-        }
+        set => SetDbConnection(value, contextOwnsConnection: false);
     }
 
     /// <inheritdoc />

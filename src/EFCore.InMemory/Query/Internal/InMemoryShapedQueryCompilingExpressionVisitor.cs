@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Query.Internal;
 
-using static System.Linq.Expressions.Expression;
+using static Expression;
 
 public partial class InMemoryShapedQueryCompilingExpressionVisitor : ShapedQueryCompilingExpressionVisitor
 {

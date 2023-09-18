@@ -257,8 +257,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         if (_entries.Count > 1
             || _entries is [var singleEntry]
-                && (singleEntry.SharedIdentityEntry is not null
-                   || singleEntry.EntityType.GetComplexProperties().Any()))
+            && (singleEntry.SharedIdentityEntry is not null
+                || singleEntry.EntityType.GetComplexProperties().Any()))
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 
@@ -285,7 +285,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         : tableMapping;
                     if (sharedTableMapping != null)
                     {
-                        HandleSharedColumns(entry.SharedIdentityEntry.EntityType, entry.SharedIdentityEntry, sharedTableMapping, deleting, sharedTableColumnMap);
+                        HandleSharedColumns(
+                            entry.SharedIdentityEntry.EntityType, entry.SharedIdentityEntry, sharedTableMapping, deleting,
+                            sharedTableColumnMap);
                     }
                 }
 
@@ -703,8 +705,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         write: true,
                         key: false,
                         condition: false,
-                        _sensitiveLoggingEnabled)
-                    { GenerateParameterName = _generateParameterName };
+                        _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName };
 
                     ProcessSinglePropertyJsonUpdate(ref columnModificationParameters);
 
@@ -767,8 +768,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                                 write: true,
                                 key: false,
                                 condition: false,
-                                _sensitiveLoggingEnabled)
-                            { GenerateParameterName = _generateParameterName }));
+                                _sensitiveLoggingEnabled) { GenerateParameterName = _generateParameterName }));
                 }
             }
         }
@@ -1103,8 +1103,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 case EntityState.Added:
                     if (_currentValue == null
                         || !property.GetValueComparer().Equals(
-                             Update.ColumnModification.GetCurrentValue(entry, property),
-                             property.Sentinel))
+                            Update.ColumnModification.GetCurrentValue(entry, property),
+                            property.Sentinel))
                     {
                         _currentValue = Update.ColumnModification.GetCurrentProviderValue(entry, property);
                     }
@@ -1135,16 +1135,16 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     || (entry.EntityState == EntityState.Modified && !Update.ColumnModification.IsModified(entry, property))
                     || (entry.EntityState == EntityState.Added
                         && ((!_originalValueInitialized
-                            && property.GetValueComparer().Equals(
-                                 Update.ColumnModification.GetCurrentValue(entry, property),
-                                 property.Sentinel))
+                                && property.GetValueComparer().Equals(
+                                    Update.ColumnModification.GetCurrentValue(entry, property),
+                                    property.Sentinel))
                             || (_originalValueInitialized
                                 && mapping.Column.ProviderValueComparer.Equals(
                                     Update.ColumnModification.GetCurrentProviderValue(entry, property),
                                     _originalValue))))))
             {
                 if ((property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                    || entry.EntityState == EntityState.Added)
+                        || entry.EntityState == EntityState.Added)
                     && property.ValueGenerated != ValueGenerated.Never)
                 {
                     var value = _currentValue;

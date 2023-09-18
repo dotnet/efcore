@@ -3,14 +3,13 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
-{
-    public class ProductDocument
-    {
-        public int ProductID { get; set; }
-        public int DocumentNode { get; set; }
-        public DateTime ModifiedDate { get; set; }
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-        public virtual Product Product { get; set; }
-    }
+public class ProductDocument
+{
+    public int ProductID { get; set; }
+    public int DocumentNode { get; set; }
+    public DateTime ModifiedDate { get; set; }
+
+    public virtual Product Product { get; set; }
 }

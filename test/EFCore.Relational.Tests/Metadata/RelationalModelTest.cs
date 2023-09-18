@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NameSpace1;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -3115,7 +3116,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         public void Default_mappings_does_not_share_tableBase()
         {
             var modelBuilder = CreateConventionModelBuilder();
-            modelBuilder.Entity<NameSpace1.SameEntityType>().HasNoKey().ToTable((string)null);
+            modelBuilder.Entity<SameEntityType>().HasNoKey().ToTable((string)null);
             modelBuilder.Entity<NameSpace2.SameEntityType>().HasNoKey().ToTable((string)null);
 
             var model = Finalize(modelBuilder);
@@ -3126,7 +3127,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Empty(model.Functions);
             Assert.Empty(model.Queries);
 
-            var entityType1 = model.Model.FindEntityType(typeof(NameSpace1.SameEntityType));
+            var entityType1 = model.Model.FindEntityType(typeof(SameEntityType));
             var entityType2 = model.Model.FindEntityType(typeof(NameSpace2.SameEntityType));
 
             var defaultMapping1 = Assert.Single(entityType1.GetDefaultMappings());
@@ -3146,8 +3147,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 configureContext: b =>
                     b.ConfigureWarnings(
                         w => w.Default(WarningBehavior.Throw)
-                              .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
-                              .Ignore(RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable)));
+                            .Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning)
+                            .Ignore(RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable)));
 
         #region Asserters
 
@@ -3175,10 +3176,13 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             foreach (IEntityType expectedEntityType in expected.EntityTypeMappings.Select(m => m.TypeBase))
             {
-                var actualEntityType = (IEntityType)actual.EntityTypeMappings.Single(m => m.TypeBase.Name == expectedEntityType.Name).TypeBase;
-                Assert.Equal(expected.GetRowInternalForeignKeys(expectedEntityType).Count(),
+                var actualEntityType =
+                    (IEntityType)actual.EntityTypeMappings.Single(m => m.TypeBase.Name == expectedEntityType.Name).TypeBase;
+                Assert.Equal(
+                    expected.GetRowInternalForeignKeys(expectedEntityType).Count(),
                     actual.GetRowInternalForeignKeys(actualEntityType).Count());
-                Assert.Equal(expected.GetReferencingRowInternalForeignKeys(expectedEntityType).Count(),
+                Assert.Equal(
+                    expected.GetReferencingRowInternalForeignKeys(expectedEntityType).Count(),
                     actual.GetReferencingRowInternalForeignKeys(actualEntityType).Count());
             }
 
@@ -3305,7 +3309,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.Columns.Select(c => c.Name), actual.Columns.Select(c => c.Name));
             Assert.Equal(expected.Name, actual.Name);
             Assert.Contains(actual, actual.Table.Indexes);
-            Assert.Equal(actual.MappedIndexes.Select(i => i.Properties.Select(p => p.Name)),
+            Assert.Equal(
+                actual.MappedIndexes.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedIndexes.Select(i => i.Properties.Select(p => p.Name)));
 
             Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
@@ -3321,7 +3326,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.PrincipalUniqueConstraint.Name, actual.PrincipalUniqueConstraint.Name);
             Assert.Equal(expected.PrincipalTable.SchemaQualifiedName, actual.PrincipalTable.SchemaQualifiedName);
             Assert.Contains(actual, actual.Table.ForeignKeyConstraints);
-            Assert.Equal(actual.MappedForeignKeys.Select(i => i.Properties.Select(p => p.Name)),
+            Assert.Equal(
+                actual.MappedForeignKeys.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedForeignKeys.Select(i => i.Properties.Select(p => p.Name)));
 
             Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
@@ -3334,7 +3340,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.Name, actual.Name);
             Assert.Equal(expected.GetIsPrimaryKey(), actual.GetIsPrimaryKey());
             Assert.Contains(actual, actual.Table.UniqueConstraints);
-            Assert.Equal(actual.MappedKeys.Select(i => i.Properties.Select(p => p.Name)),
+            Assert.Equal(
+                actual.MappedKeys.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedKeys.Select(i => i.Properties.Select(p => p.Name)));
 
             Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
@@ -3429,8 +3436,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.ReturnType, actual.ReturnType);
             Assert.Equal(expected.IsBuiltIn, actual.IsBuiltIn);
 
-            Assert.Same(actual, actual.Model.FindFunction(actual.Name, actual.Schema, actual.Parameters.Select(p => p.StoreType).ToArray()));
-            Assert.Equal(actual.DbFunctions.Select(p => p.ModelName),
+            Assert.Same(
+                actual, actual.Model.FindFunction(actual.Name, actual.Schema, actual.Parameters.Select(p => p.StoreType).ToArray()));
+            Assert.Equal(
+                actual.DbFunctions.Select(p => p.ModelName),
                 expected.DbFunctions.Select(p => p.ModelName));
             expected.EntityTypeMappings.ZipAssert(actual.EntityTypeMappings, AssertEqual);
         }
@@ -3486,15 +3495,14 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Null(actual.ReturnValue);
                 return;
             }
-            else
-            {
-                AssertEqualBase(expected.ReturnValue, actual.ReturnValue);
-                Assert.Same(actual, actual.ReturnValue.StoredProcedure);
-                expected.ReturnValue.PropertyMappings.ZipAssert(actual.ReturnValue.PropertyMappings, AssertEqual);
-            }
+
+            AssertEqualBase(expected.ReturnValue, actual.ReturnValue);
+            Assert.Same(actual, actual.ReturnValue.StoredProcedure);
+            expected.ReturnValue.PropertyMappings.ZipAssert(actual.ReturnValue.PropertyMappings, AssertEqual);
 
             Assert.Same(actual, actual.Model.FindStoredProcedure(actual.Name, actual.Schema));
-            Assert.Equal(actual.StoredProcedures.Select(p => p.Name),
+            Assert.Equal(
+                actual.StoredProcedures.Select(p => p.Name),
                 expected.StoredProcedures.Select(p => p.Name));
             expected.EntityTypeMappings.ZipAssert(actual.EntityTypeMappings, AssertEqual);
         }
@@ -3603,6 +3611,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         private class CustomerDetails
         {
             public string Address { get; set; }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTime BirthDay { get; set; }
         }
 

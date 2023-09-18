@@ -584,6 +584,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                     {
                         translatedValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
                     }
+
                     return _sqlExpressionFactory.In(translatedItem, translatedValues);
                 }
 

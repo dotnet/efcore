@@ -3,13 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+public class NavigationsQuerySqlServerTests : NavigationsQueryTests
 {
-    public class NavigationsQuerySqlServerTests : NavigationsQueryTests
-    {
-        protected override AdventureWorksContextBase CreateContext()
-        {
-            return AdventureWorksSqlServerFixture.CreateContext();
-        }
-    }
+    protected override AdventureWorksContextBase CreateContext()
+        => AdventureWorksSqlServerFixture.CreateContext();
 }

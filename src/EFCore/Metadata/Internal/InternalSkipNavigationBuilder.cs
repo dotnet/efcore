@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class InternalSkipNavigationBuilder :
-    InternalPropertyBaseBuilder<IConventionSkipNavigationBuilder, SkipNavigation>, IConventionSkipNavigationBuilder
+    InternalPropertyBaseBuilder<IConventionSkipNavigationBuilder, SkipNavigation>,
+    IConventionSkipNavigationBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -377,7 +378,10 @@ public class InternalSkipNavigationBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionSkipNavigationBuilder?)base.HasAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -388,7 +392,10 @@ public class InternalSkipNavigationBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionSkipNavigationBuilder?)base.HasNonNullAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -399,20 +406,26 @@ public class InternalSkipNavigationBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasNoAnnotation(string name, bool fromDataAnnotation)
+    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasNoAnnotation(
+        string name,
+        bool fromDataAnnotation)
         => (IConventionSkipNavigationBuilder?)base.HasNoAnnotation(
             name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasField(string? fieldName, bool fromDataAnnotation)
+    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasField(
+        string? fieldName,
+        bool fromDataAnnotation)
         => HasField(
             fieldName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
+    IConventionSkipNavigationBuilder? IConventionPropertyBaseBuilder<IConventionSkipNavigationBuilder>.HasField(
+        FieldInfo? fieldInfo,
+        bool fromDataAnnotation)
         => HasField(
             fieldInfo,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -498,7 +511,8 @@ public class InternalSkipNavigationBuilder :
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionSkipNavigationBuilder.CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, bool fromDataAnnotation)
-        => CanSetLazyLoadingEnabled(lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => CanSetLazyLoadingEnabled(
+            lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

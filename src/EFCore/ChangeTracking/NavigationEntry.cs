@@ -87,7 +87,7 @@ public abstract class NavigationEntry : MemberEntry
 
     /// <summary>
     ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -99,7 +99,7 @@ public abstract class NavigationEntry : MemberEntry
 
     /// <summary>
     ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -112,7 +112,7 @@ public abstract class NavigationEntry : MemberEntry
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -131,7 +131,7 @@ public abstract class NavigationEntry : MemberEntry
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -176,14 +176,15 @@ public abstract class NavigationEntry : MemberEntry
     ///         <see cref="EntityFrameworkQueryableExtensions.Include{TEntity,TProperty}" /> or
     ///         <see
     ///             cref="EntityFrameworkQueryableExtensions.ThenInclude{TEntity,TPreviousProperty,TProperty}(Microsoft.EntityFrameworkCore.Query.IIncludableQueryable{TEntity,System.Collections.Generic.IEnumerable{TPreviousProperty}},System.Linq.Expressions.Expression{System.Func{TPreviousProperty,TProperty}})" />
-    ///         , <see cref="Load()" />, or <see cref="LoadAsync(CancellationToken)" /> will set this flag. Subsequent calls to <see cref="Load()" />
+    ///         , <see cref="Load()" />, or <see cref="LoadAsync(CancellationToken)" /> will set this flag. Subsequent calls to
+    ///         <see cref="Load()" />
     ///         or <see cref="LoadAsync(CancellationToken)" /> will then be a no-op.
     ///     </para>
     ///     <para>
     ///         It is possible for IsLoaded to be false even if all related entities are loaded. This is because, depending on
     ///         how entities are loaded, it is not always possible to know for sure that all entities in a related collection
     ///         have been loaded. In such cases, calling <see cref="Load()" /> or <see cref="LoadAsync(CancellationToken)" /> will ensure all
-    ///         related entities are loaded and will set this flag to <see langword="true"/>.
+    ///         related entities are loaded and will set this flag to <see langword="true" />.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
@@ -191,7 +192,7 @@ public abstract class NavigationEntry : MemberEntry
     ///     </para>
     /// </remarks>
     /// <value>
-    ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to <see langword="true"/>.
+    ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to <see langword="true" />.
     /// </value>
     public virtual bool IsLoaded
     {

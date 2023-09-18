@@ -457,42 +457,42 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         public DbSet<Magus30358> Magi { get; set; }
 
         public MyContext30358(DbContextOptions options)
-           : base(options)
+            : base(options)
         {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Magus30358>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
-        }
+            => modelBuilder.Entity<Magus30358>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
 
         public void Seed()
         {
-            Add(new Monarch30358
-            {
-                Name = "His August Majesty Guslav the Fifth",
-                RulerOf = "The Union",
-            });
+            Add(
+                new Monarch30358
+                {
+                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
+                });
 
-            Add(new Monarch30358
-            {
-                Name = "Emperor Uthman-ul-Dosht",
-                RulerOf = "The Gurkish Empire",
-            });
+            Add(
+                new Monarch30358
+                {
+                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
+                });
 
-            Add(new Magus30358
-            {
-                Name = "Bayaz, the First of the Magi",
-                Affiliation = "The Union",
-                ToolUsed = new MagicTool30358 { Name = "The Divider" }
-            });
+            Add(
+                new Magus30358
+                {
+                    Name = "Bayaz, the First of the Magi",
+                    Affiliation = "The Union",
+                    ToolUsed = new MagicTool30358 { Name = "The Divider" }
+                });
 
-            Add(new Magus30358
-            {
-                Name = "The Prophet Khalul",
-                Affiliation = "The Gurkish Empire",
-                ToolUsed = new MagicTool30358 { Name = "The Hundred Words" }
-            });
+            Add(
+                new Magus30358
+                {
+                    Name = "The Prophet Khalul",
+                    Affiliation = "The Gurkish Empire",
+                    ToolUsed = new MagicTool30358 { Name = "The Hundred Words" }
+                });
 
             SaveChanges();
         }

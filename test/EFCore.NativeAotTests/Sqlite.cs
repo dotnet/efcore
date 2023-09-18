@@ -2,8 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.Sqlite;
+using SQLitePCL;
 
-SQLitePCL.Batteries_V2.Init();
+Batteries_V2.Init();
 
 using var connection = new SqliteConnection("Data Source=:memory:");
 

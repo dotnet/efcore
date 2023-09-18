@@ -40,7 +40,7 @@ WHERE NOT EXISTS (
         await base.Skip_navigation_any_without_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 WHERE EXISTS (
@@ -56,7 +56,7 @@ WHERE EXISTS (
         await base.Skip_navigation_any_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 WHERE EXISTS (
@@ -72,7 +72,7 @@ WHERE EXISTS (
         await base.Skip_navigation_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 WHERE EXISTS (
@@ -88,7 +88,7 @@ WHERE EXISTS (
         await base.Skip_navigation_count_without_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 WHERE (
@@ -104,7 +104,7 @@ WHERE (
         await base.Skip_navigation_count_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 ORDER BY (
@@ -126,7 +126,7 @@ ORDER BY (
         await base.Skip_navigation_long_count_without_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 WHERE (
@@ -142,7 +142,7 @@ WHERE (
         await base.Skip_navigation_long_count_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 ORDER BY (
@@ -158,7 +158,7 @@ ORDER BY (
         await base.Skip_navigation_select_many_average(async);
 
         AssertSql(
-"""
+            """
 SELECT AVG(CAST([t].[Key1] AS float))
 FROM [EntityTwos] AS [e]
 INNER JOIN (
@@ -174,7 +174,7 @@ INNER JOIN (
         await base.Skip_navigation_select_many_max(async);
 
         AssertSql(
-"""
+            """
 SELECT MAX([t].[Key1])
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -190,7 +190,7 @@ INNER JOIN (
         await base.Skip_navigation_select_many_min(async);
 
         AssertSql(
-"""
+            """
 SELECT MIN([t0].[Id])
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -218,7 +218,7 @@ INNER JOIN (
         await base.Skip_navigation_select_many_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT COALESCE(SUM([t0].[Key1]), 0)
 FROM (
     SELECT [r].[Id]
@@ -246,7 +246,7 @@ INNER JOIN (
         await base.Skip_navigation_select_subquery_average(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT AVG(CAST([e].[Key1] AS float))
     FROM [JoinCompositeKeyToLeaf] AS [j]
@@ -261,7 +261,7 @@ FROM [Leaves] AS [l]
         await base.Skip_navigation_select_subquery_max(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT MAX([e0].[Id])
     FROM [JoinOneToTwo] AS [j]
@@ -276,7 +276,7 @@ FROM [EntityTwos] AS [e]
         await base.Skip_navigation_select_subquery_min(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT MIN([e0].[Id])
     FROM [JoinOneToThreePayloadFull] AS [j]
@@ -291,7 +291,7 @@ FROM [EntityThrees] AS [e]
         await base.Skip_navigation_select_subquery_sum(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COALESCE(SUM([e1].[Id]), 0)
     FROM [EntityOneEntityTwo] AS [e0]
@@ -306,7 +306,7 @@ FROM [EntityTwos] AS [e]
         await base.Skip_navigation_order_by_first_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -326,7 +326,7 @@ LEFT JOIN (
         await base.Skip_navigation_order_by_single_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name]
 FROM [EntityOnes] AS [e]
 OUTER APPLY (
@@ -348,7 +348,7 @@ OUTER APPLY (
         await base.Skip_navigation_order_by_last_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name]
 FROM (
     SELECT [b].[Id]
@@ -374,7 +374,7 @@ LEFT JOIN (
         await base.Skip_navigation_order_by_reverse_first_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -394,7 +394,7 @@ LEFT JOIN (
         await base.Skip_navigation_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -411,7 +411,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[LeafId], [t].[CompositeId1], [
         await base.Skip_navigation_of_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -441,7 +441,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[RootSkipSharedId], [t0].[Comp
         await base.Join_with_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 INNER JOIN [EntityTwos] AS [e0] ON [e].[Id] = (
@@ -458,7 +458,7 @@ INNER JOIN [EntityTwos] AS [e0] ON [e].[Id] = (
         await base.Left_join_with_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [e0].[Key1], [e0].[Key2], [e0].[Key3], [e0].[Name]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN [EntityCompositeKeys] AS [e0] ON (
@@ -481,7 +481,7 @@ ORDER BY [e].[Key1], [e0].[Key1], [e].[Key2], [e0].[Key2]
         await base.Select_many_over_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM (
     SELECT [r].[Id]
@@ -509,7 +509,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_where(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
@@ -525,7 +525,7 @@ LEFT JOIN (
         await base.Select_many_over_skip_navigation_order_by_skip(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -545,7 +545,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_order_by_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -565,7 +565,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_order_by_skip_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -585,7 +585,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_of_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -614,7 +614,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -636,7 +636,7 @@ INNER JOIN (
         await base.Select_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [t].[Id], [t].[Name], [t].[LeftId], [t].[RightId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
@@ -653,7 +653,7 @@ ORDER BY [e].[Id], [t].[LeftId], [t].[RightId]
         await base.Select_skip_navigation_multiple(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[TwoSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
@@ -680,7 +680,7 @@ ORDER BY [e].[Id], [t].[ThreeId], [t].[TwoId], [t].[Id], [t0].[SelfSkipSharedLef
         await base.Select_skip_navigation_first_or_default(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -701,7 +701,7 @@ ORDER BY [e].[Id]
         await base.Include_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[Slumber], [t0].[IsGreen], [t0].[IsBrown], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -730,7 +730,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[RootSkipSharedId], [t0].[Comp
         await base.Include_skip_navigation_then_reference(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
@@ -748,7 +748,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]
         await base.Include_skip_navigation_then_include_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0], [t0].[Name0], [t0].[EntityBranchId], [t0].[EntityOneId]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -770,7 +770,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[LeafId], [t0].[CompositeId1],
         await base.Include_skip_navigation_then_include_reference_and_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Id1], [t0].[Name1], [t0].[LeftId], [t0].[RightId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -793,7 +793,7 @@ ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0], [t0].[Le
         await base.Include_skip_navigation_and_reference(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [e0].[Id], [t].[Id], [t].[Name], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 LEFT JOIN [EntityThrees] AS [e0] ON [e].[Id] = [e0].[ReferenceInverseId]
@@ -811,7 +811,7 @@ ORDER BY [e].[Id], [e0].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId]
         await base.Filtered_include_skip_navigation_where(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[OneId], [t].[ThreeId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -829,7 +829,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId]
         await base.Filtered_include_skip_navigation_order_by(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -846,7 +846,7 @@ ORDER BY [e].[Id], [t].[Id], [t].[ThreeId]
         await base.Filtered_include_skip_navigation_order_by_skip(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[SelfSkipSharedLeftId], [t0].[SelfSkipSharedRightId]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
@@ -867,7 +867,7 @@ ORDER BY [e].[Id], [t0].[SelfSkipSharedLeftId], [t0].[Id]
         await base.Filtered_include_skip_navigation_order_by_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -888,7 +888,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], 
         await base.Filtered_include_skip_navigation_order_by_skip_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -909,7 +909,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
         await base.Filtered_then_include_skip_navigation_where(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[Slumber], [t].[IsGreen], [t].[IsBrown], [t].[Discriminator], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id0], [t0].[Name0], [t0].[OneId], [t0].[ThreeId]
 FROM (
     SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityRoot' AS [Discriminator]
@@ -944,7 +944,7 @@ ORDER BY [t].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id],
         await base.Filtered_then_include_skip_navigation_order_by_skip_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[Slumber], [t].[IsGreen], [t].[IsBrown], [t].[Discriminator], [t1].[Key1], [t1].[Key2], [t1].[Key3], [t1].[Name], [t1].[RootSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [t1].[CompositeKeySkipSharedKey2], [t1].[CompositeKeySkipSharedKey3], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name0], [t1].[ReferenceInverseId], [t1].[Id0]
 FROM (
     SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityRoot' AS [Discriminator]
@@ -982,7 +982,7 @@ ORDER BY [t].[Id], [t1].[RootSkipSharedId], [t1].[CompositeKeySkipSharedKey1], [
         await base.Filtered_include_skip_navigation_where_then_include_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Name], [l].[Number], [l].[IsGreen], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM [Leaves] AS [l]
 LEFT JOIN (
@@ -1005,7 +1005,7 @@ ORDER BY [l].[Id], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0]
         await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[ExtraId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[ThreeId], [t1].[TwoId0]
 FROM [EntityOnes] AS [e]
 OUTER APPLY (
@@ -1034,7 +1034,7 @@ ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[
         await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[ExtraId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[ThreeId], [t1].[TwoId0]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
@@ -1061,7 +1061,7 @@ ORDER BY [e].[Id], [t1].[OneId], [t1].[TwoId], [t1].[Id], [t1].[TwoId0], [t1].[I
         await base.Filter_include_on_skip_navigation_combined(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId], [t].[Id1], [t].[CollectionInverseId0], [t].[ExtraId0], [t].[Name1], [t].[ReferenceInverseId0]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
@@ -1081,7 +1081,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
         await base.Filter_include_on_skip_navigation_combined_with_filtered_then_includes(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t3].[Id], [t3].[Name], [t3].[OneId], [t3].[ThreeId], [t3].[Id0], [t3].[CollectionInverseId], [t3].[ExtraId], [t3].[Name0], [t3].[ReferenceInverseId], [t3].[OneId0], [t3].[TwoId], [t3].[Id1], [t3].[Name1], [t3].[Number], [t3].[IsGreen], [t3].[Discriminator], [t3].[EntityBranchId], [t3].[EntityOneId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -1120,7 +1120,7 @@ ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].
         await base.Filtered_include_on_skip_navigation_then_filtered_include_on_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[OneId], [t0].[ThreeId], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -1143,7 +1143,7 @@ ORDER BY [e].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id]
         await base.Filtered_include_on_navigation_then_filtered_include_on_skip_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0], [t0].[CollectionInverseId0], [t0].[Name0], [t0].[ReferenceInverseId0], [t0].[ThreeId], [t0].[TwoId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
@@ -1180,13 +1180,13 @@ ORDER BY [e].[Id], [t0].[Id], [t0].[ThreeId], [t0].[TwoId]
         await base.Include_skip_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name]
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[Slumber], [t0].[IsGreen], [t0].[IsBrown], [t0].[Discriminator], [e].[Key1], [e].[Key2], [e].[Key3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
@@ -1215,13 +1215,13 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]
         await base.Include_skip_navigation_then_reference_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [e].[Id]
 FROM [EntityTwos] AS [e]
 INNER JOIN (
@@ -1239,13 +1239,13 @@ ORDER BY [e].[Id]
         await base.Include_skip_navigation_then_include_skip_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name]
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [e].[Key1], [e].[Key2], [e].[Key3], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
@@ -1256,7 +1256,7 @@ INNER JOIN (
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [e].[Key1], [e].[Key2], [e].[Key3], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Id]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
@@ -1278,13 +1278,13 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t].[LeafId], [t].[CompositeId1], [
         await base.Include_skip_navigation_then_include_reference_and_skip_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[ThreeId]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1296,7 +1296,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t].[Id0]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t].[Id0]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1319,14 +1319,14 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t].[Id0]
         await base.Include_skip_navigation_and_reference_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [e0].[Id], [e0].[CollectionInverseId], [e0].[Name], [e0].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 LEFT JOIN [EntityThrees] AS [e0] ON [e].[Id] = [e0].[ReferenceInverseId]
 ORDER BY [e].[Id], [e0].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [e].[Id], [e0].[Id]
 FROM [EntityTwos] AS [e]
 LEFT JOIN [EntityThrees] AS [e0] ON [e].[Id] = [e0].[ReferenceInverseId]
@@ -1344,13 +1344,13 @@ ORDER BY [e].[Id], [e0].[Id]
         await base.Filtered_include_skip_navigation_where_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [e].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1368,13 +1368,13 @@ ORDER BY [e].[Id]
         await base.Filtered_include_skip_navigation_order_by_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1391,13 +1391,13 @@ ORDER BY [e].[Id], [t].[Id]
         await base.Filtered_include_skip_navigation_order_by_skip_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id]
 FROM [EntityTwos] AS [e]
 INNER JOIN (
@@ -1418,13 +1418,13 @@ ORDER BY [e].[Id], [t0].[SelfSkipSharedLeftId], [t0].[Id]
         await base.Filtered_include_skip_navigation_order_by_take_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name]
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Key1], [e].[Key2], [e].[Key3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
@@ -1445,13 +1445,13 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], 
         await base.Filtered_include_skip_navigation_order_by_skip_take_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name]
 FROM [EntityCompositeKeys] AS [e]
 ORDER BY [e].[Key1], [e].[Key2], [e].[Key3]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Key1], [e].[Key2], [e].[Key3]
 FROM [EntityCompositeKeys] AS [e]
 INNER JOIN (
@@ -1472,7 +1472,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeId1], [t0].[Composit
         await base.Filtered_then_include_skip_navigation_where_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[Slumber], [t].[IsGreen], [t].[IsBrown], [t].[Discriminator]
 FROM (
     SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityRoot' AS [Discriminator]
@@ -1490,7 +1490,7 @@ FROM (
 ORDER BY [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId]
 FROM (
     SELECT [r].[Id]
@@ -1513,7 +1513,7 @@ INNER JOIN (
 ORDER BY [t].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id]
 """,
             //
-"""
+            """
 SELECT [t1].[Id], [t1].[Name], [t].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id]
 FROM (
     SELECT [r].[Id]
@@ -1548,7 +1548,7 @@ ORDER BY [t].[Id], [t0].[RootSkipSharedId], [t0].[ThreeSkipSharedId], [t0].[Id]
         await base.Filtered_then_include_skip_navigation_order_by_skip_take_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[Slumber], [t].[IsGreen], [t].[IsBrown], [t].[Discriminator]
 FROM (
     SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityRoot' AS [Discriminator]
@@ -1566,7 +1566,7 @@ FROM (
 ORDER BY [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t].[Id], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM (
     SELECT [r].[Id]
@@ -1589,7 +1589,7 @@ INNER JOIN (
 ORDER BY [t].[Id], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Key1], [t0].[Key2], [t0].[Key3]
 """,
             //
-"""
+            """
 SELECT [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [t].[Id], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3], [t0].[Key1], [t0].[Key2], [t0].[Key3]
 FROM (
     SELECT [r].[Id]
@@ -1627,13 +1627,13 @@ ORDER BY [t].[Id], [t0].[RootSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [
         await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Name], [l].[Number], [l].[IsGreen]
 FROM [Leaves] AS [l]
 ORDER BY [l].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Key1], [t].[Key2], [t].[Key3], [t].[Name], [l].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3]
 FROM [Leaves] AS [l]
 INNER JOIN (
@@ -1645,7 +1645,7 @@ INNER JOIN (
 ORDER BY [l].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Key1], [t].[Key2], [t].[Key3]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [l].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[CompositeId3], [t].[Key1], [t].[Key2], [t].[Key3]
 FROM [Leaves] AS [l]
 INNER JOIN (
@@ -1668,13 +1668,13 @@ ORDER BY [l].[Id], [t].[LeafId], [t].[CompositeId1], [t].[CompositeId2], [t].[Co
         await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t0].[OneId], [t0].[TwoId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1689,7 +1689,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]
 """,
             //
-"""
+            """
 SELECT [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId], [e].[Id], [t0].[OneId], [t0].[TwoId], [t0].[Id]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1716,13 +1716,13 @@ ORDER BY [e].[Id], [t0].[OneId], [t0].[Id], [t0].[TwoId]
         await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_order_by_skip_take_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1734,7 +1734,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1761,13 +1761,13 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[TwoId], [t0].[Id]
         await base.Filter_include_on_skip_navigation_combined_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityTwos] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId]
 FROM [EntityTwos] AS [e]
 INNER JOIN (
@@ -1780,7 +1780,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
 """,
             //
-"""
+            """
 SELECT [e2].[Id], [e2].[CollectionInverseId], [e2].[ExtraId], [e2].[Name], [e2].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
 FROM [EntityTwos] AS [e]
 INNER JOIN (
@@ -1800,13 +1800,13 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
         await base.Filter_include_on_skip_navigation_combined_with_filtered_then_includes_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [e].[Id], [t].[OneId], [t].[ThreeId]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1818,7 +1818,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1839,7 +1839,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id], [t0].[OneId], [t0].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1869,13 +1869,13 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
         await base.Filtered_include_on_skip_navigation_then_filtered_include_on_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId]
 FROM [EntityThrees] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[Name], [e].[Id], [t].[OneId], [t].[ThreeId]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1887,7 +1887,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
 FROM [EntityThrees] AS [e]
 INNER JOIN (
@@ -1910,13 +1910,13 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId], [t].[Id]
         await base.Filtered_include_on_navigation_then_filtered_include_on_skip_navigation_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name]
 FROM [EntityOnes] AS [e]
 ORDER BY [e].[Id]
 """,
             //
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1927,7 +1927,7 @@ INNER JOIN (
 ORDER BY [e].[Id], [t].[Id]
 """,
             //
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [e].[Id], [t].[Id]
 FROM [EntityOnes] AS [e]
 INNER JOIN (
@@ -1985,7 +1985,7 @@ ORDER BY [e].[Id], [t].[Id]
         await base.Select_many_over_skip_navigation_where_non_equality(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
 LEFT JOIN (
@@ -2001,7 +2001,7 @@ LEFT JOIN (
         await base.Contains_on_skip_collection_navigation(async);
 
         AssertSql(
-"""
+            """
 @__entity_equality_two_0_Id='1' (Nullable = true)
 
 SELECT [e].[Id], [e].[Name]
@@ -2019,7 +2019,7 @@ WHERE EXISTS (
         await base.GetType_in_hierarchy_in_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [r].[Id], [r].[Name], NULL AS [Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityRoot' AS [Discriminator]
 FROM [Roots] AS [r]
 """);
@@ -2030,7 +2030,7 @@ FROM [Roots] AS [r]
         await base.GetType_in_hierarchy_in_intermediate_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], [b].[Name], [b].[Number], NULL AS [Slumber], NULL AS [IsGreen], NULL AS [IsBrown], N'EntityBranch' AS [Discriminator]
 FROM [Branches] AS [b]
 """);
@@ -2041,7 +2041,7 @@ FROM [Branches] AS [b]
         await base.GetType_in_hierarchy_in_leaf_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Name], [l].[Number], NULL AS [Slumber], [l].[IsGreen], NULL AS [IsBrown], N'EntityLeaf' AS [Discriminator]
 FROM [Leaves] AS [l]
 """);
@@ -2052,7 +2052,7 @@ FROM [Leaves] AS [l]
         await base.GetType_in_hierarchy_in_querying_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator]
 FROM (
     SELECT [b].[Id], [b].[Name], [b].[Number], NULL AS [IsGreen], N'EntityBranch' AS [Discriminator]
@@ -2070,7 +2070,7 @@ WHERE 0 = 1
         await base.Filtered_include_skip_navigation_order_by_take_EF_Property(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Key1], [e].[Key2], [e].[Key3], [e].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[CompositeKeySkipSharedKey1], [t0].[CompositeKeySkipSharedKey2], [t0].[CompositeKeySkipSharedKey3]
 FROM [EntityCompositeKeys] AS [e]
 LEFT JOIN (
@@ -2092,7 +2092,7 @@ ORDER BY [e].[Key1], [e].[Key2], [e].[Key3], [t0].[CompositeKeySkipSharedKey1], 
         await base.Filtered_include_skip_navigation_order_by_skip_take_then_include_skip_navigation_where_EF_Property(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [t1].[Id], [t1].[CollectionInverseId], [t1].[ExtraId], [t1].[Name], [t1].[ReferenceInverseId], [t1].[OneId], [t1].[TwoId], [t1].[Id0], [t1].[CollectionInverseId0], [t1].[Name0], [t1].[ReferenceInverseId0], [t1].[ThreeId], [t1].[TwoId0]
 FROM [EntityOnes] AS [e]
 OUTER APPLY (
@@ -2128,7 +2128,7 @@ ORDER BY [e].[Id], [t1].[Id], [t1].[OneId], [t1].[TwoId], [t1].[ThreeId], [t1].[
         await base.Skip_navigation_all_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
 WHERE NOT EXISTS (
@@ -2144,7 +2144,7 @@ WHERE NOT EXISTS (
         await base.Skip_navigation_any_with_predicate_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
 WHERE EXISTS (
@@ -2160,7 +2160,7 @@ WHERE EXISTS (
         await base.Skip_navigation_contains_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
 WHERE EXISTS (
@@ -2176,7 +2176,7 @@ WHERE EXISTS (
         await base.Skip_navigation_count_without_predicate_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
 WHERE (
@@ -2192,7 +2192,7 @@ WHERE (
         await base.Skip_navigation_count_with_predicate_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name]
 FROM [UnidirectionalEntityOnes] AS [u]
 ORDER BY (
@@ -2214,7 +2214,7 @@ ORDER BY (
         await base.Skip_navigation_select_subquery_average_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT AVG(CAST([u1].[Key1] AS float))
     FROM [UnidirectionalJoinCompositeKeyToLeaf] AS [u0]
@@ -2229,7 +2229,7 @@ FROM [UnidirectionalLeaves] AS [u]
         await base.Skip_navigation_order_by_reverse_first_or_default_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [UnidirectionalEntityThrees] AS [u]
 LEFT JOIN (
@@ -2249,7 +2249,7 @@ LEFT JOIN (
         await base.Skip_navigation_of_type_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2276,7 +2276,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[RootSkipSharedId], [t0].[Unid
         await base.Join_with_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [u0].[Id], [u0].[CollectionInverseId], [u0].[ExtraId], [u0].[Name], [u0].[ReferenceInverseId]
 FROM [UnidirectionalEntityTwos] AS [u]
 INNER JOIN [UnidirectionalEntityTwos] AS [u0] ON [u].[Id] = (
@@ -2293,7 +2293,7 @@ INNER JOIN [UnidirectionalEntityTwos] AS [u0] ON [u].[Id] = (
         await base.Left_join_with_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [u0].[Key1], [u0].[Key2], [u0].[Key3], [u0].[Name]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN [UnidirectionalEntityCompositeKeys] AS [u0] ON (
@@ -2316,7 +2316,7 @@ ORDER BY [u].[Key1], [u0].[Key1], [u].[Key2], [u0].[Key2]
         await base.Select_many_over_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM (
     SELECT [u1].[Id]
@@ -2341,7 +2341,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_where_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
@@ -2357,7 +2357,7 @@ LEFT JOIN (
         await base.Select_many_over_skip_navigation_order_by_take_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 INNER JOIN (
@@ -2377,7 +2377,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_order_by_skip_take_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 INNER JOIN (
@@ -2397,7 +2397,7 @@ INNER JOIN (
         await base.Select_many_over_skip_navigation_cast_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator]
 FROM [UnidirectionalEntityOnes] AS [u]
 INNER JOIN (
@@ -2419,7 +2419,7 @@ INNER JOIN (
         await base.Select_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [t].[Id], [t].[Name], [t].[LeftId], [t].[RightId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
@@ -2436,7 +2436,7 @@ ORDER BY [u].[Id], [t].[LeftId], [t].[RightId]
         await base.Include_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[Discriminator], [t0].[RootSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2462,7 +2462,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[RootSkipSharedId], [t0].[Unid
         await base.Include_skip_navigation_then_reference_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId]
 FROM [UnidirectionalEntityTwos] AS [u]
 LEFT JOIN (
@@ -2480,7 +2480,7 @@ ORDER BY [u].[Id], [t].[OneId], [t].[TwoId], [t].[Id]
         await base.Include_skip_navigation_then_include_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[Name], [t0].[Number], [t0].[IsGreen], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id0], [t0].[Name0], [t0].[UnidirectionalEntityBranchId], [t0].[UnidirectionalEntityOneId]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2502,7 +2502,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[LeafId], [t0].[CompositeId1],
         await base.Include_skip_navigation_then_include_reference_and_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t0].[Id], [t0].[Name], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[OneId], [t0].[ThreeId], [t0].[Id1], [t0].[Name1], [t0].[LeftId], [t0].[RightId]
 FROM [UnidirectionalEntityThrees] AS [u]
 LEFT JOIN (
@@ -2525,7 +2525,7 @@ ORDER BY [u].[Id], [t0].[OneId], [t0].[ThreeId], [t0].[Id], [t0].[Id0], [t0].[Le
         await base.Include_skip_navigation_and_reference_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [u0].[Id], [t].[Id], [t].[Name], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityOneId], [u0].[CollectionInverseId], [u0].[Name], [u0].[ReferenceInverseId]
 FROM [UnidirectionalEntityTwos] AS [u]
 LEFT JOIN [UnidirectionalEntityThrees] AS [u0] ON [u].[Id] = [u0].[ReferenceInverseId]
@@ -2543,7 +2543,7 @@ ORDER BY [u].[Id], [u0].[Id], [t].[TwoSkipSharedId], [t].[UnidirectionalEntityOn
         await base.Filtered_include_skip_navigation_where_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[OneId], [t].[ThreeId]
 FROM [EntityThrees] AS [e]
 LEFT JOIN (
@@ -2561,7 +2561,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[ThreeId]
         await base.Filtered_include_skip_navigation_order_by_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[Name], [u].[ReferenceInverseId], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [t].[ThreeId], [t].[TwoId]
 FROM [UnidirectionalEntityThrees] AS [u]
 LEFT JOIN (
@@ -2578,7 +2578,7 @@ ORDER BY [u].[Id], [t].[Id], [t].[ThreeId]
         await base.Filtered_include_skip_navigation_order_by_skip_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[CollectionInverseId], [u].[ExtraId], [u].[Name], [u].[ReferenceInverseId], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[SelfSkipSharedRightId], [t0].[UnidirectionalEntityTwoId]
 FROM [UnidirectionalEntityTwos] AS [u]
 LEFT JOIN (
@@ -2599,7 +2599,7 @@ ORDER BY [u].[Id], [t0].[UnidirectionalEntityTwoId], [t0].[Id]
         await base.Filtered_include_skip_navigation_order_by_take_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2619,7 +2619,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[UnidirectionalEntityComposite
     {
         await base.Filtered_include_skip_navigation_order_by_skip_take_unidirectional(async);
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2640,7 +2640,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[CompositeId1], [t0].[Composit
         await base.Filtered_include_skip_navigation_where_then_include_skip_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name], [u].[Number], [u].[IsGreen], [t0].[Key1], [t0].[Key2], [t0].[Key3], [t0].[Name], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0].[CompositeId3], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId], [t0].[TwoSkipSharedId], [t0].[UnidirectionalEntityCompositeKeyKey1], [t0].[UnidirectionalEntityCompositeKeyKey2], [t0].[UnidirectionalEntityCompositeKeyKey3]
 FROM [UnidirectionalLeaves] AS [u]
 LEFT JOIN (
@@ -2663,7 +2663,7 @@ ORDER BY [u].[Id], [t0].[LeafId], [t0].[CompositeId1], [t0].[CompositeId2], [t0]
         await base.Filter_include_on_skip_navigation_combined_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[ExtraId], [e].[Name], [e].[ReferenceInverseId], [t].[Id], [t].[Name], [t].[Id0], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name0], [t].[ReferenceInverseId], [t].[OneId], [t].[TwoId], [t].[Id1], [t].[CollectionInverseId0], [t].[ExtraId0], [t].[Name1], [t].[ReferenceInverseId0]
 FROM [EntityTwos] AS [e]
 LEFT JOIN (
@@ -2690,7 +2690,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
         await base.Includes_accessed_via_different_path_are_merged_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Key1], [u].[Key2], [u].[Key3], [u].[Name], [t0].[Id], [t0].[CollectionInverseId], [t0].[Name], [t0].[ReferenceInverseId], [t0].[Id0]
 FROM [UnidirectionalEntityCompositeKeys] AS [u]
 LEFT JOIN (
@@ -2711,7 +2711,7 @@ ORDER BY [u].[Key1], [u].[Key2], [u].[Key3], [t0].[CompositeId1], [t0].[Composit
         await base.Select_many_over_skip_navigation_where_non_equality_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId]
 FROM [UnidirectionalEntityOnes] AS [u]
 LEFT JOIN (
@@ -2727,7 +2727,7 @@ LEFT JOIN (
         await base.Contains_on_skip_collection_navigation_unidirectional(async);
 
         AssertSql(
-"""
+            """
 @__entity_equality_two_0_Id='1' (Nullable = true)
 
 SELECT [u].[Id], [u].[Name]
@@ -2745,7 +2745,7 @@ WHERE EXISTS (
         await base.GetType_in_hierarchy_in_base_type_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name], NULL AS [Number], NULL AS [IsGreen], N'UnidirectionalEntityRoot' AS [Discriminator]
 FROM [UnidirectionalRoots] AS [u]
 """);
@@ -2756,7 +2756,7 @@ FROM [UnidirectionalRoots] AS [u]
         await base.GetType_in_hierarchy_in_intermediate_type_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name], [u].[Number], NULL AS [IsGreen], N'UnidirectionalEntityBranch' AS [Discriminator]
 FROM [UnidirectionalBranches] AS [u]
 """);
@@ -2766,7 +2766,7 @@ FROM [UnidirectionalBranches] AS [u]
     {
         await base.GetType_in_hierarchy_in_leaf_type_unidirectional(async);
         AssertSql(
-"""
+            """
 SELECT [u].[Id], [u].[Name], [u].[Number], [u].[IsGreen], N'UnidirectionalEntityLeaf' AS [Discriminator]
 FROM [UnidirectionalLeaves] AS [u]
 """);
@@ -2777,7 +2777,7 @@ FROM [UnidirectionalLeaves] AS [u]
         await base.GetType_in_hierarchy_in_querying_base_type_unidirectional(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Name], [t].[Number], [t].[IsGreen], [t].[Discriminator]
 FROM (
     SELECT [u].[Id], [u].[Name], [u].[Number], NULL AS [IsGreen], N'UnidirectionalEntityBranch' AS [Discriminator]

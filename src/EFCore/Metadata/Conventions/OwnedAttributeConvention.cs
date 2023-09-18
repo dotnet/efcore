@@ -23,7 +23,7 @@ public class OwnedAttributeConvention : TypeAttributeConventionBase<OwnedAttribu
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         OwnedAttribute attribute,
@@ -36,7 +36,7 @@ public class OwnedAttributeConvention : TypeAttributeConventionBase<OwnedAttribu
         }
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessComplexTypeAdded(
         IConventionComplexTypeBuilder complexTypeBuilder,
         OwnedAttribute attribute,

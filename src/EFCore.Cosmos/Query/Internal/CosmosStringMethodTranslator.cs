@@ -189,7 +189,7 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
             {
                 return arguments[0] is SqlConstantExpression { Value: 0 }
                     ? TranslateSystemFunction("LEFT", method.ReturnType, instance, arguments[1])
-                        : TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
+                    : TranslateSystemFunction("SUBSTRING", method.ReturnType, instance, arguments[0], arguments[1]);
             }
         }
 

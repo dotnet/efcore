@@ -102,6 +102,7 @@ public class InMemoryDatabaseCreatorTest
 
     private class FraggleContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Fraggle> Fraggles { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -355,7 +355,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             Assert.Equal(
                 @"Customer (Customer) Required
   ComplexType: ComplexProperties.Customer#Customer
-    Properties: " + @"
+    Properties: "
+                + @"
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
@@ -373,7 +374,8 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
                     b =>
                     {
                         b.Property<string>("__id").HasConversion(null);
-                        b.ComplexProperty(e => e.Quarks,
+                        b.ComplexProperty(
+                            e => e.Quarks,
                             b =>
                             {
                                 b.Property(e => e.Up);

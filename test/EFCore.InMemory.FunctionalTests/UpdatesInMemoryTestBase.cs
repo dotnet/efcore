@@ -49,10 +49,8 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
 
     // Issue #29875
     public override Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
-    {
-        return Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+        => Assert.ThrowsAsync<DbUpdateConcurrencyException>(
             () => base.Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(async));
-    }
 
     public abstract class UpdatesInMemoryFixtureBase : UpdatesFixtureBase
     {

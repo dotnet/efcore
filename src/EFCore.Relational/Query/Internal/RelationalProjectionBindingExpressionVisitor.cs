@@ -309,7 +309,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                     if (_indexBasedBinding)
                     {
                         _clientProjections!.Add(jsonQueryExpression);
-                        var jsonProjectionBinding = new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, typeof(ValueBuffer));
+                        var jsonProjectionBinding = new ProjectionBindingExpression(
+                            _selectExpression, _clientProjections.Count - 1, typeof(ValueBuffer));
 
                         return shaper.Update(jsonProjectionBinding);
                     }

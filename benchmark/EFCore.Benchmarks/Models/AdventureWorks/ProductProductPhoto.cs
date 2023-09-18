@@ -3,16 +3,15 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
-{
-    public class ProductProductPhoto
-    {
-        public int ProductID { get; set; }
-        public int ProductPhotoID { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public bool Primary { get; set; }
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-        public virtual Product Product { get; set; }
-        public virtual ProductPhoto ProductPhoto { get; set; }
-    }
+public class ProductProductPhoto
+{
+    public int ProductID { get; set; }
+    public int ProductPhotoID { get; set; }
+    public DateTime ModifiedDate { get; set; }
+    public bool Primary { get; set; }
+
+    public virtual Product Product { get; set; }
+    public virtual ProductPhoto ProductPhoto { get; set; }
 }

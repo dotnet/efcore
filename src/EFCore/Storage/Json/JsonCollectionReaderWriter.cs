@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
-///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable"/>.
+///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable" />.
 /// </summary>
 /// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>

@@ -310,7 +310,6 @@ WHERE EXISTS (
     FROM json_each(@__strings_0) AS "s"
     WHERE "s"."value" = "p"."NullableString" OR ("s"."value" IS NULL AND "p"."NullableString" IS NULL))
 """);
-
     }
 
     public override async Task Parameter_collection_of_DateTimes_Contains(bool async)
@@ -318,7 +317,7 @@ WHERE EXISTS (
         await base.Parameter_collection_of_DateTimes_Contains(async);
 
         AssertSql(
-"""
+            """
 @__dateTimes_0='["2020-01-10 12:30:00","9999-01-01 00:00:00"]' (Size = 45)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
@@ -519,7 +518,7 @@ WHERE "p"."Strings" ->> 1 = '10'
         await base.Column_collection_index_datetime(async);
 
         AssertSql(
-"""
+            """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."DateTimes" ->> 1 = '2020-01-10 12:30:00'
@@ -1096,7 +1095,7 @@ ORDER BY "p"."Id"
         await base.Project_primitive_collections_element(async);
 
         AssertSql(
-"""
+            """
 SELECT "p"."Ints" ->> 0 AS "Indexer", "p"."DateTimes" ->> 0 AS "EnumerableElementAt", "p"."Strings" ->> 1 AS "QueryableElementAt"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."Id" < 4

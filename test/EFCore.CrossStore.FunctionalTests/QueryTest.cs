@@ -240,6 +240,7 @@ public class QueryTest
 
     private abstract class QueryContextBase : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
 

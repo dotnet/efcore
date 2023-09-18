@@ -118,7 +118,8 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
 
     private bool IsAzureSqlDefault
         => (ConnectionString ?? Connection?.ConnectionString)
-            ?.Contains(".database.windows.net", StringComparison.InvariantCultureIgnoreCase) == true;
+            ?.Contains(".database.windows.net", StringComparison.InvariantCultureIgnoreCase)
+            == true;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -135,7 +136,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
         return clone;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual IDbContextOptionsExtension ApplyDefaults(IDbContextOptions options)
     {
         if (!IsAzureSql)

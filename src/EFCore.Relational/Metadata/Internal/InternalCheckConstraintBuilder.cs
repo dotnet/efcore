@@ -182,7 +182,10 @@ public class InternalCheckConstraintBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionCheckConstraintBuilder? IConventionCheckConstraintBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionCheckConstraintBuilder? IConventionCheckConstraintBuilder.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionCheckConstraintBuilder?)base.HasNonNullAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

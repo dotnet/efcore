@@ -101,7 +101,8 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual (object? Value, bool HasNullValue) CreateEquatableIndexValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var keyValue, out var hasNullValue)
             ? (new EquatableKeyValue<TKey>(_index, keyValue, EqualityComparer), hasNullValue)
             : (null, true);
@@ -113,7 +114,8 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual (object?[]? Value, bool HasNullValue) CreateIndexValue(
-        IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var value, out var hasNullValue)
             ? (new object?[] { value }, hasNullValue)
             : (null, true);

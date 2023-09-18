@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -130,7 +131,7 @@ public interface IRelationalModel : IAnnotatable
         {
             builder.Append(indentString).Append("RelationalModel: ");
 
-            if ((Model is Internal.Model) && Collation != null)
+            if ((Model is Model) && Collation != null)
             {
                 builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
             }

@@ -39,14 +39,24 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         var expected = (from o1 in ExpectedData.OperatorEntitiesString
                         from o2 in ExpectedData.OperatorEntitiesString
                         from o3 in ExpectedData.OperatorEntitiesBool
-                        where ((o2.Value == "B" || o3.Value) & (o1.Value != null)) != false
-                        select new { Value1 = o1.Value, Value2 = o2.Value, Value3 = o3.Value }).ToList();
+                        where ((o2.Value == "B" || o3.Value) & (o1.Value != null))
+                        select new
+                        {
+                            Value1 = o1.Value,
+                            Value2 = o2.Value,
+                            Value3 = o3.Value
+                        }).ToList();
 
         var actual = (from o1 in context.Set<OperatorEntityString>()
                       from o2 in context.Set<OperatorEntityString>()
                       from o3 in context.Set<OperatorEntityBool>()
                       where ((EF.Functions.Like(o2.Value, "B") || o3.Value) & (o1.Value != null)) != false
-                      select new { Value1 = o1.Value, Value2 = o2.Value, Value3 = o3.Value }).ToList();
+                      select new
+                      {
+                          Value1 = o1.Value,
+                          Value2 = o2.Value,
+                          Value3 = o3.Value
+                      }).ToList();
 
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
@@ -67,16 +77,29 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                         from e1 in ExpectedData.OperatorEntitiesLong
                         from e2 in ExpectedData.OperatorEntitiesLong
                         from e3 in ExpectedData.OperatorEntitiesLong
-                        where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value))) >= (((e1.Value / ~(e3.Value)) % (long)((1 + 1))) % (~(e0.Value) + 1)))
-                        select new { Value0 = e0.Value, Value1 = e1.Value, Value2 = e2.Value, Value3 = e3.Value }).ToList();
+                        where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value)))
+                            >= (((e1.Value / ~(e3.Value)) % (1 + 1)) % (~(e0.Value) + 1)))
+                        select new
+                        {
+                            Value0 = e0.Value,
+                            Value1 = e1.Value,
+                            Value2 = e2.Value,
+                            Value3 = e3.Value
+                        }).ToList();
 
         var actual = (from e0 in context.Set<OperatorEntityLong>()
                       from e1 in context.Set<OperatorEntityLong>()
                       from e2 in context.Set<OperatorEntityLong>()
                       from e3 in context.Set<OperatorEntityLong>()
-                      where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value))) >= (((e1.Value / ~(e3.Value)) % (long)((1 + 1))) % (~(e0.Value) + 1)))
-                      select new { Value0 = e0.Value, Value1 = e1.Value, Value2 = e2.Value, Value3 = e3.Value }).ToList();
-
+                      where ((((e1.Value % 2) / e0.Value) & (((e3.Value | e2.Value) - e0.Value) - (e2.Value * e2.Value)))
+                          >= (((e1.Value / ~(e3.Value)) % (1 + 1)) % (~(e0.Value) + 1)))
+                      select new
+                      {
+                          Value0 = e0.Value,
+                          Value1 = e1.Value,
+                          Value2 = e2.Value,
+                          Value3 = e3.Value
+                      }).ToList();
 
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
@@ -97,15 +120,24 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         var expected = (from e0 in ExpectedData.OperatorEntitiesInt
                         from e1 in ExpectedData.OperatorEntitiesInt
                         from e2 in ExpectedData.OperatorEntitiesBool
-                        where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & (int)((8 + 2)))) && e2.Value)
-                        select new { Value0 = e0.Value, Value1 = e1.Value, Value2 = e2.Value }).ToList();
+                        where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & 8 + 2)) && e2.Value)
+                        select new
+                        {
+                            Value0 = e0.Value,
+                            Value1 = e1.Value,
+                            Value2 = e2.Value
+                        }).ToList();
 
         var actual = (from e0 in context.Set<OperatorEntityInt>()
                       from e1 in context.Set<OperatorEntityInt>()
                       from e2 in context.Set<OperatorEntityBool>()
-                      where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & (int)((8 + 2)))) && e2.Value)
-                      select new { Value0 = e0.Value, Value1 = e1.Value, Value2 = e2.Value }).ToList();
-
+                      where (((((e1.Value & (e0.Value + e0.Value)) & e0.Value) / 1) > (e1.Value & 8 + 2)) && e2.Value)
+                      select new
+                      {
+                          Value0 = e0.Value,
+                          Value1 = e1.Value,
+                          Value2 = e2.Value
+                      }).ToList();
 
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
@@ -129,7 +161,14 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                         from e5 in ExpectedData.OperatorEntitiesInt
                         where ((e1.Value == "A" && e2.Value == "A") | (e3.Value == "B" && e4.Value == "B")) && e5.Value == 2
                         orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id
-                        select new { Id1 = e1.Id, Id2 = e2.Id, Id3 = e3.Id, Id4 = e4.Id, Id5 = e5.Id }).ToList();
+                        select new
+                        {
+                            Id1 = e1.Id,
+                            Id2 = e2.Id,
+                            Id3 = e3.Id,
+                            Id4 = e4.Id,
+                            Id5 = e5.Id
+                        }).ToList();
 
         var actual = (from e1 in context.Set<OperatorEntityString>()
                       from e2 in context.Set<OperatorEntityString>()
@@ -138,7 +177,14 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                       from e5 in context.Set<OperatorEntityInt>()
                       where ((e1.Value == "A" && e2.Value == "A") | (e3.Value == "B" && e4.Value == "B")) && e5.Value == 2
                       orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id
-                      select new { Id1 = e1.Id, Id2 = e2.Id, Id3 = e3.Id, Id4 = e4.Id, Id5 = e5.Id }).ToList();
+                      select new
+                      {
+                          Id1 = e1.Id,
+                          Id2 = e2.Id,
+                          Id3 = e3.Id,
+                          Id4 = e4.Id,
+                          Id5 = e5.Id
+                      }).ToList();
 
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
@@ -236,7 +282,6 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                       where -e1.Value == -(e1.Id + e2.Value)
                       select new { Id1 = e1.Id, Id2 = e2.Id }).ToList();
 
-
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
         {
@@ -280,8 +325,8 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
             seed: context =>
             {
                 context.Set<Owner>().AddRange(
-                    new Owner { Owned = new() { SomeProperty = "Bar" } },
-                    new Owner { Owned = new() { SomeProperty = "Baz" } });
+                    new Owner { Owned = new Owned { SomeProperty = "Bar" } },
+                    new Owner { Owned = new Owned { SomeProperty = "Baz" } });
                 context.SaveChanges();
             });
         await using var context = contextFactory.CreateContext();
@@ -290,13 +335,13 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         Assert.Equal("Bar", result.Owned.SomeProperty);
     }
 
-    class Owner
+    private class Owner
     {
         public int Id { get; set; }
         public Owned Owned { get; set; } = null!;
     }
 
-    class Owned
+    private class Owned
     {
         public string SomeProperty { get; set; } = "";
     }

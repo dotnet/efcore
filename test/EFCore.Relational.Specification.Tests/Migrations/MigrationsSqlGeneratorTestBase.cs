@@ -671,7 +671,6 @@ public abstract class MigrationsSqlGeneratorTestBase
                             Values = new object[,] { { "Targaryen" } }
                         })).Message);
 
-
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
@@ -728,15 +727,13 @@ public abstract class MigrationsSqlGeneratorTestBase
     [InlineData(3L)]
     [InlineData(null)]
     public virtual void Sequence_restart_operation(long? startsAt)
-    {
-        Generate(
+        => Generate(
             new RestartSequenceOperation
             {
                 Name = "TestRestartSequenceOperation",
                 Schema = "dbo",
                 StartValue = startsAt
             });
-    }
 
     private static void CreateGotModel(ModelBuilder b)
         => b.HasDefaultSchema("dbo").Entity(
