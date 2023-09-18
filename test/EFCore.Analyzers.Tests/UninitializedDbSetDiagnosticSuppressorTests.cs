@@ -11,7 +11,8 @@ public class UninitializedDbSetDiagnosticSuppressorTests
 {
     [ConditionalFact]
     public Task DbSet_property_on_DbContext_is_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -25,7 +26,8 @@ public class Blog
 
     [ConditionalFact]
     public Task Non_public_DbSet_property_on_DbContext_is_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     private Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -39,7 +41,8 @@ public class Blog
 
     [ConditionalFact]
     public Task DbSet_property_with_non_public_setter_on_DbContext_is_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; private set; }
@@ -53,7 +56,8 @@ public class Blog
 
     [ConditionalFact]
     public Task DbSet_property_without_setter_on_DbContext_is_not_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; }
@@ -67,7 +71,8 @@ public class Blog
 
     [ConditionalFact]
     public Task Static_DbSet_property_on_DbContext_is_not_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public static Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -81,7 +86,8 @@ public class Blog
 
     [ConditionalFact]
     public Task Non_DbSet_property_on_DbContext_is_not_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public string {|#0:Name|} { get; set; }
@@ -90,7 +96,8 @@ public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
 
     [ConditionalFact]
     public Task DbSet_property_on_non_DbContext_is_not_suppressed()
-        => VerifySingleSuppressionAsync("""
+        => VerifySingleSuppressionAsync(
+            """
 public class Foo
 {
     public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -124,12 +131,12 @@ public class Blog
             TestCode = source,
             CompilerDiagnostics = CompilerDiagnostics.Warnings,
             ExpectedDiagnostics =
-                {
-                    DiagnosticResult.CompilerWarning("CS8618")
-                        .WithLocation(0)
-                        .WithLocation(1)
-                        .WithIsSuppressed(true)
-                }
+            {
+                DiagnosticResult.CompilerWarning("CS8618")
+                    .WithLocation(0)
+                    .WithLocation(1)
+                    .WithIsSuppressed(true)
+            }
         }.RunAsync();
     }
 
@@ -176,11 +183,11 @@ public class Blog
             TestCode = source,
             CompilerDiagnostics = CompilerDiagnostics.Warnings,
             ExpectedDiagnostics =
-                {
-                    DiagnosticResult.CompilerWarning("CS8618")
-                        .WithLocation(0)
-                        .WithLocation(0)
-                        .WithIsSuppressed(isSuppressed)
-                }
+            {
+                DiagnosticResult.CompilerWarning("CS8618")
+                    .WithLocation(0)
+                    .WithLocation(0)
+                    .WithIsSuppressed(isSuppressed)
+            }
         }.RunAsync();
 }

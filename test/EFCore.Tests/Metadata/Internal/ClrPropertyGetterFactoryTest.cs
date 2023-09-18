@@ -188,8 +188,11 @@ public class ClrPropertyGetterFactoryTest
         modelBuilder.FinalizeModel();
 
         Assert.Equal(
-            "ValueA", new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
-        Assert.Equal(123, new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+            "ValueA",
+            new ClrPropertyGetterFactory().Create((IPropertyBase)propertyA).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
+        Assert.Equal(
+            123,
+            new ClrPropertyGetterFactory().Create((IPropertyBase)propertyB).GetClrValueUsingContainingEntity(new IndexedClass { Id = 7 }));
     }
 
     [ConditionalFact]
@@ -211,7 +214,7 @@ public class ClrPropertyGetterFactoryTest
 
         Assert.Equal(
             10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetClrValueUsingContainingEntity(
-                new Customer { Id = 7, Fuel = new Fuel(10.0)}));
+                new Customer { Id = 7, Fuel = new Fuel(10.0) }));
 
         Assert.Equal(
             10.0, new ClrPropertyGetterFactory().Create(volumeProperty).GetClrValue(new Fuel(10.0)));

@@ -265,12 +265,13 @@ internal static class EnumerableMethods
 
         AggregateWithSeedSelector = GetMethod(
             nameof(Enumerable.Aggregate), 3,
-            types => new[] {
+            types => new[]
+            {
                 typeof(IEnumerable<>).MakeGenericType(types[0]),
                 types[1],
                 typeof(Func<,,>).MakeGenericType(types[1], types[0], types[1]),
                 typeof(Func<,>).MakeGenericType(types[1], types[2])
-                });
+            });
 
         All = GetMethod(
             nameof(Enumerable.All), 1,
@@ -550,11 +551,12 @@ internal static class EnumerableMethods
 
         ZipWithSelector = GetMethod(
             nameof(Enumerable.Zip), 3,
-            types => new[] {
+            types => new[]
+            {
                 typeof(IEnumerable<>).MakeGenericType(types[0]),
                 typeof(IEnumerable<>).MakeGenericType(types[1]),
                 typeof(Func<,,>).MakeGenericType(types[0], types[1], types[2])
-                });
+            });
 
         var numericTypes = new[]
         {

@@ -51,8 +51,11 @@ public class DbSetInitializerTest
         {
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<string> One { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private DbSet<object> Two { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<string> Three { get; private set; }
 
         public DbSet<string> Four

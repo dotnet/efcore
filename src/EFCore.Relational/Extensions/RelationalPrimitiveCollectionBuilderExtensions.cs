@@ -65,7 +65,9 @@ public static class RelationalPrimitiveCollectionBuilderExtensions
     /// <param name="primitiveCollectionBuilder">The builder of the property being configured.</param>
     /// <param name="order">The column order.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static PrimitiveCollectionBuilder<TProperty> HasColumnOrder<TProperty>(this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder, int? order)
+    public static PrimitiveCollectionBuilder<TProperty> HasColumnOrder<TProperty>(
+        this PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
+        int? order)
         => (PrimitiveCollectionBuilder<TProperty>)HasColumnOrder((PrimitiveCollectionBuilder)primitiveCollectionBuilder, order);
 
     /// <summary>

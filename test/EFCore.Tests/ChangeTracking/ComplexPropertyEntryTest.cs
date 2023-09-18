@@ -60,11 +60,19 @@ public class ComplexPropertyEntryTest
         Assert.Equal("Rating", context.Entry((object)entity).ComplexProperty("Culture").Property("Rating").Metadata.Name);
         Assert.Equal("Rating", context.Entry((object)entity).ComplexProperty("Culture").Property("Rating").Metadata.Name);
 
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty(e => e.Culture).ComplexProperty(e => e.License).Property(e => e.Charge).Metadata.Name);
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty<Culture>("Culture").ComplexProperty(e => e.License).Property(e => e.Charge).Metadata.Name);
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
-        Assert.Equal("Charge", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
-        Assert.Equal("Charge", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry(entity).ComplexProperty(e => e.Culture).ComplexProperty(e => e.License).Property(e => e.Charge).Metadata.Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry(entity).ComplexProperty<Culture>("Culture").ComplexProperty(e => e.License).Property(e => e.Charge).Metadata
+                .Name);
+        Assert.Equal(
+            "Charge", context.Entry(entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge", context.Entry((object)entity).ComplexProperty("Culture").ComplexProperty("License").Property("Charge").Metadata.Name);
     }
 
     [ConditionalFact]
@@ -195,7 +203,8 @@ public class ComplexPropertyEntryTest
         Assert.Same(entry, context.Entry((object)entity).ComplexProperty("FieldCulture").GetInfrastructure());
 
         Assert.Same(entry, context.Entry(entity).ComplexProperty(e => e.FieldCulture).ComplexProperty(e => e.License).GetInfrastructure());
-        Assert.Same(entry, context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).GetInfrastructure());
+        Assert.Same(
+            entry, context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).GetInfrastructure());
         Assert.Same(entry, context.Entry(entity).ComplexProperty("FieldCulture").ComplexProperty("License").GetInfrastructure());
         Assert.Same(entry, context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").GetInfrastructure());
         Assert.Same(entry, context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").GetInfrastructure());
@@ -214,7 +223,8 @@ public class ComplexPropertyEntryTest
         Assert.Equal("FieldCulture", context.Entry((object)entity).ComplexProperty("FieldCulture").Metadata.Name);
 
         Assert.Equal("License", context.Entry(entity).ComplexProperty(e => e.FieldCulture).ComplexProperty(e => e.License).Metadata.Name);
-        Assert.Equal("License", context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).Metadata.Name);
+        Assert.Equal(
+            "License", context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).Metadata.Name);
         Assert.Equal("License", context.Entry(entity).ComplexProperty("FieldCulture").ComplexProperty("License").Metadata.Name);
         Assert.Equal("License", context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Metadata.Name);
         Assert.Equal("License", context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Metadata.Name);
@@ -232,11 +242,22 @@ public class ComplexPropertyEntryTest
         Assert.Equal("Rating", context.Entry((object)entity).ComplexProperty("FieldCulture").Property("Rating").Metadata.Name);
         Assert.Equal("Rating", context.Entry((object)entity).ComplexProperty("FieldCulture").Property("Rating").Metadata.Name);
 
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty(e => e.FieldCulture).ComplexProperty(e => e.License).Property(e => e.Charge).Metadata.Name);
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).Property(e => e.Charge).Metadata.Name);
-        Assert.Equal("Charge", context.Entry(entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
-        Assert.Equal("Charge", context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
-        Assert.Equal("Charge", context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry(entity).ComplexProperty(e => e.FieldCulture).ComplexProperty(e => e.License).Property(e => e.Charge).Metadata
+                .Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry(entity).ComplexProperty<FieldCulture>("FieldCulture").ComplexProperty(e => e.License).Property(e => e.Charge)
+                .Metadata.Name);
+        Assert.Equal(
+            "Charge", context.Entry(entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
+        Assert.Equal(
+            "Charge",
+            context.Entry((object)entity).ComplexProperty("FieldCulture").ComplexProperty("License").Property("Charge").Metadata.Name);
     }
 
     [ConditionalFact]
@@ -357,41 +378,41 @@ public class ComplexPropertyEntryTest
         => new()
         {
             Id = Guid.NewGuid(),
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -456,8 +477,10 @@ public class ComplexPropertyEntryTest
     private struct Culture
     {
         public string Species { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public bool? Validation  { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public License License { get; set; }

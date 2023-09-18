@@ -1559,18 +1559,42 @@ public class EntityEntryTest
         => new()
         {
             Id = id,
-            Culture = new()
+            Culture = new Culture
             {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
+                License = new License
+                {
+                    Charge = 1.0m,
+                    Tag = new Tag { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new Tog { Text = "To1" }
+                },
+                Manufacturer = new Manufacturer
+                {
+                    Name = "M1",
+                    Rating = 7,
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
+                },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
+                License = new License
+                {
+                    Charge = 1.0m,
+                    Tag = new Tag { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new Tog { Text = "To1" }
+                },
+                Manufacturer = new Manufacturer
+                {
+                    Name = "M1",
+                    Rating = 7,
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
+                },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
@@ -1581,18 +1605,42 @@ public class EntityEntryTest
         => new()
         {
             Id = id,
-            Culture = new()
+            Culture = new FieldCulture
             {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
+                License = new FieldLicense
+                {
+                    Charge = 1.0m,
+                    Tag = new FieldTag { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new FieldTog { Text = "To1" }
+                },
+                Manufacturer = new FieldManufacturer
+                {
+                    Name = "M1",
+                    Rating = 7,
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
+                },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new FieldMilk
             {
-                License = new() { Charge = 1.0m, Tag = new() { Text = "Ta1" }, Title = "Ti1", Tog = new() { Text = "To1" } },
-                Manufacturer = new() { Name = "M1", Rating = 7, Tag = new() { Text = "Ta2" }, Tog = new() { Text = "To2"} },
+                License = new FieldLicense
+                {
+                    Charge = 1.0m,
+                    Tag = new FieldTag { Text = "Ta1" },
+                    Title = "Ti1",
+                    Tog = new FieldTog { Text = "To1" }
+                },
+                Manufacturer = new FieldManufacturer
+                {
+                    Name = "M1",
+                    Rating = 7,
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
+                },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
@@ -1626,7 +1674,7 @@ public class EntityEntryTest
         public string Species { get; set; }
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public License License { get; set; }
     }
@@ -1636,7 +1684,7 @@ public class EntityEntryTest
         public string Species { get; set; } = null!;
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; } = null!;
         public License License { get; set; }
     }
@@ -1682,7 +1730,7 @@ public class EntityEntryTest
         public string Species = null!;
         public string? Subspecies;
         public int Rating;
-        public bool? Validation ;
+        public bool? Validation;
         public FieldManufacturer Manufacturer = null!;
         public FieldLicense License;
     }

@@ -166,7 +166,7 @@ public class EntityTypeAttributeConventionTest
     private class Address
     {
         public int Id { get; set; }
-        public Customer Customer { get; set; }
+        public Customer Customer { get; }
     }
 
     [Keyless]

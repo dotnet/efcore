@@ -86,13 +86,15 @@ public abstract class JsonValueReaderWriter
     }
 
     /// <summary>
-    ///     Creates a <see cref="JsonValueReaderWriter{TValue}"/> instance of the given type, using the <c>Instance</c>
+    ///     Creates a <see cref="JsonValueReaderWriter{TValue}" /> instance of the given type, using the <c>Instance</c>
     ///     property to get th singleton instance if possible.
     /// </summary>
-    /// <param name="readerWriterType">The type, which must inherit from <see cref="JsonValueReaderWriter{TValue}"/>.</param>
+    /// <param name="readerWriterType">The type, which must inherit from <see cref="JsonValueReaderWriter{TValue}" />.</param>
     /// <returns>The reader/writer instance./</returns>
-    /// <exception cref="InvalidOperationException">if the type does not represent a
-    /// <see cref="JsonValueReaderWriter{TValue}"/> that can be instantiated.</exception>
+    /// <exception cref="InvalidOperationException">
+    ///     if the type does not represent a
+    ///     <see cref="JsonValueReaderWriter{TValue}" /> that can be instantiated.
+    /// </exception>
     public static JsonValueReaderWriter? CreateFromType(Type? readerWriterType)
     {
         if (readerWriterType != null)
@@ -117,5 +119,4 @@ public abstract class JsonValueReaderWriter
 
         return null;
     }
-
 }

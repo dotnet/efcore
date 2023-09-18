@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable disable
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Xunit.Sdk;
@@ -792,7 +790,8 @@ public abstract partial class ModelBuilding101TestBase
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<BlogHeader>()
                     .HasOne(e => e.Blog)
-                    .WithOne();        }
+                    .WithOne();
+        }
     }
 
     [ConditionalFact]
@@ -1674,7 +1673,8 @@ public abstract partial class ModelBuilding101TestBase
                 => modelBuilder.Entity<Blog>()
                     .HasOne(e => e.Header)
                     .WithOne(e => e.Blog)
-                    .HasPrincipalKey<Blog>(e => e.AlternateId);        }
+                    .HasPrincipalKey<Blog>(e => e.AlternateId);
+        }
     }
 
     [ConditionalFact]

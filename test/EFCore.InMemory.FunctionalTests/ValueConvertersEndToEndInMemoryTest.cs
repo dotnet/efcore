@@ -42,5 +42,3 @@ public class ValueConvertersEndToEndInMemoryTest
             => InMemoryTestStoreFactory.Instance;
     }
 }
-
-#nullable restore

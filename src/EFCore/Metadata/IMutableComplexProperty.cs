@@ -28,7 +28,7 @@ public interface IMutableComplexProperty : IReadOnlyComplexProperty, IMutablePro
     /// </summary>
     new bool IsNullable { get; set; }
 
-    /// <inheritdoc/>
-    bool IReadOnlyComplexProperty.IsNullable =>
-        IsNullable;
+    /// <inheritdoc />
+    bool IReadOnlyComplexProperty.IsNullable
+        => IsNullable;
 }

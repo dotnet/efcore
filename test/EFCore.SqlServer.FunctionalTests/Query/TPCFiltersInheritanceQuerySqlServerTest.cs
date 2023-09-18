@@ -23,7 +23,7 @@ public class TPCFiltersInheritanceQuerySqlServerTest : TPCFiltersInheritanceQuer
         await base.Can_use_of_type_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
@@ -42,7 +42,7 @@ ORDER BY [t].[Species]
         await base.Can_use_is_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
@@ -57,7 +57,7 @@ WHERE [t].[CountryId] = 1
         await base.Can_use_is_kiwi_with_other_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
@@ -75,7 +75,7 @@ WHERE [t].[CountryId] = 1 AND [t].[Discriminator] = N'Kiwi' AND [t].[CountryId] 
         await base.Can_use_is_kiwi_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [t].[Discriminator] = N'Kiwi' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -96,7 +96,7 @@ WHERE [t].[CountryId] = 1
         await base.Can_use_of_type_bird(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
@@ -115,7 +115,7 @@ ORDER BY [t].[Species]
         await base.Can_use_of_type_bird_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
@@ -134,7 +134,7 @@ ORDER BY [t].[Species]
         await base.Can_use_of_type_bird_with_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Name]
 FROM (
     SELECT [e].[CountryId], [e].[Name]
@@ -152,7 +152,7 @@ WHERE [t].[CountryId] = 1
         await base.Can_use_of_type_bird_first(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
@@ -171,7 +171,7 @@ ORDER BY [t].[Species]
         await base.Can_use_of_type_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], [k].[FoundOn], N'Kiwi' AS [Discriminator]
@@ -186,7 +186,7 @@ WHERE [t].[CountryId] = 1
         await base.Can_use_derived_set(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]
 WHERE [e].[CountryId] = 1
@@ -198,12 +198,12 @@ WHERE [e].[CountryId] = 1
         await base.Can_use_IgnoreQueryFilters_and_GetDatabaseValues(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
 FROM [Eagle] AS [e]
 """,
             //
-"""
+            """
 @__p_0='1'
 
 SELECT TOP(1) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]

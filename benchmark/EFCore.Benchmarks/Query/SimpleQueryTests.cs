@@ -10,211 +10,208 @@ using Xunit;
 
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+[DisplayName(nameof(SimpleQueryTests))]
+public abstract class SimpleQueryTests
 {
-    [DisplayName(nameof(SimpleQueryTests))]
-    public abstract class SimpleQueryTests
+    private OrdersContextBase _context;
+
+    protected abstract OrdersFixtureBase CreateFixture();
+
+    [Params(true, false)]
+    public virtual bool Async { get; set; }
+
+    [Params(true, false)]
+    public virtual bool Tracking { get; set; }
+
+    [GlobalSetup]
+    public virtual void CreateContext()
     {
-        private OrdersContextBase _context;
+        var fixture = CreateFixture();
+        fixture.Initialize(1000, 1000, 2, 2);
 
-        protected abstract OrdersFixtureBase CreateFixture();
+        _context = fixture.CreateContext();
 
-        [Params(true, false)]
-        public virtual bool Async { get; set; }
+        Assert.Equal(1000, _context.Products.Count());
+        Assert.Equal(1000, _context.Customers.Count());
+        Assert.Equal(2000, _context.Orders.Count());
+    }
 
-        [Params(true, false)]
-        public virtual bool Tracking { get; set; }
+    [GlobalCleanup]
+    public virtual void CleanupContext()
+        => _context.Dispose();
 
-        [GlobalSetup]
-        public virtual void CreateContext()
+    [Benchmark]
+    public virtual async Task LoadAll()
+    {
+        var query = _context.Products
+            .ApplyTracking(Tracking);
+
+        if (Async)
         {
-            var fixture = CreateFixture();
-            fixture.Initialize(1000, 1000, 2, 2);
-
-            _context = fixture.CreateContext();
-
-            Assert.Equal(1000, _context.Products.Count());
-            Assert.Equal(1000, _context.Customers.Count());
-            Assert.Equal(2000, _context.Orders.Count());
+            await query.ToListAsync();
         }
-
-        [GlobalCleanup]
-        public virtual void CleanupContext()
+        else
         {
-            _context.Dispose();
+            query.ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual async Task LoadAll()
+    [Benchmark]
+    public virtual async Task Where()
+    {
+        var query = _context.Products
+            .ApplyTracking(Tracking)
+            .Where(p => p.ActualStockLevel < 5);
+
+        if (Async)
         {
-            var query = _context.Products
-                .ApplyTracking(Tracking);
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            await query.ToListAsync();
         }
-
-        [Benchmark]
-        public virtual async Task Where()
+        else
         {
-            var query = _context.Products
-                .ApplyTracking(Tracking)
-                .Where(p => p.ActualStockLevel < 5);
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            query.ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual async Task OrderBy()
+    [Benchmark]
+    public virtual async Task OrderBy()
+    {
+        var query = _context.Products
+            .ApplyTracking(Tracking)
+            .OrderBy(p => p.ActualStockLevel);
+
+        if (Async)
         {
-            var query = _context.Products
-                .ApplyTracking(Tracking)
-                .OrderBy(p => p.ActualStockLevel);
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            await query.ToListAsync();
         }
-
-        [Benchmark]
-        public virtual async Task Count()
+        else
         {
-            var query = _context.Products;
-
-            if (Async)
-            {
-                await query.CountAsync();
-            }
-            else
-            {
-                query.Count();
-            }
+            query.ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual async Task SkipTake()
+    [Benchmark]
+    public virtual async Task Count()
+    {
+        var query = _context.Products;
+
+        if (Async)
         {
-            var query = _context.Products
-                .ApplyTracking(Tracking)
-                .OrderBy(p => p.ProductId)
-                .Skip(500)
-                .Take(500);
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            await query.CountAsync();
         }
-
-        // Disabled because of current state of query pipeline
-        // [Benchmark]
-        public virtual async Task GroupBy()
+        else
         {
-            var query = _context.Products
-                .GroupBy(p => p.ActualStockLevel)
-                .Select(
-                    g => new { ActualStockLevel = g.Key, Products = g });
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            query.Count();
         }
+    }
 
-        [Benchmark]
-        public virtual async Task Include()
+    [Benchmark]
+    public virtual async Task SkipTake()
+    {
+        var query = _context.Products
+            .ApplyTracking(Tracking)
+            .OrderBy(p => p.ProductId)
+            .Skip(500)
+            .Take(500);
+
+        if (Async)
         {
-            var query = _context.Customers
-                .ApplyTracking(Tracking)
-                .Include(c => c.Orders);
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            await query.ToListAsync();
         }
-
-        [Benchmark]
-        public virtual async Task Projection()
+        else
         {
-            var query = _context.Products
-                .Select(
-                    p => new
-                    {
-                        p.ProductId,
-                        p.Name,
-                        p.Description,
-                        p.SKU,
-                        p.Retail,
-                        p.CurrentPrice,
-                        p.ActualStockLevel
-                    });
-
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+            query.ToList();
         }
+    }
 
-        [Benchmark]
-        public virtual async Task ProjectionAcrossNavigation()
+    // Disabled because of current state of query pipeline
+    // [Benchmark]
+    public virtual async Task GroupBy()
+    {
+        var query = _context.Products
+            .GroupBy(p => p.ActualStockLevel)
+            .Select(
+                g => new { ActualStockLevel = g.Key, Products = g });
+
+        if (Async)
         {
-            var query = _context.Orders
-                .Select(
-                    o => new
-                    {
-                        CustomerTitle = o.Customer.Title,
-                        CustomerFirstName = o.Customer.FirstName,
-                        CustomerLastName = o.Customer.LastName,
-                        OrderDate = o.Date,
-                        o.OrderDiscount,
-                        OrderDiscountReason = o.DiscountReason,
-                        OrderTax = o.Tax,
-                        OrderSpecialRequests = o.SpecialRequests
-                    });
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
+        }
+    }
 
-            if (Async)
-            {
-                await query.ToListAsync();
-            }
-            else
-            {
-                query.ToList();
-            }
+    [Benchmark]
+    public virtual async Task Include()
+    {
+        var query = _context.Customers
+            .ApplyTracking(Tracking)
+            .Include(c => c.Orders);
+
+        if (Async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
+        }
+    }
+
+    [Benchmark]
+    public virtual async Task Projection()
+    {
+        var query = _context.Products
+            .Select(
+                p => new
+                {
+                    p.ProductId,
+                    p.Name,
+                    p.Description,
+                    p.SKU,
+                    p.Retail,
+                    p.CurrentPrice,
+                    p.ActualStockLevel
+                });
+
+        if (Async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
+        }
+    }
+
+    [Benchmark]
+    public virtual async Task ProjectionAcrossNavigation()
+    {
+        var query = _context.Orders
+            .Select(
+                o => new
+                {
+                    CustomerTitle = o.Customer.Title,
+                    CustomerFirstName = o.Customer.FirstName,
+                    CustomerLastName = o.Customer.LastName,
+                    OrderDate = o.Date,
+                    o.OrderDiscount,
+                    OrderDiscountReason = o.DiscountReason,
+                    OrderTax = o.Tax,
+                    OrderSpecialRequests = o.SpecialRequests
+                });
+
+        if (Async)
+        {
+            await query.ToListAsync();
+        }
+        else
+        {
+            query.ToList();
         }
     }
 }

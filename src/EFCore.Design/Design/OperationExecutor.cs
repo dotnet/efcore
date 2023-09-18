@@ -716,7 +716,6 @@ public class OperationExecutor : MarshalByRefObject
     private void HasPendingModelChangesImpl(string? contextType)
         => MigrationsOperations.HasPendingModelChanges(contextType);
 
-
     /// <summary>
     ///     Represents an operation.
     /// </summary>

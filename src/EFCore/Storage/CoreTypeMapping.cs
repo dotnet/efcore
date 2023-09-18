@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -128,7 +126,7 @@ public abstract class CoreTypeMapping
                 ClrType,
                 converter ?? Converter,
                 comparer ?? Comparer,
-                keyComparer?? KeyComparer,
+                keyComparer ?? KeyComparer,
                 ProviderValueComparer,
                 ValueGeneratorFactory,
                 elementMapping ?? ElementTypeMapping,
@@ -137,7 +135,8 @@ public abstract class CoreTypeMapping
                     ? JsonValueReaderWriter
                     : RuntimeFeature.IsDynamicCodeSupported
                         ? (JsonValueReaderWriter)Activator.CreateInstance(
-                            typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(converter.ModelClrType, JsonValueReaderWriter.ValueType),
+                            typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
+                                converter.ModelClrType, JsonValueReaderWriter.ValueType),
                             JsonValueReaderWriter, converter)!
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)));
         }
@@ -283,13 +282,13 @@ public abstract class CoreTypeMapping
     ///     Clones the type mapping to update any parameter if needed.
     /// </summary>
     /// <param name="mappingInfo">The mapping info containing the facets to use.</param>
-    /// <param name="clrType">The .NET type used in the EF model, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="converter">The value converter, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="comparer">The value comparer, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="keyComparer">The key value comparer, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="providerValueComparer">The provider value comparer, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="elementMapping">The element mapping, or <see langword="null"/> to leave unchanged.</param>
-    /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null"/> to leave unchanged.</param>
+    /// <param name="clrType">The .NET type used in the EF model, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="converter">The value converter, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="comparer">The value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="keyComparer">The key value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="providerValueComparer">The provider value comparer, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="elementMapping">The element mapping, or <see langword="null" /> to leave unchanged.</param>
+    /// <param name="jsonValueReaderWriter">The JSON reader/writer, or <see langword="null" /> to leave unchanged.</param>
     /// <returns>The cloned mapping, or the original mapping if no clone was needed.</returns>
     public virtual CoreTypeMapping Clone(
         in TypeMappingInfo? mappingInfo = null,
@@ -300,15 +299,16 @@ public abstract class CoreTypeMapping
         ValueComparer? providerValueComparer = null,
         CoreTypeMapping? elementMapping = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null)
-        => Clone(new CoreTypeMappingParameters(
-            clrType ?? Parameters.ClrType,
-            converter ?? Parameters.Converter,
-            comparer ?? Parameters.Comparer,
-            keyComparer ?? Parameters.KeyComparer,
-            providerValueComparer ?? Parameters.ProviderValueComparer,
-            Parameters.ValueGeneratorFactory,
-            elementMapping ?? Parameters.ElementTypeMapping,
-            jsonValueReaderWriter ?? Parameters.JsonValueReaderWriter));
+        => Clone(
+            new CoreTypeMappingParameters(
+                clrType ?? Parameters.ClrType,
+                converter ?? Parameters.Converter,
+                comparer ?? Parameters.Comparer,
+                keyComparer ?? Parameters.KeyComparer,
+                providerValueComparer ?? Parameters.ProviderValueComparer,
+                Parameters.ValueGeneratorFactory,
+                elementMapping ?? Parameters.ElementTypeMapping,
+                jsonValueReaderWriter ?? Parameters.JsonValueReaderWriter));
 
     /// <summary>
     ///     Creates a an expression tree that can be used to generate code for the literal value.

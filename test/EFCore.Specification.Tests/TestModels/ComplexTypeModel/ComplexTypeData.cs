@@ -82,7 +82,12 @@ public class ComplexTypeData : ISetSource
             BillingAddress = address3
         };
 
-        return new List<Customer> { customer1, customer2, customer3 };
+        return new List<Customer>
+        {
+            customer1,
+            customer2,
+            customer3
+        };
     }
 
     private static IReadOnlyList<CustomerGroup> CreateCustomerGroups(IReadOnlyList<Customer> customers)

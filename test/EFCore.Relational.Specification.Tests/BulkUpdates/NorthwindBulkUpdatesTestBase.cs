@@ -280,7 +280,7 @@ public abstract class NorthwindBulkUpdatesTestBase<TFixture> : BulkUpdatesTestBa
         {
             await TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 () => Fixture.CreateContext(),
-                (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
+                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
                 async context => await context.Set<OrderDetail>().FromSqlRaw(
                         NormalizeDelimitersInRawString(
                             @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
@@ -292,7 +292,7 @@ WHERE [OrderID] < 10300"))
         {
             TestHelpers.ExecuteWithStrategyInTransaction(
                 () => Fixture.CreateContext(),
-                (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
+                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
                 context => context.Set<OrderDetail>().FromSqlRaw(
                         NormalizeDelimitersInRawString(
                             @"SELECT [OrderID], [ProductID], [UnitPrice], [Quantity], [Discount]
@@ -453,7 +453,7 @@ WHERE [OrderID] < 10300"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_Where_set_parameter_from_multilevel_property_access(bool async)
     {
-        var container = new Container { Containee = new() { Property = "Abc" } };
+        var container = new Container { Containee = new Containee { Property = "Abc" } };
 
         return AssertUpdate(
             async,
@@ -464,12 +464,12 @@ WHERE [OrderID] < 10300"))
             (b, a) => Assert.All(a, c => Assert.Equal("Abc", c.ContactName)));
     }
 
-    class Container
+    private class Container
     {
         public Containee Containee { get; set; }
     }
 
-    class Containee
+    private class Containee
     {
         public string Property { get; set; }
     }
@@ -770,7 +770,8 @@ WHERE [OrderID] < 10300"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.InvalidPropertyInSetProperty(new ExpressionPrinter().PrintExpression((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
+            RelationalStrings.InvalidPropertyInSetProperty(
+                new ExpressionPrinter().PrintExpression((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
             () => AssertUpdate(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),
@@ -984,7 +985,7 @@ WHERE [OrderID] < 10300"))
         {
             await TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 () => Fixture.CreateContext(),
-                (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
+                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
                 async context => await context.Set<Customer>().FromSqlRaw(
                         NormalizeDelimitersInRawString(
                             @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]
@@ -996,7 +997,7 @@ WHERE [CustomerID] LIKE 'A%'"))
         {
             TestHelpers.ExecuteWithStrategyInTransaction(
                 () => Fixture.CreateContext(),
-                (DatabaseFacade facade, IDbContextTransaction transaction) => Fixture.UseTransaction(facade, transaction),
+                (facade, transaction) => Fixture.UseTransaction(facade, transaction),
                 context => context.Set<Customer>().FromSqlRaw(
                         NormalizeDelimitersInRawString(
                             @"SELECT [Region], [PostalCode], [Phone], [Fax], [CustomerID], [Country], [ContactTitle], [ContactName], [CompanyName], [City], [Address]

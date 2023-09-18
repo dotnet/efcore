@@ -3,15 +3,14 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
-{
-    public class SalesOrderHeaderSalesReason
-    {
-        public int SalesOrderID { get; set; }
-        public int SalesReasonID { get; set; }
-        public DateTime ModifiedDate { get; set; }
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-        public virtual SalesOrderHeader SalesOrder { get; set; }
-        public virtual SalesReason SalesReason { get; set; }
-    }
+public class SalesOrderHeaderSalesReason
+{
+    public int SalesOrderID { get; set; }
+    public int SalesReasonID { get; set; }
+    public DateTime ModifiedDate { get; set; }
+
+    public virtual SalesOrderHeader SalesOrder { get; set; }
+    public virtual SalesReason SalesReason { get; set; }
 }

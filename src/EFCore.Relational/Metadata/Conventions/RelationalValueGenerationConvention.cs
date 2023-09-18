@@ -37,7 +37,7 @@ public class RelationalValueGenerationConvention :
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public virtual void ProcessPropertyAnnotationChanged(
         IConventionPropertyBuilder propertyBuilder,
         string name,
@@ -191,8 +191,8 @@ public class RelationalValueGenerationConvention :
             : table.Name != null
                 ? GetValueGenerated(property, table)
                 : property.DeclaringType.IsMappedToJson()
-                    && property.IsOrdinalKeyProperty()
-                    && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
+                && property.IsOrdinalKeyProperty()
+                && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
                     ? ValueGenerated.OnAddOrUpdate
                     : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
                         ? GetValueGenerated((IReadOnlyProperty)property)

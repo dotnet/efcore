@@ -908,8 +908,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
-                property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
+            ? throw new InvalidOperationException(
+                CoreStrings.RelationshipCycle(
+                    property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
             : null;
     }
 
@@ -1181,7 +1182,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(_code.Literal(complexType.ClrType));
 
                 AddNamespace(complexProperty.ClrType, namespaces);
-                AddNamespace(complexType.ClrType, namespaces);                
+                AddNamespace(complexType.ClrType, namespaces);
 
                 var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                     declaringTypeVariable,

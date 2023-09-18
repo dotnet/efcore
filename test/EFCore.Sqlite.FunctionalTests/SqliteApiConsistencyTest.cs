@@ -38,9 +38,7 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
             = new()
             {
                 {
-
-                    typeof(IReadOnlyProperty),
-                    (
+                    typeof(IReadOnlyProperty), (
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyExtensions),
                         typeof(SqlitePropertyExtensions),

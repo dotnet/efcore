@@ -146,7 +146,7 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<FunkyCustomer>().Select(c => c.FirstName)
                 .SelectMany(c => ss.Set<FunkyCustomer>().Select(c2 => c2.LastName), (fn, ln) => new { fn, ln })
                 .Where(r => r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) != true));
-                // .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) == true));
+    // .Where(r => r.ln != "" && !r.fn.MaybeScalar(x => r.ln.MaybeScalar(xx => x.Contains(xx))) == true));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -491,7 +491,8 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                 .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) == r.c1.NullableBool.Value),
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                .Where(r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) == r.c1.NullableBool),
+                .Where(
+                    r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) == r.c1.NullableBool),
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {
@@ -507,7 +508,8 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
                 .Where(r => r.c1.FirstName.EndsWith(r.c2.LastName) != r.c1.NullableBool.Value),
             ss => ss.Set<FunkyCustomer>().SelectMany(c => ss.Set<FunkyCustomer>(), (c1, c2) => new { c1, c2 })
-                .Where(r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) != r.c1.NullableBool),
+                .Where(
+                    r => (r.c1.FirstName != null && r.c2.LastName != null && r.c1.FirstName.EndsWith(r.c2.LastName)) != r.c1.NullableBool),
             elementSorter: e => (e.c1.Id, e.c2.Id),
             elementAsserter: (e, a) =>
             {

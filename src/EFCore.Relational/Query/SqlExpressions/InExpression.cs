@@ -205,36 +205,36 @@ public class InExpression : SqlExpression
         expressionPrinter.Append(" IN ");
         expressionPrinter.Append("(");
 
-            switch (this)
-            {
-                case { Subquery: not null }:
-                    using (expressionPrinter.Indent())
+        switch (this)
+        {
+            case { Subquery: not null }:
+                using (expressionPrinter.Indent())
+                {
+                    expressionPrinter.Visit(Subquery);
+                }
+
+                break;
+
+            case { Values: not null }:
+                for (var i = 0; i < Values.Count; i++)
+                {
+                    if (i > 0)
                     {
-                        expressionPrinter.Visit(Subquery);
+                        expressionPrinter.Append(", ");
                     }
 
-                    break;
+                    expressionPrinter.Visit(Values[i]);
+                }
 
-                case { Values: not null }:
-                    for (var i = 0; i < Values.Count; i++)
-                    {
-                        if (i > 0)
-                        {
-                            expressionPrinter.Append(", ");
-                        }
+                break;
 
-                        expressionPrinter.Visit(Values[i]);
-                    }
+            case { ValuesParameter: not null }:
+                expressionPrinter.Visit(ValuesParameter);
+                break;
 
-                    break;
-
-                case { ValuesParameter: not null}:
-                    expressionPrinter.Visit(ValuesParameter);
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
 
         expressionPrinter.Append(")");
     }

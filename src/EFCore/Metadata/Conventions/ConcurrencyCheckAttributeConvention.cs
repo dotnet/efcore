@@ -22,7 +22,7 @@ public class ConcurrencyCheckAttributeConvention : PropertyAttributeConventionBa
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         ConcurrencyCheckAttribute attribute,

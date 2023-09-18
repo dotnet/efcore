@@ -28,7 +28,7 @@ public class TPCInheritanceBulkUpdatesSqliteTest : TPCInheritanceBulkUpdatesTest
         await base.Delete_where_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Kiwi" AS "k"
 WHERE "k"."Name" = 'Great spotted kiwi'
 """);
@@ -39,7 +39,7 @@ WHERE "k"."Name" = 'Great spotted kiwi'
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -59,7 +59,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -132,7 +132,7 @@ WHERE (
         await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Kiwi" AS "k"
 SET "Name" = 'SomeOtherKiwi'
 """);
@@ -143,7 +143,7 @@ SET "Name" = 'SomeOtherKiwi'
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Kiwi" AS "k"
 SET "FoundOn" = 0
 """);
@@ -154,7 +154,7 @@ SET "FoundOn" = 0
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -175,7 +175,7 @@ WHERE (
         await base.Update_base_and_derived_types(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Kiwi" AS "k"
 SET "FoundOn" = 0,
     "Name" = 'Kiwi'
@@ -187,7 +187,7 @@ SET "FoundOn" = 0,
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -212,7 +212,7 @@ WHERE (
         await base.Update_with_interface_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Coke" AS "c"
 SET "SugarGrams" = 0
 """);
@@ -223,7 +223,7 @@ SET "SugarGrams" = 0
         await base.Update_with_interface_in_EF_Property_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Coke" AS "c"
 SET "SugarGrams" = 0
 """);

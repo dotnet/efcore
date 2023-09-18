@@ -282,7 +282,7 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
-    /// <param name="elementType">If <see langword="true"/>, then this is a collection of primitive elements.</param>
+    /// <param name="elementType">If <see langword="true" />, then this is a collection of primitive elements.</param>
     void SetElementType(Type? elementType);
 
     /// <inheritdoc />

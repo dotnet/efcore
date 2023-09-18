@@ -21,7 +21,7 @@ public class NorthwindAsTrackingQuerySqlServerTest : NorthwindAsTrackingQueryTes
         base.Applied_to_body_clause();
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -34,7 +34,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         base.Entity_added_to_state_manager(useParam);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 """);
@@ -45,7 +45,7 @@ FROM [Customers] AS [c]
         base.Applied_to_projection();
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
@@ -58,7 +58,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         base.Applied_to_multiple_body_clauses();
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN [Orders] AS [o]
@@ -71,7 +71,7 @@ WHERE [c].[CustomerID] = [o].[CustomerID]
         base.Applied_to_body_clause_with_projection();
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[CustomerID] AS [ocid], [o].[OrderID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]

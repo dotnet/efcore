@@ -1169,7 +1169,7 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[48..],
             Assert.Throws<InvalidOperationException>(query)
-            .Message);
+                .Message);
 
     protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)
         => Assert.Contains(

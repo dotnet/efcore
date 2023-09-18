@@ -66,7 +66,7 @@ public class StructuralTypeProjectionExpression : Expression
     public virtual ITypeBase StructuralType { get; }
 
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -78,7 +78,7 @@ public class StructuralTypeProjectionExpression : Expression
     public virtual IReadOnlyDictionary<ITableBase, TableReferenceExpression> TableMap { get; }
 
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -232,7 +232,7 @@ public class StructuralTypeProjectionExpression : Expression
 
             case RelationalAnnotationNames.TpcMappingStrategy:
             case RelationalAnnotationNames.TptMappingStrategy:
-                newTableMap = new();
+                newTableMap = new Dictionary<ITableBase, TableReferenceExpression>();
                 foreach (var (table, tableReferenceExpression) in TableMap)
                 {
                     if (table.EntityTypeMappings.Any(m => m.TypeBase == derivedType))
@@ -240,10 +240,12 @@ public class StructuralTypeProjectionExpression : Expression
                         newTableMap.Add(table, tableReferenceExpression);
                     }
                 }
+
                 break;
 
             case null:
-                throw new UnreachableException($"Cannot be in {nameof(UpdateEntityType)} for entity type '{entityType.DisplayName()}' which has no mapping strategy");
+                throw new UnreachableException(
+                    $"Cannot be in {nameof(UpdateEntityType)} for entity type '{entityType.DisplayName()}' which has no mapping strategy");
             default:
                 throw new UnreachableException("Unknown mapping strategy: " + entityType.GetMappingStrategy());
         }
@@ -290,7 +292,7 @@ public class StructuralTypeProjectionExpression : Expression
     {
         if (_complexPropertyCache is null || !_complexPropertyCache.TryGetValue(complexProperty, out var resultShaper))
         {
-            _complexPropertyCache ??= new();
+            _complexPropertyCache ??= new Dictionary<IComplexProperty, StructuralTypeShaperExpression>();
             resultShaper = _complexPropertyCache[complexProperty] =
                 SelectExpression.GenerateComplexPropertyShaperExpression(this, complexProperty);
         }

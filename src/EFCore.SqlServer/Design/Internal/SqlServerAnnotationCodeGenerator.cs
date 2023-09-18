@@ -80,12 +80,12 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
             nameof(SqlServerIndexBuilderExtensions.HasFillFactor), new[] { typeof(IndexBuilder), typeof(int) })!;
 
     private static readonly MethodInfo IndexSortInTempDbMethodInfo
-    = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-        nameof(SqlServerIndexBuilderExtensions.SortInTempDb), new[] { typeof(IndexBuilder), typeof(bool) })!;
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.SortInTempDb), new[] { typeof(IndexBuilder), typeof(bool) })!;
 
     private static readonly MethodInfo IndexUseDataCompressionMethodInfo
-    = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
-        nameof(SqlServerIndexBuilderExtensions.UseDataCompression), new[] { typeof(IndexBuilder), typeof(DataCompressionType) })!;
+        = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerIndexBuilderExtensions.UseDataCompression), new[] { typeof(IndexBuilder), typeof(DataCompressionType) })!;
 
     private static readonly MethodInfo KeyIsClusteredMethodInfo
         = typeof(SqlServerKeyBuilderExtensions).GetRuntimeMethod(

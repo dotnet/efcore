@@ -383,10 +383,10 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Does_not_match_PK_name_properties_if_subset_of_dependent_PK_and_contains_id()
     {
         var dependentTypeBuilder = DependentTypeWithCompositeKey.Builder;
-        var pkProperty1 = (Property)dependentTypeBuilder.Property(
+        var pkProperty1 = dependentTypeBuilder.Property(
                 DependentEntityWithCompositeKey.IdProperty, ConfigurationSource.Convention)
             .Metadata;
-        var pkProperty2 = (Property)dependentTypeBuilder.Property(
+        var pkProperty2 = dependentTypeBuilder.Property(
                 DependentEntityWithCompositeKey.NameProperty, ConfigurationSource.Convention)
             .IsRequired(true, ConfigurationSource.Convention)
             .Metadata;
@@ -418,7 +418,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
     public void Matches_PK_name_properties_if_subset_of_dependent_PK()
     {
         var dependentTypeBuilder = DependentType.Builder;
-        var pkProperty = (Property)dependentTypeBuilder.Property(
+        var pkProperty = dependentTypeBuilder.Property(
                 DependentEntity.IDProperty, ConfigurationSource.Convention)
             .IsRequired(true, ConfigurationSource.Convention)
             .Metadata;

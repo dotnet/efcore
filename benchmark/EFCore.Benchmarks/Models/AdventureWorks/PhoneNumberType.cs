@@ -4,19 +4,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
+
+public class PhoneNumberType
 {
-    public class PhoneNumberType
+    public PhoneNumberType()
     {
-        public PhoneNumberType()
-        {
-            PersonPhone = new HashSet<PersonPhone>();
-        }
-
-        public int PhoneNumberTypeID { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public string Name { get; set; }
-
-        public virtual ICollection<PersonPhone> PersonPhone { get; set; }
+        PersonPhone = new HashSet<PersonPhone>();
     }
+
+    public int PhoneNumberTypeID { get; set; }
+    public DateTime ModifiedDate { get; set; }
+    public string Name { get; set; }
+
+    public virtual ICollection<PersonPhone> PersonPhone { get; set; }
 }

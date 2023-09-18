@@ -83,7 +83,8 @@ public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListS
         Justification =
             "This method is an interface implementation, and the interface method isn't annotated with RequiresUnreferencedCode. "
             + "The entire type is marked with RequiresUnreferencedCode.")]
-    [SuppressMessage("AOT", "IL3051:'RequiresDynamicCodeAttribute' annotations must match across all interface implementations or overrides.",
+    [SuppressMessage(
+        "AOT", "IL3051:'RequiresDynamicCodeAttribute' annotations must match across all interface implementations or overrides.",
         Justification = "This method is an override, and the base method isn't annotated with RequiresDynamicCode. "
             + "The entire type is marked with RequiresDynamicCode.")]
     IList IListSource.GetList()

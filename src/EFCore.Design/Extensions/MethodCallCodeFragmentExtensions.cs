@@ -4,12 +4,12 @@
 namespace Microsoft.EntityFrameworkCore.Design;
 
 /// <summary>
-///     Design-time <see cref="MethodCallCodeFragment"/> extensions.
+///     Design-time <see cref="MethodCallCodeFragment" /> extensions.
 /// </summary>
 public static class MethodCallCodeFragmentExtensions
 {
     /// <summary>
-    /// Gets the using statements required for this method call.
+    ///     Gets the using statements required for this method call.
     /// </summary>
     /// <param name="methodCall">The method call.</param>
     /// <returns>The usings.</returns>

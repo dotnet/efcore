@@ -132,7 +132,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(ComplexPropertyBuilder).GetMethod(
                 nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string) }),
             typeof(ComplexPropertyBuilder).GetMethod(
-                nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string) , typeof(string) }),
+                nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(

@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerAbstractionsApiConsistencyTest : ApiConsistencyTestBase<SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture>
+public class SqlServerAbstractionsApiConsistencyTest : ApiConsistencyTestBase<
+    SqlServerAbstractionsApiConsistencyTest.SqlServerAbstractionsApiConsistencyFixture>
 {
     public SqlServerAbstractionsApiConsistencyTest(SqlServerAbstractionsApiConsistencyFixture fixture)
         : base(fixture)

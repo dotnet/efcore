@@ -23,9 +23,9 @@ public class CollectionTypeFactory
     public virtual Type? TryFindTypeToInstantiate(
         Type entityType,
         [DynamicallyAccessedMembers(
-            DynamicallyAccessedMemberTypes.PublicConstructors |
-            DynamicallyAccessedMemberTypes.NonPublicConstructors |
-            DynamicallyAccessedMemberTypes.Interfaces)]
+            DynamicallyAccessedMemberTypes.PublicConstructors
+            | DynamicallyAccessedMemberTypes.NonPublicConstructors
+            | DynamicallyAccessedMemberTypes.Interfaces)]
         Type collectionType,
         bool requireFullNotifications)
     {

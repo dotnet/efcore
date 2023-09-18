@@ -10,7 +10,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
 public class InternalServicePropertyBuilder :
-    InternalPropertyBaseBuilder<IConventionServicePropertyBuilder, ServiceProperty>, IConventionServicePropertyBuilder
+    InternalPropertyBaseBuilder<IConventionServicePropertyBuilder, ServiceProperty>,
+    IConventionServicePropertyBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,7 +166,10 @@ public class InternalServicePropertyBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionServicePropertyBuilder?)base.HasAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -176,7 +180,10 @@ public class InternalServicePropertyBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionServicePropertyBuilder?)base.HasNonNullAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -187,7 +194,9 @@ public class InternalServicePropertyBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasNoAnnotation(string name, bool fromDataAnnotation)
+    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasNoAnnotation(
+        string name,
+        bool fromDataAnnotation)
         => (IConventionServicePropertyBuilder?)base.HasNoAnnotation(
             name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -197,7 +206,9 @@ public class InternalServicePropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasField(string? fieldName, bool fromDataAnnotation)
+    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasField(
+        string? fieldName,
+        bool fromDataAnnotation)
         => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -206,7 +217,9 @@ public class InternalServicePropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
+    IConventionServicePropertyBuilder? IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.HasField(
+        FieldInfo? fieldInfo,
+        bool fromDataAnnotation)
         => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -245,7 +258,9 @@ public class InternalServicePropertyBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+    bool IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>.CanSetPropertyAccessMode(
+        PropertyAccessMode? propertyAccessMode,
+        bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

@@ -15,6 +15,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
 {
     private readonly IPropertyParameterBindingFactory _propertyFactory;
     private readonly IParameterBindingFactories _factories;
+
     private static readonly MethodInfo _createInstance =
         typeof(Activator).GetMethod(nameof(Activator.CreateInstance), BindingFlags.Public | BindingFlags.Static, new[] { typeof(Type) })!;
 
@@ -174,7 +175,8 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
             && constructors.Count == 0
             && clrType.IsValueType)
         {
-            foundBindings.Add(new FactoryMethodBinding(
+            foundBindings.Add(
+                new FactoryMethodBinding(
                     _createInstance,
                     new ParameterBinding[0],
                     clrType));
@@ -298,7 +300,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
         => string.IsNullOrEmpty(p.Name)
             ? null
             : bindToProperty(_propertyFactory, entityType, p.ParameterType, p.Name)
-                ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name);
+            ?? bind(_factories.FindFactory(p.ParameterType, p.Name), entityType, p.ParameterType, p.Name);
 
     private static string FormatConstructorString<T>(T entityType, InstantiationBinding binding)
         where T : IReadOnlyTypeBase

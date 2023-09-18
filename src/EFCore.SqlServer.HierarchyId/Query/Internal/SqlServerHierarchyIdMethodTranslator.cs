@@ -15,14 +15,21 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
+    private static readonly Dictionary<MethodInfo, string> _methodToFunctionName = new()
     {
         // instance methods
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetAncestor), new[] { typeof(int) })!, "GetAncestor" },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId) })!, "GetDescendant" },
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId), typeof(HierarchyId) })!, "GetDescendant" },
+        {
+            typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
+            "GetDescendant"
+        },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetLevel), Type.EmptyTypes)!, "GetLevel" },
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetReparentedValue), new[] { typeof(HierarchyId), typeof(HierarchyId) })!, "GetReparentedValue" },
+        {
+            typeof(HierarchyId).GetRuntimeMethod(
+                nameof(HierarchyId.GetReparentedValue), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
+            "GetReparentedValue"
+        },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.IsDescendantOf), new[] { typeof(HierarchyId) })!, "IsDescendantOf" },
         { typeof(object).GetRuntimeMethod(nameof(ToString), Type.EmptyTypes)!, "ToString" },
 

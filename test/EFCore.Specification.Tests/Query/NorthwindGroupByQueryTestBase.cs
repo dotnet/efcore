@@ -2561,8 +2561,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Distinct().Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2577,8 +2576,7 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                     g =>
                         new
                         {
-                            g.Key,
-                            Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
+                            g.Key, Max = g.Where(e => e.OrderDate.HasValue).Select(e => e.OrderDate).Distinct().Max(),
                         }),
             elementSorter: e => e.Key);
 
@@ -2621,9 +2619,16 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
     public virtual Task Final_GroupBy_property_anonymous_type(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Customer>().Select(e => new { e.City, e.ContactName, e.ContactTitle }).GroupBy(c => c.City),
+            ss => ss.Set<Customer>().Select(
+                e => new
+                {
+                    e.City,
+                    e.ContactName,
+                    e.ContactTitle
+                }).GroupBy(c => c.City),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementSorter: i => (i.ContactName, i.ContactTitle),
                 elementAsserter: (ee, aa) =>
                 {
@@ -2640,7 +2645,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().GroupBy(c => new { c.City, c.Region }),
             elementSorter: e => (e.Key.City, e.Key.Region),
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 keyAsserter: (ee, aa) =>
                 {
                     AssertEqual(ee.City, aa.City);
@@ -2655,7 +2661,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().GroupBy(c => new { c.City, Inner = new { c.Region, Constant = 1 } }),
             elementSorter: e => (e.Key.City, e.Key.Inner.Region),
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 keyAsserter: (ee, aa) =>
                 {
                     AssertEqual(ee.City, aa.City);
@@ -2683,8 +2690,11 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
 
     protected class RandomClassEqualityComparer : IEqualityComparer<RandomClass>
     {
-        public bool Equals(RandomClass x, RandomClass y) => x.City == y.City && x.Constant == y.Constant;
-        public int GetHashCode([DisallowNull] RandomClass obj) => HashCode.Combine(obj.City, obj.Constant);
+        public bool Equals(RandomClass x, RandomClass y)
+            => x.City == y.City && x.Constant == y.Constant;
+
+        public int GetHashCode([DisallowNull] RandomClass obj)
+            => HashCode.Combine(obj.City, obj.Constant);
     }
 
     [ConditionalTheory]
@@ -2694,7 +2704,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().GroupBy(c => c.City, e => new { e.ContactName, e.ContactTitle }),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementSorter: i => (i.ContactName, i.ContactTitle),
                 elementAsserter: (ee, aa) =>
                 {
@@ -2710,7 +2721,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().Where(c => c.Country == "USA").Include(c => c.Orders).GroupBy(c => c.City),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementAsserter: (ee, aa) => AssertInclude(ee, aa, new ExpectedInclude<Customer>(c => c.Orders))),
             entryCount: 135);
 
@@ -2721,7 +2733,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().Where(c => c.Country == "USA").Select(c => new { c.City, c.Orders }).GroupBy(c => c.City),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementSorter: ee => ee.City,
                 elementAsserter: (ee, aa) =>
                 {
@@ -2739,7 +2752,8 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .Select(c => new { c.City, Orders = c.Orders.Where(o => o.OrderID < 11000) })
                 .GroupBy(c => c.City),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementSorter: ee => ee.City,
                 elementAsserter: (ee, aa) =>
                 {
@@ -2754,14 +2768,17 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.Country == "USA")
-                .Select(c => new
-                {
-                    c.City,
-                    Orders = c.Orders.Where(o => o.OrderID < 11000),
-                    LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault() })
+                .Select(
+                    c => new
+                    {
+                        c.City,
+                        Orders = c.Orders.Where(o => o.OrderID < 11000),
+                        LastOrder = c.Orders.OrderByDescending(o => o.OrderDate).FirstOrDefault()
+                    })
                 .GroupBy(c => c.City),
             elementSorter: e => e.Key,
-            elementAsserter: (e, a) => AssertGrouping(e, a,
+            elementAsserter: (e, a) => AssertGrouping(
+                e, a,
                 elementSorter: ee => ee.City,
                 elementAsserter: (ee, aa) =>
                 {

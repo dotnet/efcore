@@ -42,12 +42,12 @@ VALUES (@p0, @p1, @p2);");
         base.Save_replaced_principal();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
 FROM [Categories] AS [c]
 """,
             //
-"""
+            """
 @__category_PrincipalId_0='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
@@ -55,7 +55,7 @@ FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
 """,
             //
-"""
+            """
 @p1='1'
 @p0='New Category' (Size = 4000)
 
@@ -66,12 +66,12 @@ OUTPUT 1
 WHERE [Id] = @p1;
 """,
             //
-"""
+            """
 SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
 FROM [Categories] AS [c]
 """,
             //
-"""
+            """
 @__category_PrincipalId_0='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]

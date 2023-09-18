@@ -461,11 +461,11 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
         => AssertQuery(
             async,
             ss =>
-            from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                       join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                       select new { c, orders })
-            where i.c.City == "Lisboa"
-            select i,
+                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                           select new { c, orders })
+                where i.c.City == "Lisboa"
+                select i,
             e => e.c.CustomerID,
             elementAsserter: (e, a) =>
             {
@@ -480,11 +480,11 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
         => AssertQuery(
             async,
             ss =>
-            from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
-                       join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
-                       select new { c, orders })
-            join c2 in ss.Set<Customer>().Where(n => n.City == "Lisboa") on i.c.CustomerID equals c2.CustomerID
-            select new { i, c2 },
+                from i in (from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
+                           join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
+                           select new { c, orders })
+                join c2 in ss.Set<Customer>().Where(n => n.City == "Lisboa") on i.c.CustomerID equals c2.CustomerID
+                select new { i, c2 },
             e => e.i.c.CustomerID,
             elementAsserter: (e, a) =>
             {
@@ -644,7 +644,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>()
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
                 from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate)
-                 select new { c.ContactName, o.OrderID },
+                select new { c.ContactName, o.OrderID },
             e => (e.ContactName, e.OrderID));
 
     [ConditionalTheory]

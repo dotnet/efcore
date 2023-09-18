@@ -954,7 +954,7 @@ public abstract partial class ModelBuilderTest
     protected class WrappedStringEntity
     {
         public int Id { get; set; }
-        public WrappedString WrappedString { get; set; } = new WrappedString();
+        public WrappedString WrappedString { get; set; } = new();
     }
 
     protected class DoubleProperty : IReplaceable

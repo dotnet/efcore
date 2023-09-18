@@ -98,16 +98,16 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _materializationSetter, this, static property =>
                 RuntimeFeature.IsDynamicCodeSupported
-                        ? new ClrPropertyMaterializationSetterFactory().Create(property)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                    ? new ClrPropertyMaterializationSetterFactory().Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     PropertyAccessors IRuntimePropertyBase.Accessors
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _accessors, this, static property =>
                 RuntimeFeature.IsDynamicCodeSupported
-                        ? new PropertyAccessorsFactory().Create(property)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+                    ? new PropertyAccessorsFactory().Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     PropertyIndexes IRuntimePropertyBase.PropertyIndexes
@@ -137,9 +137,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetAccessors(PropertyAccessors accessors)
-    {
-        _accessors = accessors;
-    }
+        => _accessors = accessors;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

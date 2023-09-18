@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Reflection;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -342,7 +340,6 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         if (type.IsArray)
         {
             AddNamespace(type.GetSequenceType(), namespaces);
-            return;
         }
     }
 

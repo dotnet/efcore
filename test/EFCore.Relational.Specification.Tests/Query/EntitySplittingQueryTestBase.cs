@@ -20,7 +20,8 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         await InitializeContextFactoryAsync(
             mb =>
             {
-                mb.Entity<EntityOne>().SplitToTable("SplitEntityOnePart",
+                mb.Entity<EntityOne>().SplitToTable(
+                    "SplitEntityOnePart",
                     tb =>
                     {
                         tb.Property(e => e.IntValue3);
@@ -46,14 +47,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -78,26 +81,33 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
                     });
-
             });
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.Id, e.IntValue1, e.StringValue1 }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.IntValue1,
+                    e.StringValue1
+                }),
             elementSorter: e => e.Id);
     }
 
@@ -111,14 +121,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -129,7 +141,13 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.Id, e.IntValue3, e.StringValue3 }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.IntValue3,
+                    e.StringValue3
+                }),
             elementSorter: e => e.Id);
     }
 
@@ -143,14 +161,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -161,7 +181,13 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.Id, e.IntValue4, e.StringValue4 }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.IntValue4,
+                    e.StringValue4
+                }),
             elementSorter: e => e.Id);
     }
 
@@ -175,14 +201,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -205,14 +233,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         await InitializeContextFactoryAsync(
             mb =>
             {
-                mb.Entity<EntityOne>().SplitToTable("SplitEntityOnePart2",
+                mb.Entity<EntityOne>().SplitToTable(
+                    "SplitEntityOnePart2",
                     tb =>
                     {
                         tb.Property(e => e.IntValue3);
                         tb.Property(e => e.StringValue3);
                     });
 
-                mb.Entity<EntityOne>().SplitToTable("SplitEntityOnePart3",
+                mb.Entity<EntityOne>().SplitToTable(
+                    "SplitEntityOnePart3",
                     tb =>
                     {
                         tb.Property(e => e.IntValue4);
@@ -237,14 +267,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -256,7 +288,8 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         await AssertQuery(
             async,
             ss => ss.Set<EntityTwo>().Include(e => e.EntityOne.EntityThree),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<EntityTwo>(i => i.EntityOne),
                 new ExpectedInclude<EntityOne>(i => i.EntityThree)),
             entryCount: 10);
@@ -272,14 +305,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -291,7 +326,8 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         await AssertQuery(
             async,
             ss => ss.Set<EntityThree>().Include(e => e.EntityOnes).ThenInclude(e => e.EntityTwos),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<EntityThree>(i => i.EntityOnes),
                 new ExpectedInclude<EntityOne>(i => i.EntityTwos)),
             entryCount: 15);
@@ -307,14 +343,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -340,14 +378,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -373,14 +413,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -391,7 +433,13 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.IntValue1, e.IntValue3, e.EntityThree }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.IntValue1,
+                    e.IntValue3,
+                    e.EntityThree
+                }),
             elementSorter: e => e.IntValue1,
             elementAsserter: (e, a) =>
             {
@@ -412,17 +460,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -451,17 +502,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("EntityOnes");
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -473,7 +527,13 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.Id, e.OwnedReference.OwnedIntValue4, e.OwnedReference.OwnedStringValue4 }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.OwnedReference.OwnedIntValue4,
+                    e.OwnedReference.OwnedStringValue4
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -496,19 +556,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("EntityOnes");
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("OwnedReferences");
 
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -537,19 +600,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("EntityOnes");
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("OwnedReferences");
 
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -561,7 +627,13 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
 
         await AssertQuery(
             async,
-            ss => ss.Set<EntityOne>().Select(e => new { e.Id, e.OwnedReference.OwnedIntValue4, e.OwnedReference.OwnedStringValue4 }),
+            ss => ss.Set<EntityOne>().Select(
+                e => new
+                {
+                    e.Id,
+                    e.OwnedReference.OwnedIntValue4,
+                    e.OwnedReference.OwnedStringValue4
+                }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -584,19 +656,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("EntityOnes");
 
-                        b.OwnsMany(e => e.OwnedCollection,
+                        b.OwnsMany(
+                            e => e.OwnedCollection,
                             o =>
                             {
                                 o.ToTable("OwnedCollection");
 
-                                o.SplitToTable("OwnedCollectionExtras1",
+                                o.SplitToTable(
+                                    "OwnedCollectionExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedCollectionExtras2",
+                                o.SplitToTable(
+                                    "OwnedCollectionExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -625,40 +700,45 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("EntityOnes");
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
                                         t.Property(e => e.OwnedStringValue4);
                                     });
 
-                                o.OwnsOne(e => e.OwnedNestedReference,
+                                o.OwnsOne(
+                                    e => e.OwnedNestedReference,
                                     oo =>
                                     {
-                                        oo.SplitToTable("OwnedNestedReferenceExtras1",
+                                        oo.SplitToTable(
+                                            "OwnedNestedReferenceExtras1",
                                             t =>
                                             {
                                                 t.Property(e => e.OwnedNestedIntValue3);
                                                 t.Property(e => e.OwnedNestedStringValue3);
                                             });
 
-                                        oo.SplitToTable("OwnedNestedReferenceExtras2",
+                                        oo.SplitToTable(
+                                            "OwnedNestedReferenceExtras2",
                                             t =>
                                             {
                                                 t.Property(e => e.OwnedNestedIntValue4);
                                                 t.Property(e => e.OwnedNestedStringValue4);
                                             });
-
                                     });
                             });
                     });
@@ -667,7 +747,8 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         await AssertQuery(
             async,
             ss => ss.Set<EntityOne>(),
-            elementAsserter: (e, a) => AssertInclude(e, a,
+            elementAsserter: (e, a) => AssertInclude(
+                e, a,
                 new ExpectedInclude<EntityOne>(i => i.OwnedReference),
                 new ExpectedInclude<OwnedReference>(i => i.OwnedNestedReference)),
             entryCount: 15);
@@ -683,14 +764,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -718,14 +801,16 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
@@ -753,33 +838,38 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("OwnedReferences");
 
-                                o.SplitToTable("OwnedReferenceExtras1",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferenceExtras2",
+                                o.SplitToTable(
+                                    "OwnedReferenceExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -806,33 +896,38 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<EntityOne>(
                     b =>
                     {
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
 
-                        b.OwnsMany(e => e.OwnedCollection,
+                        b.OwnsMany(
+                            e => e.OwnedCollection,
                             o =>
                             {
                                 o.ToTable("OwnedCollection");
 
-                                o.SplitToTable("OwnedCollectionExtras1",
+                                o.SplitToTable(
+                                    "OwnedCollectionExtras1",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedCollectionExtras2",
+                                o.SplitToTable(
+                                    "OwnedCollectionExtras2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -861,33 +956,38 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("SplitEntityOnePart1");
 
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("SplitEntityOnePart1");
 
-                                o.SplitToTable("SplitEntityOnePart2",
+                                o.SplitToTable(
+                                    "SplitEntityOnePart2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("SplitEntityOnePart3",
+                                o.SplitToTable(
+                                    "SplitEntityOnePart3",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -916,33 +1016,38 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("SplitEntityOnePart1");
 
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("SplitEntityOnePart1");
 
-                                o.SplitToTable("SplitEntityOnePart2",
+                                o.SplitToTable(
+                                    "SplitEntityOnePart2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferencePart3",
+                                o.SplitToTable(
+                                    "OwnedReferencePart3",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -971,33 +1076,38 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     {
                         b.ToTable("SplitEntityOnePart1");
 
-                        b.SplitToTable("SplitEntityOnePart2",
+                        b.SplitToTable(
+                            "SplitEntityOnePart2",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue3);
                                 tb.Property(e => e.StringValue3);
                             });
 
-                        b.SplitToTable("SplitEntityOnePart3",
+                        b.SplitToTable(
+                            "SplitEntityOnePart3",
                             tb =>
                             {
                                 tb.Property(e => e.IntValue4);
                                 tb.Property(e => e.StringValue4);
                             });
 
-                        b.OwnsOne(e => e.OwnedReference,
+                        b.OwnsOne(
+                            e => e.OwnedReference,
                             o =>
                             {
                                 o.ToTable("SplitEntityOnePart2");
 
-                                o.SplitToTable("OwnedReferencePart2",
+                                o.SplitToTable(
+                                    "OwnedReferencePart2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);
                                         t.Property(e => e.OwnedStringValue3);
                                     });
 
-                                o.SplitToTable("OwnedReferencePart3",
+                                o.SplitToTable(
+                                    "OwnedReferencePart3",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue4);
@@ -1022,17 +1132,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1058,17 +1171,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1092,17 +1208,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1128,17 +1247,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1162,17 +1284,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1198,17 +1323,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1234,17 +1362,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1268,17 +1399,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1304,17 +1438,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1338,17 +1475,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1374,17 +1514,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1408,17 +1551,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1444,17 +1590,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1480,17 +1629,20 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1514,19 +1666,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1552,19 +1707,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1590,19 +1748,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1626,19 +1787,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1664,19 +1828,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1702,19 +1869,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1738,19 +1908,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1776,19 +1949,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1814,19 +1990,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsOne(e => e.OwnedReference,
+                    .OwnsOne(
+                        e => e.OwnedReference,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1850,19 +2029,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<BaseEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1888,19 +2070,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1926,19 +2111,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<BaseEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -1962,19 +2150,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<MiddleEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2000,19 +2191,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2038,19 +2232,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<MiddleEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2074,19 +2271,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             mb =>
             {
                 mb.Entity<LeafEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2112,19 +2312,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTptMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2150,19 +2353,22 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 mb.Entity<BaseEntity>().UseTpcMappingStrategy();
 
                 mb.Entity<LeafEntity>()
-                    .OwnsMany(e => e.OwnedCollection,
+                    .OwnsMany(
+                        e => e.OwnedCollection,
                         o =>
                         {
                             o.ToTable("OwnedReferencePart1");
 
-                            o.SplitToTable("OwnedReferencePart3",
+                            o.SplitToTable(
+                                "OwnedReferencePart3",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue3);
                                     t.Property(e => e.OwnedStringValue3);
                                 });
 
-                            o.SplitToTable("OwnedReferencePart4",
+                            o.SplitToTable(
+                                "OwnedReferencePart4",
                                 t =>
                                 {
                                     t.Property(e => e.OwnedIntValue4);
@@ -2478,71 +2684,99 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
     // These are static so that they are shared across tests
     private static IReadOnlyDictionary<Type, object> EntityAsserters { get; }
         = new Dictionary<Type, Action<object, object>>
-    {
         {
-            typeof(EntityOne), (e, a) =>
             {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
+                typeof(EntityOne), (e, a) =>
                 {
-                    var ee = (EntityOne)e;
-                    var aa = (EntityOne)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.IntValue1, aa.IntValue1);
-                    Assert.Equal(ee.IntValue2, aa.IntValue2);
-                    Assert.Equal(ee.IntValue3, aa.IntValue3);
-                    Assert.Equal(ee.IntValue4, aa.IntValue4);
-                    Assert.Equal(ee.StringValue1, aa.StringValue1);
-                    Assert.Equal(ee.StringValue2, aa.StringValue2);
-                    Assert.Equal(ee.StringValue3, aa.StringValue3);
-                    Assert.Equal(ee.StringValue4, aa.StringValue4);
-                }
-            }
-        },
-        {
-            typeof(EntityTwo), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
-                {
-                    var ee = (EntityTwo)e;
-                    var aa = (EntityTwo)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.Name, aa.Name);
-                }
-            }
-        },
-        {
-            typeof(EntityThree), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
-                {
-                    var ee = (EntityThree)e;
-                    var aa = (EntityThree)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.Name, aa.Name);
-                }
-            }
-        },
-        {
-            typeof(BaseEntity), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
-                {
-                    var ee = (BaseEntity)e;
-                    var aa = (BaseEntity)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.BaseValue, aa.BaseValue);
-                    if (ee is MiddleEntity me)
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        var ma = (MiddleEntity)aa;
-                        Assert.Equal(me.MiddleValue, ma.MiddleValue);
+                        var ee = (EntityOne)e;
+                        var aa = (EntityOne)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.IntValue1, aa.IntValue1);
+                        Assert.Equal(ee.IntValue2, aa.IntValue2);
+                        Assert.Equal(ee.IntValue3, aa.IntValue3);
+                        Assert.Equal(ee.IntValue4, aa.IntValue4);
+                        Assert.Equal(ee.StringValue1, aa.StringValue1);
+                        Assert.Equal(ee.StringValue2, aa.StringValue2);
+                        Assert.Equal(ee.StringValue3, aa.StringValue3);
+                        Assert.Equal(ee.StringValue4, aa.StringValue4);
+                    }
+                }
+            },
+            {
+                typeof(EntityTwo), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (EntityTwo)e;
+                        var aa = (EntityTwo)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                    }
+                }
+            },
+            {
+                typeof(EntityThree), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (EntityThree)e;
+                        var aa = (EntityThree)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                    }
+                }
+            },
+            {
+                typeof(BaseEntity), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (BaseEntity)e;
+                        var aa = (BaseEntity)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.BaseValue, aa.BaseValue);
+                        if (ee is MiddleEntity me)
+                        {
+                            var ma = (MiddleEntity)aa;
+                            Assert.Equal(me.MiddleValue, ma.MiddleValue);
+
+                            if (ee is LeafEntity le)
+                            {
+                                var la = (LeafEntity)aa;
+                                Assert.Equal(le.LeafValue, la.LeafValue);
+                            }
+                        }
+
+                        if (ee is SiblingEntity se)
+                        {
+                            var sa = (SiblingEntity)aa;
+                            Assert.Equal(se.SiblingValue, sa.SiblingValue);
+                        }
+                    }
+                }
+            },
+            {
+                typeof(MiddleEntity), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (MiddleEntity)e;
+                        var aa = (MiddleEntity)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.BaseValue, aa.BaseValue);
+                        Assert.Equal(ee.MiddleValue, aa.MiddleValue);
 
                         if (ee is LeafEntity le)
                         {
@@ -2550,127 +2784,99 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                             Assert.Equal(le.LeafValue, la.LeafValue);
                         }
                     }
-
-                    if (ee is SiblingEntity se)
+                }
+            },
+            {
+                typeof(SiblingEntity), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        var sa = (SiblingEntity)aa;
-                        Assert.Equal(se.SiblingValue, sa.SiblingValue);
+                        var ee = (SiblingEntity)e;
+                        var aa = (SiblingEntity)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.BaseValue, aa.BaseValue);
+                        Assert.Equal(ee.SiblingValue, aa.SiblingValue);
                     }
                 }
-            }
-        },
-        {
-            typeof(MiddleEntity), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
+                typeof(LeafEntity), (e, a) =>
                 {
-                    var ee = (MiddleEntity)e;
-                    var aa = (MiddleEntity)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.BaseValue, aa.BaseValue);
-                    Assert.Equal(ee.MiddleValue, aa.MiddleValue);
-
-                    if (ee is LeafEntity le)
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        var la = (LeafEntity)aa;
-                        Assert.Equal(le.LeafValue, la.LeafValue);
+                        var ee = (LeafEntity)e;
+                        var aa = (LeafEntity)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.BaseValue, aa.BaseValue);
+                        Assert.Equal(ee.MiddleValue, aa.MiddleValue);
+                        Assert.Equal(ee.LeafValue, aa.LeafValue);
                     }
                 }
-            }
-        },
-        {
-            typeof(SiblingEntity), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
+                typeof(OwnedReference), (e, a) =>
                 {
-                    var ee = (SiblingEntity)e;
-                    var aa = (SiblingEntity)a;
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (OwnedReference)e;
+                        var aa = (OwnedReference)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.BaseValue, aa.BaseValue);
-                    Assert.Equal(ee.SiblingValue, aa.SiblingValue);
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.OwnedIntValue1, aa.OwnedIntValue1);
+                        Assert.Equal(ee.OwnedIntValue2, aa.OwnedIntValue2);
+                        Assert.Equal(ee.OwnedIntValue3, aa.OwnedIntValue3);
+                        Assert.Equal(ee.OwnedIntValue4, aa.OwnedIntValue4);
+                        Assert.Equal(ee.OwnedStringValue1, aa.OwnedStringValue1);
+                        Assert.Equal(ee.OwnedStringValue2, aa.OwnedStringValue2);
+                        Assert.Equal(ee.OwnedStringValue3, aa.OwnedStringValue3);
+                        Assert.Equal(ee.OwnedStringValue4, aa.OwnedStringValue4);
+                    }
                 }
-            }
-        },
-        {
-            typeof(LeafEntity), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
+                typeof(OwnedNestedReference), (e, a) =>
                 {
-                    var ee = (LeafEntity)e;
-                    var aa = (LeafEntity)a;
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (OwnedNestedReference)e;
+                        var aa = (OwnedNestedReference)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.BaseValue, aa.BaseValue);
-                    Assert.Equal(ee.MiddleValue, aa.MiddleValue);
-                    Assert.Equal(ee.LeafValue, aa.LeafValue);
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.OwnedNestedIntValue1, aa.OwnedNestedIntValue1);
+                        Assert.Equal(ee.OwnedNestedIntValue2, aa.OwnedNestedIntValue2);
+                        Assert.Equal(ee.OwnedNestedIntValue3, aa.OwnedNestedIntValue3);
+                        Assert.Equal(ee.OwnedNestedIntValue4, aa.OwnedNestedIntValue4);
+                        Assert.Equal(ee.OwnedNestedStringValue1, aa.OwnedNestedStringValue1);
+                        Assert.Equal(ee.OwnedNestedStringValue2, aa.OwnedNestedStringValue2);
+                        Assert.Equal(ee.OwnedNestedStringValue3, aa.OwnedNestedStringValue3);
+                        Assert.Equal(ee.OwnedNestedStringValue4, aa.OwnedNestedStringValue4);
+                    }
                 }
-            }
-        },
-        {
-            typeof(OwnedReference), (e, a) =>
+            },
             {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
+                typeof(OwnedCollection), (e, a) =>
                 {
-                    var ee = (OwnedReference)e;
-                    var aa = (OwnedReference)a;
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (OwnedCollection)e;
+                        var aa = (OwnedCollection)a;
 
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.OwnedIntValue1, aa.OwnedIntValue1);
-                    Assert.Equal(ee.OwnedIntValue2, aa.OwnedIntValue2);
-                    Assert.Equal(ee.OwnedIntValue3, aa.OwnedIntValue3);
-                    Assert.Equal(ee.OwnedIntValue4, aa.OwnedIntValue4);
-                    Assert.Equal(ee.OwnedStringValue1, aa.OwnedStringValue1);
-                    Assert.Equal(ee.OwnedStringValue2, aa.OwnedStringValue2);
-                    Assert.Equal(ee.OwnedStringValue3, aa.OwnedStringValue3);
-                    Assert.Equal(ee.OwnedStringValue4, aa.OwnedStringValue4);
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.OwnedIntValue1, aa.OwnedIntValue1);
+                        Assert.Equal(ee.OwnedIntValue2, aa.OwnedIntValue2);
+                        Assert.Equal(ee.OwnedStringValue1, aa.OwnedStringValue1);
+                        Assert.Equal(ee.OwnedStringValue2, aa.OwnedStringValue2);
+                    }
                 }
-            }
-        },
-        {
-            typeof(OwnedNestedReference), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
-                {
-                    var ee = (OwnedNestedReference)e;
-                    var aa = (OwnedNestedReference)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.OwnedNestedIntValue1, aa.OwnedNestedIntValue1);
-                    Assert.Equal(ee.OwnedNestedIntValue2, aa.OwnedNestedIntValue2);
-                    Assert.Equal(ee.OwnedNestedIntValue3, aa.OwnedNestedIntValue3);
-                    Assert.Equal(ee.OwnedNestedIntValue4, aa.OwnedNestedIntValue4);
-                    Assert.Equal(ee.OwnedNestedStringValue1, aa.OwnedNestedStringValue1);
-                    Assert.Equal(ee.OwnedNestedStringValue2, aa.OwnedNestedStringValue2);
-                    Assert.Equal(ee.OwnedNestedStringValue3, aa.OwnedNestedStringValue3);
-                    Assert.Equal(ee.OwnedNestedStringValue4, aa.OwnedNestedStringValue4);
-                }
-            }
-        },
-        {
-            typeof(OwnedCollection), (e, a) =>
-            {
-                Assert.Equal(e == null, a == null);
-                if (a != null)
-                {
-                    var ee = (OwnedCollection)e;
-                    var aa = (OwnedCollection)a;
-
-                    Assert.Equal(ee.Id, aa.Id);
-                    Assert.Equal(ee.OwnedIntValue1, aa.OwnedIntValue1);
-                    Assert.Equal(ee.OwnedIntValue2, aa.OwnedIntValue2);
-                    Assert.Equal(ee.OwnedStringValue1, aa.OwnedStringValue1);
-                    Assert.Equal(ee.OwnedStringValue2, aa.OwnedStringValue2);
-                }
-            }
-        },
-    }.ToDictionary(e => e.Key, e => (object)e.Value);
+            },
+        }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     private static IReadOnlyDictionary<Type, object> EntitySorters { get; }
         = new Dictionary<Type, Func<object, object>>
@@ -2712,10 +2918,11 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 OnModelCreating(mb);
                 onModelCreating(mb);
             },
-            onConfiguring: e => e.ConfigureWarnings(wc =>
-            {
-                wc.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
-            }),
+            onConfiguring: e => e.ConfigureWarnings(
+                wc =>
+                {
+                    wc.Log(RelationalEventId.ForeignKeyTpcPrincipalWarning);
+                }),
             shouldLogCategory: _ => true, seed: c => Seed(c));
 
     protected virtual EntitySplittingContext CreateContext()

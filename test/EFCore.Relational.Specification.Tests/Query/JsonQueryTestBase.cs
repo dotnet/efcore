@@ -86,36 +86,51 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_reference_in_tracking_query_fails(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot)))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot)))).Message;
 
-        Assert.Equal(RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(
+            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_collection_in_tracking_query_fails(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot)))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot)))).Message;
 
-        Assert.Equal(RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(
+            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_entity_in_tracking_query_fails_even_when_owner_is_present(bool async)
     {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new { x, x.OwnedReferenceRoot, x.OwnedCollectionRoot })))).Message;
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<JsonEntityBasic>().Select(
+                        x => new
+                        {
+                            x,
+                            x.OwnedReferenceRoot,
+                            x.OwnedCollectionRoot
+                        })))).Message;
 
-        Assert.Equal(RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
+        Assert.Equal(
+            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)), message);
     }
 
     [ConditionalTheory]
@@ -233,8 +248,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Select(
                 x => new
                 {
-                    x.Id,
-                    x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
+                    x.Id, x.OwnedReferenceRoot.OwnedReferenceBranch.Enum,
                 }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
@@ -575,7 +589,6 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Left_join_json_entities_complex_projection_json_being_inner(bool async)
         => AssertQuery(
             async,
-
             ss => (from e1 in ss.Set<JsonEntityBasic>()
                    join e2 in ss.Set<JsonEntitySingleOwned>() on e1.Id equals e2.Id into g
                    from e2 in g.DefaultIfEmpty()
@@ -875,7 +888,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf[MyMethod(x.Id)]).AsNoTracking());
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf[MyMethod(x.Id)])
+                .AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -931,7 +945,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedCollectionBranch[prm].OwnedReferenceLeaf).AsNoTracking());
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedCollectionBranch[prm].OwnedReferenceLeaf)
+                .AsNoTracking());
     }
 
     [ConditionalTheory]
@@ -1006,7 +1021,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[x.Id == 1 ? 0 : 1].Name == "e1_c1").Select(x => new { x.Id, x }),
+            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[x.Id == 1 ? 0 : 1].Name == "e1_c1")
+                .Select(x => new { x.Id, x }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1020,7 +1036,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[ss.Set<JsonEntityBasic>().Max(x => x.Id)].Name == "e1_c2").Select(x => new { x.Id, x }),
+            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[ss.Set<JsonEntityBasic>().Max(x => x.Id)].Name == "e1_c2")
+                .Select(x => new { x.Id, x }),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1044,7 +1061,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething == "e1_c2_c1_c1"),
+            ss => ss.Set<JsonEntityBasic>().Where(
+                x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething == "e1_c2_c1_c1"),
             entryCount: 40);
     }
 
@@ -1053,18 +1071,16 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_ElementAt_and_pushdown(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement = x.OwnedCollectionRoot.Select(xx => xx.Number).ElementAt(0)
-            }));
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new { x.Id, CollectionElement = x.OwnedCollectionRoot.Select(xx => xx.Number).ElementAt(0) }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_Any_with_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_c2_c1_c1")));
+            ss => ss.Set<JsonEntityBasic>().Where(
+                j => j.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_c2_c1_c1")));
     // TODO: Need entries
 
     [ConditionalTheory]
@@ -1072,10 +1088,12 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_Where_ElementAt(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(j =>
-                j.OwnedReferenceRoot.OwnedCollectionBranch
-                    .Where(o => o.Enum == JsonEnum.Three)
-                    .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r"),
+            ss => ss.Set<JsonEntityBasic>().Where(
+                j =>
+                    j.OwnedReferenceRoot.OwnedCollectionBranch
+                        .Where(o => o.Enum == JsonEnum.Three)
+                        .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
+                    == "e1_r_c2_r"),
             entryCount: 40);
 
     [ConditionalTheory]
@@ -1084,9 +1102,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
-                    .Skip(1)
-                    .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r"),
+                .Where(
+                    j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                            .Skip(1)
+                            .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
+                        == "e1_r_c2_r"),
             entryCount: 40);
 
     [ConditionalTheory]
@@ -1095,10 +1115,12 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
-                        .OrderByDescending(b => b.Date)
-                        .Skip(1)
-                        .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c1_r"),
+                .Where(
+                    j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                            .OrderByDescending(b => b.Date)
+                            .Skip(1)
+                            .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
+                        == "e1_r_c1_r"),
             entryCount: 40);
 
     // If this test is failing because of DistinctAfterOrderByWithoutRowLimitingOperatorWarning, this is because EF warns/errors by
@@ -1112,9 +1134,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
-                    .Distinct()
-                    .Count(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r") == 1),
+                .Where(
+                    j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                            .Distinct()
+                            .Count(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r")
+                        == 1),
             entryCount: 40);
 
     [ConditionalTheory]
@@ -1135,7 +1159,6 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .OrderBy(x => x.Id)
                 .Select(x => x.OwnedCollectionRoot.Count));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_in_projection_with_anonymous_projection_of_scalars(bool async)
@@ -1143,9 +1166,10 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .Select(xx => new { xx.Name, xx.Number })
-                    .ToList()));
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Select(xx => new { xx.Name, xx.Number })
+                        .ToList()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1154,10 +1178,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .Where(xx => xx.Name == "Foo")
-                    .Select(xx => new { xx.Name, xx.Number })
-                    .ToList()));
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Where(xx => xx.Name == "Foo")
+                        .Select(xx => new { xx.Name, xx.Number })
+                        .ToList()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1166,10 +1191,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .Where(xx => xx.Name == "Foo")
-                    .Select(xx => new { xx.Names, xx.Numbers })
-                    .ToList()));
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Where(xx => xx.Name == "Foo")
+                        .Select(xx => new { xx.Names, xx.Numbers })
+                        .ToList()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1193,11 +1219,13 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .Select(xx => xx.OwnedCollectionBranch.Where(xxx => xxx.Date != new DateTime(2000, 1, 1)).ToList()))
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Select(xx => xx.OwnedCollectionBranch.Where(xxx => xxx.Date != new DateTime(2000, 1, 1)).ToList()))
                 .AsNoTracking(),
             assertOrder: true,
-            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(ee, aa, ordered: true)));
+            elementAsserter: (e, a) => AssertCollection(
+                e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(ee, aa, ordered: true)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1206,27 +1234,32 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .Select(xx => xx.OwnedCollectionBranch.Select(xxx => new
-                    {
-                        xxx.Date,
-                        xxx.Enum,
-                        xxx.Enums,
-                        xxx.Fraction,
-                        xxx.OwnedReferenceLeaf,
-                        xxx.OwnedCollectionLeaf
-                    }).ToList()))
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .Select(
+                            xx => xx.OwnedCollectionBranch.Select(
+                                xxx => new
+                                {
+                                    xxx.Date,
+                                    xxx.Enum,
+                                    xxx.Enums,
+                                    xxx.Fraction,
+                                    xxx.OwnedReferenceLeaf,
+                                    xxx.OwnedCollectionLeaf
+                                }).ToList()))
                 .AsNoTracking(),
             assertOrder: true,
-            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(ee, aa, ordered: true, elementAsserter: (eee, aaa) =>
-            {
-                AssertEqual(eee.Date, aaa.Date);
-                AssertEqual(eee.Enum, aaa.Enum);
-                AssertCollection(eee.Enums, aaa.Enums, ordered: true);
-                AssertEqual(eee.Fraction, aaa.Fraction);
-                AssertEqual(eee.OwnedReferenceLeaf, aaa.OwnedReferenceLeaf);
-                AssertCollection(eee.OwnedCollectionLeaf, aaa.OwnedCollectionLeaf, ordered: true);
-            })));
+            elementAsserter: (e, a) => AssertCollection(
+                e, a, ordered: true, elementAsserter: (ee, aa) => AssertCollection(
+                    ee, aa, ordered: true, elementAsserter: (eee, aaa) =>
+                    {
+                        AssertEqual(eee.Date, aaa.Date);
+                        AssertEqual(eee.Enum, aaa.Enum);
+                        AssertCollection(eee.Enums, aaa.Enums, ordered: true);
+                        AssertEqual(eee.Fraction, aaa.Fraction);
+                        AssertEqual(eee.OwnedReferenceLeaf, aaa.OwnedReferenceLeaf);
+                        AssertCollection(eee.OwnedCollectionLeaf, aaa.OwnedCollectionLeaf, ordered: true);
+                    })));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1247,32 +1280,35 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .OrderBy(xx => xx.Name)
-                    .Skip(1)
-                    .Take(5)
-                    .Select(xx => new
-                    {
-                        xx.Name,
-                        xx.Names, 
-                        xx.Number,
-                        xx.Numbers,
-                        xx.OwnedCollectionBranch,
-                        xx.OwnedReferenceBranch
-                    }).ToList())
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .OrderBy(xx => xx.Name)
+                        .Skip(1)
+                        .Take(5)
+                        .Select(
+                            xx => new
+                            {
+                                xx.Name,
+                                xx.Names,
+                                xx.Number,
+                                xx.Numbers,
+                                xx.OwnedCollectionBranch,
+                                xx.OwnedReferenceBranch
+                            }).ToList())
                 .AsNoTracking(),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {
-                AssertCollection(e, a, ordered: true, elementAsserter: (ee, aa) =>
-                {
-                    AssertEqual(ee.Name, aa.Name);
-                    AssertCollection(ee.Names, aa.Names, ordered: true);
-                    AssertEqual(ee.Number, aa.Number);
-                    AssertCollection(ee.Numbers, aa.Numbers, ordered: true);
-                    AssertCollection(ee.OwnedCollectionBranch, aa.OwnedCollectionBranch, ordered: true);
-                    AssertEqual(ee.OwnedReferenceBranch, aa.OwnedReferenceBranch);
-                });
+                AssertCollection(
+                    e, a, ordered: true, elementAsserter: (ee, aa) =>
+                    {
+                        AssertEqual(ee.Name, aa.Name);
+                        AssertCollection(ee.Names, aa.Names, ordered: true);
+                        AssertEqual(ee.Number, aa.Number);
+                        AssertCollection(ee.Numbers, aa.Numbers, ordered: true);
+                        AssertCollection(ee.OwnedCollectionBranch, aa.OwnedCollectionBranch, ordered: true);
+                        AssertEqual(ee.OwnedReferenceBranch, aa.OwnedReferenceBranch);
+                    });
             });
 
     [ConditionalTheory]
@@ -1282,11 +1318,12 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedCollectionRoot
-                    .OrderBy(xx => xx.Name)
-                    .Skip(1)
-                    .Take(5)
-                    .Select(xx => xx.OwnedReferenceBranch).ToList())
+                .Select(
+                    x => x.OwnedCollectionRoot
+                        .OrderBy(xx => xx.Name)
+                        .Skip(1)
+                        .Take(5)
+                        .Select(xx => xx.OwnedReferenceBranch).ToList())
                 .AsNoTracking(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
@@ -1312,8 +1349,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .OrderBy(x => x.Id)
                 .Select(x => x.OwnedCollectionRoot.Select(xx => xx.Name).Distinct().ToList())
                 .AsNoTracking(),
-                assertOrder: true,
-                elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1322,8 +1359,9 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
-                    .Where(xx => xx.SomethingSomething  != "Baz").ToList())
+                .Select(
+                    x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                        .Where(xx => xx.SomethingSomething != "Baz").ToList())
                 .AsNoTracking(),
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
@@ -1335,24 +1373,25 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => new
-                {
-                    First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
-                        .Where(xx => xx.SomethingSomething != "Baz").ToList(),
-                    Second = x.OwnedCollectionRoot.Distinct().ToList(),
-                    Third = x.OwnedCollectionRoot
-                        .Select(xx => xx.OwnedCollectionBranch.Where(xxx => xxx.Date != new DateTime(2000, 1, 1)).ToList()),
-                    Fourth = x.EntityCollection.ToList()
-                })
+                .Select(
+                    x => new
+                    {
+                        First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf
+                            .Where(xx => xx.SomethingSomething != "Baz").ToList(),
+                        Second = x.OwnedCollectionRoot.Distinct().ToList(),
+                        Third = x.OwnedCollectionRoot
+                            .Select(xx => xx.OwnedCollectionBranch.Where(xxx => xxx.Date != new DateTime(2000, 1, 1)).ToList()),
+                        Fourth = x.EntityCollection.ToList()
+                    })
                 .AsNoTracking(),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertCollection(e.First, a.First, ordered: true);
-                    AssertCollection(e.Second, a.Second, elementSorter: ee => (ee.Name, ee.Number));
-                    AssertCollection(e.Third, a.Third, ordered: true, elementAsserter: (ee, aa) => AssertCollection(ee, aa, ordered: true));
-                    AssertCollection(e.Fourth, a.Fourth);
-                });
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertCollection(e.First, a.First, ordered: true);
+                AssertCollection(e.Second, a.Second, elementSorter: ee => (ee.Name, ee.Number));
+                AssertCollection(e.Third, a.Third, ordered: true, elementAsserter: (ee, aa) => AssertCollection(ee, aa, ordered: true));
+                AssertCollection(e.Fourth, a.Fourth);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1361,19 +1400,18 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => new
-                {
-                    First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(),
-                    Second = x.EntityCollection.ToList()
-                })
+                .Select(
+                    x => new
+                    {
+                        First = x.OwnedReferenceRoot.OwnedCollectionBranch.Distinct().ToList(), Second = x.EntityCollection.ToList()
+                    })
                 .AsNoTracking(),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertCollection(e.First, a.First, ordered: true);
-                    AssertCollection(e.Second, a.Second);
-                });
-
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertCollection(e.First, a.First, ordered: true);
+                AssertCollection(e.Second, a.Second);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1382,18 +1420,19 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .OrderBy(x => x.Id)
-                .Select(x => new
-                {
-                    First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf.Distinct().ToList(),
-                    Second = x.EntityCollection.ToList()
-                })
+                .Select(
+                    x => new
+                    {
+                        First = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf.Distinct().ToList(),
+                        Second = x.EntityCollection.ToList()
+                    })
                 .AsNoTracking(),
-                assertOrder: true,
-                elementAsserter: (e, a) =>
-                {
-                    AssertCollection(e.First, a.First, ordered: true);
-                    AssertCollection(e.Second, a.Second);
-                });
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertCollection(e.First, a.First, ordered: true);
+                AssertCollection(e.Second, a.Second);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1511,16 +1550,18 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual async Task Json_collection_Select_entity_ElementAt(bool async)
         => await AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().AsNoTracking().Select(x =>
-                x.OwnedCollectionRoot.Select(xx => xx.OwnedReferenceBranch).ElementAt(0)));
+            ss => ss.Set<JsonEntityBasic>().AsNoTracking().Select(
+                x =>
+                    x.OwnedCollectionRoot.Select(xx => xx.OwnedReferenceBranch).ElementAt(0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Json_collection_Select_entity_in_anonymous_object_ElementAt(bool async)
         => await AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().AsNoTracking().OrderBy(x => x.Id).Select(x =>
-                x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)),
+            ss => ss.Set<JsonEntityBasic>().AsNoTracking().OrderBy(x => x.Id).Select(
+                x =>
+                    x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {
@@ -1540,13 +1581,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_projection_deduplication_with_collection_indexer_in_original(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                Duplicate1 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
-                Original = x.OwnedCollectionRoot[0],
-                Duplicate2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate1 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
+                    Original = x.OwnedCollectionRoot[0],
+                    Duplicate2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf
+                }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1564,13 +1606,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
-                Original = x.OwnedReferenceRoot,
-                Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    Duplicate1 = x.OwnedReferenceRoot.OwnedCollectionBranch[1],
+                    Original = x.OwnedReferenceRoot,
+                    Duplicate2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[prm]
+                }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1589,14 +1632,15 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                DuplicateMix = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[prm],
-                DuplicatePrm = x.OwnedReferenceRoot.OwnedCollectionBranch[prm],
-                x.Id,
-                Original = x.OwnedReferenceRoot.OwnedCollectionBranch,
-                DuplicateConstant = x.OwnedReferenceRoot.OwnedCollectionBranch[0],
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    DuplicateMix = x.OwnedReferenceRoot.OwnedCollectionBranch[0].OwnedCollectionLeaf[prm],
+                    DuplicatePrm = x.OwnedReferenceRoot.OwnedCollectionBranch[prm],
+                    x.Id,
+                    Original = x.OwnedReferenceRoot.OwnedCollectionBranch,
+                    DuplicateConstant = x.OwnedReferenceRoot.OwnedCollectionBranch[0],
+                }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1613,11 +1657,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                CollectionElement = x.OwnedCollectionRoot[1]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x, CollectionElement = x.OwnedCollectionRoot[1] }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1630,11 +1670,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement = x.OwnedCollectionRoot[1]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, CollectionElement = x.OwnedCollectionRoot[1] }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1650,11 +1686,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                CollectionElement = x.OwnedCollectionRoot[prm]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x, CollectionElement = x.OwnedCollectionRoot[prm] }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1671,11 +1703,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement = x.OwnedCollectionRoot[prm]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, CollectionElement = x.OwnedCollectionRoot[prm] }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1689,11 +1717,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                Collection = x.OwnedCollectionRoot[1].OwnedCollectionBranch
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x, Collection = x.OwnedCollectionRoot[1].OwnedCollectionBranch })
+                .AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1706,11 +1731,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_not_present(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                Collection = x.OwnedCollectionRoot[1].OwnedCollectionBranch
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, Collection = x.OwnedCollectionRoot[1].OwnedCollectionBranch })
+                .AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1726,11 +1748,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                Collection = x.OwnedCollectionRoot[prm].OwnedCollectionBranch
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x, Collection = x.OwnedCollectionRoot[prm].OwnedCollectionBranch })
+                .AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1747,11 +1766,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                Collection = x.OwnedCollectionRoot[prm].OwnedCollectionBranch
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.Id, Collection = x.OwnedCollectionRoot[prm].OwnedCollectionBranch })
+                .AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1768,11 +1784,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1789,11 +1805,11 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id, CollectionElement = x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm],
+                }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1807,11 +1823,9 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_projection_when_owner_is_present_misc2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>()
+                .Select(x => new { x, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1] })
+                .AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1824,11 +1838,9 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_index_in_projection_when_owner_is_not_present_misc2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1]
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>()
+                .Select(x => new { x.Id, CollectionElement = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[1] })
+                .AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1844,19 +1856,20 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x,
-                CollectionElement1 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[1],
-                CollectionElement2 = x.OwnedCollectionRoot[1].OwnedCollectionBranch[1].OwnedReferenceLeaf,
-                CollectionElement3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
-                CollectionElement4 = x.OwnedCollectionRoot[prm].OwnedReferenceBranch,
-                CollectionElement5 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[x.Id],
-                CollectionElement6 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[1].OwnedReferenceLeaf,
-                CollectionElement7 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
-                CollectionElement8 = x.OwnedCollectionRoot[x.Id].OwnedReferenceBranch,
-                CollectionElement9 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[x.Id],
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x,
+                    CollectionElement1 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[1],
+                    CollectionElement2 = x.OwnedCollectionRoot[1].OwnedCollectionBranch[1].OwnedReferenceLeaf,
+                    CollectionElement3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
+                    CollectionElement4 = x.OwnedCollectionRoot[prm].OwnedReferenceBranch,
+                    CollectionElement5 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[x.Id],
+                    CollectionElement6 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[1].OwnedReferenceLeaf,
+                    CollectionElement7 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
+                    CollectionElement8 = x.OwnedCollectionRoot[x.Id].OwnedReferenceBranch,
+                    CollectionElement9 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[x.Id],
+                }).AsNoTracking(),
             elementSorter: e => e.x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1881,19 +1894,20 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
         return AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                x.Id,
-                CollectionElement1 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[1],
-                CollectionElement2 = x.OwnedCollectionRoot[1].OwnedCollectionBranch[1].OwnedReferenceLeaf,
-                CollectionElement3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
-                CollectionElement4 = x.OwnedCollectionRoot[prm].OwnedReferenceBranch,
-                CollectionElement5 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[x.Id],
-                CollectionElement6 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[1].OwnedReferenceLeaf,
-                CollectionElement7 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
-                CollectionElement8 = x.OwnedCollectionRoot[x.Id].OwnedReferenceBranch,
-                CollectionElement9 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[x.Id],
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    x.Id,
+                    CollectionElement1 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[1],
+                    CollectionElement2 = x.OwnedCollectionRoot[1].OwnedCollectionBranch[1].OwnedReferenceLeaf,
+                    CollectionElement3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
+                    CollectionElement4 = x.OwnedCollectionRoot[prm].OwnedReferenceBranch,
+                    CollectionElement5 = x.OwnedCollectionRoot[prm].OwnedCollectionBranch[x.Id],
+                    CollectionElement6 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[1].OwnedReferenceLeaf,
+                    CollectionElement7 = x.OwnedCollectionRoot[1].OwnedReferenceBranch,
+                    CollectionElement8 = x.OwnedCollectionRoot[x.Id].OwnedReferenceBranch,
+                    CollectionElement9 = x.OwnedCollectionRoot[x.Id].OwnedCollectionBranch[x.Id],
+                }).AsNoTracking(),
             elementSorter: e => e.Id,
             elementAsserter: (e, a) =>
             {
@@ -1944,7 +1958,6 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>()
                 .GroupBy(x => x.OwnedCollectionRoot[0].Name).Select(x => new { x.Key, Count = x.Count() }));
 
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Group_by_First_on_json_scalar(bool async)
@@ -1977,7 +1990,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enum).Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()),
+                .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enum)
+                .Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()),
             entryCount: 40);
 
     [ConditionalTheory]
@@ -2046,7 +2060,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf, x.EntityCollection }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>()
+                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf, x.EntityCollection }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.OwnedReferenceLeaf, a.OwnedReferenceLeaf);
@@ -2070,15 +2085,15 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_projection_of_multiple_json_references_and_entity_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                Reference1 = x.OwnedReferenceRoot,
-                Reference2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
-                x.EntityCollection,
-                Reference3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch.OwnedReferenceLeaf,
-                Reference4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedReferenceLeaf,
-
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    Reference1 = x.OwnedReferenceRoot,
+                    Reference2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
+                    x.EntityCollection,
+                    Reference3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch.OwnedReferenceLeaf,
+                    Reference4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedReferenceLeaf,
+                }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.EntityCollection, a.EntityCollection);
@@ -2093,7 +2108,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf, x.EntityCollection }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>()
+                .Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf, x.EntityCollection }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.OwnedCollectionLeaf, a.OwnedCollectionLeaf, ordered: true);
@@ -2117,7 +2133,13 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new { JsonCollectionElement = x.OwnedCollectionRoot[0], x.EntityReference, x.EntityCollection }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    JsonCollectionElement = x.OwnedCollectionRoot[0],
+                    x.EntityReference,
+                    x.EntityCollection
+                }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.JsonCollectionElement, a.JsonCollectionElement);
@@ -2130,18 +2152,19 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Select(x => new
-            {
-                Collection1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
-                x.EntityReference,
-                Reference1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
-                x.EntityCollection,
-                Reference2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[0],
-                Collection2 = x.OwnedReferenceRoot.OwnedCollectionBranch,
-                Collection3 = x.OwnedCollectionRoot,
-                Reference3 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
-                Collection4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch
-            }).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new
+                {
+                    Collection1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                    x.EntityReference,
+                    Reference1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    x.EntityCollection,
+                    Reference2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[0],
+                    Collection2 = x.OwnedReferenceRoot.OwnedCollectionBranch,
+                    Collection3 = x.OwnedCollectionRoot,
+                    Reference3 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
+                    Collection4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch
+                }).AsNoTracking(),
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.Collection1, a.Collection1, ordered: true);
@@ -2260,7 +2283,9 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_predicate_on_string_condition(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => (!x.Reference.TestBoolean ? x.Reference.TestMaxLengthString : x.Reference.TestDefaultString) == "MyDefaultStringInReference1"),
+            ss => ss.Set<JsonEntityAllTypes>().Where(
+                x => (!x.Reference.TestBoolean ? x.Reference.TestMaxLengthString : x.Reference.TestDefaultString)
+                    == "MyDefaultStringInReference1"),
             entryCount: 3);
 
     [ConditionalTheory]
@@ -2292,7 +2317,8 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_predicate_on_datetimeoffset(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))),
+            ss => ss.Set<JsonEntityAllTypes>().Where(
+                x => x.Reference.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))),
             entryCount: 6);
 
     [ConditionalTheory]
@@ -2575,7 +2601,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
-                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                    Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
                 .AsNoTracking()
                 .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch),
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch));
@@ -2586,7 +2612,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
-                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                    Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
                 .AsNoTracking()
                 .Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
@@ -2618,7 +2644,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
-                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                    Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
                 .AsNoTracking()
                 .OrderBy(x => x.Id)
                 .Select(x => x.ReferenceOnBase),
@@ -2631,7 +2657,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
-                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                    Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
                 .AsNoTracking()
                 .OrderBy(x => x.Id)
                 .Select(x => x.CollectionOnDerived),

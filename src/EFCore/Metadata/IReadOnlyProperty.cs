@@ -182,7 +182,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     /// <summary>
     ///     A property is a primitive collection if it has an element type that matches the element type of the CLR type.
     /// </summary>
-    /// <returns><see langword="true"/> if the property represents a primitive collection.</returns>
+    /// <returns><see langword="true" /> if the property represents a primitive collection.</returns>
     bool IsPrimitiveCollection { get; }
 
     /// <summary>

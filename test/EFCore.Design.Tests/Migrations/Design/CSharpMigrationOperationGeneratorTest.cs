@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -30,7 +29,7 @@ public class CSharpMigrationOperationGeneratorTest
             builder);
 
         Assert.Equal(
-"""
+            """
 mb.Sql("-- Don't stand so");
 
 mb.Sql("-- close to me");
@@ -47,7 +46,7 @@ mb.Sql("-- close to me");
                 Table = "Post",
                 ClrType = typeof(int)
             },
-"""
+            """
 mb.AddColumn<int>(
     name: "Id",
     table: "Post",
@@ -81,7 +80,7 @@ mb.AddColumn<int>(
                 Comment = "My Comment",
                 Collation = "Some Collation"
             },
-"""
+            """
 mb.AddColumn<int>(
     name: "Id",
     schema: "dbo",
@@ -123,7 +122,7 @@ mb.AddColumn<int>(
                 ClrType = typeof(int),
                 DefaultValueSql = "1"
             },
-"""
+            """
 mb.AddColumn<int>(
     name: "Id",
     table: "Post",
@@ -149,7 +148,7 @@ mb.AddColumn<int>(
                 ComputedColumnSql = "1",
                 IsStored = true
             },
-"""
+            """
 mb.AddColumn<int>(
     name: "Id",
     table: "Post",
@@ -176,7 +175,7 @@ mb.AddColumn<int>(
                 Columns = new[] { "BlogId" },
                 PrincipalTable = "Blog"
             },
-"""
+            """
 mb.AddForeignKey(
     name: "FK_Post_Blog_BlogId",
     table: "Post",
@@ -202,7 +201,7 @@ mb.AddForeignKey(
                 Columns = new[] { "BlogId1", "BlogId2" },
                 PrincipalTable = "Blog"
             },
-"""
+            """
 mb.AddForeignKey(
     name: "FK_Post_Blog_BlogId1_BlogId2",
     table: "Post",
@@ -233,7 +232,7 @@ mb.AddForeignKey(
                 OnUpdate = ReferentialAction.Restrict,
                 OnDelete = ReferentialAction.Cascade
             },
-"""
+            """
 mb.AddForeignKey(
     name: "FK_Post_Blog_BlogId",
     schema: "dbo",
@@ -273,7 +272,7 @@ mb.AddForeignKey(
                 OnUpdate = ReferentialAction.Restrict,
                 OnDelete = ReferentialAction.Cascade
             },
-"""
+            """
 mb.AddForeignKey(
     name: "FK_Post_Blog_BlogId1_BlogId2",
     schema: "dbo",
@@ -307,7 +306,7 @@ mb.AddForeignKey(
                 Table = "Post",
                 Columns = new[] { "Id" }
             },
-"""
+            """
 mb.AddPrimaryKey(
     name: "PK_Post",
     table: "Post",
@@ -330,7 +329,7 @@ mb.AddPrimaryKey(
                 Table = "Post",
                 Columns = new[] { "Id" }
             },
-"""
+            """
 mb.AddPrimaryKey(
     name: "PK_Post",
     schema: "dbo",
@@ -354,7 +353,7 @@ mb.AddPrimaryKey(
                 Table = "Post",
                 Columns = new[] { "Id1", "Id2" }
             },
-"""
+            """
 mb.AddPrimaryKey(
     name: "PK_Post",
     table: "Post",
@@ -376,7 +375,7 @@ mb.AddPrimaryKey(
                 Table = "Post",
                 Columns = new[] { "AltId" }
             },
-"""
+            """
 mb.AddUniqueConstraint(
     name: "AK_Post_AltId",
     table: "Post",
@@ -399,7 +398,7 @@ mb.AddUniqueConstraint(
                 Table = "Post",
                 Columns = new[] { "AltId" }
             },
-"""
+            """
 mb.AddUniqueConstraint(
     name: "AK_Post_AltId",
     schema: "dbo",
@@ -423,7 +422,7 @@ mb.AddUniqueConstraint(
                 Table = "Post",
                 Columns = new[] { "AltId1", "AltId2" }
             },
-"""
+            """
 mb.AddUniqueConstraint(
     name: "AK_Post_AltId1_AltId2",
     table: "Post",
@@ -445,7 +444,7 @@ mb.AddUniqueConstraint(
                 Table = "Post",
                 Sql = "AltId1 > AltId2"
             },
-"""
+            """
 mb.AddCheckConstraint(
     name: "CK_Post_AltId1_AltId2",
     table: "Post",
@@ -468,7 +467,7 @@ mb.AddCheckConstraint(
                 Table = "Post",
                 Sql = "AltId1 > AltId2"
             },
-"""
+            """
 mb.AddCheckConstraint(
     name: "CK_Post_AltId1_AltId2",
     schema: "dbo",
@@ -492,7 +491,7 @@ mb.AddCheckConstraint(
                 Table = "Post",
                 ClrType = typeof(int)
             },
-"""
+            """
 mb.AlterColumn<int>(
     name: "Id",
     table: "Post",
@@ -568,7 +567,7 @@ mb.AlterColumn<int>(
                     Collation = "Some Collation"
                 }
             },
-"""
+            """
 mb.AlterColumn<int>(
     name: "Id",
     schema: "dbo",
@@ -642,7 +641,7 @@ mb.AlterColumn<int>(
                 ClrType = typeof(int),
                 DefaultValueSql = "1"
             },
-"""
+            """
 mb.AlterColumn<int>(
     name: "Id",
     table: "Post",
@@ -686,7 +685,7 @@ mb.AlterColumn<int>(
                 ComputedColumnSql = "1",
                 IsStored = true
             },
-"""
+            """
 mb.AlterColumn<int>(
     name: "Id",
     table: "Post",
@@ -733,7 +732,7 @@ mb.AlterColumn<int>(
                 ["foo"] = "bar",
                 OldDatabase = { Collation = "Some other collation", ["bar"] = "foo" }
             },
-"""
+            """
 mb.AlterDatabase(
     collation: "Some collation",
     oldCollation: "Some other collation")
@@ -752,7 +751,7 @@ mb.AlterDatabase(
     public void AlterDatabaseOperation_with_default_old_collation()
         => Test(
             new AlterDatabaseOperation { Collation = "Some collation" },
-"""
+            """
 mb.AlterDatabase(
     collation: "Some collation");
 """,
@@ -766,7 +765,7 @@ mb.AlterDatabase(
     public void AlterDatabaseOperation_with_default_new_collation()
         => Test(
             new AlterDatabaseOperation { OldDatabase = { Collation = "Some collation" } },
-"""
+            """
 mb.AlterDatabase(
     oldCollation: "Some collation");
 """,
@@ -780,7 +779,7 @@ mb.AlterDatabase(
     public void AlterSequenceOperation_required_args()
         => Test(
             new AlterSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-"""
+            """
 mb.AlterSequence(
     name: "EntityFrameworkHiLoSequence");
 """,
@@ -817,7 +816,7 @@ mb.AlterSequence(
                     IsCyclic = true
                 }
             },
-"""
+            """
 mb.AlterSequence(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo",
@@ -848,7 +847,7 @@ mb.AlterSequence(
     public void AlterTableOperation_required_args()
         => Test(
             new AlterTableOperation { Name = "Customer" },
-"""
+            """
 mb.AlterTable(
     name: "Customer");
 """,
@@ -867,7 +866,7 @@ mb.AlterTable(
                 Comment = "My Comment 2",
                 OldTable = { Comment = "My Comment" }
             },
-"""
+            """
 mb.AlterTable(
     name: "Customer",
     schema: "dbo",
@@ -891,7 +890,7 @@ mb.AlterTable(
                 Table = "Post",
                 Columns = new[] { "Title" }
             },
-"""
+            """
 mb.CreateIndex(
     name: "IX_Post_Title",
     table: "Post",
@@ -920,7 +919,7 @@ mb.CreateIndex(
                 IsDescending = new[] { true, false },
                 Filter = "[Title] IS NOT NULL"
             },
-"""
+            """
 mb.CreateIndex(
     name: "IX_Post_Title",
     schema: "dbo",
@@ -950,7 +949,7 @@ mb.CreateIndex(
                 Table = "Post",
                 Columns = new[] { "Title", "Subtitle" }
             },
-"""
+            """
 mb.CreateIndex(
     name: "IX_Post_Title_Subtitle",
     table: "Post",
@@ -967,7 +966,7 @@ mb.CreateIndex(
     public void CreateSchemaOperation_required_args()
         => Test(
             new EnsureSchemaOperation { Name = "my" },
-"""
+            """
 mb.EnsureSchema(
     name: "my");
 """,
@@ -977,7 +976,7 @@ mb.EnsureSchema(
     public void CreateSequenceOperation_required_args()
         => Test(
             new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(long) },
-"""
+            """
 mb.CreateSequence(
     name: "EntityFrameworkHiLoSequence");
 """,
@@ -991,7 +990,7 @@ mb.CreateSequence(
     public void CreateSequenceOperation_required_args_not_long()
         => Test(
             new CreateSequenceOperation { Name = "EntityFrameworkHiLoSequence", ClrType = typeof(int) },
-"""
+            """
 mb.CreateSequence<int>(
     name: "EntityFrameworkHiLoSequence");
 """,
@@ -1015,7 +1014,7 @@ mb.CreateSequence<int>(
                 MaxValue = 4,
                 IsCyclic = true
             },
-"""
+            """
 mb.CreateSequence(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo",
@@ -1051,7 +1050,7 @@ mb.CreateSequence(
                 MaxValue = 4,
                 IsCyclic = true
             },
-"""
+            """
 mb.CreateSequence<int>(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo",
@@ -1089,7 +1088,7 @@ mb.CreateSequence<int>(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1139,7 +1138,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1187,7 +1186,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1226,7 +1225,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1266,7 +1265,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1316,7 +1315,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1375,7 +1374,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1425,7 +1424,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1465,7 +1464,7 @@ mb.CreateTable(
                     Columns = new[] { "Id" }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1502,7 +1501,7 @@ mb.CreateTable(
                     Columns = new[] { "Id" }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1543,7 +1542,7 @@ mb.CreateTable(
                     Columns = new[] { "Id1", "Id2" }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1582,7 +1581,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1622,7 +1621,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1666,7 +1665,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1709,7 +1708,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     columns: table => new
@@ -1754,7 +1753,7 @@ mb.CreateTable(
                     }
                 }
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1788,7 +1787,7 @@ mb.CreateTable(
                 Columns = { new AddColumnOperation { Name = "AltId1", ClrType = typeof(int) } },
                 Comment = "My Comment"
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1824,7 +1823,7 @@ mb.CreateTable(
                 },
                 Comment = "My Operation Comment"
             },
-"""
+            """
 mb.CreateTable(
     name: "Post",
     schema: "dbo",
@@ -1847,7 +1846,7 @@ mb.CreateTable(
     public void DropColumnOperation_required_args()
         => Test(
             new DropColumnOperation { Name = "Id", Table = "Post" },
-"""
+            """
 mb.DropColumn(
     name: "Id",
     table: "Post");
@@ -1867,7 +1866,7 @@ mb.DropColumn(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropColumn(
     name: "Id",
     schema: "dbo",
@@ -1884,7 +1883,7 @@ mb.DropColumn(
     public void DropForeignKeyOperation_required_args()
         => Test(
             new DropForeignKeyOperation { Name = "FK_Post_BlogId", Table = "Post" },
-"""
+            """
 mb.DropForeignKey(
     name: "FK_Post_BlogId",
     table: "Post");
@@ -1904,7 +1903,7 @@ mb.DropForeignKey(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropForeignKey(
     name: "FK_Post_BlogId",
     schema: "dbo",
@@ -1921,7 +1920,7 @@ mb.DropForeignKey(
     public void DropIndexOperation_required_args()
         => Test(
             new DropIndexOperation { Name = "IX_Post_Title" },
-"""
+            """
 mb.DropIndex(
     name: "IX_Post_Title");
 """,
@@ -1939,7 +1938,7 @@ mb.DropIndex(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropIndex(
     name: "IX_Post_Title",
     schema: "dbo",
@@ -1956,7 +1955,7 @@ mb.DropIndex(
     public void DropPrimaryKeyOperation_required_args()
         => Test(
             new DropPrimaryKeyOperation { Name = "PK_Post", Table = "Post" },
-"""
+            """
 mb.DropPrimaryKey(
     name: "PK_Post",
     table: "Post");
@@ -1976,7 +1975,7 @@ mb.DropPrimaryKey(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropPrimaryKey(
     name: "PK_Post",
     schema: "dbo",
@@ -1993,7 +1992,7 @@ mb.DropPrimaryKey(
     public void DropSchemaOperation_required_args()
         => Test(
             new DropSchemaOperation { Name = "my" },
-"""
+            """
 mb.DropSchema(
     name: "my");
 """,
@@ -2003,7 +2002,7 @@ mb.DropSchema(
     public void DropSequenceOperation_required_args()
         => Test(
             new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-"""
+            """
 mb.DropSequence(
     name: "EntityFrameworkHiLoSequence");
 """,
@@ -2013,7 +2012,7 @@ mb.DropSequence(
     public void DropSequenceOperation_all_args()
         => Test(
             new DropSequenceOperation { Name = "EntityFrameworkHiLoSequence", Schema = "dbo" },
-"""
+            """
 mb.DropSequence(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo");
@@ -2028,7 +2027,7 @@ mb.DropSequence(
     public void DropTableOperation_required_args()
         => Test(
             new DropTableOperation { Name = "Post" },
-"""
+            """
 mb.DropTable(
     name: "Post");
 """,
@@ -2038,7 +2037,7 @@ mb.DropTable(
     public void DropTableOperation_all_args()
         => Test(
             new DropTableOperation { Name = "Post", Schema = "dbo" },
-"""
+            """
 mb.DropTable(
     name: "Post",
     schema: "dbo");
@@ -2053,7 +2052,7 @@ mb.DropTable(
     public void DropUniqueConstraintOperation_required_args()
         => Test(
             new DropUniqueConstraintOperation { Name = "AK_Post_AltId", Table = "Post" },
-"""
+            """
 mb.DropUniqueConstraint(
     name: "AK_Post_AltId",
     table: "Post");
@@ -2073,7 +2072,7 @@ mb.DropUniqueConstraint(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropUniqueConstraint(
     name: "AK_Post_AltId",
     schema: "dbo",
@@ -2090,7 +2089,7 @@ mb.DropUniqueConstraint(
     public void DropCheckConstraintOperation_required_args()
         => Test(
             new DropCheckConstraintOperation { Name = "CK_Post_AltId1_AltId2", Table = "Post" },
-"""
+            """
 mb.DropCheckConstraint(
     name: "CK_Post_AltId1_AltId2",
     table: "Post");
@@ -2110,7 +2109,7 @@ mb.DropCheckConstraint(
                 Schema = "dbo",
                 Table = "Post"
             },
-"""
+            """
 mb.DropCheckConstraint(
     name: "CK_Post_AltId1_AltId2",
     schema: "dbo",
@@ -2132,7 +2131,7 @@ mb.DropCheckConstraint(
                 Table = "Post",
                 NewName = "PostId"
             },
-"""
+            """
 mb.RenameColumn(
     name: "Id",
     table: "Post",
@@ -2155,7 +2154,7 @@ mb.RenameColumn(
                 Table = "Post",
                 NewName = "PostId"
             },
-"""
+            """
 mb.RenameColumn(
     name: "Id",
     schema: "dbo",
@@ -2174,7 +2173,7 @@ mb.RenameColumn(
     public void RenameIndexOperation_required_args()
         => Test(
             new RenameIndexOperation { Name = "IX_Post_Title", NewName = "IX_Post_PostTitle" },
-"""
+            """
 mb.RenameIndex(
     name: "IX_Post_Title",
     newName: "IX_Post_PostTitle");
@@ -2195,7 +2194,7 @@ mb.RenameIndex(
                 Table = "Post",
                 NewName = "IX_dbo.Post_PostTitle"
             },
-"""
+            """
 mb.RenameIndex(
     name: "IX_dbo.Post_Title",
     schema: "dbo",
@@ -2214,7 +2213,7 @@ mb.RenameIndex(
     public void RenameSequenceOperation_required_args()
         => Test(
             new RenameSequenceOperation { Name = "EntityFrameworkHiLoSequence" },
-"""
+            """
 mb.RenameSequence(
     name: "EntityFrameworkHiLoSequence");
 """,
@@ -2230,7 +2229,7 @@ mb.RenameSequence(
                 NewName = "MySequence",
                 NewSchema = "my"
             },
-"""
+            """
 mb.RenameSequence(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo",
@@ -2249,7 +2248,7 @@ mb.RenameSequence(
     public void RenameTableOperation_required_args()
         => Test(
             new RenameTableOperation { Name = "Post" },
-"""
+            """
 mb.RenameTable(
     name: "Post");
 """,
@@ -2265,7 +2264,7 @@ mb.RenameTable(
                 NewName = "Posts",
                 NewSchema = "my"
             },
-"""
+            """
 mb.RenameTable(
     name: "Post",
     schema: "dbo",
@@ -2284,7 +2283,7 @@ mb.RenameTable(
     public void RestartSequenceOperation_required_args()
         => Test(
             new RestartSequenceOperation { Name = "EntityFrameworkHiLoSequence", StartValue = 1 },
-"""
+            """
 mb.RestartSequence(
     name: "EntityFrameworkHiLoSequence",
     startValue: 1L);
@@ -2304,7 +2303,7 @@ mb.RestartSequence(
                 Schema = "dbo",
                 StartValue = 1
             },
-"""
+            """
 mb.RestartSequence(
     name: "EntityFrameworkHiLoSequence",
     schema: "dbo",
@@ -2384,7 +2383,7 @@ mb.RestartSequence(
                     { 7, "Aemon Targaryen", _geometryCollection }
                 }
             },
-"""
+            """
 mb.InsertData(
     schema: "dbo",
     table: "People",
@@ -2427,7 +2426,7 @@ mb.InsertData(
                 Columns = new[] { "Geometry" },
                 Values = new object[,] { { _point1 } }
             },
-"""
+            """
 mb.InsertData(
     table: "People",
     column: "Geometry",
@@ -2451,7 +2450,7 @@ mb.InsertData(
                 Columns = new[] { "Tags" },
                 Values = new object[,] { { new string[0] } }
             },
-"""
+            """
 mb.InsertData(
     table: "People",
     column: "Tags",
@@ -2475,7 +2474,7 @@ mb.InsertData(
                 Columns = new[] { "First Name", "Last Name", "Geometry" },
                 Values = new object[,] { { "John", null, new string[0] } }
             },
-"""
+            """
 mb.InsertData(
     table: "People",
     columns: new[] { "First Name", "Last Name", "Geometry" },
@@ -2500,7 +2499,7 @@ mb.InsertData(
                 Columns = new[] { "First Name", "Last Name", "Geometry" },
                 Values = new object[,] { { "John", "Snow", _polygon1 } }
             },
-"""
+            """
 mb.InsertData(
     table: "People",
     columns: new[] { "First Name", "Last Name", "Geometry" },
@@ -2525,7 +2524,7 @@ mb.InsertData(
                 Columns = new[] { "Geometries" },
                 Values = new object[,] { { _lineString1 }, { _multiPoint } }
             },
-"""
+            """
 mb.InsertData(
     table: "People",
     column: "Geometries",
@@ -2560,7 +2559,7 @@ mb.InsertData(
                     { 2, "Contains a single Backslash r,\rjust in case" },
                 }
             },
-$$"""
+            $$"""
 mb.InsertData(
     schema: "dbo",
     table: "TestLineBreaks",
@@ -2595,7 +2594,7 @@ mb.InsertData(
                 KeyColumnTypes = new[] { "string" },
                 KeyValues = new object[,] { { "Hodor" }, { "Daenerys" }, { "John" }, { "Arya" }, { "Harry" } }
             },
-"""
+            """
 mb.DeleteData(
     schema: "dbo",
     table: "People",
@@ -2633,7 +2632,7 @@ mb.DeleteData(
                     { "Hodor", null }, { "Daenerys", "Targaryen" }, { "John", "Snow" }, { "Arya", "Stark" }, { "Harry", "Strickland" }
                 }
             },
-"""
+            """
 mb.DeleteData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -2665,7 +2664,7 @@ mb.DeleteData(
                 KeyColumns = new[] { "Last Name" },
                 KeyValues = new object[,] { { "Snow" } }
             },
-"""
+            """
 mb.DeleteData(
     table: "People",
     keyColumn: "Last Name",
@@ -2689,7 +2688,7 @@ mb.DeleteData(
                 KeyColumns = new[] { "First Name", "Last Name" },
                 KeyValues = new object[,] { { "John", "Snow" } }
             },
-"""
+            """
 mb.DeleteData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -2718,7 +2717,7 @@ mb.DeleteData(
                     { 2, "Contains a single Backslash r,\rjust in case" },
                 }
             },
-$$"""
+            $$"""
 mb.DeleteData(
     table: "TestLineBreaks",
     keyColumns: new[] { "Id", "Description" },
@@ -2752,7 +2751,7 @@ mb.DeleteData(
                 Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             },
-"""
+            """
 mb.UpdateData(
     schema: "dbo",
     table: "People",
@@ -2794,7 +2793,7 @@ mb.UpdateData(
                 Columns = new[] { "House Allegiance" },
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -2834,7 +2833,7 @@ mb.UpdateData(
                 Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                 Values = new object[,] { { "Winterfell", "Stark", "Northmen" }, { "Dragonstone", "Targaryen", "Valyrian" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -2875,7 +2874,7 @@ mb.UpdateData(
                 Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             },
-"""
+            """
 mb.UpdateData(
     schema: "dbo",
     table: "People",
@@ -2909,7 +2908,7 @@ mb.UpdateData(
                 Columns = new[] { "House Allegiance" },
                 Values = new object[,] { { "Targaryen" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumn: "First Name",
@@ -2941,7 +2940,7 @@ mb.UpdateData(
                 Columns = new[] { "House Allegiance" },
                 Values = new object[,] { { "Stark" }, { "Targaryen" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumn: "First Name",
@@ -2981,7 +2980,7 @@ mb.UpdateData(
                 Columns = new[] { "House Allegiance" },
                 Values = new object[,] { { "Targaryen" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -3013,7 +3012,7 @@ mb.UpdateData(
                 Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumns: new[] { "First Name", "Last Name" },
@@ -3045,7 +3044,7 @@ mb.UpdateData(
                 Columns = new[] { "Birthplace", "House Allegiance", "Culture" },
                 Values = new object[,] { { "Dragonstone", "Targaryen", "Valyrian" } }
             },
-"""
+            """
 mb.UpdateData(
     table: "People",
     keyColumn: "Full Name",
@@ -3083,7 +3082,7 @@ mb.UpdateData(
                     { "Contains a single Backslash r,\rjust in case" },
                 }
             },
-$$"""
+            $$"""
 mb.UpdateData(
     schema: "dbo",
     table: "TestLineBreaks",
@@ -3131,7 +3130,7 @@ mb.UpdateData(
 
         Test(
             alterTable,
-"""
+            """
 mb.AlterTable(
     name: "NewCustomer")
     .Annotation("MyAnnotation1", null)
@@ -3173,8 +3172,7 @@ mb.AlterTable(
             Sources =
             {
                 {
-                    "Migration.cs",
-$$"""
+                    "Migration.cs", $$"""
                     using Microsoft.EntityFrameworkCore.Migrations;
                     using NetTopologySuite.Geometries;
 

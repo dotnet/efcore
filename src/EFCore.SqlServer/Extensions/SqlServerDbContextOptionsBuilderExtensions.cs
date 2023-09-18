@@ -237,7 +237,9 @@ public static class SqlServerDbContextOptionsExtensions
         => optionsBuilder.Options.FindExtension<SqlServerOptionsExtension>()
             ?? new SqlServerOptionsExtension();
 
-    private static DbContextOptionsBuilder ApplyConfiguration(DbContextOptionsBuilder optionsBuilder, Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction)
+    private static DbContextOptionsBuilder ApplyConfiguration(
+        DbContextOptionsBuilder optionsBuilder,
+        Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction)
     {
         ConfigureWarnings(optionsBuilder);
 

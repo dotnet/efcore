@@ -19,7 +19,7 @@ public class OwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<OwnedQuerySq
         await base.Query_with_owned_entity_equality_operator(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 CROSS JOIN (
@@ -43,7 +43,7 @@ ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [
 
         // See issue #10067
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -60,7 +60,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.No_ignored_include_warning_when_implicit_load(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 """);
@@ -71,7 +71,7 @@ FROM [OwnedPerson] AS [o]
         await base.Query_for_branch_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -89,7 +89,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -107,7 +107,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -125,7 +125,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Query_when_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT [t0].[Id], [t0].[Discriminator], [t0].[Name], [t1].[ClientId], [t1].[Id], [t1].[OrderDate], [t1].[OrderClientId], [t1].[OrderId], [t1].[Id0], [t1].[Detail], [t0].[PersonAddress_AddressLine], [t0].[PersonAddress_PlaceType], [t0].[PersonAddress_ZipCode], [t0].[PersonAddress_Country_Name], [t0].[PersonAddress_Country_PlanetId], [t0].[BranchAddress_BranchName], [t0].[BranchAddress_PlaceType], [t0].[BranchAddress_Country_Name], [t0].[BranchAddress_Country_PlanetId], [t0].[LeafBAddress_LeafBType], [t0].[LeafBAddress_PlaceType], [t0].[LeafBAddress_Country_Name], [t0].[LeafBAddress_Country_PlanetId], [t0].[LeafAAddress_LeafType], [t0].[LeafAAddress_PlaceType], [t0].[LeafAAddress_Country_Name], [t0].[LeafAAddress_Country_PlanetId]
@@ -151,7 +151,7 @@ ORDER BY [t0].[Id], [t1].[ClientId], [t1].[Id], [t1].[OrderClientId], [t1].[Orde
         await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_Country_Name]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[PersonAddress_Country_Name] = N'USA'
@@ -163,7 +163,7 @@ WHERE [o].[PersonAddress_Country_Name] = N'USA'
         await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -181,7 +181,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Navigation_rewrite_on_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -202,7 +202,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Navigation_rewrite_on_owned_collection_with_composition(async);
 
         AssertSql(
-"""
+            """
 SELECT COALESCE((
     SELECT TOP(1) CASE
         WHEN [o0].[Id] <> 42 THEN CAST(1 AS bit)
@@ -221,7 +221,7 @@ ORDER BY [o].[Id]
         await base.Navigation_rewrite_on_owned_collection_with_composition_complex(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [o1].[PersonAddress_Country_Name]
     FROM [Order] AS [o0]
@@ -237,7 +237,7 @@ FROM [OwnedPerson] AS [o]
         await base.SelectMany_on_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -251,7 +251,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o1].[OrderClientId], [o1].[Order
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -263,7 +263,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
         await base.Filter_owned_entity_chained_with_regular_entity_followed_by_projecting_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -282,7 +282,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Project_multiple_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -300,7 +300,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Project_multiple_owned_navigations_with_expansion_on_owned_collections(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM [Order] AS [o0]
@@ -319,7 +319,7 @@ ORDER BY [o].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_filter(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -338,7 +338,7 @@ ORDER BY [o].[Id], [p].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -350,7 +350,7 @@ LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [m].[Id], [m].[Diameter], [m].[PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -364,7 +364,7 @@ ORDER BY [o].[Id], [p].[Id]
         await base.SelectMany_on_owned_reference_followed_by_regular_entity_and_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[Diameter], [m].[PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -377,7 +377,7 @@ INNER JOIN [Moon] AS [m] ON [p].[Id] = [m].[PlanetId]
         await base.SelectMany_on_owned_reference_with_entity_in_between_ending_in_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -391,7 +391,7 @@ INNER JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -407,7 +407,7 @@ ORDER BY [o].[Id], [p].[Id], [s].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_and_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Name]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -422,7 +422,7 @@ LEFT JOIN [Star] AS [s] ON [p].[StarId] = [s].[Id]
             async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [o].[Id], [p].[Id], [e].[Id], [e].[Name], [e].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -438,7 +438,7 @@ ORDER BY [o].[Id], [p].[Id], [s].[Id]
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -456,12 +456,12 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Preserve_includes_when_applying_skip_take_after_anonymous_type_select(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 """,
             //
-"""
+            """
 @__p_1='0'
 @__p_2='100'
 
@@ -486,7 +486,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Unmapped_property_projection_loads_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -504,7 +504,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Client_method_skip_loads_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
@@ -528,7 +528,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_take_loads_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
@@ -551,7 +551,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_take_loads_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 @__p_1='2'
 
@@ -576,7 +576,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
@@ -600,7 +600,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_take_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT [t].[Id], [t].[Discriminator], [t].[Name], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
@@ -623,7 +623,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Client_method_skip_take_loads_owned_navigations_variation_2(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 @__p_1='2'
 
@@ -648,7 +648,7 @@ ORDER BY [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[Order
         await base.Where_owned_collection_navigation_ToList_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -666,7 +666,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToArray_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -684,7 +684,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_AsEnumerable_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -702,7 +702,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToList_Count_member(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -720,7 +720,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Where_collection_navigation_ToArray_Length_member(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id], [o2].[Detail]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -738,7 +738,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id], [o2].[OrderClientId], [o2].[Order
         await base.Can_query_on_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -756,7 +756,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Can_query_on_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[PersonAddress_ZipCode] = 38654
@@ -768,7 +768,7 @@ WHERE [o].[PersonAddress_ZipCode] = 38654
         await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Name] = N'Mona Cy'
@@ -780,7 +780,7 @@ WHERE [o].[Name] = N'Mona Cy'
         await base.Can_project_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 """);
@@ -791,7 +791,7 @@ FROM [OwnedPerson] AS [o]
         await base.Can_project_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_AddressLine]
 FROM [OwnedPerson] AS [o]
 """);
@@ -802,7 +802,7 @@ FROM [OwnedPerson] AS [o]
         await base.Can_project_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 """);
@@ -813,7 +813,7 @@ FROM [OwnedPerson] AS [o]
         await base.Can_project_owned_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_AddressLine]
 FROM [OwnedPerson] AS [o]
 """);
@@ -824,7 +824,7 @@ FROM [OwnedPerson] AS [o]
         await base.Can_OrderBy_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -841,7 +841,7 @@ ORDER BY [o].[Name], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t
         await base.Can_OrderBy_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 ORDER BY [o].[Name], [o].[Id]
@@ -853,7 +853,7 @@ ORDER BY [o].[Name], [o].[Id]
         await base.Can_OrderBy_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
@@ -865,7 +865,7 @@ ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
         await base.Can_OrderBy_owened_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
@@ -877,7 +877,7 @@ ORDER BY [o].[PersonAddress_ZipCode], [o].[Id]
         await base.Can_group_by_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 GROUP BY [o].[Name]
@@ -889,7 +889,7 @@ GROUP BY [o].[Name]
         await base.Can_group_by_converted_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 GROUP BY [o].[Name]
@@ -901,7 +901,7 @@ GROUP BY [o].[Name]
         await base.Can_group_by_owned_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 GROUP BY [o].[PersonAddress_ZipCode]
@@ -913,7 +913,7 @@ GROUP BY [o].[PersonAddress_ZipCode]
         await base.Can_group_by_converted_owned_indexer_property(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM [OwnedPerson] AS [o]
 GROUP BY [o].[PersonAddress_ZipCode]
@@ -925,7 +925,7 @@ GROUP BY [o].[PersonAddress_ZipCode]
         await base.Can_join_on_indexer_property_on_query(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o0].[PersonAddress_Country_Name] AS [Name]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [OwnedPerson] AS [o0] ON [o].[PersonAddress_ZipCode] = [o0].[PersonAddress_ZipCode]
@@ -937,7 +937,7 @@ INNER JOIN [OwnedPerson] AS [o0] ON [o].[PersonAddress_ZipCode] = [o0].[PersonAd
         await base.Projecting_indexer_property_ignores_include(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_ZipCode] AS [Nation]
 FROM [OwnedPerson] AS [o]
 """);
@@ -948,7 +948,7 @@ FROM [OwnedPerson] AS [o]
         await base.Projecting_indexer_property_ignores_include_converted(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[PersonAddress_ZipCode] AS [Nation]
 FROM [OwnedPerson] AS [o]
 """);
@@ -959,7 +959,7 @@ FROM [OwnedPerson] AS [o]
         await base.Indexer_property_is_pushdown_into_subquery(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 WHERE (
@@ -974,7 +974,7 @@ WHERE (
         await base.Can_query_indexer_property_on_owned_collection(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Name]
 FROM [OwnedPerson] AS [o]
 WHERE (
@@ -989,20 +989,20 @@ WHERE (
         await base.Query_for_base_type_loads_all_owned_navs_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 ORDER BY [o].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1016,14 +1016,14 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Query_for_branch_type_loads_all_owned_navs_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1031,7 +1031,7 @@ WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1046,7 +1046,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Query_when_subquery_split(async);
 
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT TOP(@__p_0) [t].[Id], [t].[Discriminator], [t].[Name], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
@@ -1057,7 +1057,7 @@ FROM (
 ORDER BY [t].[Id]
 """,
             //
-"""
+            """
 @__p_0='5'
 
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [t0].[Id]
@@ -1073,7 +1073,7 @@ INNER JOIN [Order] AS [o0] ON [t0].[Id] = [o0].[ClientId]
 ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 @__p_0='5'
 
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [t0].[Id], [o0].[ClientId], [o0].[Id]
@@ -1096,14 +1096,14 @@ ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
         await base.Project_multiple_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [p].[Name], [p].[StarId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id], [p].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id], [p].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -1111,7 +1111,7 @@ INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
 ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -1126,14 +1126,14 @@ ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
         await base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_collection_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [p].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
 ORDER BY [o].[Id], [p].[Id]
 """,
             //
-"""
+            """
 SELECT [m].[Id], [m].[Diameter], [m].[PlanetId], [o].[Id], [p].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
@@ -1147,14 +1147,14 @@ ORDER BY [o].[Id], [p].[Id]
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1162,7 +1162,7 @@ WHERE [o].[Discriminator] = N'LeafA'
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1177,14 +1177,14 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Unmapped_property_projection_loads_owned_navigations_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Id] = 1
 ORDER BY [o].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1192,7 +1192,7 @@ WHERE [o].[Id] = 1
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1207,14 +1207,14 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.Can_query_on_indexer_properties_split(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id]
 """,
             //
-"""
+            """
 SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1222,7 +1222,7 @@ WHERE [o].[Name] = N'Mona Cy'
 ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
 """,
             //
-"""
+            """
 SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
 FROM [OwnedPerson] AS [o]
 INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
@@ -1237,7 +1237,7 @@ ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
         await base.GroupBy_with_multiple_aggregates_on_owned_navigation_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT AVG(CAST([s].[Id] AS float))
     FROM (
@@ -1276,7 +1276,7 @@ GROUP BY [t].[Key]
         await base.Ordering_by_identifying_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -1293,7 +1293,7 @@ ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].
         await base.Using_from_sql_on_owner_generates_join_with_table_for_owned_shared_dependents(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[Discriminator], [m].[Name], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT * FROM "OwnedPerson"
@@ -1317,7 +1317,7 @@ ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t
         await base.Projecting_collection_correlated_with_keyless_entity_after_navigation_works_using_parent_identifiers(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[Throned_Value], [f].[Id], [b].[Id], [p].[Id], [p].[Name], [p].[StarId]
 FROM [Fink] AS [f]
 LEFT JOIN [Barton] AS [b] ON [f].[BartonId] = [b].[Id]
@@ -1331,7 +1331,7 @@ ORDER BY [f].[Id], [b].[Id]
         await base.Filter_on_indexer_using_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -1349,7 +1349,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Filter_on_indexer_using_function_argument(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN (
@@ -1367,7 +1367,7 @@ ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
         await base.Simple_query_entity_with_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT [s].[Id], [s].[Name], [e].[Id], [e].[Name], [e].[StarId]
 FROM [Star] AS [s]
 LEFT JOIN [Element] AS [e] ON [s].[Id] = [e].[StarId]
@@ -1380,7 +1380,7 @@ ORDER BY [s].[Id]
         await base.Left_join_on_entity_with_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [p].[StarId], [o].[Id], [o].[Discriminator], [o].[Name], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail]
 FROM [Planet] AS [p]
 LEFT JOIN [OwnedPerson] AS [o] ON [p].[Id] = [o].[Id]
@@ -1403,7 +1403,7 @@ ORDER BY [p].[Id], [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].
         await base.Left_join_on_entity_with_owned_navigations_complex(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [p].[StarId], [t].[Id], [t].[Name], [t].[StarId], [t].[Id0], [t].[Discriminator], [t].[Name0], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [t].[PersonAddress_AddressLine], [t].[PersonAddress_PlaceType], [t].[PersonAddress_ZipCode], [t].[PersonAddress_Country_Name], [t].[PersonAddress_Country_PlanetId], [t].[BranchAddress_BranchName], [t].[BranchAddress_PlaceType], [t].[BranchAddress_Country_Name], [t].[BranchAddress_Country_PlanetId], [t].[LeafBAddress_LeafBType], [t].[LeafBAddress_PlaceType], [t].[LeafBAddress_Country_Name], [t].[LeafBAddress_Country_PlanetId], [t].[LeafAAddress_LeafType], [t].[LeafAAddress_PlaceType], [t].[LeafAAddress_Country_Name], [t].[LeafAAddress_Country_PlanetId]
 FROM [Planet] AS [p]
 LEFT JOIN (
@@ -1425,7 +1425,7 @@ ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderC
         await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id] AS [Key], (
     SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
     FROM [OwnedPerson] AS [o0]

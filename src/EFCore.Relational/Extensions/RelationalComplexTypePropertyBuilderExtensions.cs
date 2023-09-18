@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -66,7 +67,9 @@ public static class RelationalComplexTypePropertyBuilderExtensions
     /// <param name="propertyBuilder">The builder of the property being configured.</param>
     /// <param name="order">The column order.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public static ComplexTypePropertyBuilder<TProperty> HasColumnOrder<TProperty>(this ComplexTypePropertyBuilder<TProperty> propertyBuilder, int? order)
+    public static ComplexTypePropertyBuilder<TProperty> HasColumnOrder<TProperty>(
+        this ComplexTypePropertyBuilder<TProperty> propertyBuilder,
+        int? order)
         => (ComplexTypePropertyBuilder<TProperty>)HasColumnOrder((ComplexTypePropertyBuilder)propertyBuilder, order);
 
     /// <summary>

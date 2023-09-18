@@ -66,6 +66,7 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
         {
             SetAnnotation(CoreAnnotationNames.EagerLoaded, true);
         }
+
         if (!lazyLoadingEnabled)
         {
             SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);

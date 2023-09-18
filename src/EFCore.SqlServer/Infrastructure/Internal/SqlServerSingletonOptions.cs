@@ -53,9 +53,9 @@ public class SqlServerSingletonOptions : ISqlServerSingletonOptions
     {
         var sqlserverOptions = options.FindExtension<SqlServerOptionsExtension>();
 
-        if (sqlserverOptions != null &&
-            (CompatibilityLevelWithoutDefault != sqlserverOptions.CompatibilityLevelWithoutDefault
-            || CompatibilityLevel != sqlserverOptions.CompatibilityLevel))
+        if (sqlserverOptions != null
+            && (CompatibilityLevelWithoutDefault != sqlserverOptions.CompatibilityLevelWithoutDefault
+                || CompatibilityLevel != sqlserverOptions.CompatibilityLevel))
         {
             throw new InvalidOperationException(
                 CoreStrings.SingletonOptionChanged(

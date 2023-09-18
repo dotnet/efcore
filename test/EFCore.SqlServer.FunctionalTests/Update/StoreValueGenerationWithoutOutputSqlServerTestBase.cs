@@ -85,7 +85,7 @@ public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixtur
         }
 
         AssertSql(
-"""
+            """
 @p0='0'
 @p1='0'
 @p2='0'

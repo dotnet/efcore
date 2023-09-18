@@ -26,9 +26,9 @@ public class NorthwindGroupByQueryInMemoryTest : NorthwindGroupByQueryTestBase<N
             InMemoryStrings.NonComposedGroupByNotSupported);
 
     public override Task Final_GroupBy_property_entity_non_nullable(bool async)
-       => AssertTranslationFailedWithDetails(
-           () => base.Final_GroupBy_property_entity_non_nullable(async),
-           InMemoryStrings.NonComposedGroupByNotSupported);
+        => AssertTranslationFailedWithDetails(
+            () => base.Final_GroupBy_property_entity_non_nullable(async),
+            InMemoryStrings.NonComposedGroupByNotSupported);
 
     public override Task Final_GroupBy_property_anonymous_type(bool async)
         => AssertTranslationFailedWithDetails(

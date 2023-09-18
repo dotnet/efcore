@@ -186,7 +186,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             resultTypeMapping);
     }
 
-        private InExpression ApplyTypeMappingOnIn(InExpression inExpression)
+    private InExpression ApplyTypeMappingOnIn(InExpression inExpression)
     {
         var missingTypeMappingInValues = false;
 

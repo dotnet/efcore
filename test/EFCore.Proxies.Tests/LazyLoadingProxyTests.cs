@@ -65,7 +65,8 @@ public class LazyLoadingProxyTests
     {
         using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
         Assert.NotNull(
-            context.Model.FindEntityType(typeof(LazyNonVirtualOwnedNavEntity))!.FindNavigation(nameof(LazyNonVirtualOwnedNavEntity.NavigationToOwned)));
+            context.Model.FindEntityType(typeof(LazyNonVirtualOwnedNavEntity))!.FindNavigation(
+                nameof(LazyNonVirtualOwnedNavEntity.NavigationToOwned)));
     }
 
     [ConditionalFact]
@@ -73,7 +74,8 @@ public class LazyLoadingProxyTests
     {
         using var context = new LazyContextOwnedFieldNavigation();
         Assert.NotNull(
-            context.Model.FindEntityType(typeof(LazyFieldOwnedNavEntity))!.FindNavigation(nameof(LazyFieldOwnedNavEntity.NavigationToOwned)));
+            context.Model.FindEntityType(typeof(LazyFieldOwnedNavEntity))!.FindNavigation(
+                nameof(LazyFieldOwnedNavEntity.NavigationToOwned)));
     }
 
     [ConditionalFact]

@@ -217,7 +217,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression,
@@ -225,7 +226,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TEntity, TNavigation?>> navigationExpression)
@@ -388,7 +390,8 @@ public abstract partial class ModelBuilderTest
             string complexTypeName);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression,
@@ -396,7 +399,8 @@ public abstract partial class ModelBuilderTest
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction);
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestComplexPropertyBuilder<TComplex> Ignore(
             Expression<Func<TComplex, object?>> propertyExpression);
@@ -704,11 +708,15 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ValueGeneratedOnAdd();
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ValueGeneratedOnAddOrUpdate();
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ValueGeneratedOnUpdate();
+
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasValueGenerator<TGenerator>()
             where TGenerator : ValueGenerator;
+
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasValueGenerator(Type valueGeneratorType);
+
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
             where TFactory : ValueGeneratorFactory;
+
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasValueGeneratorFactory(Type valueGeneratorFactoryType);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasField(string fieldName);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);

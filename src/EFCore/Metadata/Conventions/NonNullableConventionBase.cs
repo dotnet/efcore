@@ -36,8 +36,8 @@ public abstract class NonNullableConventionBase : IModelFinalizingConvention
     /// <param name="modelBuilder">The model builder used to build the model.</param>
     /// <param name="memberInfo">The member info.</param>
     /// <param name="nullabilityInfo">
-    /// The nullability info for the <paramref name="memberInfo" />, or <see langword="null" /> if it does not represent a valid reference
-    /// type.
+    ///     The nullability info for the <paramref name="memberInfo" />, or <see langword="null" /> if it does not represent a valid reference
+    ///     type.
     /// </param>
     /// <returns><see langword="true" /> if the member type is a non-nullable reference type.</returns>
     protected virtual bool TryGetNullabilityInfo(

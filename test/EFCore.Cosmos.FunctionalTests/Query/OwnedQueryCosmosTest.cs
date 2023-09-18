@@ -26,7 +26,7 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         await base.Navigation_rewrite_on_owned_collection(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))
@@ -54,7 +54,7 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
         await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
@@ -66,7 +66,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
         AssertSql(
-"""
+            """
 SELECT c["PersonAddress"]["Country"]["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
@@ -78,7 +78,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Query_for_base_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -90,7 +90,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Query_for_branch_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
@@ -102,7 +102,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
         await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Branch", "LeafA")
@@ -114,7 +114,7 @@ WHERE c["Discriminator"] IN ("Branch", "LeafA")
         await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "LeafA")
@@ -192,7 +192,7 @@ WHERE (c["Discriminator"] = "LeafA")
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Discriminator"] = "LeafA"))
@@ -244,7 +244,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Can_query_on_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
@@ -256,7 +256,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Can_query_on_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
@@ -268,7 +268,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
@@ -280,7 +280,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Can_project_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -292,7 +292,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Can_project_owned_indexer_properties(async);
 
         AssertSql(
-"""
+            """
 SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -304,7 +304,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Can_project_indexer_properties_converted(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -391,7 +391,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Projecting_indexer_property_ignores_include(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -403,7 +403,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Projecting_indexer_property_ignores_include_converted(isAsync);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
 WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
@@ -486,7 +486,7 @@ WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
         await base.Filter_on_indexer_using_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
@@ -498,7 +498,7 @@ WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c[
         await base.Filter_on_indexer_using_function_argument(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))

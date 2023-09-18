@@ -57,7 +57,7 @@ public class NorthwindDbFunctionsQueryCosmosTest : NorthwindDbFunctionsQueryTest
         await base.Random_return_less_than_1(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (RAND() < 1.0))
@@ -69,7 +69,7 @@ WHERE ((c["Discriminator"] = "Order") AND (RAND() < 1.0))
         await base.Random_return_greater_than_0(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(1) AS c
 FROM root c
 WHERE ((c["Discriminator"] = "Order") AND (RAND() >= 0.0))

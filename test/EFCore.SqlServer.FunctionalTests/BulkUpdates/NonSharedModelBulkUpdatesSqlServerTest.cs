@@ -17,7 +17,7 @@ public class NonSharedModelBulkUpdatesSqlServerTest : NonSharedModelBulkUpdatesT
         await base.Delete_aggregate_root_when_eager_loaded_owned_collection(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [o]
 FROM [Owner] AS [o]
 """);
@@ -28,7 +28,7 @@ FROM [Owner] AS [o]
         await base.Delete_aggregate_root_when_table_sharing_with_owned(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [o]
 FROM [Owner] AS [o]
 """);
@@ -46,7 +46,7 @@ FROM [Owner] AS [o]
         await base.Update_non_owned_property_on_entity_with_owned(async);
 
         AssertSql(
-"""
+            """
 UPDATE [o]
 SET [o].[Title] = N'SomeValue'
 FROM [Owner] AS [o]
@@ -58,7 +58,7 @@ FROM [Owner] AS [o]
         await base.Update_non_owned_property_on_entity_with_owned2(async);
 
         AssertSql(
-"""
+            """
 UPDATE [o]
 SET [o].[Title] = COALESCE([o].[Title], N'') + N'_Suffix'
 FROM [Owner] AS [o]
@@ -70,7 +70,7 @@ FROM [Owner] AS [o]
         await base.Update_owned_and_non_owned_properties_with_table_sharing(async);
 
         AssertSql(
-"""
+            """
 UPDATE [o]
 SET [o].[OwnedReference_Number] = CAST(LEN([o].[Title]) AS int),
     [o].[Title] = CONVERT(varchar(11), [o].[OwnedReference_Number])
@@ -83,7 +83,7 @@ FROM [Owner] AS [o]
         await base.Update_main_table_in_entity_with_entity_splitting(async);
 
         AssertSql(
-"""
+            """
 UPDATE [b]
 SET [b].[CreationTimestamp] = '2020-01-01T00:00:00.0000000'
 FROM [Blogs] AS [b]
@@ -100,7 +100,7 @@ FROM [Blogs] AS [b]
         await base.Delete_entity_with_auto_include(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Context30572_Principal] AS [c]
 LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
@@ -112,7 +112,7 @@ LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
         await base.Delete_predicate_based_on_optional_navigation(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [p]
 FROM [Posts] AS [p]
 LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
@@ -125,7 +125,7 @@ WHERE [b].[Title] LIKE N'Arthur%'
         await base.Update_with_alias_uniquification_in_setter_subquery(async);
 
         AssertSql(
-"""
+            """
 UPDATE [o]
 SET [o].[Total] = (
     SELECT COALESCE(SUM([o0].[Amount]), 0)

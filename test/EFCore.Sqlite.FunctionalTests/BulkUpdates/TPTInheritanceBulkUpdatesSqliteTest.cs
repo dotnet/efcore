@@ -86,7 +86,7 @@ public class TPTInheritanceBulkUpdatesSqliteTest : TPTInheritanceBulkUpdatesTest
         await base.Update_base_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'Animal'
 FROM (
@@ -124,7 +124,7 @@ WHERE "a"."Id" = "t"."Id"
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Kiwi" AS "k"
 SET "FoundOn" = 0
 FROM "Animals" AS "a"
@@ -138,7 +138,7 @@ WHERE "a"."Id" = "k"."Id"
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -163,7 +163,7 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -188,7 +188,7 @@ WHERE (
         await base.Update_with_interface_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Coke" AS "c"
 SET "SugarGrams" = 0
 FROM "Drinks" AS "d"
@@ -201,7 +201,7 @@ WHERE "d"."Id" = "c"."Id"
         await base.Update_with_interface_in_EF_Property_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Coke" AS "c"
 SET "SugarGrams" = 0
 FROM "Drinks" AS "d"

@@ -37,7 +37,7 @@ public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<
         Assert.Equal(14, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["ContactName"] LIKE '%z%'
@@ -77,7 +77,7 @@ FROM (
         Assert.Equal(91, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
@@ -101,7 +101,7 @@ FROM (
         Assert.Equal(91, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
@@ -127,7 +127,7 @@ FROM (
         Assert.Equal(14, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
@@ -199,7 +199,7 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         }
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
@@ -242,7 +242,7 @@ WHERE CONTAINS(c["ContactName"], "z")
         }
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["CustomerID"] = "CONSH"
@@ -257,7 +257,7 @@ WHERE CONTAINS(c["ContactName"], "z")
     {
         using var context = CreateContext();
         var query = context.Set<Customer>().FromSqlRaw(
-"""
+            """
 SELECT *
 FROM root c
 WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
@@ -271,7 +271,7 @@ WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
         Assert.True(actual.All(c => c.City == "London"));
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT *
@@ -287,7 +287,7 @@ FROM (
     {
         using var context = CreateContext();
         var query = context.Set<Customer>().FromSqlRaw(
-"""
+                """
 SELECT *
 FROM root c
 WHERE c["Discriminator"] = "Customer"
@@ -302,7 +302,7 @@ WHERE c["Discriminator"] = "Customer"
         Assert.True(actual.All(c => c.City == "London"));
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT *
@@ -334,7 +334,7 @@ WHERE (c["City"] = "London")
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-"""
+            """
 @p0='London'
 @p1='Sales Representative'
 
@@ -364,7 +364,7 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-"""
+            """
 @p0='London'
 @p1='Sales Representative'
 
@@ -393,7 +393,7 @@ FROM (
         Assert.Single(actual);
 
         AssertSql(
-"""
+            """
 @p0=null
 
 SELECT c
@@ -425,7 +425,7 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-"""
+            """
 @p0='London'
 @__contactTitle_1='Sales Representative'
 
@@ -463,14 +463,14 @@ WHERE (c["ContactTitle"] = @__contactTitle_1)
         Assert.True(actual.All(c => c.City == "Seattle"));
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
 ) c
 """,
-                //
-"""
+            //
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'Seattle'
@@ -511,7 +511,7 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Accounting Manager"));
 
         AssertSql(
-"""
+            """
 @p0='London'
 @p1='Sales Representative'
 
@@ -520,8 +520,8 @@ FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
 ) c
 """,
-                //
-"""
+            //
+            """
 @p0='Madrid'
 @p1='Accounting Manager'
 
@@ -548,7 +548,7 @@ FROM (
         Assert.Empty(context.ChangeTracker.Entries());
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
@@ -574,7 +574,7 @@ WHERE c[""Discriminator""] = ""Product"" AND NOT c[""Discontinued""] AND ((c[""U
         Assert.Equal(2, actual.Length);
 
         AssertSql(
-"""
+            """
 SELECT c["ProductName"]
 FROM (
     SELECT *
@@ -599,7 +599,7 @@ FROM (
         Assert.Empty(actual);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
@@ -643,7 +643,7 @@ WHERE (c["ContactName"] = c["CompanyName"])
         Assert.Empty(context.ChangeTracker.Entries());
 
         AssertSql(
-"""
+            """
 SELECT c["CustomerID"], c["City"]
 FROM (
     SELECT * FROM root c WHERE c["Discriminator"] = "Customer"

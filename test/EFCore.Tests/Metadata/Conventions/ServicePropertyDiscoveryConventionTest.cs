@@ -393,5 +393,3 @@ public class ServicePropertyDiscoveryConventionTest
         private Action<object, string>? LazyLoader { get; set; }
     }
 }
-
-#nullable restore

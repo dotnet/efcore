@@ -39,7 +39,9 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
     public SqlServerJsonPostprocessor(
         IRelationalTypeMappingSource typeMappingSource,
         ISqlExpressionFactory sqlExpressionFactory)
-        => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+    {
+        (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -99,7 +101,8 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
 
                         foreach (var columnInfo in openJsonExpression.ColumnInfos!)
                         {
-                            columnsToRewrite ??= new();
+                            columnsToRewrite ??=
+                                new Dictionary<(SqlServerOpenJsonExpression, string), SqlServerOpenJsonExpression.ColumnInfo>();
                             columnsToRewrite.Add((newOpenJsonExpression, columnInfo.Name), columnInfo);
                         }
 

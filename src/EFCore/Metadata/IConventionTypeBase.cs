@@ -265,7 +265,11 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created property.</returns>
     [RequiresUnreferencedCode("Currently used only in tests")]
-    IConventionComplexProperty? AddComplexProperty(MemberInfo memberInfo, string? complexTypeName = null, bool collection = false, bool fromDataAnnotation = false)
+    IConventionComplexProperty? AddComplexProperty(
+        MemberInfo memberInfo,
+        string? complexTypeName = null,
+        bool collection = false,
+        bool fromDataAnnotation = false)
         => AddComplexProperty(
             memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
             memberInfo, memberInfo.GetMemberType(), complexTypeName, collection, fromDataAnnotation);
@@ -449,7 +453,7 @@ public interface IConventionTypeBase : IReadOnlyTypeBase, IConventionAnnotatable
     new IConventionPropertyBase? FindMember(string name);
 
     /// <summary>
-    ///    Gets the members with the given name on this type, base types or derived types..
+    ///     Gets the members with the given name on this type, base types or derived types..
     /// </summary>
     /// <returns>Type members.</returns>
     new IEnumerable<IConventionPropertyBase> FindMembersInHierarchy(string name);

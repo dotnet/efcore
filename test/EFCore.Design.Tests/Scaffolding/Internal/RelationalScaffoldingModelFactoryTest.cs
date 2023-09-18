@@ -2359,19 +2359,13 @@ public class RelationalScaffoldingModelFactoryTest
                 new DatabaseTable
                 {
                     Name = "Blogs",
-                    Columns =
-                    {
-                        new DatabaseColumn { Name = "Id", StoreType = "int"  }
-                    },
+                    Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
                     PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
                 },
                 new DatabaseTable
                 {
                     Name = "Posts",
-                    Columns =
-                    {
-                        new DatabaseColumn { Name = "Id", StoreType = "int"  }
-                    },
+                    Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
                     PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
                 },
                 new DatabaseTable
@@ -2379,19 +2373,17 @@ public class RelationalScaffoldingModelFactoryTest
                     Name = "PostBlogs",
                     Columns =
                     {
-                        new DatabaseColumn { Name = "Post_Id", StoreType = "int"  },
-                        new DatabaseColumn { Name = "Blog_Id", StoreType = "int"  }
+                        new DatabaseColumn { Name = "Post_Id", StoreType = "int" },
+                        new DatabaseColumn { Name = "Blog_Id", StoreType = "int" }
                     },
-                    PrimaryKey = new DatabasePrimaryKey
-                    {
-                        Columns = { new DatabaseColumnRef("Post_Id"), new DatabaseColumnRef("Blog_Id") }
-                    },
+                    PrimaryKey =
+                        new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Post_Id"), new DatabaseColumnRef("Blog_Id") } },
                     ForeignKeys =
                     {
                         new DatabaseForeignKey
                         {
                             Name = "Post_Blogs_Source",
-                            Columns ={ new DatabaseColumnRef("Post_Id") },
+                            Columns = { new DatabaseColumnRef("Post_Id") },
                             PrincipalTable = new DatabaseTableRef("Posts"),
                             PrincipalColumns = { new DatabaseColumnRef("Id") },
                             OnDelete = ReferentialAction.Cascade
@@ -2399,7 +2391,7 @@ public class RelationalScaffoldingModelFactoryTest
                         new DatabaseForeignKey
                         {
                             Name = "Post_Blogs_Target",
-                            Columns ={ new DatabaseColumnRef("Blog_Id") },
+                            Columns = { new DatabaseColumnRef("Blog_Id") },
                             PrincipalTable = new DatabaseTableRef("Blogs"),
                             PrincipalColumns = { new DatabaseColumnRef("Id") },
                             OnDelete = ReferentialAction.Cascade
@@ -2860,32 +2852,31 @@ public class RelationalScaffoldingModelFactoryTest
     [ConditionalFact]
     public void Unusual_navigation_name() // Issue #14278
     {
-        var bookDetailsTable = new DatabaseTable
-        {
-            Database = Database,
-            Name = "Book_Details"
-        };
+        var bookDetailsTable = new DatabaseTable { Database = Database, Name = "Book_Details" };
 
-        bookDetailsTable.Columns.Add(new DatabaseColumn
-        {
-            Table = bookDetailsTable,
-            Name = "ID",
-            StoreType = "int"
-        });
+        bookDetailsTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = bookDetailsTable,
+                Name = "ID",
+                StoreType = "int"
+            });
 
-        bookDetailsTable.Columns.Add(new DatabaseColumn
-        {
-            Table = bookDetailsTable,
-            Name = "Book_Name",
-            StoreType = "nvarchar(50)"
-        });
+        bookDetailsTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = bookDetailsTable,
+                Name = "Book_Name",
+                StoreType = "nvarchar(50)"
+            });
 
-        bookDetailsTable.Columns.Add(new DatabaseColumn
-        {
-            Table = bookDetailsTable,
-            Name = "Student_Id",
-            StoreType = "int"
-        });
+        bookDetailsTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = bookDetailsTable,
+                Name = "Student_Id",
+                StoreType = "int"
+            });
 
         bookDetailsTable.PrimaryKey = new DatabasePrimaryKey
         {
@@ -2894,25 +2885,23 @@ public class RelationalScaffoldingModelFactoryTest
             Columns = { bookDetailsTable.Columns.Single(c => c.Name == "ID") }
         };
 
-        var studentDetailsTable = new DatabaseTable
-        {
-            Database = Database,
-            Name = "Student_Details"
-        };
+        var studentDetailsTable = new DatabaseTable { Database = Database, Name = "Student_Details" };
 
-        studentDetailsTable.Columns.Add(new DatabaseColumn
-        {
-            Table = studentDetailsTable,
-            Name = "ID",
-            StoreType = "int"
-        });
+        studentDetailsTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = studentDetailsTable,
+                Name = "ID",
+                StoreType = "int"
+            });
 
-        studentDetailsTable.Columns.Add(new DatabaseColumn
-        {
-            Table = studentDetailsTable,
-            Name = "Student_Name",
-            StoreType = "nvarchar(256)"
-        });
+        studentDetailsTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = studentDetailsTable,
+                Name = "Student_Name",
+                StoreType = "nvarchar(256)"
+            });
 
         studentDetailsTable.PrimaryKey = new DatabasePrimaryKey
         {

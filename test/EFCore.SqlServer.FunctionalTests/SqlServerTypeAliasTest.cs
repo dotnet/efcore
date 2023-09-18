@@ -27,7 +27,7 @@ public class SqlServerTypeAliasTest : IClassFixture<SqlServerFixture>
         using (var context = new TypeAliasContext(options))
         {
             context.Database.ExecuteSqlRaw(
-"""
+                """
 CREATE TYPE datetimeAlias FROM datetime2(6);
 CREATE TYPE datetimeoffsetAlias FROM datetimeoffset(6);
 CREATE TYPE timeAlias FROM time(6);
@@ -201,5 +201,3 @@ CREATE TYPE stringAlias FROM nvarchar(50);
         public string? StringAlias { get; set; }
     }
 }
-
-#nullable restore

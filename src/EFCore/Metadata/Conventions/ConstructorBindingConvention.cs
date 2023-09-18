@@ -60,7 +60,7 @@ public class ConstructorBindingConvention : IModelFinalizingConvention
     private void Process(ComplexType complexType)
     {
         if (!complexType.ClrType.IsAbstract
-                && ConfigurationSource.Convention.Overrides(complexType.GetConstructorBindingConfigurationSource()))
+            && ConfigurationSource.Convention.Overrides(complexType.GetConstructorBindingConfigurationSource()))
         {
             Dependencies.ConstructorBindingFactory.GetBindings(
                 complexType, out var constructorBinding, out var serviceOnlyBinding);

@@ -28,7 +28,7 @@ public class NorthwindDbFunctionsQuerySqliteTest : NorthwindDbFunctionsQueryRela
             c => c.ContactName.Contains("M"));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" GLOB '*M*'
@@ -47,7 +47,7 @@ WHERE "c"."ContactName" GLOB '*M*'
             c => !c.CustomerID.StartsWith("T"));
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" NOT GLOB 'T*'
@@ -70,7 +70,7 @@ WHERE "c"."CustomerID" NOT GLOB 'T*'
             c => true);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM "Orders" AS "o"
 WHERE abs(random() / 9.2233720368547799E+18) <= 1.0
@@ -82,7 +82,7 @@ WHERE abs(random() / 9.2233720368547799E+18) <= 1.0
         await base.Random_return_greater_than_0(async);
 
         AssertSql(
-"""
+            """
 SELECT COUNT(*)
 FROM "Orders" AS "o"
 WHERE abs(random() / 9.2233720368547799E+18) >= 0.0

@@ -403,7 +403,8 @@ public static class SqlServerIndexExtensions
     /// </summary>
     /// <param name="index">The index.</param>
     /// <param name="dataCompression">The value to set.</param>
-    public static void SetDataCompression(this IMutableIndex index, DataCompressionType? dataCompression) => index.SetAnnotation(
+    public static void SetDataCompression(this IMutableIndex index, DataCompressionType? dataCompression)
+        => index.SetAnnotation(
             SqlServerAnnotationNames.DataCompression,
             dataCompression);
 
@@ -417,7 +418,8 @@ public static class SqlServerIndexExtensions
     public static DataCompressionType? SetDataCompression(
         this IConventionIndex index,
         DataCompressionType? dataCompression,
-        bool fromDataAnnotation = false) => (DataCompressionType?)index.SetAnnotation(
+        bool fromDataAnnotation = false)
+        => (DataCompressionType?)index.SetAnnotation(
             SqlServerAnnotationNames.DataCompression,
             dataCompression,
             fromDataAnnotation)?.Value;

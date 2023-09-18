@@ -177,5 +177,3 @@ public class ValueConvertersEndToEndSqliteTest
         }
     }
 }
-
-#nullable restore

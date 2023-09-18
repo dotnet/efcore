@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     Represents an operation that should be performed when the <see cref="IElementType"/> for a property is changed.
+///     Represents an operation that should be performed when the <see cref="IElementType" /> for a property is changed.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.

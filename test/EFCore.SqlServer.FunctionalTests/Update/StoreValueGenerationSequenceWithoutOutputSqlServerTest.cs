@@ -49,7 +49,7 @@ public class StoreValueGenerationSequenceWithoutOutputSqlServerTest : StoreValue
         await base.Add_with_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 
 SET NOCOUNT ON;
@@ -68,7 +68,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
         await base.Add_with_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -85,7 +85,7 @@ VALUES (@p0, @p1, @p2);
         await base.Add_with_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
@@ -102,7 +102,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
         await base.Modify_with_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='5'
 @p0='1000'
 
@@ -120,7 +120,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p1;
         await base.Modify_with_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -138,7 +138,7 @@ SELECT @@ROWCOUNT;
         await base.Delete(async);
 
         AssertSql(
-"""
+            """
 @p0='5'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -158,7 +158,7 @@ SELECT @@ROWCOUNT;
         await base.Add_Add_with_same_entity_type_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 @p1='1001'
 
@@ -184,7 +184,7 @@ ORDER BY [i].[_Position];
         await base.Add_Add_with_same_entity_type_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -205,7 +205,7 @@ VALUES (@p0, @p1, @p2),
         await base.Add_Add_with_same_entity_type_and_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated] ([Id])
@@ -223,7 +223,7 @@ INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id]);
         await base.Modify_Modify_with_same_entity_type_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='5'
 @p0='1000'
 @p3='6'
@@ -249,7 +249,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p3;
         await base.Modify_Modify_with_same_entity_type_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -273,7 +273,7 @@ SELECT @@ROWCOUNT;
         await base.Delete_Delete_with_same_entity_type(async);
 
         AssertSql(
-"""
+            """
 @p0='5'
 @p1='6'
 
@@ -297,7 +297,7 @@ SELECT @@ROWCOUNT;
         await base.Add_Add_with_different_entity_types_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='1000'
 @p1='1001'
 
@@ -325,7 +325,7 @@ INNER JOIN @inserted1 i ON ([t].[Id] = [i].[Id]);
         await base.Add_Add_with_different_entity_types_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p0='100'
 @p1='1000'
 @p2='1000'
@@ -346,7 +346,7 @@ VALUES (@p3, @p4, @p5);
         await base.Add_Add_with_different_entity_types_and_all_generated_values(async);
 
         AssertSql(
-"""
+            """
 SET NOCOUNT ON;
 DECLARE @inserted0 TABLE ([Id] int);
 INSERT INTO [WithAllDatabaseGenerated]
@@ -371,7 +371,7 @@ INNER JOIN @inserted1 i ON ([t].[Id] = [i].[Id]);
         await base.Modify_Modify_with_different_entity_types_and_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p1='5'
 @p0='1000'
 @p3='8'
@@ -397,7 +397,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = @p3;
         await base.Modify_Modify_with_different_entity_types_and_no_generated_values(async);
 
         AssertSql(
-"""
+            """
 @p2='1'
 @p0='1000'
 @p1='1000'
@@ -421,7 +421,7 @@ SELECT @@ROWCOUNT;
         await base.Delete_Delete_with_different_entity_types(async);
 
         AssertSql(
-"""
+            """
 @p0='5'
 @p1='8'
 
@@ -443,7 +443,7 @@ SELECT @@ROWCOUNT;
         await base.Three_Add_use_batched_inserts(async);
 
         AssertSql(
-"""
+            """
 @p0='0'
 @p1='0'
 @p2='0'

@@ -56,7 +56,7 @@ public class DbContextFactorySource<TContext> : IDbContextFactorySource<TContext
                                 constructors[0],
                                 isGeneric
                                     ? optionsParam
-                                    : (Expression)Expression.Convert(optionsParam, typeof(DbContextOptions))),
+                                    : Expression.Convert(optionsParam, typeof(DbContextOptions))),
                             providerParam, optionsParam)
                         .Compile();
                 }

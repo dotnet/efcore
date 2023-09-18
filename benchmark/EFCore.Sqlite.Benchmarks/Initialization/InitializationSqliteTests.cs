@@ -4,11 +4,13 @@
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Initialization;
+
+public class InitializationSqliteTests : InitializationTests
 {
-    public class InitializationSqliteTests : InitializationTests
-    {
-        protected override AdventureWorksContextBase CreateContext()=> AdventureWorksSqliteFixture.CreateContext();
-        protected override ConventionSet CreateConventionSet() => SqliteConventionSetBuilder.Build();
-    }
+    protected override AdventureWorksContextBase CreateContext()
+        => AdventureWorksSqliteFixture.CreateContext();
+
+    protected override ConventionSet CreateConventionSet()
+        => SqliteConventionSetBuilder.Build();
 }

@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqliteTest : MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>,
+public class MaterializationInterceptionSqliteTest :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>,
     IClassFixture<MaterializationInterceptionSqliteTest.MaterializationInterceptionSqliteFixture>
 {
     public MaterializationInterceptionSqliteTest(MaterializationInterceptionSqliteFixture fixture)

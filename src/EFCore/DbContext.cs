@@ -888,6 +888,7 @@ public class DbContext :
             {
                 changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
             }
+
             changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
             changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
             changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;

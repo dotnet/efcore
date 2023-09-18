@@ -317,8 +317,9 @@ public class ChangeDetectorTest
             ValueComparer keyComparer = null,
             CoreTypeMapping elementMapping = null,
             JsonValueReaderWriter jsonValueReaderWriter = null)
-            => new ConcreteTypeMapping(Parameters.WithComposedConverter(
-                converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
+            => new ConcreteTypeMapping(
+                Parameters.WithComposedConverter(
+                    converter, comparer, keyComparer, elementMapping, jsonValueReaderWriter));
 
         protected override CoreTypeMapping Clone(CoreTypeMappingParameters parameters)
             => new ConcreteTypeMapping(parameters);

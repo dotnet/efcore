@@ -907,10 +907,10 @@ public class InternalPropertyBuilder
             newPropertyBuilder.HasTypeMapping(Metadata.TypeMapping, oldTypeMappingConfigurationSource.Value);
         }
 
-        var oldElementType = (ElementType?)Metadata.GetElementType();
+        var oldElementType = Metadata.GetElementType();
         if (oldElementType != null)
         {
-            var newElementType = (ElementType?)newPropertyBuilder.Metadata.GetElementType();
+            var newElementType = newPropertyBuilder.Metadata.GetElementType();
             if (newElementType != null)
             {
                 var newElementTypeBuilder = new InternalElementTypeBuilder(newElementType, ModelBuilder);
@@ -932,16 +932,20 @@ public class InternalPropertyBuilder
 
                 var oldElementProviderClrTypeConfigurationSource = oldElementType.GetProviderClrTypeConfigurationSource();
                 if (oldElementProviderClrTypeConfigurationSource.HasValue
-                    && newElementTypeBuilder.CanSetConversion(oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource))
+                    && newElementTypeBuilder.CanSetConversion(
+                        oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource))
                 {
-                    newElementTypeBuilder.HasConversion(oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource.Value);
+                    newElementTypeBuilder.HasConversion(
+                        oldElementType.GetProviderClrType(), oldElementProviderClrTypeConfigurationSource.Value);
                 }
 
                 var oldElementConverterConfigurationSource = oldElementType.GetValueConverterConfigurationSource();
                 if (oldElementConverterConfigurationSource.HasValue
-                    && newElementTypeBuilder.CanSetConverter(oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource))
+                    && newElementTypeBuilder.CanSetConverter(
+                        oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource))
                 {
-                    newElementTypeBuilder.HasConverter(oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource.Value);
+                    newElementTypeBuilder.HasConverter(
+                        oldElementType.GetValueConverter()?.GetType(), oldElementConverterConfigurationSource.Value);
                 }
 
                 var oldElementPrecisionConfigurationSource = oldElementType.GetPrecisionConfigurationSource();

@@ -46,24 +46,26 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
         var param2 = Parameter(type, "v2");
 
         return Lambda<Func<TElement[]?, TElement[]?, bool>>(
-                Condition(
-                    Equal(param1, Constant(null, type)),
-                    Equal(param2, Constant(null, type)),
+            Condition(
+                Equal(param1, Constant(null, type)),
+                Equal(param2, Constant(null, type)),
+                AndAlso(
+                    NotEqual(param2, Constant(null, type)),
                     AndAlso(
-                        NotEqual(param2, Constant(null, type)),
-                        AndAlso(
-                            Equal(MakeMemberAccess(param1, ArrayLengthProperty), MakeMemberAccess(param2, ArrayLengthProperty)),
-                            OrElse(
-                                ReferenceEqual(param1, param2),
-                                Call(EnumerableMethods.All.MakeGenericMethod(typeof(bool)),
-                                    Call(EnumerableMethods.ZipWithSelector.MakeGenericMethod(typeof(TElement), typeof(TElement), typeof(bool)),
-                                        param1,
-                                        param2,
-                                        elementComparer.EqualsExpression),
+                        Equal(MakeMemberAccess(param1, ArrayLengthProperty), MakeMemberAccess(param2, ArrayLengthProperty)),
+                        OrElse(
+                            ReferenceEqual(param1, param2),
+                            Call(
+                                EnumerableMethods.All.MakeGenericMethod(typeof(bool)),
+                                Call(
+                                    EnumerableMethods.ZipWithSelector.MakeGenericMethod(typeof(TElement), typeof(TElement), typeof(bool)),
+                                    param1,
+                                    param2,
+                                    elementComparer.EqualsExpression),
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                                    BoolIdentity))))),
+                                BoolIdentity))))),
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                param1, param2);
+            param1, param2);
     }
 
     private static Expression<Func<TElement[], int>> CreateHashCodeExpression(ValueComparer elementComparer)
@@ -84,12 +86,13 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         return Lambda<Func<TElement[], int>>(
-                Call(EnumerableMethods.AggregateWithSeedSelector.MakeGenericMethod(elementType, typeof(HashCode), typeof(int)),
-                    param,
-                    New(typeof(HashCode)),
-                    aggregateFunc,
-                    selector),
-                param);
+            Call(
+                EnumerableMethods.AggregateWithSeedSelector.MakeGenericMethod(elementType, typeof(HashCode), typeof(int)),
+                param,
+                New(typeof(HashCode)),
+                aggregateFunc,
+                selector),
+            param);
     }
 
     private static Expression<Func<TElement[], TElement[]>> CreateSnapshotExpression(ValueComparer elementComparer)
@@ -106,13 +109,15 @@ public sealed class SingleDimensionalArrayComparer<TElement> : ValueComparer<TEl
                     Equal(elementParam, Constant(null, elementType)),
                     Constant(null, elementType),
                     elementComparer.ExtractSnapshotBody(elementParam)),
-                    elementParam);
+                elementParam);
 
         return Lambda<Func<TElement[], TElement[]>>(
-            Call(EnumerableMethods.ToArray.MakeGenericMethod(elementType),
-                Call(EnumerableMethods.Select.MakeGenericMethod(elementType, elementType),
+            Call(
+                EnumerableMethods.ToArray.MakeGenericMethod(elementType),
+                Call(
+                    EnumerableMethods.Select.MakeGenericMethod(elementType, elementType),
                     param,
                     selector)),
-                param);
+            param);
     }
 }

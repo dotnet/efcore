@@ -38,13 +38,12 @@ public readonly struct JsonProjectionInfo
 
     /// <summary>
     ///     Information needed to construct key values for the initial JSON entity:
-    ///
     ///     - for key properties of the owner entity we store IProperty under KeyProperty
-    ///       and projection index of the key in the KeyProjectionIndex, ConstantKeyValue is null,
+    ///     and projection index of the key in the KeyProjectionIndex, ConstantKeyValue is null,
     ///     - for constant array element access we store the value directly in ConstantKeyValue
-    ///       KeyProperty and KeyProjectionIndex are null,
+    ///     KeyProperty and KeyProjectionIndex are null,
     ///     - for non-constant array element access we store it's projection index in KeyProjectionIndex
-    ///       KeyProperty and ConstantKeyValue are null.
+    ///     KeyProperty and ConstantKeyValue are null.
     /// </summary>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

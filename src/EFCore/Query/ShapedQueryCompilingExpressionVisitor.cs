@@ -509,7 +509,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var (primaryKey, concreteEntityTypes) = typeBase is IEntityType entityType
                 ? (entityType.FindPrimaryKey(), entityType.GetConcreteDerivedTypesInclusive().Cast<ITypeBase>().ToArray())
-                : (null, new[] { typeBase});
+                : (null, new[] { typeBase });
 
             var switchCases = new SwitchCase[concreteEntityTypes.Length];
             for (var i = 0; i < concreteEntityTypes.Length; i++)

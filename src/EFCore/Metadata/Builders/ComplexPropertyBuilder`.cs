@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -96,7 +95,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexTypePropertyBuilder<TProperty> Property<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
-        => new(TypeBuilder.Property(
+        => new(
+            TypeBuilder.Property(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
                 .Metadata);
 
@@ -109,8 +109,10 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     ///     <c>blog => blog.Url</c>).
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(Expression<Func<TComplex, TProperty>> propertyExpression)
-        => new(TypeBuilder.PrimitiveCollection(
+    public virtual ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+        Expression<Func<TComplex, TProperty>> propertyExpression)
+        => new(
+            TypeBuilder.PrimitiveCollection(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(), ConfigurationSource.Explicit)!
                 .Metadata);
 
@@ -145,7 +147,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-        string propertyName, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        string propertyName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
         => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyName, buildAction);
 
     /// <summary>
@@ -186,7 +189,9 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual ComplexPropertyBuilder<TComplex> ComplexProperty(
-        Type propertyType, string propertyName, Action<ComplexPropertyBuilder> buildAction)
+        Type propertyType,
+        string propertyName,
+        Action<ComplexPropertyBuilder> buildAction)
         => (ComplexPropertyBuilder<TComplex>)base.ComplexProperty(propertyType, propertyName, buildAction);
 
     /// <summary>
@@ -231,8 +236,9 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
         Expression<Func<TComplex, TProperty>> propertyExpression)
-        => new(TypeBuilder.ComplexProperty(
-                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+        => new(
+            TypeBuilder.ComplexProperty(
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
                 complexTypeName: null,
                 collection: false,
                 ConfigurationSource.Explicit)!.Metadata);
@@ -258,7 +264,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
         Expression<Func<TComplex, TProperty>> propertyExpression,
         string complexTypeName)
-        => new(TypeBuilder.ComplexProperty(
+        => new(
+            TypeBuilder.ComplexProperty(
                 Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
                 Check.NotEmpty(complexTypeName, nameof(complexTypeName)),
                 collection: false,
@@ -283,7 +290,8 @@ public class ComplexPropertyBuilder<[DynamicallyAccessedMembers(IEntityType.Dyna
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-        Expression<Func<TComplex, TProperty>> propertyExpression, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        Expression<Func<TComplex, TProperty>> propertyExpression,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
 

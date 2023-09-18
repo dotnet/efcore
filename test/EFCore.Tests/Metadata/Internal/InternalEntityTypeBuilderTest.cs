@@ -1739,8 +1739,8 @@ public class InternalEntityTypeBuilderTest
             ConfigurationSource.Explicit);
 
         Assert.Equal(
-                CoreStrings.ConflictingPropertyOrNavigation(
-                    nameof(Order.Customer), nameof(Order), nameof(Order)),
+            CoreStrings.ConflictingPropertyOrNavigation(
+                nameof(Order.Customer), nameof(Order), nameof(Order)),
             Assert.Throws<InvalidOperationException>(
                 () => dependentEntityBuilder
                     .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
@@ -2652,7 +2652,9 @@ public class InternalEntityTypeBuilderTest
             case MemberType.Property:
                 return entityTypeBuilder.Property(Order.ProductsProperty, configurationSource) != null;
             case MemberType.ComplexProperty:
-                return entityTypeBuilder.ComplexProperty(Order.ProductsProperty, complexTypeName: null, collection: true, configurationSource) != null;
+                return entityTypeBuilder.ComplexProperty(
+                        Order.ProductsProperty, complexTypeName: null, collection: true, configurationSource)
+                    != null;
             case MemberType.ServiceProperty:
                 return entityTypeBuilder.ServiceProperty(Order.ProductsProperty, configurationSource) != null;
             case MemberType.Navigation:

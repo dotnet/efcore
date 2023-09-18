@@ -106,7 +106,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 
         if (HasInternalAttribute(symbol))
         {
-            ReportDiagnostic(context, symbol.Name == WellKnownMemberNames.InstanceConstructorName ? containingType : $"{containingType}.{symbol.Name}");
+            ReportDiagnostic(
+                context, symbol.Name == WellKnownMemberNames.InstanceConstructorName ? containingType : $"{containingType}.{symbol.Name}");
             return;
         }
 
@@ -283,7 +284,10 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     private static SyntaxNode NarrowDownSyntax(SyntaxNode syntax)
         => syntax switch
         {
-            CSharpSyntax.InvocationExpressionSyntax { Expression: CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax } => memberAccessSyntax.Name,
+            CSharpSyntax.InvocationExpressionSyntax
+            {
+                Expression: CSharpSyntax.MemberAccessExpressionSyntax memberAccessSyntax
+            } => memberAccessSyntax.Name,
             CSharpSyntax.MemberAccessExpressionSyntax s => s.Name,
             CSharpSyntax.ObjectCreationExpressionSyntax s => s.Type,
             CSharpSyntax.PropertyDeclarationSyntax s => s.Type,

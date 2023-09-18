@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -690,7 +689,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     Adds a service property to this entity type.
     /// </summary>
     /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add.</param>
-    /// <param name="serviceType">The type of the service, or <see langword="null"/> to use the type of the member.</param>
+    /// <param name="serviceType">The type of the service, or <see langword="null" /> to use the type of the member.</param>
     /// <returns>The newly created service property.</returns>
     IMutableServiceProperty AddServiceProperty(MemberInfo memberInfo, Type? serviceType = null);
 
