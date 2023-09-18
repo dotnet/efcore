@@ -121,7 +121,8 @@ public static class PropertyBaseExtensions
         var setterProperty = propertyInfo?.FindSetterProperty();
         var getterProperty = propertyInfo?.FindGetterProperty();
 
-        var isCollectionNav = (propertyBase as IReadOnlyNavigation)?.IsCollection == true;
+        var isCollectionNav = propertyBase is ISkipNavigation
+            || (propertyBase as IReadOnlyNavigation)?.IsCollection == true;
         var hasField = fieldInfo != null;
         var hasSetter = setterProperty != null;
         var hasGetter = getterProperty != null;
