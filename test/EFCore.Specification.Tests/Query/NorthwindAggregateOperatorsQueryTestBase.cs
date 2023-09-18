@@ -1015,6 +1015,194 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_enumerable_closure(bool async)
+    {
+        var ids = new[] { "ABCDE", "ALFKI" }.Where(e => e != null);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+
+        ids = new[] { "ABCDE" }.Where(e => e != null);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_object_enumerable_closure(bool async)
+    {
+        var ids = new List<object> { "ABCDE", "ALFKI" }.Where(e => e != null);
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(EF.Property<object>(c, nameof(Customer.CustomerID)))), entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_enumerable_closure_all_null(bool async)
+    {
+        var ids = new List<string> { null, null }.Where(e => e != null);
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_enumerable_inline(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(
+                c => new List<string> { "ABCDE", "ALFKI" }.Where(e => e != null).Contains(c.CustomerID)), entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+    {
+        var id = "ALFKI";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.Where(e => e != null).Contains(c.CustomerID)),
+            entryCount: 1);
+
+        id = "ANATR";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.Where(e => e != null).Contains(c.CustomerID)),
+            entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_ordered_enumerable_closure(bool async)
+    {
+        var ids = new[] { "ABCDE", "ALFKI" }.Order();
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+
+        ids = new[] { "ABCDE" }.Order();
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_object_ordered_enumerable_closure(bool async)
+    {
+        var ids = new List<object> { "ABCDE", "ALFKI" }.Order();
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(EF.Property<object>(c, nameof(Customer.CustomerID)))), entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
+    {
+        var ids = new List<string> { null, null }.Order();
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_ordered_enumerable_inline(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(
+                c => new List<string> { "ABCDE", "ALFKI" }.Order().Contains(c.CustomerID)), entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
+    {
+        var id = "ALFKI";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.Order().Contains(c.CustomerID)), entryCount: 1);
+
+        id = "ANATR";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.Order().Contains(c.CustomerID)), entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_read_only_collection_closure(bool async)
+    {
+        var ids = new[] { "ABCDE", "ALFKI" }.AsReadOnly();
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)), entryCount: 1);
+
+        ids = new[] { "ABCDE" }.AsReadOnly();
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_object_read_only_collection_closure(bool async)
+    {
+        var ids = new List<object> { "ABCDE", "ALFKI" }.AsReadOnly();
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(EF.Property<object>(c, nameof(Customer.CustomerID)))), entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
+    {
+        var ids = new List<string> { null, null }.AsReadOnly();
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => ids.Contains(c.CustomerID)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_with_local_read_only_collection_inline(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(
+                c => new List<string> { "ABCDE", "ALFKI" }.AsReadOnly().Contains(c.CustomerID)), entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
+    {
+        var id = "ALFKI";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.AsReadOnly().Contains(c.CustomerID)), entryCount: 1);
+
+        id = "ANATR";
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new List<string> { "ABCDE", id }.AsReadOnly().Contains(c.CustomerID)), entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Contains_with_local_non_primitive_list_inline_closure_mix(bool async)
     {
         var id = "ALFKI";

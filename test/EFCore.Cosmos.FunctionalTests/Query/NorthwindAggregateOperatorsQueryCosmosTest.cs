@@ -1387,6 +1387,223 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR
 """);
     }
 
+    public override async Task Contains_with_local_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure(async);
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+""",
+            //
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
+""");
+    }
+
+    public override async Task Contains_with_local_object_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_enumerable_closure(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_enumerable_closure_all_null(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (true = false))
+"""
+            );
+    }
+
+    public override async Task Contains_with_local_enumerable_inline(bool async)
+    {
+        // Issue #31776
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_local_enumerable_inline_closure_mix(bool async)
+    {
+        // Issue #31776
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+                await base.Contains_with_local_enumerable_inline_closure_mix(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+""",
+//
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_object_ordered_enumerable_closure(bool async)
+    {
+        await base.Contains_with_local_object_ordered_enumerable_closure(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_closure_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_closure_all_null(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_inline(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_ordered_enumerable_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_ordered_enumerable_inline_closure_mix(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+""",
+//
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_closure(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+""",
+//
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_object_read_only_collection_closure(bool async)
+    {
+        await base.Contains_with_local_object_read_only_collection_closure(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_ordered_read_only_collection_all_null(bool async)
+    {
+        await base.Contains_with_local_ordered_read_only_collection_all_null(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = null))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_read_only_collection_inline(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+"""
+        );
+    }
+
+    public override async Task Contains_with_local_read_only_collection_inline_closure_mix(bool async)
+    {
+        await base.Contains_with_local_read_only_collection_inline_closure_mix(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ALFKI"))
+""",
+//
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR"))
+"""
+        );
+    }
+
     public override async Task Contains_with_local_collection_false(bool async)
     {
         await base.Contains_with_local_collection_false(async);
