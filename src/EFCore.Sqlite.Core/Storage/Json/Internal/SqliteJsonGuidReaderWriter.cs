@@ -4,7 +4,7 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 /// <summary>
 ///     The Sqlite-specific JsonValueReaderWrite for GUID. Generates an upper-case representation instead of the more standard lower-case
