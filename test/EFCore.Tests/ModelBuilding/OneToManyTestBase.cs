@@ -2196,6 +2196,27 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Nullable_FK_overrides_NRT_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<DependentEntity>(eb =>
+            {
+                eb.Property(d => d.PrincipalEntityId);
+                eb.Ignore(d => d.Nav);
+                eb.HasOne(d => d.Nav).WithMany(p => p.InverseNav);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entityType = model.FindEntityType(typeof(DependentEntity));
+            var fk = entityType.GetForeignKeys().Single();
+            Assert.False(fk.IsRequired);
+            var fkProperty = entityType.FindProperty(nameof(DependentEntity.PrincipalEntityId));
+            Assert.True(fkProperty.IsNullable);
+            Assert.Contains(fkProperty, fk.Properties);
+        }
+
+        [ConditionalFact]
         public virtual void Can_change_delete_behavior()
         {
             var modelBuilder = HobNobBuilder();
