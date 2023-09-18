@@ -203,9 +203,9 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <returns>An object that can be used to configure the property.</returns>
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
         => new(
-                Builder.PrimitiveCollection(
-                    typeof(TProperty),
-                    Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+            Builder.PrimitiveCollection(
+                typeof(TProperty),
+                Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Returns an object that can be used to configure a property of the entity type where that property represents
@@ -265,7 +265,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     {
         Check.NotNull(propertyType, nameof(propertyType));
 
-        return new(
+        return new PropertyBuilder(
             Builder.IndexerProperty(
                 propertyType,
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
@@ -427,7 +427,8 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder ComplexProperty<TProperty>(
-        string propertyName, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        string propertyName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
 

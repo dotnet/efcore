@@ -69,7 +69,7 @@ public class SkipNavigationEntryTest
     private class Cherry
     {
         public int Id { get; set; }
-        public ICollection<Chunky> Chunkies { get; set; }
+        public ICollection<Chunky> Chunkies { get; }
     }
 
     private class FreezerContext : DbContext

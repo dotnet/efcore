@@ -4,18 +4,13 @@
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
-{
-    public class QueryCompilationSqlServerTests : QueryCompilationTests
-    {
-        public override IServiceCollection AddProviderServices(IServiceCollection services)
-        {
-            return services.AddEntityFrameworkSqlServer();
-        }
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
 
-        public override OrdersFixtureBase CreateFixture()
-        {
-            return new OrdersSqlServerFixture("Perf_Query_Compilation");
-        }
-    }
+public class QueryCompilationSqlServerTests : QueryCompilationTests
+{
+    public override IServiceCollection AddProviderServices(IServiceCollection services)
+        => services.AddEntityFrameworkSqlServer();
+
+    public override OrdersFixtureBase CreateFixture()
+        => new OrdersSqlServerFixture("Perf_Query_Compilation");
 }

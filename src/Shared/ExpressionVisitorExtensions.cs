@@ -38,6 +38,7 @@ internal static class ExpressionVisitorExtensions
                 {
                     newNodes[j] = nodes[j];
                 }
+
                 newNodes[i] = node;
             }
         }
@@ -81,6 +82,7 @@ internal static class ExpressionVisitorExtensions
                 {
                     newNodes[j] = nodes[j];
                 }
+
                 newNodes[i] = node;
             }
         }
@@ -94,10 +96,14 @@ internal static class ExpressionVisitorExtensions
     /// <typeparam name="T">The type of the nodes.</typeparam>
     /// <param name="visitor">The expression visitor.</param>
     /// <param name="nodes">The nodes to visit.</param>
-    /// <param name="elementVisitor">A delegate that visits a single element,
-    /// optionally replacing it with a new element.</param>
-    /// <returns>The modified node list, if any of the elements were modified;
-    /// otherwise, returns the original node list.</returns>
+    /// <param name="elementVisitor">
+    ///     A delegate that visits a single element,
+    ///     optionally replacing it with a new element.
+    /// </param>
+    /// <returns>
+    ///     The modified node list, if any of the elements were modified;
+    ///     otherwise, returns the original node list.
+    /// </returns>
     public static IReadOnlyList<T> Visit<T>(this ExpressionVisitor visitor, IReadOnlyList<T> nodes, Func<T, T> elementVisitor)
     {
         T[]? newNodes = null;
@@ -115,6 +121,7 @@ internal static class ExpressionVisitorExtensions
                 {
                     newNodes[j] = nodes[j];
                 }
+
                 newNodes[i] = node;
             }
         }

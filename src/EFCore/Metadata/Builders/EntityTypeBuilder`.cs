@@ -164,8 +164,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
         Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(
-            Builder.PrimitiveCollection(Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
-                    ConfigurationSource.Explicit)!.Metadata);
+            Builder.PrimitiveCollection(
+                Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                ConfigurationSource.Explicit)!.Metadata);
 
     /// <summary>
     ///     Configures a complex property of the entity type.
@@ -198,7 +199,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-        string propertyName, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        string propertyName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
         => (EntityTypeBuilder<TEntity>)base.ComplexProperty(propertyName, buildAction);
 
     /// <summary>
@@ -239,7 +241,9 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual EntityTypeBuilder<TEntity> ComplexProperty(
-        Type propertyType, string propertyName, Action<ComplexPropertyBuilder> buildAction)
+        Type propertyType,
+        string propertyName,
+        Action<ComplexPropertyBuilder> buildAction)
         => (EntityTypeBuilder<TEntity>)base.ComplexProperty(propertyType, propertyName, buildAction);
 
     /// <summary>
@@ -316,7 +320,8 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
 
@@ -599,7 +604,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
     public virtual OwnedNavigationBuilder<TEntity, TRelatedEntity> OwnsOne
         <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TRelatedEntity>(
-        Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
+            Expression<Func<TEntity, TRelatedEntity?>> navigationExpression)
         where TRelatedEntity : class
         => OwnsOneBuilder<TRelatedEntity>(
             new TypeIdentity(typeof(TRelatedEntity), (Model)Metadata.Model),
@@ -1468,7 +1473,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <returns>An object that can be used to configure the relationship.</returns>
     public virtual CollectionNavigationBuilder<TEntity, TRelatedEntity> HasMany
         <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TRelatedEntity>(
-        Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>>? navigationExpression = null)
+            Expression<Func<TEntity, IEnumerable<TRelatedEntity>?>>? navigationExpression = null)
         where TRelatedEntity : class
     {
         var navigationMember = navigationExpression?.GetMemberAccess();

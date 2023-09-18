@@ -44,8 +44,7 @@ public class JsonTypesRelationalTestBase : JsonTypesTestBase
             """{"Prop":["MinValue","Value","MaxValue"]}""",
             facets: new Dictionary<string, object?>
             {
-                { RelationalAnnotationNames.StoreType, storeType },
-                { CoreAnnotationNames.Unicode, false }
+                { RelationalAnnotationNames.StoreType, storeType }, { CoreAnnotationNames.Unicode, false }
             });
 
     protected override void AssertElementFacets(IElementType element, Dictionary<string, object?>? facets)

@@ -130,16 +130,19 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         public InternalGrouping(TKey key)
         {
             Key = key;
-            _elements = new();
+            _elements = new List<TElement>();
         }
 
-        internal void Add(TElement element) => _elements.Add(element);
+        internal void Add(TElement element)
+            => _elements.Add(element);
 
         public TKey Key { get; }
 
-        public IEnumerator<TElement> GetEnumerator() => _elements.GetEnumerator();
+        public IEnumerator<TElement> GetEnumerator()
+            => _elements.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
     }
 
     private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
@@ -246,7 +249,8 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
 
                                 // Check if grouping key changed
                                 if (!CompareIdentifiers(
-                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                        _keyIdentifierValueComparers, keyIdentifier,
+                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                                 {
                                     _resultCoordinator.HasNext = true;
                                     Current = group;
@@ -265,6 +269,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
 
                                     group.Add(element);
                                 }
+
                                 Current = group;
                                 break;
                             }
@@ -431,7 +436,8 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
 
                                 // Check if grouping key changed
                                 if (!CompareIdentifiers(
-                                    _keyIdentifierValueComparers, keyIdentifier, _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
+                                        _keyIdentifierValueComparers, keyIdentifier,
+                                        _keyIdentifier(_relationalQueryContext, _dbDataReader!)))
                                 {
                                     _resultCoordinator.HasNext = true;
                                     Current = group;
@@ -450,6 +456,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
 
                                     group.Add(element);
                                 }
+
                                 Current = group;
                                 break;
                             }

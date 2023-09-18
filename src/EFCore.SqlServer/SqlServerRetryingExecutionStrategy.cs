@@ -146,7 +146,8 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     /// <summary>
     ///     Additional SQL error numbers that should be considered transient.
     /// </summary>
-    public virtual IEnumerable<int>? AdditionalErrorNumbers => _additionalErrorNumbers;
+    public virtual IEnumerable<int>? AdditionalErrorNumbers
+        => _additionalErrorNumbers;
 
     /// <summary>
     ///     Determines whether the specified exception represents a transient failure that can be

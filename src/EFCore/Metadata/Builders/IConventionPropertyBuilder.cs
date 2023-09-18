@@ -128,7 +128,7 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     Configures the maximum length of data that can be stored in this property.
     /// </summary>
     /// <param name="maxLength">
-    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    ///     The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
     /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
@@ -272,7 +272,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionPropertyBuilder? HasValueGenerator(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? valueGeneratorType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -299,7 +300,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionPropertyBuilder? HasValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactoryType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -333,7 +335,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property.
     /// </returns>
     bool CanSetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactoryType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -396,7 +399,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="null" /> otherwise.
     /// </returns>
     IConventionPropertyBuilder? HasConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -411,7 +415,10 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     /// <returns>
     ///     <see langword="true" /> if the <see cref="ValueConverter" /> can be configured for this property.
     /// </returns>
-    bool CanSetConverter([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType, bool fromDataAnnotation = false);
+    bool CanSetConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the <see cref="CoreTypeMapping" /> for this property.
@@ -468,7 +475,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
     /// </returns>
     IConventionPropertyBuilder? HasValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -484,7 +492,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
     /// </returns>
     bool CanSetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -520,7 +529,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
     /// </returns>
     IConventionPropertyBuilder? HasProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -536,7 +546,8 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder<ICo
     ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
     /// </returns>
     bool CanSetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>

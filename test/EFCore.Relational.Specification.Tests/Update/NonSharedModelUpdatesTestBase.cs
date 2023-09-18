@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable MethodHasAsyncOverload
+
 namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
@@ -40,31 +41,14 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
             async context =>
             {
                 context.Add(
-                    new Book
-                    {
-                        Author = new Author
-                        {
-                            Name = "Alice",
-                            AuthorsClub = new AuthorsClub
-                            {
-                                Name = "AC South"
-                            }
-                        }
-                    });
+                    new Book { Author = new Author { Name = "Alice", AuthorsClub = new AuthorsClub { Name = "AC South" } } });
 
                 await context.SaveChangesAsync();
             },
             async context =>
             {
-                AuthorsClub authorsClubNorth = new()
-                {
-                    Name = "AC North"
-                };
-                Author authorOfTheYear2023 = new()
-                {
-                    Name = "Author of the year 2023",
-                    AuthorsClub = authorsClubNorth
-                };
+                AuthorsClub authorsClubNorth = new() { Name = "AC North" };
+                Author authorOfTheYear2023 = new() { Name = "Author of the year 2023", AuthorsClub = authorsClubNorth };
                 context.Add(authorsClubNorth);
                 context.Add(authorOfTheYear2023);
 

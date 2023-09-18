@@ -1564,8 +1564,8 @@ public class CSharpHelper : ICSharpHelper
         if (ch < 'a')
         {
             return (ch < 'A'
-                ? ch is >= '0' and <= '9'
-                : ch <= 'Z')
+                    ? ch is >= '0' and <= '9'
+                    : ch <= 'Z')
                 || ch == '_';
         }
 

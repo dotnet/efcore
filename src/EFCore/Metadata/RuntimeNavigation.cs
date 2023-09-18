@@ -43,6 +43,7 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
         {
             SetAnnotation(CoreAnnotationNames.EagerLoaded, true);
         }
+
         if (!lazyLoadingEnabled)
         {
             SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);

@@ -178,10 +178,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                 modelBuilder.Entity<PoweredVehicle>(
                     vb =>
                     {
-                        vb.ComplexProperty(v => v.Engine, eb =>
-                        {
-                            eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
-                        });
+                        vb.ComplexProperty(
+                            v => v.Engine, eb =>
+                            {
+                                eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity");
+                            });
                     });
             }, seed: false);
 
@@ -204,7 +205,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         //using (var context = CreateContext())
         //{
         //    var scooter = context.Set<PoweredVehicle>().Single(v => v.Name == "Electric scooter");
-            
+
         //    Assert.Equal(scooter.SeatingCapacity, context.Entry(scooter).ComplexProperty(v => v.Engine).TargetEntry.Property<int>("SeatingCapacity").CurrentValue);
         //}
     }
@@ -295,10 +296,11 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
                 modelBuilder.Entity<PoweredVehicle>(
                     vb =>
                     {
-                        vb.ComplexProperty(v => v.Engine, eb =>
-                        {
-                            eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity").IsConcurrencyToken();
-                        });
+                        vb.ComplexProperty(
+                            v => v.Engine, eb =>
+                            {
+                                eb.Property<int>("SeatingCapacity").HasColumnName("SeatingCapacity").IsConcurrencyToken();
+                            });
                     });
             }, seed: false);
 
@@ -835,21 +837,23 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         {
         }
 
-        public DbSet<Order> Orders => Set<Order>();
+        public DbSet<Order> Orders
+            => Set<Order>();
 
-        public DbSet<DetailedOrder> DetailedOrders => Set<DetailedOrder>();
+        public DbSet<DetailedOrder> DetailedOrders
+            => Set<DetailedOrder>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<DetailedOrder>(
-             dob =>
-             {
-                 dob.ToTable("Orders");
-                 dob.Property(o => o.Status).HasColumnName("Status");
-                 dob.Property(o => o.Version).IsRowVersion().HasColumnName("Version");
-             });
+                dob =>
+                {
+                    dob.ToTable("Orders");
+                    dob.Property(o => o.Status).HasColumnName("Status");
+                    dob.Property(o => o.Version).IsRowVersion().HasColumnName("Version");
+                });
 
             modelBuilder.Entity<Order>(
                 ob =>
@@ -950,24 +954,26 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             {
                 vb.Property(v => v.Name).HasColumnName("Name");
                 vb.Ignore(v => v.Operator);
-                vb.ComplexProperty(v => v.Operator, ob =>
-                {
-                    ob.IsRequired();
-                    ob.Property(o => o.VehicleName).HasColumnName("Name");
-                    ob.ComplexProperty(o => o.Details)
-                      .IsRequired()
-                      .Property(o => o.VehicleName).HasColumnName("Name");
-                });
+                vb.ComplexProperty(
+                    v => v.Operator, ob =>
+                    {
+                        ob.IsRequired();
+                        ob.Property(o => o.VehicleName).HasColumnName("Name");
+                        ob.ComplexProperty(o => o.Details)
+                            .IsRequired()
+                            .Property(o => o.VehicleName).HasColumnName("Name");
+                    });
             });
         modelBuilder.Entity<PoweredVehicle>(
             vb =>
             {
                 vb.Ignore(v => v.Engine);
-                vb.ComplexProperty(v => v.Engine, eb =>
-                {
-                    eb.IsRequired();
-                    eb.Property(o => o.VehicleName).HasColumnName("Name");
-                });
+                vb.ComplexProperty(
+                    v => v.Engine, eb =>
+                    {
+                        eb.IsRequired();
+                        eb.Property(o => o.VehicleName).HasColumnName("Name");
+                    });
             });
     }
 

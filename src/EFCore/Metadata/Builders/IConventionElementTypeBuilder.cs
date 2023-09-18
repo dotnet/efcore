@@ -243,7 +243,8 @@ public interface IConventionElementTypeBuilder : IConventionAnnotatableBuilder
     ///     <see langword="true" /> if the <see cref="ValueConverter" /> can be configured.
     /// </returns>
     bool CanSetConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation = false);
 
     /// <summary>

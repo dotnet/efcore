@@ -4,22 +4,17 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+public class RawSqlQuerySqliteTests : RawSqlQueryTests
 {
-    public class RawSqlQuerySqliteTests : RawSqlQueryTests
-    {
-        protected override string StoredProcedureCreationScript
-            => @"";
+    protected override string StoredProcedureCreationScript
+        => @"";
 
-        // TODO: Define stored procedure creation script
-        public override Task StoredProcedure()
-        {
-            return base.StoredProcedure();
-        }
+    // TODO: Define stored procedure creation script
+    public override Task StoredProcedure()
+        => base.StoredProcedure();
 
-        protected override OrdersFixtureBase CreateFixture()
-        {
-            return new OrdersSqliteFixture("Perf_Query_RawSql");
-        }
-    }
+    protected override OrdersFixtureBase CreateFixture()
+        => new OrdersSqliteFixture("Perf_Query_RawSql");
 }

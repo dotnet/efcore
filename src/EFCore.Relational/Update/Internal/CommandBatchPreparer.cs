@@ -31,7 +31,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
             ?? 1;
 
-        _modificationCommandGraph = new Multigraph<IReadOnlyModificationCommand, CommandDependency>(dependencies.ModificationCommandComparer);
+        _modificationCommandGraph =
+            new Multigraph<IReadOnlyModificationCommand, CommandDependency>(dependencies.ModificationCommandComparer);
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -1208,7 +1209,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         .CreateEquatableIndexValue(command);
                     if (value != null)
                     {
-                        AddMatchingPredecessorEdge(indexPredecessorsMap, value, command,
+                        AddMatchingPredecessorEdge(
+                            indexPredecessorsMap, value, command,
                             new CommandDependency(index, breakable: index.Filter != null || hasNullValue));
                     }
                 }
@@ -1311,7 +1313,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             Breakable = breakable;
         }
 
-        public IAnnotatable Metadata { get; init; }
-        public bool Breakable { get; init; }
+        public IAnnotatable Metadata { get; }
+        public bool Breakable { get; }
     }
 }

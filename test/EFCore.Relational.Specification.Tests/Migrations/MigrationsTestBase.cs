@@ -522,7 +522,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     column.StoreType);
             });
 
-
     [ConditionalFact]
     public virtual Task Add_column_with_unbounded_max_length()
         => Test(
@@ -1870,7 +1869,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
         AssertSql(
-"""
+            """
 -- I <3 DDL
 """);
     }

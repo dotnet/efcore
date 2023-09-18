@@ -30,7 +30,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public new virtual ComplexType Metadata => (ComplexType)base.Metadata;
+    public new virtual ComplexType Metadata
+        => (ComplexType)base.Metadata;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -73,7 +74,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
                 || propertyType != null
                 || Metadata.GetRuntimeProperties().ContainsKey(propertyName))
             && Metadata.FindPropertiesInHierarchy(propertyName)
-                .All(m => configurationSource.Overrides(m.GetConfigurationSource())
+                .All(
+                    m => configurationSource.Overrides(m.GetConfigurationSource())
                         && m.GetConfigurationSource() != ConfigurationSource.Explicit);
 
     /// <summary>
@@ -557,10 +559,11 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     [DebuggerStepThrough]
     IConventionComplexTypeBuilder? IConventionComplexTypeBuilder.HasNoProperty(IConventionProperty property, bool fromDataAnnotation)
         => RemoveProperty(
-            (Property)property,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention) == null
-            ? null
-            : this;
+                (Property)property,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+            == null
+                ? null
+                : this;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -570,7 +573,8 @@ public class InternalComplexTypeBuilder : InternalTypeBaseBuilder, IConventionCo
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexTypeBuilder? IConventionComplexTypeBuilder.HasNoComplexProperty(
-        IConventionComplexProperty complexProperty, bool fromDataAnnotation)
+        IConventionComplexProperty complexProperty,
+        bool fromDataAnnotation)
         => (IConventionComplexTypeBuilder?)HasNoComplexProperty(
             (ComplexProperty)complexProperty,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

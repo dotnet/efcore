@@ -53,7 +53,7 @@ public class QueryBugsTest : NonSharedModelTestBase
         Assert.Empty(results);
 
         AssertSql(
-"""
+            """
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
 WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[DateTime] = GETDATE() OR [d].[SmallDateTime] = GETDATE()
@@ -81,7 +81,7 @@ WHERE [d].[DateTime2_2] = GETDATE() OR [d].[DateTime2_7] = GETDATE() OR [d].[Dat
         Assert.Single(results);
 
         AssertSql(
-"""
+            """
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
 WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].[DateTime] <> GETDATE() AND [d].[SmallDateTime] <> GETDATE()
@@ -116,7 +116,7 @@ WHERE [d].[DateTime2_2] <> GETDATE() AND [d].[DateTime2_7] <> GETDATE() AND [d].
         Assert.Single(results);
 
         AssertSql(
-"""
+            """
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
 WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-03T12:00:10.220' AND [d].[DateTime2] = '1972-09-03T12:00:10.3330000' AND [d].[DateTime2_0] = '1973-09-03T12:00:10' AND [d].[DateTime2_1] = '1974-09-03T12:00:10.5' AND [d].[DateTime2_2] = '1975-09-03T12:00:10.66' AND [d].[DateTime2_3] = '1976-09-03T12:00:10.777' AND [d].[DateTime2_4] = '1977-09-03T12:00:10.8880' AND [d].[DateTime2_5] = '1978-09-03T12:00:10.99900' AND [d].[DateTime2_6] = '1979-09-03T12:00:10.111000' AND [d].[DateTime2_7] = '1980-09-03T12:00:10.2220000'
@@ -168,7 +168,7 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
         // TODO: The parameters values below are incorrect, since we currently don't take the element type mapping into account when
         // generating the JSON representation (#30677)
         AssertSql(
-"""
+            """
 @__dateTimes_0='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
 @__dateTimes_0_1='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
 @__dateTimes_0_2='["1970-09-03T12:00:00","1971-09-03T12:00:10.22","1972-09-03T12:00:10.333","1973-09-03T12:00:10","1974-09-03T12:00:10.5","1975-09-03T12:00:10.66","1976-09-03T12:00:10.777","1977-09-03T12:00:10.888","1978-09-03T12:00:10.999","1979-09-03T12:00:10.111","1980-09-03T12:00:10.222"]' (Size = 4000)
@@ -623,7 +623,7 @@ INSERT ZeroKey VALUES (NULL)");
         Assert.Equal(3, result[1].Orders.Count);
 
         AssertSql(
-"""
+            """
 SELECT [c].[FirstName], [c].[LastName], [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name]
 FROM [Customer] AS [c]
 LEFT JOIN [Order] AS [o] ON [c].[FirstName] = [o].[CustomerFirstName] AND [c].[LastName] = [o].[CustomerLastName]
@@ -648,7 +648,7 @@ ORDER BY [c].[FirstName], [c].[LastName]
         Assert.NotNull(result[4].Customer);
 
         AssertSql(
-"""
+            """
 SELECT [o].[Id], [o].[CustomerFirstName], [o].[CustomerLastName], [o].[Name], [c].[FirstName], [c].[LastName]
 FROM [Order] AS [o]
 LEFT JOIN [Customer] AS [c] ON [o].[CustomerFirstName] = [c].[FirstName] AND [o].[CustomerLastName] = [c].[LastName]
@@ -1863,7 +1863,7 @@ Queen of the Andals and the Rhoynar and the First Men, Khaleesi of the Great Gra
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE [e].[Permission] & CAST(17179869184 AS bigint) = CAST(17179869184 AS bigint)
@@ -1878,7 +1878,7 @@ WHERE [e].[Permission] & CAST(17179869184 AS bigint) = CAST(17179869184 AS bigin
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE [e].[PermissionShort] & CAST(4 AS smallint) = CAST(4 AS smallint)
@@ -1898,7 +1898,7 @@ WHERE [e].[PermissionShort] & CAST(4 AS smallint) = CAST(4 AS smallint)
             Assert.Equal(3, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE [e].[Permission] & [e].[Permission] = [e].[Permission]
@@ -1913,7 +1913,7 @@ WHERE [e].[Permission] & [e].[Permission] = [e].[Permission]
             Assert.Equal(3, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Permission], [e].[PermissionByte], [e].[PermissionShort]
 FROM [Entity] AS [e]
 WHERE [e].[PermissionByte] & [e].[PermissionByte] = [e].[PermissionByte]
@@ -2011,7 +2011,7 @@ WHERE [e].[PermissionByte] & [e].[PermissionByte] = [e].[PermissionByte]
             Assert.Equal(2, context.Cache.Count);
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT [e].[Id], [e].[Name]
@@ -2019,7 +2019,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] = @__id_0
 """,
                 //
-"""
+                """
 @__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
@@ -2046,7 +2046,7 @@ WHERE [e].[Id] = @__id_0
             Assert.Equal(2, context.Cache.Count);
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT [e].[Id], [e].[Name]
@@ -2054,7 +2054,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Id] = @__id_0
 """,
                 //
-"""
+                """
 @__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
@@ -2083,7 +2083,7 @@ WHERE [e].[Id] = @__id_0
             Assert.Equal(2, context.Cache.Count);
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT [e].[Id], [e].[Name]
@@ -2095,7 +2095,7 @@ WHERE [e].[Id] IN (
 )
 """,
                 //
-"""
+                """
 @__id_0='2'
 
 SELECT [e].[Id], [e].[Name]
@@ -2128,7 +2128,7 @@ WHERE [e].[Id] IN (
             Assert.Equal(3, context.Cache.Count);
 
             AssertSql(
-"""
+                """
 @__name_0='A' (Size = 4000)
 
 SELECT [e].[Id], [e].[Name]
@@ -2136,7 +2136,7 @@ FROM [Entities] AS [e]
 WHERE [e].[Name] = @__name_0
 """,
                 //
-"""
+                """
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Name] IS NULL
@@ -2245,7 +2245,7 @@ WHERE [e].[Name] IS NULL
             Assert.True(result[0].Cast.All(a => a.Details != null));
 
             AssertSql(
-"""
+                """
 SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
@@ -2264,14 +2264,14 @@ ORDER BY [m].[Id]
             Assert.True(result[0].Cast.All(a => a.Details != null));
 
             AssertSql(
-"""
+                """
 SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
 ORDER BY [m].[Id]
 """,
                 //
-"""
+                """
 SELECT [m].[Id], [m].[Title], [m].[Details_Info], [m].[Details_Rating], [a].[Id], [a].[Movie9202Id], [a].[Name], [a].[Details_Info], [a].[Details_Rating]
 FROM [Movies] AS [m]
 LEFT JOIN [Actors] AS [a] ON [m].[Id] = [a].[Movie9202Id]
@@ -2359,7 +2359,7 @@ ORDER BY [m].[Id]
             Assert.Equal(2, result);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [foo].[AddOne]([w].[Val])
 FROM [foo].[Widgets] AS [w]
 WHERE [w].[Val] = 1
@@ -2374,7 +2374,7 @@ WHERE [w].[Val] = 1
             Assert.Equal(3, result);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [dbo].[AddTwo]([w].[Val])
 FROM [foo].[Widgets] AS [w]
 WHERE [w].[Val] = 1
@@ -2667,7 +2667,7 @@ BEGIN
             Assert.Single(query.Where(t => t.Processing == false));
 
             AssertSql(
-"""
+                """
 SELECT CASE
     WHEN [c0].[Id] IS NOT NULL THEN CASE
         WHEN [c0].[Processed] = CAST(0 AS bit) THEN CAST(1 AS bit)
@@ -2729,7 +2729,7 @@ LEFT JOIN [Configuration9468] AS [c0] ON [c].[ConfigurationId] = [c0].[Id]
             var query = context.Parents.Include(p => p.Children).OrderBy(p => p.Id).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[Name], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
@@ -2743,7 +2743,7 @@ ORDER BY [p].[Id]
             var query = context.Parents.OrderBy(p => p.Id).Select(p => p.Children.ToList()).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [c].[Id], [c].[Name], [c].[Parent10635Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[Id] = [c].[Parent10635Id]
@@ -2816,7 +2816,7 @@ ORDER BY [p].[Id]
             Assert.Equal(2, context.Blogs.Count());
 
             AssertSql(
-"""
+                """
 @__ef_filter__Tenant_0='0'
 
 SELECT [b].[Id], [b].[SomeValue]
@@ -2824,7 +2824,7 @@ FROM [Blogs] AS [b]
 WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
 """,
                 //
-"""
+                """
 @__ef_filter__Tenant_0='1'
 
 SELECT [b].[Id], [b].[SomeValue]
@@ -2832,7 +2832,7 @@ FROM [Blogs] AS [b]
 WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
 """,
                 //
-"""
+                """
 @__ef_filter__Tenant_0='2'
 
 SELECT COUNT(*)
@@ -2899,7 +2899,7 @@ WHERE [b].[SomeValue] = @__ef_filter__Tenant_0
             Assert.Equal(typeof(MyContext11104.Derived1), derived1.GetType());
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [b].[IsTwo], [b].[MoreStuffId]
 FROM [Bases] AS [b]
 """);
@@ -2977,7 +2977,7 @@ FROM [Bases] AS [b]
             Assert.Empty(query);
 
             AssertSql(
-"""
+                """
 SELECT [t0].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
@@ -3011,7 +3011,7 @@ GROUP BY [t0].[AnotherEntity11818_Name]
             Assert.Empty(query);
 
             AssertSql(
-"""
+                """
 SELECT [t0].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
@@ -3050,7 +3050,7 @@ GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
             Assert.Null(query);
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [t0].[AnotherEntity11818_Name] AS [MyKey], [t2].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
@@ -3133,7 +3133,7 @@ GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
             Assert.Empty(query);
 
             AssertSql(
-"""
+                """
 SELECT [f].[Id], [f].[Name]
 FROM [Factions] AS [f]
 WHERE EXISTS (
@@ -3156,7 +3156,7 @@ WHERE EXISTS (
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [t].[Name]
 FROM (
     SELECT [l].[Name]
@@ -3188,7 +3188,7 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
                 .Entity<LeaderQuery>()
                 .HasNoKey()
                 .ToSqlQuery(
-"""
+                    """
 SELECT [t].[Name]
 FROM (
     SELECT [l].[Name]
@@ -3406,57 +3406,57 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
             Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
 
             AssertSql(
-"""
+                """
 SELECT AVG([p].[Price])
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG(CAST([p].[IntColumn] AS float))
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG(CAST([p].[NullableIntColumn] AS float))
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG(CAST([p].[LongColumn] AS float))
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG(CAST([p].[NullableLongColumn] AS float))
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT CAST(AVG([p].[FloatColumn]) AS real)
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT CAST(AVG([p].[NullableFloatColumn]) AS real)
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG([p].[DoubleColumn])
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG([p].[NullableDoubleColumn])
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG([p].[DecimalColumn])
 FROM [Prices] AS [p]
 """,
                 //
-"""
+                """
 SELECT AVG([p].[NullableDecimalColumn])
 FROM [Prices] AS [p]
 """);
@@ -3916,7 +3916,7 @@ FROM [Prices] AS [p]
             Assert.Single(findRecordsWithDateInList);
 
             AssertSql(
-"""
+                """
 @__testDateList_0='["2018-10-07T00:00:00"]' (Size = 4000)
 
 SELECT [r].[Id], [r].[MyTime]
@@ -3981,7 +3981,7 @@ WHERE [r].[MyTime] IN (
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 @__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
 @__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
@@ -4063,7 +4063,7 @@ END IN (
                 });
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], CASE
     WHEN [a].[Turnovers_AmountIn] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -4135,7 +4135,7 @@ ORDER BY [p].[Id]
             context.SaveChanges();
 
             AssertSql(
-"""
+                """
 @p0='BaseEntity13079' (Nullable = false) (Size = 21)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -4196,7 +4196,7 @@ VALUES (@p0);
             var result = context.InventoryPools.Sum(p => (decimal)p.Quantity);
 
             AssertSql(
-"""
+                """
 SELECT COALESCE(SUM(CAST([i].[Quantity] AS decimal(18,2))), 0.0)
 FROM [InventoryPools] AS [i]
 """);
@@ -4240,7 +4240,7 @@ FROM [InventoryPools] AS [i]
             var result = context.Parents.Include(p => p.Child).OrderBy(e => e.Id).FirstOrDefault();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [p].[Id], [p].[ChildId], [c].[Id], [c].[ParentId], [c].[ULongRowVersion]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
@@ -4259,7 +4259,7 @@ ORDER BY [p].[Id]
             var result = context.Parents.OrderBy(e => e.Id).Select(p => (ulong?)p.Child.ULongRowVersion).FirstOrDefault();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [c].[ULongRowVersion]
 FROM [Parents] AS [p]
 LEFT JOIN [Children] AS [c] ON [p].[ChildId] = [c].[Id]
@@ -4388,7 +4388,7 @@ ORDER BY [p].[Id]
             Assert.True(context.Entry(Assert.IsType<MyContext16233.DerivedType16233>(result[2])).Reference("Reference").IsLoaded);
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
@@ -4408,7 +4408,7 @@ ORDER BY [b].[Id]
             Assert.Null(Assert.IsType<MyContext16233.DerivedType16233>(result[2]).Reference);
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [b].[Discriminator], [r].[Id], [r].[DerivedTypeId]
 FROM [Bases] AS [b]
 LEFT JOIN [Reference16233] AS [r] ON [b].[Id] = [r].[DerivedTypeId]
@@ -4480,7 +4480,7 @@ ORDER BY [b].[Id]
             Assert.Equal(2, result.Count);
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[Name], CASE
     WHEN [c].[Id] IS NULL THEN N'Other'
     ELSE [c].[Name]
@@ -4607,7 +4607,7 @@ LEFT JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]
             Assert.True(query.First().LongName == "Two L2");
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [b].[BuilderId], [b].[Identity], [b].[LongName], [b].[MandatorId], [b0].[Id], [b0].[CityId], [b0].[Name], [c].[Id], [c].[Name], [m].[Id], [m].[Identity], [m].[Name]
 FROM [BuildingSet] AS [b]
 INNER JOIN [Builder] AS [b0] ON [b].[BuilderId] = [b0].[Id]
@@ -4849,7 +4849,7 @@ WHERE [c].[Name] = N'Leeds'
             Assert.Equal(new[] { "First", "Second", "Third" }, list.Select(dto => dto.Title));
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[BlogId], [p].[Title]
 FROM [Posts] AS [p]
 """);
@@ -4926,7 +4926,7 @@ FROM [Posts] AS [p]
             var result = query.ToList();
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Name]
 FROM [EntitiesWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
@@ -4942,7 +4942,7 @@ WHERE EXISTS (
             var result = query.ToList();
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Name]
 FROM [EntitiesReferencingEntityWithQueryFilterSelfReference] AS [e]
 WHERE EXISTS (
@@ -5044,7 +5044,7 @@ WHERE EXISTS (
             var query = MyContext17276.List17276(context.RemovableEntities);
 
             AssertSql(
-"""
+                """
 SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[IsRemoved] = CAST(0 AS bit)
@@ -5059,7 +5059,7 @@ WHERE [r].[IsRemoved] = CAST(0 AS bit)
                 .ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[RemovableEntityId]
 FROM [Parents] AS [p]
 LEFT JOIN [RemovableEntities] AS [r] ON [p].[RemovableEntityId] = [r].[Id]
@@ -5075,7 +5075,7 @@ WHERE [r].[IsRemoved] = CAST(1 AS bit)
                 .ToList();
 
             AssertSql(
-"""
+                """
 SELECT [r].[Id], [r].[IsRemoved], [r].[Removed], [r].[RemovedByUser], [r].[OwnedEntity_Exists], [r].[OwnedEntity_OwnedValue]
 FROM [RemovableEntities] AS [r]
 WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'
@@ -5090,7 +5090,7 @@ WHERE [r].[OwnedEntity_OwnedValue] = N'Abc'
             var entities = context.Set<MyContext17276.Parent17276>().Where(specification.Criteria).ToList();
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT [p].[Id], [p].[RemovableEntityId]
@@ -5185,7 +5185,7 @@ WHERE [p].[Id] = @__id_0
             Assert.Empty(result);
 
             AssertSql(
-"""
+                """
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = N'1337'
@@ -5203,7 +5203,7 @@ WHERE [f].[String] = N'1337'
             Assert.Empty(result);
 
             AssertSql(
-"""
+                """
 @__bar_Value_0='1337' (Size = 4000)
 
 SELECT [f].[Id], [f].[String]
@@ -5223,7 +5223,7 @@ WHERE [f].[String] = @__bar_Value_0
             Assert.Empty(result);
 
             AssertSql(
-"""
+                """
 @__ToString_0='1337' (Size = 4000)
 
 SELECT [f].[Id], [f].[String]
@@ -5243,7 +5243,7 @@ WHERE [f].[String] = @__ToString_0
             Assert.Empty(result);
 
             AssertSql(
-"""
+                """
 @__p_0='1337' (Size = 4000)
 
 SELECT [f].[Id], [f].[String]
@@ -5262,7 +5262,7 @@ WHERE [f].[String] = @__p_0
             Assert.Empty(result);
 
             AssertSql(
-"""
+                """
 SELECT [f].[Id], [f].[String]
 FROM [Foos] AS [f]
 WHERE [f].[String] = N'1337'
@@ -5323,7 +5323,7 @@ WHERE [f].[String] = N'1337'
             var query = context.Set<MyContext9582.TipoServicio9582>().Where(xx => xx.Nombre.Contains("lla")).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [t].[Id], [t].[Nombre]
 FROM [TipoServicio9582] AS [t]
 WHERE [t].[Nombre] LIKE '%lla%'
@@ -5377,7 +5377,7 @@ WHERE [t].[Nombre] LIKE '%lla%'
             var entities = context.Blogs.Select(b => context.ClientMethod(b)).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id]
 FROM [Blogs] AS [b]
 """);
@@ -5426,7 +5426,7 @@ FROM [Blogs] AS [b]
                 .FirstAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5441,7 +5441,7 @@ WHERE [p].[Age] >= 21
                 .FirstOrDefaultAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5456,7 +5456,7 @@ WHERE [p].[Age] >= 21
                 .SingleAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5471,7 +5471,7 @@ WHERE [p].[Age] >= 21
                 .SingleOrDefaultAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5487,7 +5487,7 @@ WHERE [p].[Age] >= 21
                 .LastAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5504,7 +5504,7 @@ ORDER BY [p].[Id] DESC
                 .LastOrDefaultAsync<MyContext17644.PersonView17644>();
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [p].[Name], [p].[Age]
 FROM [Persons] AS [p]
 WHERE [p].[Age] >= 21
@@ -5566,7 +5566,7 @@ ORDER BY [p].[Id] DESC
             Assert.Equal(new[] { 1, 2 }, result.ThingIds);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [t0].[ThingId], [t0].[Id], [t0].[Id0]
 FROM [Entities] AS [e]
 OUTER APPLY (
@@ -5665,7 +5665,7 @@ ORDER BY [e].[Id], [t0].[Id]
             Assert.Equal(2, users.Count);
 
             AssertSql(
-"""
+                """
 SELECT [u].[Id] AS [UserId], [t0].[Id] AS [OrgId]
 FROM [Users] AS [u]
 CROSS JOIN (
@@ -5825,7 +5825,7 @@ CROSS JOIN (
                          select new { cs.Id, Points = a.ActivityType.Points.Where(p => p.CompetitionSeason == cs) }).ToList();
 
             AssertSql(
-"""
+                """
 SELECT (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
@@ -5868,7 +5868,7 @@ ORDER BY [a].[Id], [a0].[Id], [t].[Id]
                     }).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [a].[Id], [a].[ActivityTypeId], [a].[DateTime], [a].[Points], (
     SELECT TOP(1) [c].[Id]
     FROM [CompetitionSeasons] AS [c]
@@ -5975,7 +5975,7 @@ INNER JOIN [ActivityType12456] AS [a0] ON [a].[ActivityTypeId] = [a0].[Id]
                 .SingleAsync();
 
             AssertSql(
-"""
+                """
 SELECT [t0].[Id], [t1].[Id], [t1].[Id0], [t1].[Id1], [t1].[IsPastTradeDeadline]
 FROM (
     SELECT TOP(2) [t].[Id]
@@ -6087,7 +6087,7 @@ ORDER BY [t0].[Id], [t1].[Id], [t1].[Id0]
                     }).Single(p => p.Id == 1);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [e].[Id], CASE
     WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -6169,7 +6169,7 @@ WHERE [e].[Id] = 1
             Assert.Equal(1, query);
 
             AssertSql(
-"""
+                """
 @__action_0='1'
 
 SELECT COUNT(*)
@@ -6263,7 +6263,7 @@ WHERE EXISTS (
             Assert.Equal(1, query.Id);
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT TOP(1) [m].[Id], [m].[Name], [m].[NavigationEntityId]
@@ -6282,7 +6282,7 @@ WHERE [m].[Id] = @__id_0
             Assert.Equal(3, query);
 
             AssertSql(
-"""
+                """
 SELECT COUNT(*)
 FROM [MockEntities] AS [m]
 """);
@@ -6357,7 +6357,7 @@ FROM [MockEntities] AS [m]
             var people = context.People.ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[UserDeleteId]
 FROM [People] AS [p]
 LEFT JOIN [User18759] AS [u] ON [p].[UserDeleteId] = [u].[Id]
@@ -6410,7 +6410,7 @@ WHERE [u].[Id] IS NOT NULL
             Assert.Equal("A", Assert.Single(result).OtherEntityData);
 
             AssertSql(
-"""
+                """
 SELECT [t0].[Id], [t0].[OtherEntityData]
 FROM [BaseEntities] AS [b]
 LEFT JOIN (
@@ -6488,7 +6488,7 @@ LEFT JOIN (
             var query = context.CustomerFilters.ToList();
 
             AssertSql(
-"""
+                """
 SELECT [c].[CustomerId], [c].[CustomerMembershipId]
 FROM [CustomerFilters] AS [c]
 WHERE (
@@ -6525,7 +6525,7 @@ WHERE (
             }
 
             AssertSql(
-"""
+                """
 SELECT [c].[Id], [c].[Name], [c0].[Id] AS [CustomerMembershipId], CASE
     WHEN [c0].[Id] IS NOT NULL THEN [c0].[Name]
     ELSE N''
@@ -6645,7 +6645,7 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 @__id_0='1'
 
 SELECT [e].[Id]
@@ -6663,7 +6663,7 @@ WHERE [e].[Id] = @__id_0
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)
@@ -6679,7 +6679,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)
@@ -6695,7 +6695,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)
@@ -6710,7 +6710,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 WHERE [e].[Id] = CAST(1 AS bigint)
@@ -6831,7 +6831,7 @@ WHERE [e].[Id] = CAST(1 AS bigint)
             var result = context.Parents.Include(p => p.Children1).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6845,12 +6845,12 @@ ORDER BY [p].[Id]
             var result = context.Parents.Include(p => p.Children1).AsSplitQuery().ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-"""
+                """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6864,7 +6864,7 @@ ORDER BY [p].[Id]
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6886,13 +6886,13 @@ ORDER BY [p].[Id], [c].[Id]
             var result = context.Parents.Include(p => p.Children1).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
                 //
-"""
+                """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6906,7 +6906,7 @@ ORDER BY [p].[Id]
             var result = context.Parents.Include(p => p.Children1).AsSingleQuery().ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [c].[Id], [c].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -6920,18 +6920,18 @@ ORDER BY [p].[Id]
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
-"""
+                """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
-"""
+                """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
@@ -6951,20 +6951,20 @@ ORDER BY [p].[Id]
             context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSplitQuery().ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id]
 FROM [Parents] AS [p]
 ORDER BY [p].[Id]
 """,
                 //
-"""
+                """
 SELECT [c].[Id], [c].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
 ORDER BY [p].[Id]
 """,
                 //
-"""
+                """
 SELECT [a].[Id], [a].[ParentId], [p].[Id]
 FROM [Parents] AS [p]
 INNER JOIN [AnotherChild21355] AS [a] ON [p].[Id] = [a].[ParentId]
@@ -6992,7 +6992,7 @@ ORDER BY [p].[Id]
         context.Parents.Include(p => p.Children1).Include(p => p.Children2).AsSingleQuery().ToList();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [c].[Id], [c].[ParentId], [a].[Id], [a].[ParentId]
 FROM [Parents] AS [p]
 LEFT JOIN [Child21355] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -7108,7 +7108,7 @@ ORDER BY [p].[Id], [c].[Id]
             Assert.Single(result.SkipOtherSide);
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference21540] AS [r] ON [p].[Id] = [r].[ParentId]
@@ -7134,7 +7134,7 @@ ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId]
             Assert.Null(result.SkipOtherSide);
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [p].[OwnedReference_Id]
 FROM [Parents] AS [p]
 """);
@@ -7243,7 +7243,7 @@ FROM [Parents] AS [p]
             Assert.Equal(3, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [b].[Name], [b].[Type], [b].[IsOnline]
 FROM [Businesses] AS [b]
 """);
@@ -7369,7 +7369,7 @@ FROM [Businesses] AS [b]
             var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) CASE
     WHEN EXISTS (
         SELECT 1
@@ -7513,7 +7513,7 @@ WHERE [b].[Id] = 1
             Assert.Equal(MyContext19206.TestType19206.Integration, item.t2.Type);
 
             AssertSql(
-"""
+                """
 p0='0'
 p1='1'
 
@@ -7582,7 +7582,7 @@ CROSS JOIN (
             Assert.True(query2.All(x => x.TenantId == 2));
 
             AssertSql(
-"""
+                """
 @__ef_filter__p_0='1'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
@@ -7590,7 +7590,7 @@ FROM [Entities] AS [e]
 WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_filter__p_0
 """,
                 //
-"""
+                """
 @__ef_filter__p_0='2'
 
 SELECT [e].[Id], [e].[Name], [e].[TenantId]
@@ -7689,13 +7689,13 @@ WHERE ([e].[Name] <> N'Foo' OR [e].[Name] IS NULL) AND [e].[TenantId] = @__ef_fi
             if (split)
             {
                 AssertSql(
-"""
+                    """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 ORDER BY [e].[Id]
 """,
                     //
-"""
+                    """
 SELECT [o].[Id], [o].[AppEntityId], [e].[Id]
 FROM [Entities] AS [e]
 INNER JOIN [OtherEntity21803] AS [o] ON [e].[Id] = [o].[AppEntityId]
@@ -7705,7 +7705,7 @@ ORDER BY [e].[Id]
             else
             {
                 AssertSql(
-"""
+                    """
 SELECT [e].[Id], [o].[Id], [o].[AppEntityId]
 FROM [Entities] AS [e]
 LEFT JOIN [OtherEntity21803] AS [o] ON [e].[Id] = [o].[AppEntityId]
@@ -7772,7 +7772,7 @@ ORDER BY [e].[Id]
             Assert.Equal(12345, result.Contact.Address.Zip);
 
             AssertSql(
-"""
+                """
 SELECT [e].[Id], [e].[Contact_Name], [e].[Contact_Address_City], [e].[Contact_Address_State], [e].[Contact_Address_Street], [e].[Contact_Address_Zip]
 FROM [Entity21807] AS [e]
 """);
@@ -7854,7 +7854,7 @@ FROM [Entity21807] AS [e]
             Assert.NotNull(query[2].Contact.Address);
 
             AssertSql(
-"""
+                """
 SELECT [u].[Id], [u].[RowVersion], [u].[Contact_MobileNumber], [u].[SharedProperty], [u].[Contact_Address_City], [u].[Contact_Address_Zip], [u].[Data_Data], [u].[Data_Exists], [u].[RowVersion]
 FROM [User22054] AS [u]
 ORDER BY [u].[Id] DESC
@@ -7982,7 +7982,7 @@ ORDER BY [u].[Id] DESC
                 aggregate.FirstValueObject.SecondValueObjects[0].ThirdValueObjects[0].FourthValueObject.FifthValueObjects[0].AnyValue);
 
             AssertSql(
-"""
+                """
 SELECT [t].[Id], [t].[FirstValueObject_Value], [t2].[Id], [t2].[AggregateId], [t2].[FourthValueObject_Value], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[FourthValueObject_Value0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
 FROM (
     SELECT TOP(1) [a].[Id], [a].[FirstValueObject_Value]
@@ -8166,7 +8166,7 @@ ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1]
             Assert.Single(equalQuery);
 
             AssertSql(
-"""
+                """
 @__k_0='1'
 
 SELECT TOP(1) [a].[Id], [a].[Name]
@@ -8174,7 +8174,7 @@ FROM [Autos] AS [a]
 WHERE [a].[Id] = @__k_0
 """,
                 //
-"""
+                """
 @__p_0='2'
 
 SELECT TOP(1) [a].[Id], [a].[Name]
@@ -8182,7 +8182,7 @@ FROM [Autos] AS [a]
 WHERE [a].[Id] = @__p_0
 """,
                 //
-"""
+                """
 @__entity_equality_a_0_Id='1' (Nullable = true)
 @__entity_equality_b_1_Id='2' (Nullable = true)
 
@@ -8253,7 +8253,7 @@ WHERE ([a].[Id] = @__entity_equality_a_0_Id AND [a0].[Id] = @__entity_equality_b
             Assert.NotNull(masterTrunk);
 
             AssertSql(
-"""
+                """
 SELECT [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [f0].[Amount], [f0].[Code], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id], [s0].[Amount], [s0].[Code]
 FROM (
     SELECT TOP(1) [m].[Id], [f].[MasterTrunk22340Id], [s].[MasterTrunk22340Id] AS [MasterTrunk22340Id0]
@@ -8363,13 +8363,13 @@ ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[Cu
             Assert.NotNull(dependents[0].Principal.Dependent);
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [d].[Id], [d].[PrincipalId]
 FROM [PrincipalOneToOne] AS [p]
 LEFT JOIN [DependentOneToOne] AS [d] ON [p].[Id] = [d].[PrincipalId]
 """,
                 //
-"""
+                """
 SELECT [d].[Id], [d].[PrincipalId], [p].[Id]
 FROM [DependentOneToOne] AS [d]
 INNER JOIN [PrincipalOneToOne] AS [p] ON [d].[PrincipalId] = [p].[Id]
@@ -8391,14 +8391,14 @@ INNER JOIN [PrincipalOneToOne] AS [p] ON [d].[PrincipalId] = [p].[Id]
             Assert.True(dependents.All(e => e.Principal.Dependents.All(i => i.Principal != null)));
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id], [d].[Id], [d].[PrincipalId]
 FROM [PrincipalOneToMany] AS [p]
 LEFT JOIN [DependentOneToMany] AS [d] ON [p].[Id] = [d].[PrincipalId]
 ORDER BY [p].[Id]
 """,
                 //
-"""
+                """
 SELECT [d].[Id], [d].[PrincipalId], [p].[Id], [d0].[Id], [d0].[PrincipalId]
 FROM [DependentOneToMany] AS [d]
 INNER JOIN [PrincipalOneToMany] AS [p] ON [d].[PrincipalId] = [p].[Id]
@@ -8422,12 +8422,12 @@ ORDER BY [d].[Id], [p].[Id]
             context.Set<MyContext22568.DependentManyToMany>().IgnoreAutoIncludes().ToList();
 
             AssertSql(
-"""
+                """
 SELECT [p].[Id]
 FROM [PrincipalManyToMany] AS [p]
 """,
                 //
-"""
+                """
 SELECT [d].[Id]
 FROM [DependentManyToMany] AS [d]
 """);
@@ -8453,17 +8453,17 @@ FROM [DependentManyToMany] AS [d]
             context.Set<MyContext22568.CycleC>().IgnoreAutoIncludes().ToList();
 
             AssertSql(
-"""
+                """
 SELECT [c].[Id], [c].[CycleCId]
 FROM [CycleA] AS [c]
 """,
                 //
-"""
+                """
 SELECT [c].[Id], [c].[CId], [c].[CycleAId]
 FROM [CycleB] AS [c]
 """,
                 //
-"""
+                """
 SELECT [c].[Id], [c].[BId]
 FROM [CycleC] AS [c]
 """);
@@ -8658,7 +8658,7 @@ FROM [CycleC] AS [c]
                 }).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], [t].[Id], [t].[BlogId], [t].[Name]
 FROM [Blogs] AS [b]
 LEFT JOIN (
@@ -8682,7 +8682,7 @@ ORDER BY [b].[Id]
                 }).ToList();
 
             AssertSql(
-"""
+                """
 SELECT [b].[Id], (
     SELECT TOP(1) [p].[Name]
     FROM [Posts] AS [p]
@@ -8757,7 +8757,7 @@ FROM [Blogs] AS [b]
             Assert.Equal("B", owner.Owned2.Value);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id], [o1].[Value]
 FROM [Owner23211] AS [o]
 LEFT JOIN [Owned123211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
@@ -8765,7 +8765,7 @@ LEFT JOIN [Owned223211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
 ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]
 """,
                 //
-"""
+                """
 SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
     SELECT TOP(1) [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id] AS [Owner23211Id0]
@@ -8790,14 +8790,14 @@ ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
             Assert.Equal("A", owner.Owned.Value);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [s].[Id], [o].[SecondOwner23211Id], [o].[Value]
 FROM [SecondOwner23211] AS [s]
 LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
 ORDER BY [s].[Id], [o].[SecondOwner23211Id]
 """,
                 //
-"""
+                """
 SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
 FROM (
     SELECT TOP(1) [s].[Id], [o].[SecondOwner23211Id]
@@ -8890,7 +8890,7 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
             Assert.Single(result);
 
             AssertSql(
-"""
+                """
 @__ef_filter___ids_0='[1,7]' (Size = 4000)
 
 SELECT [e].[Id], [e].[Name]
@@ -8951,7 +8951,7 @@ WHERE [e].[Id] NOT IN (
             Assert.NotNull(testUser);
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [l].[Id], [l].[Name], [l].[Address_County], [l].[Address_Line1], [l].[Address_Line2], [l].[Address_Point], [l].[Address_Postcode], [l].[Address_Town], [l].[Address_Value]
 FROM [Locations] AS [l]
 WHERE [l].[Name] = N'My Location'
@@ -9050,7 +9050,7 @@ WHERE [l].[Name] = N'My Location'
             Assert.Equal(3, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
 FROM [A] AS [a]
 LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
@@ -9094,7 +9094,7 @@ WHERE [a0].[Id] IS NULL
             Assert.Equal(3, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
 FROM [A] AS [a]
 LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
@@ -9137,7 +9137,7 @@ WHERE [a0].[Id] IS NULL
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
 FROM [A] AS [a]
 LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
@@ -9179,7 +9179,7 @@ LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
             Assert.Single(query);
 
             AssertSql(
-"""
+                """
 SELECT [a].[Id], [a].[a], [a].[a1], [a].[forkey], [b].[Id] AS [Id0], [b].[b], [b].[b1], [b].[forkey] AS [forkey0]
 FROM [A] AS [a]
 LEFT JOIN [B] AS [b] ON [a].[forkey] = [b].[forkey]
@@ -9285,7 +9285,7 @@ LEFT JOIN [A] AS [a0] ON [b0].[forkey] = [a0].[forkey]
             Assert.NotNull(testUser);
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [b].[Id], [b].[JObject], [b].[Name]
 FROM [Blogs] AS [b]
 WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'
@@ -9492,7 +9492,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'
             context.SaveChanges();
 
             AssertSql(
-"""
+                """
 @p0='10.0999' (Nullable = true) (DbType = Object)
 @p1='-12345' (Nullable = true) (DbType = Object)
 @p2='String Value' (Size = 12) (DbType = Object)
@@ -9705,7 +9705,7 @@ OUTPUT INSERTED.[Id], i._Position;
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 @__id_0='1'
 
 SELECT [t].[Id], [t].[Name], [t].[Surname], [t].[Birthday], [t].[Hometown], [t].[Bio], [t].[AvatarUrl], [t].[Id0], [t].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [t0].[Id], [t0].[Name], [t0].[PosterUrl], [t0].[Rating]
@@ -9857,7 +9857,7 @@ ORDER BY [t].[Id], [t].[Id0], [t].[Id1], [p0].[Id]
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0], [t].[c]
 FROM (
     SELECT TOP(2) (
@@ -9905,7 +9905,7 @@ ORDER BY [t].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0]
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t1].[Rate], [t1].[UserRateText], [t1].[UserId], [t1].[Id], [t1].[Id0]
 FROM (
     SELECT TOP(2) [u].[Id]
@@ -9993,7 +9993,7 @@ ORDER BY [t].[Id], [t1].[DateArrived] DESC, [t1].[Id], [t1].[Id0]
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 @__referenceId_0='a' (Size = 4000)
 @__customerId_1='1115c816-6c4c-4016-94df-d8b60a22ffa1'
 
@@ -10105,7 +10105,7 @@ ORDER BY [t].[Id], [t0].[Id], [t0].[Id0]
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT [t].[Id], [t0].[Name]
@@ -10209,7 +10209,7 @@ ORDER BY [t].[Id]
 
         // Verify the valid generated SQL
         AssertSql(
-"""
+            """
 @__p_0='10'
 
 SELECT (
@@ -10347,7 +10347,7 @@ ORDER BY [t].[Id]
                                select new { c, j }).ToListAsync();
 
             AssertSql(
-"""
+                """
 SELECT [c].[Id], [c].[Json], [o].[Value]
 FROM [Cars] AS [c]
 CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]
@@ -10417,7 +10417,7 @@ CROSS APPLY OPENJSON([c].[Json], N'$.items') AS [o]
             Assert.Equal(1, Test25400.ConstructorCallCount);
 
             AssertSql(
-"""
+                """
 SELECT TOP(1) [t].[Id], [t].[Value]
 FROM [Tests] AS [t]
 ORDER BY [t].[Id]
@@ -10626,7 +10626,7 @@ ORDER BY [t].[Id]
             _ = context.Entities.Where(x => x.DateTime == parameter).Select(e => e.DateTime).FirstOrDefault();
 
             AssertSql(
-$"""
+                $"""
 @__parameter_0='2021-11-12T13:14:15.1234567'{postfix}
 
 SELECT TOP(1) [e].[DateTime]
@@ -10664,7 +10664,7 @@ WHERE [e].[DateTime] = @__parameter_0
             _ = context.Entities.Where(x => x.DateTimeOffset == parameter).Select(e => e.DateTimeOffset).FirstOrDefault();
 
             AssertSql(
-$"""
+                $"""
 @__parameter_0='2021-11-12T13:14:15.1234567+10:00'{postfix}
 
 SELECT TOP(1) [e].[DateTimeOffset]
@@ -10702,7 +10702,7 @@ WHERE [e].[DateTimeOffset] = @__parameter_0
             _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
 
             AssertSql(
-$"""
+                $"""
 @__parameter_0='12:34:56.7890123'{postfix}
 
 SELECT TOP(1) [e].[TimeSpan]

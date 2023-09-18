@@ -281,7 +281,8 @@ public class QueryTests : IDisposable
                        select p.Name).ToList();
 
         Assert.Equal(
-            Condense(@"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id].GetAncestor(CAST([p].[Id].GetLevel() AS int)) = hierarchyid::Parse('/')"),
+            Condense(
+                @"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id].GetAncestor(CAST([p].[Id].GetLevel() AS int)) = hierarchyid::Parse('/')"),
             Condense(_db.Sql));
 
         var all = (from p in _db.Patriarchy
@@ -356,9 +357,7 @@ public class QueryTests : IDisposable
     }
 
     public void Dispose()
-    {
-        _db.Dispose();
-    }
+        => _db.Dispose();
 
     // replace whitespace with a single space
     private static string Condense(string str)

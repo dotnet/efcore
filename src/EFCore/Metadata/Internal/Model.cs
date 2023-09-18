@@ -35,10 +35,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     private Dictionary<Type, HashSet<Property>>? _propertiesByType;
 
     private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
-        new()
-        {
-            { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(TypeBaseNameComparer.Instance)) }
-        };
+        new() { { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(TypeBaseNameComparer.Instance)) } };
 
     private ConventionDispatcher? _conventionDispatcher;
     private IList<IModelFinalizedConvention>? _modelFinalizedConventions;
@@ -798,7 +795,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     {
         EnsureMutable();
 
-        _complexTypes ??= new(StringComparer.Ordinal);
+        _complexTypes ??= new SortedDictionary<string, ComplexType>(StringComparer.Ordinal);
 
         if (!_complexTypes.TryAdd(complexType.Name, complexType))
         {
@@ -870,7 +867,6 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         }
 
         _propertiesByType.Add(type, new HashSet<Property> { property });
-        return;
     }
 
     /// <summary>
@@ -898,6 +894,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
 
         return null;
     }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1645,7 +1642,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     [DebuggerStepThrough]
     IConventionEntityType? IConventionModel.AddOwnedEntityType(
         string name,
-        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type, bool fromDataAnnotation)
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation)
         => AddEntityType(
             name, type, owned: true,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

@@ -22,7 +22,7 @@ public class MigrationsSqliteTest : MigrationsTestBase<MigrationsSqliteTest.Migr
         await base.Create_table();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Name" TEXT NULL
@@ -35,7 +35,7 @@ CREATE TABLE "People" (
         await base.Create_table_all_settings();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "People" (
     -- Table comment
 
@@ -51,7 +51,7 @@ CREATE TABLE "People" (
 );
 """,
             //
-"""
+            """
 CREATE INDEX "IX_People_EmployerId" ON "People" ("EmployerId");
 """);
     }
@@ -61,7 +61,7 @@ CREATE INDEX "IX_People_EmployerId" ON "People" ("EmployerId");
         await base.Create_table_with_comments();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "People" (
     -- Table comment
 
@@ -78,7 +78,7 @@ CREATE TABLE "People" (
         await base.Create_table_with_multiline_comments();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "People" (
     -- This is a multi-line
     -- table comment.
@@ -103,7 +103,7 @@ CREATE TABLE "People" (
         var computedColumnTypeSql = stored == true ? " STORED" : "";
 
         AssertSql(
-$"""
+            $"""
 CREATE TABLE "People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" AS ("X" + "Y"){computedColumnTypeSql},
@@ -118,7 +118,7 @@ CREATE TABLE "People" (
         await base.Alter_table_add_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     -- Table comment
 
@@ -126,25 +126,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -154,7 +154,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_table_add_comment_non_default_schema();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     -- Table comment
 
@@ -162,25 +162,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -190,7 +190,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_table_change_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     -- Table comment2
 
@@ -198,25 +198,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -226,31 +226,31 @@ PRAGMA foreign_keys = 1;
         await base.Alter_table_remove_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -260,35 +260,35 @@ PRAGMA foreign_keys = 1;
         await base.Rename_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" RENAME TO "Persons";
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_Persons" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Persons" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_Persons" ("Id")
 SELECT "Id"
 FROM "Persons";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "Persons";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_Persons" RENAME TO "Persons";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -298,35 +298,35 @@ PRAGMA foreign_keys = 1;
         await base.Rename_table_with_primary_key();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" RENAME TO "Persons";
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_Persons" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Persons" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_Persons" ("Id")
 SELECT "Id"
 FROM "Persons";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "Persons";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_Persons" RENAME TO "Persons";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -345,7 +345,7 @@ PRAGMA foreign_keys = 1;
         await base.Create_schema();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
@@ -357,7 +357,7 @@ CREATE TABLE "People" (
         await base.Add_column_with_defaultValue_datetime();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "Birthday" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00';
 """);
     }
@@ -367,7 +367,7 @@ ALTER TABLE "People" ADD "Birthday" TEXT NOT NULL DEFAULT '2015-04-12 17:05:00';
         await base.Add_column_with_defaultValueSql();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "Sum" INTEGER NOT NULL DEFAULT (1 + 2);
 """);
     }
@@ -379,7 +379,7 @@ ALTER TABLE "People" ADD "Sum" INTEGER NOT NULL DEFAULT (1 + 2);
         var storedSql = stored == true ? " STORED" : "";
 
         AssertSql(
-$"""
+            $"""
 ALTER TABLE "People" ADD "Sum" AS ("X" + "Y"){storedSql};
 """);
     }
@@ -390,7 +390,7 @@ ALTER TABLE "People" ADD "Sum" AS ("X" + "Y"){storedSql};
 
         // See issue #3698
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "Name" TEXT NULL;
 """);
     }
@@ -400,11 +400,11 @@ ALTER TABLE "People" ADD "Name" TEXT NULL;
         await base.Add_column_with_comment();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "FullName" TEXT NULL;
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
 
@@ -413,25 +413,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "FullName")
 SELECT "Id", "FullName"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -441,7 +441,7 @@ PRAGMA foreign_keys = 1;
         await base.Add_column_with_collation();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
 """);
     }
@@ -461,11 +461,11 @@ ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
         await base.Add_column_with_check_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" ADD "DriverLicense" INTEGER NOT NULL DEFAULT 0;
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
@@ -473,25 +473,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -501,32 +501,32 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_make_required();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "SomeColumn" TEXT NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "SomeColumn")
 SELECT "Id", IFNULL("SomeColumn", '')
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -536,36 +536,36 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_make_required_with_index();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "SomeColumn" TEXT NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "SomeColumn")
 SELECT "Id", IFNULL("SomeColumn", '')
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """,
             //
-"""
+            """
 CREATE INDEX "IX_People_SomeColumn" ON "People" ("SomeColumn");
 """);
     }
@@ -575,7 +575,7 @@ CREATE INDEX "IX_People_SomeColumn" ON "People" ("SomeColumn");
         await base.Alter_column_make_required_with_composite_index();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "FirstName" TEXT NOT NULL,
@@ -583,29 +583,29 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "FirstName", "LastName")
 SELECT "Id", IFNULL("FirstName", ''), "LastName"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """,
             //
-"""
+            """
 CREATE INDEX "IX_People_FirstName_LastName" ON "People" ("FirstName", "LastName");
 """);
     }
@@ -617,7 +617,7 @@ CREATE INDEX "IX_People_FirstName_LastName" ON "People" ("FirstName", "LastName"
         var storedSql = stored == true ? " STORED" : "";
 
         AssertSql(
-$"""
+            $"""
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" AS ("X" + "Y"){storedSql},
@@ -626,25 +626,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "X", "Y")
 SELECT "Id", "X", "Y"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -654,7 +654,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_change_computed();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" AS ("X" - "Y"),
@@ -663,25 +663,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "X", "Y")
 SELECT "Id", "X", "Y"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -691,7 +691,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_change_computed_recreates_indexes();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" AS ("X" - "Y"),
@@ -700,29 +700,29 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "X", "Y")
 SELECT "Id", "X", "Y"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """,
             //
-"""
+            """
 CREATE INDEX "IX_People_Sum" ON "People" ("Sum");
 """);
     }
@@ -732,7 +732,7 @@ CREATE INDEX "IX_People_Sum" ON "People" ("Sum");
         await base.Alter_column_change_computed_type();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" AS ("X" + "Y") STORED,
@@ -741,25 +741,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "X", "Y")
 SELECT "Id", "X", "Y"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -769,7 +769,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_make_non_computed();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "Sum" INTEGER NOT NULL,
@@ -778,25 +778,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "Sum", "X", "Y")
 SELECT "Id", "Sum", "X", "Y"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -806,32 +806,32 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_add_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     -- Some comment
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -841,7 +841,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_computed_column_add_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
 
@@ -850,25 +850,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -878,32 +878,32 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_change_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     -- Some comment2
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -913,31 +913,31 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_remove_comment();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -947,31 +947,31 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_set_collation();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Name" TEXT COLLATE NOCASE NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Name")
 SELECT "Name"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -981,31 +981,31 @@ PRAGMA foreign_keys = 1;
         await base.Alter_column_reset_collation();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Name" TEXT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Name")
 SELECT "Name"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1015,31 +1015,31 @@ PRAGMA foreign_keys = 1;
         await base.Drop_column();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id")
 SELECT "Id"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1049,31 +1049,31 @@ PRAGMA foreign_keys = 1;
         await base.Drop_column_primary_key();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeColumn" INTEGER NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeColumn")
 SELECT "SomeColumn"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1083,7 +1083,7 @@ PRAGMA foreign_keys = 1;
         await base.Rename_column();
 
         AssertSql(
-"""
+            """
 ALTER TABLE "People" RENAME COLUMN "SomeColumn" TO "SomeOtherColumn";
 """);
     }
@@ -1093,7 +1093,7 @@ ALTER TABLE "People" RENAME COLUMN "SomeColumn" TO "SomeOtherColumn";
         await base.Create_index_with_filter();
 
         AssertSql(
-"""
+            """
 CREATE INDEX "IX_People_Name" ON "People" ("Name") WHERE "Name" IS NOT NULL;
 """);
     }
@@ -1103,7 +1103,7 @@ CREATE INDEX "IX_People_Name" ON "People" ("Name") WHERE "Name" IS NOT NULL;
         await base.Create_unique_index_with_filter();
 
         AssertSql(
-"""
+            """
 CREATE UNIQUE INDEX "IX_People_Name" ON "People" ("Name") WHERE "Name" IS NOT NULL AND "Name" <> '';
 """);
     }
@@ -1113,11 +1113,11 @@ CREATE UNIQUE INDEX "IX_People_Name" ON "People" ("Name") WHERE "Name" IS NOT NU
         await base.Rename_index();
 
         AssertSql(
-"""
+            """
 DROP INDEX "Foo";
 """,
             //
-"""
+            """
 CREATE INDEX "foo" ON "People" ("FirstName");
 """);
     }
@@ -1127,31 +1127,31 @@ CREATE INDEX "foo" ON "People" ("FirstName");
         await base.Add_primary_key_int();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField")
 SELECT "SomeField"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1161,31 +1161,31 @@ PRAGMA foreign_keys = 1;
         await base.Add_primary_key_string();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField" TEXT NOT NULL CONSTRAINT "PK_People" PRIMARY KEY
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField")
 SELECT "SomeField"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1195,31 +1195,31 @@ PRAGMA foreign_keys = 1;
         await base.Add_primary_key_with_name();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField" TEXT NOT NULL CONSTRAINT "PK_Foo" PRIMARY KEY
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField")
 SELECT IFNULL("SomeField", '')
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1229,7 +1229,7 @@ PRAGMA foreign_keys = 1;
         await base.Add_primary_key_composite_with_name();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField1" INTEGER NOT NULL,
     "SomeField2" INTEGER NOT NULL,
@@ -1237,25 +1237,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField1", "SomeField2")
 SELECT "SomeField1", "SomeField2"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1265,31 +1265,31 @@ PRAGMA foreign_keys = 1;
         await base.Drop_primary_key_int();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField" INTEGER NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField")
 SELECT "SomeField"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1299,31 +1299,31 @@ PRAGMA foreign_keys = 1;
         await base.Drop_primary_key_string();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "SomeField" TEXT NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("SomeField")
 SELECT "SomeField"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1333,11 +1333,11 @@ PRAGMA foreign_keys = 1;
         await base.Add_foreign_key();
 
         AssertSql(
-"""
+            """
 CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_Orders" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
     "CustomerId" INTEGER NOT NULL,
@@ -1345,29 +1345,29 @@ CREATE TABLE "ef_temp_Orders" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_Orders" ("Id", "CustomerId")
 SELECT "Id", "CustomerId"
 FROM "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "Orders";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """,
             //
-"""
+            """
 CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """);
     }
@@ -1377,11 +1377,11 @@ CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
         await base.Add_foreign_key_with_name();
 
         AssertSql(
-"""
+            """
 CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_Orders" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
     "CustomerId" INTEGER NOT NULL,
@@ -1389,29 +1389,29 @@ CREATE TABLE "ef_temp_Orders" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_Orders" ("Id", "CustomerId")
 SELECT "Id", "CustomerId"
 FROM "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "Orders";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """,
             //
-"""
+            """
 CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
 """);
     }
@@ -1421,36 +1421,36 @@ CREATE INDEX "IX_Orders_CustomerId" ON "Orders" ("CustomerId");
         await base.Drop_foreign_key();
 
         AssertSql(
-"""
+            """
 DROP INDEX "IX_Orders_CustomerId";
 """,
             //
-"""
+            """
 CREATE TABLE "ef_temp_Orders" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Orders" PRIMARY KEY AUTOINCREMENT,
     "CustomerId" INTEGER NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_Orders" ("Id", "CustomerId")
 SELECT "Id", "CustomerId"
 FROM "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "Orders";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_Orders" RENAME TO "Orders";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1460,7 +1460,7 @@ PRAGMA foreign_keys = 1;
         await base.Add_unique_constraint();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "AlternateKeyColumn" INTEGER NOT NULL,
@@ -1468,25 +1468,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "AlternateKeyColumn")
 SELECT "Id", "AlternateKeyColumn"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1496,7 +1496,7 @@ PRAGMA foreign_keys = 1;
         await base.Add_unique_constraint_composite_with_name();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "AlternateKeyColumn1" INTEGER NOT NULL,
@@ -1505,25 +1505,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "AlternateKeyColumn1", "AlternateKeyColumn2")
 SELECT "Id", "AlternateKeyColumn1", "AlternateKeyColumn2"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1533,32 +1533,32 @@ PRAGMA foreign_keys = 1;
         await base.Drop_unique_constraint();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "AlternateKeyColumn" INTEGER NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "AlternateKeyColumn")
 SELECT "Id", "AlternateKeyColumn"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1568,7 +1568,7 @@ PRAGMA foreign_keys = 1;
         await base.Add_check_constraint_with_name();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
@@ -1576,25 +1576,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1604,7 +1604,7 @@ PRAGMA foreign_keys = 1;
         await base.Alter_check_constraint();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL,
@@ -1612,25 +1612,25 @@ CREATE TABLE "ef_temp_People" (
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1640,32 +1640,32 @@ PRAGMA foreign_keys = 1;
         await base.Drop_check_constraint();
 
         AssertSql(
-"""
+            """
 CREATE TABLE "ef_temp_People" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_People" PRIMARY KEY AUTOINCREMENT,
     "DriverLicense" INTEGER NOT NULL
 );
 """,
             //
-"""
+            """
 INSERT INTO "ef_temp_People" ("Id", "DriverLicense")
 SELECT "Id", "DriverLicense"
 FROM "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 0;
 """,
             //
-"""
+            """
 DROP TABLE "People";
 """,
             //
-"""
+            """
 ALTER TABLE "ef_temp_People" RENAME TO "People";
 """,
             //
-"""
+            """
 PRAGMA foreign_keys = 1;
 """);
     }
@@ -1693,7 +1693,7 @@ PRAGMA foreign_keys = 1;
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE "Person" (
     "Id" INTEGER NOT NULL CONSTRAINT "PK_Person" PRIMARY KEY AUTOINCREMENT,
     "Age" INTEGER NOT NULL DEFAULT 18,

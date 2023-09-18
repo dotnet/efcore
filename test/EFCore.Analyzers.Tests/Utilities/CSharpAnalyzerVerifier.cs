@@ -9,6 +9,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Model;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
+using Microsoft.Extensions.DependencyModel;
+using CompilationOptions = Microsoft.CodeAnalysis.CompilationOptions;
 
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
@@ -32,13 +34,20 @@ public static class CSharpAnalyzerVerifier<TAnalyzer>
             var cSharpOptions = (CSharpCompilationOptions)base.CreateCompilationOptions();
             return cSharpOptions
                 .WithNullableContextOptions(NullableContextOptions.Enable)
-                .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { { "CS1701", ReportDiagnostic.Suppress }, { "CS1591", ReportDiagnostic.Suppress } });
+                .WithSpecificDiagnosticOptions(
+                    new Dictionary<string, ReportDiagnostic>
+                    {
+                        { "CS1701", ReportDiagnostic.Suppress }, { "CS1591", ReportDiagnostic.Suppress }
+                    });
         }
 
-        protected override async Task<Project> CreateProjectImplAsync(EvaluatedProjectState primaryProject, ImmutableArray<EvaluatedProjectState> additionalProjects, CancellationToken cancellationToken)
+        protected override async Task<Project> CreateProjectImplAsync(
+            EvaluatedProjectState primaryProject,
+            ImmutableArray<EvaluatedProjectState> additionalProjects,
+            CancellationToken cancellationToken)
         {
             var metadataReferences
-                = Extensions.DependencyModel.DependencyContext.Load(GetType().Assembly)
+                = DependencyContext.Load(GetType().Assembly)
                     .CompileLibraries
                     .SelectMany(c => c.ResolveReferencePaths())
                     .Select(path => MetadataReference.CreateFromFile(path))

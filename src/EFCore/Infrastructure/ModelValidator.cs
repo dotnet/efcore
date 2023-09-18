@@ -143,10 +143,10 @@ public class ModelValidator : IModelValidator
         void Validate(IConventionTypeBase typeBase)
         {
             var unmappedProperty = typeBase.GetDeclaredProperties().FirstOrDefault(
-               p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
-                       // Use a better condition for non-persisted properties when issue #14121 is implemented
-                       || !p.IsImplicitlyCreated())
-                   && p.FindTypeMapping() == null);
+                p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
+                        // Use a better condition for non-persisted properties when issue #14121 is implemented
+                        || !p.IsImplicitlyCreated())
+                    && p.FindTypeMapping() == null);
 
             if (unmappedProperty != null)
             {
@@ -257,6 +257,7 @@ public class ModelValidator : IModelValidator
                                 CoreStrings.NavigationNotAddedComplexType(
                                     typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                         }
+
                         continue;
                     }
 
@@ -694,7 +695,7 @@ public class ModelValidator : IModelValidator
         static void Validate(ITypeBase typeBase, bool requireFullNotifications)
         {
             var errorMessage = TypeBase.CheckChangeTrackingStrategy(
-                            typeBase, typeBase.GetChangeTrackingStrategy(), requireFullNotifications);
+                typeBase, typeBase.GetChangeTrackingStrategy(), requireFullNotifications);
 
             if (errorMessage != null)
             {
@@ -836,8 +837,9 @@ public class ModelValidator : IModelValidator
         static bool ContainedInForeignKeyForAllConcreteTypes(IEntityType entityType, IProperty property)
             => entityType.ClrType.IsAbstract
                 && entityType.GetDerivedTypes().Where(t => !t.ClrType.IsAbstract)
-                    .All(d => d.GetForeignKeys()
-                               .Any(fk => fk.Properties.Contains(property)));
+                    .All(
+                        d => d.GetForeignKeys()
+                            .Any(fk => fk.Properties.Contains(property)));
     }
 
     /// <summary>
@@ -866,9 +868,9 @@ public class ModelValidator : IModelValidator
         static void Validate(ITypeBase typeBase)
         {
             var properties = new HashSet<IPropertyBase>(
-                            typeBase
-                                .GetDeclaredMembers()
-                                .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
+                typeBase
+                    .GetDeclaredMembers()
+                    .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
 
             var fieldProperties = new Dictionary<FieldInfo, IPropertyBase>();
             foreach (var propertyBase in properties)
@@ -881,12 +883,13 @@ public class ModelValidator : IModelValidator
 
                 if (fieldProperties.TryGetValue(field, out var conflictingProperty))
                 {
-                    throw new InvalidOperationException(CoreStrings.ConflictingFieldProperty(
-                        propertyBase.DeclaringType.DisplayName(),
-                        propertyBase.Name,
-                        field.Name,
-                        conflictingProperty.DeclaringType.DisplayName(),
-                        conflictingProperty.Name));
+                    throw new InvalidOperationException(
+                        CoreStrings.ConflictingFieldProperty(
+                            propertyBase.DeclaringType.DisplayName(),
+                            propertyBase.Name,
+                            field.Name,
+                            conflictingProperty.DeclaringType.DisplayName(),
+                            conflictingProperty.Name));
                 }
 
                 fieldProperties.Add(field, propertyBase);

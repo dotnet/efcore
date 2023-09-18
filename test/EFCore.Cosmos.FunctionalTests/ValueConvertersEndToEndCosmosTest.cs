@@ -34,5 +34,3 @@ public class ValueConvertersEndToEndCosmosTest
         }
     }
 }
-
-#nullable restore

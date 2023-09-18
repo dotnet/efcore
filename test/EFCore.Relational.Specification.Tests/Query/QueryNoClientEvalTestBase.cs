@@ -113,9 +113,9 @@ public abstract class QueryNoClientEvalTestBase<TFixture> : IClassFixture<TFixtu
     {
         using var context = CreateContext();
         (from e1 in context.Employees
-                   join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
-                   select e1)
-                .ToList();
+         join i in new uint[] { 1, 2, 3 } on e1.EmployeeID equals i into g
+         select e1)
+            .ToList();
     }
 
     [ConditionalFact(Skip = "Issue#18923")]

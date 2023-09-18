@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -128,9 +127,9 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     IConventionEntityType? SetBaseType(IConventionEntityType? entityType, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns the configuration source for the <see cref="BaseType"/> property.
+    ///     Returns the configuration source for the <see cref="BaseType" /> property.
     /// </summary>
-    /// <returns>The configuration source for the <see cref="BaseType"/> property.</returns>
+    /// <returns>The configuration source for the <see cref="BaseType" /> property.</returns>
     ConfigurationSource? GetBaseTypeConfigurationSource();
 
     /// <summary>
@@ -765,7 +764,7 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     ///     Adds a service property to this entity type.
     /// </summary>
     /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add.</param>
-    /// <param name="serviceType">The type of the service, or <see langword="null"/> to use the type of the member.</param>
+    /// <param name="serviceType">The type of the service, or <see langword="null" /> to use the type of the member.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The newly created service property.</returns>
     IConventionServiceProperty AddServiceProperty(MemberInfo memberInfo, Type? serviceType = null, bool fromDataAnnotation = false);

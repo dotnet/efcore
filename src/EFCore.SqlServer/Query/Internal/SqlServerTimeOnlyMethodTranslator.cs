@@ -16,8 +16,10 @@ public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo AddHoursMethod = typeof(TimeOnly).GetRuntimeMethod(
         nameof(TimeOnly.AddHours), new[] { typeof(double) })!;
+
     private static readonly MethodInfo AddMinutesMethod = typeof(TimeOnly).GetRuntimeMethod(
         nameof(TimeOnly.AddMinutes), new[] { typeof(double) })!;
+
     private static readonly MethodInfo IsBetweenMethod = typeof(TimeOnly).GetRuntimeMethod(
         nameof(TimeOnly.IsBetween), new[] { typeof(TimeOnly), typeof(TimeOnly) })!;
 

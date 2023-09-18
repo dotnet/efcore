@@ -114,6 +114,7 @@ public class ComputedColumnTest : IDisposable
             _databaseName = databaseName;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<EnumItem> EnumItems { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -206,7 +206,8 @@ public class ComplexPropertyDiscoveryConvention :
             return;
         }
 
-        typeBaseBuilder.HasAnnotation(CoreAnnotationNames.ComplexCandidates,
+        typeBaseBuilder.HasAnnotation(
+            CoreAnnotationNames.ComplexCandidates,
             new Dictionary<string, MemberInfo> { { memberInfo.Name, memberInfo } });
     }
 

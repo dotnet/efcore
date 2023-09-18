@@ -246,7 +246,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression PendingSelector { get; private set; }
         public MethodInfo? CardinalityReducingGenericMethodInfo { get; private set; }
-        public List<Expression> CardinalityReducingMethodArguments { get; private set; } = new();
+        public List<Expression> CardinalityReducingMethodArguments { get; } = new();
 
         public Type SourceElementType
             => CurrentParameter.Type;

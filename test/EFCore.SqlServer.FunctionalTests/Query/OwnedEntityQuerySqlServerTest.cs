@@ -15,7 +15,7 @@ public class OwnedEntityQuerySqlServerTest : OwnedEntityQueryRelationalTestBase
         await base.Multiple_single_result_in_projection_containing_owned_types(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [t0].[Id], [t0].[Entity20277Id], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t1].[Id], [t1].[Entity20277Id], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
 FROM [Entities] AS [e]
 LEFT JOIN (
@@ -44,7 +44,7 @@ LEFT JOIN (
         await base.Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [r].[Id], [m].[Id], [m].[Enabled], [m].[RootId], [m0].[Id], [m0].[RootId]
 FROM [Root24777] AS [r]
 LEFT JOIN [MiddleB24777] AS [m] ON [r].[Id] = [m].[RootId]
@@ -53,7 +53,7 @@ WHERE [r].[Id] = 3
 ORDER BY [r].[Id], [m].[Id], [m0].[Id]
 """,
             //
-"""
+            """
 SELECT [l].[ModdleAId], [l].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
 FROM (
     SELECT TOP(1) [r].[Id], [m].[Id] AS [Id0], [m0].[Id] AS [Id1]
@@ -72,7 +72,7 @@ ORDER BY [t].[Id], [t].[Id0], [t].[Id1]
         await base.Projecting_owned_collection_and_aggregate(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[Id], (
     SELECT COALESCE(SUM([p].[CommentsCount]), 0)
     FROM [Post24133] AS [p]
@@ -88,7 +88,7 @@ ORDER BY [b].[Id], [p0].[BlogId]
         await base.Projecting_correlated_collection_property_for_owned_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [w].[WarehouseCode], [w].[Id], [w0].[CountryCode], [w0].[WarehouseCode], [w0].[Id]
 FROM [Warehouses] AS [w]
 LEFT JOIN [WarehouseDestinationCountry] AS [w0] ON [w].[WarehouseCode] = [w0].[WarehouseCode]
@@ -101,7 +101,7 @@ ORDER BY [w].[Id], [w0].[WarehouseCode]
         await base.Owned_collection_basic_split_query(async);
 
         AssertSql(
-"""
+            """
 @__id_0='6c1ae3e5-30b9-4c77-8d98-f02075974a0a'
 
 SELECT TOP(1) [l].[Id]
@@ -116,7 +116,7 @@ ORDER BY [l].[Id]
         await base.Owned_reference_mapped_to_different_table_updated_correctly_after_subquery_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='10'
 
 SELECT TOP(@__p_0) [c].[Id], [c].[Name], [c0].[CompanyId], [c0].[AdditionalCustomerData], [c0].[Id], [s].[CompanyId], [s].[AdditionalSupplierData], [s].[Id]
@@ -133,7 +133,7 @@ ORDER BY [c].[Id]
         await base.Owned_reference_mapped_to_different_table_nested_updated_correctly_after_subquery_pushdown(async);
 
         AssertSql(
-"""
+            """
 @__p_0='10'
 
 SELECT TOP(@__p_0) [o].[Id], [o].[Name], [i].[OwnerId], [i].[Id], [i].[Name], [i0].[IntermediateOwnedEntityOwnerId], [i0].[AdditionalCustomerData], [i0].[Id], [i1].[IntermediateOwnedEntityOwnerId], [i1].[AdditionalSupplierData], [i1].[Id]
@@ -151,7 +151,7 @@ ORDER BY [o].[Id]
         await base.Owned_entity_with_all_null_properties_materializes_when_not_containing_another_owned_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [r].[Id], [r].[Buyer], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType], [r].[Rut_Value]
 FROM [RotRutCases] AS [r]
 ORDER BY [r].[Buyer]
@@ -163,7 +163,7 @@ ORDER BY [r].[Buyer]
         await base.Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [r].[Id], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
 FROM [RotRutCases] AS [r]
 WHERE [r].[Rot_ApartmentNo] IS NOT NULL OR [r].[Rot_ServiceType] IS NOT NULL
@@ -175,7 +175,7 @@ WHERE [r].[Rot_ApartmentNo] IS NOT NULL OR [r].[Rot_ServiceType] IS NOT NULL
         await base.Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [r].[Rot_ApartmentNo] IS NULL AND [r].[Rot_ServiceType] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -190,7 +190,7 @@ ORDER BY [r].[Id]
         await base.Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [r].[Rot_ApartmentNo] IS NOT NULL OR [r].[Rot_ServiceType] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -205,7 +205,7 @@ ORDER BY [r].[Id]
         await base.Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT [r].[Rot_ApartmentNo]
 FROM [RotRutCases] AS [r]
 """);
@@ -216,7 +216,7 @@ FROM [RotRutCases] AS [r]
         await base.Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(async);
 
         AssertSql(
-"""
+            """
 SELECT [m].[Id], [m].[Name], [m].[RulerOf], [t].[Id], [t].[Affiliation], [t].[Name], [t].[Magus30358Id], [t].[Name0]
 FROM [Monarchs] AS [m]
 INNER JOIN (

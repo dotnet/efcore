@@ -294,6 +294,7 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
                 _serviceProvider = serviceProvider;
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DbSet<Blog> Blogs { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

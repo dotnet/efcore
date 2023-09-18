@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
@@ -289,13 +288,13 @@ public class ColumnModification : IColumnModification
         if (UseOriginalValueParameter)
         {
             var originalValue = Entry.SharedIdentityEntry == null
-                    ? GetOriginalProviderValue(Entry, Property)
-                    : GetOriginalProviderValue(Entry.SharedIdentityEntry, Property);
+                ? GetOriginalProviderValue(Entry, Property)
+                : GetOriginalProviderValue(Entry.SharedIdentityEntry, Property);
             if (Property.GetProviderValueComparer().Equals(
                     originalValue,
                     modification.Entry.SharedIdentityEntry == null
-                    ? GetOriginalProviderValue(modification.Entry, modification.Property)
-                    : GetOriginalProviderValue(modification.Entry.SharedIdentityEntry, modification.Property)))
+                        ? GetOriginalProviderValue(modification.Entry, modification.Property)
+                        : GetOriginalProviderValue(modification.Entry.SharedIdentityEntry, modification.Property)))
             {
                 _sharedColumnModifications.Add(modification);
                 return;

@@ -1570,7 +1570,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 // parentheses. Do the same for OR (though here we add parentheses around inner AND just for readability).
                 if (outerExpression is SqlBinaryExpression outerBinary2)
                 {
-                    if (outerBinary2.OperatorType ==  ExpressionType.AndAlso)
+                    if (outerBinary2.OperatorType == ExpressionType.AndAlso)
                     {
                         return innerBinaryExpression.OperatorType == ExpressionType.OrElse;
                     }

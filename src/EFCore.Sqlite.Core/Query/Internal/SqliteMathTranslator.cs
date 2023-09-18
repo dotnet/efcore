@@ -149,7 +149,8 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 method.ReturnType,
                 typeMapping);
         }
-        else if (_roundWithDecimalMethods.Contains(method))
+
+        if (_roundWithDecimalMethods.Contains(method))
         {
             return _sqlExpressionFactory.Function(
                 "round",
@@ -158,9 +159,9 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 argumentsPropagateNullability: new[] { true, true },
                 method.ReturnType,
                 arguments[0].TypeMapping);
-
         }
-        else if (_logWithBaseMethods.Contains(method))
+
+        if (_logWithBaseMethods.Contains(method))
         {
             var a = arguments[0];
             var newBase = arguments[1];
@@ -170,8 +171,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 "log",
                 new[]
                 {
-                    _sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping),
-                    _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
+                    _sqlExpressionFactory.ApplyTypeMapping(newBase, typeMapping), _sqlExpressionFactory.ApplyTypeMapping(a, typeMapping)
                 },
                 nullable: true,
                 argumentsPropagateNullability: new[] { true, true },

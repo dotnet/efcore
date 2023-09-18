@@ -29,7 +29,7 @@ public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTes
         await base.Create_table();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [People] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -43,11 +43,11 @@ CREATE TABLE [People] (
         await base.Create_table_all_settings();
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');
 """,
             //
-"""
+            """
 CREATE TABLE [dbo2].[People] (
     [CustomId] int NOT NULL IDENTITY,
     [EmployerId] int NOT NULL,
@@ -64,7 +64,7 @@ SET @description = N'Employer ID comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'dbo2', 'TABLE', N'People', 'COLUMN', N'EmployerId';
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_EmployerId] ON [dbo2].[People] ([EmployerId]);
 """);
     }
@@ -74,7 +74,7 @@ CREATE INDEX [IX_People_EmployerId] ON [dbo2].[People] ([EmployerId]);
         await base.Create_table_no_key();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Anonymous] (
     [SomeColumn] int NOT NULL
 );
@@ -86,7 +86,7 @@ CREATE TABLE [Anonymous] (
         await base.Create_table_with_comments();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [People] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -107,7 +107,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Create_table_with_multiline_comments();
 
         AssertSql(
-"""
+            """
 CREATE TABLE [People] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -130,7 +130,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         var storedSql = stored == true ? " PERSISTED" : "";
 
         AssertSql(
-$"""
+            $"""
 CREATE TABLE [People] (
     [Id] int NOT NULL IDENTITY,
     [Sum] AS [X] + [Y]{storedSql},
@@ -155,7 +155,7 @@ CREATE TABLE [People] (
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [People] (
     [SomeProperty] nvarchar(max) SPARSE NULL
 );
@@ -177,7 +177,7 @@ CREATE TABLE [People] (
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [People] (
     [IdentityColumn] smallint NOT NULL IDENTITY
 );
@@ -203,7 +203,7 @@ CREATE TABLE [People] (
             });
 
         AssertSql(
-"""
+            """
 IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
     BEGIN
     IF NOT EXISTS (
@@ -242,7 +242,7 @@ EXEC(N'
     SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')
 """,
             //
-"""
+            """
 CREATE TABLE [People] (
     [Id] int NOT NULL IDENTITY,
     CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([Id])
@@ -269,7 +269,7 @@ CREATE TABLE [People] (
             });
 
         AssertSql(
-"""
+            """
 IF SERVERPROPERTY('IsXTPSupported') = 1 AND SERVERPROPERTY('EngineEdition') <> 5
     BEGIN
     IF NOT EXISTS (
@@ -308,7 +308,7 @@ EXEC(N'
     SET MEMORY_OPTIMIZED_ELEVATE_TO_SNAPSHOT ON;')
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
@@ -328,7 +328,7 @@ EXEC(N'CREATE TABLE [Customers] (
         await base.Drop_table();
 
         AssertSql(
-"""
+            """
 DROP TABLE [People];
 """);
     }
@@ -338,7 +338,7 @@ DROP TABLE [People];
         await base.Alter_table_add_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -352,7 +352,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Alter_table_add_comment_non_default_schema();
 
         AssertSql(
-"""
+            """
 DECLARE @description AS sql_variant;
 SET @description = N'Table comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'SomeOtherSchema', 'TABLE', N'People';
@@ -364,7 +364,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', N'SomeOthe
         await base.Alter_table_change_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -379,7 +379,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Alter_table_remove_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -392,15 +392,15 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
         await base.Rename_table();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[People]', N'Persons';
 """,
             //
-"""
+            """
 ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);
 """);
     }
@@ -410,15 +410,15 @@ ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);
         await base.Rename_table_with_primary_key();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[People]', N'Persons';
 """,
             //
-"""
+            """
 ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);
 """);
     }
@@ -428,11 +428,11 @@ ALTER TABLE [Persons] ADD CONSTRAINT [PK_Persons] PRIMARY KEY ([Id]);
         await base.Move_table();
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'TestTableSchema') IS NULL EXEC(N'CREATE SCHEMA [TestTableSchema];');
 """,
             //
-"""
+            """
 ALTER SCHEMA [TestTableSchema] TRANSFER [TestTable];
 """);
     }
@@ -454,7 +454,7 @@ ALTER SCHEMA [TestTableSchema] TRANSFER [TestTable];
             });
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema sysname = SCHEMA_NAME();
 EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTable];');
 """);
@@ -465,11 +465,11 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestTableSchema].[TestTa
         await base.Create_schema();
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'SomeOtherSchema') IS NULL EXEC(N'CREATE SCHEMA [SomeOtherSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [SomeOtherSchema].[People] (
     [Id] int NOT NULL IDENTITY,
     CONSTRAINT [PK_People] PRIMARY KEY ([Id])
@@ -488,7 +488,7 @@ CREATE TABLE [SomeOtherSchema].[People] (
             model => Assert.Equal("dbo", Assert.Single(model.Tables).Schema));
 
         AssertSql(
-"""
+            """
 CREATE TABLE [dbo].[People] (
     [Id] int NOT NULL IDENTITY,
     CONSTRAINT [PK_People] PRIMARY KEY ([Id])
@@ -501,7 +501,7 @@ CREATE TABLE [dbo].[People] (
         await base.Add_column_with_defaultValue_string();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] nvarchar(max) NOT NULL DEFAULT N'John Doe';
 """);
     }
@@ -511,7 +511,7 @@ ALTER TABLE [People] ADD [Name] nvarchar(max) NOT NULL DEFAULT N'John Doe';
         await base.Add_column_with_defaultValue_datetime();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05:00.0000000';
 """);
     }
@@ -542,7 +542,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2 NOT NULL DEFAULT '2015-04-12T17:05
             });
 
         AssertSql(
-$"""
+            $"""
 ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '2015-04-12T17:05:00{fractionalSeconds}';
 """);
     }
@@ -576,7 +576,7 @@ ALTER TABLE [People] ADD [Birthday] datetime2({precision}) NOT NULL DEFAULT '201
             });
 
         AssertSql(
-$"""
+            $"""
 ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT '2015-04-12T17:05:00{fractionalSeconds}+10:00';
 """);
     }
@@ -608,7 +608,7 @@ ALTER TABLE [People] ADD [Birthday] datetimeoffset({precision}) NOT NULL DEFAULT
             });
 
         AssertSql(
-$"""
+            $"""
 ALTER TABLE [People] ADD [Age] time({precision}) NOT NULL DEFAULT '12:34:56{fractionalSeconds}';
 """);
     }
@@ -630,7 +630,7 @@ ALTER TABLE [People] ADD [Age] time({precision}) NOT NULL DEFAULT '12:34:56{frac
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:00.000';
 """);
     }
@@ -652,7 +652,7 @@ ALTER TABLE [People] ADD [Birthday] datetime NOT NULL DEFAULT '2019-01-01T00:00:
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T00:00:00';
 """);
     }
@@ -673,7 +673,7 @@ ALTER TABLE [People] ADD [Birthday] smalldatetime NOT NULL DEFAULT '2019-01-01T0
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [RowVersion] rowversion NULL;
 """);
     }
@@ -696,7 +696,7 @@ ALTER TABLE [People] ADD [RowVersion] rowversion NULL;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [RowVersion] rowversion NOT NULL;
 """);
     }
@@ -706,7 +706,7 @@ ALTER TABLE [People] ADD [RowVersion] rowversion NOT NULL;
         await base.Add_column_with_defaultValueSql();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);
 """);
     }
@@ -718,7 +718,7 @@ ALTER TABLE [People] ADD [Sum] int NOT NULL DEFAULT (1 + 2);
         var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
         AssertSql(
-$"""
+            $"""
 ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
 """);
     }
@@ -740,7 +740,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 EXEC(N'ALTER TABLE [People] ADD [IdPlusOne] AS [Id] + 1');
 """);
     }
@@ -750,7 +750,7 @@ EXEC(N'ALTER TABLE [People] ADD [IdPlusOne] AS [Id] + 1');
         await base.Add_column_with_required();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] nvarchar(max) NOT NULL DEFAULT N'';
 """);
     }
@@ -760,7 +760,7 @@ ALTER TABLE [People] ADD [Name] nvarchar(max) NOT NULL DEFAULT N'';
         await base.Add_column_with_ansi();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] varchar(max) NULL;
 """);
     }
@@ -770,7 +770,7 @@ ALTER TABLE [People] ADD [Name] varchar(max) NULL;
         await base.Add_column_with_max_length();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] nvarchar(30) NULL;
 """);
     }
@@ -787,7 +787,7 @@ ALTER TABLE [People] ADD [Name] nvarchar(30) NULL;
         await base.Add_column_with_fixed_length();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] nchar(100) NULL;
 """);
     }
@@ -797,7 +797,7 @@ ALTER TABLE [People] ADD [Name] nchar(100) NULL;
         await base.Add_column_with_comment();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [FullName] nvarchar(max) NULL;
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
@@ -812,7 +812,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Add_column_with_collation();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NULL;
 """);
     }
@@ -839,11 +839,11 @@ ALTER TABLE [People] ADD [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NUL
         await base.Add_column_with_check_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [DriverLicense] int NOT NULL DEFAULT 0;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
@@ -863,7 +863,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY;
 """);
     }
@@ -886,7 +886,7 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);
 """);
     }
@@ -940,15 +940,15 @@ ALTER TABLE [People] ADD [IdentityColumn] int NOT NULL IDENTITY(100, 5);
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Dogs] ADD [IdentityColumn] int NOT NULL IDENTITY(2, 2);
 """,
             //
-"""
+            """
 ALTER TABLE [Cats] ADD [IdentityColumn] int NOT NULL IDENTITY(1, 2);
 """,
             //
-"""
+            """
 ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 """);
     }
@@ -970,11 +970,11 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
             });
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [PeopleSequence]);
 """);
     }
@@ -992,11 +992,11 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [
             });
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO MINVALUE NO MAXVALUE NO CYCLE;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT 0;
 """);
     }
@@ -1006,7 +1006,7 @@ ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT 0;
         await base.Alter_column_change_type();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1022,7 +1022,7 @@ ALTER TABLE [People] ALTER COLUMN [SomeColumn] bigint NOT NULL;
         await base.Alter_column_make_required();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1040,7 +1040,7 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
         await base.Alter_column_make_required_with_null_data();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1059,7 +1059,7 @@ ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeColumn];
         await base.Alter_column_make_required_with_index();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_SomeColumn] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1080,7 +1080,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]);
         await base.Alter_column_make_required_with_composite_index();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_FirstName_LastName] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1102,7 +1102,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
         var computedColumnTypeSql = stored == true ? " PERSISTED" : "";
 
         AssertSql(
-$"""
+            $"""
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1119,7 +1119,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y]{computedColumnTypeSql};
         await base.Alter_column_change_computed();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1136,7 +1136,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] - [Y];
         await base.Alter_column_change_computed_recreates_indexes();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_Sum] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1148,7 +1148,7 @@ ALTER TABLE [People] DROP COLUMN [Sum];
 ALTER TABLE [People] ADD [Sum] AS [X] - [Y];
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_Sum] ON [People] ([Sum]);
 """);
     }
@@ -1158,7 +1158,7 @@ CREATE INDEX [IX_People_Sum] ON [People] ([Sum]);
         await base.Alter_column_change_computed_type();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1175,7 +1175,7 @@ ALTER TABLE [People] ADD [Sum] AS [X] + [Y] PERSISTED;
         await base.Alter_column_make_non_computed();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1193,7 +1193,7 @@ ALTER TABLE [People] ADD [Sum] int NOT NULL;
         await base.Alter_column_add_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -1208,7 +1208,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Alter_computed_column_add_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -1223,7 +1223,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Alter_column_change_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -1239,7 +1239,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
         await base.Alter_column_remove_comment();
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -1253,7 +1253,7 @@ EXEC sp_dropextendedproperty 'MS_Description', 'SCHEMA', @defaultSchema, 'TABLE'
         await base.Alter_column_set_collation();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1284,7 +1284,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) COLLATE German_PhoneBook_
             });
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_Name] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1303,7 +1303,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]);
         await base.Alter_column_reset_collation();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1341,7 +1341,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(max) NULL;
             });
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_SomeColumn] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1380,7 +1380,7 @@ CREATE INDEX [IX_People_SomeColumn] ON [People] ([SomeColumn]) INCLUDE ([SomeOth
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP INDEX [IX_People_Name];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1414,7 +1414,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1452,7 +1452,7 @@ ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
             });
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_FirstName_LastName] ON [People];
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
@@ -1510,7 +1510,7 @@ CREATE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1536,7 +1536,7 @@ ALTER TABLE [People] ALTER COLUMN [IdentityColumn] bigint NOT NULL;
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1563,7 +1563,7 @@ ALTER TABLE [People] ADD DEFAULT N'Doe' FOR [Name];
             });
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -1587,7 +1587,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1603,7 +1603,7 @@ ALTER TABLE [People] ALTER COLUMN [SomeProperty] nvarchar(max) SPARSE NULL;
         await base.Drop_column();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1619,11 +1619,11 @@ ALTER TABLE [People] DROP COLUMN [SomeColumn];
         await base.Drop_column_primary_key();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1639,7 +1639,7 @@ ALTER TABLE [People] DROP COLUMN [Id];
         await base.Drop_column_computed_and_non_computed_with_dependency();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1649,7 +1649,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] DROP COLUMN [Y];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1665,7 +1665,7 @@ ALTER TABLE [People] DROP COLUMN [X];
         await base.Rename_column();
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', N'COLUMN';
 """);
     }
@@ -1675,7 +1675,7 @@ EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', N'COLUMN';
         await base.Create_index();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1685,7 +1685,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
@@ -1695,7 +1695,7 @@ CREATE INDEX [IX_People_FirstName] ON [People] ([FirstName]);
         await base.Create_index_unique();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1705,7 +1705,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [LastName] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1715,7 +1715,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var1 + ']
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL;
 """);
     }
@@ -1725,7 +1725,7 @@ CREATE UNIQUE INDEX [IX_People_FirstName_LastName] ON [People] ([FirstName], [La
         await base.Create_index_descending();
 
         AssertSql(
-"""
+            """
 CREATE INDEX [IX_People_X] ON [People] ([X] DESC);
 """);
     }
@@ -1735,7 +1735,7 @@ CREATE INDEX [IX_People_X] ON [People] ([X] DESC);
         await base.Create_index_descending_mixed();
 
         AssertSql(
-"""
+            """
 CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
 """);
     }
@@ -1745,11 +1745,11 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
         await base.Alter_index_make_unique();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_X] ON [People];
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
 """);
     }
@@ -1759,11 +1759,11 @@ CREATE UNIQUE INDEX [IX_People_X] ON [People] ([X]);
         await base.Alter_index_change_sort_order();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_X_Y_Z] ON [People];
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
 """);
     }
@@ -1773,7 +1773,7 @@ CREATE INDEX [IX_People_X_Y_Z] ON [People] ([X], [Y] DESC, [Z]);
         await base.Create_index_with_filter();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1783,7 +1783,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
 """);
     }
@@ -1810,7 +1810,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL;
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1820,7 +1820,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 EXEC(N'CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL');
 """);
     }
@@ -1830,7 +1830,7 @@ EXEC(N'CREATE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
         await base.Create_unique_index_with_filter();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1840,7 +1840,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NULL AND [Name] <> '';
 """);
     }
@@ -1861,7 +1861,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) WHERE [Name] IS NOT NU
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1871,7 +1871,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
@@ -1894,7 +1894,7 @@ CREATE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1904,7 +1904,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [FirstName] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
 """);
     }
@@ -1935,7 +1935,7 @@ CREATE UNIQUE CLUSTERED INDEX [IX_People_FirstName] ON [People] ([FirstName]);
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1945,7 +1945,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
 """);
     }
@@ -1978,7 +1978,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -1988,7 +1988,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;
 """);
     }
@@ -2021,7 +2021,7 @@ CREATE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastNa
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2031,7 +2031,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]);
 """);
     }
@@ -2066,7 +2066,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2076,7 +2076,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL;
 """);
     }
@@ -2114,7 +2114,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2124,7 +2124,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (ONLINE = ON);
 """);
     }
@@ -2163,7 +2163,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2173,7 +2173,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (FILLFACTOR = 90, ONLINE = ON);
 """);
     }
@@ -2210,7 +2210,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2220,7 +2220,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WHERE [Name] IS NOT NULL WITH (FILLFACTOR = 90);
 """);
     }
@@ -2258,7 +2258,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2268,7 +2268,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
 //
-"""
+            """
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (FILLFACTOR = 75, SORT_IN_TEMPDB = ON);
 """);
     }
@@ -2277,7 +2277,9 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
     [InlineData(DataCompressionType.None, "NONE")]
     [InlineData(DataCompressionType.Row, "ROW")]
     [InlineData(DataCompressionType.Page, "PAGE")]
-    public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(DataCompressionType dataCompression, string dataCompressionSql)
+    public virtual async Task Create_index_unique_with_include_sortintempdb_and_datacompression(
+        DataCompressionType dataCompression,
+        string dataCompressionSql)
     {
         await Test(
             builder => builder.Entity(
@@ -2309,7 +2311,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2319,7 +2321,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NOT NULL;
 """,
 //
-$"""
+            $"""
 CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], [LastName]) WITH (SORT_IN_TEMPDB = ON, DATA_COMPRESSION = {dataCompressionSql});
 """);
     }
@@ -2348,7 +2350,7 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [People] ([Name]) INCLUDE ([FirstName], 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2358,7 +2360,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
@@ -2388,7 +2390,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2398,7 +2400,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
 """);
     }
@@ -2427,7 +2429,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] NONCLUSTERED ([Name]);
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);
 """);
     }
@@ -2437,7 +2439,7 @@ ALTER TABLE [People] ADD INDEX [IX_People_Name] UNIQUE NONCLUSTERED ([Name]);
         await base.Drop_index();
 
         AssertSql(
-"""
+            """
 DROP INDEX [IX_People_SomeField] ON [People];
 """);
     }
@@ -2447,7 +2449,7 @@ DROP INDEX [IX_People_SomeField] ON [People];
         await base.Rename_index();
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[People].[Foo]', N'foo', N'INDEX';
 """);
     }
@@ -2464,7 +2466,7 @@ EXEC sp_rename N'[People].[Foo]', N'foo', N'INDEX';
         await base.Add_primary_key_string();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2474,7 +2476,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]);
 """);
     }
@@ -2484,7 +2486,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]);
         await base.Add_primary_key_with_name();
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2496,7 +2498,7 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(450) NOT NULL;
 ALTER TABLE [People] ADD DEFAULT N'' FOR [SomeField];
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField]);
 """);
     }
@@ -2506,7 +2508,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField]);
         await base.Add_primary_key_composite_with_name();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField1], [SomeField2]);
 """);
     }
@@ -2527,7 +2529,7 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_Foo] PRIMARY KEY ([SomeField1], [SomeFie
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeField]);
 """);
     }
@@ -2544,11 +2546,11 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeF
         await base.Drop_primary_key_string();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2564,11 +2566,11 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;
         await base.Add_foreign_key();
 
         AssertSql(
-"""
+            """
 CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
 """,
             //
-"""
+            """
 ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE CASCADE;
 """);
     }
@@ -2583,11 +2585,11 @@ ALTER TABLE [Orders] ADD CONSTRAINT [FK_Orders_Customers_CustomerId] FOREIGN KEY
         //     @"DROP INDEX [IX_Orders_CustomerId] ON [Orders];");
 
         AssertSql(
-"""
+            """
 CREATE INDEX [IX_Orders_CustomerId] ON [Orders] ([CustomerId]);
 """,
             //
-"""
+            """
 ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENCES [Customers] ([Id]) ON DELETE CASCADE;
 """);
     }
@@ -2597,11 +2599,11 @@ ALTER TABLE [Orders] ADD CONSTRAINT [FK_Foo] FOREIGN KEY ([CustomerId]) REFERENC
         await base.Drop_foreign_key();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Orders] DROP CONSTRAINT [FK_Orders_Customers_CustomerId];
 """,
             //
-"""
+            """
 DROP INDEX [IX_Orders_CustomerId] ON [Orders];
 """);
     }
@@ -2611,7 +2613,7 @@ DROP INDEX [IX_Orders_CustomerId] ON [Orders];
         await base.Add_unique_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [AK_People_AlternateKeyColumn] UNIQUE ([AlternateKeyColumn]);
 """);
     }
@@ -2621,7 +2623,7 @@ ALTER TABLE [People] ADD CONSTRAINT [AK_People_AlternateKeyColumn] UNIQUE ([Alte
         await base.Add_unique_constraint_composite_with_name();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [AK_Foo] UNIQUE ([AlternateKeyColumn1], [AlternateKeyColumn2]);
 """);
     }
@@ -2631,7 +2633,7 @@ ALTER TABLE [People] ADD CONSTRAINT [AK_Foo] UNIQUE ([AlternateKeyColumn1], [Alt
         await base.Drop_unique_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [AK_People_AlternateKeyColumn];
 """);
     }
@@ -2641,7 +2643,7 @@ ALTER TABLE [People] DROP CONSTRAINT [AK_People_AlternateKeyColumn];
         await base.Add_check_constraint_with_name();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
 """);
     }
@@ -2665,7 +2667,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0);
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 EXEC(N'ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 0)');
 """);
     }
@@ -2675,11 +2677,11 @@ EXEC(N'ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense
         await base.Alter_check_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 1);
 """);
     }
@@ -2689,7 +2691,7 @@ ALTER TABLE [People] ADD CONSTRAINT [CK_People_Foo] CHECK ([DriverLicense] > 1);
         await base.Drop_check_constraint();
 
         AssertSql(
-"""
+            """
 ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];
 """);
     }
@@ -2699,7 +2701,7 @@ ALTER TABLE [People] DROP CONSTRAINT [CK_People_Foo];
         await base.Create_sequence();
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2716,7 +2718,7 @@ CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO
                 Assert.Equal("TestSequence", sequence.Name);
             });
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2734,7 +2736,7 @@ CREATE SEQUENCE [TestSequence] AS tinyint START WITH 1 INCREMENT BY 1 NO MINVALU
             });
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2744,7 +2746,7 @@ CREATE SEQUENCE [TestSequence] AS decimal START WITH 1 INCREMENT BY 1 NO MINVALU
         await base.Create_sequence_long();
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2754,7 +2756,7 @@ CREATE SEQUENCE [TestSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVAL
         await base.Create_sequence_short();
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2764,11 +2766,11 @@ CREATE SEQUENCE [TestSequence] AS smallint START WITH 1 INCREMENT BY 1 NO MINVAL
         await base.Create_sequence_all_settings();
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'dbo2') IS NULL EXEC(N'CREATE SCHEMA [dbo2];');
 """,
             //
-"""
+            """
 CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAXVALUE 916 CYCLE;
 """);
     }
@@ -2778,11 +2780,11 @@ CREATE SEQUENCE [dbo2].[TestSequence] START WITH 3 INCREMENT BY 2 MINVALUE 2 MAX
         await base.Alter_sequence_all_settings();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [foo] INCREMENT BY 2 MINVALUE -5 MAXVALUE 10 CYCLE;
 """,
             //
-"""
+            """
 ALTER SEQUENCE [foo] RESTART WITH -3;
 """);
     }
@@ -2792,7 +2794,7 @@ ALTER SEQUENCE [foo] RESTART WITH -3;
         await base.Alter_sequence_increment_by();
 
         AssertSql(
-"""
+            """
 ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
@@ -2810,7 +2812,7 @@ ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;
         await base.Drop_sequence();
 
         AssertSql(
-"""
+            """
 DROP SEQUENCE [TestSequence];
 """);
     }
@@ -2820,7 +2822,7 @@ DROP SEQUENCE [TestSequence];
         await base.Rename_sequence();
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[TestSequence]', N'testsequence';
 """);
     }
@@ -2830,11 +2832,11 @@ EXEC sp_rename N'[TestSequence]', N'testsequence';
         await base.Move_sequence();
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'TestSequenceSchema') IS NULL EXEC(N'CREATE SCHEMA [TestSequenceSchema];');
 """,
             //
-"""
+            """
 ALTER SCHEMA [TestSequenceSchema] TRANSFER [TestSequence];
 """);
     }
@@ -2853,7 +2855,7 @@ ALTER SCHEMA [TestSequenceSchema] TRANSFER [TestSequence];
             });
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema sysname = SCHEMA_NAME();
 EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestSequenceSchema].[TestSequence];');
 """);
@@ -2877,11 +2879,11 @@ EXEC(N'ALTER SCHEMA [' + @defaultSchema + N'] TRANSFER [TestSequenceSchema].[Tes
             });
 
         AssertSql(
-"""
+            """
 CREATE SEQUENCE [TestSequence] AS int START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
 """,
             //
-"""
+            """
 ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequence);
 """);
     }
@@ -2900,7 +2902,7 @@ ALTER TABLE [People] ADD [SeqProp] int NOT NULL DEFAULT (NEXT VALUE FOR TestSequ
             model => Assert.Empty(model.Sequences));
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -2910,7 +2912,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [People] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [People] DROP COLUMN [SeqProp];
 """,
             //
-"""
+            """
 DROP SEQUENCE [TestSequence];
 """);
     }
@@ -2920,7 +2922,7 @@ DROP SEQUENCE [TestSequence];
         await base.InsertDataOperation();
 
         AssertSql(
-"""
+            """
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name') AND [object_id] = OBJECT_ID(N'[Person]'))
     SET IDENTITY_INSERT [Person] ON;
 INSERT INTO [Person] ([Id], [Name])
@@ -2940,7 +2942,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name
 
         // TODO remove rowcount
         AssertSql(
-"""
+            """
 DELETE FROM [Person]
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;
@@ -2953,7 +2955,7 @@ SELECT @@ROWCOUNT;
 
         // TODO remove rowcount
         AssertSql(
-"""
+            """
 DELETE FROM [Person]
 WHERE [AnotherId] = 12 AND [Id] = 2;
 SELECT @@ROWCOUNT;
@@ -2966,7 +2968,7 @@ SELECT @@ROWCOUNT;
 
         // TODO remove rowcount
         AssertSql(
-"""
+            """
 UPDATE [Person] SET [Name] = N'Another John Snow'
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;
@@ -2979,7 +2981,7 @@ SELECT @@ROWCOUNT;
 
         // TODO remove rowcount
         AssertSql(
-"""
+            """
 UPDATE [Person] SET [Name] = N'Another John Snow'
 WHERE [AnotherId] = 11 AND [Id] = 2;
 SELECT @@ROWCOUNT;
@@ -2992,7 +2994,7 @@ SELECT @@ROWCOUNT;
 
         // TODO remove rowcount
         AssertSql(
-"""
+            """
 UPDATE [Person] SET [Age] = 21, [Name] = N'Another John Snow'
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT;
@@ -3022,7 +3024,7 @@ SELECT @@ROWCOUNT;
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name') AND [object_id] = OBJECT_ID(N'[Person]'))
     SET IDENTITY_INSERT [Person] ON;
 EXEC(N'INSERT INTO [Person] ([Id], [Name])
@@ -3054,7 +3056,7 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'Id', N'Name
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 EXEC(N'DELETE FROM [Person]
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT');
@@ -3079,7 +3081,7 @@ SELECT @@ROWCOUNT');
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 EXEC(N'UPDATE [Person] SET [Name] = N''Another John Snow''
 WHERE [Id] = 2;
 SELECT @@ROWCOUNT');
@@ -3127,7 +3129,7 @@ SELECT @@ROWCOUNT');
             });
 
         AssertSql(
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
@@ -3181,7 +3183,7 @@ EXEC(N'CREATE TABLE [Customer] (
             });
 
         AssertSql(
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
@@ -3236,7 +3238,7 @@ EXEC(N'CREATE TABLE [Customer] (
             });
 
         AssertSql(
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
@@ -3291,11 +3293,11 @@ EXEC(N'CREATE TABLE [Customer] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3353,11 +3355,11 @@ CREATE TABLE [mySchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3415,11 +3417,11 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3478,11 +3480,11 @@ CREATE TABLE [mySchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3544,11 +3546,11 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3612,15 +3614,15 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'myHistorySchema') IS NULL EXEC(N'CREATE SCHEMA [myHistorySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3681,11 +3683,11 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3745,11 +3747,11 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3808,15 +3810,15 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myDefaultSchema];');
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [myDefaultSchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3874,11 +3876,11 @@ CREATE TABLE [myDefaultSchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'historySchema') IS NULL EXEC(N'CREATE SCHEMA [historySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -3918,15 +3920,15 @@ CREATE TABLE [Customers] (
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DROP TABLE [Customer];
 """,
             //
-"""
+            """
 DROP TABLE [CustomerHistory];
 """);
     }
@@ -3960,15 +3962,15 @@ DROP TABLE [CustomerHistory];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DROP TABLE [Customer];
 """,
             //
-"""
+            """
 DROP TABLE [HistoryTable];
 """);
     }
@@ -4002,15 +4004,15 @@ DROP TABLE [HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DROP TABLE [Customer];
 """,
             //
-"""
+            """
 DROP TABLE [historySchema].[HistoryTable];
 """);
     }
@@ -4066,23 +4068,23 @@ DROP TABLE [historySchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers]', N'RenamedCustomers';
 """,
             //
-"""
+            """
 ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY ([Id]);
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -4144,27 +4146,27 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers]', N'RenamedCustomers';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[RenamedCustomers].[DoB]', N'DateOfBirth', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[DoB]', N'DateOfBirth', N'COLUMN';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -4172,7 +4174,7 @@ SET @description = N'for VIP only';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'RenamedCustomers', 'COLUMN', N'Discount';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -4180,11 +4182,11 @@ SET @description = N'for VIP only';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'HistoryTable', 'COLUMN', N'Discount';
 """,
             //
-"""
+            """
 ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY ([Id]);
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -4241,23 +4243,23 @@ EXEC(N'ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers]', N'RenamedCustomers';
 """,
             //
-"""
+            """
 ALTER TABLE [RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY ([Id]);
 """,
             //
-"""
+            """
 ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [historySchema].[HistoryTable]))
 """);
     }
@@ -4310,23 +4312,23 @@ ALTER TABLE [RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [his
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[Customers];
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[HistoryTable];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[HistoryTable]))
 """);
     }
@@ -4380,19 +4382,19 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[Customers];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistorySchema].[HistoryTable]))
 """);
     }
@@ -4455,24 +4457,24 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[mySchema].[HistoryTable]', N'HistoryTable2';
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[HistoryTable2];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[HistoryTable2]))
 """);
     }
@@ -4538,24 +4540,24 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [defaultSchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [defaultSchema].[Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[defaultSchema].[HistoryTable]', N'HistoryTable2';
 ALTER SCHEMA [mySchema2] TRANSFER [defaultSchema].[HistoryTable2];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[HistoryTable2]))
 """);
     }
@@ -4623,24 +4625,24 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [modifiedSchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [modifiedSchema].[Customers];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[modifiedSchema].[HistoryTable]', N'HistoryTable2';
 ALTER SCHEMA [mySchema2] TRANSFER [modifiedSchema].[HistoryTable2];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[HistoryTable2]))
 """);
     }
@@ -4706,23 +4708,23 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[Customers];
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[CustomersHistory];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[CustomersHistory]))
 """);
     }
@@ -4783,7 +4785,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable';
 """);
     }
@@ -4845,11 +4847,11 @@ EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable';
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'modifiedHistorySchema') IS NULL EXEC(N'CREATE SCHEMA [modifiedHistorySchema];');
 """,
             //
-"""
+            """
 ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
 """);
     }
@@ -4914,37 +4916,37 @@ ALTER SCHEMA [modifiedHistorySchema] TRANSFER [historySchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'newSchema') IS NULL EXEC(N'CREATE SCHEMA [newSchema];');
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers]', N'RenamedCustomers';
 ALTER SCHEMA [newSchema] TRANSFER [RenamedCustomers];
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'newHistorySchema') IS NULL EXEC(N'CREATE SCHEMA [newHistorySchema];');
 """,
             //
-"""
+            """
 EXEC sp_rename N'[historySchema].[HistoryTable]', N'RenamedHistoryTable';
 ALTER SCHEMA [newHistorySchema] TRANSFER [historySchema].[RenamedHistoryTable];
 """,
             //
-"""
+            """
 ALTER TABLE [newSchema].[RenamedCustomers] ADD CONSTRAINT [PK_RenamedCustomers] PRIMARY KEY ([Id]);
 """,
             //
-"""
+            """
 ALTER TABLE [newSchema].[RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [newHistorySchema].[RenamedHistoryTable]))
 """);
     }
@@ -4997,11 +4999,11 @@ ALTER TABLE [newSchema].[RenamedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5011,7 +5013,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5021,7 +5023,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5031,7 +5033,7 @@ IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5041,7 +5043,7 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -5095,11 +5097,11 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5109,7 +5111,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5119,7 +5121,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CO
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5129,7 +5131,7 @@ IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var2 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5139,7 +5141,7 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CO
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistorySchema].[HistoryTable]))
 """);
     }
@@ -5192,11 +5194,11 @@ ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistoryS
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5206,7 +5208,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5216,7 +5218,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAIN
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5226,7 +5228,7 @@ IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5236,7 +5238,7 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAIN
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[HistoryTable]))
 """);
     }
@@ -5293,11 +5295,11 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5307,7 +5309,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5317,7 +5319,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAIN
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5327,7 +5329,7 @@ IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5337,7 +5339,7 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[HistoryTable] DROP CONSTRAIN
 ALTER TABLE [mySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[HistoryTable]))
 """);
     }
@@ -5394,11 +5396,11 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5408,7 +5410,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5418,7 +5420,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CO
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Name];
 """,
             //
-"""
+            """
 DECLARE @var2 sysname;
 SELECT @var2 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5428,7 +5430,7 @@ IF @var2 IS NOT NULL EXEC(N'ALTER TABLE [mySchema].[Customers] DROP CONSTRAINT [
 ALTER TABLE [mySchema].[Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var3 sysname;
 SELECT @var3 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5438,7 +5440,7 @@ IF @var3 IS NOT NULL EXEC(N'ALTER TABLE [myHistorySchema].[HistoryTable] DROP CO
 ALTER TABLE [myHistorySchema].[HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myHistorySchema].[HistoryTable]))
 """);
     }
@@ -5491,11 +5493,11 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [Name] nvarchar(max) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
@@ -5551,15 +5553,15 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DROP TABLE [HistoryTable];
 """);
     }
@@ -5609,15 +5611,15 @@ DROP TABLE [HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5627,7 +5629,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + 
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5637,7 +5639,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + 
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
             //
-"""
+            """
 DROP TABLE [CustomerHistory];
 """);
     }
@@ -5688,15 +5690,15 @@ DROP TABLE [CustomerHistory];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5706,7 +5708,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + 
 ALTER TABLE [Customer] DROP COLUMN [PeriodEnd];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -5716,7 +5718,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var1 + 
 ALTER TABLE [Customer] DROP COLUMN [PeriodStart];
 """,
             //
-"""
+            """
 DROP TABLE [HistoryTable];
 """);
     }
@@ -5771,15 +5773,15 @@ DROP TABLE [HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DROP TABLE [historySchema].[HistoryTable];
 """);
     }
@@ -5835,15 +5837,15 @@ DROP TABLE [historySchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [mySchema].[Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [mySchema].[Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DROP TABLE [mySchema].[HistoryTable];
 """);
     }
@@ -5900,15 +5902,15 @@ DROP TABLE [mySchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [myDefaultSchema].[Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [myDefaultSchema].[Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DROP TABLE [myDefaultSchema].[HistoryTable];
 """);
     }
@@ -5965,15 +5967,15 @@ DROP TABLE [myDefaultSchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [myDefaultSchema].[Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [myDefaultSchema].[Customer] DROP PERIOD FOR SYSTEM_TIME
 """,
             //
-"""
+            """
 DROP TABLE [mySchema].[HistoryTable];
 """);
     }
@@ -6019,27 +6021,27 @@ DROP TABLE [mySchema].[HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD [PeriodEnd] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
 """);
@@ -6087,27 +6089,27 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             migrationsSqlGenerationOptions: MigrationsSqlGenerationOptions.Idempotent);
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD [PeriodEnd] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [PeriodStart] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 EXEC(N'ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([PeriodStart], [PeriodEnd])')
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [PeriodStart] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [PeriodEnd] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
 """);
@@ -6161,19 +6163,19 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
 """);
@@ -6230,19 +6232,19 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -6295,27 +6297,27 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[CustomerHistory]))')
 """);
@@ -6370,27 +6372,27 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -6455,11 +6457,11 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
 """);
     }
@@ -6520,11 +6522,11 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
 """);
     }
@@ -6571,7 +6573,7 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -6630,7 +6632,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customer].[Name]', N'FullName', N'COLUMN';
 """);
     }
@@ -6677,7 +6679,7 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
@@ -6746,7 +6748,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -6761,31 +6763,31 @@ SET @description = N'Column comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Customer', 'COLUMN', N'Name';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 CREATE INDEX [IX_Customer_Name] ON [Customer] ([Name]);
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [Start] ADD HIDDEN
 """,
             //
-"""
+            """
 ALTER TABLE [Customer] ALTER COLUMN [End] ADD HIDDEN
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -6843,7 +6845,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -6852,7 +6854,7 @@ SET @description = N'Modified table comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Customer';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -6913,7 +6915,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -6923,11 +6925,11 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_Customers_Name] ON [Customers] ([Name]);
 """,
             //
-"""
+            """
 CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
 """);
     }
@@ -6985,7 +6987,7 @@ CREATE UNIQUE INDEX [IX_Customers_Number] ON [Customers] ([Number]);
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -6995,11 +6997,11 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] ALTER COLUMN [Name] nvarchar(450) NULL;
 """,
             //
-"""
+            """
 CREATE INDEX [IX_Customers_End_Name] ON [Customers] ([End], [Name]);
 """,
             //
-"""
+            """
 CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);
 """);
     }
@@ -7038,15 +7040,15 @@ CREATE INDEX [IX_Customers_Start] ON [Customers] ([Start]);
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -7109,11 +7111,11 @@ CREATE TABLE [mySchema].[Customers] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -7124,7 +7126,7 @@ CREATE TABLE [mySchema].[Customers] (
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema].[CustomersHistory]));
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -7189,15 +7191,15 @@ CREATE TABLE [mySchema].[Orders] (
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 IF SCHEMA_ID(N'mySchema2') IS NULL EXEC(N'CREATE SCHEMA [mySchema2];');
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Customers] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -7208,7 +7210,7 @@ CREATE TABLE [mySchema].[Customers] (
 ) WITH (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [mySchema2].[CustomersHistoryTable]));
 """,
             //
-"""
+            """
 CREATE TABLE [mySchema].[Orders] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -7318,11 +7320,11 @@ CREATE TABLE [mySchema].[Orders] (
 
         // TODO: we could avoid creating the schema if we peek into the model
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'mySchema') IS NULL EXEC(N'CREATE SCHEMA [mySchema];');
 """,
             //
-"""
+            """
 ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
 """);
     }
@@ -7394,23 +7396,23 @@ ALTER SCHEMA [mySchema] TRANSFER [mySchema2].[OrdersHistoryTable];
             });
 
         AssertSql(
-"""
+            """
 IF SCHEMA_ID(N'myModifiedDefaultSchema') IS NULL EXEC(N'CREATE SCHEMA [myModifiedDefaultSchema];');
 """,
             //
-"""
+            """
 ALTER TABLE [myDefaultSchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER SCHEMA [myModifiedDefaultSchema] TRANSFER [myDefaultSchema].[Customers];
 """,
             //
-"""
+            """
 ALTER SCHEMA [myModifiedDefaultSchema] TRANSFER [myDefaultSchema].[CustomersHistory];
 """,
             //
-"""
+            """
 ALTER TABLE [myModifiedDefaultSchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [myModifiedDefaultSchema].[CustomersHistory]))
 """);
     }
@@ -7469,11 +7471,11 @@ ALTER TABLE [myModifiedDefaultSchema].[Customers] SET (SYSTEM_VERSIONING = ON (H
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7483,7 +7485,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7493,23 +7495,23 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers].[Dob]', N'DateOfBirth', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[Dob]', N'DateOfBirth', N'COLUMN';
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7577,15 +7579,15 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7595,7 +7597,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7605,23 +7607,23 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers]', N'ModifiedCustomers';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[ModifiedCustomers].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 ALTER TABLE [ModifiedCustomers] ADD CONSTRAINT [PK_ModifiedCustomers] PRIMARY KEY ([Id]);
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7689,11 +7691,11 @@ EXEC(N'ALTER TABLE [ModifiedCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABL
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7703,7 +7705,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7713,19 +7715,19 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable]', N'ModifiedHistoryTable';
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[ModifiedHistoryTable]))')
 """);
@@ -7784,11 +7786,11 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7798,7 +7800,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7808,15 +7810,15 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 ALTER TABLE [Customers] ADD [DateOfBirth] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 ALTER TABLE [HistoryTable] ADD [DateOfBirth] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7876,11 +7878,11 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7890,7 +7892,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7900,7 +7902,7 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -7908,7 +7910,7 @@ SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Customers', 'COLUMN', N'Name';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -7916,7 +7918,7 @@ SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'HistoryTable', 'COLUMN', N'Name';
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -7979,11 +7981,11 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', N'COLUMN';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -8050,11 +8052,11 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8064,7 +8066,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 +
 ALTER TABLE [Customers] DROP COLUMN [DateOfBirth];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8074,15 +8076,15 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var
 ALTER TABLE [HistoryTable] DROP COLUMN [DateOfBirth];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[HistoryTable].[Start]', N'ModifiedStart', N'COLUMN';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -8090,7 +8092,7 @@ SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'Customers', 'COLUMN', N'End';
 """,
             //
-"""
+            """
 DECLARE @defaultSchema AS sysname;
 SET @defaultSchema = SCHEMA_NAME();
 DECLARE @description AS sql_variant;
@@ -8098,7 +8100,7 @@ SET @description = N'My comment';
 EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSchema, 'TABLE', N'HistoryTable', 'COLUMN', N'End';
 """,
             //
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -8193,7 +8195,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Entity] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -8278,7 +8280,7 @@ CREATE TABLE [Entity] (
             });
 
         AssertSql(
-"""
+            """
 CREATE TABLE [Entity] (
     [Id] int NOT NULL IDENTITY,
     [Name] nvarchar(max) NULL,
@@ -8385,15 +8387,15 @@ CREATE TABLE [Entity] (
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT N'';
 """);
     }
@@ -8467,7 +8469,7 @@ ALTER TABLE [Entity] ADD [OwnedRequiredReference] nvarchar(max) NOT NULL DEFAULT
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8477,7 +8479,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8605,11 +8607,11 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Entity].[json_reference]', N'new_json_reference', N'COLUMN';
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', N'COLUMN';
 """);
     }
@@ -8733,15 +8735,15 @@ EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Entities] DROP CONSTRAINT [PK_Entities];
 """,
             //
-"""
+            """
 EXEC sp_rename N'[Entities]', N'NewEntities';
 """,
             //
-"""
+            """
 ALTER TABLE [NewEntities] ADD CONSTRAINT [PK_NewEntities] PRIMARY KEY ([Id]);
 """);
     }
@@ -8861,19 +8863,19 @@ ALTER TABLE [NewEntities] ADD CONSTRAINT [PK_NewEntities] PRIMARY KEY ([Id]);
             });
 
         AssertSql(
-"""
+            """
 DROP TABLE [Entity_NestedCollection];
 """,
             //
-"""
+            """
 DROP TABLE [Entity_OwnedCollection_NestedCollection2];
 """,
             //
-"""
+            """
 DROP TABLE [Entity_OwnedCollection];
 """,
             //
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8883,7 +8885,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_Date];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -8893,11 +8895,11 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var1 + ']
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference_NestedReference_Number];
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedCollection] nvarchar(max) NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
 """);
     }
@@ -8998,7 +9000,7 @@ ALTER TABLE [Entity] ADD [OwnedReference] nvarchar(max) NULL;
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -9008,7 +9010,7 @@ IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var0 + ']
 ALTER TABLE [Entity] DROP COLUMN [OwnedCollection];
 """,
             //
-"""
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -9018,15 +9020,15 @@ IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Entity] DROP CONSTRAINT [' + @var1 + ']
 ALTER TABLE [Entity] DROP COLUMN [OwnedReference];
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedReference_Date] datetime2 NULL;
 """,
             //
-"""
+            """
 ALTER TABLE [Entity] ADD [OwnedReference_NestedReference_Number] int NULL;
 """,
             //
-"""
+            """
 CREATE TABLE [Entity_NestedCollection] (
     [OwnedEntityId] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
@@ -9036,7 +9038,7 @@ CREATE TABLE [Entity_NestedCollection] (
 );
 """,
 //
-"""
+            """
 CREATE TABLE [Entity_OwnedCollection] (
     [EntityId] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
@@ -9047,7 +9049,7 @@ CREATE TABLE [Entity_OwnedCollection] (
 );
 """,
             //
-"""
+            """
 CREATE TABLE [Entity_OwnedCollection_NestedCollection2] (
     [Owned2EntityId] int NOT NULL,
     [Owned2Id] int NOT NULL,
@@ -9163,7 +9165,7 @@ CREATE TABLE [Entity_OwnedCollection_NestedCollection2] (
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]

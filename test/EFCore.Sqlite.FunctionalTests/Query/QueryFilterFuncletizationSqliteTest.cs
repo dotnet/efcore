@@ -20,7 +20,7 @@ public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTest
         base.Using_multiple_entities_with_filters_reuses_parameters();
 
         AssertSql(
-"""
+            """
 @__ef_filter__Tenant_0='1'
 
 SELECT "d"."Id", "d"."Tenant", "t"."Id", "t"."DeDupeFilter1Id", "t"."TenantX", "t0"."Id", "t0"."DeDupeFilter1Id", "t0"."Tenant"

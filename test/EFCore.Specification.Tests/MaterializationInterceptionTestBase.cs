@@ -226,7 +226,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 {
                     Id = _id++,
                     Name = "TestIssue",
-                    Settings = { new("Value1", "1"), new("Value2", "9") }
+                    Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 
             _ = async
@@ -315,7 +315,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 {
                     Id = _id++,
                     Name = "TestIssue",
-                    Settings = { new("Value1", "1"), new("Value2", "9") }
+                    Settings = { new KeyValueSetting30244("Value1", "1"), new KeyValueSetting30244("Value2", "9") }
                 });
 
             _ = async
@@ -325,9 +325,9 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             context.ChangeTracker.Clear();
 
             var query = context.Set<TestEntity30244>()
-                    .AsNoTracking()
-                    .OrderBy(e => e.Id)
-                    .Select(x => x.Settings.Where(s => s.Key != "Foo").ToList());
+                .AsNoTracking()
+                .OrderBy(e => e.Id)
+                .Select(x => x.Settings.Where(s => s.Key != "Foo").ToList());
 
             var collection = async
                 ? await query.FirstOrDefaultAsync()

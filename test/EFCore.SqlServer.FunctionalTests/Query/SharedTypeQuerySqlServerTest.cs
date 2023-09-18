@@ -13,7 +13,7 @@ public class SharedTypeQuerySqlServerTest : SharedTypeQueryRelationalTestBase
         await base.Can_use_shared_type_entity_type_in_query_filter(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Value]
 FROM [ViewQuery24601] AS [v]
 WHERE EXISTS (
@@ -28,7 +28,7 @@ WHERE EXISTS (
         await base.Can_use_shared_type_entity_type_in_query_filter_with_from_sql(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Value]
 FROM [ViewQuery24601] AS [v]
 WHERE EXISTS (

@@ -6,7 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerHierarchyIdApiConsistencyTest : ApiConsistencyTestBase<SqlServerHierarchyIdApiConsistencyTest.SqlServerHierarchyIdApiConsistencyFixture>
+public class SqlServerHierarchyIdApiConsistencyTest : ApiConsistencyTestBase<
+    SqlServerHierarchyIdApiConsistencyTest.SqlServerHierarchyIdApiConsistencyFixture>
 {
     public SqlServerHierarchyIdApiConsistencyTest(SqlServerHierarchyIdApiConsistencyFixture fixture)
         : base(fixture)
@@ -23,8 +24,7 @@ public class SqlServerHierarchyIdApiConsistencyTest : ApiConsistencyTestBase<Sql
     {
         public override HashSet<Type> FluentApiTypes { get; } = new()
         {
-            typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions),
-            typeof(SqlServerHierarchyIdServiceCollectionExtensions)
+            typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions), typeof(SqlServerHierarchyIdServiceCollectionExtensions)
         };
     }
 }

@@ -323,7 +323,8 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     return sqlUnaryExpression;
                 }
-                else if (sqlUnaryExpression.Operand.Type.IsInteger()
+
+                if (sqlUnaryExpression.Operand.Type.IsInteger()
                     && sqlUnaryExpression.Type == typeof(char))
                 {
                     Sql.Append("char(");
@@ -332,6 +333,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
                     return sqlUnaryExpression;
                 }
+
                 goto default;
 
             case ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool):
@@ -345,6 +347,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                         GenerateRegexp(regexpExpression, negated: true);
                         return sqlUnaryExpression;
                 }
+
                 goto default;
 
             default:

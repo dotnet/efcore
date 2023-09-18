@@ -817,7 +817,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         using var context = CreateContext();
         var result = context.Set<Entity>().GroupBy(e => e.SomeEnum).ToList();
 
-        Assert.Collection(result,
+        Assert.Collection(
+            result,
             t =>
             {
                 Assert.Equal(SomeEnum.No, t.Key);
@@ -835,6 +836,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         public int Id { get; set; }
         public SomeEnum SomeEnum { get; set; }
     }
+
     public enum SomeEnum
     {
         Yes,
@@ -845,8 +847,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     public virtual void Infer_type_mapping_from_in_subquery_to_item()
     {
         using var context = CreateContext();
-        var results = context.Set<BuiltInDataTypes>().Where(b =>
-            context.Set<BuiltInDataTypes>().Select(bb => bb.TestBoolean).Contains(true) && b.Id == 13).ToList();
+        var results = context.Set<BuiltInDataTypes>().Where(
+            b =>
+                context.Set<BuiltInDataTypes>().Select(bb => bb.TestBoolean).Contains(true) && b.Id == 13).ToList();
 
         Assert.Equal(1, results.Count);
     }
@@ -885,14 +888,14 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                 {
                     b.HasMany(e => e.Dependents).WithOne(e => e.Principal).HasForeignKey(e => e.PrincipalId);
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.Id).HasConversion<int>(v => v ?? 0, v => v);
+                    b.Property(e => e.Id).HasConversion(v => v ?? 0, v => v);
                 });
 
             modelBuilder.Entity<NonNullableDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).ValueGeneratedNever();
-                    b.Property(e => e.PrincipalId).HasConversion<int>(v => v, v => v);
+                    b.Property(e => e.PrincipalId).HasConversion(v => v, v => v);
                 });
 
             modelBuilder.Entity<User>(
@@ -1441,8 +1444,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     list.Add(
                         new Layout
                         {
-                            Height = int.Parse(parts[0]),
-                            Width = int.Parse(parts[1]),
+                            Height = int.Parse(parts[0]), Width = int.Parse(parts[1]),
                         });
                 }
 

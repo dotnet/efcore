@@ -80,7 +80,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <param name="type">The entity type for which materialization was requested.</param>
     /// <param name="discriminatorValue">The expression containing value of discriminator.</param>
     /// <returns>
-    /// An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.
+    ///     An expression of <see cref="Func{ValueBuffer, IEntityType}" /> representing materilization condition for the entity type.
     /// </returns>
     protected static Expression CreateUnableToDiscriminateExceptionExpression(ITypeBase type, Expression discriminatorValue)
         => Block(

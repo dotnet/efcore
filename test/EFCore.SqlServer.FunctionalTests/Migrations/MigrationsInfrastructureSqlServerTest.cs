@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -44,7 +44,7 @@ GO
             base.Can_generate_no_migration_script();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -66,7 +66,7 @@ GO
             base.Can_generate_up_scripts();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -134,7 +134,7 @@ GO
             base.Can_generate_up_scripts_noTransactions();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -184,7 +184,7 @@ GO
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 
@@ -209,7 +209,7 @@ GO
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 
@@ -234,7 +234,7 @@ GO
             base.Can_generate_idempotent_up_scripts();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -344,7 +344,7 @@ GO
             base.Can_generate_idempotent_up_scripts_noTransactions();
 
             Assert.Equal(
-"""
+                """
 IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
 BEGIN
     CREATE TABLE [__EFMigrationsHistory] (
@@ -436,7 +436,7 @@ GO
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 
@@ -474,7 +474,7 @@ GO
             base.Can_generate_idempotent_down_scripts();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 
@@ -536,7 +536,7 @@ GO
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 
@@ -561,7 +561,7 @@ GO
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 GO
 

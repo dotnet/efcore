@@ -19,7 +19,8 @@ public static partial class EF
     internal static readonly MethodInfo PropertyMethod
         = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "EF.Property has no DynamicallyAccessedMembers annotations and is safe to construct.")]
     internal static MethodInfo MakePropertyMethod(Type type)
         => PropertyMethod.MakeGenericMethod(type);

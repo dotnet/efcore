@@ -54,6 +54,7 @@ public class GuidValueGeneratorEndToEndTest
                 .UseInMemoryDatabase(nameof(BronieContext))
                 .UseInternalServiceProvider(_serviceProvider);
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
     }
 

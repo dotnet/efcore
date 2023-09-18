@@ -192,7 +192,7 @@ public class InExpression : SqlExpression
 
                 break;
 
-            case { ValuesParameter: not null}:
+            case { ValuesParameter: not null }:
                 expressionPrinter.Visit(ValuesParameter);
                 break;
 

@@ -1892,8 +1892,8 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.Reference.TestGuidCollection = new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") };
-                entity.Collection[0].TestGuidCollection = new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") };
+                entity.Reference.TestGuidCollection = new List<Guid> { new("12345678-1234-4321-5555-987654321000") };
+                entity.Collection[0].TestGuidCollection = new List<Guid> { new("12345678-1234-4321-5555-987654321000") };
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -1901,8 +1901,8 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") }, result.Reference.TestGuidCollection);
-                Assert.Equal(new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") }, result.Collection[0].TestGuidCollection);
+                Assert.Equal(new List<Guid> { new("12345678-1234-4321-5555-987654321000") }, result.Reference.TestGuidCollection);
+                Assert.Equal(new List<Guid> { new("12345678-1234-4321-5555-987654321000") }, result.Collection[0].TestGuidCollection);
 
                 Assert.False(result.Reference.NewCollectionSet);
                 Assert.False(result.Collection[0].NewCollectionSet);
@@ -2632,7 +2632,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var query = await context.JsonEntitiesAllTypes.ToListAsync();
                 var entity = query.Single(x => x.Id == 1);
-                entity.TestGuidCollection = new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") };
+                entity.TestGuidCollection = new List<Guid> { new("12345678-1234-4321-5555-987654321000") };
 
                 ClearLog();
                 await context.SaveChangesAsync();
@@ -2640,7 +2640,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
             async context =>
             {
                 var result = await context.Set<JsonEntityAllTypes>().SingleAsync(x => x.Id == 1);
-                Assert.Equal(new List<Guid> { new Guid("12345678-1234-4321-5555-987654321000") }, result.TestGuidCollection);
+                Assert.Equal(new List<Guid> { new("12345678-1234-4321-5555-987654321000") }, result.TestGuidCollection);
 
                 Assert.False(result.NewCollectionSet);
             });

@@ -37,8 +37,7 @@ public class OperatorsData : ISetSource
 
     private readonly List<Expression<Func<bool>>> _boolValues = new()
     {
-        () => true,
-        () => false,
+        () => true, () => false,
     };
 
     private readonly List<Expression<Func<bool?>>> _nullableBoolValues = new()
@@ -74,7 +73,7 @@ public class OperatorsData : ISetSource
         OperatorEntitiesNullableBool = CreateNullableBools();
         OperatorEntitiesDateTimeOffset = CreateDateTimeOffsets();
 
-        ConstantExpressionsPerType = new Dictionary<Type, List<Expression>>()
+        ConstantExpressionsPerType = new Dictionary<Type, List<Expression>>
         {
             { typeof(string), _stringValues.Select(x => x.Body).ToList() },
             { typeof(int), _intValues.Select(x => x.Body).ToList() },
@@ -134,7 +133,8 @@ public class OperatorsData : ISetSource
         => _intValues.Select((x, i) => new OperatorEntityInt { Id = i + 1, Value = _intValues[i].Compile()() }).ToList();
 
     public IReadOnlyList<OperatorEntityNullableInt> CreateNullableInts()
-        => _nullableIntValues.Select((x, i) => new OperatorEntityNullableInt { Id = i + 1, Value = _nullableIntValues[i].Compile()() }).ToList();
+        => _nullableIntValues.Select((x, i) => new OperatorEntityNullableInt { Id = i + 1, Value = _nullableIntValues[i].Compile()() })
+            .ToList();
 
     public IReadOnlyList<OperatorEntityLong> CreateLongs()
         => _longValues.Select((x, i) => new OperatorEntityLong { Id = i + 1, Value = _longValues[i].Compile()() }).ToList();
@@ -143,8 +143,10 @@ public class OperatorsData : ISetSource
         => _boolValues.Select((x, i) => new OperatorEntityBool { Id = i + 1, Value = _boolValues[i].Compile()() }).ToList();
 
     public IReadOnlyList<OperatorEntityNullableBool> CreateNullableBools()
-        => _nullableBoolValues.Select((x, i) => new OperatorEntityNullableBool { Id = i + 1, Value = _nullableBoolValues[i].Compile()() }).ToList();
+        => _nullableBoolValues.Select((x, i) => new OperatorEntityNullableBool { Id = i + 1, Value = _nullableBoolValues[i].Compile()() })
+            .ToList();
 
     public IReadOnlyList<OperatorEntityDateTimeOffset> CreateDateTimeOffsets()
-        => _dateTimeOffsetValues.Select((x, i) => new OperatorEntityDateTimeOffset { Id = i + 1, Value = _dateTimeOffsetValues[i].Compile()() }).ToList();
+        => _dateTimeOffsetValues
+            .Select((x, i) => new OperatorEntityDateTimeOffset { Id = i + 1, Value = _dateTimeOffsetValues[i].Compile()() }).ToList();
 }

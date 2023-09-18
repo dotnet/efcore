@@ -53,10 +53,7 @@ public class ReaderModificationCommandBatchTest
                     false, true, false, false, true)
             });
 
-        var batch = new ModificationCommandBatchFake
-        {
-            ShouldBeValid = true
-        };
+        var batch = new ModificationCommandBatchFake { ShouldBeValid = true };
         Assert.True(batch.TryAddCommand(command1));
         Assert.True(batch.TryAddCommand(command2));
         batch.Complete(moreBatchesExpected: false);

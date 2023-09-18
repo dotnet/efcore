@@ -20,7 +20,7 @@ public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTe
         await base.Count_query(async);
 
         AssertSql(
-"""
+            """
 @__ef_filter__TenantPrefix_0_rewritten='B%' (Size = 2)
 
 SELECT COUNT(*)

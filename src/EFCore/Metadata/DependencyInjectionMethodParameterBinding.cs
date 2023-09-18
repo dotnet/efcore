@@ -85,7 +85,10 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
         => materializationContext.Context.GetDependencies().StateManager.GetOrCreateEntry(entity)[property];
 
     private static object CreateService(
-        MaterializationContext materializationContext, Type serviceType, IEntityType entityType, object entity)
+        MaterializationContext materializationContext,
+        Type serviceType,
+        IEntityType entityType,
+        object entity)
     {
         var service = materializationContext.Context.GetService(serviceType);
 

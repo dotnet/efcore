@@ -58,7 +58,6 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
                 () => context.Database.SqlQueryRaw<Dictionary<string, object>>(@"SELECT * FROM X")).Message);
     }
 
-
     protected class MyContextRelational24601 : MyContext24601
     {
         public MyContextRelational24601(DbContextOptions options)

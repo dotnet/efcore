@@ -913,11 +913,11 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Concat_with_pruning(bool async)
-           => AssertQuery(
-               async,
-               ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
-                   .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")))
-                   .Select(x => x.City));
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")))
+                .Select(x => x.City));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

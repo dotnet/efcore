@@ -188,8 +188,8 @@ public class ValueComparer
         var sourceParameter = Expression.Parameter(typeof(T), "source");
         return Expression.Lambda<Func<T, T>>(
             Expression.Call(
-                    EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
-                    sourceParameter),
+                EnumerableMethods.ToArray.MakeGenericMethod(typeof(T).GetElementType()!),
+                sourceParameter),
             sourceParameter);
     }
 

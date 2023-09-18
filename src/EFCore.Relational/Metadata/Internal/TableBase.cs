@@ -169,7 +169,8 @@ public class TableBase : Annotatable, ITableBase
         var principalEntityType = foreignKey.PrincipalEntityType;
         if (ReferencingRowInternalForeignKeys == null)
         {
-            ReferencingRowInternalForeignKeys = new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
+            ReferencingRowInternalForeignKeys =
+                new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
             IsShared = true;
         }
 

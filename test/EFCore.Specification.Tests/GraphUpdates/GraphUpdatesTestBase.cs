@@ -556,10 +556,21 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                 });
 
             modelBuilder.Entity<Beetroot2>().HasData(
-                new { Id = 1, Key = "root-1", Name = "Root One" });
+                new
+                {
+                    Id = 1,
+                    Key = "root-1",
+                    Name = "Root One"
+                });
 
             modelBuilder.Entity<Lettuce2>().HasData(
-                new { Id = 4, Key = "root-1/leaf-1", Name = "Leaf One-One", RootId = 1 });
+                new
+                {
+                    Id = 4,
+                    Key = "root-1/leaf-1",
+                    Name = "Leaf One-One",
+                    RootId = 1
+                });
 
             modelBuilder.Entity<Radish2>()
                 .HasMany(entity => entity.Entities)
@@ -574,10 +585,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                 RequiredChildren =
                     new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                     {
-                        new()
-                        {
-                            Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() }
-                        },
+                        new() { Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() } },
                         new() { Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() } }
                     },
                 OptionalChildren =

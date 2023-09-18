@@ -38,7 +38,8 @@ public class InternalComplexPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalComplexTypeBuilder ComplexTypeBuilder => Metadata.ComplexType.Builder;
+    public virtual InternalComplexTypeBuilder ComplexTypeBuilder
+        => Metadata.ComplexType.Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -182,8 +183,8 @@ public class InternalComplexPropertyBuilder
     /// </summary>
     public virtual bool CanSetIsRequired(bool? required, ConfigurationSource? configurationSource)
         => (configurationSource.HasValue
-                    && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource()))
-                || (Metadata.IsNullable == !required);
+                && configurationSource.Value.Overrides(Metadata.GetIsNullableConfigurationSource()))
+            || (Metadata.IsNullable == !required);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -216,7 +217,10 @@ public class InternalComplexPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionComplexPropertyBuilder?)base.HasAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -227,7 +231,10 @@ public class InternalComplexPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation)
         => (IConventionComplexPropertyBuilder?)base.HasNonNullAnnotation(
             name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -238,7 +245,9 @@ public class InternalComplexPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasNoAnnotation(string name, bool fromDataAnnotation)
+    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasNoAnnotation(
+        string name,
+        bool fromDataAnnotation)
         => (IConventionComplexPropertyBuilder?)base.HasNoAnnotation(
             name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -266,7 +275,9 @@ public class InternalComplexPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasField(string? fieldName, bool fromDataAnnotation)
+    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasField(
+        string? fieldName,
+        bool fromDataAnnotation)
         => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -275,7 +286,9 @@ public class InternalComplexPropertyBuilder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasField(FieldInfo? fieldInfo, bool fromDataAnnotation)
+    IConventionComplexPropertyBuilder? IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.HasField(
+        FieldInfo? fieldInfo,
+        bool fromDataAnnotation)
         => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -316,7 +329,9 @@ public class InternalComplexPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
+    bool IConventionPropertyBaseBuilder<IConventionComplexPropertyBuilder>.CanSetPropertyAccessMode(
+        PropertyAccessMode? propertyAccessMode,
+        bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

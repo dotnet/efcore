@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public class RowValueExpression : SqlExpression
 {
     /// <summary>
-    /// The values of this row.
+    ///     The values of this row.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> Values { get; }
 

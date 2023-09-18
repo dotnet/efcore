@@ -14,7 +14,7 @@ public class SqliteHistoryRepositoryTest
         var sql = CreateHistoryRepository().GetCreateScript();
 
         Assert.Equal(
-"""
+            """
 CREATE TABLE "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -29,7 +29,7 @@ CREATE TABLE "__EFMigrationsHistory" (
         var sql = CreateHistoryRepository().GetCreateIfNotExistsScript();
 
         Assert.Equal(
-"""
+            """
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
         var sql = CreateHistoryRepository().GetDeleteScript("Migration1");
 
         Assert.Equal(
-"""
+            """
 DELETE FROM "__EFMigrationsHistory"
 WHERE "MigrationId" = 'Migration1';
 
@@ -58,7 +58,7 @@ WHERE "MigrationId" = 'Migration1';
             new HistoryRow("Migration1", "7.0.0"));
 
         Assert.Equal(
-"""
+            """
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('Migration1', '7.0.0');
 

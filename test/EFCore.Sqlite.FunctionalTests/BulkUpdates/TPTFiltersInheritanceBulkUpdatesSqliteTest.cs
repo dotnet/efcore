@@ -38,7 +38,7 @@ public class TPTFiltersInheritanceBulkUpdatesSqliteTest : TPTFiltersInheritanceB
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -55,7 +55,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -107,7 +107,7 @@ WHERE (
         await base.Update_base_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'Animal'
 FROM (
@@ -145,7 +145,7 @@ WHERE "a"."Id" = "t"."Id"
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Kiwi" AS "k"
 SET "FoundOn" = 0
 FROM "Animals" AS "a"
@@ -159,7 +159,7 @@ WHERE "a"."Id" = "k"."Id" AND "a"."CountryId" = 1
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -184,7 +184,7 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (

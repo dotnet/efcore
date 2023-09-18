@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
 public class MaxLengthAttributeConvention : PropertyAttributeConventionBase<MaxLengthAttribute>,
-        IComplexPropertyAddedConvention
+    IComplexPropertyAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="MaxLengthAttributeConvention" />.
@@ -50,8 +50,9 @@ public class MaxLengthAttributeConvention : PropertyAttributeConventionBase<MaxL
         if (member != null
             && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
         {
-            throw new InvalidOperationException(CoreStrings.AttributeNotOnEntityTypeProperty(
-                "MaxLength", property.DeclaringType.DisplayName(), property.Name));
+            throw new InvalidOperationException(
+                CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "MaxLength", property.DeclaringType.DisplayName(), property.Name));
         }
     }
 }

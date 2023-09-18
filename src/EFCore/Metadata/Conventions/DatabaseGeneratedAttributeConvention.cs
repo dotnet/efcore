@@ -25,7 +25,7 @@ public class DatabaseGeneratedAttributeConvention : PropertyAttributeConventionB
     {
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         DatabaseGeneratedAttribute attribute,

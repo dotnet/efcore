@@ -110,8 +110,11 @@ public class SqlServerDbContextOptionsBuilder
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
-    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/alter-database-transact-sql-compatibility-level">SQL Server
-    ///     documentation on compatibility level</see> for more information and examples.
+    ///     <see href="https://learn.microsoft.com/sql/t-sql/statements/alter-database-transact-sql-compatibility-level">
+    ///         SQL Server
+    ///         documentation on compatibility level
+    ///     </see>
+    ///     for more information and examples.
     /// </remarks>
     /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)

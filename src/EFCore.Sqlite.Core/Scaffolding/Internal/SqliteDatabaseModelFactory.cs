@@ -424,8 +424,8 @@ ORDER BY "cid"
                 column.DefaultValue = intValue != 0;
             }
             else if (type.IsInteger()
-                || type == typeof(float)
-                || type == typeof(double))
+                     || type == typeof(float)
+                     || type == typeof(double))
             {
                 try
                 {
@@ -471,7 +471,7 @@ ORDER BY "cid"
                     column.DefaultValue = dateTimeOffset;
                 }
                 else if (type == typeof(decimal)
-                    && decimal.TryParse(defaultValueSql, out var decimalValue))
+                         && decimal.TryParse(defaultValueSql, out var decimalValue))
                 {
                     column.DefaultValue = decimalValue;
                 }

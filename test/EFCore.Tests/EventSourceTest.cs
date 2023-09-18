@@ -266,6 +266,7 @@ public class EventSourceTest
 
     private class SomeDbContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Foo> Foos { get; set; }
 
         protected internal override void OnModelCreating(ModelBuilder modelBuilder)

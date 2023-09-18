@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -361,10 +362,10 @@ public static class RelationalTypeBaseExtensions
     public static string? GetJsonPropertyName(this IReadOnlyTypeBase typeBase)
         => (string?)typeBase.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
             ?? (!typeBase.IsMappedToJson()
-                    ? null
-                    : typeBase is IReadOnlyEntityType entityType
-                ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
+                ? null
+                : typeBase is IReadOnlyEntityType entityType
+                    ? entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name
+                    : ((IReadOnlyComplexType)typeBase).ComplexProperty.Name);
 
     #endregion
 }

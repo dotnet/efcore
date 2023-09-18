@@ -18,7 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
 public class ComplexPropertyBuilder :
-    IInfrastructure<IConventionComplexPropertyBuilder>, IInfrastructure<IConventionComplexTypeBuilder>
+    IInfrastructure<IConventionComplexPropertyBuilder>,
+    IInfrastructure<IConventionComplexTypeBuilder>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -296,7 +297,7 @@ public class ComplexPropertyBuilder :
     {
         Check.NotNull(propertyType, nameof(propertyType));
 
-        return new(
+        return new ComplexTypePropertyBuilder(
             TypeBuilder.IndexerProperty(
                 propertyType,
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
@@ -453,7 +454,8 @@ public class ComplexPropertyBuilder :
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexPropertyBuilder ComplexProperty<TProperty>(
-        string propertyName, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        string propertyName,
+        Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
 

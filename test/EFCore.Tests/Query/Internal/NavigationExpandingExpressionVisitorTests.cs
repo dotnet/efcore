@@ -12,9 +12,7 @@ public class NavigationExpandingExpressionVisitorTests
     {
         public TInterceptor Aggregate<TInterceptor>()
             where TInterceptor : class, IInterceptor
-        {
-            return null;
-        }
+            => null;
     }
 
     private class TestNavigationExpandingExpressionVisitor : NavigationExpandingExpressionVisitor
@@ -22,17 +20,18 @@ public class NavigationExpandingExpressionVisitorTests
         public TestNavigationExpandingExpressionVisitor()
             : base(
                 null,
-                new QueryCompilationContext(new QueryCompilationContextDependencies(
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
-                    new CurrentDbContext(new MyDemoContext()),
-                    null,
-                    null,
-                    new TestInterceptors()
+                new QueryCompilationContext(
+                    new QueryCompilationContextDependencies(
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        new ExecutionStrategyTest.TestExecutionStrategy(new MyDemoContext()),
+                        new CurrentDbContext(new MyDemoContext()),
+                        null,
+                        null,
+                        new TestInterceptors()
                     ), false),
                 null,
                 null)
@@ -40,22 +39,18 @@ public class NavigationExpandingExpressionVisitorTests
         }
 
         public Expression TestVisitExtension(Expression extensionExpression)
-        {
-            return base.VisitExtension(extensionExpression);
-        }
+            => base.VisitExtension(extensionExpression);
     }
 
     private class MyDemoContext : DbContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseInMemoryDatabase(databaseName: "test");
-        }
+            => optionsBuilder.UseInMemoryDatabase(databaseName: "test");
     }
 
     private class TestEntityQueryRootExpression : EntityQueryRootExpression
     {
-        public int VisitCounter = 0;
+        public int VisitCounter;
 
         public TestEntityQueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IEntityType entityType)
             : base(asyncQueryProvider, entityType)
@@ -72,7 +67,6 @@ public class NavigationExpandingExpressionVisitorTests
             VisitCounter++;
             return this;
         }
-
     }
 
     private class A

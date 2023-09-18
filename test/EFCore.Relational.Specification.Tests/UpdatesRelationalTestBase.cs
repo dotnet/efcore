@@ -115,8 +115,7 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
-                    Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -126,7 +125,12 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             context =>
             {
                 var person = context.Set<Person>().Single();
-                person.Address = new Address { Country = Country.Türkiye, City = "Konya", ZipCode = 42100 };
+                person.Address = new Address
+                {
+                    Country = Country.Türkiye,
+                    City = "Konya",
+                    ZipCode = 42100
+                };
 
                 context.SaveChanges();
             },
@@ -198,8 +202,18 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             },
             context =>
             {
-                var product1 = new Product { Id = productId1, Name = "", Price = 1.49M };
-                var product2 = new Product { Id = productId2, Name = "", Price = 1.49M };
+                var product1 = new Product
+                {
+                    Id = productId1,
+                    Name = "",
+                    Price = 1.49M
+                };
+                var product2 = new Product
+                {
+                    Id = productId2,
+                    Name = "",
+                    Price = 1.49M
+                };
 
                 context.Attach(product1).Property(p => p.DependentId).IsModified = true;
                 context.Attach(product2).Property(p => p.DependentId).IsModified = true;
@@ -245,19 +259,20 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 
-            modelBuilder.Entity<Person>(pb =>
-            {
-                pb.Property(p => p.Country)
-                    .HasColumnName("Country");
-                pb.Property(p => p.ZipCode)
-                    .HasColumnName("ZipCode");
-                pb.OwnsOne(p => p.Address)
-                    .Property(p => p.Country)
-                    .HasColumnName("Country");
-                pb.OwnsOne(p => p.Address)
-                    .Property(p => p.ZipCode)
-                    .HasColumnName("ZipCode");
-            });
+            modelBuilder.Entity<Person>(
+                pb =>
+                {
+                    pb.Property(p => p.Country)
+                        .HasColumnName("Country");
+                    pb.Property(p => p.ZipCode)
+                        .HasColumnName("ZipCode");
+                    pb.OwnsOne(p => p.Address)
+                        .Property(p => p.Country)
+                        .HasColumnName("Country");
+                    pb.OwnsOne(p => p.Address)
+                        .Property(p => p.ZipCode)
+                        .HasColumnName("ZipCode");
+                });
 
             modelBuilder
                 .Entity<

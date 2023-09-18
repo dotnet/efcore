@@ -28,9 +28,9 @@ public class ModelConfiguration
     /// </summary>
     public virtual bool IsEmpty()
         => _properties.Count == 0
-        && _ignoredTypes.Count == 0
-        && _typeMappings.Count == 0
-        && _complexProperties.Count == 0;
+            && _ignoredTypes.Count == 0
+            && _typeMappings.Count == 0
+            && _complexProperties.Count == 0;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -23,7 +23,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
     /// <param name="unicode">Whether or not the mapped data type should support Unicode.</param>
     /// <param name="fixedLength">Whether or not the mapped data type is fixed length.</param>
     /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
-    /// <param name="dbType">The suggested <see cref="DbType"/>.</param>
+    /// <param name="dbType">The suggested <see cref="DbType" />.</param>
     public RelationalConverterMappingHints(
         int? size = null,
         int? precision = null,
@@ -97,7 +97,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
     public virtual bool? IsFixedLength { get; }
 
     /// <summary>
-    ///     The suggested <see cref="DbType"/>
+    ///     The suggested <see cref="DbType" />
     /// </summary>
     public virtual DbType? DbType { get; }
 }

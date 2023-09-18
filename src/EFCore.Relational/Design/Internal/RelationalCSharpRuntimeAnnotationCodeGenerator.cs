@@ -1,11 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection.Metadata;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.VisualBasic;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -48,12 +44,13 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 GenerateSimpleAnnotation(RelationalAnnotationNames.RelationalModel, "CreateRelationalModel()", parameters);
 
                 var methodBuilder = new IndentedStringBuilder();
-                Create(relationalModel, parameters with
-                {
-                    MainBuilder = parameters.MethodBuilder,
-                    MethodBuilder = methodBuilder,
-                    ScopeVariables = new HashSet<string>()
-                });
+                Create(
+                    relationalModel, parameters with
+                    {
+                        MainBuilder = parameters.MethodBuilder,
+                        MethodBuilder = methodBuilder,
+                        ScopeVariables = new HashSet<string>()
+                    });
 
                 var methods = methodBuilder.ToString();
                 if (!string.IsNullOrEmpty(methods))
@@ -269,7 +266,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine()
                     .AppendLine($"var {deleteSprocMappingsVariable} = new List<StoredProcedureMapping>();")
                     .Append($"{typeBaseVariable}.SetRuntimeAnnotation(")
-                    .AppendLine($"{code.Literal(RelationalAnnotationNames.DeleteStoredProcedureMappings)}, {deleteSprocMappingsVariable});");
+                    .AppendLine(
+                        $"{code.Literal(RelationalAnnotationNames.DeleteStoredProcedureMappings)}, {deleteSprocMappingsVariable});");
                 foreach (var mapping in typeBase.GetDeleteStoredProcedureMappings())
                 {
                     Create(
@@ -288,7 +286,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine()
                     .AppendLine($"var {insertSprocMappingsVariable} = new List<StoredProcedureMapping>();")
                     .Append($"{typeBaseVariable}.SetRuntimeAnnotation(")
-                    .AppendLine($"{code.Literal(RelationalAnnotationNames.InsertStoredProcedureMappings)}, {insertSprocMappingsVariable});");
+                    .AppendLine(
+                        $"{code.Literal(RelationalAnnotationNames.InsertStoredProcedureMappings)}, {insertSprocMappingsVariable});");
                 foreach (var mapping in typeBase.GetInsertStoredProcedureMappings())
                 {
                     Create(
@@ -307,7 +306,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine()
                     .AppendLine($"var {updateSprocMappingsVariable} = new List<StoredProcedureMapping>();")
                     .Append($"{typeBaseVariable}.SetRuntimeAnnotation(")
-                    .AppendLine($"{code.Literal(RelationalAnnotationNames.UpdateStoredProcedureMappings)}, {updateSprocMappingsVariable});");
+                    .AppendLine(
+                        $"{code.Literal(RelationalAnnotationNames.UpdateStoredProcedureMappings)}, {updateSprocMappingsVariable});");
                 foreach (var mapping in typeBase.GetUpdateStoredProcedureMappings())
                 {
                     Create(
@@ -674,7 +674,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         mainBuilder
             .Append($"{parameters.TargetName}.StoredProcedures.Add(")
-            .AppendLine($"({code.Literal(storeStoredProcedure.Name)}, {code.Literal(storeStoredProcedure.Schema)}), {storedProcedureVariable});");
+            .AppendLine(
+                $"({code.Literal(storeStoredProcedure.Name)}, {code.Literal(storeStoredProcedure.Schema)}), {storedProcedureVariable});");
 
         return storedProcedureVariable;
     }
@@ -925,7 +926,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     }
 
     private static IndentedStringBuilder GenerateIsNullableInitializer(
-        bool isNullable, IndentedStringBuilder mainBuilder, ICSharpHelper code)
+        bool isNullable,
+        IndentedStringBuilder mainBuilder,
+        ICSharpHelper code)
     {
         if (isNullable)
         {
@@ -1026,9 +1029,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             mainBuilder
                 .AppendLine($"var {tableIndexVariable} = RelationalModel.GetIndex(this,").IncrementIndent()
                 .AppendLine($"{code.Literal(mappedIndex.DeclaringEntityType.Name)},")
-                .AppendLine($"{(mappedIndex.Name == null
-                    ? code.Literal(mappedIndex.Properties.Select(p => p.Name).ToArray())
-                    : code.Literal(mappedIndex.Name))});")
+                .AppendLine(
+                    $"{(mappedIndex.Name == null
+                        ? code.Literal(mappedIndex.Properties.Select(p => p.Name).ToArray())
+                        : code.Literal(mappedIndex.Name))});")
                 .DecrementIndent();
 
             mainBuilder.AppendLine($"{indexVariable}.MappedIndexes.Add({tableIndexVariable});");
@@ -1083,7 +1087,8 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 .DecrementIndent();
 
             mainBuilder.AppendLine($"{foreignKeyConstraintVariable}.MappedForeignKeys.Add({foreignKeyVariable});");
-            mainBuilder.AppendLine($"RelationalModel.GetOrCreateForeignKeyConstraints({foreignKeyVariable}).Add({foreignKeyConstraintVariable});");
+            mainBuilder.AppendLine(
+                $"RelationalModel.GetOrCreateForeignKeyConstraints({foreignKeyVariable}).Add({foreignKeyConstraintVariable});");
         }
 
         mainBuilder
@@ -1131,7 +1136,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
             mainBuilder
-                .Append($"RelationalModel.CreateColumnMapping(")
+                .Append("RelationalModel.CreateColumnMapping(")
                 .Append($"(ColumnBase<ColumnMappingBase>){metadataVariables[columnMapping.Column]}, ")
                 .Append($"{typeBaseVariable}.FindProperty({code.Literal(columnMapping.Property.Name)})!, ")
                 .Append(tableMappingVariable).AppendLine(");");
@@ -1479,7 +1484,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 mainBuilder
                     .Append(tableVariable).Append($".AddRowInternalForeignKey({entityTypeVariable}, ")
-                    .AppendLine($"RelationalModel.GetForeignKey(this,").IncrementIndent()
+                    .AppendLine("RelationalModel.GetForeignKey(this,").IncrementIndent()
                     .AppendLine($"{code.Literal(internalForeignKey.DeclaringEntityType.Name)},")
                     .AppendLine($"{code.Literal(internalForeignKey.Properties.Select(p => p.Name).ToArray())},")
                     .AppendLine($"{code.Literal(internalForeignKey.PrincipalEntityType.Name)},")
@@ -1814,7 +1819,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             annotations.Remove(RelationalAnnotationNames.DefaultMappings);
         }
         else
-        {           
+        {
             // These need to be set explicitly to prevent default values from being generated
             annotations[RelationalAnnotationNames.TableName] = complexType.GetTableName();
             annotations[RelationalAnnotationNames.Schema] = complexType.GetSchema();
@@ -2241,6 +2246,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 builder.AppendLine(",");
             }
+
             firstArgument = false;
             builder.Append($"{name}: {value}");
         }
@@ -2252,7 +2258,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
         static bool IsSpatialType(Type relationalTypeMappingType)
             => (relationalTypeMappingType.IsGenericType
-                && relationalTypeMappingType.GetGenericTypeDefinition() == typeof(RelationalGeometryTypeMapping<,>))
+                    && relationalTypeMappingType.GetGenericTypeDefinition() == typeof(RelationalGeometryTypeMapping<,>))
                 || (relationalTypeMappingType.BaseType != typeof(object)
                     && IsSpatialType(relationalTypeMappingType.BaseType!));
     }

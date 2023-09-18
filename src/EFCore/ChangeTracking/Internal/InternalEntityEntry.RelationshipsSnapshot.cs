@@ -13,7 +13,7 @@ public sealed partial class InternalEntityEntry
 
         public RelationshipsSnapshot(InternalEntityEntry entry)
         {
-            _values = ((IRuntimeEntityType)entry.EntityType).RelationshipSnapshotFactory(entry);
+            _values = entry.EntityType.RelationshipSnapshotFactory(entry);
         }
 
         public object? GetValue(InternalEntityEntry entry, IPropertyBase propertyBase)

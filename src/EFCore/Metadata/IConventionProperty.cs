@@ -469,7 +469,7 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <summary>
     ///     Sets the configuration for elements of the primitive collection represented by this property.
     /// </summary>
-    /// <param name="elementType">If <see langword="true"/>, then the type mapping has an element type, otherwise it is removed.</param>
+    /// <param name="elementType">If <see langword="true" />, then the type mapping has an element type, otherwise it is removed.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configuration for the elements.</returns>
     IConventionElementType? SetElementType(Type? elementType, bool fromDataAnnotation = false);

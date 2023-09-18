@@ -874,7 +874,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return nullable
                     ? null
                     : throw new InvalidOperationException(
-                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
             }
 
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
@@ -885,7 +885,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return nullable
                     ? null
                     : throw new InvalidOperationException(
-                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
             }
 
             if (tokenType != JsonTokenType.StartObject)

@@ -282,7 +282,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         Type? propertyType,
         string propertyName,
         ConfigurationSource? configurationSource)
-        => PrimitiveCollection(propertyType, propertyName, typeConfigurationSource: configurationSource, configurationSource: configurationSource);
+        => PrimitiveCollection(
+            propertyType, propertyName, typeConfigurationSource: configurationSource, configurationSource: configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -316,7 +317,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? PrimitiveCollection(MemberInfo memberInfo, ConfigurationSource? configurationSource)
-        => PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
+        => PrimitiveCollection(
+            memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), memberInfo, configurationSource, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -670,7 +672,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             }
         }
 
-        var detachedIndexes = InternalEntityTypeBuilder.DetachIndexes(propertiesToDetach.SelectMany(p => p.GetContainingIndexes()).Distinct());
+        var detachedIndexes =
+            InternalEntityTypeBuilder.DetachIndexes(propertiesToDetach.SelectMany(p => p.GetContainingIndexes()).Distinct());
 
         var keysToDetach = propertiesToDetach.SelectMany(p => p.GetContainingKeys()).Distinct().ToList();
         foreach (var key in keysToDetach)
@@ -912,7 +915,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
         }
 
-        return ComplexProperty(propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
+        return ComplexProperty(
+            propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
     }
 
     /// <summary>
@@ -1482,10 +1486,11 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     [DebuggerStepThrough]
     IConventionTypeBaseBuilder? IConventionTypeBaseBuilder.HasNoProperty(IConventionProperty property, bool fromDataAnnotation)
         => RemoveProperty(
-            (Property)property,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention) == null
-            ? null
-            : this;
+                (Property)property,
+                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
+            == null
+                ? null
+                : this;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1507,7 +1512,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexPropertyBuilder? IConventionTypeBaseBuilder.ComplexProperty(
-        Type propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+        Type propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => ComplexProperty(
             propertyType,
             propertyName,
@@ -1525,7 +1533,9 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexPropertyBuilder? IConventionTypeBaseBuilder.ComplexProperty(
-        MemberInfo memberInfo, Type? complexType, bool fromDataAnnotation)
+        MemberInfo memberInfo,
+        Type? complexType,
+        bool fromDataAnnotation)
         => ComplexProperty(
             propertyType: memberInfo.GetMemberType(),
             propertyName: memberInfo.Name,
@@ -1543,7 +1553,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     bool IConventionTypeBaseBuilder.CanHaveComplexProperty(
-        Type? propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+        Type? propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => CanHaveComplexProperty(
             propertyType,
             propertyName,
@@ -1576,7 +1589,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexPropertyBuilder? IConventionTypeBaseBuilder.ComplexIndexerProperty(
-        Type propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+        Type propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => ComplexIndexerProperty(
             propertyType,
             propertyName,
@@ -1592,7 +1608,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     bool IConventionTypeBaseBuilder.CanHaveComplexIndexerProperty(
-        Type propertyType, string propertyName, Type? complexType, bool fromDataAnnotation)
+        Type propertyType,
+        string propertyName,
+        Type? complexType,
+        bool fromDataAnnotation)
         => CanHaveComplexProperty(
             propertyType,
             propertyName,
@@ -1609,7 +1628,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     [DebuggerStepThrough]
     IConventionTypeBaseBuilder? IConventionTypeBaseBuilder.HasNoComplexProperty(
-        IConventionComplexProperty complexProperty, bool fromDataAnnotation)
+        IConventionComplexProperty complexProperty,
+        bool fromDataAnnotation)
         => HasNoComplexProperty(
             (ComplexProperty)complexProperty,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

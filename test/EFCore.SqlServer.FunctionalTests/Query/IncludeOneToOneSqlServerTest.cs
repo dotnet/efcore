@@ -16,7 +16,7 @@ public class IncludeOneToOneSqlServerTest : IncludeOneToOneTestBase<IncludeOneTo
         base.Include_person();
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[City], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address] AS [a]
 INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]
@@ -28,7 +28,7 @@ INNER JOIN [Person] AS [p] ON [a].[Id] = [p].[Id]
         base.Include_person_shadow();
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[City], [a].[PersonId], [a].[Street], [p].[Id], [p].[Name]
 FROM [Address2] AS [a]
 INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]
@@ -40,7 +40,7 @@ INNER JOIN [Person2] AS [p] ON [a].[PersonId] = [p].[Id]
         base.Include_address();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[Street]
 FROM [Person] AS [p]
 LEFT JOIN [Address] AS [a] ON [p].[Id] = [a].[Id]
@@ -52,7 +52,7 @@ LEFT JOIN [Address] AS [a] ON [p].[Id] = [a].[Id]
         base.Include_address_shadow();
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Name], [a].[Id], [a].[City], [a].[PersonId], [a].[Street]
 FROM [Person2] AS [p]
 LEFT JOIN [Address2] AS [a] ON [p].[Id] = [a].[PersonId]

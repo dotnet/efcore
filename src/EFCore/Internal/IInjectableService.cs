@@ -52,7 +52,7 @@ public interface IInjectableService
     ///     </para>
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> instance.</param>
-    /// <param name="entityType">The <see cref="IEntityType"/> of the instance being attached.</param>
+    /// <param name="entityType">The <see cref="IEntityType" /> of the instance being attached.</param>
     /// <param name="entity">The entity instance that is being attached.</param>
     void Attaching(DbContext context, IEntityType entityType, object entity);
 }

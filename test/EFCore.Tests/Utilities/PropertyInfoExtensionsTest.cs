@@ -32,7 +32,7 @@ public class PropertyInfoExtensionsTest
         public static int Yummy { get; set; }
         private static int Wafers { get; set; }
         internal static int And { private get; set; }
-        internal static int Chocolate { get; private set; }
+        internal static int Chocolate { get; }
 
         protected internal static int With
             => 0;
@@ -46,7 +46,7 @@ public class PropertyInfoExtensionsTest
         public int Nuts { get; set; }
         private int But { get; set; }
         internal int May { private get; set; }
-        protected internal int Contain { get; private set; }
+        protected internal int Contain { get; }
 
         public int TreeNuts
             => 0;
@@ -58,7 +58,7 @@ public class PropertyInfoExtensionsTest
         }
 
         public static int Like { private get; set; }
-        public int A { get; private set; }
+        public int A { get; }
         public static int Twix { protected internal get; set; }
     }
 }

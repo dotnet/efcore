@@ -2,11 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-using static System.Linq.Expressions.Expression;
+using static Expression;
 
 public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiveCollectionsQueryRelationalTestBase
 {
@@ -17,7 +16,7 @@ public class NonSharedPrimitiveCollectionsQuerySqlServerTest : NonSharedPrimitiv
         await base.Array_of_string();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -141,7 +140,7 @@ WHERE (
         await base.Array_of_DateTime_with_milliseconds();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -201,7 +200,7 @@ WHERE (
         await base.Array_of_TimeOnly_with_milliseconds();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -216,7 +215,7 @@ WHERE (
         await base.Array_of_TimeOnly_with_microseconds();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -326,7 +325,7 @@ WHERE (
         await TestOrderedArray("a", "b");
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -347,7 +346,7 @@ WHERE (
         await TestOrderedArray(1, 2);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -368,7 +367,7 @@ WHERE (
         await TestOrderedArray(1L, 2L);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -389,7 +388,7 @@ WHERE (
         await TestOrderedArray((short)1, (short)2);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -415,7 +414,7 @@ WHERE (
         await TestOrderedArray(1d, 2d);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -436,7 +435,7 @@ WHERE (
         await TestOrderedArray(1f, 2f);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -457,7 +456,7 @@ WHERE (
         await TestOrderedArray(1m, 2m);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -478,7 +477,7 @@ WHERE (
         await TestOrderedArray(new DateTime(2023, 1, 1, 12, 30, 0), new DateTime(2023, 1, 2, 12, 30, 0));
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -499,7 +498,7 @@ WHERE (
         await TestOrderedArray(new DateOnly(2023, 1, 1), new DateOnly(2023, 1, 2));
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -520,7 +519,7 @@ WHERE (
         await TestOrderedArray(new TimeOnly(12, 30, 0), new TimeOnly(12, 30, 1));
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -543,7 +542,7 @@ WHERE (
             new DateTimeOffset(2023, 1, 2, 12, 30, 0, TimeSpan.FromHours(2)));
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -564,7 +563,7 @@ WHERE (
         await TestOrderedArray(true, false);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -587,7 +586,7 @@ WHERE (
             new Guid("008719a5-1999-4798-9cf3-92a78ffa94a2"));
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
@@ -617,7 +616,7 @@ WHERE (
         await TestOrderedArray(MyEnum.Label1, MyEnum.Label2);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (

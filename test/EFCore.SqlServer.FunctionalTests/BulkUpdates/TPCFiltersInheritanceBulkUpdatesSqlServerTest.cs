@@ -29,7 +29,7 @@ public class TPCFiltersInheritanceBulkUpdatesSqlServerTest : TPCFiltersInheritan
         await base.Delete_where_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [k]
 FROM [Kiwi] AS [k]
 WHERE [k].[CountryId] = 1 AND [k].[Name] = N'Great spotted kiwi'
@@ -41,7 +41,7 @@ WHERE [k].[CountryId] = 1 AND [k].[Name] = N'Great spotted kiwi'
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -62,7 +62,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
@@ -136,7 +136,7 @@ WHERE (
         await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [k]
 SET [k].[Name] = N'SomeOtherKiwi'
 FROM [Kiwi] AS [k]
@@ -149,7 +149,7 @@ WHERE [k].[CountryId] = 1
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [k]
 SET [k].[FoundOn] = CAST(0 AS tinyint)
 FROM [Kiwi] AS [k]
@@ -162,7 +162,7 @@ WHERE [k].[CountryId] = 1
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
@@ -184,7 +184,7 @@ WHERE (
         await base.Update_base_and_derived_types(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [k]
 SET [k].[FoundOn] = CAST(0 AS tinyint),
     [k].[Name] = N'Kiwi'
@@ -198,7 +198,7 @@ WHERE [k].[CountryId] = 1
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]

@@ -245,11 +245,13 @@ public abstract class ModelValidatorTestBase
         public string OtherName;
 
         public int Id { get; set; }
+
         public string Name
         {
             get => _name;
             set => _name = value;
         }
+
         public string PartitionId { get; set; }
         public ICollection<Order> Orders { get; set; }
     }

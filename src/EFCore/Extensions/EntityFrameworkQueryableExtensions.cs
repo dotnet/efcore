@@ -16,9 +16,9 @@ namespace Microsoft.EntityFrameworkCore;
     "ReflectionAnalysis",
     "IL2060",
     Justification =
-        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called " +
-        "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no " +
-        "longer be necessary.")]
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called "
+        + "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no "
+        + "longer be necessary.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>

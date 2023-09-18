@@ -40,6 +40,7 @@ public class PropertyDiscoveryConventionTest
 
     private class WithPrivatesContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<DerivedWithoutPrivates> Entities { get; set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

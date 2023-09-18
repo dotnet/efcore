@@ -7,7 +7,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqlServerTest : MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>,
+public class MaterializationInterceptionSqlServerTest :
+    MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>,
     IClassFixture<MaterializationInterceptionSqlServerTest.MaterializationInterceptionSqlServerFixture>
 {
     public MaterializationInterceptionSqlServerTest(MaterializationInterceptionSqlServerFixture fixture)

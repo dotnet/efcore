@@ -104,7 +104,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         => _connection;
 
     /// <summary>
-    ///     <see langword="true"/> if the <see cref="Connection"/> is owned by the context and should be disposed appropriately.
+    ///     <see langword="true" /> if the <see cref="Connection" /> is owned by the context and should be disposed appropriately.
     /// </summary>
     public virtual bool IsConnectionOwned
         => _connectionOwned;
@@ -123,7 +123,10 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     /// <param name="connection">The option to change.</param>
-    /// <param name="owned">If <see langword="true"/>, then the connection will become owned by the context, and will be disposed in the same way that a connection created by the context is disposed.</param>
+    /// <param name="owned">
+    ///     If <see langword="true" />, then the connection will become owned by the context, and will be disposed in the same way
+    ///     that a connection created by the context is disposed.
+    /// </param>
     /// <returns>A new instance with the option changed.</returns>
     public virtual RelationalOptionsExtension WithConnection(DbConnection? connection, bool owned)
     {

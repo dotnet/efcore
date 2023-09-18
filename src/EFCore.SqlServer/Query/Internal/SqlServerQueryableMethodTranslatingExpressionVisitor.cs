@@ -203,7 +203,8 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     _typeMappingSource.FindMapping(typeof(int))),
                 ascending: true));
 
-        var shaperExpression = (Expression)new ProjectionBindingExpression(selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
+        var shaperExpression = (Expression)new ProjectionBindingExpression(
+            selectExpression, new ProjectionMember(), elementClrType.MakeNullable());
         if (shaperExpression.Type != elementClrType)
         {
             Check.DebugAssert(
@@ -238,13 +239,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
-                columnInfos.Add(new()
-                {
-                    Name = jsonPropertyName,
-                    TypeMapping = property.GetRelationalTypeMapping(),
-                    Path = new PathSegment[] { new(jsonPropertyName) },
-                    AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
-                });
+                columnInfos.Add(
+                    new SqlServerOpenJsonExpression.ColumnInfo
+                    {
+                        Name = jsonPropertyName,
+                        TypeMapping = property.GetRelationalTypeMapping(),
+                        Path = new PathSegment[] { new(jsonPropertyName) },
+                        AsJson = property.GetRelationalTypeMapping().ElementTypeMapping is not null
+                    });
             }
         }
 
@@ -257,13 +259,14 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
             Check.DebugAssert(jsonNavigationName is not null, $"No JSON property name for navigation {navigation.Name}");
 
-            columnInfos.Add(new()
-            {
-                Name = jsonNavigationName,
-                TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
-                Path = new PathSegment[] { new(jsonNavigationName) },
-                AsJson = true
-            });
+            columnInfos.Add(
+                new SqlServerOpenJsonExpression.ColumnInfo
+                {
+                    Name = jsonNavigationName,
+                    TypeMapping = _nvarcharMaxTypeMapping ??= _typeMappingSource.FindMapping("nvarchar(max)")!,
+                    Path = new PathSegment[] { new(jsonNavigationName) },
+                    AsJson = true
+                });
         }
 
         var openJsonExpression = new SqlServerOpenJsonExpression(

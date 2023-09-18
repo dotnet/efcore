@@ -85,7 +85,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
                     ? Expression.Convert(param, typeof(long))
-                    : (Expression)param,
+                    : param,
                 typeof(TNumber)), param);
     }
 
@@ -96,7 +96,7 @@ public class EnumToNumberConverter<TEnum, TNumber> : ValueConverter<TEnum, TNumb
             Expression.Convert(
                 typeof(TNumber) == typeof(decimal)
                     ? Expression.Convert(param, typeof(long))
-                    : (Expression)param,
+                    : param,
                 typeof(TEnum)), param);
     }
 }

@@ -71,7 +71,7 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
@@ -84,7 +84,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
         base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y")))
@@ -97,7 +97,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y"))
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
@@ -110,7 +110,7 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
@@ -127,11 +127,9 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = 
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
     public override void GroupBy_converted_enum()
-    {
-        Assert.Contains(
+        => Assert.Contains(
             CoreStrings.TranslationFailed("")[21..],
             Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
-    }
 
     public override void Infer_type_mapping_from_in_subquery_to_item()
         => Assert.Throws<InvalidOperationException>(() => base.Infer_type_mapping_from_in_subquery_to_item());

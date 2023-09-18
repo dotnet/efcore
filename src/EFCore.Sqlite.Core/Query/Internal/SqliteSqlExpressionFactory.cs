@@ -26,7 +26,9 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     /// </summary>
     public SqliteSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
         : base(dependencies)
-        => _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
+    {
+        _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

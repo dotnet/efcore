@@ -24,7 +24,6 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest;
 using static Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest;
 using IdentityUser = Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser;
@@ -664,8 +663,9 @@ namespace TestNamespace
                 {
                     var entityType = model.GetEntityTypes().Single();
 
-                    Assert.True(entityType.FindProperty("Id").GetValueComparer().SnapshotExpression
-                        is Expression<Func<int, int>> lambda
+                    Assert.True(
+                        entityType.FindProperty("Id").GetValueComparer().SnapshotExpression
+                            is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value) == 1);
                 });
@@ -688,7 +688,7 @@ namespace TestNamespace
         private class FakeValueComparer : ValueComparer<int>
         {
             public FakeValueComparer()
-                : base((l,r) => false, v => 0, v => 1)
+                : base((l, r) => false, v => 0, v => 1)
             {
             }
 
@@ -709,7 +709,7 @@ namespace TestNamespace
             => Test(
                 new ProviderValueComparerContext(),
                 new CompiledModelCodeGenerationOptions(),
-                 code => Assert.Collection(
+                code => Assert.Collection(
                     code,
                     c => AssertFileContents(
                         "ProviderValueComparerContextModel.cs",
@@ -841,8 +841,9 @@ namespace TestNamespace
                 {
                     var entityType = model.GetEntityTypes().Single();
 
-                    Assert.True(entityType.FindProperty("Id").GetProviderValueComparer().SnapshotExpression
-                        is Expression<Func<int, int>> lambda
+                    Assert.True(
+                        entityType.FindProperty("Id").GetProviderValueComparer().SnapshotExpression
+                            is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value) == 1);
                 });
@@ -9759,7 +9760,7 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
     }
 }
-""",  c),
+""", c),
                     c => AssertFileContents(
                         "DependentDerivedEntityType.cs",
                         """
@@ -21335,10 +21336,7 @@ namespace TestNamespace
                             Id = 1,
                             AlternateId = new Guid(),
                             Dependent = new DependentBase<byte?>(1),
-                            Owned = new OwnedType(c)
-                            {
-                                Principal = new PrincipalBase()
-                            }
+                            Owned = new OwnedType(c) { Principal = new PrincipalBase() }
                         });
 
                     //c.SaveChanges();
@@ -23849,7 +23847,24 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
                     Assert.False(insertSproc.IsRowsAffectedReturned);
@@ -23863,7 +23878,24 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Update", updateSproc.Name);
                     Assert.Equal("TPC", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.False(updateSproc.IsRowsAffectedReturned);
@@ -23905,7 +23937,23 @@ namespace TestNamespace
                     Assert.Equal("Derived_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable"
+                        },
                         insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
                     Assert.Null(insertSproc["foo"]);
@@ -23923,7 +23971,24 @@ namespace TestNamespace
                     Assert.Equal("Derived_Update", updateSproc.Name);
                     Assert.Equal("Derived", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.Empty(updateSproc.GetAnnotations());
@@ -34176,12 +34241,20 @@ namespace TestNamespace
 
                 var baselines = string.Join(
                     "," + FileNewLine,
-                    scaffoldedFiles.Select(file =>
-                    Indent(5) + "c => AssertFileContents(" + FileNewLine +
-                    Indent(6) + $"\"{file.Path}\"," + FileNewLine +
-                    Indent(6) + "\"\"\"" + FileNewLine +
-                    file.Code.TrimEnd() + FileNewLine +
-                    "\"\"\", c)"));
+                    scaffoldedFiles.Select(
+                        file =>
+                            Indent(5)
+                            + "c => AssertFileContents("
+                            + FileNewLine
+                            + Indent(6)
+                            + $"\"{file.Path}\","
+                            + FileNewLine
+                            + Indent(6)
+                            + "\"\"\""
+                            + FileNewLine
+                            + file.Code.TrimEnd()
+                            + FileNewLine
+                            + "\"\"\", c)"));
 
                 var testString = @$"
 {Indent(4)}code => Assert.Collection(

@@ -2712,7 +2712,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
         var oldLazyLoadingEnabledConfigurationSource = ((IConventionNavigation)oldNavigation).GetLazyLoadingEnabledConfigurationSource();
         if (oldLazyLoadingEnabledConfigurationSource.HasValue
-            && builder.CanSetLazyLoadingEnabled(((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value))
+            && builder.CanSetLazyLoadingEnabled(
+                ((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value))
         {
             builder = builder.EnableLazyLoading(
                 ((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value)!;
@@ -2883,7 +2884,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                     dependentProperties = (oldNameDependentProperties ?? dependentProperties)!;
                     if (principalKey.Properties.Count == dependentProperties.Count)
                     {
-                        var detachedProperties = InternalEntityTypeBuilder.DetachProperties(dependentProperties)!;
+                        var detachedProperties = InternalTypeBaseBuilder.DetachProperties(dependentProperties)!;
                         dependentProperties = dependentEntityType.Builder.GetOrCreateProperties(
                             dependentProperties.Select(p => p.Name).ToList(),
                             ConfigurationSource.Convention,

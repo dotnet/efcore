@@ -445,7 +445,6 @@ public partial class ConventionDispatcher
         {
             Add(new OnPropertyElementTypeChangedNode(propertyBuilder, newElementType, oldElementType));
             return newElementType;
-
         }
     }
 
@@ -1253,7 +1252,9 @@ public partial class ConventionDispatcher
     private sealed class OnPropertyElementTypeChangedNode : ConventionNode
     {
         public OnPropertyElementTypeChangedNode(
-            IConventionPropertyBuilder propertyBuilder, IElementType? newElementType, IElementType? oldElementType)
+            IConventionPropertyBuilder propertyBuilder,
+            IElementType? newElementType,
+            IElementType? oldElementType)
         {
             PropertyBuilder = propertyBuilder;
             NewElementType = newElementType;
