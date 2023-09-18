@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 /// <summary>
 ///     The Sqlite-specific JsonValueReaderWrite for decimal. Generates a string representation instead of a JSON number, in order to match
