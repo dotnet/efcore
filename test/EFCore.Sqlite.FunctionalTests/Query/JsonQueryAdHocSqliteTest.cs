@@ -134,4 +134,19 @@ VALUES(
 '{{""ShadowInt"":143,""Name"":""e1_r ctor""}}',
 1,
 'e1')");
+
+    protected override void SeedNotICollection(MyContextNotICollection ctx)
+    {
+        ctx.Database.ExecuteSqlRaw(
+            @"INSERT INTO ""Entities"" (""Json"", ""Id"")
+VALUES(
+'{{""Collection"":[{{""Bar"":11,""Foo"":""c11""}},{{""Bar"":12,""Foo"":""c12""}},{{""Bar"":13,""Foo"":""c13""}}]}}',
+1)");
+
+        ctx.Database.ExecuteSqlRaw(
+            @"INSERT INTO ""Entities"" (""Json"", ""Id"")
+VALUES(
+'{{""Collection"":[{{""Bar"":21,""Foo"":""c21""}},{{""Bar"":22,""Foo"":""c22""}}]}}',
+2)");
+    }
 }

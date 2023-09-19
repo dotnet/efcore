@@ -907,7 +907,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase navigation,
             Func<QueryContext, object[], JsonReaderData, TEntity> innerShaper)
             where TEntity : class
-            where TResult : ICollection<TEntity>
         {
             if (jsonReaderData == null)
             {
@@ -945,7 +944,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     manager.CaptureState();
                     var entity = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
-                    result.Add(entity);
+                    collectionAccessor.AddStandalone(result, entity);
                     manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
 
                     if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
