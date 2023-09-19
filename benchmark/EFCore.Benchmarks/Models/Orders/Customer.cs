@@ -24,7 +24,7 @@ public class Customer
     public string City { get; set; }
     public string StateOrProvince { get; set; }
     public string ZipOrPostalCode { get; set; }
-    public string Country { get; set; }
+    public string County { get; set; }
 
     public ICollection<Order> Orders { get; set; }
 }
