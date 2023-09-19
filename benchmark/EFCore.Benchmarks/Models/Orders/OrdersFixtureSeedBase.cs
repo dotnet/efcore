@@ -30,7 +30,7 @@ public abstract class OrdersFixtureSeedBase
                     City = "Sampleville",
                     StateOrProvince = "SMP",
                     ZipOrPostalCode = "00000",
-                    Country = "United States"
+                    County = "United States"
                 });
         }
 
@@ -83,7 +83,7 @@ public abstract class OrdersFixtureSeedBase
                         City = "Sampleville",
                         StateOrProvince = "SMP",
                         ZipOrPostalCode = "00000",
-                        Country = "United States"
+                        County = "United States"
                     });
             }
         }
