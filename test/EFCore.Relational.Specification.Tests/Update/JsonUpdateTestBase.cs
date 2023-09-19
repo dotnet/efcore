@@ -61,12 +61,10 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
                 var newEntity = query.Where(e => e.Id == 2).Single();
                 Assert.Equal("NewEntity", newEntity.Name);
-                // TODO: #29348 - collection should be empty here
-                Assert.Null(newEntity.OwnedCollectionRoot);
+                Assert.Empty(newEntity.OwnedCollectionRoot);
                 Assert.Equal("RootName", newEntity.OwnedReferenceRoot.Name);
                 Assert.Equal(42, newEntity.OwnedReferenceRoot.Number);
-                // TODO: #29348 - collection should be empty here
-                Assert.Null(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
+                Assert.Empty(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
@@ -183,8 +181,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var updatedReference = updatedEntity.OwnedReferenceRoot;
                 Assert.Equal("RootName", updatedReference.Name);
                 Assert.Equal(42, updatedReference.Number);
-                // TODO: #29348 - collection should be empty here
-                Assert.Null(updatedReference.OwnedCollectionBranch);
+                Assert.Empty(updatedReference.OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedReference.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedReference.OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, updatedReference.OwnedReferenceBranch.Fraction);
@@ -265,8 +262,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(3, updatedCollection.Count);
                 Assert.Equal("new Name", updatedCollection[2].Name);
                 Assert.Equal(142, updatedCollection[2].Number);
-                // TODO: #29348 - collection should be empty here
-                Assert.Null(updatedCollection[2].OwnedCollectionBranch);
+                Assert.Empty(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
                 Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
@@ -3082,6 +3078,286 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(
                     CoreStrings.NullRequiredPrimitiveCollection(nameof(JsonEntityAllTypes), nameof(JsonEntityAllTypes.TestGuidCollection)),
                     (await Assert.ThrowsAsync<InvalidOperationException>(async () => await context.SaveChangesAsync())).Message);
+            });
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public virtual Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var newEntity = new JsonEntityBasic
+                {
+                    Id = 2,
+                    Name = "NewEntity",
+                    OwnedCollectionRoot =
+                        value.HasValue
+                            ? value.Value
+                                ? new List<JsonOwnedRoot> { new() }
+                                : new List<JsonOwnedRoot>()
+                            : null
+                };
+
+                context.Add(newEntity);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var newEntity = await context.JsonEntitiesBasic.SingleAsync(e => e.Id == 2);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Single(newEntity.OwnedCollectionRoot!);
+                        newEntity.OwnedCollectionRoot = null;
+                    }
+                    else
+                    {
+                        Assert.Empty(newEntity.OwnedCollectionRoot!);
+                        newEntity.OwnedCollectionRoot.Add(new JsonOwnedRoot());
+                    }
+                }
+                else
+                {
+                    Assert.Null(newEntity.OwnedCollectionRoot);
+                    newEntity.OwnedCollectionRoot = new List<JsonOwnedRoot>();
+
+                    // Because just setting the navigation to an empty collection currently doesn't mark it as modified.
+                    context.Entry(newEntity).State = EntityState.Modified;
+                }
+                await context.SaveChangesAsync();
+
+                var saved = context.Database.SqlQueryRaw<string>("select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2").ToList();
+            },
+            async context =>
+            {
+                var newEntity = await context.JsonEntitiesBasic.SingleAsync(e => e.Id == 2);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Null(newEntity.OwnedCollectionRoot);
+                    }
+                    else
+                    {
+                        Assert.Single(newEntity.OwnedCollectionRoot!);
+                    }
+                }
+                else
+                {
+                    Assert.Empty(newEntity.OwnedCollectionRoot);
+                }
+            });
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public virtual Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var newEntity = new JsonEntityBasic
+                {
+                    Id = 2,
+                    Name = "NewEntity",
+                    OwnedReferenceRoot = new JsonOwnedRoot()
+                    {
+                        OwnedCollectionBranch =
+                            value.HasValue
+                                ? value.Value
+                                    ? new List<JsonOwnedBranch> { new() }
+                                    : new List<JsonOwnedBranch>()
+                                : null
+                    }
+                };
+
+                context.Add(newEntity);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var newEntity = await context.JsonEntitiesBasic.SingleAsync(e => e.Id == 2);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Single(newEntity.OwnedReferenceRoot.OwnedCollectionBranch!);
+                        newEntity.OwnedReferenceRoot.OwnedCollectionBranch = null;
+                    }
+                    else
+                    {
+                        Assert.Empty(newEntity.OwnedReferenceRoot.OwnedCollectionBranch!);
+                        newEntity.OwnedReferenceRoot.OwnedCollectionBranch.Add(new JsonOwnedBranch());
+                    }
+                }
+                else
+                {
+                    Assert.Null(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
+                    newEntity.OwnedReferenceRoot.OwnedCollectionBranch = new List<JsonOwnedBranch>();
+
+                    // Because just setting the navigation to an empty collection currently doesn't mark it as modified.
+                    context.Entry(newEntity).Reference(e => e.OwnedReferenceRoot).TargetEntry!.State = EntityState.Modified;
+                }
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var newEntity = await context.JsonEntitiesBasic.SingleAsync(e => e.Id == 2);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Null(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
+                    }
+                    else
+                    {
+                        Assert.Single(newEntity.OwnedReferenceRoot.OwnedCollectionBranch!);
+                    }
+                }
+                else
+                {
+                    Assert.Empty(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
+                }
+            });
+
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [InlineData(null)]
+    public virtual Task Add_and_update_nested_optional_primitive_collection(bool? value)
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var newEntity = new JsonEntityAllTypes
+                {
+                    Id = 7624,
+                    TestDefaultStringCollection = Array.Empty<string>(),
+                    TestMaxLengthStringCollection = new List<string>(),
+                    TestBooleanCollection = Array.Empty<bool>(),
+                    TestCharacterCollection = new ObservableCollection<char>(),
+                    TestDateTimeCollection = new List<DateTime>(),
+                    TestDateTimeOffsetCollection = Array.Empty<DateTimeOffset>(),
+                    TestDoubleCollection = Array.Empty<double>(),
+                    TestDecimalCollection = Array.Empty<decimal>(),
+                    TestGuidCollection = new List<Guid>(),
+                    TestInt16Collection = Array.Empty<short>(),
+                    TestInt32Collection = Array.Empty<int>(),
+                    TestInt64Collection = new List<long>(),
+                    TestSignedByteCollection = Array.Empty<sbyte>(),
+                    TestSingleCollection = new List<float>(),
+                    TestTimeSpanCollection = Array.Empty<TimeSpan>(),
+                    TestUnsignedInt16Collection = new List<ushort>(),
+                    TestUnsignedInt32Collection = Array.Empty<uint>(),
+                    TestUnsignedInt64Collection = new ObservableCollection<ulong>(),
+                    TestNullableInt32Collection = new ObservableCollection<int?>(),
+                    TestEnumCollection = Array.Empty<JsonEnum>(),
+                    TestEnumWithIntConverterCollection = Array.Empty<JsonEnum>(),
+                    TestNullableEnumCollection = new Collection<JsonEnum?>(),
+                    TestNullableEnumWithIntConverterCollection = new Collection<JsonEnum?>(),
+                    TestNullableEnumWithConverterThatHandlesNullsCollection = Array.Empty<JsonEnum?>(),
+                    Collection = new List<JsonOwnedAllTypes>
+                    {
+                        new()
+                        {
+                            TestDefaultStringCollection = Array.Empty<string>(),
+                            TestMaxLengthStringCollection = new List<string>(),
+                            TestBooleanCollection = Array.Empty<bool>(),
+                            TestDateTimeCollection = new List<DateTime>(),
+                            TestDateTimeOffsetCollection = Array.Empty<DateTimeOffset>(),
+                            TestDoubleCollection = Array.Empty<double>(),
+                            TestDecimalCollection = Array.Empty<decimal>(),
+                            TestGuidCollection = new List<Guid>(),
+                            TestInt16Collection = Array.Empty<short>(),
+                            TestInt32Collection = Array.Empty<int>(),
+                            TestInt64Collection = new List<long>(),
+                            TestSignedByteCollection = Array.Empty<sbyte>(),
+                            TestSingleCollection = new List<float>(),
+                            TestTimeSpanCollection = Array.Empty<TimeSpan>(),
+                            TestDateOnlyCollection = Array.Empty<DateOnly>(),
+                            TestTimeOnlyCollection = Array.Empty<TimeOnly>(),
+                            TestUnsignedInt16Collection = new List<ushort>(),
+                            TestUnsignedInt32Collection = Array.Empty<uint>(),
+                            TestUnsignedInt64Collection = new ObservableCollection<ulong>(),
+                            TestNullableInt32Collection = new ObservableCollection<int?>(),
+                            TestEnumCollection = Array.Empty<JsonEnum>(),
+                            TestEnumWithIntConverterCollection = Array.Empty<JsonEnum>(),
+                            TestNullableEnumCollection = new Collection<JsonEnum?>(),
+                            TestNullableEnumWithIntConverterCollection = new Collection<JsonEnum?>(),
+                            TestNullableEnumWithConverterThatHandlesNullsCollection = Array.Empty<JsonEnum?>(),
+                            TestCharacterCollection =
+                                value.HasValue
+                                    ? value.Value
+                                        ? new ObservableCollection<char> { 'A' }
+                                        : new ObservableCollection<char>()
+                                    : null
+                        }
+                    }
+                };
+
+                context.Add(newEntity);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var newEntity = await context.Set<JsonEntityAllTypes>().SingleAsync(e => e.Id == 7624);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Single(newEntity.Collection!.Single().TestCharacterCollection!);
+                        newEntity.Collection!.Single().TestCharacterCollection = null;
+                    }
+                    else
+                    {
+                        Assert.Empty(newEntity.Collection!.Single().TestCharacterCollection!);
+                        newEntity.Collection!.Single().TestCharacterCollection.Add('Z');
+                    }
+                }
+                else
+                {
+                    Assert.Null(newEntity.Collection!.Single().TestCharacterCollection);
+                    newEntity.Collection!.Single().TestCharacterCollection = new ObservableCollection<char>();
+                }
+
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var newEntity = await context.Set<JsonEntityAllTypes>().SingleAsync(e => e.Id == 7624);
+
+                if (value.HasValue)
+                {
+                    if (value.Value)
+                    {
+                        Assert.Null(newEntity.Collection!.Single().TestCharacterCollection);
+                    }
+                    else
+                    {
+                        Assert.Single(newEntity.Collection!.Single().TestCharacterCollection!);
+                    }
+                }
+                else
+                {
+                    Assert.Empty(newEntity.Collection!.Single().TestCharacterCollection);
+                }
             });
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

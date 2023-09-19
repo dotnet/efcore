@@ -34,6 +34,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MemberInfo SingleQueryResultCoordinatorResultReadyMemberInfo
             = typeof(SingleQueryResultCoordinator).GetMember(nameof(SingleQueryResultCoordinator.ResultReady))[0];
 
+        private static readonly MethodInfo CollectionAccessorGetOrCreateMethodInfo
+            = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.GetOrCreate))!;
+
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
@@ -1281,6 +1284,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var innerShapersMap = new Dictionary<string, Expression>();
             var innerFixupMap = new Dictionary<string, LambdaExpression>();
+            var trackingInnerFixupMap = new Dictionary<string, LambdaExpression>();
             foreach (var ownedNavigation in entityType.GetNavigations().Where(
                          n => n.TargetEntityType.IsMappedToJson() && n.ForeignKey.IsOwnership && n == n.ForeignKey.PrincipalToDependent))
             {
@@ -1303,21 +1307,30 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var shaperEntityParameter = Parameter(ownedNavigation.DeclaringEntityType.ClrType);
                     var shaperCollectionParameter = Parameter(ownedNavigation.ClrType);
                     var expressions = new List<Expression>();
+                    var expressionsForTracking = new List<Expression>();
 
                     if (!ownedNavigation.IsShadowProperty())
                     {
                         expressions.Add(
                             shaperEntityParameter.MakeMemberAccess(ownedNavigation.GetMemberInfo(forMaterialization: true, forSet: true))
                                 .Assign(shaperCollectionParameter));
+
+                        expressionsForTracking.Add(
+                            IfThen(
+                                OrElse(
+                                    ReferenceEqual(Constant(null), shaperCollectionParameter),
+                                    IsFalse(
+                                        Call(
+                                            typeof(EnumerableExtensions).GetMethod(nameof(EnumerableExtensions.Any))!,
+                                            shaperCollectionParameter))),
+                                shaperEntityParameter
+                                    .MakeMemberAccess(ownedNavigation.GetMemberInfo(forMaterialization: true, forSet: true))
+                                    .Assign(shaperCollectionParameter)));
                     }
 
                     if (ownedNavigation.Inverse is INavigation inverseNavigation
                         && !inverseNavigation.IsShadowProperty())
                     {
-                        //for (var i = 0; i < prm.Count; i++)
-                        //{
-                        //    prm[i].Parent = instance
-                        //}
                         var innerFixupCollectionElementParameter = Parameter(inverseNavigation.DeclaringEntityType.ClrType);
                         var innerFixupParentParameter = Parameter(inverseNavigation.TargetEntityType.ClrType);
 
@@ -1347,6 +1360,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         shaperCollectionParameter);
 
                     innerFixupMap[navigationJsonPropertyName] = fixup;
+
+                    var trackedFixup = Lambda(
+                        Block(typeof(void), expressionsForTracking),
+                        shaperEntityParameter,
+                        shaperCollectionParameter);
+
+                    innerFixupMap[navigationJsonPropertyName] = fixup;
+                    trackingInnerFixupMap[navigationJsonPropertyName] = trackedFixup;
                 }
                 else
                 {
@@ -1366,6 +1387,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 jsonReaderDataShaperLambdaParameter,
                 innerShapersMap,
                 innerFixupMap,
+                trackingInnerFixupMap,
                 _queryLogger).Rewrite(entityShaperMaterializer);
 
             var entityShaperMaterializerVariable = Variable(
@@ -1416,6 +1438,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             jsonReaderDataParameter,
                             includingEntityExpression,
                             shaperLambda,
+                            GetOrCreateCollectionObjectLambda(
+                                navigation.DeclaringEntityType.ClrType,
+                                navigation),
                             fixup,
                             Constant(_isTracking));
 
@@ -1484,6 +1509,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             private readonly ParameterExpression _jsonReaderDataParameter;
             private readonly IDictionary<string, Expression> _innerShapersMap;
             private readonly IDictionary<string, LambdaExpression> _innerFixupMap;
+            private readonly IDictionary<string, LambdaExpression> _trackingInnerFixupMap;
             private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
 
             private static readonly PropertyInfo JsonEncodedTextEncodedUtf8BytesProperty
@@ -1499,6 +1525,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 ParameterExpression jsonReaderDataParameter,
                 IDictionary<string, Expression> innerShapersMap,
                 IDictionary<string, LambdaExpression> innerFixupMap,
+                IDictionary<string, LambdaExpression> trackingInnerFixupMap,
                 IDiagnosticsLogger<DbLoggerCategory.Query> queryLogger)
             {
                 _entityType = entityType;
@@ -1506,6 +1533,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _jsonReaderDataParameter = jsonReaderDataParameter;
                 _innerShapersMap = innerShapersMap;
                 _innerFixupMap = innerFixupMap;
+                _trackingInnerFixupMap = trackingInnerFixupMap;
                 _queryLogger = queryLogger;
             }
 
@@ -1662,10 +1690,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
                     }
 
-                    // fixup is only needed for non-tracking queries, in case of tracking - ChangeTracker does the job
-                    if (!_isTracking)
+                    // Fixup is only needed for non-tracking queries, in case of tracking - ChangeTracker does the job
+                    // or for empty/null collections of a tracking queries.
+                    if (_isTracking)
                     {
-                        foreach (var fixup in _innerFixupMap)
+                        ProcessFixup(_trackingInnerFixupMap);
+                    }
+                    else
+                    {
+                        ProcessFixup(_innerFixupMap);
+                    }
+
+                    finalBlockExpressions.Add(jsonEntityTypeVariable);
+
+                    return Block(
+                        finalBlockVariables,
+                        finalBlockExpressions);
+
+                    void ProcessFixup(IDictionary<string, LambdaExpression> fixupMap)
+                    {
+                        foreach (var fixup in fixupMap)
                         {
                             var navigationEntityParameter = _navigationVariableMap[fixup.Key];
 
@@ -1674,25 +1718,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             // but in this case fixups are standalone, so the null safety must be added by us directly
                             finalBlockExpressions.Add(
                                 IfThen(
-                                    AndAlso(
-                                        NotEqual(
-                                            jsonEntityTypeVariable,
-                                            Constant(null, jsonEntityTypeVariable.Type)),
-                                        NotEqual(
-                                            navigationEntityParameter,
-                                            Constant(null, navigationEntityParameter.Type))),
+                                    NotEqual(
+                                        jsonEntityTypeVariable,
+                                        Constant(null, jsonEntityTypeVariable.Type)),
                                     Invoke(
                                         fixup.Value,
                                         jsonEntityTypeVariable,
                                         _navigationVariableMap[fixup.Key])));
                         }
                     }
-
-                    finalBlockExpressions.Add(jsonEntityTypeVariable);
-
-                    return Block(
-                        finalBlockVariables,
-                        finalBlockExpressions);
                 }
 
                 return base.VisitSwitch(switchExpression);
@@ -2368,6 +2402,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression relatedEntity,
             INavigationBase navigation)
             => entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
+
+        private static Expression GetOrCreateCollectionObjectLambda(
+            Type entityType,
+            INavigationBase navigation)
+        {
+            var prm = Parameter(entityType);
+
+            return Lambda(
+                Block(
+                    typeof(void),
+                    Call(
+                        Constant(navigation.GetCollectionAccessor()),
+                        CollectionAccessorGetOrCreateMethodInfo,
+                        prm,
+                        Constant(true))),
+                    prm);
+        }
 
         private static Expression AddToCollectionNavigation(
             ParameterExpression entity,
