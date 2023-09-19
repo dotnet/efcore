@@ -56,7 +56,7 @@ public abstract class TypeAttributeConventionBase<TAttribute> : IEntityTypeAdded
     /// </summary>
     /// <param name="propertyBuilder">The builder for the complex property.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessComplexPropertyAdded(
+    public virtual void ProcessComplexPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         IConventionContext<IConventionComplexPropertyBuilder> context)
     {

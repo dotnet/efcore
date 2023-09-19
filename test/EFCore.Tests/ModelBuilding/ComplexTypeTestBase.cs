@@ -1601,6 +1601,18 @@ public abstract partial class ModelBuilderTest
             var indexedType = model.FindEntityType(typeof(ComplexProperties))!
                 .FindComplexProperty(nameof(ComplexProperties.IndexedClass))!.ComplexType;
 
+            var nestedProperty = indexedType.FindComplexProperty(nameof(IndexedClass.Nested))!;
+            Assert.False(nestedProperty.IsNullable);
+            Assert.Equal(typeof(NestedComplexType), nestedProperty.ClrType);
+            var nestedType = nestedProperty.ComplexType;
+            Assert.Equal(typeof(NestedComplexType), nestedType.ClrType);
+
+            var doubleNestedProperty = nestedType.FindComplexProperty(nameof(NestedComplexType.DoubleNested))!;
+            Assert.False(doubleNestedProperty.IsNullable);
+            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedProperty.ClrType);
+            var doubleNestedType = doubleNestedProperty.ComplexType;
+            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedType.ClrType);
+
             var valueType = model.FindEntityType(typeof(ValueComplexProperties))!;
             var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label))!;
             Assert.False(labelProperty.IsNullable);

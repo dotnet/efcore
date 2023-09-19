@@ -1010,6 +1010,21 @@ public abstract partial class ModelBuilderTest
                 }
             }
         }
+
+        public NestedComplexType Nested { get; set; } = null!;
+    }
+
+    [ComplexType]
+    protected class NestedComplexType
+    {
+        public int Foo { get; set; }
+        public DoubleNestedComplexType DoubleNested { get; set; } = null!;
+    }
+
+    [ComplexType]
+    protected class DoubleNestedComplexType
+    {
+        public int Foo { get; set; }
     }
 
     protected class IndexedClassByDictionary
