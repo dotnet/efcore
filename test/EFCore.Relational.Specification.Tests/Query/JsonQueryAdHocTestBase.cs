@@ -824,6 +824,71 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region NotICollection
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Not_ICollection_basic_projection(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContextNotICollection>(
+            seed: SeedNotICollection);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.Entities;
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(2, result.Count);
+        }
+    }
+
+    protected abstract void SeedNotICollection(MyContextNotICollection ctx);
+
+    public class MyEntityNotICollection
+    {
+        public int Id { get; set; }
+
+        public MyJsonEntityNotICollection Json { get; set; }
+    }
+
+    public class MyJsonEntityNotICollection
+    {
+        private readonly List<MyJsonNestedEntityNotICollection> _collection = new();
+
+        public IEnumerable<MyJsonNestedEntityNotICollection> Collection => _collection.AsReadOnly();
+    }
+
+    public class MyJsonNestedEntityNotICollection
+    {
+        public string Foo { get; set; }
+        public int Bar { get; set; }
+    }
+
+    public class MyContextNotICollection : DbContext
+    {
+        public MyContextNotICollection(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<MyEntityNotICollection> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyEntityNotICollection>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<MyEntityNotICollection>().OwnsOne(cr => cr.Json, nb =>
+            {
+                nb.ToJson();
+                nb.OwnsMany(x => x.Collection);
+            });
+        }
+    }
+
+    #endregion
+
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 }

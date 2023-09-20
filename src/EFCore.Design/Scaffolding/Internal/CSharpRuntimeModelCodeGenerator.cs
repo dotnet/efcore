@@ -840,8 +840,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (sentinel != null)
         {
             mainBuilder.AppendLine(",")
-                .Append("sentinel: ")
-                .Append(_code.UnknownLiteral(sentinel));
+                .Append("sentinel: ");
+
+            if (valueConverterType != null)
+            {
+                var converter = property.GetValueConverter()!;
+                mainBuilder.Append("new ")
+                    .Append(_code.Reference(valueConverterType))
+                    .Append("().")
+                    .Append(nameof(ValueConverter.ConvertFromProvider))
+                    .Append("(")
+                    .Append(_code.UnknownLiteral(converter.ConvertToProvider(sentinel)))
+                    .Append(")");
+            }
+            else
+            {
+                mainBuilder.Append(_code.UnknownLiteral(sentinel));
+            }
         }
 
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];

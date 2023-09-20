@@ -18,6 +18,7 @@ public class PropertyBaseTest
     private const string Property = "Foo";
     private const string Reference = "Reference";
     private const string Collection = "Collection";
+    private const string SkipCollection = "SkipCollection";
 
     [ConditionalFact]
     public void Get_MemberInfos_for_auto_props()
@@ -676,6 +677,212 @@ public class PropertyBaseTest
             Collection);
     }
 
+    [ConditionalFact]
+    public void Get_MemberInfos_for_auto_prop_skip_collection_navigations()
+    {
+        const string field = "<SkipCollection>k__BackingField";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.Property, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, SkipCollection,
+            SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<AutoProp, AutoPropOther>(field), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_full_prop_skip_collection_navigations()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.Property, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, SkipCollection,
+            SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullProp, FullPropOther>(field), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_read_only_prop_skip_collection_navigations()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, field, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.Property, null, null, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, field,
+            SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyProp, ReadOnlyPropOther>(field), PropertyAccessMode.PreferProperty, field, field, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_read_only_auto_prop_skip_collection_navigations()
+    {
+        const string field = "<SkipCollection>k__BackingField";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, field, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.Property, null, null, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction,
+            field, field, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyAutoProp, ReadOnlyAutoPropOther>(field), PropertyAccessMode.PreferProperty, field, field, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_read_only_field_prop_skip_collection_navigations()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, field, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.Property, null, null, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction,
+            field, field, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyFieldProp, ReadOnlyFieldPropOther>(field), PropertyAccessMode.PreferProperty, field, field, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_write_only_prop_skip_collection_navigations()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.FieldDuringConstruction, field, SkipCollection, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.Property,
+            SkipCollection, SkipCollection, NoGetterSkipColl<WriteOnlyProp>());
+        MemberInfoTest(CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.PreferFieldDuringConstruction, field, SkipCollection,
+            field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyProp, WriteOnlyPropOther>(field), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection, field);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_full_prop_skip_collection_navigations_with_field_not_found()
+    {
+        MemberInfoTest(CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), null, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.Field, null, null, NoFieldSkipColl<FullPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.FieldDuringConstruction, null, SkipCollection,
+            SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.Property, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.PreferField, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+            SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<FullPropNoField, FullPropNoFieldOther>(null), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_read_only_prop_skip_collection_navigations_with_field_not_found()
+    {
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), null, null, null, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.Field,
+            null, null, NoFieldSkipColl<ReadOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.FieldDuringConstruction, null, null, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.Property, null, null, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.PreferField, null, null, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.PreferFieldDuringConstruction,
+            null, null, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<ReadOnlyPropNoField, ReadOnlyPropNoFieldOther>(null), PropertyAccessMode.PreferProperty, null, null, SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_write_only_prop_skip_collection_navigations_with_field_not_found()
+    {
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), null,
+            SkipCollection, SkipCollection, NoFieldOrGetterSkipColl<WriteOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), PropertyAccessMode.Field,
+            null, null, NoFieldSkipColl<WriteOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), PropertyAccessMode.FieldDuringConstruction,
+            null, SkipCollection, NoFieldOrGetterSkipColl<WriteOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), PropertyAccessMode.Property,
+            SkipCollection, SkipCollection, NoGetterSkipColl<WriteOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), PropertyAccessMode.PreferField,
+            SkipCollection, SkipCollection, NoFieldOrGetterSkipColl<WriteOnlyPropNoField>());
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<WriteOnlyPropNoField, WriteOnlyPropNoFieldOther>(null), PropertyAccessMode.PreferProperty,
+            SkipCollection, SkipCollection, NoFieldOrGetterSkipColl<WriteOnlyPropNoField>());
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_full_prop_skip_collection_navigations_private_setter_in_base()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), PropertyAccessMode.FieldDuringConstruction, field,
+            SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), PropertyAccessMode.Property, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateSetterInBase, PrivateSetterBaseOther>(field), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection,
+            SkipCollection);
+    }
+
+    [ConditionalFact]
+    public void Get_MemberInfos_for_full_prop_skip_collection_navigations_private_getter_in_base()
+    {
+        const string field = "_skipCollection";
+
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), null, field, field, field);
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), PropertyAccessMode.Field, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), PropertyAccessMode.FieldDuringConstruction,
+            field, SkipCollection, SkipCollection);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), PropertyAccessMode.Property, SkipCollection, SkipCollection, SkipCollection);
+        MemberInfoTest(CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), PropertyAccessMode.PreferField, field, field, field);
+        MemberInfoTest(
+            CreateSkipCollectionNavigation<PrivateGetterInBase, PrivateGetterBaseOther>(field), PropertyAccessMode.PreferProperty, SkipCollection, SkipCollection,
+            SkipCollection);
+    }
+
     private static string NoProperty<TEntity>(string fieldName)
         => CoreStrings.NoProperty(fieldName, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
@@ -718,6 +925,15 @@ public class PropertyBaseTest
     private static string NoGetterColl<TEntity>()
         => CoreStrings.NoGetter(Collection, typeof(TEntity).Name, nameof(PropertyAccessMode));
 
+    private static string NoFieldSkipColl<TEntity>()
+        => CoreStrings.NoBackingField(SkipCollection, typeof(TEntity).Name, nameof(PropertyAccessMode));
+
+    private static string NoFieldOrGetterSkipColl<TEntity>()
+        => CoreStrings.NoFieldOrGetter(SkipCollection, typeof(TEntity).Name);
+
+    private static string NoGetterSkipColl<TEntity>()
+        => CoreStrings.NoGetter(SkipCollection, typeof(TEntity).Name, nameof(PropertyAccessMode));
+
     private static IMutableProperty CreateProperty<TEntity>(string fieldName, string propertyName = Property)
         where TEntity : class
     {
@@ -725,6 +941,7 @@ public class PropertyBaseTest
         var property = model.Entity<TEntity>()
             .Ignore("Reference")
             .Ignore("Collection")
+            .Ignore("SkipCollection")
             .Property<int>(propertyName)
             .Metadata;
 
@@ -743,6 +960,7 @@ public class PropertyBaseTest
         var relationship = model.Entity<TEntity>()
             .Ignore("Foo")
             .Ignore("Collection")
+            .Ignore("SkipCollection")
             .HasOne(typeof(TEntity), navigationName)
             .WithMany();
 
@@ -761,6 +979,7 @@ public class PropertyBaseTest
         var relationship = model.Entity<TEntity>()
             .Ignore("Foo")
             .Ignore("Reference")
+            .Ignore("SkipCollection")
             .HasMany(typeof(TEntity), navigationName)
             .WithOne();
 
@@ -768,6 +987,26 @@ public class PropertyBaseTest
         navigation.SetField(fieldName);
 
         return navigation;
+    }
+
+    private static IMutableSkipNavigation CreateSkipCollectionNavigation<TEntity, TOtherEntity>(
+        string fieldName,
+        string navigationName = SkipCollection)
+        where TEntity : class
+        where TOtherEntity : class
+    {
+        var model = CreateModelBuilder();
+        var relationship = model.Entity<TEntity>()
+            .Ignore("Foo")
+            .Ignore("Reference")
+            .Ignore("Collection")
+            .HasMany(typeof(TOtherEntity), navigationName)
+            .WithMany();
+
+        var navigation = model.Entity<TEntity>().Navigation(navigationName);
+        navigation.HasField(fieldName);
+
+        return (IMutableSkipNavigation)navigation.Metadata;
     }
 
     private static ModelBuilder CreateModelBuilder()
@@ -786,7 +1025,7 @@ public class PropertyBaseTest
     }
 
     private void MemberInfoTest(
-        IMutableNavigation navigation,
+        IMutableNavigationBase navigation,
         PropertyAccessMode? accessMode,
         string forConstruction,
         string forSet,
@@ -984,6 +1223,12 @@ public class PropertyBaseTest
         public int Foo { get; set; }
         public AutoProp Reference { get; set; }
         public IEnumerable<AutoProp> Collection { get; set; }
+        public IEnumerable<AutoPropOther> SkipCollection { get; set; }
+    }
+
+    private class AutoPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class FullProp
@@ -991,6 +1236,7 @@ public class PropertyBaseTest
         private int _foo;
         private FullProp _reference;
         private IEnumerable<FullProp> _collection;
+        private IEnumerable<FullPropOther> _skipCollection;
 
         public int Id { get; set; }
 
@@ -1011,6 +1257,17 @@ public class PropertyBaseTest
             get => _collection;
             set => _collection = value;
         }
+
+        public IEnumerable<FullPropOther> SkipCollection
+        {
+            get => _skipCollection;
+            set => _skipCollection = value;
+        }
+    }
+
+    private class FullPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class ReadOnlyProp
@@ -1018,6 +1275,7 @@ public class PropertyBaseTest
         private readonly int _foo;
         private readonly ReadOnlyProp _reference;
         private readonly IEnumerable<ReadOnlyProp> _collection;
+        private readonly IEnumerable<ReadOnlyPropOther> _skipCollection;
 
         public int Id { get; set; }
 
@@ -1025,11 +1283,16 @@ public class PropertyBaseTest
         {
         }
 
-        public ReadOnlyProp(int id, ReadOnlyProp reference, IEnumerable<ReadOnlyProp> collection)
+        public ReadOnlyProp(
+            int id,
+            ReadOnlyProp reference,
+            IEnumerable<ReadOnlyProp> collection,
+            IEnumerable<ReadOnlyPropOther> skipCollection)
         {
             _foo = id;
             _reference = reference;
             _collection = collection;
+            _skipCollection = skipCollection;
         }
 
         public int Foo
@@ -1040,6 +1303,14 @@ public class PropertyBaseTest
 
         public IEnumerable<ReadOnlyProp> Collection
             => _collection;
+
+        public IEnumerable<ReadOnlyPropOther> SkipCollection
+            => _skipCollection;
+    }
+
+    private class ReadOnlyPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class ReadOnlyAutoProp
@@ -1048,17 +1319,28 @@ public class PropertyBaseTest
         {
         }
 
-        public ReadOnlyAutoProp(int id, ReadOnlyAutoProp reference, IEnumerable<ReadOnlyAutoProp> collection)
+        public ReadOnlyAutoProp(
+            int id,
+            ReadOnlyAutoProp reference,
+            IEnumerable<ReadOnlyAutoProp> collection,
+            IEnumerable<ReadOnlyAutoPropOther> skipCollection)
         {
             Foo = id;
             Reference = reference;
             Collection = collection;
+            SkipCollection = skipCollection;
         }
 
         public int Id { get; set; }
         public int Foo { get; }
         public ReadOnlyAutoProp Reference { get; }
         public IEnumerable<ReadOnlyAutoProp> Collection { get; }
+        public IEnumerable<ReadOnlyAutoPropOther> SkipCollection { get; }
+    }
+
+    private class ReadOnlyAutoPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class ReadOnlyFieldProp
@@ -1066,16 +1348,22 @@ public class PropertyBaseTest
         private readonly int _foo;
         private readonly ReadOnlyFieldProp _reference;
         private readonly IEnumerable<ReadOnlyFieldProp> _collection;
+        private readonly IEnumerable<ReadOnlyFieldPropOther> _skipCollection;
 
         public ReadOnlyFieldProp()
         {
         }
 
-        public ReadOnlyFieldProp(int id, ReadOnlyFieldProp reference, IEnumerable<ReadOnlyFieldProp> collection)
+        public ReadOnlyFieldProp(
+            int id,
+            ReadOnlyFieldProp reference,
+            IEnumerable<ReadOnlyFieldProp> collection,
+            IEnumerable<ReadOnlyFieldPropOther> skipCollection)
         {
             _foo = id;
             _reference = reference;
             _collection = collection;
+            _skipCollection = skipCollection;
         }
 
         public int Id { get; set; }
@@ -1088,6 +1376,14 @@ public class PropertyBaseTest
 
         public IEnumerable<ReadOnlyFieldProp> Collection
             => _collection;
+
+        public IEnumerable<ReadOnlyFieldPropOther> SkipCollection
+            => _skipCollection;
+    }
+
+    private class ReadOnlyFieldPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class WriteOnlyProp
@@ -1095,6 +1391,7 @@ public class PropertyBaseTest
         private int _foo;
         private WriteOnlyProp _reference;
         private IEnumerable<WriteOnlyProp> _collection;
+        private IEnumerable<WriteOnlyPropOther> _skipCollection;
 
         public int Id { get; set; }
 
@@ -1112,6 +1409,16 @@ public class PropertyBaseTest
         {
             set => _collection = value;
         }
+
+        public IEnumerable<WriteOnlyPropOther> SkipCollection
+        {
+            set => _skipCollection = value;
+        }
+    }
+
+    private class WriteOnlyPropOther
+    {
+        public int Id { get; set; }
     }
 
     private class FieldOnly
@@ -1143,6 +1450,7 @@ public class PropertyBaseTest
         private int _notFound;
         private FullPropNoField _notFoundRef;
         private IEnumerable<FullPropNoField> _notFoundColl;
+        private IEnumerable<FullPropNoFieldOther> _notFoundSkipColl;
 
         public int Id { get; set; }
 
@@ -1163,6 +1471,17 @@ public class PropertyBaseTest
             get => _notFoundColl;
             set => _notFoundColl = value;
         }
+
+        public IEnumerable<FullPropNoFieldOther> SkipCollection
+        {
+            get => _notFoundSkipColl;
+            set => _notFoundSkipColl = value;
+        }
+    }
+
+    private class FullPropNoFieldOther
+    {
+        public int Id { get; set; }
     }
 
     private class ReadOnlyPropNoField
@@ -1170,16 +1489,22 @@ public class PropertyBaseTest
         private readonly int _notFound;
         private readonly ReadOnlyPropNoField _notFoundRef;
         private readonly IEnumerable<ReadOnlyPropNoField> _notFoundColl;
+        private readonly IEnumerable<ReadOnlyPropNoFieldOther> _notFoundSkipColl;
 
         public ReadOnlyPropNoField()
         {
         }
 
-        public ReadOnlyPropNoField(int id, ReadOnlyPropNoField notFoundRef, IEnumerable<ReadOnlyPropNoField> notFoundColl)
+        public ReadOnlyPropNoField(
+            int id,
+            ReadOnlyPropNoField notFoundRef,
+            IEnumerable<ReadOnlyPropNoField> notFoundColl,
+            IEnumerable<ReadOnlyPropNoFieldOther> notFoundSkipColl)
         {
             _notFound = id;
             _notFoundRef = notFoundRef;
             _notFoundColl = notFoundColl;
+            _notFoundSkipColl = notFoundSkipColl;
         }
 
         public int Id { get; set; }
@@ -1192,6 +1517,14 @@ public class PropertyBaseTest
 
         public IEnumerable<ReadOnlyPropNoField> Collection
             => _notFoundColl;
+
+        public IEnumerable<ReadOnlyPropNoFieldOther> SkipCollection
+            => _notFoundSkipColl;
+    }
+
+    private class ReadOnlyPropNoFieldOther
+    {
+        public int Id { get; set; }
     }
 
     private class WriteOnlyPropNoField
@@ -1199,6 +1532,7 @@ public class PropertyBaseTest
         private int _notFound;
         private WriteOnlyPropNoField _notFoundRef;
         private IEnumerable<WriteOnlyPropNoField> _notFoundColl;
+        private IEnumerable<WriteOnlyPropNoFieldOther> _notFoundSkipColl;
 
         public int Id { get; set; }
 
@@ -1216,6 +1550,16 @@ public class PropertyBaseTest
         {
             set => _notFoundColl = value;
         }
+
+        public IEnumerable<WriteOnlyPropNoFieldOther> SkipCollection
+        {
+            set => _notFoundSkipColl = value;
+        }
+    }
+
+    private class WriteOnlyPropNoFieldOther
+    {
+        public int Id { get; set; }
     }
 
     private class PrivateSetterInBase : PrivateSetterBase
@@ -1228,6 +1572,9 @@ public class PropertyBaseTest
 
         public override IEnumerable<PrivateSetterInBase> Collection
             => _collection;
+
+        public override IEnumerable<PrivateSetterBaseOther> SkipCollection
+            => _skipCollection;
     }
 
     private class PrivateSetterBase
@@ -1236,6 +1583,7 @@ public class PropertyBaseTest
         protected int _foo;
         protected PrivateSetterInBase _reference;
         protected IEnumerable<PrivateSetterInBase> _collection;
+        protected IEnumerable<PrivateSetterBaseOther> _skipCollection;
 
         public virtual int Foo
         {
@@ -1254,6 +1602,17 @@ public class PropertyBaseTest
             get => _collection;
             private set => _collection = value;
         }
+
+        public virtual IEnumerable<PrivateSetterBaseOther> SkipCollection
+        {
+            get => _skipCollection;
+            private set => _skipCollection = value;
+        }
+    }
+
+    private class PrivateSetterBaseOther
+    {
+        public int Id { get; set; }
     }
 
     private class PrivateGetterInBase : PrivateGetterBase
@@ -1272,6 +1631,11 @@ public class PropertyBaseTest
         {
             set => _collection = value;
         }
+
+        public override IEnumerable<PrivateGetterBaseOther> SkipCollection
+        {
+            set => _skipCollection = value;
+        }
     }
 
     private class PrivateGetterBase
@@ -1280,6 +1644,7 @@ public class PropertyBaseTest
         protected int _foo;
         protected PrivateGetterInBase _reference;
         protected IEnumerable<PrivateGetterInBase> _collection;
+        protected IEnumerable<PrivateGetterBaseOther> _skipCollection;
 
         public virtual int Foo
         {
@@ -1298,5 +1663,16 @@ public class PropertyBaseTest
             private get => _collection;
             set => _collection = value;
         }
+
+        public virtual IEnumerable<PrivateGetterBaseOther> SkipCollection
+        {
+            private get => _skipCollection;
+            set => _skipCollection = value;
+        }
+    }
+
+    private class PrivateGetterBaseOther
+    {
+        public int Id { get; set; }
     }
 }
