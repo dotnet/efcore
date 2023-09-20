@@ -4303,25 +4303,34 @@ namespace TestNamespace
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
-                    (int v) => v));
+                    (int v) => v),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var @bool = runtimeEntityType.AddProperty(
@@ -12319,25 +12328,34 @@ namespace TestNamespace
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
-                    (int v) => v));
+                    (int v) => v),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var @bool = runtimeEntityType.AddProperty(
@@ -21513,7 +21531,12 @@ namespace TestNamespace
                             .HasPrecision(9, 3);
                     });
 
-                modelBuilder.Entity<ManyTypes>();
+                modelBuilder.Entity<ManyTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedOnAdd();
+                        b.HasKey(e => e.Id);
+                    });
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -24226,10 +24249,7 @@ namespace TestNamespace
 
         public class ManyTypes
         {
-            // Issue ##31770
-            // public ManyTypesId Id { get; set; }
-            public int Id { get; set; }
-
+            public ManyTypesId Id { get; set; }
             public bool Bool { get; set; }
             public byte UInt8 { get; set; }
             public ushort UInt16 { get; set; }
@@ -28668,27 +28688,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
                     (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
+                    storeTypeName: "INTEGER"),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
 
             var @bool = runtimeEntityType.AddProperty(
                 "Bool",
@@ -33668,7 +33697,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .HasPrecision(9, 3);
                     });
 
-                modelBuilder.Entity<ManyTypes>();
+                modelBuilder.Entity<ManyTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedOnAdd();
+                        b.HasKey(e => e.Id);
+                    });
             }
         }
 
@@ -34283,7 +34317,15 @@ namespace TestNamespace
             ScaffoldedFile file)
         {
             Assert.Equal(expectedPath, file.Path);
-            Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
+            try
+            {
+                Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 
