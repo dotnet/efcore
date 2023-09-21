@@ -371,7 +371,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var instanceVariable = Variable(clrType, "instance" + _currentEntityIndex);
             variables.Add(instanceVariable);
-            expressions.Add(Assign(instanceVariable, Constant(null, clrType)));
+            expressions.Add(Assign(instanceVariable, Default(clrType)));
 
             if (_queryStateManager
                 && primaryKey != null)
@@ -521,7 +521,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var materializationExpression = Switch(
                 concreteEntityTypeVariable,
-                Constant(null, returnType),
+                Default(returnType),
                 switchCases);
 
             expressions.Add(Assign(instanceVariable, materializationExpression));

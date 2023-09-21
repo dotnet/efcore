@@ -123,7 +123,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         {
                             var methodCall = Expression.Call(
                                 // Declaring types would be derived db context.
-                                Expression.Constant(null, methodInfo.DeclaringType!),
+                                Expression.Default(methodInfo.DeclaringType!),
                                 methodInfo,
                                 tableValuedFunctionQueryRootExpression.Arguments);
 
@@ -2549,7 +2549,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             shaper = new ProjectionBindingExpression(source.QueryExpression, new ProjectionMember(), nullableResultType);
             var resultVariable = Expression.Variable(nullableResultType, "result");
             var returnValueForNull = resultType.IsNullableType()
-                ? (Expression)Expression.Constant(null, resultType)
+                ? (Expression)Expression.Default(resultType)
                 : translation.Type.IsNullableType()
                     ? Expression.Default(resultType)
                     : Expression.Throw(

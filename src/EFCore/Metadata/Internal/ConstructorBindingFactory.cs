@@ -175,11 +175,7 @@ public class ConstructorBindingFactory : IConstructorBindingFactory
             && constructors.Count == 0
             && clrType.IsValueType)
         {
-            foundBindings.Add(
-                new FactoryMethodBinding(
-                    _createInstance,
-                    new ParameterBinding[0],
-                    clrType));
+            foundBindings.Add(new DefaultValueBinding(clrType));
         }
 
         if (foundBindings.Count == 0)
