@@ -232,22 +232,22 @@ public class SqliteParameterTest
         }
     }
 
-        [Theory]
-        [MemberData(nameof(BigIntegerTypesData))]
-        public void Bind_works_when_big_integer(object value, object coercedValue)
-            => Bind_works(value, coercedValue);
+    [Theory]
+    [MemberData(nameof(BigIntegerTypesData))]
+    public void Bind_works_when_big_integer(object value, object coercedValue)
+        => Bind_works(value, coercedValue);
 
-        [Theory]
-        [InlineData(double.NaN)]
-        [InlineData(float.NaN)]
-        public void Bind_throws_for_nan(object value)
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(float.NaN)]
+    public void Bind_throws_for_nan(object value)
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                var command = connection.CreateCommand();
-                command.CommandText = "SELECT @Parameter;";
-                command.Parameters.AddWithValue("@Parameter", value);
-                connection.Open();
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT @Parameter;";
+            command.Parameters.AddWithValue("@Parameter", value);
+            connection.Open();
 
             var ex = Assert.Throws<InvalidOperationException>(() => command.ExecuteScalar());
             Assert.Equal(Resources.CannotStoreNaN, ex.Message);
@@ -615,19 +615,18 @@ public class SqliteParameterTest
             new object[] { new byte[0], SqliteType.Blob },
         };
 
-        public static IEnumerable<object[]> BigIntegerTypesData
+    public static IEnumerable<object[]> BigIntegerTypesData
         => new List<object[]>
-        {
+    {
             new object[] { BigInteger.One, "1" },
 #if NET7_0_OR_GREATER
             new object[] { Int128.MaxValue, Int128.MaxValue.ToString() },
             new object[] { UInt128.MaxValue, UInt128.MaxValue.ToString() },
 #endif
-        };
+    };
 
-        private enum MyEnum
-        {
-            One = 1
-        }
+    private enum MyEnum
+    {
+        One = 1
     }
 }
