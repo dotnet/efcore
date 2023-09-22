@@ -275,7 +275,11 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         blockExpressions.Add(Expression.Assign(instanceVariable, constructorExpression));
 
         AddInitializeExpressions(properties, bindingInfo, instanceVariable, blockExpressions);
-        AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
+
+        if (bindingInfo.StructuralType is IEntityType)
+        {
+            AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
+        }
 
         blockExpressions.Add(instanceVariable);
 
@@ -449,7 +453,11 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             var initializeBlockExpressions = new List<Expression>();
 
             AddInitializeExpressions(properties, bindingInfo, instanceVariable, initializeBlockExpressions);
-            AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
+
+            if (bindingInfo.StructuralType is IEntityType)
+            {
+                AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
+            }
 
             return Expression.Block(initializeBlockExpressions);
         }

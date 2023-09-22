@@ -43,7 +43,6 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertOrder = false,
         int entryCount = 0,
         [CallerMemberName] string testMethodName = null)
-        where TResult : class
         => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, entryCount, testMethodName);
 
     public Task AssertQuery<TResult>(
@@ -55,7 +54,6 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool assertOrder = false,
         int entryCount = 0,
         [CallerMemberName] string testMethodName = null)
-        where TResult : class
         => QueryAsserter.AssertQuery(
             actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName);
 
