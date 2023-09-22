@@ -1,6 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Extensions.Namespace1;
+using Microsoft.EntityFrameworkCore.Extensions.Namespace2;
+using Microsoft.EntityFrameworkCore.Extensions.Namespace3;
+
 namespace Microsoft.EntityFrameworkCore.Extensions
 {
     public class MethodCallCodeFragmentExtensionsTest
@@ -9,27 +13,18 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         public void GetRequiredUsings_works()
         {
             var methodCall = new MethodCallCodeFragment(
-                typeof(Namespace1.TestExtensions1)
+                typeof(TestExtensions1)
                     .GetRuntimeMethod(
-                        nameof(Namespace1.TestExtensions1.Extension1),
-                        new[]
-                        {
-                            typeof(MethodCallCodeFragmentExtensionsTest),
-                            typeof(Action<MethodCallCodeFragmentExtensionsTest>)
-                        }),
+                        nameof(TestExtensions1.Extension1),
+                        new[] { typeof(MethodCallCodeFragmentExtensionsTest), typeof(Action<MethodCallCodeFragmentExtensionsTest>) }),
                 new NestedClosureCodeFragment(
                     "x",
                     new MethodCallCodeFragment(
-                        typeof(Namespace2.TestExtensions2)
+                        typeof(TestExtensions2)
                             .GetRuntimeMethod(
-                                nameof(Namespace2.TestExtensions2.Extension2),
-                                new[]
-                                {
-                                    typeof(MethodCallCodeFragmentExtensionsTest),
-                                    typeof(Namespace3.TestArgument)
-                                }),
-                        new Namespace3.TestArgument())));
-
+                                nameof(TestExtensions2.Extension2),
+                                new[] { typeof(MethodCallCodeFragmentExtensionsTest), typeof(TestArgument) }),
+                        new TestArgument())));
 
             var usings = methodCall.GetRequiredUsings();
 
@@ -61,7 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Extensions
         {
             public static void Extension2(
                 this MethodCallCodeFragmentExtensionsTest extendedObject,
-                Namespace3.TestArgument argument)
+                TestArgument argument)
                 => throw new NotImplementedException();
         }
     }

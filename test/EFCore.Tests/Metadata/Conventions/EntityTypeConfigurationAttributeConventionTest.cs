@@ -84,7 +84,6 @@ public class EntityTypeConfigurationAttributeConventionTest
         public string Name { get; set; }
     }
 
-
     [EntityTypeConfigurationAttribute<CustomerGenericConfiguration, CustomerGeneric>]
     private class CustomerGeneric
     {

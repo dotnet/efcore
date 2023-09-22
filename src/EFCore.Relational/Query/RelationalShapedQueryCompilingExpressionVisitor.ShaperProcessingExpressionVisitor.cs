@@ -495,7 +495,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         {
             switch (extensionExpression)
             {
-                case RelationalStructuralTypeShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } shaper
+                case RelationalStructuralTypeShaperExpression
+                    {
+                        ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression
+                    } shaper
                     when !_inline:
                 {
                     // we can't cache ProjectionBindingExpression results for non-tracking queries
@@ -513,7 +516,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             if (_isTracking)
                             {
                                 throw new InvalidOperationException(
-                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                                        nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
                             }
 
                             // json entity at the root
@@ -539,12 +543,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 visitedShaperResultParameter,
                                 shaper.Type);
                         }
-                        else if (GetProjectionIndex(projectionBindingExpression) is QueryableJsonProjectionInfo queryableJsonEntityProjectionInfo)
+                        else if (GetProjectionIndex(projectionBindingExpression) is QueryableJsonProjectionInfo
+                                 queryableJsonEntityProjectionInfo)
                         {
                             if (_isTracking)
                             {
                                 throw new InvalidOperationException(
-                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                                    RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                                        nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
                             }
 
                             // json entity converted to query root and projected
@@ -650,7 +656,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (_isTracking)
                     {
                         throw new InvalidOperationException(
-                            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
+                            RelationalStrings.JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(
+                                nameof(EntityFrameworkQueryableExtensions.AsNoTracking)));
                     }
 
                     // json entity collection at the root
@@ -924,7 +931,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         var projectionBindingExpression = (includeExpression.NavigationExpression as CollectionResultExpression)
                             ?.ProjectionBindingExpression
-                            ?? (includeExpression.NavigationExpression as RelationalStructuralTypeShaperExpression)?.ValueBufferExpression as
+                            ?? (includeExpression.NavigationExpression as RelationalStructuralTypeShaperExpression)
+                            ?.ValueBufferExpression as
                             ProjectionBindingExpression;
 
                         // json include case
@@ -1522,7 +1530,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     switch (body.Expressions[^1])
                     {
                         case UnaryExpression { Operand: BlockExpression innerBlock } jsonEntityTypeInitializerUnary
-                        when jsonEntityTypeInitializerUnary.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked:
+                            when jsonEntityTypeInitializerUnary.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked:
                         {
                             // in case of proxies, the entity initializer block is wrapped around Convert node
                             // that converts from the proxy type to the actual entity type.
@@ -1548,7 +1556,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var proxyConversionVariable = Variable(jsonEntityTypeInitializerUnary.Type);
                             newVariables.Add(proxyConversionVariable);
                             var newExpressions = innerBlock.Expressions.ToList()[..^1];
-                            newExpressions.Add(Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
+                            newExpressions.Add(
+                                Assign(proxyConversionVariable, jsonEntityTypeInitializerUnary.Update(innerBlock.Expressions[^1])));
                             newExpressions.Add(proxyConversionVariable);
                             jsonEntityTypeInitializerBlock = Block(newVariables, newExpressions);
                             break;

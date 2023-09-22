@@ -1185,7 +1185,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString(
-"""
+                        """
 WITH [Customers2] AS (
     SELECT * FROM [Customers]
 )

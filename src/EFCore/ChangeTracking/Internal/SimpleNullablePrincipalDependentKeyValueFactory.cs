@@ -72,7 +72,8 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public override bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.CurrentValueGetter)((InternalEntityEntry)entry)!;
+        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.CurrentValueGetter)(
+            (InternalEntityEntry)entry)!;
         return true;
     }
 
@@ -84,7 +85,8 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)((InternalEntityEntry)entry)!;
+        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.PreStoreGeneratedCurrentValueGetter)(
+            (InternalEntityEntry)entry)!;
         return true;
     }
 
@@ -96,7 +98,8 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public override bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter!)((InternalEntityEntry)entry)!;
+        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.OriginalValueGetter!)(
+            (InternalEntityEntry)entry)!;
         return true;
     }
 
@@ -108,7 +111,8 @@ public class SimpleNullablePrincipalDependentKeyValueFactory<TKey, TNonNullableK
     /// </summary>
     public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
-        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.RelationshipSnapshotGetter)((InternalEntityEntry)entry)!;
+        key = (TKey)(object)((Func<InternalEntityEntry, TNonNullableKey>)_propertyAccessors.RelationshipSnapshotGetter)(
+            (InternalEntityEntry)entry)!;
         return true;
     }
 }

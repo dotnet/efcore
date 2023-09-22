@@ -3,6 +3,7 @@
 
 // ReSharper disable ArgumentsStyleOther
 // ReSharper disable ArgumentsStyleNamedExpression
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>

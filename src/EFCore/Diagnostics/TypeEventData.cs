@@ -16,7 +16,7 @@ public class TypeEventData : EventData
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
-    /// <param name="clrType">The <see cref="Type"/> associated with this event.</param>
+    /// <param name="clrType">The <see cref="Type" /> associated with this event.</param>
     public TypeEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,
@@ -27,7 +27,7 @@ public class TypeEventData : EventData
     }
 
     /// <summary>
-    ///     The <see cref="Type"/> associated with this event.
+    ///     The <see cref="Type" /> associated with this event.
     /// </summary>
     public virtual Type ClrType { get; }
 }

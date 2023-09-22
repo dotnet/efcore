@@ -17,7 +17,6 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
     ICompositeJsonValueReaderWriter
     where TElement : struct
     where TCollection : IEnumerable<TElement?>
-    where TConcreteCollection : IList<TElement?>
 {
     private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
 
@@ -40,7 +39,7 @@ public class JsonNullableStructCollectionReaderWriter<TCollection, TConcreteColl
         }
         else if (existingObject == null)
         {
-            collection = Activator.CreateInstance<TConcreteCollection>();
+            collection = (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
         }
         else
         {

@@ -26,7 +26,9 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     /// <param name="primitiveCollectionBuilder">The builder for the property being configured.</param>
     /// <param name="sparse">A value indicating whether the property's column is created as sparse.</param>
     /// <returns>A builder to further configure the property.</returns>
-    public static ComplexTypePrimitiveCollectionBuilder IsSparse(this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder, bool sparse = true)
+    public static ComplexTypePrimitiveCollectionBuilder IsSparse(
+        this ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder,
+        bool sparse = true)
     {
         primitiveCollectionBuilder.Metadata.SetIsSparse(sparse);
 
@@ -49,5 +51,6 @@ public static class SqlServerComplexTypePrimitiveCollectionBuilderExtensions
     public static ComplexTypePrimitiveCollectionBuilder<TProperty> IsSparse<TProperty>(
         this ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder,
         bool sparse = true)
-        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsSparse((ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
+        => (ComplexTypePrimitiveCollectionBuilder<TProperty>)IsSparse(
+            (ComplexTypePrimitiveCollectionBuilder)primitiveCollectionBuilder, sparse);
 }

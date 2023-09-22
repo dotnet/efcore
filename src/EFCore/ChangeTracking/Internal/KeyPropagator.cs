@@ -37,7 +37,7 @@ public class KeyPropagator : IKeyPropagator
     {
         Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
-        var generationProperty = (IProperty?)property.FindGenerationProperty();
+        var generationProperty = property.FindGenerationProperty();
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null
@@ -72,7 +72,7 @@ public class KeyPropagator : IKeyPropagator
     {
         Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
-        var generationProperty = (IProperty?)property.FindGenerationProperty();
+        var generationProperty = property.FindGenerationProperty();
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null

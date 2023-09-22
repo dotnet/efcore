@@ -432,8 +432,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             {
                 var person = new Person("1", null)
                 {
-                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
-                    Country = "Eswatini"
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini"
                 };
 
                 context.Add(person);
@@ -443,7 +442,12 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             context =>
             {
                 var person = context.Set<Person>().Single();
-                person.Address = new Address { Country = Country.Türkiye, City = "Konya", ZipCode = 42100 };
+                person.Address = new Address
+                {
+                    Country = Country.Türkiye,
+                    City = "Konya",
+                    ZipCode = 42100
+                };
                 person.Country = "Türkiye";
                 person.ZipCode = "42100";
 
@@ -705,7 +709,8 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
 
-            modelBuilder.Entity<Person>(pb =>
+            modelBuilder.Entity<Person>(
+                pb =>
                 {
                     pb.HasOne(p => p.Parent)
                         .WithMany()

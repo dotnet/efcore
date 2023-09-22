@@ -134,6 +134,5 @@ public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
 
         private static bool IsNullableValueType(Type type)
             => type.IsConstructedGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
-
     }
 }

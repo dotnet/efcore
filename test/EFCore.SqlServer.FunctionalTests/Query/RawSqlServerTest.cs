@@ -20,7 +20,7 @@ public class RawSqlServerTest : NonSharedModelTestBase
             Assert.Equal(4, query.Count);
 
             AssertSql(
-"""
+                """
 SELECT o.Amount From Orders AS o -- RAW
 """);
         }

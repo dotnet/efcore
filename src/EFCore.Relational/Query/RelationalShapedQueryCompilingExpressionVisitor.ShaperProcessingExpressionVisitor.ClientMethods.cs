@@ -874,7 +874,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return nullable
                     ? null
                     : throw new InvalidOperationException(
-                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
             }
 
             var manager = new Utf8JsonReaderManager(jsonReaderData, queryContext.QueryLogger);
@@ -885,7 +885,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return nullable
                     ? null
                     : throw new InvalidOperationException(
-                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+                        RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
             }
 
             if (tokenType != JsonTokenType.StartObject)
@@ -907,7 +907,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase navigation,
             Func<QueryContext, object[], JsonReaderData, TEntity> innerShaper)
             where TEntity : class
-            where TResult : ICollection<TEntity>
         {
             if (jsonReaderData == null)
             {
@@ -945,7 +944,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 {
                     manager.CaptureState();
                     var entity = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
-                    result.Add(entity);
+                    collectionAccessor.AddStandalone(result, entity);
                     manager = new Utf8JsonReaderManager(manager.Data, queryContext.QueryLogger);
 
                     if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)

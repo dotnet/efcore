@@ -25,7 +25,8 @@ public interface IConventionCheckConstraintBuilder : IConventionAnnotatableBuild
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
-    ///     An <see cref="IConventionCheckConstraintBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    ///     An <see cref="IConventionCheckConstraintBuilder" /> to continue configuration if the annotation was set, <see langword="null" />
+    ///     otherwise.
     /// </returns>
     new IConventionCheckConstraintBuilder? HasAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
@@ -52,7 +53,8 @@ public interface IConventionCheckConstraintBuilder : IConventionAnnotatableBuild
     /// <param name="name">The name of the annotation to remove.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
-    ///     An <see cref="IConventionCheckConstraintBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    ///     An <see cref="IConventionCheckConstraintBuilder" /> to continue configuration if the annotation was set, <see langword="null" />
+    ///     otherwise.
     /// </returns>
     new IConventionCheckConstraintBuilder? HasNoAnnotation(string name, bool fromDataAnnotation = false);
 

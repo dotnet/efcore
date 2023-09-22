@@ -3954,7 +3954,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var complexBuilder = entityBuilder.ComplexProperty(
-            Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
+                Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder;
         var shadowPropertyName = "ShadowProperty";
 
@@ -4304,7 +4304,7 @@ public class ConventionDispatcherTest
         var property = entityBuilder
             .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder.Metadata.AddProperty(
-            shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+                shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -4968,7 +4968,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var complexBuilder = entityBuilder.ComplexProperty(
-            Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
+                Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder;
         var shadowPropertyName = "ShadowProperty";
 
@@ -5298,6 +5298,7 @@ public class ConventionDispatcherTest
         public static readonly PropertyInfo OtherOrderDetailsProperty = typeof(Order).GetProperty(nameof(OtherOrderDetails));
 
         public readonly int IntField = 1;
+        // ReSharper disable once RedundantDefaultMemberInitializer
         public readonly OrderDetails OrderDetailsField = default;
 
         public int OrderId { get; set; }

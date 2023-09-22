@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations
             base.Can_generate_migration_from_initial_database_to_initial();
 
             Assert.Equal(
-"""
+                """
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
             base.Can_generate_no_migration_script();
 
             Assert.Equal(
-"""
+                """
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
             base.Can_generate_up_scripts();
 
             Assert.Equal(
-"""
+                """
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -99,7 +99,7 @@ COMMIT;
             base.Can_generate_up_scripts_noTransactions();
 
             Assert.Equal(
-"""
+                """
 CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
     "MigrationId" TEXT NOT NULL CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY,
     "ProductVersion" TEXT NOT NULL
@@ -132,7 +132,7 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
             base.Can_generate_one_up_script();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
@@ -153,7 +153,7 @@ COMMIT;
             base.Can_generate_up_script_using_names();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 
 ALTER TABLE "Table1" RENAME COLUMN "Foo" TO "Bar";
@@ -180,7 +180,7 @@ COMMIT;
             base.Can_generate_down_scripts();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
@@ -210,7 +210,7 @@ COMMIT;
             base.Can_generate_one_down_script();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";
@@ -231,7 +231,7 @@ COMMIT;
             base.Can_generate_down_script_using_names();
 
             Assert.Equal(
-"""
+                """
 BEGIN TRANSACTION;
 
 ALTER TABLE "Table1" RENAME COLUMN "Bar" TO "Foo";

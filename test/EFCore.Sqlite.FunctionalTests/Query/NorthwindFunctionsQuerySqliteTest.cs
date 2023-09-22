@@ -47,7 +47,7 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
         await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
 
         AssertSql(
-"""
+            """
 SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
 FROM "Orders" AS "o"
 WHERE "o"."OrderID" < 10250
@@ -60,7 +60,7 @@ ORDER BY trunc(CAST("o"."OrderID" AS REAL))
         await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async);
 
         AssertSql(
-"""
+            """
 SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
 FROM "Orders" AS "o"
 WHERE "o"."OrderID" < 10250
@@ -73,7 +73,7 @@ ORDER BY trunc(CAST("o"."OrderID" AS REAL)) DESC
         await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async);
 
         AssertSql(
-"""
+            """
 SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
 FROM "Orders" AS "o"
 WHERE "o"."OrderID" < 10250
@@ -86,7 +86,7 @@ ORDER BY trunc(CAST("o"."OrderID" AS REAL)) DESC
         await base.Where_functions_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE pow(CAST(length("c"."CustomerID") AS REAL), 2.0) = 25.0
@@ -104,7 +104,7 @@ WHERE pow(CAST(length("c"."CustomerID") AS REAL), 2.0) = 25.0
         await base.Where_math_acos(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND acos(CAST("o"."Discount" AS REAL)) > 1.0
@@ -121,7 +121,7 @@ WHERE "o"."OrderID" = 11077 AND acos(CAST("o"."Discount" AS REAL)) > 1.0
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND acosh(CAST("o"."Discount" + 1 AS REAL)) > 0.0
@@ -133,7 +133,7 @@ WHERE "o"."OrderID" = 11077 AND acosh(CAST("o"."Discount" + 1 AS REAL)) > 0.0
         await base.Where_math_asin(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND asin(CAST("o"."Discount" AS REAL)) > 0.0
@@ -150,7 +150,7 @@ WHERE "o"."OrderID" = 11077 AND asin(CAST("o"."Discount" AS REAL)) > 0.0
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND asinh(CAST("o"."Discount" AS REAL)) > 0.0
@@ -162,7 +162,7 @@ WHERE "o"."OrderID" = 11077 AND asinh(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_atan(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND atan(CAST("o"."Discount" AS REAL)) > 0.0
@@ -174,7 +174,7 @@ WHERE "o"."OrderID" = 11077 AND atan(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_atan2(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND atan2(CAST("o"."Discount" AS REAL), 1.0) > 0.0
@@ -191,7 +191,7 @@ WHERE "o"."OrderID" = 11077 AND atan2(CAST("o"."Discount" AS REAL), 1.0) > 0.0
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND atanh(CAST("o"."Discount" AS REAL)) > 0.0
@@ -203,7 +203,7 @@ WHERE "o"."OrderID" = 11077 AND atanh(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_ceiling1(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."UnitPrice" < 7.0 AND ceiling(CAST("o"."Discount" AS REAL)) > 0.0
@@ -218,7 +218,7 @@ WHERE "o"."UnitPrice" < 7.0 AND ceiling(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_cos(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND cos(CAST("o"."Discount" AS REAL)) > 0.0
@@ -235,7 +235,7 @@ WHERE "o"."OrderID" = 11077 AND cos(CAST("o"."Discount" AS REAL)) > 0.0
             entryCount: 25);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND cosh(CAST("o"."Discount" AS REAL)) > 0.0
@@ -247,7 +247,7 @@ WHERE "o"."OrderID" = 11077 AND cosh(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_exp(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND exp(CAST("o"."Discount" AS REAL)) > 1.0
@@ -262,7 +262,7 @@ WHERE "o"."OrderID" = 11077 AND exp(CAST("o"."Discount" AS REAL)) > 1.0
         await base.Where_math_log(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln(CAST("o"."Discount" AS REAL)) < 0.0
@@ -274,7 +274,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln(CAST("o"."Discount" AS
         await base.Where_math_log_new_base(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < 0.0
@@ -291,7 +291,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discou
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log2(CAST("o"."Discount" AS REAL)) < 0.0
@@ -303,7 +303,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log2(CAST("o"."Discount" 
         await base.Where_math_log10(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10(CAST("o"."Discount" AS REAL)) < 0.0
@@ -315,7 +315,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10(CAST("o"."Discount"
         await base.Where_math_power(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE pow(CAST("o"."Discount" AS REAL), 3.0) > 0.004999999888241291
@@ -327,7 +327,7 @@ WHERE pow(CAST("o"."Discount" AS REAL), 3.0) > 0.004999999888241291
         await base.Where_math_square(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE pow(CAST("o"."Discount" AS REAL), 2.0) > 0.05000000074505806
@@ -357,7 +357,7 @@ WHERE pow(CAST("o"."Discount" AS REAL), 2.0) > 0.05000000074505806
         await base.Where_math_sign(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
@@ -369,7 +369,7 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
         await base.Where_math_sin(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sin(CAST("o"."Discount" AS REAL)) > 0.0
@@ -386,7 +386,7 @@ WHERE "o"."OrderID" = 11077 AND sin(CAST("o"."Discount" AS REAL)) > 0.0
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sinh(CAST("o"."Discount" AS REAL)) > 0.0
@@ -398,7 +398,7 @@ WHERE "o"."OrderID" = 11077 AND sinh(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_sqrt(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sqrt(CAST("o"."Discount" AS REAL)) > 0.0
@@ -410,7 +410,7 @@ WHERE "o"."OrderID" = 11077 AND sqrt(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_tan(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND tan(CAST("o"."Discount" AS REAL)) > 0.0
@@ -427,7 +427,7 @@ WHERE "o"."OrderID" = 11077 AND tan(CAST("o"."Discount" AS REAL)) > 0.0
             entryCount: 13);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND tanh(CAST("o"."Discount" AS REAL)) > 0.0
@@ -442,7 +442,7 @@ WHERE "o"."OrderID" = 11077 AND tanh(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_degrees(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND degrees(CAST("o"."Discount" AS REAL)) > 0.0
@@ -454,7 +454,7 @@ WHERE "o"."OrderID" = 11077 AND degrees(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_math_radians(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND radians(CAST("o"."Discount" AS REAL)) > 0.0
@@ -466,7 +466,7 @@ WHERE "o"."OrderID" = 11077 AND radians(CAST("o"."Discount" AS REAL)) > 0.0
         await base.Where_mathf_acos(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND acos("o"."Discount") > 1
@@ -478,7 +478,7 @@ WHERE "o"."OrderID" = 11077 AND acos("o"."Discount") > 1
         await base.Where_mathf_asin(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND asin("o"."Discount") > 0
@@ -490,7 +490,7 @@ WHERE "o"."OrderID" = 11077 AND asin("o"."Discount") > 0
         await base.Where_mathf_atan(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND atan("o"."Discount") > 0
@@ -502,7 +502,7 @@ WHERE "o"."OrderID" = 11077 AND atan("o"."Discount") > 0
         await base.Where_mathf_atan2(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND atan2("o"."Discount", 1) > 0
@@ -514,7 +514,7 @@ WHERE "o"."OrderID" = 11077 AND atan2("o"."Discount", 1) > 0
         await base.Where_mathf_ceiling1(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."UnitPrice" < 7.0 AND ceiling("o"."Discount") > 0
@@ -526,7 +526,7 @@ WHERE "o"."UnitPrice" < 7.0 AND ceiling("o"."Discount") > 0
         await base.Where_mathf_cos(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND cos("o"."Discount") > 0
@@ -538,7 +538,7 @@ WHERE "o"."OrderID" = 11077 AND cos("o"."Discount") > 0
         await base.Where_mathf_exp(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND exp("o"."Discount") > 1
@@ -550,7 +550,7 @@ WHERE "o"."OrderID" = 11077 AND exp("o"."Discount") > 1
         await base.Where_mathf_floor(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."Quantity" < 5 AND floor(CAST("o"."UnitPrice" AS REAL)) > 10
@@ -562,7 +562,7 @@ WHERE "o"."Quantity" < 5 AND floor(CAST("o"."UnitPrice" AS REAL)) > 10
         await base.Where_mathf_log(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln("o"."Discount") < 0
@@ -574,7 +574,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln("o"."Discount") < 0
         await base.Where_mathf_log_new_base(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < 0
@@ -586,7 +586,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < 
         await base.Where_mathf_log10(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10("o"."Discount") < 0
@@ -598,7 +598,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10("o"."Discount") < 0
         await base.Where_mathf_power(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE pow("o"."Discount", 3) > 0.005
@@ -610,7 +610,7 @@ WHERE pow("o"."Discount", 3) > 0.005
         await base.Where_mathf_square(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE pow("o"."Discount", 2) > 0.05
@@ -622,7 +622,7 @@ WHERE pow("o"."Discount", 2) > 0.05
         await base.Where_mathf_sign(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
@@ -634,7 +634,7 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
         await base.Where_mathf_sin(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sin("o"."Discount") > 0
@@ -646,7 +646,7 @@ WHERE "o"."OrderID" = 11077 AND sin("o"."Discount") > 0
         await base.Where_mathf_sqrt(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND sqrt("o"."Discount") > 0
@@ -658,7 +658,7 @@ WHERE "o"."OrderID" = 11077 AND sqrt("o"."Discount") > 0
         await base.Where_mathf_tan(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND tan("o"."Discount") > 0
@@ -670,7 +670,7 @@ WHERE "o"."OrderID" = 11077 AND tan("o"."Discount") > 0
         await base.Where_mathf_truncate(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."Quantity" < 5 AND trunc(CAST("o"."UnitPrice" AS REAL)) > 10
@@ -682,7 +682,7 @@ WHERE "o"."Quantity" < 5 AND trunc(CAST("o"."UnitPrice" AS REAL)) > 10
         await base.Where_mathf_degrees(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND degrees("o"."Discount") > 0
@@ -694,7 +694,7 @@ WHERE "o"."OrderID" = 11077 AND degrees("o"."Discount") > 0
         await base.Where_mathf_radians(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND radians("o"."Discount") > 0
@@ -706,7 +706,7 @@ WHERE "o"."OrderID" = 11077 AND radians("o"."Discount") > 0
         await base.String_StartsWith_Literal(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" LIKE 'M%'
@@ -718,7 +718,7 @@ WHERE "c"."ContactName" LIKE 'M%'
         await base.String_StartsWith_Parameter(async);
 
         AssertSql(
-"""
+            """
 @__pattern_0_rewritten='M%' (Size = 2)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
@@ -732,7 +732,7 @@ WHERE "c"."ContactName" LIKE @__pattern_0_rewritten ESCAPE '\'
         await base.String_StartsWith_Identity(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = '')
@@ -744,7 +744,7 @@ WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", 1, length("c"
         await base.String_StartsWith_Column(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = '')
@@ -756,7 +756,7 @@ WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", 1, length("c"
         await base.String_StartsWith_MethodCall(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" LIKE 'M%'
@@ -768,7 +768,7 @@ WHERE "c"."ContactName" LIKE 'M%'
         await base.String_EndsWith_Literal(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" LIKE '%b'
@@ -780,7 +780,7 @@ WHERE "c"."ContactName" LIKE '%b'
         await base.String_EndsWith_Parameter(async);
 
         AssertSql(
-"""
+            """
 @__pattern_0_rewritten='%b' (Size = 2)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
@@ -794,7 +794,7 @@ WHERE "c"."ContactName" LIKE @__pattern_0_rewritten ESCAPE '\'
         await base.String_EndsWith_Identity(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = '')
@@ -806,7 +806,7 @@ WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."
         await base.String_EndsWith_Column(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = '')
@@ -818,7 +818,7 @@ WHERE "c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."
         await base.String_EndsWith_MethodCall(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" LIKE '%m'
@@ -830,7 +830,7 @@ WHERE "c"."ContactName" LIKE '%m'
         await base.String_Contains_Literal(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
@@ -842,7 +842,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
         await base.String_Contains_Identity(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
@@ -854,7 +854,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactNam
         await base.String_Contains_Column(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactName") > 0
@@ -865,7 +865,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", "c"."ContactNam
     {
         await base.String_FirstOrDefault_MethodCall(async);
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE substr("c"."ContactName", 1, 1) = 'A'
@@ -876,7 +876,7 @@ WHERE substr("c"."ContactName", 1, 1) = 'A'
     {
         await base.String_LastOrDefault_MethodCall(async);
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE substr("c"."ContactName", length("c"."ContactName"), 1) = 's'
@@ -888,7 +888,7 @@ WHERE substr("c"."ContactName", length("c"."ContactName"), 1) = 's'
         await base.String_Contains_MethodCall(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
@@ -900,7 +900,7 @@ WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'M') > 0
         await base.String_Join_over_non_nullable_column(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."City", COALESCE(group_concat("c"."CustomerID", '|'), '') AS "Customers"
 FROM "Customers" AS "c"
 GROUP BY "c"."City"
@@ -912,7 +912,7 @@ GROUP BY "c"."City"
         await base.String_Join_over_nullable_column(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."City", COALESCE(group_concat(COALESCE("c"."Region", ''), '|'), '') AS "Regions"
 FROM "Customers" AS "c"
 GROUP BY "c"."City"
@@ -924,7 +924,7 @@ GROUP BY "c"."City"
         await base.String_Join_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."City", COALESCE(group_concat(CASE
     WHEN length("c"."ContactName") > 10 THEN "c"."CustomerID"
 END, '|'), '') AS "Customers"
@@ -939,7 +939,7 @@ GROUP BY "c"."City"
         await base.String_Join_with_ordering(async);
 
         AssertSql(
-"""
+            """
 SELECT "t"."City", "c0"."CustomerID"
 FROM (
     SELECT "c"."City"
@@ -956,7 +956,7 @@ ORDER BY "t"."City", "c0"."CustomerID" DESC
         await base.String_Concat(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."City", COALESCE(group_concat("c"."CustomerID", ''), '') AS "Customers"
 FROM "Customers" AS "c"
 GROUP BY "c"."City"
@@ -968,7 +968,7 @@ GROUP BY "c"."City"
         await base.IsNullOrWhiteSpace_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."Region" IS NULL OR trim("c"."Region") = ''
@@ -980,7 +980,7 @@ WHERE "c"."Region" IS NULL OR trim("c"."Region") = ''
         await base.Indexof_with_emptystring(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE instr("c"."ContactName", '') - 1 = 0
@@ -992,7 +992,7 @@ WHERE instr("c"."ContactName", '') - 1 = 0
         await base.Indexof_with_one_constant_arg(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE instr("c"."ContactName", 'a') - 1 = 1
@@ -1004,7 +1004,7 @@ WHERE instr("c"."ContactName", 'a') - 1 = 1
         await base.Indexof_with_one_parameter_arg(async);
 
         AssertSql(
-"""
+            """
 @__pattern_0='a' (Size = 1)
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
@@ -1024,7 +1024,7 @@ WHERE instr("c"."ContactName", @__pattern_0) - 1 = 1
         await base.Replace_with_emptystring(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE replace("c"."ContactName", 'ia', '') = 'Mar Anders'
@@ -1036,7 +1036,7 @@ WHERE replace("c"."ContactName", 'ia', '') = 'Mar Anders'
         await base.Replace_using_property_arguments(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE replace("c"."ContactName", "c"."ContactName", "c"."CustomerID") = "c"."CustomerID"
@@ -1048,7 +1048,7 @@ WHERE replace("c"."ContactName", "c"."ContactName", "c"."CustomerID") = "c"."Cus
         await base.Substring_with_one_arg_with_zero_startindex(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."ContactName"
 FROM "Customers" AS "c"
 WHERE substr("c"."CustomerID", 0 + 1) = 'ALFKI'
@@ -1060,7 +1060,7 @@ WHERE substr("c"."CustomerID", 0 + 1) = 'ALFKI'
         await base.Substring_with_one_arg_with_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."ContactName"
 FROM "Customers" AS "c"
 WHERE substr("c"."CustomerID", 1 + 1) = 'LFKI'
@@ -1072,7 +1072,7 @@ WHERE substr("c"."CustomerID", 1 + 1) = 'LFKI'
         await base.Substring_with_one_arg_with_closure(async);
 
         AssertSql(
-"""
+            """
 @__start_0='2'
 
 SELECT "c"."ContactName"
@@ -1086,7 +1086,7 @@ WHERE substr("c"."CustomerID", @__start_0 + 1) = 'FKI'
         await base.Substring_with_two_args_with_zero_startindex(async);
 
         AssertSql(
-"""
+            """
 SELECT substr("c"."ContactName", 0 + 1, 3)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" = 'ALFKI'
@@ -1098,7 +1098,7 @@ WHERE "c"."CustomerID" = 'ALFKI'
         await base.Substring_with_two_args_with_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT substr("c"."ContactName", 1 + 1, 3)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" = 'ALFKI'
@@ -1110,7 +1110,7 @@ WHERE "c"."CustomerID" = 'ALFKI'
         await base.Substring_with_two_args_with_closure(async);
 
         AssertSql(
-"""
+            """
 @__start_0='2'
 
 SELECT substr("c"."ContactName", @__start_0 + 1, 3)
@@ -1124,7 +1124,7 @@ WHERE "c"."CustomerID" = 'ALFKI'
         await base.Substring_with_two_args_with_Index_of(async);
 
         AssertSql(
-"""
+            """
 SELECT substr("c"."ContactName", (instr("c"."ContactName", 'a') - 1) + 1, 3)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" = 'ALFKI'
@@ -1136,7 +1136,7 @@ WHERE "c"."CustomerID" = 'ALFKI'
         await base.Substring_with_two_args_with_zero_length(async);
 
         AssertSql(
-"""
+            """
 SELECT substr("c"."ContactName", 2 + 1, 0)
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" = 'ALFKI'
@@ -1148,7 +1148,7 @@ WHERE "c"."CustomerID" = 'ALFKI'
         await base.Where_math_abs1(async);
 
         AssertSql(
-"""
+            """
 SELECT "p"."ProductID", "p"."Discontinued", "p"."ProductName", "p"."SupplierID", "p"."UnitPrice", "p"."UnitsInStock"
 FROM "Products" AS "p"
 WHERE abs("p"."ProductID") > 10
@@ -1160,7 +1160,7 @@ WHERE abs("p"."ProductID") > 10
         await base.Where_math_abs2(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."UnitPrice" < 7.0 AND abs("o"."Quantity") > 10
@@ -1172,7 +1172,7 @@ WHERE "o"."UnitPrice" < 7.0 AND abs("o"."Quantity") > 10
         await base.Where_math_abs_uncorrelated(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."UnitPrice" < 7.0 AND 10 < "o"."ProductID"
@@ -1184,7 +1184,7 @@ WHERE "o"."UnitPrice" < 7.0 AND 10 < "o"."ProductID"
         await base.Select_math_round_int(async);
 
         AssertSql(
-"""
+            """
 SELECT round(CAST("o"."OrderID" AS REAL)) AS "A"
 FROM "Orders" AS "o"
 WHERE "o"."OrderID" < 10250
@@ -1196,7 +1196,7 @@ WHERE "o"."OrderID" < 10250
         await base.Where_math_min(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID") = "o"."ProductID"
@@ -1208,7 +1208,7 @@ WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID") = "o"."Produ
         await base.Where_math_max(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND max("o"."OrderID", "o"."ProductID") = "o"."OrderID"
@@ -1220,7 +1220,7 @@ WHERE "o"."OrderID" = 11077 AND max("o"."OrderID", "o"."ProductID") = "o"."Order
         await base.Where_string_to_lower(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE lower("c"."CustomerID") = 'alfki'
@@ -1232,7 +1232,7 @@ WHERE lower("c"."CustomerID") = 'alfki'
         await base.Where_string_to_upper(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE upper("c"."CustomerID") = 'ALFKI'
@@ -1244,7 +1244,7 @@ WHERE upper("c"."CustomerID") = 'ALFKI'
         await base.TrimStart_without_arguments_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE ltrim("c"."ContactTitle") = 'Owner'
@@ -1256,7 +1256,7 @@ WHERE ltrim("c"."ContactTitle") = 'Owner'
         await base.TrimStart_with_char_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE ltrim("c"."ContactTitle", 'O') = 'wner'
@@ -1268,7 +1268,7 @@ WHERE ltrim("c"."ContactTitle", 'O') = 'wner'
         await base.TrimStart_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE ltrim("c"."ContactTitle", 'Ow') = 'ner'
@@ -1280,7 +1280,7 @@ WHERE ltrim("c"."ContactTitle", 'Ow') = 'ner'
         await base.TrimEnd_without_arguments_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE rtrim("c"."ContactTitle") = 'Owner'
@@ -1292,7 +1292,7 @@ WHERE rtrim("c"."ContactTitle") = 'Owner'
         await base.TrimEnd_with_char_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE rtrim("c"."ContactTitle", 'r') = 'Owne'
@@ -1304,7 +1304,7 @@ WHERE rtrim("c"."ContactTitle", 'r') = 'Owne'
         await base.TrimEnd_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE rtrim("c"."ContactTitle", 'er') = 'Own'
@@ -1316,7 +1316,7 @@ WHERE rtrim("c"."ContactTitle", 'er') = 'Own'
         await base.Trim_without_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE trim("c"."ContactTitle") = 'Owner'
@@ -1328,7 +1328,7 @@ WHERE trim("c"."ContactTitle") = 'Owner'
         await base.Trim_with_char_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE trim("c"."ContactTitle", 'O') = 'wner'
@@ -1340,7 +1340,7 @@ WHERE trim("c"."ContactTitle", 'O') = 'wner'
         await base.Trim_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE trim("c"."ContactTitle", 'Or') = 'wne'
@@ -1352,7 +1352,7 @@ WHERE trim("c"."ContactTitle", 'Or') = 'wne'
         await base.Regex_IsMatch_MethodCall(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" REGEXP '^T'
@@ -1364,7 +1364,7 @@ WHERE "c"."CustomerID" REGEXP '^T'
         await base.Regex_IsMatch_MethodCall_constant_input(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE 'ALFKI' REGEXP "c"."CustomerID"
@@ -1381,7 +1381,7 @@ WHERE 'ALFKI' REGEXP "c"."CustomerID"
             entryCount: 6);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."CustomerID" NOT REGEXP '^[^T]'
@@ -1393,7 +1393,7 @@ WHERE "c"."CustomerID" NOT REGEXP '^[^T]'
         await base.IsNullOrEmpty_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."Region" IS NULL OR "c"."Region" = ''
@@ -1405,7 +1405,7 @@ WHERE "c"."Region" IS NULL OR "c"."Region" = ''
         await base.IsNullOrEmpty_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID" AS "Id", "c"."Region" IS NULL OR "c"."Region" = '' AS "Value"
 FROM "Customers" AS "c"
 """);
@@ -1416,7 +1416,7 @@ FROM "Customers" AS "c"
         await base.IsNullOrEmpty_negated_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
@@ -1431,7 +1431,7 @@ WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
         await base.Where_DateOnly_FromDateTime(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE "o"."OrderDate" IS NOT NULL AND date("o"."OrderDate") = '1996-09-16'

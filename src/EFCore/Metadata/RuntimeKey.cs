@@ -64,9 +64,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetPrincipalKeyValueFactory<TKey>(IPrincipalKeyValueFactory<TKey> factory)
-    {
-        _principalKeyValueFactory = factory;
-    }
+        => _principalKeyValueFactory = factory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -76,9 +74,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     /// </summary>
     [EntityFrameworkInternal]
     public virtual void SetIdentityMapFactory(Func<bool, IIdentityMap> factory)
-    {
-        _identityMapFactory = factory;
-    }
+        => _identityMapFactory = factory;
 
     /// <summary>
     ///     Returns a string that represents the current object.

@@ -39,11 +39,9 @@ public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConve
         => base.Collection_enum_as_string_Contains();
 
     public override void GroupBy_converted_enum()
-    {
-        Assert.Contains(
+        => Assert.Contains(
             CoreStrings.TranslationFailedWithDetails("", InMemoryStrings.NonComposedGroupByNotSupported)[21..],
             Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
-    }
 
     public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
     {

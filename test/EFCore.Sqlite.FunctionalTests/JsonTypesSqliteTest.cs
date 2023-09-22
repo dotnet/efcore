@@ -16,18 +16,20 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => base.OnConfiguring(optionsBuilder.UseSqlite(b => b.UseNetTopologySuite()));
 
     public override void Can_read_write_binary_JSON_values(string value, string json)
-        => base.Can_read_write_binary_JSON_values(value, value switch
-        {
-            "" => json,
-            "0,0,0,1" => """{"Prop":"00000001"}""",
-            "1,2,3,4" => """{"Prop":"01020304"}""",
-            "255,255,255,255" => """{"Prop":"FFFFFFFF"}""",
-            _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
-        });
+        => base.Can_read_write_binary_JSON_values(
+            value, value switch
+            {
+                "" => json,
+                "0,0,0,1" => """{"Prop":"00000001"}""",
+                "1,2,3,4" => """{"Prop":"01020304"}""",
+                "255,255,255,255" => """{"Prop":"FFFFFFFF"}""",
+                _ => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+            });
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_decimal_JSON_values()
-        => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(nameof(DecimalCollectionType.Decimal),
+        => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
+            nameof(DecimalCollectionType.Decimal),
             new List<decimal>
             {
                 decimal.MinValue,
@@ -39,7 +41,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_DateTime_JSON_values()
-        => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(nameof(DateTimeCollectionType.DateTime),
+        => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
+            nameof(DateTimeCollectionType.DateTime),
             new List<DateTime>
             {
                 DateTime.MinValue,
@@ -66,7 +69,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_GUID_JSON_values()
-        => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(nameof(GuidCollectionType.Guid),
+        => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
+            nameof(GuidCollectionType.Guid),
             new List<Guid>
             {
                 new(),
@@ -78,7 +82,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_binary_JSON_values()
-        => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(nameof(BytesCollectionType.Bytes),
+        => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
+            nameof(BytesCollectionType.Bytes),
             new List<byte[]>
             {
                 new byte[] { 0, 0, 0, 1 },
@@ -128,7 +133,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31 23:59:59.9999999"}""")]
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29 10:52:47.2064353"}""")]
     public virtual void Can_read_write_DateTime_JSON_values_sqlite(string value, string json)
-        => Can_read_and_write_JSON_value<DateTimeType, DateTime>(nameof(DateTimeType.DateTime),
+        => Can_read_and_write_JSON_value<DateTimeType, DateTime>(
+            nameof(DateTimeType.DateTime),
             DateTime.Parse(value, CultureInfo.InvariantCulture), json);
 
     public override void Can_read_write_DateTimeOffset_JSON_values(string value, string json)
@@ -143,7 +149,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01 00:00:00-03:00"}""")]
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29 11:11:15.5672854+04:00"}""")]
     public virtual void Can_read_write_DateTimeOffset_JSON_values_sqlite(string value, string json)
-        => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(nameof(DateTimeOffsetType.DateTimeOffset),
+        => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(
+            nameof(DateTimeOffsetType.DateTimeOffset),
             DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
 
     public override void Can_read_write_decimal_JSON_values(decimal value, string json)
@@ -186,7 +193,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("1,2,3,4", """{"Prop":"01020304"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_binary_JSON_values_sqlite(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(nameof(NullableBytesType.Bytes),
+        => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(
+            nameof(NullableBytesType.Bytes),
             value == null
                 ? default
                 : value == ""
@@ -205,7 +213,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29 10:52:47.2064353"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_DateTime_JSON_values_sqlite(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(nameof(NullableDateTimeType.DateTime),
+        => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(
+            nameof(NullableDateTimeType.DateTime),
             value == null ? default(DateTime?) : DateTime.Parse(value, CultureInfo.InvariantCulture), json);
 
     public override void Can_read_write_nullable_DateTimeOffset_JSON_values(string? value, string json)
@@ -221,7 +230,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29 11:11:15.5672854+04:00"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_DateTimeOffset_JSON_values_sqlite(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(nameof(NullableDateTimeOffsetType.DateTimeOffset),
+        => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(
+            nameof(NullableDateTimeOffsetType.DateTimeOffset),
             value == null ? default(DateTimeOffset?) : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
 
     public override void Can_read_write_nullable_decimal_JSON_values(string? value, string json)
@@ -237,7 +247,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("1.1", """{"Prop":"1.1"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_decimal_JSON_values_sqlite(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(nameof(NullableDecimalType.Decimal),
+        => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(
+            nameof(NullableDecimalType.Decimal),
             value == null ? default(decimal?) : decimal.Parse(value, CultureInfo.InvariantCulture), json);
 
     public override void Can_read_write_nullable_GUID_JSON_values(string? value, string json)
@@ -252,12 +263,14 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_GUID_JSON_values_sqlite(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(nameof(NullableGuidType.Guid),
+        => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(
+            nameof(NullableGuidType.Guid),
             value == null ? null : Guid.Parse(value, CultureInfo.InvariantCulture), json);
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_nullable_binary_JSON_values()
-        => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(nameof(NullableBytesCollectionType.Bytes),
+        => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
+            nameof(NullableBytesCollectionType.Bytes),
             new List<byte[]?>
             {
                 new byte[] { 0, 0, 0, 1 },
@@ -271,7 +284,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_nullable_DateTime_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(nameof(NullableDateTimeCollectionType.DateTime),
+        => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
+            nameof(NullableDateTimeCollectionType.DateTime),
             new List<DateTime?>
             {
                 DateTime.MinValue,
@@ -300,7 +314,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_nullable_decimal_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(nameof(NullableDecimalCollectionType.Decimal),
+        => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
+            nameof(NullableDecimalCollectionType.Decimal),
             new List<decimal?>
             {
                 decimal.MinValue,
@@ -313,7 +328,8 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 
     [ConditionalFact]
     public override void Can_read_write_collection_of_nullable_GUID_JSON_values()
-        => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(nameof(NullableGuidCollectionType.Guid),
+        => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
+            nameof(NullableGuidCollectionType.Guid),
             new List<Guid?>
             {
                 new(),

@@ -16,7 +16,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure(async);
 
         AssertSql(
-"""
+            """
 [dbo].[Ten Most Expensive Products]
 """);
     }
@@ -26,7 +26,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure_with_tag(async);
 
         AssertSql(
-"""
+            """
 -- Stored Procedure
 
 [dbo].[Ten Most Expensive Products]
@@ -38,7 +38,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure_with_tags(async);
 
         AssertSql(
-"""
+            """
 -- One
 -- Two
 -- Three
@@ -52,7 +52,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure_with_caller_info_tag(async);
 
         AssertSql(
-"""
+            """
 -- File: SampleFileName:13
 
 [dbo].[Ten Most Expensive Products]
@@ -64,7 +64,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure_with_caller_info_tag_and_other_tags(async);
 
         AssertSql(
-"""
+            """
 -- Before
 -- File: SampleFileName:13
 -- After
@@ -78,7 +78,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         await base.From_sql_queryable_stored_procedure_with_parameter(async);
 
         AssertSql(
-"""
+            """
 p0='ALFKI' (Size = 4000)
 
 [dbo].[CustOrderHist] @CustomerID = @p0
@@ -90,7 +90,7 @@ p0='ALFKI' (Size = 4000)
         await base.From_sql_queryable_stored_procedure_re_projection_on_client(async);
 
         AssertSql(
-"""
+            """
 [dbo].[Ten Most Expensive Products]
 """);
     }
@@ -100,7 +100,7 @@ p0='ALFKI' (Size = 4000)
         await base.From_sql_queryable_stored_procedure_composed_on_client(async);
 
         AssertSql(
-"""
+            """
 [dbo].[Ten Most Expensive Products]
 """);
     }
@@ -110,7 +110,7 @@ p0='ALFKI' (Size = 4000)
         await base.From_sql_queryable_stored_procedure_with_parameter_composed_on_client(async);
 
         AssertSql(
-"""
+            """
 p0='ALFKI' (Size = 4000)
 
 [dbo].[CustOrderHist] @CustomerID = @p0
@@ -122,7 +122,7 @@ p0='ALFKI' (Size = 4000)
         await base.From_sql_queryable_stored_procedure_take_on_client(async);
 
         AssertSql(
-"""
+            """
 [dbo].[Ten Most Expensive Products]
 """);
     }
@@ -132,7 +132,7 @@ p0='ALFKI' (Size = 4000)
         await base.From_sql_queryable_stored_procedure_min_on_client(async);
 
         AssertSql(
-"""
+            """
 [dbo].[Ten Most Expensive Products]
 """);
     }

@@ -50,10 +50,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Category();
-                var dependent = new Product
-                {
-                    Category = principal
-                };
+                var dependent = new Product { Category = principal };
 
                 principal.Products.Add(dependent);
 
@@ -152,10 +149,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Category();
-                var dependent = new Product
-                {
-                    Category = principal
-                };
+                var dependent = new Product { Category = principal };
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -193,10 +187,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Category();
-                var dependent = new Product
-                {
-                    Category = principal
-                };
+                var dependent = new Product { Category = principal };
                 principal.Products.Add(dependent);
 
                 context.Add(principal);
@@ -294,10 +285,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Category();
-                var dependent = new Product
-                {
-                    Category = principal
-                };
+                var dependent = new Product { Category = principal };
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -544,10 +532,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new CategoryDN();
-                var dependent = new ProductDN
-                {
-                    Category = principal
-                };
+                var dependent = new ProductDN { Category = principal };
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -606,10 +591,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new CategoryDN();
-                var dependent = new ProductDN
-                {
-                    Category = principal
-                };
+                var dependent = new ProductDN { Category = principal };
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -749,10 +731,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Parent();
-                var dependent = new Child
-                {
-                    Parent = principal
-                };
+                var dependent = new Child { Parent = principal };
                 principal.Child = dependent;
 
                 context.Add(dependent);
@@ -850,10 +829,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Parent();
-                var dependent = new Child
-                {
-                    Parent = principal
-                };
+                var dependent = new Child { Parent = principal };
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -891,10 +867,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Parent();
-                var dependent = new Child
-                {
-                    Parent = principal
-                };
+                var dependent = new Child { Parent = principal };
                 principal.Child = dependent;
 
                 context.Add(principal);
@@ -992,10 +965,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new Parent();
-                var dependent = new Child
-                {
-                    Parent = principal
-                };
+                var dependent = new Child { Parent = principal };
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -1242,10 +1212,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new ParentDN();
-                var dependent = new ChildDN
-                {
-                    Parent = principal
-                };
+                var dependent = new ChildDN { Parent = principal };
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -1304,10 +1271,7 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context =>
             {
                 var principal = new ParentDN();
-                var dependent = new ChildDN
-                {
-                    Parent = principal
-                };
+                var dependent = new ChildDN { Parent = principal };
 
                 context.Add(principal);
                 context.Add(dependent);

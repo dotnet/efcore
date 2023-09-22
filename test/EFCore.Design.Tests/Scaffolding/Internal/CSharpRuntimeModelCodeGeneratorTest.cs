@@ -24,7 +24,6 @@ using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json.Linq;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using static Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest;
 using static Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest;
 using IdentityUser = Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity.IdentityUser;
@@ -664,8 +663,9 @@ namespace TestNamespace
                 {
                     var entityType = model.GetEntityTypes().Single();
 
-                    Assert.True(entityType.FindProperty("Id").GetValueComparer().SnapshotExpression
-                        is Expression<Func<int, int>> lambda
+                    Assert.True(
+                        entityType.FindProperty("Id").GetValueComparer().SnapshotExpression
+                            is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value) == 1);
                 });
@@ -688,7 +688,7 @@ namespace TestNamespace
         private class FakeValueComparer : ValueComparer<int>
         {
             public FakeValueComparer()
-                : base((l,r) => false, v => 0, v => 1)
+                : base((l, r) => false, v => 0, v => 1)
             {
             }
 
@@ -709,7 +709,7 @@ namespace TestNamespace
             => Test(
                 new ProviderValueComparerContext(),
                 new CompiledModelCodeGenerationOptions(),
-                 code => Assert.Collection(
+                code => Assert.Collection(
                     code,
                     c => AssertFileContents(
                         "ProviderValueComparerContextModel.cs",
@@ -841,8 +841,9 @@ namespace TestNamespace
                 {
                     var entityType = model.GetEntityTypes().Single();
 
-                    Assert.True(entityType.FindProperty("Id").GetProviderValueComparer().SnapshotExpression
-                        is Expression<Func<int, int>> lambda
+                    Assert.True(
+                        entityType.FindProperty("Id").GetProviderValueComparer().SnapshotExpression
+                            is Expression<Func<int, int>> lambda
                         && lambda.Body is ConstantExpression constant
                         && ((int)constant.Value) == 1);
                 });
@@ -4302,25 +4303,34 @@ namespace TestNamespace
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
-                    (int v) => v));
+                    (int v) => v),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var @bool = runtimeEntityType.AddProperty(
@@ -9759,7 +9769,7 @@ namespace TestNamespace
         static partial void Customize(RuntimeEntityType runtimeEntityType);
     }
 }
-""",  c),
+""", c),
                     c => AssertFileContents(
                         "DependentDerivedEntityType.cs",
                         """
@@ -12318,25 +12328,34 @@ namespace TestNamespace
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
-                    (int v) => v));
+                    (int v) => v),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var @bool = runtimeEntityType.AddProperty(
@@ -21335,10 +21354,7 @@ namespace TestNamespace
                             Id = 1,
                             AlternateId = new Guid(),
                             Dependent = new DependentBase<byte?>(1),
-                            Owned = new OwnedType(c)
-                            {
-                                Principal = new PrincipalBase()
-                            }
+                            Owned = new OwnedType(c) { Principal = new PrincipalBase() }
                         });
 
                     //c.SaveChanges();
@@ -21515,7 +21531,12 @@ namespace TestNamespace
                             .HasPrecision(9, 3);
                     });
 
-                modelBuilder.Entity<ManyTypes>();
+                modelBuilder.Entity<ManyTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedOnAdd();
+                        b.HasKey(e => e.Id);
+                    });
             }
 
             protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -23849,7 +23870,24 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
                     Assert.False(insertSproc.IsRowsAffectedReturned);
@@ -23863,7 +23901,24 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Update", updateSproc.Name);
                     Assert.Equal("TPC", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.False(updateSproc.IsRowsAffectedReturned);
@@ -23905,7 +23960,23 @@ namespace TestNamespace
                     Assert.Equal("Derived_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable"
+                        },
                         insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
                     Assert.Null(insertSproc["foo"]);
@@ -23923,7 +23994,24 @@ namespace TestNamespace
                     Assert.Equal("Derived_Update", updateSproc.Name);
                     Assert.Equal("Derived", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "ValueTypeList", "ValueTypeIList", "ValueTypeArray", "ValueTypeEnumerable", "RefTypeList", "RefTypeIList", "RefTypeArray", "RefTypeEnumerable", "Id" },
+                        new[]
+                        {
+                            "PrincipalBaseId",
+                            "PrincipalDerivedId",
+                            "Enum1",
+                            "Enum2",
+                            "FlagsEnum1",
+                            "FlagsEnum2",
+                            "ValueTypeList",
+                            "ValueTypeIList",
+                            "ValueTypeArray",
+                            "ValueTypeEnumerable",
+                            "RefTypeList",
+                            "RefTypeIList",
+                            "RefTypeArray",
+                            "RefTypeEnumerable",
+                            "Id"
+                        },
                         updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.Empty(updateSproc.GetAnnotations());
@@ -24161,10 +24249,7 @@ namespace TestNamespace
 
         public class ManyTypes
         {
-            // Issue ##31770
-            // public ManyTypesId Id { get; set; }
-            public int Id { get; set; }
-
+            public ManyTypesId Id { get; set; }
             public bool Bool { get; set; }
             public byte UInt8 { get; set; }
             public ushort UInt16 { get; set; }
@@ -28582,7 +28667,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -28603,27 +28688,36 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
-                typeof(int),
+                typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypesId),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.ManyTypes).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0);
+                valueConverter: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter(),
+                sentinel: new CSharpRuntimeModelCodeGeneratorTest.ManyTypesIdConverter().ConvertFromProvider(0));
             id.TypeMapping = IntTypeMapping.Default.Clone(
-                comparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
-                keyComparer: new ValueComparer<int>(
-                    (int v1, int v2) => v1 == v2,
-                    (int v) => v,
-                    (int v) => v),
+                comparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
+                keyComparer: new ValueComparer<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v1, CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v2) => v1.Equals(v2),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.GetHashCode(),
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v),
                 providerValueComparer: new ValueComparer<int>(
                     (int v1, int v2) => v1 == v2,
                     (int v) => v,
                     (int v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "INTEGER"));
+                    storeTypeName: "INTEGER"),
+                converter: new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                    (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                    JsonInt32ReaderWriter.Instance,
+                    new ValueConverter<CSharpRuntimeModelCodeGeneratorTest.ManyTypesId, int>(
+                        (CSharpRuntimeModelCodeGeneratorTest.ManyTypesId v) => v.Id,
+                        (int v) => new CSharpRuntimeModelCodeGeneratorTest.ManyTypesId(v))));
 
             var @bool = runtimeEntityType.AddProperty(
                 "Bool",
@@ -31182,7 +31276,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -31746,7 +31840,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -32244,7 +32338,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
@@ -33603,7 +33697,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             .HasPrecision(9, 3);
                     });
 
-                modelBuilder.Entity<ManyTypes>();
+                modelBuilder.Entity<ManyTypes>(
+                    b =>
+                    {
+                        b.Property(e => e.Id).HasConversion<ManyTypesIdConverter>().ValueGeneratedOnAdd();
+                        b.HasKey(e => e.Id);
+                    });
             }
         }
 
@@ -34176,12 +34275,20 @@ namespace TestNamespace
 
                 var baselines = string.Join(
                     "," + FileNewLine,
-                    scaffoldedFiles.Select(file =>
-                    Indent(5) + "c => AssertFileContents(" + FileNewLine +
-                    Indent(6) + $"\"{file.Path}\"," + FileNewLine +
-                    Indent(6) + "\"\"\"" + FileNewLine +
-                    file.Code.TrimEnd() + FileNewLine +
-                    "\"\"\", c)"));
+                    scaffoldedFiles.Select(
+                        file =>
+                            Indent(5)
+                            + "c => AssertFileContents("
+                            + FileNewLine
+                            + Indent(6)
+                            + $"\"{file.Path}\","
+                            + FileNewLine
+                            + Indent(6)
+                            + "\"\"\""
+                            + FileNewLine
+                            + file.Code.TrimEnd()
+                            + FileNewLine
+                            + "\"\"\", c)"));
 
                 var testString = @$"
 {Indent(4)}code => Assert.Collection(

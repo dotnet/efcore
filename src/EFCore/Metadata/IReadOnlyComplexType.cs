@@ -37,6 +37,7 @@ public interface IReadOnlyComplexType : IReadOnlyTypeBase
             {
                 return true;
             }
+
             currentType = declaringType as IReadOnlyComplexType;
         }
 

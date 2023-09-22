@@ -86,8 +86,9 @@ public class KeyAttributeConvention
             if (member != null
                 && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
             {
-                throw new InvalidOperationException(CoreStrings.AttributeNotOnEntityTypeProperty(
-                    "Key", property.DeclaringType.DisplayName(), property.Name));
+                throw new InvalidOperationException(
+                    CoreStrings.AttributeNotOnEntityTypeProperty(
+                        "Key", property.DeclaringType.DisplayName(), property.Name));
             }
         }
     }
@@ -143,8 +144,9 @@ public class KeyAttributeConvention
         if (member != null
             && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
         {
-            throw new InvalidOperationException(CoreStrings.AttributeNotOnEntityTypeProperty(
-                "Key", property.DeclaringType.DisplayName(), property.Name));
+            throw new InvalidOperationException(
+                CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "Key", property.DeclaringType.DisplayName(), property.Name));
         }
     }
 

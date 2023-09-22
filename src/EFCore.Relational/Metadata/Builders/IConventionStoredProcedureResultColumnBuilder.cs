@@ -24,7 +24,8 @@ public interface IConventionStoredProcedureResultColumnBuilder : IConventionAnno
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
-    ///     An <see cref="IConventionStoredProcedureResultColumnBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    ///     An <see cref="IConventionStoredProcedureResultColumnBuilder" /> to continue configuration if the annotation was set,
+    ///     <see langword="null" /> otherwise.
     /// </returns>
     new IConventionStoredProcedureResultColumnBuilder? HasAnnotation(string name, object? value, bool fromDataAnnotation = false);
 
@@ -51,7 +52,8 @@ public interface IConventionStoredProcedureResultColumnBuilder : IConventionAnno
     /// <param name="name">The name of the annotation to remove.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
-    ///     An <see cref="IConventionStoredProcedureResultColumnBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    ///     An <see cref="IConventionStoredProcedureResultColumnBuilder" /> to continue configuration if the annotation was set,
+    ///     <see langword="null" /> otherwise.
     /// </returns>
     new IConventionStoredProcedureResultColumnBuilder? HasNoAnnotation(string name, bool fromDataAnnotation = false);
 

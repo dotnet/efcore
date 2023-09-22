@@ -16,22 +16,22 @@
     <UsingToolXliff>False</UsingToolXliff>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>9.0.0-alpha.1.23466.6</MicrosoftExtensionsLoggingVersion>
-    <SystemTextJsonVersion>9.0.0-alpha.1.23466.6</SystemTextJsonVersion>
-    <MicrosoftNETCoreAppRefVersion>9.0.0-alpha.1.23466.6</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>9.0.0-alpha.1.23466.6</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.0-alpha.1.23466.6</MicrosoftNETCoreBrowserDebugHostTransportVersion>
+    <MicrosoftExtensionsCachingMemoryVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsCachingMemoryVersion>
+    <MicrosoftExtensionsConfigurationVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsConfigurationVersion>
+    <MicrosoftExtensionsConfigurationAbstractionsVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsConfigurationAbstractionsVersion>
+    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
+    <MicrosoftExtensionsConfigurationJsonVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsConfigurationJsonVersion>
+    <MicrosoftExtensionsDependencyInjectionVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsDependencyInjectionVersion>
+    <MicrosoftExtensionsDependencyModelVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsDependencyModelVersion>
+    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
+    <MicrosoftExtensionsLoggingVersion>9.0.0-alpha.1.23470.17</MicrosoftExtensionsLoggingVersion>
+    <SystemTextJsonVersion>9.0.0-alpha.1.23470.17</SystemTextJsonVersion>
+    <MicrosoftNETCoreAppRefVersion>9.0.0-alpha.1.23470.17</MicrosoftNETCoreAppRefVersion>
+    <MicrosoftNETCoreAppRuntimewinx64Version>9.0.0-alpha.1.23470.17</MicrosoftNETCoreAppRuntimewinx64Version>
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.0-alpha.1.23470.17</MicrosoftNETCoreBrowserDebugHostTransportVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.23451.1</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.23463.1</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->

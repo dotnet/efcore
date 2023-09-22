@@ -56,7 +56,7 @@ public abstract class TypeAttributeConventionBase<TAttribute> : IEntityTypeAdded
     /// </summary>
     /// <param name="propertyBuilder">The builder for the complex property.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
-    public void ProcessComplexPropertyAdded(
+    public virtual void ProcessComplexPropertyAdded(
         IConventionComplexPropertyBuilder propertyBuilder,
         IConventionContext<IConventionComplexPropertyBuilder> context)
     {
@@ -97,7 +97,7 @@ public abstract class TypeAttributeConventionBase<TAttribute> : IEntityTypeAdded
         => throw new NotSupportedException();
 
     /// <summary>
-    ///    Tries to replace the complex type with an entity type.
+    ///     Tries to replace the complex type with an entity type.
     /// </summary>
     /// <param name="complexTypeBuilder">The complex type builder.</param>
     /// <param name="shouldBeOwned">A value indicating whether the new entity type should be owned.</param>
@@ -120,12 +120,14 @@ public abstract class TypeAttributeConventionBase<TAttribute> : IEntityTypeAdded
                 {
                     return null;
                 }
+
                 break;
             case IConventionComplexTypeBuilder conventionComplexTypeBuilder:
                 if (conventionComplexTypeBuilder.HasNoComplexProperty(complexProperty, fromDataAnnotation: true) == null)
                 {
                     return null;
                 }
+
                 break;
         }
 

@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -70,7 +70,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-"""
+                        """
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -113,7 +113,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-"""
+                        """
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -222,7 +222,7 @@ public partial class TestDbContext : DbContext
                 });
 
             AssertContains(
-"""
+                """
 optionsBuilder
             .UseSqlServer("Initial Catalog=TestDatabase", x => x.SetProviderOption())
             .SetContextOption();
@@ -465,7 +465,7 @@ optionsBuilder
                 serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", null, "Hot"), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
-                code => Assert.Contains($".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
+                code => Assert.Contains(".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
                 model =>
                 {
                     var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
@@ -479,7 +479,7 @@ optionsBuilder
                 serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", "('Hot')", null), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
-                code => Assert.Contains($".HasDefaultValueSql(\"('Hot')\")", code.ContextFile.Code),
+                code => Assert.Contains(".HasDefaultValueSql(\"('Hot')\")", code.ContextFile.Code),
                 model =>
                 {
                     var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
@@ -493,7 +493,7 @@ optionsBuilder
                 serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
                     BuildModelWithColumn("nvarchar(max)", "('Hot')", "Hot"), new ModelReverseEngineerOptions()),
                 new ModelCodeGenerationOptions(),
-                code => Assert.Contains($".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
+                code => Assert.Contains(".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
                 model =>
                 {
                     var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
@@ -609,7 +609,7 @@ optionsBuilder
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -681,7 +681,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -752,7 +752,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -848,7 +848,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -915,7 +915,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -983,7 +983,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1066,7 +1066,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-"""
+                        """
 using System;
 using System.Collections.Generic;
 using CustomTestNamespace;
@@ -1118,7 +1118,7 @@ public partial class TestDbContext : DbContext
                             code =>
                             {
                                 AssertFileContents(
-$$"""
+                                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1182,7 +1182,7 @@ public partial class TestDbContext : DbContext
                     .IsCyclic(),
                 new ModelCodeGenerationOptions(),
                 code => AssertContains(
-"""
+                    """
 .HasSequence<int>("EvenNumbers", "dbo")
             .StartsAt(2L)
             .IncrementsBy(2)
@@ -1224,7 +1224,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1294,7 +1294,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-$$"""
+                        $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;

@@ -347,7 +347,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     IReadOnlyPropertyBase? FindMember(string name);
 
     /// <summary>
-    ///    Gets the members with the given name on this type, base types or derived types.
+    ///     Gets the members with the given name on this type, base types or derived types.
     /// </summary>
     /// <returns>Type members.</returns>
     IEnumerable<IReadOnlyPropertyBase> FindMembersInHierarchy(string name);

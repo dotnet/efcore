@@ -5,7 +5,6 @@ using System.Collections;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 using Microsoft.EntityFrameworkCore.InMemory.ValueGeneration.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 

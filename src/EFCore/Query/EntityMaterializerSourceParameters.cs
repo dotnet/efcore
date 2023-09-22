@@ -12,4 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
 /// </param>
 public readonly record struct EntityMaterializerSourceParameters(
-    ITypeBase StructuralType, string InstanceName, QueryTrackingBehavior? QueryTrackingBehavior);
+    ITypeBase StructuralType,
+    string InstanceName,
+    QueryTrackingBehavior? QueryTrackingBehavior);

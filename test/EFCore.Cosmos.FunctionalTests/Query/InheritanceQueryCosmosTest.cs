@@ -17,21 +17,21 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
         await base.Can_query_when_shared_column(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = 1)
 OFFSET 0 LIMIT 2
 """,
-                //
-"""
+            //
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = 2)
 OFFSET 0 LIMIT 2
 """,
-                //
-"""
+            //
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = 3)
@@ -44,7 +44,7 @@ OFFSET 0 LIMIT 2
         await base.Can_query_all_types_when_shared_column(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN (0, 1, 2, 3)
@@ -56,7 +56,7 @@ WHERE c["Discriminator"] IN (0, 1, 2, 3)
         await base.Can_use_of_type_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -69,7 +69,7 @@ ORDER BY c["Species"]
         await base.Can_use_is_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
@@ -81,7 +81,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
         await base.Can_use_is_kiwi_with_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"Value" : ((c["Discriminator"] = "Kiwi") ? c["FoundOn"] : 0)}
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -93,7 +93,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
         await base.Can_use_backwards_is_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -105,7 +105,7 @@ WHERE (c["Discriminator"] = "Kiwi")
         await base.Can_use_is_kiwi_with_other_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi") AND (c["CountryId"] = 1)))
@@ -117,7 +117,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ((c["Discriminator"] = "Kiwi"
         await base.Can_use_is_kiwi_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"c" : (c["Discriminator"] = "Kiwi")}
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -129,7 +129,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
         await base.Can_use_of_type_bird(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
@@ -142,7 +142,7 @@ ORDER BY c["Species"]
         await base.Can_use_of_type_bird_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["CountryId"] = 1)) AND c["Discriminator"] IN ("Eagle", "Kiwi"))
@@ -155,7 +155,7 @@ ORDER BY c["Species"]
         await base.Can_use_of_type_bird_with_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT c["EagleId"]
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
@@ -167,7 +167,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle
         await base.Can_use_of_type_bird_first(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND c["Discriminator"] IN ("Eagle", "Kiwi"))
@@ -181,7 +181,7 @@ OFFSET 0 LIMIT 1
         await base.Can_use_of_type_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
@@ -193,7 +193,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
         await base.Can_use_backwards_of_type_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -205,7 +205,7 @@ WHERE (c["Discriminator"] = "Kiwi")
         await base.Can_use_of_type_rose(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose"))
@@ -217,7 +217,7 @@ WHERE (c["Discriminator"] IN ("Daisy", "Rose") AND (c["Discriminator"] = "Rose")
         await base.Can_query_all_animals(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -238,7 +238,7 @@ ORDER BY c["Species"]
         await base.Can_query_all_plants(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Daisy", "Rose")
@@ -251,7 +251,7 @@ ORDER BY c["Species"]
         await base.Can_filter_all_animals(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Name"] = "Great spotted kiwi"))
@@ -264,7 +264,7 @@ ORDER BY c["Species"]
         await base.Can_query_all_birds(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -277,7 +277,7 @@ ORDER BY c["Species"]
         await base.Can_query_just_kiwis(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -290,7 +290,7 @@ OFFSET 0 LIMIT 2
         await base.Can_query_just_roses(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Rose")
@@ -319,7 +319,7 @@ OFFSET 0 LIMIT 2
         await base.Can_use_of_type_kiwi_where_south_on_derived_property(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 1))
@@ -331,7 +331,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
         await base.Can_use_of_type_kiwi_where_north_on_derived_property(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")) AND (c["FoundOn"] = 0))
@@ -343,7 +343,7 @@ WHERE ((c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"
         await base.Discriminator_used_when_projection_over_derived_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c["FoundOn"]
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -355,7 +355,7 @@ WHERE (c["Discriminator"] = "Kiwi")
         await base.Discriminator_used_when_projection_over_derived_type2(async);
 
         AssertSql(
-"""
+            """
 SELECT c["IsFlightless"], c["Discriminator"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -367,7 +367,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
         await base.Discriminator_with_cast_in_shadow_property(async);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"Predator" : c["Name"]}
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"]))
@@ -379,7 +379,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND ("Kiwi" = c["Discriminator"])
         await base.Discriminator_used_when_projection_over_of_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c["FoundOn"]
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
@@ -420,7 +420,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
         await base.Subquery_OfType(async);
 
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT DISTINCT c
@@ -443,7 +443,7 @@ OFFSET 0 LIMIT @__p_0
         base.Setting_foreign_key_to_a_different_type_throws();
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -456,7 +456,7 @@ OFFSET 0 LIMIT 2
         await base.Byte_enum_value_constant_used_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT VALUE {"c" : (c["IsFlightless"] ? 0 : 1)}
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -468,7 +468,7 @@ WHERE (c["Discriminator"] = "Kiwi")
         base.Member_access_on_intermediate_type_works();
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE (c["Discriminator"] = "Kiwi")
@@ -489,7 +489,7 @@ ORDER BY c["Name"]
         await base.Selecting_only_base_properties_on_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -501,7 +501,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
         await base.Selecting_only_base_properties_on_derived_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c["Name"]
 FROM root c
 WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
@@ -513,7 +513,7 @@ WHERE c["Discriminator"] IN ("Eagle", "Kiwi")
         await base.GetType_in_hierarchy_in_abstract_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
@@ -525,7 +525,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
         await base.GetType_in_hierarchy_in_intermediate_type(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
@@ -537,7 +537,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND false)
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"))
@@ -549,7 +549,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Eagle"
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
@@ -561,7 +561,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi"))
@@ -573,7 +573,7 @@ WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] = "Kiwi")
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(async);
 
         AssertSql(
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] IN ("Eagle", "Kiwi") AND (c["Discriminator"] != "Kiwi"))

@@ -85,7 +85,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
     /// </summary>
     /// <param name="maxLength">
-    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    ///     The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
     /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder HasMaxLength(int maxLength)
@@ -178,7 +178,8 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// <param name="valueGeneratorType">A type that inherits from <see cref="ValueGenerator" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder HasValueGenerator(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? valueGeneratorType)
     {
         Builder.HasValueGenerator(valueGeneratorType, ConfigurationSource.Explicit);
 
@@ -243,7 +244,8 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// <param name="valueGeneratorFactoryType">A type that inherits from <see cref="ValueGeneratorFactory" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual ComplexTypePrimitiveCollectionBuilder HasValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType)
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactoryType)
     {
         Builder.HasValueGeneratorFactory(valueGeneratorFactoryType, ConfigurationSource.Explicit);
 
@@ -363,7 +365,7 @@ public class ComplexTypePrimitiveCollectionBuilder : IInfrastructure<IConvention
     /// </summary>
     /// <returns>A builder to configure the collection element type.</returns>
     public virtual ElementTypeBuilder ElementType()
-        => new((IMutableElementType)Builder.Metadata.GetElementType()!);
+        => new(Builder.Metadata.GetElementType()!);
 
     /// <summary>
     ///     Configures the elements of this collection.

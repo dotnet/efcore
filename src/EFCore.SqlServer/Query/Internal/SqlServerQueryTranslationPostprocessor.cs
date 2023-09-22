@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -32,7 +31,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
-        _jsonPostprocessor = new(typeMappingSource, relationalDependencies.SqlExpressionFactory);
+        _jsonPostprocessor = new SqlServerJsonPostprocessor(typeMappingSource, relationalDependencies.SqlExpressionFactory);
     }
 
     /// <summary>

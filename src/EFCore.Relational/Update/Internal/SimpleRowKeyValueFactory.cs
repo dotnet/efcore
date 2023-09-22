@@ -151,7 +151,6 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
                         Expression.Convert(newEqualsParam2, comparer.Type)),
                     newEqualsParam1, newEqualsParam2);
 
-
                 var newHashCodeParam = Expression.Parameter(type, "v");
                 getHashCode = Expression.Lambda(
                     comparer.ExtractHashCodeBody(

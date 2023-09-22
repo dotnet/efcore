@@ -21,7 +21,7 @@ public class TPTInheritanceQuerySqlServerTest : TPTInheritanceQueryTestBase<TPTI
         await base.Byte_enum_value_constant_used_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [b].[IsFlightless] = CAST(1 AS bit) THEN CAST(0 AS tinyint)
     ELSE CAST(1 AS tinyint)
@@ -37,7 +37,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_filter_all_animals(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -56,7 +56,7 @@ ORDER BY [a].[Species]
         await base.Can_include_animals(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[Id], [c].[Name], [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM [Countries] AS [c]
 LEFT JOIN (
@@ -78,7 +78,7 @@ ORDER BY [c].[Name], [c].[Id]
         await base.Can_include_prey(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Id], [t0].[CountryId], [t0].[Name], [t0].[Species], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[Discriminator]
 FROM (
     SELECT TOP(2) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group]
@@ -108,7 +108,7 @@ ORDER BY [t].[Id]
         await base.Can_query_all_animals(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -126,7 +126,7 @@ ORDER BY [a].[Species]
         await base.Can_query_all_birds(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -144,7 +144,7 @@ ORDER BY [a].[Species]
         await base.Can_query_all_plants(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves], CASE
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
     WHEN [d].[Species] IS NOT NULL THEN N'Daisy'
@@ -161,7 +161,7 @@ ORDER BY [p].[Species]
         await base.Filter_on_property_inside_complex_type_on_derived_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [d].[AdditionalInfo_Nickname], [d].[AdditionalInfo_LeafStructure_AreLeavesBig], [d].[AdditionalInfo_LeafStructure_NumLeaves]
 FROM [Plants] AS [p]
 INNER JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
@@ -175,7 +175,7 @@ WHERE [d].[AdditionalInfo_LeafStructure_AreLeavesBig] = CAST(1 AS bit)
         await base.Can_query_all_types_when_shared_column(async);
 
         AssertSql(
-"""
+            """
 SELECT [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams], [l].[LiltCO2], [l].[SugarGrams], [t].[CaffeineGrams], [t].[HasMilk], CASE
     WHEN [t].[Id] IS NOT NULL THEN N'Tea'
     WHEN [l].[Id] IS NOT NULL THEN N'Lilt'
@@ -193,7 +193,7 @@ LEFT JOIN [Tea] AS [t] ON [d].[Id] = [t].[Id]
         await base.Can_query_just_kiwis(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -206,7 +206,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_query_just_roses(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns]
 FROM [Plants] AS [p]
 INNER JOIN [Flowers] AS [f] ON [p].[Species] = [f].[Species]
@@ -219,19 +219,19 @@ INNER JOIN [Roses] AS [r] ON [p].[Species] = [r].[Species]
         await base.Can_query_when_shared_column(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [d].[Id], [d].[SortIndex], [c].[CaffeineGrams], [c].[CokeCO2], [c].[SugarGrams]
 FROM [Drinks] AS [d]
 INNER JOIN [Coke] AS [c] ON [d].[Id] = [c].[Id]
 """,
             //
-"""
+            """
 SELECT TOP(2) [d].[Id], [d].[SortIndex], [l].[LiltCO2], [l].[SugarGrams]
 FROM [Drinks] AS [d]
 INNER JOIN [Lilt] AS [l] ON [d].[Id] = [l].[Id]
 """,
             //
-"""
+            """
 SELECT TOP(2) [d].[Id], [d].[SortIndex], [t].[CaffeineGrams], [t].[HasMilk]
 FROM [Drinks] AS [d]
 INNER JOIN [Tea] AS [t] ON [d].[Id] = [t].[Id]
@@ -243,7 +243,7 @@ INNER JOIN [Tea] AS [t] ON [d].[Id] = [t].[Id]
         await base.Can_use_backwards_is_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -256,7 +256,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_use_backwards_of_type_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -269,7 +269,7 @@ INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_use_is_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -287,7 +287,7 @@ WHERE [k].[Id] IS NOT NULL
         await base.Can_use_is_kiwi_with_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [k].[Id] IS NOT NULL THEN [k].[FoundOn]
     ELSE CAST(0 AS tinyint)
@@ -302,7 +302,7 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_use_is_kiwi_in_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT CASE
     WHEN [k].[Id] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -317,7 +317,7 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
         await base.Can_use_is_kiwi_with_other_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -335,7 +335,7 @@ WHERE [k].[Id] IS NOT NULL AND [a].[CountryId] = 1
         await base.Can_use_of_type_animal(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -353,7 +353,7 @@ ORDER BY [a].[Species]
         await base.Can_use_of_type_bird(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -372,7 +372,7 @@ ORDER BY [a].[Species]
         await base.Can_use_of_type_bird_first(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(1) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -391,7 +391,7 @@ ORDER BY [a].[Species]
         await base.Can_use_of_type_bird_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -410,7 +410,7 @@ ORDER BY [a].[Species]
         await base.Can_use_of_type_bird_with_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT [b].[EagleId]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -425,7 +425,7 @@ WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
         await base.Can_use_of_type_kiwi(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
 END AS [Discriminator]
@@ -441,7 +441,7 @@ WHERE [k].[Id] IS NOT NULL
         await base.Can_use_of_type_kiwi_where_north_on_derived_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
 END AS [Discriminator]
@@ -457,7 +457,7 @@ WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(0 AS tinyint)
         await base.Can_use_of_type_kiwi_where_south_on_derived_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
 END AS [Discriminator]
@@ -473,7 +473,7 @@ WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(1 AS tinyint)
         await base.Can_use_of_type_rose(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [r].[HasThorns], CASE
     WHEN [r].[Species] IS NOT NULL THEN N'Rose'
 END AS [Discriminator]
@@ -488,7 +488,7 @@ WHERE [r].[Species] IS NOT NULL
         base.Member_access_on_intermediate_type_works();
 
         AssertSql(
-"""
+            """
 SELECT [a].[Name]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -516,14 +516,14 @@ ORDER BY [a].[Name]
         base.Setting_foreign_key_to_a_different_type_throws();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [k].[FoundOn]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 INNER JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
 """,
             //
-"""
+            """
 @p0='0'
 @p1='Bald eagle' (Size = 4000)
 @p2='Haliaeetus leucocephalus' (Size = 100)
@@ -541,7 +541,7 @@ VALUES (@p0, @p1, @p2);
         await base.Subquery_OfType(async);
 
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT DISTINCT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn], [t].[Discriminator]
@@ -572,7 +572,7 @@ WHERE [t].[Discriminator] = N'Kiwi'
         await base.Union_siblings_with_duplicate_property_in_subquery(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -604,7 +604,7 @@ ORDER BY [a].[Species]
         await base.Is_operator_on_result_of_FirstOrDefault(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -636,7 +636,7 @@ ORDER BY [a].[Species]
         await base.Selecting_only_base_properties_on_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Name]
 FROM [Animals] AS [a]
 """);
@@ -647,7 +647,7 @@ FROM [Animals] AS [a]
         await base.Selecting_only_base_properties_on_derived_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Name]
 FROM [Animals] AS [a]
 INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
@@ -701,7 +701,7 @@ INNER JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
         await base.Using_is_operator_on_multiple_type_with_no_result(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -719,7 +719,7 @@ WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL
         await base.Using_is_operator_with_of_type_on_multiple_type_with_no_result(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], CASE
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
 END AS [Discriminator]
@@ -743,7 +743,7 @@ WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL
         await base.GetType_in_hierarchy_in_abstract_base_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -761,7 +761,7 @@ WHERE 0 = 1
         await base.GetType_in_hierarchy_in_intermediate_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -779,7 +779,7 @@ WHERE 0 = 1
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -797,7 +797,7 @@ WHERE [e].[Id] IS NOT NULL
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -815,7 +815,7 @@ WHERE [k].[Id] IS NOT NULL
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_reverse(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'
@@ -833,7 +833,7 @@ WHERE [k].[Id] IS NOT NULL
         await base.GetType_in_hierarchy_in_leaf_type_with_sibling2_not_equal(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[CountryId], [a].[Name], [a].[Species], [b].[EagleId], [b].[IsFlightless], [e].[Group], [k].[FoundOn], CASE
     WHEN [k].[Id] IS NOT NULL THEN N'Kiwi'
     WHEN [e].[Id] IS NOT NULL THEN N'Eagle'

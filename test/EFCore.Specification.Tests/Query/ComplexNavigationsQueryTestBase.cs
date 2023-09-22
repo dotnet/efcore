@@ -2079,9 +2079,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQueryScalar(
             async,
             ss => from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10).DefaultIfEmpty()
-                    select l1.Id);
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                  from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10).DefaultIfEmpty()
+                  select l1.Id);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2089,9 +2089,9 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
         => AssertQueryScalar(
             async,
             ss => from l1 in ss.Set<Level1>()
-                    join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
-                    from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10)
-                    select l1.Id);
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into groupJoin
+                  from l2 in groupJoin.Where(gg => gg.Id > 0).OrderBy(gg => gg.Id).Take(10)
+                  select l1.Id);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -3843,7 +3843,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                   from l2 in grouping1.Where(x => x.Id != prm1).DefaultIfEmpty()
                   join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
                   from l3 in grouping2.Where(x => x.Id != prm2).DefaultIfEmpty()
-                  select new { Id1 = l1.Id, Id2 = (int?)l2.Id, Id3 = (int?)l3.Id },
+                  select new
+                  {
+                      Id1 = l1.Id,
+                      Id2 = (int?)l2.Id,
+                      Id3 = (int?)l3.Id
+                  },
             elementSorter: e => (e.Id1, e.Id2, e.Id3),
             elementAsserter: (e, a) =>
             {
@@ -3867,7 +3872,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                   from l2 in grouping1.Where(x => x.Id != prm1)
                   join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
                   from l3 in grouping2.Where(x => x.Id != prm2)
-                  select new { Id1 = l1.Id, Id2 = l2.Id, Id3 = l3.Id },
+                  select new
+                  {
+                      Id1 = l1.Id,
+                      Id2 = l2.Id,
+                      Id3 = l3.Id
+                  },
             elementSorter: e => (e.Id1, e.Id2, e.Id3),
             elementAsserter: (e, a) =>
             {
@@ -3890,7 +3900,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                   from l2 in grouping1.Where(x => x.Id != prm).DefaultIfEmpty()
                   join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
                   from l3 in grouping2.Where(x => x.Id != prm).DefaultIfEmpty()
-                  select new { Id1 = l1.Id, Id2 = (int?)l2.Id, Id3 = (int?)l3.Id },
+                  select new
+                  {
+                      Id1 = l1.Id,
+                      Id2 = (int?)l2.Id,
+                      Id3 = (int?)l3.Id
+                  },
             elementSorter: e => (e.Id1, e.Id2, e.Id3),
             elementAsserter: (e, a) =>
             {
@@ -3913,7 +3928,12 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                   from l2 in grouping1.Where(x => x.Id != prm)
                   join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
                   from l3 in grouping2.Where(x => x.Id != prm)
-                  select new { Id1 = l1.Id, Id2 = l2.Id, Id3 = l3.Id },
+                  select new
+                  {
+                      Id1 = l1.Id,
+                      Id2 = l2.Id,
+                      Id3 = l3.Id
+                  },
             elementSorter: e => (e.Id1, e.Id2, e.Id3),
             elementAsserter: (e, a) =>
             {

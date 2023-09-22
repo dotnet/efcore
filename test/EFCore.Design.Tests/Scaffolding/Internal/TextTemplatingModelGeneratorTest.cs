@@ -200,7 +200,7 @@ public class TextTemplatingModelGeneratorTest
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
-"""
+            """
 Model not null: <#= Session["Model"] != null #>
 Options not null: <#= Session["Options"] != null #>
 NamespaceHint: <#= Session["NamespaceHint"] #>
@@ -209,7 +209,7 @@ ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
 
         File.WriteAllText(
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
-"""
+            """
 EntityType not null: <#= Session["EntityType"] != null #>
 Options not null: <#= Session["Options"] != null #>
 NamespaceHint: <#= Session["NamespaceHint"] #>
@@ -218,7 +218,7 @@ ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
 
         File.WriteAllText(
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
-"""
+            """
 EntityType not null: <#= Session["EntityType"] != null #>
 Options not null: <#= Session["Options"] != null #>
 NamespaceHint: <#= Session["NamespaceHint"] #>
@@ -243,7 +243,7 @@ ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
             });
 
         Assert.Equal(
-"""
+            """
 Model not null: True
 Options not null: True
 NamespaceHint: ContextNamespace
@@ -255,7 +255,7 @@ ProjectDefaultNamespace: RootNamespace
 
         var entityType = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.cs");
         Assert.Equal(
-"""
+            """
 EntityType not null: True
 Options not null: True
 NamespaceHint: ModelNamespace
@@ -265,7 +265,7 @@ ProjectDefaultNamespace: RootNamespace
 
         var entityTypeConfiguration = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.cs");
         Assert.Equal(
-"""
+            """
 EntityType not null: True
 Options not null: True
 NamespaceHint: ContextNamespace
@@ -327,14 +327,14 @@ ProjectDefaultNamespace: RootNamespace
 
         File.WriteAllText(
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
-"""
+            """
 <#@ output extension=".fs" #>
 My entity type template
 """);
 
         File.WriteAllText(
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
-"""
+            """
 <#@ output extension=".py" #>
 My entity type configuration template
 """);
@@ -447,7 +447,7 @@ My entity type configuration template
         var entityTypeTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
         File.WriteAllText(
             entityTypeTemplate,
-"""
+            """
 <#@ assembly name="Microsoft.EntityFrameworkCore" #>
 <#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
 <# Warning("Warning about " + EntityType.Name); #>

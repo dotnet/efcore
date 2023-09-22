@@ -16,15 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 {
     private static readonly MethodInfo HasAnnotationMethodInfo
-        = typeof(ModelBuilder).GetRuntimeMethod(nameof(ModelBuilder.HasAnnotation),
+        = typeof(ModelBuilder).GetRuntimeMethod(
+            nameof(ModelBuilder.HasAnnotation),
             new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo HasPropertyAnnotationMethodInfo
-        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(nameof(ComplexPropertyBuilder.HasPropertyAnnotation),
+        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(
+            nameof(ComplexPropertyBuilder.HasPropertyAnnotation),
             new[] { typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo HasTypeAnnotationMethodInfo
-        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(nameof(ComplexPropertyBuilder.HasTypeAnnotation),
+        = typeof(ComplexPropertyBuilder).GetRuntimeMethod(
+            nameof(ComplexPropertyBuilder.HasTypeAnnotation),
             new[] { typeof(string), typeof(string) })!;
 
     /// <summary>
@@ -629,10 +632,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(property.ComplexType.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
-        GenerateAnnotations(propertyBuilderName, property, stringBuilder, propertyAnnotations,
+        GenerateAnnotations(
+            propertyBuilderName, property, stringBuilder, propertyAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasPropertyAnnotationMethodInfo);
 
-        GenerateAnnotations(propertyBuilderName, property, stringBuilder, typeAnnotations,
+        GenerateAnnotations(
+            propertyBuilderName, property, stringBuilder, typeAnnotations,
             inChainedCall: false, hasAnnotationMethodInfo: HasTypeAnnotationMethodInfo);
     }
 
@@ -1899,7 +1904,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Append remaining raw annotations which did not get generated as Fluent API calls
         foreach (var annotation in annotations.Values.OrderBy(a => a.Name))
         {
-            var call = new MethodCallCodeFragment(hasAnnotationMethodInfo ?? HasAnnotationMethodInfo,
+            var call = new MethodCallCodeFragment(
+                hasAnnotationMethodInfo ?? HasAnnotationMethodInfo,
                 annotation.Name, annotation.Value);
             chainedCall = chainedCall is null ? call : chainedCall.Chain(call);
         }

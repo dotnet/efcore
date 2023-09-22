@@ -168,7 +168,6 @@ public class F1SqlServerFixture : F1SqlServerFixtureBase<byte[]>
 
             return hash.ToHashCode();
         }
-
     }
 }
 

@@ -201,7 +201,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         return base.VisitMethodCall(methodCallExpression);
 
         bool TryTranslateStartsEndsWithContains(
-            Expression instance, Expression pattern, StartsEndsWithContains methodType, [NotNullWhen(true)] out SqlExpression? translation)
+            Expression instance,
+            Expression pattern,
+            StartsEndsWithContains methodType,
+            [NotNullWhen(true)] out SqlExpression? translation)
         {
             if (Visit(instance) is not SqlExpression translatedInstance
                 || Visit(pattern) is not SqlExpression translatedPattern)
@@ -349,7 +352,9 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     }
 
     private static string? ConstructLikePatternParameter(
-        QueryContext queryContext, string baseParameterName, StartsEndsWithContains methodType)
+        QueryContext queryContext,
+        string baseParameterName,
+        StartsEndsWithContains methodType)
         => queryContext.ParameterValues[baseParameterName] switch
         {
             null => null,
@@ -432,7 +437,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
 
         return visitedArray is SqlExpression sqlArray
             && visitedIndex is SqlExpression sqlIndex
-            ? Dependencies.SqlExpressionFactory.Convert(
+                ? Dependencies.SqlExpressionFactory.Convert(
                     Dependencies.SqlExpressionFactory.Function(
                         "SUBSTRING",
                         new[]
@@ -447,7 +452,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         argumentsPropagateNullability: new[] { true, true, true },
                         typeof(byte[])),
                     resultType)
-            : QueryCompilationContext.NotTranslatedExpression;
+                : QueryCompilationContext.NotTranslatedExpression;
     }
 
     private static string? GetProviderType(SqlExpression expression)

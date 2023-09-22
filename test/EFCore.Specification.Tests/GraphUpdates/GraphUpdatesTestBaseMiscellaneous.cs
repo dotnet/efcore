@@ -1888,12 +1888,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
         if (firstLevel2)
         {
-            root.FirstLaw.Add(new FirstLaw
-            {
-                FirstLawId = 12,
-                FirstLawName = "firstLaw2",
-                BayazId = 1
-            });
+            root.FirstLaw.Add(
+                new FirstLaw
+                {
+                    FirstLawId = 12,
+                    FirstLawName = "firstLaw2",
+                    BayazId = 1
+                });
         }
 
         return root;
@@ -1915,12 +1916,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
         if (secondLevel2)
         {
-            firstLevel.SecondLaw.Add(new SecondLaw
-            {
-                SecondLawId = 112,
-                SecondLawName = "secondLaw2",
-                FirstLawId = 11
-            });
+            firstLevel.SecondLaw.Add(
+                new SecondLaw
+                {
+                    SecondLawId = 112,
+                    SecondLawName = "secondLaw2",
+                    FirstLawId = 11
+                });
         }
 
         return firstLevel;
@@ -1937,22 +1939,24 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
         if (thirdLevel1)
         {
-            secondLevel.ThirdLaw.Add(new ThirdLaw
-            {
-                ThirdLawId = 1111,
-                ThirdLawName = "thirdLaw1",
-                SecondLawId = 111
-            });
+            secondLevel.ThirdLaw.Add(
+                new ThirdLaw
+                {
+                    ThirdLawId = 1111,
+                    ThirdLawName = "thirdLaw1",
+                    SecondLawId = 111
+                });
         }
 
         if (thirdLevel2)
         {
-            secondLevel.ThirdLaw.Add(new ThirdLaw
-            {
-                ThirdLawId = 1112,
-                ThirdLawName = "thirdLaw2",
-                SecondLawId = 111
-            });
+            secondLevel.ThirdLaw.Add(
+                new ThirdLaw
+                {
+                    ThirdLawId = 1112,
+                    ThirdLawName = "thirdLaw2",
+                    SecondLawId = 111
+                });
         }
 
         return secondLevel;
@@ -1965,7 +1969,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         => ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                var parent = new NaiveParent { Children = { new() } };
+                var parent = new NaiveParent { Children = { new SneakyChild() } };
                 context.Add(parent);
 
                 _ = async

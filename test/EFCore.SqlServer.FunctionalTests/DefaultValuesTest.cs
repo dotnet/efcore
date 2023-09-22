@@ -50,7 +50,9 @@ public class DefaultValuesTest : IDisposable
             _databaseName = databaseName;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<KettleChips> Chips { get; set; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Chipper> Chippers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

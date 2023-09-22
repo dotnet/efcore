@@ -877,6 +877,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
     {
         private readonly Action<ModelBuilder> _onModelBuilder;
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<CustomerWithCollection<TCollection>> Customers { get; set; }
 
         public CollectionCustomerContext(DbContextOptions dbContextOptions, Action<ModelBuilder> onModelBuilder = null)
@@ -1168,7 +1169,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
             Assert.Equal(pk1, customerFromStore.PartitionKey);
             AssertSql(
                 context,
-"""
+                """
 @__p_1='42'
 
 SELECT c
@@ -1301,7 +1302,7 @@ OFFSET 0 LIMIT 1
             Assert.Equal("Theon", customerFromStore.Name);
             AssertSql(
                 context,
-"""
+                """
 @__p_0='42'
 
 SELECT c
@@ -1766,12 +1767,13 @@ OFFSET 0 LIMIT 1
         Assert.NotNull(document);
         Assert.Equal("0", document["Discriminator"]);
 
-        Assert.NotNull(await context.Set<NonStringDiscriminator>()
-            .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
+        Assert.NotNull(
+            await context.Set<NonStringDiscriminator>()
+                .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
 
         AssertSql(
             context,
-"""
+            """
 SELECT c
 FROM root c
 WHERE (c["Discriminator"] = 0)

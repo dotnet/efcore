@@ -31,6 +31,7 @@ public class ConfigPatternsInMemoryTest
 
     private class ImplicitServicesAndConfigBlogContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -72,6 +73,7 @@ public class ConfigPatternsInMemoryTest
         {
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -112,6 +114,7 @@ public class ConfigPatternsInMemoryTest
             _serviceProvider = serviceProvider;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -157,6 +160,7 @@ public class ConfigPatternsInMemoryTest
         {
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -175,6 +179,7 @@ public class ConfigPatternsInMemoryTest
 
     private class NoServicesAndNoConfigBlogContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -209,6 +214,7 @@ public class ConfigPatternsInMemoryTest
             _serviceProvider = serviceProvider;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -269,6 +275,7 @@ public class ConfigPatternsInMemoryTest
                 .UseInMemoryDatabase(nameof(InjectContextBlogContext))
                 .UseInternalServiceProvider(_serviceProvider);
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -320,6 +327,7 @@ public class ConfigPatternsInMemoryTest
             Assert.NotNull(options);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -377,6 +385,7 @@ public class ConfigPatternsInMemoryTest
             Assert.NotNull(options);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -465,6 +474,7 @@ public class ConfigPatternsInMemoryTest
             Assert.NotNull(options);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Blog> Blogs { get; set; }
     }
 
@@ -476,6 +486,7 @@ public class ConfigPatternsInMemoryTest
             Assert.NotNull(options);
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Account> Accounts { get; set; }
     }
 

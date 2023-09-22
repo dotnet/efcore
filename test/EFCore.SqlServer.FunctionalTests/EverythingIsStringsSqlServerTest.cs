@@ -28,7 +28,7 @@ public class EverythingIsStringsSqlServerTest : BuiltInDataTypesTestBase<
             nameof(AnimalIdentification));
 
         const string expected =
-"""
+            """
 BinaryForeignKeyDataType.BinaryKeyDataTypeId ---> [nullable nvarchar] [MaxLength = 450]
 BinaryForeignKeyDataType.Id ---> [nvarchar] [MaxLength = 64]
 BinaryKeyDataType.Ex ---> [nullable nvarchar] [MaxLength = -1]

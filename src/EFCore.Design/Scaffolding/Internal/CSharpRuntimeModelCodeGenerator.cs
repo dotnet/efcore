@@ -840,8 +840,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         if (sentinel != null)
         {
             mainBuilder.AppendLine(",")
-                .Append("sentinel: ")
-                .Append(_code.UnknownLiteral(sentinel));
+                .Append("sentinel: ");
+
+            if (valueConverterType != null)
+            {
+                var converter = property.GetValueConverter()!;
+                mainBuilder.Append("new ")
+                    .Append(_code.Reference(valueConverterType))
+                    .Append("().")
+                    .Append(nameof(ValueConverter.ConvertFromProvider))
+                    .Append("(")
+                    .Append(_code.UnknownLiteral(converter.ConvertToProvider(sentinel)))
+                    .Append(")");
+            }
+            else
+            {
+                mainBuilder.Append(_code.UnknownLiteral(sentinel));
+            }
         }
 
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
@@ -908,8 +923,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
-                property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
+            ? throw new InvalidOperationException(
+                CoreStrings.RelationshipCycle(
+                    property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
             : null;
     }
 
@@ -1181,7 +1197,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     .Append(_code.Literal(complexType.ClrType));
 
                 AddNamespace(complexProperty.ClrType, namespaces);
-                AddNamespace(complexType.ClrType, namespaces);                
+                AddNamespace(complexType.ClrType, namespaces);
 
                 var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
                     declaringTypeVariable,

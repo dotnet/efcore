@@ -323,7 +323,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     Provides an alias to be used for the table returned from translation, which will represent the collection.
     /// </param>
     /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
-    protected virtual ShapedQueryExpression? TranslatePrimitiveCollection(SqlExpression sqlExpression, IProperty? property, string tableAlias)
+    protected virtual ShapedQueryExpression? TranslatePrimitiveCollection(
+        SqlExpression sqlExpression,
+        IProperty? property,
+        string tableAlias)
         => null;
 
     /// <summary>
@@ -1008,10 +1011,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             var projection = (StructuralTypeProjectionExpression)selectExpression.GetProjection(projectionBindingExpression);
             selectExpression.ReplaceProjection(
-                new Dictionary<ProjectionMember, Expression>
-                {
-                    { projectionMember, projection.UpdateEntityType(derivedType) }
-                });
+                new Dictionary<ProjectionMember, Expression> { { projectionMember, projection.UpdateEntityType(derivedType) } });
 
             return source.UpdateShaperExpression(shaper.WithType(derivedType));
         }
@@ -1723,7 +1723,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <param name="shaper">The structural type shaper expression on which the delete operation is being applied.</param>
     /// <param name="tableExpression">The table expression from which rows are being deleted.</param>
     /// <returns>
-    /// Returns <see langword="true" /> if the current select expression can be used for delete as-is, <see langword="false" /> otherwise.
+    ///     Returns <see langword="true" /> if the current select expression can be used for delete as-is, <see langword="false" /> otherwise.
     /// </returns>
     protected virtual bool IsValidSelectExpressionForExecuteDelete(
         SelectExpression selectExpression,
@@ -1765,10 +1765,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <param name="selectExpression">The select expression to validate.</param>
     /// <param name="targetTable">The target table containing the rows to be updated.</param>
     /// <param name="tableExpression">
-    /// The table expression corresponding to the provided <paramref name="targetTable" />, containing the rows to be updated.
+    ///     The table expression corresponding to the provided <paramref name="targetTable" />, containing the rows to be updated.
     /// </param>
     /// <returns>
-    /// Returns <see langword="true" /> if the current select expression can be used for update as-is, <see langword="false" /> otherwise.
+    ///     Returns <see langword="true" /> if the current select expression can be used for update as-is, <see langword="false" /> otherwise.
     /// </returns>
     protected virtual bool IsValidSelectExpressionForExecuteUpdate(
         SelectExpression selectExpression,
@@ -1876,7 +1876,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     an explicit ordering.
     /// </summary>
     /// <param name="selectExpression">The <see cref="SelectExpression" /> to check for ordering.</param>
-    /// <returns>Whether <paramref name="selectExpression"/> is ordered.</returns>
+    /// <returns>Whether <paramref name="selectExpression" /> is ordered.</returns>
     protected virtual bool IsNaturallyOrdered(SelectExpression selectExpression)
         => false;
 
@@ -2150,7 +2150,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 ? entityType.FindNavigation(member.MemberInfo)
                 : entityType.FindNavigation(member.Name!);
 
-            if (navigation is { TargetEntityType: IEntityType targetEntityType}
+            if (navigation is { TargetEntityType: IEntityType targetEntityType }
                 && targetEntityType.IsOwned())
             {
                 return ExpandOwnedNavigation(navigation);

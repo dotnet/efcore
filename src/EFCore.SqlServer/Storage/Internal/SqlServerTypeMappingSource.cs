@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Data;
 using System.Text.Json;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 

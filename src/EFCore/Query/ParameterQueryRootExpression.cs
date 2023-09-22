@@ -26,7 +26,9 @@ public class ParameterQueryRootExpression : QueryRootExpression
     /// <param name="elementType">The values that this query root represents.</param>
     /// <param name="parameterExpression">The parameter expression representing the values for this query root.</param>
     public ParameterQueryRootExpression(
-        IAsyncQueryProvider asyncQueryProvider, Type elementType, ParameterExpression parameterExpression)
+        IAsyncQueryProvider asyncQueryProvider,
+        Type elementType,
+        ParameterExpression parameterExpression)
         : base(asyncQueryProvider, elementType)
     {
         ParameterExpression = parameterExpression;

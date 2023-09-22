@@ -25,6 +25,7 @@ public class QueryProviderTest
 
     private class TestContext : DbContext
     {
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<TestEntity> TestEntities { get; set; }
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

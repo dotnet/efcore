@@ -527,6 +527,7 @@ public class NavigationFixer : INavigationFixer
                         {
                             continue;
                         }
+
                         SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
                     }
 

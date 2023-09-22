@@ -862,7 +862,8 @@ public sealed partial class SelectExpression
                 {
                     // Deep clone
                     var subSelectExpressions = tpcTablesExpression.SelectExpressions.Select(Visit).ToList<SelectExpression>();
-                    var newTpcTable = new TpcTablesExpression(tpcTablesExpression.Alias, tpcTablesExpression.EntityType, subSelectExpressions);
+                    var newTpcTable = new TpcTablesExpression(
+                        tpcTablesExpression.Alias, tpcTablesExpression.EntityType, subSelectExpressions);
                     foreach (var annotation in tpcTablesExpression.GetAnnotations())
                     {
                         newTpcTable.AddAnnotation(annotation.Name, annotation.Value);

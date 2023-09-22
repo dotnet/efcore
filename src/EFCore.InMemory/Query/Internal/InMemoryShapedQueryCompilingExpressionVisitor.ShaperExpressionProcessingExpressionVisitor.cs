@@ -220,7 +220,8 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 return MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }
 
-            if (binaryExpression is { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression })
+            if (binaryExpression is
+                { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression })
             {
                 return memberExpression.Assign(Visit(binaryExpression.Right));
             }

@@ -124,7 +124,6 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     public virtual IEnumerable<IReadOnlyEntityType> GetAdHocEntityTypes()
         => _adHocEntityTypes.Values;
 
-
     /// <summary>
     ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name is found
     ///     or the given CLR type is being used by shared type entity type

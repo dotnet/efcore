@@ -218,7 +218,8 @@ public abstract class JsonTypesTestBase
     [InlineData("12/31/9999", """{"Prop":"9999-12-31"}""")]
     [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
     public virtual void Can_read_write_DateOnly_JSON_values(string value, string json)
-        => Can_read_and_write_JSON_value<DateOnlyType, DateOnly>(nameof(DateOnlyType.DateOnly),
+        => Can_read_and_write_JSON_value<DateOnlyType, DateOnly>(
+            nameof(DateOnlyType.DateOnly),
             DateOnly.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class DateOnlyType
@@ -245,7 +246,8 @@ public abstract class JsonTypesTestBase
     [InlineData("9999-12-31T23:59:59.9999999", """{"Prop":"9999-12-31T23:59:59.9999999"}""")]
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     public virtual void Can_read_write_DateTime_JSON_values(string value, string json)
-        => Can_read_and_write_JSON_value<DateTimeType, DateTime>(nameof(DateTimeType.DateTime),
+        => Can_read_and_write_JSON_value<DateTimeType, DateTime>(
+            nameof(DateTimeType.DateTime),
             DateTime.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class DateTimeType
@@ -259,7 +261,8 @@ public abstract class JsonTypesTestBase
     [InlineData("0001-01-01T00:00:00.0000000-03:00", """{"Prop":"0001-01-01T00:00:00-03:00"}""")]
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
     public virtual void Can_read_write_DateTimeOffset_JSON_values(string value, string json)
-        => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(nameof(DateTimeOffsetType.DateTimeOffset),
+        => Can_read_and_write_JSON_value<DateTimeOffsetType, DateTimeOffset>(
+            nameof(DateTimeOffsetType.DateTimeOffset),
             DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class DateTimeOffsetType
@@ -634,7 +637,8 @@ public abstract class JsonTypesTestBase
     [InlineData("1.1", """{"Prop":1.1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_decimal_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(nameof(NullableDecimalType.Decimal),
+        => Can_read_and_write_JSON_value<NullableDecimalType, decimal?>(
+            nameof(NullableDecimalType.Decimal),
             value == null ? default(decimal?) : decimal.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableDecimalType
@@ -648,7 +652,8 @@ public abstract class JsonTypesTestBase
     [InlineData("5/29/2023", """{"Prop":"2023-05-29"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_DateOnly_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDateOnlyType, DateOnly?>(nameof(NullableDateOnlyType.DateOnly),
+        => Can_read_and_write_JSON_value<NullableDateOnlyType, DateOnly?>(
+            nameof(NullableDateOnlyType.DateOnly),
             value == null ? default(DateOnly?) : DateOnly.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableDateOnlyType
@@ -662,7 +667,8 @@ public abstract class JsonTypesTestBase
     [InlineData("11:05:12.3456789", """{"Prop":"11:05:12.3456789"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableTimeOnlyType, TimeOnly?>(nameof(NullableTimeOnlyType.TimeOnly),
+        => Can_read_and_write_JSON_value<NullableTimeOnlyType, TimeOnly?>(
+            nameof(NullableTimeOnlyType.TimeOnly),
             value == null ? default(TimeOnly?) : TimeOnly.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableTimeOnlyType
@@ -676,7 +682,8 @@ public abstract class JsonTypesTestBase
     [InlineData("2023-05-29T10:52:47.2064353", """{"Prop":"2023-05-29T10:52:47.2064353"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(nameof(NullableDateTimeType.DateTime),
+        => Can_read_and_write_JSON_value<NullableDateTimeType, DateTime?>(
+            nameof(NullableDateTimeType.DateTime),
             value == null ? default(DateTime?) : DateTime.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableDateTimeType
@@ -691,7 +698,8 @@ public abstract class JsonTypesTestBase
     [InlineData("2023-05-29T11:11:15.5672854+04:00", """{"Prop":"2023-05-29T11:11:15.5672854+04:00"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_DateTimeOffset_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(nameof(NullableDateTimeOffsetType.DateTimeOffset),
+        => Can_read_and_write_JSON_value<NullableDateTimeOffsetType, DateTimeOffset?>(
+            nameof(NullableDateTimeOffsetType.DateTimeOffset),
             value == null ? default(DateTimeOffset?) : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableDateTimeOffsetType
@@ -706,7 +714,8 @@ public abstract class JsonTypesTestBase
     [InlineData("12:23:23.8018854", """{"Prop":"12:23:23.8018854"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_TimeSpan_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableTimeSpanType, TimeSpan?>(nameof(NullableTimeSpanType.TimeSpan),
+        => Can_read_and_write_JSON_value<NullableTimeSpanType, TimeSpan?>(
+            nameof(NullableTimeSpanType.TimeSpan),
             value == null ? default(TimeSpan?) : TimeSpan.Parse(value), json);
 
     protected class NullableTimeSpanType
@@ -746,7 +755,8 @@ public abstract class JsonTypesTestBase
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", """{"Prop":"8c44242f-8e3f-4a20-8be8-98c7c1aadebd"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_GUID_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(nameof(NullableGuidType.Guid),
+        => Can_read_and_write_JSON_value<NullableGuidType, Guid?>(
+            nameof(NullableGuidType.Guid),
             value == null ? null : Guid.Parse(value, CultureInfo.InvariantCulture), json);
 
     protected class NullableGuidType
@@ -777,7 +787,8 @@ public abstract class JsonTypesTestBase
     [InlineData("1,2,3,4", """{"Prop":"AQIDBA=="}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_binary_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(nameof(NullableBytesType.Bytes),
+        => Can_read_and_write_JSON_value<NullableBytesType, byte[]?>(
+            nameof(NullableBytesType.Bytes),
             value == null
                 ? default
                 : value == ""
@@ -796,7 +807,8 @@ public abstract class JsonTypesTestBase
     [InlineData("file:///C:/test/path/file.txt", """{"Prop":"file:///C:/test/path/file.txt"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_URI_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableUriType, Uri?>(nameof(NullableUriType.Uri),
+        => Can_read_and_write_JSON_value<NullableUriType, Uri?>(
+            nameof(NullableUriType.Uri),
             value == null ? default : new Uri(value), json);
 
     protected class NullableUriType
@@ -814,7 +826,8 @@ public abstract class JsonTypesTestBase
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_IP_address_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullableIPAddressType, IPAddress?>(nameof(NullableIPAddressType.IpAddress),
+        => Can_read_and_write_JSON_value<NullableIPAddressType, IPAddress?>(
+            nameof(NullableIPAddressType.IpAddress),
             value == null ? default : IPAddress.Parse(value), json);
 
     protected class NullableIPAddressType
@@ -828,7 +841,8 @@ public abstract class JsonTypesTestBase
     [InlineData("0011.2233.4455", """{"Prop":"001122334455"}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_physical_address_JSON_values(string? value, string json)
-        => Can_read_and_write_JSON_value<NullablePhysicalAddressType, PhysicalAddress?>(nameof(NullablePhysicalAddressType.PhysicalAddress),
+        => Can_read_and_write_JSON_value<NullablePhysicalAddressType, PhysicalAddress?>(
+            nameof(NullablePhysicalAddressType.PhysicalAddress),
             value == null ? default : PhysicalAddress.Parse(value), json);
 
     protected class NullablePhysicalAddressType
@@ -843,7 +857,8 @@ public abstract class JsonTypesTestBase
     [InlineData((sbyte)Enum8.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_sbyte_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnum8Type, Enum8?>(nameof(NullableEnum8Type.Enum8),
+        => Can_read_and_write_JSON_value<NullableEnum8Type, Enum8?>(
+            nameof(NullableEnum8Type.Enum8),
             value == null ? default(Enum8?) : (Enum8)value, json);
 
     protected class NullableEnum8Type
@@ -858,7 +873,8 @@ public abstract class JsonTypesTestBase
     [InlineData((short)Enum16.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_short_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnum16Type, Enum16?>(nameof(NullableEnum16Type.Enum16),
+        => Can_read_and_write_JSON_value<NullableEnum16Type, Enum16?>(
+            nameof(NullableEnum16Type.Enum16),
             value == null ? default(Enum16?) : (Enum16)value, json);
 
     protected class NullableEnum16Type
@@ -873,7 +889,8 @@ public abstract class JsonTypesTestBase
     [InlineData((int)Enum32.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_int_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnum32Type, Enum32?>(nameof(NullableEnum32Type.Enum32),
+        => Can_read_and_write_JSON_value<NullableEnum32Type, Enum32?>(
+            nameof(NullableEnum32Type.Enum32),
             value == null ? default(Enum32?) : (Enum32)value, json);
 
     protected class NullableEnum32Type
@@ -888,7 +905,8 @@ public abstract class JsonTypesTestBase
     [InlineData((long)Enum64.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_long_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnum64Type, Enum64?>(nameof(NullableEnum64Type.Enum64),
+        => Can_read_and_write_JSON_value<NullableEnum64Type, Enum64?>(
+            nameof(NullableEnum64Type.Enum64),
             value == null ? default(Enum64?) : (Enum64)value, json);
 
     protected class NullableEnum64Type
@@ -902,7 +920,8 @@ public abstract class JsonTypesTestBase
     [InlineData((byte)EnumU8.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_byte_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU8Type, EnumU8?>(nameof(NullableEnumU8Type.EnumU8),
+        => Can_read_and_write_JSON_value<NullableEnumU8Type, EnumU8?>(
+            nameof(NullableEnumU8Type.EnumU8),
             value == null ? default(EnumU8?) : (EnumU8)value, json);
 
     protected class NullableEnumU8Type
@@ -916,7 +935,8 @@ public abstract class JsonTypesTestBase
     [InlineData((ushort)EnumU16.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_ushort_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU16Type, EnumU16?>(nameof(NullableEnumU16Type.EnumU16),
+        => Can_read_and_write_JSON_value<NullableEnumU16Type, EnumU16?>(
+            nameof(NullableEnumU16Type.EnumU16),
             value == null ? default(EnumU16?) : (EnumU16)value, json);
 
     protected class NullableEnumU16Type
@@ -930,7 +950,8 @@ public abstract class JsonTypesTestBase
     [InlineData((uint)EnumU32.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_uint_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU32Type, EnumU32?>(nameof(NullableEnumU32Type.EnumU32),
+        => Can_read_and_write_JSON_value<NullableEnumU32Type, EnumU32?>(
+            nameof(NullableEnumU32Type.EnumU32),
             value == null ? default(EnumU32?) : (EnumU32)value, json);
 
     protected class NullableEnumU32Type
@@ -944,7 +965,8 @@ public abstract class JsonTypesTestBase
     [InlineData((ulong)EnumU64.One, """{"Prop":1}""")]
     [InlineData(null, """{"Prop":null}""")]
     public virtual void Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
-        => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(nameof(NullableEnumU64Type.EnumU64),
+        => Can_read_and_write_JSON_value<NullableEnumU64Type, EnumU64?>(
+            nameof(NullableEnumU64Type.EnumU64),
             value == null ? default(EnumU64?) : (EnumU64)value, json);
 
     protected class NullableEnumU64Type
@@ -1700,7 +1722,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_sbyte_JSON_values()
-        => Can_read_and_write_JSON_value<Int8CollectionType, List<sbyte>>(nameof(Int8CollectionType.Int8),
+        => Can_read_and_write_JSON_value<Int8CollectionType, List<sbyte>>(
+            nameof(Int8CollectionType.Int8),
             new List<sbyte>
             {
                 sbyte.MinValue,
@@ -1717,7 +1740,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_short_JSON_values()
-        => Can_read_and_write_JSON_value<Int16CollectionType, List<short>>(nameof(Int16CollectionType.Int16),
+        => Can_read_and_write_JSON_value<Int16CollectionType, List<short>>(
+            nameof(Int16CollectionType.Int16),
             new List<short>
             {
                 short.MinValue,
@@ -1734,7 +1758,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_int_JSON_values()
-        => Can_read_and_write_JSON_value<Int32CollectionType, List<int>>(nameof(Int32CollectionType.Int32),
+        => Can_read_and_write_JSON_value<Int32CollectionType, List<int>>(
+            nameof(Int32CollectionType.Int32),
             new List<int>
             {
                 int.MinValue,
@@ -1751,7 +1776,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_long_JSON_values()
-        => Can_read_and_write_JSON_value<Int64CollectionType, List<long>>(nameof(Int64CollectionType.Int64),
+        => Can_read_and_write_JSON_value<Int64CollectionType, List<long>>(
+            nameof(Int64CollectionType.Int64),
             new List<long>
             {
                 long.MinValue,
@@ -1768,7 +1794,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_byte_JSON_values()
-        => Can_read_and_write_JSON_value<UInt8CollectionType, List<byte>>(nameof(UInt8CollectionType.UInt8),
+        => Can_read_and_write_JSON_value<UInt8CollectionType, List<byte>>(
+            nameof(UInt8CollectionType.UInt8),
             new List<byte>
             {
                 byte.MinValue,
@@ -1785,7 +1812,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_ushort_JSON_values()
-        => Can_read_and_write_JSON_value<UInt16CollectionType, List<ushort>>(nameof(UInt16CollectionType.UInt16),
+        => Can_read_and_write_JSON_value<UInt16CollectionType, List<ushort>>(
+            nameof(UInt16CollectionType.UInt16),
             new List<ushort>
             {
                 ushort.MinValue,
@@ -1802,7 +1830,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_uint_JSON_values()
-        => Can_read_and_write_JSON_value<UInt32CollectionType, List<uint>>(nameof(UInt32CollectionType.UInt32),
+        => Can_read_and_write_JSON_value<UInt32CollectionType, List<uint>>(
+            nameof(UInt32CollectionType.UInt32),
             new List<uint>
             {
                 uint.MinValue,
@@ -1819,7 +1848,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_ulong_JSON_values()
-        => Can_read_and_write_JSON_value<UInt64CollectionType, List<ulong>>(nameof(UInt64CollectionType.UInt64),
+        => Can_read_and_write_JSON_value<UInt64CollectionType, List<ulong>>(
+            nameof(UInt64CollectionType.UInt64),
             new List<ulong>
             {
                 ulong.MinValue,
@@ -1837,7 +1867,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_float_JSON_values()
-        => Can_read_and_write_JSON_value<FloatCollectionType, List<float>>(nameof(FloatCollectionType.Float),
+        => Can_read_and_write_JSON_value<FloatCollectionType, List<float>>(
+            nameof(FloatCollectionType.Float),
             new List<float>
             {
                 float.MinValue,
@@ -1854,7 +1885,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_double_JSON_values()
-        => Can_read_and_write_JSON_value<DoubleCollectionType, List<double>>(nameof(DoubleCollectionType.Double),
+        => Can_read_and_write_JSON_value<DoubleCollectionType, List<double>>(
+            nameof(DoubleCollectionType.Double),
             new List<double>
             {
                 double.MinValue,
@@ -1871,7 +1903,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_decimal_JSON_values()
-        => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(nameof(DecimalCollectionType.Decimal),
+        => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
+            nameof(DecimalCollectionType.Decimal),
             new List<decimal>
             {
                 decimal.MinValue,
@@ -1888,7 +1921,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_DateOnly_JSON_values()
-        => Can_read_and_write_JSON_value<DateOnlyCollectionType, List<DateOnly>>(nameof(DateOnlyCollectionType.DateOnly),
+        => Can_read_and_write_JSON_value<DateOnlyCollectionType, List<DateOnly>>(
+            nameof(DateOnlyCollectionType.DateOnly),
             new List<DateOnly>
             {
                 DateOnly.MinValue,
@@ -1905,7 +1939,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_TimeOnly_JSON_values()
-        => Can_read_and_write_JSON_value<TimeOnlyCollectionType, List<TimeOnly>>(nameof(TimeOnlyCollectionType.TimeOnly),
+        => Can_read_and_write_JSON_value<TimeOnlyCollectionType, List<TimeOnly>>(
+            nameof(TimeOnlyCollectionType.TimeOnly),
             new List<TimeOnly>
             {
                 TimeOnly.MinValue,
@@ -1923,7 +1958,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_DateTime_JSON_values()
-        => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(nameof(DateTimeCollectionType.DateTime),
+        => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
+            nameof(DateTimeCollectionType.DateTime),
             new List<DateTime>
             {
                 DateTime.MinValue,
@@ -1960,7 +1996,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_TimeSpan_JSON_values()
-        => Can_read_and_write_JSON_value<TimeSpanCollectionType, List<TimeSpan>>(nameof(TimeSpanCollectionType.TimeSpan),
+        => Can_read_and_write_JSON_value<TimeSpanCollectionType, List<TimeSpan>>(
+            nameof(TimeSpanCollectionType.TimeSpan),
             new List<TimeSpan>
             {
                 TimeSpan.MinValue,
@@ -1990,7 +2027,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_char_JSON_values()
-        => Can_read_and_write_JSON_value<CharacterCollectionType, List<char>>(nameof(CharacterCollectionType.Character),
+        => Can_read_and_write_JSON_value<CharacterCollectionType, List<char>>(
+            nameof(CharacterCollectionType.Character),
             new List<char>
             {
                 char.MinValue,
@@ -2007,7 +2045,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_GUID_JSON_values()
-        => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(nameof(GuidCollectionType.Guid),
+        => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
+            nameof(GuidCollectionType.Guid),
             new List<Guid>
             {
                 new(),
@@ -2024,7 +2063,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_string_JSON_values()
-        => Can_read_and_write_JSON_value<StringCollectionType, List<string>>(nameof(StringCollectionType.String),
+        => Can_read_and_write_JSON_value<StringCollectionType, List<string>>(
+            nameof(StringCollectionType.String),
             new List<string>
             {
                 "MinValue",
@@ -2041,7 +2081,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_binary_JSON_values()
-        => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(nameof(BytesCollectionType.Bytes),
+        => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
+            nameof(BytesCollectionType.Bytes),
             new List<byte[]>
             {
                 new byte[] { 0, 0, 0, 1 },
@@ -2059,7 +2100,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_URI_JSON_values()
-        => Can_read_and_write_JSON_value<UriCollectionType, List<Uri>>(nameof(UriCollectionType.Uri),
+        => Can_read_and_write_JSON_value<UriCollectionType, List<Uri>>(
+            nameof(UriCollectionType.Uri),
             new List<Uri>
             {
                 new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
@@ -2075,7 +2117,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_IP_address_JSON_values()
-        => Can_read_and_write_JSON_value<IpAddressCollectionType, List<IPAddress>>(nameof(IpAddressCollectionType.IpAddress),
+        => Can_read_and_write_JSON_value<IpAddressCollectionType, List<IPAddress>>(
+            nameof(IpAddressCollectionType.IpAddress),
             new List<IPAddress>
             {
                 IPAddress.Parse("127.0.0.1"),
@@ -2115,7 +2158,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_sbyte_enum_JSON_values()
-        => Can_read_and_write_JSON_value<Enum8CollectionType, List<Enum8>>(nameof(Enum8CollectionType.Enum8),
+        => Can_read_and_write_JSON_value<Enum8CollectionType, List<Enum8>>(
+            nameof(Enum8CollectionType.Enum8),
             new List<Enum8>
             {
                 Enum8.Min,
@@ -2134,7 +2178,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_short_enum_JSON_values()
-        => Can_read_and_write_JSON_value<Enum16CollectionType, List<Enum16>>(nameof(Enum16CollectionType.Enum16),
+        => Can_read_and_write_JSON_value<Enum16CollectionType, List<Enum16>>(
+            nameof(Enum16CollectionType.Enum16),
             new List<Enum16>
             {
                 Enum16.Min,
@@ -2153,7 +2198,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_int_enum_JSON_values()
-        => Can_read_and_write_JSON_value<Enum32CollectionType, List<Enum32>>(nameof(Enum32CollectionType.Enum32),
+        => Can_read_and_write_JSON_value<Enum32CollectionType, List<Enum32>>(
+            nameof(Enum32CollectionType.Enum32),
             new List<Enum32>
             {
                 Enum32.Min,
@@ -2172,7 +2218,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_long_enum_JSON_values()
-        => Can_read_and_write_JSON_value<Enum64CollectionType, List<Enum64>>(nameof(Enum64CollectionType.Enum64),
+        => Can_read_and_write_JSON_value<Enum64CollectionType, List<Enum64>>(
+            nameof(Enum64CollectionType.Enum64),
             new List<Enum64>
             {
                 Enum64.Min,
@@ -2191,7 +2238,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_byte_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU8CollectionType, List<EnumU8>>(nameof(EnumU8CollectionType.EnumU8),
+        => Can_read_and_write_JSON_value<EnumU8CollectionType, List<EnumU8>>(
+            nameof(EnumU8CollectionType.EnumU8),
             new List<EnumU8>
             {
                 EnumU8.Min,
@@ -2210,7 +2258,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_ushort_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU16CollectionType, List<EnumU16>>(nameof(EnumU16CollectionType.EnumU16),
+        => Can_read_and_write_JSON_value<EnumU16CollectionType, List<EnumU16>>(
+            nameof(EnumU16CollectionType.EnumU16),
             new List<EnumU16>
             {
                 EnumU16.Min,
@@ -2229,7 +2278,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_uint_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU32CollectionType, List<EnumU32>>(nameof(EnumU32CollectionType.EnumU32),
+        => Can_read_and_write_JSON_value<EnumU32CollectionType, List<EnumU32>>(
+            nameof(EnumU32CollectionType.EnumU32),
             new List<EnumU32>
             {
                 EnumU32.Min,
@@ -2249,7 +2299,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(nameof(EnumU64CollectionType.EnumU64),
+        => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(
+            nameof(EnumU64CollectionType.EnumU64),
             new List<EnumU64>
             {
                 EnumU64.Min,
@@ -2268,7 +2319,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_sbyte_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt8CollectionType, List<sbyte?>>(nameof(NullableInt8CollectionType.Int8),
+        => Can_read_and_write_JSON_value<NullableInt8CollectionType, List<sbyte?>>(
+            nameof(NullableInt8CollectionType.Int8),
             new List<sbyte?>
             {
                 null,
@@ -2286,7 +2338,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_short_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt16CollectionType, List<short?>>(nameof(NullableInt16CollectionType.Int16),
+        => Can_read_and_write_JSON_value<NullableInt16CollectionType, List<short?>>(
+            nameof(NullableInt16CollectionType.Int16),
             new List<short?>
             {
                 short.MinValue,
@@ -2304,7 +2357,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_int_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt32CollectionType, List<int?>>(nameof(NullableInt32CollectionType.Int32),
+        => Can_read_and_write_JSON_value<NullableInt32CollectionType, List<int?>>(
+            nameof(NullableInt32CollectionType.Int32),
             new List<int?>
             {
                 int.MinValue,
@@ -2322,7 +2376,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_long_JSON_values()
-        => Can_read_and_write_JSON_value<NullableInt64CollectionType, List<long?>>(nameof(NullableInt64CollectionType.Int64),
+        => Can_read_and_write_JSON_value<NullableInt64CollectionType, List<long?>>(
+            nameof(NullableInt64CollectionType.Int64),
             new List<long?>
             {
                 long.MinValue,
@@ -2340,7 +2395,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_byte_JSON_values()
-        => Can_read_and_write_JSON_value<NullableUInt8CollectionType, List<byte?>>(nameof(NullableUInt8CollectionType.UInt8),
+        => Can_read_and_write_JSON_value<NullableUInt8CollectionType, List<byte?>>(
+            nameof(NullableUInt8CollectionType.UInt8),
             new List<byte?>
             {
                 null,
@@ -2358,7 +2414,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_ushort_JSON_values()
-        => Can_read_and_write_JSON_value<NullableUInt16CollectionType, List<ushort?>>(nameof(NullableUInt16CollectionType.UInt16),
+        => Can_read_and_write_JSON_value<NullableUInt16CollectionType, List<ushort?>>(
+            nameof(NullableUInt16CollectionType.UInt16),
             new List<ushort?>
             {
                 ushort.MinValue,
@@ -2376,7 +2433,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_uint_JSON_values()
-        => Can_read_and_write_JSON_value<NullableUInt32CollectionType, List<uint?>>(nameof(NullableUInt32CollectionType.UInt32),
+        => Can_read_and_write_JSON_value<NullableUInt32CollectionType, List<uint?>>(
+            nameof(NullableUInt32CollectionType.UInt32),
             new List<uint?>
             {
                 uint.MinValue,
@@ -2394,7 +2452,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_ulong_JSON_values()
-        => Can_read_and_write_JSON_value<NullableUInt64CollectionType, List<ulong?>>(nameof(NullableUInt64CollectionType.UInt64),
+        => Can_read_and_write_JSON_value<NullableUInt64CollectionType, List<ulong?>>(
+            nameof(NullableUInt64CollectionType.UInt64),
             new List<ulong?>
             {
                 ulong.MinValue,
@@ -2412,7 +2471,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_float_JSON_values()
-        => Can_read_and_write_JSON_value<NullableFloatCollectionType, List<float?>>(nameof(NullableFloatCollectionType.Float),
+        => Can_read_and_write_JSON_value<NullableFloatCollectionType, List<float?>>(
+            nameof(NullableFloatCollectionType.Float),
             new List<float?>
             {
                 null,
@@ -2430,7 +2490,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_double_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDoubleCollectionType, List<double?>>(nameof(NullableDoubleCollectionType.Double),
+        => Can_read_and_write_JSON_value<NullableDoubleCollectionType, List<double?>>(
+            nameof(NullableDoubleCollectionType.Double),
             new List<double?>
             {
                 double.MinValue,
@@ -2448,7 +2509,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_decimal_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(nameof(NullableDecimalCollectionType.Decimal),
+        => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
+            nameof(NullableDecimalCollectionType.Decimal),
             new List<decimal?>
             {
                 decimal.MinValue,
@@ -2466,7 +2528,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_DateOnly_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDateOnlyCollectionType, List<DateOnly?>>(nameof(NullableDateOnlyCollectionType.DateOnly),
+        => Can_read_and_write_JSON_value<NullableDateOnlyCollectionType, List<DateOnly?>>(
+            nameof(NullableDateOnlyCollectionType.DateOnly),
             new List<DateOnly?>
             {
                 DateOnly.MinValue,
@@ -2484,7 +2547,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
-        => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(nameof(NullableTimeOnlyCollectionType.TimeOnly),
+        => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
+            nameof(NullableTimeOnlyCollectionType.TimeOnly),
             new List<TimeOnly?>
             {
                 null,
@@ -2502,7 +2566,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_DateTime_JSON_values()
-        => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(nameof(NullableDateTimeCollectionType.DateTime),
+        => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
+            nameof(NullableDateTimeCollectionType.DateTime),
             new List<DateTime?>
             {
                 DateTime.MinValue,
@@ -2541,7 +2606,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_TimeSpan_JSON_values()
-        => Can_read_and_write_JSON_value<NullableTimeSpanCollectionType, List<TimeSpan?>>(nameof(NullableTimeSpanCollectionType.TimeSpan),
+        => Can_read_and_write_JSON_value<NullableTimeSpanCollectionType, List<TimeSpan?>>(
+            nameof(NullableTimeSpanCollectionType.TimeSpan),
             new List<TimeSpan?>
             {
                 TimeSpan.MinValue,
@@ -2559,7 +2625,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_bool_JSON_values()
-        => Can_read_and_write_JSON_value<NullableBooleanCollectionType, List<bool?>>(nameof(NullableBooleanCollectionType.Boolean),
+        => Can_read_and_write_JSON_value<NullableBooleanCollectionType, List<bool?>>(
+            nameof(NullableBooleanCollectionType.Boolean),
             new List<bool?>
             {
                 false,
@@ -2576,7 +2643,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_char_JSON_values()
-        => Can_read_and_write_JSON_value<NullableCharacterCollectionType, List<char?>>(nameof(NullableCharacterCollectionType.Character),
+        => Can_read_and_write_JSON_value<NullableCharacterCollectionType, List<char?>>(
+            nameof(NullableCharacterCollectionType.Character),
             new List<char?>
             {
                 char.MinValue,
@@ -2594,7 +2662,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_GUID_JSON_values()
-        => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(nameof(NullableGuidCollectionType.Guid),
+        => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
+            nameof(NullableGuidCollectionType.Guid),
             new List<Guid?>
             {
                 new(),
@@ -2612,7 +2681,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_string_JSON_values()
-        => Can_read_and_write_JSON_value<NullableStringCollectionType, List<string?>>(nameof(NullableStringCollectionType.String),
+        => Can_read_and_write_JSON_value<NullableStringCollectionType, List<string?>>(
+            nameof(NullableStringCollectionType.String),
             new List<string?>
             {
                 "MinValue",
@@ -2630,7 +2700,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_binary_JSON_values()
-        => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(nameof(NullableBytesCollectionType.Bytes),
+        => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
+            nameof(NullableBytesCollectionType.Bytes),
             new List<byte[]?>
             {
                 new byte[] { 0, 0, 0, 1 },
@@ -2649,7 +2720,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_URI_JSON_values()
-        => Can_read_and_write_JSON_value<NullableUriCollectionType, List<Uri?>>(nameof(NullableUriCollectionType.Uri),
+        => Can_read_and_write_JSON_value<NullableUriCollectionType, List<Uri?>>(
+            nameof(NullableUriCollectionType.Uri),
             new List<Uri?>
             {
                 new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
@@ -2709,7 +2781,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_sbyte_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnum8CollectionType, List<Enum8?>>(nameof(NullableEnum8CollectionType.Enum8),
+        => Can_read_and_write_JSON_value<NullableEnum8CollectionType, List<Enum8?>>(
+            nameof(NullableEnum8CollectionType.Enum8),
             new List<Enum8?>
             {
                 Enum8.Min,
@@ -2729,7 +2802,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_short_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnum16CollectionType, List<Enum16?>>(nameof(NullableEnum16CollectionType.Enum16),
+        => Can_read_and_write_JSON_value<NullableEnum16CollectionType, List<Enum16?>>(
+            nameof(NullableEnum16CollectionType.Enum16),
             new List<Enum16?>
             {
                 Enum16.Min,
@@ -2749,7 +2823,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_int_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnum32CollectionType, List<Enum32?>>(nameof(NullableEnum32CollectionType.Enum32),
+        => Can_read_and_write_JSON_value<NullableEnum32CollectionType, List<Enum32?>>(
+            nameof(NullableEnum32CollectionType.Enum32),
             new List<Enum32?>
             {
                 Enum32.Min,
@@ -2769,7 +2844,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_long_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnum64CollectionType, List<Enum64?>>(nameof(NullableEnum64CollectionType.Enum64),
+        => Can_read_and_write_JSON_value<NullableEnum64CollectionType, List<Enum64?>>(
+            nameof(NullableEnum64CollectionType.Enum64),
             new List<Enum64?>
             {
                 Enum64.Min,
@@ -2789,7 +2865,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_byte_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU8CollectionType, List<EnumU8?>>(nameof(NullableEnumU8CollectionType.EnumU8),
+        => Can_read_and_write_JSON_value<NullableEnumU8CollectionType, List<EnumU8?>>(
+            nameof(NullableEnumU8CollectionType.EnumU8),
             new List<EnumU8?>
             {
                 EnumU8.Min,
@@ -2809,7 +2886,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_ushort_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU16CollectionType, List<EnumU16?>>(nameof(NullableEnumU16CollectionType.EnumU16),
+        => Can_read_and_write_JSON_value<NullableEnumU16CollectionType, List<EnumU16?>>(
+            nameof(NullableEnumU16CollectionType.EnumU16),
             new List<EnumU16?>
             {
                 EnumU16.Min,
@@ -2829,7 +2907,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_uint_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU32CollectionType, List<EnumU32?>>(nameof(NullableEnumU32CollectionType.EnumU32),
+        => Can_read_and_write_JSON_value<NullableEnumU32CollectionType, List<EnumU32?>>(
+            nameof(NullableEnumU32CollectionType.EnumU32),
             new List<EnumU32?>
             {
                 EnumU32.Min,
@@ -2849,7 +2928,8 @@ public abstract class JsonTypesTestBase
 
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
-        => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(nameof(NullableEnumU64CollectionType.EnumU64),
+        => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(
+            nameof(NullableEnumU64CollectionType.EnumU64),
             new List<EnumU64?>
             {
                 EnumU64.Min,
@@ -2922,7 +3002,7 @@ public abstract class JsonTypesTestBase
         => Can_read_and_write_JSON_property_value<DoubleConvertedType, double[]>(
             b => b.HasConversion<CustomCollectionConverter<double[], double>, CustomCollectionComparer<double[], double>>(),
             nameof(DoubleConvertedType.DoubleConverted),
-            new double[] { double.MinValue, 0, double.MaxValue },
+            new[] { double.MinValue, 0, double.MaxValue },
             """{"Prop":"[-1.7976931348623157E\u002B308,0,1.7976931348623157E\u002B308]"}""");
 
     protected class DoubleConvertedType
@@ -2952,7 +3032,8 @@ public abstract class JsonTypesTestBase
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_DateTime_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<DateTimeConvertedType, IList<DateTime>>(
-            b => b.HasConversion<CustomCollectionConverter<IList<DateTime>, DateTime>, CustomCollectionComparer<IList<DateTime>, DateTime>>(),
+            b => b
+                .HasConversion<CustomCollectionConverter<IList<DateTime>, DateTime>, CustomCollectionComparer<IList<DateTime>, DateTime>>(),
             nameof(DateTimeConvertedType.DateTimeConverted),
             new List<DateTime>
             {
@@ -2972,11 +3053,7 @@ public abstract class JsonTypesTestBase
         => Can_read_and_write_JSON_property_value<BooleanConvertedType, IList<bool>>(
             b => b.HasConversion<CustomCollectionConverter<IList<bool>, bool>, CustomCollectionComparer<IList<bool>, bool>>(),
             nameof(BooleanConvertedType.BooleanConverted),
-            new List<bool>
-            {
-                false,
-                true
-            },
+            new List<bool> { false, true },
             """{"Prop":"[false,true]"}""");
 
     protected class BooleanConvertedType
@@ -3092,7 +3169,6 @@ public abstract class JsonTypesTestBase
         public sbyte?[] Int8Converted { get; set; } = null!;
     }
 
-
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_int_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableInt32ConvertedType, List<int?>>(
@@ -3168,7 +3244,9 @@ public abstract class JsonTypesTestBase
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_DateTime_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableDateTimeConvertedType, IList<DateTime?>>(
-            b => b.HasConversion<CustomCollectionConverter<IList<DateTime?>, DateTime?>, CustomCollectionComparer<IList<DateTime?>, DateTime?>>(),
+            b => b
+                .HasConversion<CustomCollectionConverter<IList<DateTime?>, DateTime?>,
+                    CustomCollectionComparer<IList<DateTime?>, DateTime?>>(),
             nameof(NullableDateTimeConvertedType.DateTimeConverted),
             new List<DateTime?>
             {
@@ -3284,7 +3362,8 @@ public abstract class JsonTypesTestBase
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_nullable_ulong_enum_values_with_converter_as_JSON_string()
         => Can_read_and_write_JSON_property_value<NullableEnumU64ConvertedType, IList<EnumU64?>>(
-            b => b.HasConversion<CustomCollectionConverter<IList<EnumU64?>, EnumU64?>, CustomCollectionComparer<IList<EnumU64?>, EnumU64?>>(),
+            b => b
+                .HasConversion<CustomCollectionConverter<IList<EnumU64?>, EnumU64?>, CustomCollectionComparer<IList<EnumU64?>, EnumU64?>>(),
             nameof(NullableEnumU64ConvertedType.EnumU64Converted),
             new List<EnumU64?>
             {
@@ -3487,6 +3566,7 @@ public abstract class JsonTypesTestBase
         {
             Assert.Same(fromJson, existingObject);
         }
+
         Assert.Equal(value, fromJson);
 
         var element = property.GetElementType();

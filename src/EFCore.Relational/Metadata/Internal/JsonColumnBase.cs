@@ -19,7 +19,10 @@ public class JsonColumnBase : ColumnBase<ColumnMappingBase>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public JsonColumnBase(string name, string type, TableBase table,
+    public JsonColumnBase(
+        string name,
+        string type,
+        TableBase table,
         RelationalTypeMapping? storeTypeMapping = null,
         ValueComparer? providerValueComparer = null)
         : base(name, type, table, storeTypeMapping, providerValueComparer)

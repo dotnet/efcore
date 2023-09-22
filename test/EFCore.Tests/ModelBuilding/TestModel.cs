@@ -484,7 +484,7 @@ public abstract partial class ModelBuilderTest
         public int Id { get; set; }
 
         [NotMapped]
-        public int PrincipalEntityId { get; set; }
+        public int? PrincipalEntityId { get; set; }
 
         public required PrincipalEntity Nav { get; set; }
     }
@@ -954,7 +954,7 @@ public abstract partial class ModelBuilderTest
     protected class WrappedStringEntity
     {
         public int Id { get; set; }
-        public WrappedString WrappedString { get; set; } = new WrappedString();
+        public WrappedString WrappedString { get; set; } = new();
     }
 
     protected class DoubleProperty : IReplaceable
@@ -1010,6 +1010,21 @@ public abstract partial class ModelBuilderTest
                 }
             }
         }
+
+        public NestedComplexType Nested { get; set; } = null!;
+    }
+
+    [ComplexType]
+    protected class NestedComplexType
+    {
+        public int Foo { get; set; }
+        public DoubleNestedComplexType DoubleNested { get; set; } = null!;
+    }
+
+    [ComplexType]
+    protected class DoubleNestedComplexType
+    {
+        public int Foo { get; set; }
     }
 
     protected class IndexedClassByDictionary

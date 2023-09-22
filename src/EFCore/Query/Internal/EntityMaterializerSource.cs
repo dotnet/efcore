@@ -152,7 +152,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
                 IComplexProperty complexProperty
                     => CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters(complexProperty.ComplexType, "complexType", null /* TODO: QueryTrackingBehavior */),
+                        new EntityMaterializerSourceParameters(
+                            complexProperty.ComplexType, "complexType", null /* TODO: QueryTrackingBehavior */),
                         bindingInfo.MaterializationContextExpression),
 
                 _ => throw new UnreachableException()

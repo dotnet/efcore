@@ -3,7 +3,6 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming

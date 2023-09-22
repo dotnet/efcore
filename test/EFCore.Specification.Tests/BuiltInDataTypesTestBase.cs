@@ -2829,6 +2829,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             get => (DateOnly)_dateOnly;
             set => _dateOnly = value;
         }
+
         public TimeOnly TimeOnly
         {
             get => (TimeOnly)_timeOnly;

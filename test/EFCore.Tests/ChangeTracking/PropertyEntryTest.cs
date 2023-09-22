@@ -558,11 +558,14 @@ public class PropertyEntryTest
         var entry = context.Entry(entity).GetInfrastructure();
         entry.SetEntityState(EntityState.Unchanged);
 
-        var primateEntry = new PropertyEntry(entry, entry.EntityType.FindProperty("Primate")!) { OriginalValue = "Chimp", IsModified = true };
+        var primateEntry =
+            new PropertyEntry(entry, entry.EntityType.FindProperty("Primate")!) { OriginalValue = "Chimp", IsModified = true };
 
-        var marmateEntry = new PropertyEntry(entry, entry.EntityType.FindProperty("Marmate")!) { OriginalValue = "Marmite", IsModified = true };
+        var marmateEntry =
+            new PropertyEntry(entry, entry.EntityType.FindProperty("Marmate")!) { OriginalValue = "Marmite", IsModified = true };
 
-        var requiredEntry = new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!) { OriginalValue = "Bushbaby", IsModified = true };
+        var requiredEntry =
+            new PropertyEntry(entry, entry.EntityType.FindProperty("RequiredPrimate")!) { OriginalValue = "Bushbaby", IsModified = true };
 
         Assert.Equal(EntityState.Modified, entry.EntityState);
         Assert.Equal("Monkey", entity.Primate);
@@ -878,11 +881,15 @@ public class PropertyEntryTest
             EntityState.Unchanged,
             entity);
 
-        Assert.Equal("Monkey", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
+        Assert.Equal(
+            "Monkey",
+            new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
 
         new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue = "Chimp";
 
-        Assert.Equal("Chimp", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
+        Assert.Equal(
+            "Chimp",
+            new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
         Assert.Equal("Monkey", entity.ConcurrentPrimate);
     }
 
@@ -896,7 +903,8 @@ public class PropertyEntryTest
 
         new PropertyEntry<FullyNotifyingWotty, string?>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue = null;
 
-        Assert.Null(new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
+        Assert.Null(
+            new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("ConcurrentPrimate")!).OriginalValue);
     }
 
     [ConditionalFact]
@@ -969,11 +977,13 @@ public class PropertyEntryTest
             EntityState.Unchanged,
             entity);
 
-        Assert.Equal("Monkey", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
+        Assert.Equal(
+            "Monkey", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
 
         new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue = "Chimp";
 
-        Assert.Equal("Chimp", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
+        Assert.Equal(
+            "Chimp", new PropertyEntry<FullyNotifyingWotty, string>(entry, entry.EntityType.FindProperty("Primate")!).OriginalValue);
         Assert.Equal("Monkey", entity.Primate);
     }
 
@@ -984,81 +994,81 @@ public class PropertyEntryTest
         var entry = context.Entry(
             new Yogurt
             {
-                Culture = new()
+                Culture = new Culture
                 {
-                    License = new()
+                    License = new License
                     {
                         Charge = 1.0m,
-                        Tag = new() { Text = "Ta1" },
+                        Tag = new Tag { Text = "Ta1" },
                         Title = "Ti1",
-                        Tog = new() { Text = "To1" }
+                        Tog = new Tog { Text = "To1" }
                     },
-                    Manufacturer = new()
+                    Manufacturer = new Manufacturer
                     {
                         Name = "M1",
                         Rating = 7,
-                        Tag = new() { Text = "Ta2" },
-                        Tog = new() { Text = "To2" }
+                        Tag = new Tag { Text = "Ta2" },
+                        Tog = new Tog { Text = "To2" }
                     },
                     Rating = 8,
                     Species = "S1",
                     Validation = false
                 },
-                Milk = new()
+                Milk = new Milk
                 {
-                    License = new()
+                    License = new License
                     {
                         Charge = 1.0m,
-                        Tag = new() { Text = "Ta1" },
+                        Tag = new Tag { Text = "Ta1" },
                         Title = "Ti1",
-                        Tog = new() { Text = "To1" }
+                        Tog = new Tog { Text = "To1" }
                     },
-                    Manufacturer = new()
+                    Manufacturer = new Manufacturer
                     {
                         Name = "M1",
                         Rating = 7,
-                        Tag = new() { Text = "Ta2" },
-                        Tog = new() { Text = "To2" }
+                        Tag = new Tag { Text = "Ta2" },
+                        Tog = new Tog { Text = "To2" }
                     },
                     Rating = 8,
                     Species = "S1",
                     Validation = false
                 },
-                FieldCulture = new()
+                FieldCulture = new FieldCulture
                 {
-                    License = new()
+                    License = new FieldLicense
                     {
                         Charge = 1.0m,
-                        Tag = new() { Text = "Ta1" },
+                        Tag = new FieldTag { Text = "Ta1" },
                         Title = "Ti1",
-                        Tog = new() { Text = "To1" }
+                        Tog = new FieldTog { Text = "To1" }
                     },
-                    Manufacturer = new()
+                    Manufacturer = new FieldManufacturer
                     {
                         Name = "M1",
                         Rating = 7,
-                        Tag = new() { Text = "Ta2" },
-                        Tog = new() { Text = "To2" }
+                        Tag = new FieldTag { Text = "Ta2" },
+                        Tog = new FieldTog { Text = "To2" }
                     },
                     Rating = 8,
                     Species = "S1",
                     Validation = false
                 },
-                FieldMilk = new()
+                FieldMilk = new FieldMilk
                 {
-                    License = new()
+                    License = new FieldLicense
                     {
                         Charge = 1.0m,
-                        Tag = new() { Text = "Ta1" },
+                        Tag = new FieldTag { Text = "Ta1" },
                         Title = "Ti1",
-                        Tog = new() { Text = "To1" }
+                        Tog = new FieldTog { Text = "To1" }
                     },
-                    Manufacturer = new()
+                    Manufacturer = new FieldManufacturer
                     {
                         Name = "M1",
                         Rating = 7,
-                        Tag = new() { Text = "Ta2" },
-                        Tog = new() { Text = "To2" }
+                        Tag = new FieldTag { Text = "Ta2" },
+                        Tog = new FieldTog { Text = "To2" }
                     },
                     Rating = 8,
                     Species = "S1",
@@ -1167,81 +1177,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -1371,81 +1381,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -1709,81 +1719,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -1802,10 +1812,10 @@ public class PropertyEntryTest
         var cultureLicTogEntry = cultureLicenseEntry.ComplexProperty(e => e.Tog);
         var cultureLicTagEntry = cultureLicenseEntry.ComplexProperty(e => e.Tag);
 
-        cultureManTagEntry.CurrentValue = new() { Text = "Tag1a" };
-        cultureManTogEntry.CurrentValue = new() { Text = "Tog1a" };
-        cultureLicTagEntry.CurrentValue = new() { Text = "Tag2a" };
-        cultureLicTogEntry.CurrentValue = new() { Text = "Tog2a" };
+        cultureManTagEntry.CurrentValue = new Tag { Text = "Tag1a" };
+        cultureManTogEntry.CurrentValue = new Tog { Text = "Tog1a" };
+        cultureLicTagEntry.CurrentValue = new Tag { Text = "Tag2a" };
+        cultureLicTogEntry.CurrentValue = new Tog { Text = "Tog2a" };
 
         Assert.Equal(yogurt.Culture, cultureEntry.CurrentValue);
         Assert.Equal(yogurt.Culture.Rating, cultureEntry.Property(e => e.Rating).CurrentValue);
@@ -1827,20 +1837,20 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.Culture.License.Tag, cultureLicTagEntry.CurrentValue);
         Assert.Equal("Tag2a", cultureLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        cultureManufacturerEntry.CurrentValue = new()
+        cultureManufacturerEntry.CurrentValue = new Manufacturer
         {
             Name = "NameB",
             Rating = -7,
-            Tag = new() { Text = "Tag1b" },
-            Tog = new() { Text = "Tog1b" }
+            Tag = new Tag { Text = "Tag1b" },
+            Tog = new Tog { Text = "Tog1b" }
         };
 
-        cultureLicenseEntry.CurrentValue = new()
+        cultureLicenseEntry.CurrentValue = new License
         {
             Charge = -1.0m,
             Title = "TitleB",
-            Tag = new() { Text = "Tag2b" },
-            Tog = new() { Text = "Tog2b" }
+            Tag = new Tag { Text = "Tag2b" },
+            Tog = new Tog { Text = "Tog2b" }
         };
 
         Assert.Equal(yogurt.Culture, cultureEntry.CurrentValue);
@@ -1863,21 +1873,21 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.Culture.License.Tag, cultureLicTagEntry.CurrentValue);
         Assert.Equal("Tag2b", cultureLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        cultureEntry.CurrentValue = new()
+        cultureEntry.CurrentValue = new Culture
         {
-            License = new()
+            License = new License
             {
                 Charge = -2.0m,
                 Title = "TitleC",
-                Tag = new() { Text = "Tag2c" },
-                Tog = new() { Text = "Tog2c" }
+                Tag = new Tag { Text = "Tag2c" },
+                Tog = new Tog { Text = "Tog2c" }
             },
-            Manufacturer = new()
+            Manufacturer = new Manufacturer
             {
                 Name = "NameC",
                 Rating = -8,
-                Tag = new() { Text = "Tag1c" },
-                Tog = new() { Text = "Tog1c" }
+                Tag = new Tag { Text = "Tag1c" },
+                Tog = new Tog { Text = "Tog1c" }
             },
             Rating = -77,
             Species = "SpC",
@@ -1913,10 +1923,10 @@ public class PropertyEntryTest
         var milkLicTogEntry = milkLicenseEntry.ComplexProperty(e => e.Tog);
         var milkLicTagEntry = milkLicenseEntry.ComplexProperty(e => e.Tag);
 
-        milkManTagEntry.CurrentValue = new() { Text = "Tag1a" };
-        milkManTogEntry.CurrentValue = new() { Text = "Tog1a" };
-        milkLicTagEntry.CurrentValue = new() { Text = "Tag2a" };
-        milkLicTogEntry.CurrentValue = new() { Text = "Tog2a" };
+        milkManTagEntry.CurrentValue = new Tag { Text = "Tag1a" };
+        milkManTogEntry.CurrentValue = new Tog { Text = "Tog1a" };
+        milkLicTagEntry.CurrentValue = new Tag { Text = "Tag2a" };
+        milkLicTogEntry.CurrentValue = new Tog { Text = "Tog2a" };
 
         Assert.Equal(yogurt.Milk, milkEntry.CurrentValue);
         Assert.Equal(yogurt.Milk.Rating, milkEntry.Property(e => e.Rating).CurrentValue);
@@ -1938,20 +1948,20 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.Milk.License.Tag, milkLicTagEntry.CurrentValue);
         Assert.Equal("Tag2a", milkLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        milkManufacturerEntry.CurrentValue = new()
+        milkManufacturerEntry.CurrentValue = new Manufacturer
         {
             Name = "NameB",
             Rating = -7,
-            Tag = new() { Text = "Tag1b" },
-            Tog = new() { Text = "Tog1b" }
+            Tag = new Tag { Text = "Tag1b" },
+            Tog = new Tog { Text = "Tog1b" }
         };
 
-        milkLicenseEntry.CurrentValue = new()
+        milkLicenseEntry.CurrentValue = new License
         {
             Charge = -1.0m,
             Title = "TitleB",
-            Tag = new() { Text = "Tag2b" },
-            Tog = new() { Text = "Tog2b" }
+            Tag = new Tag { Text = "Tag2b" },
+            Tog = new Tog { Text = "Tog2b" }
         };
 
         Assert.Equal(yogurt.Milk, milkEntry.CurrentValue);
@@ -1974,21 +1984,21 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.Milk.License.Tag, milkLicTagEntry.CurrentValue);
         Assert.Equal("Tag2b", milkLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        milkEntry.CurrentValue = new()
+        milkEntry.CurrentValue = new Milk
         {
-            License = new()
+            License = new License
             {
                 Charge = -2.0m,
                 Title = "TitleC",
-                Tag = new() { Text = "Tag2c" },
-                Tog = new() { Text = "Tog2c" }
+                Tag = new Tag { Text = "Tag2c" },
+                Tog = new Tog { Text = "Tog2c" }
             },
-            Manufacturer = new()
+            Manufacturer = new Manufacturer
             {
                 Name = "NameC",
                 Rating = -8,
-                Tag = new() { Text = "Tag1c" },
-                Tog = new() { Text = "Tog1c" }
+                Tag = new Tag { Text = "Tag1c" },
+                Tog = new Tog { Text = "Tog1c" }
             },
             Rating = -77,
             Species = "SpC",
@@ -2024,10 +2034,10 @@ public class PropertyEntryTest
         var fieldCultureLicTogEntry = fieldCultureLicenseEntry.ComplexProperty(e => e.Tog);
         var fieldCultureLicTagEntry = fieldCultureLicenseEntry.ComplexProperty(e => e.Tag);
 
-        fieldCultureManTagEntry.CurrentValue = new() { Text = "Tag1a" };
-        fieldCultureManTogEntry.CurrentValue = new() { Text = "Tog1a" };
-        fieldCultureLicTagEntry.CurrentValue = new() { Text = "Tag2a" };
-        fieldCultureLicTogEntry.CurrentValue = new() { Text = "Tog2a" };
+        fieldCultureManTagEntry.CurrentValue = new FieldTag { Text = "Tag1a" };
+        fieldCultureManTogEntry.CurrentValue = new FieldTog { Text = "Tog1a" };
+        fieldCultureLicTagEntry.CurrentValue = new FieldTag { Text = "Tag2a" };
+        fieldCultureLicTogEntry.CurrentValue = new FieldTog { Text = "Tog2a" };
 
         Assert.Equal(yogurt.FieldCulture, fieldCultureEntry.CurrentValue);
         Assert.Equal(yogurt.FieldCulture.Rating, fieldCultureEntry.Property(e => e.Rating).CurrentValue);
@@ -2049,20 +2059,20 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.FieldCulture.License.Tag, fieldCultureLicTagEntry.CurrentValue);
         Assert.Equal("Tag2a", fieldCultureLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        fieldCultureManufacturerEntry.CurrentValue = new()
+        fieldCultureManufacturerEntry.CurrentValue = new FieldManufacturer
         {
             Name = "NameB",
             Rating = -7,
-            Tag = new() { Text = "Tag1b" },
-            Tog = new() { Text = "Tog1b" }
+            Tag = new FieldTag { Text = "Tag1b" },
+            Tog = new FieldTog { Text = "Tog1b" }
         };
 
-        fieldCultureLicenseEntry.CurrentValue = new()
+        fieldCultureLicenseEntry.CurrentValue = new FieldLicense
         {
             Charge = -1.0m,
             Title = "TitleB",
-            Tag = new() { Text = "Tag2b" },
-            Tog = new() { Text = "Tog2b" }
+            Tag = new FieldTag { Text = "Tag2b" },
+            Tog = new FieldTog { Text = "Tog2b" }
         };
 
         Assert.Equal(yogurt.FieldCulture, fieldCultureEntry.CurrentValue);
@@ -2085,21 +2095,21 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.FieldCulture.License.Tag, fieldCultureLicTagEntry.CurrentValue);
         Assert.Equal("Tag2b", fieldCultureLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        fieldCultureEntry.CurrentValue = new()
+        fieldCultureEntry.CurrentValue = new FieldCulture
         {
-            License = new()
+            License = new FieldLicense
             {
                 Charge = -2.0m,
                 Title = "TitleC",
-                Tag = new() { Text = "Tag2c" },
-                Tog = new() { Text = "Tog2c" }
+                Tag = new FieldTag { Text = "Tag2c" },
+                Tog = new FieldTog { Text = "Tog2c" }
             },
-            Manufacturer = new()
+            Manufacturer = new FieldManufacturer
             {
                 Name = "NameC",
                 Rating = -8,
-                Tag = new() { Text = "Tag1c" },
-                Tog = new() { Text = "Tog1c" }
+                Tag = new FieldTag { Text = "Tag1c" },
+                Tog = new FieldTog { Text = "Tog1c" }
             },
             Rating = -77,
             Species = "SpC",
@@ -2135,10 +2145,10 @@ public class PropertyEntryTest
         var fieldMilkLicTogEntry = fieldMilkLicenseEntry.ComplexProperty(e => e.Tog);
         var fieldMilkLicTagEntry = fieldMilkLicenseEntry.ComplexProperty(e => e.Tag);
 
-        fieldMilkManTagEntry.CurrentValue = new() { Text = "Tag1a" };
-        fieldMilkManTogEntry.CurrentValue = new() { Text = "Tog1a" };
-        fieldMilkLicTagEntry.CurrentValue = new() { Text = "Tag2a" };
-        fieldMilkLicTogEntry.CurrentValue = new() { Text = "Tog2a" };
+        fieldMilkManTagEntry.CurrentValue = new FieldTag { Text = "Tag1a" };
+        fieldMilkManTogEntry.CurrentValue = new FieldTog { Text = "Tog1a" };
+        fieldMilkLicTagEntry.CurrentValue = new FieldTag { Text = "Tag2a" };
+        fieldMilkLicTogEntry.CurrentValue = new FieldTog { Text = "Tog2a" };
 
         Assert.Equal(yogurt.FieldMilk, fieldMilkEntry.CurrentValue);
         Assert.Equal(yogurt.FieldMilk.Rating, fieldMilkEntry.Property(e => e.Rating).CurrentValue);
@@ -2160,20 +2170,20 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.FieldMilk.License.Tag, fieldMilkLicTagEntry.CurrentValue);
         Assert.Equal("Tag2a", fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        fieldMilkManufacturerEntry.CurrentValue = new()
+        fieldMilkManufacturerEntry.CurrentValue = new FieldManufacturer
         {
             Name = "NameB",
             Rating = -7,
-            Tag = new() { Text = "Tag1b" },
-            Tog = new() { Text = "Tog1b" }
+            Tag = new FieldTag { Text = "Tag1b" },
+            Tog = new FieldTog { Text = "Tog1b" }
         };
 
-        fieldMilkLicenseEntry.CurrentValue = new()
+        fieldMilkLicenseEntry.CurrentValue = new FieldLicense
         {
             Charge = -1.0m,
             Title = "TitleB",
-            Tag = new() { Text = "Tag2b" },
-            Tog = new() { Text = "Tog2b" }
+            Tag = new FieldTag { Text = "Tag2b" },
+            Tog = new FieldTog { Text = "Tog2b" }
         };
 
         Assert.Equal(yogurt.FieldMilk, fieldMilkEntry.CurrentValue);
@@ -2196,21 +2206,21 @@ public class PropertyEntryTest
         Assert.Equal(yogurt.FieldMilk.License.Tag, fieldMilkLicTagEntry.CurrentValue);
         Assert.Equal("Tag2b", fieldMilkLicTagEntry.Property(e => e.Text).CurrentValue);
 
-        fieldMilkEntry.CurrentValue = new()
+        fieldMilkEntry.CurrentValue = new FieldMilk
         {
-            License = new()
+            License = new FieldLicense
             {
                 Charge = -2.0m,
                 Title = "TitleC",
-                Tag = new() { Text = "Tag2c" },
-                Tog = new() { Text = "Tog2c" }
+                Tag = new FieldTag { Text = "Tag2c" },
+                Tog = new FieldTog { Text = "Tog2c" }
             },
-            Manufacturer = new()
+            Manufacturer = new FieldManufacturer
             {
                 Name = "NameC",
                 Rating = -8,
-                Tag = new() { Text = "Tag1c" },
-                Tog = new() { Text = "Tog1c" }
+                Tag = new FieldTag { Text = "Tag1c" },
+                Tog = new FieldTog { Text = "Tog1c" }
             },
             Rating = -77,
             Species = "SpC",
@@ -2327,81 +2337,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -2549,81 +2559,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -2987,81 +2997,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -3747,81 +3757,81 @@ public class PropertyEntryTest
         using var context = new YogurtContext();
         var yogurt = new Yogurt
         {
-            Culture = new()
+            Culture = new Culture
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            Milk = new()
+            Milk = new Milk
             {
-                License = new()
+                License = new License
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new Tag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new Tog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new Manufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldCulture = new()
+            FieldCulture = new FieldCulture
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
                 Validation = false
             },
-            FieldMilk = new()
+            FieldMilk = new FieldMilk
             {
-                License = new()
+                License = new FieldLicense
                 {
                     Charge = 1.0m,
-                    Tag = new() { Text = "Ta1" },
+                    Tag = new FieldTag { Text = "Ta1" },
                     Title = "Ti1",
-                    Tog = new() { Text = "To1" }
+                    Tog = new FieldTog { Text = "To1" }
                 },
-                Manufacturer = new()
+                Manufacturer = new FieldManufacturer
                 {
                     Name = "M1",
                     Rating = 7,
-                    Tag = new() { Text = "Ta2" },
-                    Tog = new() { Text = "To2" }
+                    Tag = new FieldTag { Text = "Ta2" },
+                    Tog = new FieldTog { Text = "To2" }
                 },
                 Rating = 8,
                 Species = "S1",
@@ -4795,7 +4805,7 @@ public class PropertyEntryTest
         public string Species { get; set; }
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public License License { get; set; }
     }
@@ -4805,7 +4815,7 @@ public class PropertyEntryTest
         public string Species { get; set; } = null!;
         public string? Subspecies { get; set; }
         public int Rating { get; set; }
-        public bool? Validation  { get; set; }
+        public bool? Validation { get; set; }
         public Manufacturer Manufacturer { get; set; } = null!;
         public License License { get; set; }
     }
@@ -4851,7 +4861,7 @@ public class PropertyEntryTest
         public string Species = null!;
         public string? Subspecies;
         public int Rating;
-        public bool? Validation ;
+        public bool? Validation;
         public FieldManufacturer Manufacturer = null!;
         public FieldLicense License;
     }

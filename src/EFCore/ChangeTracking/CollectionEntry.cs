@@ -207,7 +207,7 @@ public class CollectionEntry : NavigationEntry
 
     /// <summary>
     ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -220,7 +220,7 @@ public class CollectionEntry : NavigationEntry
 
     /// <summary>
     ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -241,7 +241,7 @@ public class CollectionEntry : NavigationEntry
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -261,7 +261,7 @@ public class CollectionEntry : NavigationEntry
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
+    ///     is already set to <see langword="true" />.
     /// </summary>
     /// <remarks>
     ///     <para>

@@ -224,7 +224,7 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
-    /// <param name="dbType">The suggested <see cref="DbType"/>, or <see langword="null" /> for default.</param>
+    /// <param name="dbType">The suggested <see cref="DbType" />, or <see langword="null" /> for default.</param>
     public RelationalTypeMappingInfo(
         Type? type = null,
         RelationalTypeMapping? elementTypeMapping = null,

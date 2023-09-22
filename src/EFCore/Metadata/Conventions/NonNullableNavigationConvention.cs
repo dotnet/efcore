@@ -67,7 +67,13 @@ public class NonNullableNavigationConvention :
 
         if (navigation.IsOnDependent)
         {
-            foreignKey.Builder.IsRequired(true);
+            if (foreignKey.Properties.All(p =>
+                !p.IsNullable
+                || (p.IsShadowProperty()
+                    && ConfigurationSource.Convention.Overrides(p.GetIsNullableConfigurationSource()))))
+            {
+                foreignKey.Builder.IsRequired(true);
+            }
         }
         else
         {

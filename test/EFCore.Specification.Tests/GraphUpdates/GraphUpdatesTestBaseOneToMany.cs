@@ -1,11 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable PossibleMultipleEnumeration
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class GraphUpdatesTestBase<TFixture>
@@ -1565,8 +1564,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
     public virtual void Optional_many_to_one_dependents_are_orphaned_with_Added_graph(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming) // Issue #29318
-    {
-        ExecuteWithStrategyInTransaction(
+        => ExecuteWithStrategyInTransaction(
             context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
@@ -1614,7 +1612,6 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     Assert.Equal(2, removed.Children.Count());
                 }
             });
-    }
 
     [ConditionalTheory]
     [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]

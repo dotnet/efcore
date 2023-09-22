@@ -854,6 +854,7 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
         {
             count++;
         }
+
         return count;
     }
 

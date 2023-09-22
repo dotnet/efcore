@@ -242,8 +242,8 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
         genericParameterCount: 1,
         BindingFlags.Static | BindingFlags.Public,
         null,
-        new[] {typeof(bool)},
-        null )!;
+        new[] { typeof(bool) },
+        null)!;
 
     /// <summary>
     ///     Creates a default <see cref="ValueComparer{T}" /> for the given type.

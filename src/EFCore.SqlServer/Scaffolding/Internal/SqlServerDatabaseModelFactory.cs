@@ -195,7 +195,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         {
             using var command = connection.CreateCommand();
             command.CommandText =
-$"""
+                $"""
 SELECT compatibility_level
 FROM sys.databases
 WHERE name = '{connection.Database}'
@@ -216,7 +216,7 @@ WHERE name = '{connection.Database}'
         {
             using var command = connection.CreateCommand();
             command.CommandText =
-$"""
+                $"""
 SELECT collation_name
 FROM sys.databases
 WHERE name = '{connection.Database}';
@@ -362,7 +362,7 @@ WHERE name = '{connection.Database}';
         var typeAliasMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
 
         command.CommandText =
-"""
+            """
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema_name],
     [t].[name] AS [type_name],
@@ -403,7 +403,7 @@ WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id];
     {
         using var command = connection.CreateCommand();
         command.CommandText =
-"""
+            """
 SELECT
     OBJECT_SCHEMA_NAME([s].[object_id]) AS [schema_name],
     [s].[name],
@@ -435,7 +435,8 @@ JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
         if (schemaFilter != null)
         {
             command.CommandText += @"
-WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
+WHERE "
+                + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
         }
 
         command.CommandText += ';';
@@ -507,7 +508,7 @@ WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
         var supportsTemporalTable = SupportsTemporalTable();
 
         var builder = new StringBuilder(
-"""
+            """
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
     [t].[name],
@@ -523,7 +524,7 @@ SELECT
         if (supportsTemporalTable)
         {
             builder.AppendLine(",").Append(
-"""
+                """
     [t].[temporal_type],
     (SELECT [t2].[name] FROM [sys].[tables] AS t2 WHERE [t2].[object_id] = [t].[history_table_id]) AS [history_table_name],
     (SELECT SCHEMA_NAME([t2].[schema_id]) FROM [sys].[tables] AS t2 WHERE [t2].[object_id] = [t].[history_table_id]) AS [history_table_schema],
@@ -533,13 +534,13 @@ SELECT
         }
 
         builder.AppendLine().Append(
-"""
+            """
 FROM [sys].[tables] AS [t]
 LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 """);
 
         var tableFilterBuilder = new StringBuilder(
-$"""
+            $"""
 [t].[is_ms_shipped] = 0
 AND NOT EXISTS (SELECT *
     FROM [sys].[extended_properties] AS [ep]
@@ -574,7 +575,7 @@ AND [t].[name] <> '{HistoryRepository.DefaultTableName}'
         if (SupportsViews())
         {
             builder.AppendLine().Append(
-"""
+                """
 UNION
 SELECT
     SCHEMA_NAME([v].[schema_id]) AS [schema],
@@ -582,7 +583,6 @@ SELECT
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
     'view' AS [type]
 """);
-
 
             if (supportsMemoryOptimizedTable)
             {
@@ -592,7 +592,7 @@ SELECT
             if (supportsTemporalTable)
             {
                 builder.AppendLine(",").Append(
-"""
+                    """
      1 AS [temporal_type],
      NULL AS [history_table_name],
      NULL AS [history_table_schema],
@@ -602,13 +602,13 @@ SELECT
             }
 
             builder.Append(
-"""
+                """
 FROM [sys].[views] AS [v]
 LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [v].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 """);
 
             var viewFilterBuilder = new StringBuilder(
-"""
+                """
 [v].[is_ms_shipped] = 0
 AND [v].[is_date_correlation_view] = 0
 """);
@@ -710,7 +710,7 @@ AND [v].[is_date_correlation_view] = 0
     {
         using var command = connection.CreateCommand();
         var builder = new StringBuilder(
-$"""
+            $"""
 SELECT
     SCHEMA_NAME([o].[schema_id]) AS [table_schema],
     [o].[name] AS [table_name],
@@ -741,7 +741,7 @@ FROM
             Check.DebugAssert(viewFilter is not null, "viewFilter is not null");
 
             builder.AppendLine().Append(
-$"""
+                $"""
     UNION ALL
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
     FROM [sys].[views] v
@@ -750,7 +750,7 @@ $"""
         }
 
         builder.AppendLine().Append(
-"""
+            """
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 LEFT JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
@@ -1249,7 +1249,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
     {
         using var command = connection.CreateCommand();
         command.CommandText =
-$"""
+            $"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
@@ -1400,7 +1400,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
     {
         using var command = connection.CreateCommand();
         command.CommandText =
-$"""
+            $"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],

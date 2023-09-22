@@ -89,6 +89,7 @@ public class SequentialGuidEndToEndTest : IDisposable
             _databaseName = databaseName;
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Pegasus> Pegasuses { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

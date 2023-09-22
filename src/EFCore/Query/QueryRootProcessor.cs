@@ -135,4 +135,3 @@ public class QueryRootProcessor : ExpressionVisitor
     protected virtual bool ShouldConvertToParameterQueryRoot(ParameterExpression parameterExpression)
         => false;
 }
-

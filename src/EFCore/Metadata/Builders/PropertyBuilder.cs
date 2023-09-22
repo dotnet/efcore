@@ -465,7 +465,8 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual PropertyBuilder HasConversion<
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion>()
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        TConversion>()
         => HasConversion(typeof(TConversion));
 
     /// <summary>

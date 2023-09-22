@@ -4,6 +4,7 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable AccessToModifiedClosure
 // ReSharper disable PossibleMultipleEnumeration
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixture<TFixture>
@@ -867,8 +868,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 Assert.True(context.ChangeTracker.HasChanges());
 
                 var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate)
-                        ? EntityState.Modified
-                        : EntityState.Unchanged;
+                    ? EntityState.Modified
+                    : EntityState.Unchanged;
 
                 foreach (var orphanEntry in orphaned.Select(context.Entry))
                 {
@@ -934,8 +935,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
     public virtual void Optional_many_to_one_dependents_are_orphaned_with_Added_graph(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming) // Issue #29318
-    {
-        ExecuteWithStrategyInTransaction(
+        => ExecuteWithStrategyInTransaction(
             context =>
             {
                 context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
@@ -979,7 +979,6 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 Assert.Same(root, removed.Parent);
                 Assert.Equal(2, removed.Children.Count());
             });
-    }
 
     [ConditionalTheory]
     [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]

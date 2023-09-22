@@ -158,13 +158,14 @@ public class TableSharingConcurrencyTokenConventionTest
         var modelBuilder = GetModelBuilder();
         modelBuilder.Entity<Person>().HasKey(a => a.Id);
         modelBuilder.Entity<Person>().ToTable(nameof(Animal));
-        modelBuilder.Entity<Animal>(ab =>
-        {
-            ab.HasKey(a => a.Id);
-            ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            ab.ComplexProperty(a => a.Dwelling)
-             .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-        });
+        modelBuilder.Entity<Animal>(
+            ab =>
+            {
+                ab.HasKey(a => a.Id);
+                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+                ab.ComplexProperty(a => a.Dwelling)
+                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            });
 
         var model = modelBuilder.Model;
         model.FinalizeModel();
@@ -187,13 +188,14 @@ public class TableSharingConcurrencyTokenConventionTest
         modelBuilder.Entity<Person>().HasKey(a => a.Id);
         modelBuilder.Entity<Person>().ToTable(nameof(Animal));
         modelBuilder.Entity<Person>().Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-        modelBuilder.Entity<Animal>(ab =>
-        {
-            ab.HasKey(a => a.Id);
-            ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
-            ab.ComplexProperty(a => a.Dwelling)
-             .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
-        });
+        modelBuilder.Entity<Animal>(
+            ab =>
+            {
+                ab.HasKey(a => a.Id);
+                ab.HasOne(a => a.FavoritePerson).WithOne().HasForeignKey<Person>(p => p.Id);
+                ab.ComplexProperty(a => a.Dwelling)
+                    .Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+            });
 
         var model = modelBuilder.Model;
         model.FinalizeModel();

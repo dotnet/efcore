@@ -13,7 +13,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public virtual async Task Delete_aggregate_root_when_eager_loaded_owned_collection(bool async)
     {
         var contextFactory = await InitializeAsync<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
-        await AssertDelete(async, contextFactory.CreateContext,
+        await AssertDelete(
+            async, contextFactory.CreateContext,
             context => context.Set<Owner>(), rowsAffectedCount: 0);
     }
 
@@ -22,7 +23,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
     {
         var contextFactory = await InitializeAsync<Context28671>();
-        await AssertDelete(async, contextFactory.CreateContext,
+        await AssertDelete(
+            async, contextFactory.CreateContext,
             context => context.Set<Owner>(), rowsAffectedCount: 0);
     }
 
@@ -37,10 +39,10 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                 mb.Entity<OtherReference>().ToTable(nameof(Owner));
             });
 
-
         await AssertTranslationFailedWithDetails(
-            () => AssertDelete(async, contextFactory.CreateContext,
-            context => context.Set<Owner>(), rowsAffectedCount: 0),
+            () => AssertDelete(
+                async, contextFactory.CreateContext,
+                context => context.Set<Owner>(), rowsAffectedCount: 0),
             RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
     }
 
@@ -52,14 +54,12 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Owner>(
+            => modelBuilder.Entity<Owner>(
                 b =>
                 {
                     b.OwnsOne(e => e.OwnedReference);
                     b.OwnsMany(e => e.OwnedCollections);
                 });
-        }
     }
 
     public class Owner
@@ -162,7 +162,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                     }),
             seed: context =>
             {
-                context.Set<Blog>().Add(new() { Title = "SomeBlog" });
+                context.Set<Blog>().Add(new Blog { Title = "SomeBlog" });
                 context.SaveChanges();
             });
 
@@ -189,7 +189,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                     }),
             seed: context =>
             {
-                context.Set<Blog>().Add(new() { Title = "SomeBlog" });
+                context.Set<Blog>().Add(new Blog { Title = "SomeBlog" });
                 context.SaveChanges();
             });
 
@@ -282,11 +282,7 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             async,
             contextFactory.CreateContext,
             ss => ss.Orders.Where(o => o.Id == 1)
-                .Select(o => new
-                {
-                    Order = o,
-                    Total = o.OrderProducts.Sum(op => op.Amount)
-                }),
+                .Select(o => new { Order = o, Total = o.OrderProducts.Sum(op => op.Amount) }),
             s => s.SetProperty(x => x.Order.Total, x => x.Total),
             rowsAffectedCount: 1);
     }
@@ -310,13 +306,14 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
                     b.HasData(new Order { Id = 1 });
                 });
 
-            modelBuilder.Entity<OrderProduct>(b =>
-            {
-                b.Property(op => op.Id).ValueGeneratedNever();
-                b.HasData(
-                    new OrderProduct { Id = 1, Amount = 8 },
-                    new OrderProduct { Id = 2, Amount = 9 });
-            });
+            modelBuilder.Entity<OrderProduct>(
+                b =>
+                {
+                    b.Property(op => op.Id).ValueGeneratedNever();
+                    b.HasData(
+                        new OrderProduct { Id = 1, Amount = 8 },
+                        new OrderProduct { Id = 2, Amount = 9 });
+                });
         }
     }
 

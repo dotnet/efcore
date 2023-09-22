@@ -81,7 +81,13 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
     public virtual Task Update_multiple_projected_complex_types_via_anonymous_type(bool async)
         => AssertUpdate(
             async,
-            ss => ss.Set<Customer>().Select(c => new { c.ShippingAddress, c.BillingAddress, Customer = c }),
+            ss => ss.Set<Customer>().Select(
+                c => new
+                {
+                    c.ShippingAddress,
+                    c.BillingAddress,
+                    Customer = c
+                }),
             x => x.Customer,
             s => s
                 .SetProperty(x => x.ShippingAddress.ZipCode, x => x.BillingAddress.ZipCode)

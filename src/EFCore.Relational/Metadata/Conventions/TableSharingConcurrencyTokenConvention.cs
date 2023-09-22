@@ -239,7 +239,8 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             }
 
             var linkingFks = containingEntityType.FindForeignKeys(containingEntityType.FindPrimaryKey()!.Properties)
-                .Where(fk => fk.PrincipalKey.IsPrimaryKey()
+                .Where(
+                    fk => fk.PrincipalKey.IsPrimaryKey()
                         && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
             if (linkingFks != null
                 && linkingFks.Count > 0

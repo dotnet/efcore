@@ -432,9 +432,9 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model["foo"]);
         }
 
-		[ConditionalFact]
+        [ConditionalFact]
         public virtual void Conventions_can_be_removed_by_generic_method()
-		{
+        {
             var modelBuilder = CreateModelBuilder(
                 c =>
                 {
@@ -2528,7 +2528,8 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void PrimitiveCollection_Key_properties_cannot_be_made_optional()
             => Assert.Equal(
-                CoreStrings.KeyPropertyCannotBeNullable(nameof(CollectionQuarks.Down), nameof(CollectionQuarks), "{'" + nameof(CollectionQuarks.Down) + "'}"),
+                CoreStrings.KeyPropertyCannotBeNullable(
+                    nameof(CollectionQuarks.Down), nameof(CollectionQuarks), "{'" + nameof(CollectionQuarks.Down) + "'}"),
                 Assert.Throws<InvalidOperationException>(
                     () =>
                         CreateModelBuilder().Entity<CollectionQuarks>(
@@ -2604,7 +2605,8 @@ public abstract partial class ModelBuilderTest
                     b.PrimitiveCollection(e => e.Up);
                     b.PrimitiveCollection(e => e.Down).HasField("_forDown").UsePropertyAccessMode(PropertyAccessMode.Field);
                     b.PrimitiveCollection<ObservableCollection<int>>("Charm").UsePropertyAccessMode(PropertyAccessMode.Property);
-                    b.PrimitiveCollection<ObservableCollection<string>?>("Strange").UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
+                    b.PrimitiveCollection<ObservableCollection<string>?>("Strange")
+                        .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -2811,7 +2813,8 @@ public abstract partial class ModelBuilderTest
                 {
                     Assert.Equal(
                         CoreStrings.BadValueGeneratorType(nameof(Random), nameof(ValueGenerator)),
-                        Assert.Throws<ArgumentException>(() => b.PrimitiveCollection(e => e.Down).HasValueGenerator(typeof(Random))).Message);
+                        Assert.Throws<ArgumentException>(() => b.PrimitiveCollection(e => e.Down).HasValueGenerator(typeof(Random)))
+                            .Message);
                 });
         }
 
@@ -3077,9 +3080,12 @@ public abstract partial class ModelBuilderTest
                 {
                     b.PrimitiveCollection(e => e.Up).ElementType().IsRequired();
                     b.PrimitiveCollection(e => e.Down).ElementType().IsRequired(false);
-                    b.PrimitiveCollection<List<int?>>("Charm").ElementType().IsRequired();;
-                    b.PrimitiveCollection<List<string?>>("Strange").ElementType().IsRequired();;
-                    b.PrimitiveCollection<List<string>>("Stranger").ElementType().IsRequired();; // Still optional since no NRT metadata available
+                    b.PrimitiveCollection<List<int?>>("Charm").ElementType().IsRequired();
+                    ;
+                    b.PrimitiveCollection<List<string?>>("Strange").ElementType().IsRequired();
+                    ;
+                    b.PrimitiveCollection<List<string>>("Stranger").ElementType().IsRequired();
+                    ; // Still optional since no NRT metadata available
                 });
 
             var entityType = modelBuilder.FinalizeModel().FindEntityType(typeof(CollectionQuarks))!;
@@ -3176,7 +3182,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<CollectionQuarks>(
                 b =>
                 {
-                    b.PrimitiveCollection<List<decimal?>>("Charm").ElementType(b => b.HasPrecision(5,6));
+                    b.PrimitiveCollection<List<decimal?>>("Charm").ElementType(b => b.HasPrecision(5, 6));
                     b.PrimitiveCollection<List<DateTime?>>("Strange").ElementType(b => b.HasPrecision(12));
                     b.PrimitiveCollection<List<decimal>>("Stranger");
                 });
@@ -3330,9 +3336,12 @@ public abstract partial class ModelBuilderTest
                 b =>
                 {
                     b.PrimitiveCollection(e => e.Up).ElementType().HasConversion<int, CustomValueComparer<int>>();
-                    b.PrimitiveCollection(e => e.Down).ElementType().HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
-                    b.PrimitiveCollection<int[]>("Charm").ElementType().HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
-                    b.PrimitiveCollection<IList<string>>("Strange").ElementType().HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
+                    b.PrimitiveCollection(e => e.Down).ElementType()
+                        .HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
+                    b.PrimitiveCollection<int[]>("Charm").ElementType()
+                        .HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
+                    b.PrimitiveCollection<IList<string>>("Strange").ElementType()
+                        .HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
                     b.PrimitiveCollection<List<string>>("Strange").ElementType().HasConversion((ValueConverter?)null);
                     b.PrimitiveCollection<string[]>("Top").ElementType().HasConversion<string>(new CustomValueComparer<string>());
                 });

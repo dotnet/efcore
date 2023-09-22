@@ -1107,7 +1107,8 @@ public class RelationshipDiscoveryConvention :
             && IsCandidateNavigationProperty(
                 sourceEntityTypeBuilder.Metadata, navigationName, memberInfo)
             && Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                memberInfo, targetEntityTypeBuilder.Metadata.Model, out _) != null)
+                memberInfo, targetEntityTypeBuilder.Metadata.Model, out _)
+            != null)
         {
             Process(sourceEntityTypeBuilder.Metadata, navigationName, memberInfo, context);
         }

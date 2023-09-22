@@ -19,7 +19,7 @@ public static class SqliteTableExtensions
     /// <returns><see langword="true" /> if the SQL RETURNING clause is used to save changes to the table.</returns>
     public static bool IsSqlReturningClauseUsed(this ITable table)
     {
-        if (table.FindRuntimeAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool isSqlOutputClauseUsed } )
+        if (table.FindRuntimeAnnotation(SqliteAnnotationNames.UseSqlReturningClause) is { Value: bool isSqlOutputClauseUsed })
         {
             return isSqlOutputClauseUsed;
         }

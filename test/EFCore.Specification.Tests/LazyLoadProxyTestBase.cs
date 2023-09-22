@@ -3833,8 +3833,8 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 new NonVirtualParent
                 {
                     Id = 100,
-                    Child = new() { Id = 100 },
-                    Children = new() { new() { Id = 101 } }
+                    Child = new NonVirtualChild { Id = 100 },
+                    Children = new List<NonVirtualChild> { new() { Id = 101 } }
                 });
 
             context.SaveChanges();

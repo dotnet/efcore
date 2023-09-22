@@ -69,7 +69,7 @@ END");
         await base.Can_roundtrip();
 
         AssertSql(
-"""
+            """
 @p0='2' (Nullable = true)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -79,7 +79,7 @@ OUTPUT INSERTED.[Id]
 VALUES (@p0);
 """,
             //
-"""
+            """
 @p1='1'
 @p2='100' (Size = 4000)
 @p3=NULL (Size = 4000)
@@ -90,7 +90,7 @@ INSERT INTO [MeterReadingDetails] ([Id], [CurrentRead], [PreviousRead])
 VALUES (@p1, @p2, @p3);
 """,
             //
-"""
+            """
 SELECT TOP(2) [m].[Id], [m0].[CurrentRead], [m0].[PreviousRead], [m].[ReadingStatus]
 FROM [MeterReadings] AS [m]
 INNER JOIN [MeterReadingDetails] AS [m0] ON [m].[Id] = [m0].[Id]

@@ -33,9 +33,10 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("bar2", complexProperty["foo2"]);
             Assert.Equal(typeof(Customer).Name, complexProperty.Name);
             Assert.Equal(
-@"Customer (Customer) Required
+                @"Customer (Customer) Required
   ComplexType: ComplexProperties.Customer#Customer
-    Properties: " + @"
+    Properties: "
+                + @"
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
@@ -114,7 +115,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -145,7 +147,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Ignore(e => e.Up);
@@ -208,7 +211,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer,
+                .ComplexProperty(
+                    e => e.Customer,
                     b =>
                     {
                         b.Ignore(c => c.Details);
@@ -232,7 +236,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).IsRequired();
@@ -263,7 +268,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Down).IsRequired(false);
@@ -288,7 +294,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         Assert.Equal(
@@ -321,7 +328,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Up");
@@ -354,7 +362,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).IsConcurrencyToken();
@@ -446,7 +455,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
@@ -454,7 +464,8 @@ public abstract partial class ModelBuilderTest
                         b.Property(e => e.Up).UsePropertyAccessMode(PropertyAccessMode.Property);
                         b.Property(e => e.Down).HasField("_forDown");
                     })
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
@@ -491,7 +502,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -540,7 +552,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -570,7 +583,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -607,7 +621,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasConversion<int, CustomValueComparer<int>>();
@@ -668,7 +683,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -712,7 +728,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up);
@@ -759,7 +776,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.DynamicProperty,
+                .ComplexProperty(
+                    e => e.DynamicProperty,
                     b =>
                     {
                         b.Property(e => e.ExpandoObject).HasConversion(
@@ -844,7 +862,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int?>("Wierd");
@@ -877,7 +896,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int?>("Wierd");
@@ -914,7 +934,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         Assert.Equal(
@@ -938,7 +959,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Up").HasField("_forUp");
@@ -961,7 +983,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         Assert.Equal(
@@ -977,7 +1000,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         Assert.Equal(
@@ -995,7 +1019,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).ValueGeneratedOnAddOrUpdate();
@@ -1027,7 +1052,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).IsRowVersion();
@@ -1057,7 +1083,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasMaxLength(0);
@@ -1094,7 +1121,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1124,7 +1152,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasSentinel(1);
@@ -1161,7 +1190,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1196,7 +1226,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1226,7 +1257,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasPrecision(1, 0);
@@ -1270,7 +1302,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1307,7 +1340,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasValueGenerator<CustomValueGenerator>();
@@ -1351,7 +1385,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         Assert.Equal(
@@ -1368,7 +1403,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
@@ -1414,7 +1450,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property(e => e.Up).IsUnicode();
@@ -1451,7 +1488,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Quarks,
+                .ComplexProperty(
+                    e => e.Quarks,
                     b =>
                     {
                         b.Property<int>("Charm");
@@ -1523,10 +1561,12 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.EntityWithFields, b => {
-                    b.Property(e => e.Id);
-                    b.Ignore(e => e.CompanyId);
-                });
+                .ComplexProperty(
+                    e => e.EntityWithFields, b =>
+                    {
+                        b.Property(e => e.Id);
+                        b.Ignore(e => e.CompanyId);
+                    });
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
@@ -1560,6 +1600,18 @@ public abstract partial class ModelBuilderTest
                 .FindComplexProperty(nameof(ComplexProperties.Customer))!.ComplexType;
             var indexedType = model.FindEntityType(typeof(ComplexProperties))!
                 .FindComplexProperty(nameof(ComplexProperties.IndexedClass))!.ComplexType;
+
+            var nestedProperty = indexedType.FindComplexProperty(nameof(IndexedClass.Nested))!;
+            Assert.False(nestedProperty.IsNullable);
+            Assert.Equal(typeof(NestedComplexType), nestedProperty.ClrType);
+            var nestedType = nestedProperty.ComplexType;
+            Assert.Equal(typeof(NestedComplexType), nestedType.ClrType);
+
+            var doubleNestedProperty = nestedType.FindComplexProperty(nameof(NestedComplexType.DoubleNested))!;
+            Assert.False(doubleNestedProperty.IsNullable);
+            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedProperty.ClrType);
+            var doubleNestedType = doubleNestedProperty.ComplexType;
+            Assert.Equal(typeof(DoubleNestedComplexType), doubleNestedType.ClrType);
 
             var valueType = model.FindEntityType(typeof(ValueComplexProperties))!;
             var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label))!;
@@ -1613,7 +1665,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(
                 CoreStrings.ComplexPropertyOptional(
                     nameof(ComplexProperties), nameof(ComplexProperties.Customer)),
-                    Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [ConditionalFact]
@@ -1704,7 +1756,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up);
@@ -1748,7 +1801,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Product>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer,
+                .ComplexProperty(
+                    e => e.Customer,
                     b =>
                     {
                         b.Ignore(c => c.Details);
@@ -1772,7 +1826,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).IsRequired();
@@ -1799,7 +1854,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).IsRequired(false);
@@ -1826,7 +1882,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection<ObservableCollection<int>>("Up");
@@ -1858,7 +1915,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).IsConcurrencyToken();
@@ -1888,7 +1946,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection<ObservableCollection<int>>("Up").HasField("_forUp");
@@ -1911,11 +1970,13 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.MissingBackingField("_notFound", nameof(CollectionQuarks.Down), "ComplexProperties.CollectionQuarks#CollectionQuarks"),
+                            CoreStrings.MissingBackingField(
+                                "_notFound", nameof(CollectionQuarks.Down), "ComplexProperties.CollectionQuarks#CollectionQuarks"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_notFound")).Message);
                     });
         }
@@ -1927,11 +1988,14 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         Assert.Equal(
-                            CoreStrings.BadBackingFieldType("_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down), "ObservableCollection<string>"),
+                            CoreStrings.BadBackingFieldType(
+                                "_forUp", "ObservableCollection<int>", nameof(CollectionQuarks), nameof(CollectionQuarks.Down),
+                                "ObservableCollection<string>"),
                             Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Down).HasField("_forUp")).Message);
                     });
         }
@@ -1945,7 +2009,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).ValueGeneratedOnAddOrUpdate();
@@ -1976,7 +2041,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).HasMaxLength(0);
@@ -2007,7 +2073,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).HasSentinel(1);
@@ -2039,7 +2106,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).HasValueGenerator<CustomValueGenerator>();
@@ -2067,7 +2135,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         Assert.Equal(
@@ -2085,7 +2154,8 @@ public abstract partial class ModelBuilderTest
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.CollectionQuarks,
+                .ComplexProperty(
+                    e => e.CollectionQuarks,
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).IsUnicode();

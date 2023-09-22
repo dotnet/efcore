@@ -154,7 +154,7 @@ public class TypeExtensionsTest
         private int MySister { get; set; }
 
         protected virtual int TinyTears { get; set; }
-        public virtual int SnowyInFSharpMinor { get; private set; }
+        public virtual int SnowyInFSharpMinor { get; }
         public virtual int Seaweed { private get; set; }
         public virtual int VertrauenII { get; protected set; }
         public virtual int TalkToMe { protected get; set; }
@@ -321,7 +321,7 @@ public class TypeExtensionsTest
         public bool Remove(IRole2014 item)
             => throw new NotImplementedException();
 
-        public bool IsReadOnly { get; private set; }
+        public bool IsReadOnly { get; }
     }
 #pragma warning restore CA1061 // Do not hide base class methods
 

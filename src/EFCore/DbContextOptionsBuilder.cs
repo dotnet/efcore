@@ -479,7 +479,7 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder UseRootApplicationServiceProvider()
-        => WithOption(e => e.WithRootApplicationServiceProvider(true));
+        => WithOption(e => e.WithRootApplicationServiceProvider());
 
     /// <summary>
     ///     Enables application data to be included in exception messages, logging, etc. This can include the

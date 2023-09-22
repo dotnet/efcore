@@ -866,7 +866,11 @@ public class SqlNullabilityProcessor
                 VisitSqlBinary(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
 
         InExpression ProcessInExpressionValues(
-            InExpression inExpression, bool removeNulls, bool removeNullables, out bool hasNull, out List<SqlExpression> nullables)
+            InExpression inExpression,
+            bool removeNulls,
+            bool removeNullables,
+            out bool hasNull,
+            out List<SqlExpression> nullables)
         {
             List<SqlExpression>? processedValues = null;
             (hasNull, nullables) = (false, new List<SqlExpression>());
@@ -1445,7 +1449,8 @@ public class SqlNullabilityProcessor
     ///     Determines whether an <see cref="InExpression" /> will be transformed to an <see cref="ExistsExpression" /> when it would
     ///     otherwise require complex compensation for null semantics.
     /// </summary>
-    protected virtual bool PreferExistsToInWithCoalesce => false;
+    protected virtual bool PreferExistsToInWithCoalesce
+        => false;
 
     // Note that we can check parameter values for null since we cache by the parameter nullability; but we cannot do the same for bool.
     private bool IsNull(SqlExpression? expression)
@@ -1923,7 +1928,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;
@@ -2132,7 +2137,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-            break;
+                break;
         }
 
         return sqlUnaryExpression;

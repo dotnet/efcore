@@ -15,7 +15,9 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         = typeof(string).GetRuntimeMethod(
             nameof(string.Concat), new[] { typeof(string), typeof(string) });
 
-    protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)> Binaries;
+    protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
+        Binaries;
+
     protected readonly List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)> Unaries;
     protected readonly Dictionary<Type, Type> PropertyTypeToEntityMap;
 
@@ -25,7 +27,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected OperatorsProceduralQueryTestBase()
     {
-        Binaries = new()
+        Binaries = new List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
         {
             ((typeof(string), typeof(string)), typeof(bool), Expression.Equal),
             ((typeof(string), typeof(string)), typeof(bool), Expression.NotEqual),
@@ -36,7 +38,6 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 Expression.Constant(EF.Functions),
                 x,
                 y)),
-
             ((typeof(int), typeof(int)), typeof(int), Expression.Multiply),
             ((typeof(int), typeof(int)), typeof(int), Expression.Divide),
             ((typeof(int), typeof(int)), typeof(int), Expression.Modulo),
@@ -77,7 +78,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.Or),
         };
 
-        Unaries = new()
+        Unaries = new List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)>
         {
             (typeof(string), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(string)))),
             (typeof(string), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(string)))),
@@ -93,25 +94,20 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 Expression.Constant(EF.Functions),
                 x,
                 Expression.Constant("%B"))),
-
             (typeof(int), typeof(int), Expression.Not),
             (typeof(int), typeof(int), Expression.Negate),
             (typeof(int), typeof(long), x => Expression.Convert(x, typeof(long))),
-
             (typeof(int?), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(int?)))),
             (typeof(int?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(int?)))),
-
             (typeof(long), typeof(long), Expression.Not),
             (typeof(long), typeof(long), Expression.Negate),
             (typeof(long), typeof(int), x => Expression.Convert(x, typeof(int))),
-
             (typeof(bool), typeof(bool), Expression.Not),
-
             (typeof(bool?), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(bool?)))),
             (typeof(bool?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(bool?)))),
         };
 
-        PropertyTypeToEntityMap = new()
+        PropertyTypeToEntityMap = new Dictionary<Type, Type>
         {
             { typeof(string), typeof(OperatorEntityString) },
             { typeof(int), typeof(OperatorEntityInt) },
@@ -167,10 +163,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
-                Expression.Property(
-                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                    "Value"))).ToArray();
+            var rootEntityExpressions = types.Select(
+                (x, i) => new RootEntityExpressionInfo(
+                    Expression.Property(
+                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                        "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -214,10 +211,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
             // dummy input expression and whether is has already been used
             // (we want to prioritize ones that haven't been used yet, so that generated expressions are more interesting)
-            var rootEntityExpressions = types.Select((x, i) => new RootEntityExpressionInfo(
-                Expression.Property(
-                    Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
-                    "Value"))).ToArray();
+            var rootEntityExpressions = types.Select(
+                (x, i) => new RootEntityExpressionInfo(
+                    Expression.Property(
+                        Expression.Parameter(PropertyTypeToEntityMap[x], "e" + i),
+                        "Value"))).ToArray();
 
             var testExpression = GenerateTestExpression(
                 random,
@@ -245,7 +243,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         Type startingResultType)
     {
         var distinctTypes = types.Distinct().ToList();
-        var possibleLeafBinaries = Binaries.Where(x => distinctTypes.Contains(x.InputTypes.Left) && distinctTypes.Contains(x.InputTypes.Right)).ToList();
+        var possibleLeafBinaries =
+            Binaries.Where(x => distinctTypes.Contains(x.InputTypes.Left) && distinctTypes.Contains(x.InputTypes.Right)).ToList();
         var possibleLeafUnaries = Unaries.Where(x => distinctTypes.Contains(x.InputType)).ToList();
 
         // we assume one level of nesting is enough to get to all possible operations
@@ -257,7 +256,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             .Distinct()
             .ToList();
 
-        var possibleBinaries = Binaries.Where(x => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
+        var possibleBinaries = Binaries.Where(
+            x => distinctTypesWithNesting.Contains(x.InputTypes.Left) && distinctTypesWithNesting.Contains(x.InputTypes.Right)).ToList();
         var possibleUnaries = Unaries.Where(x => distinctTypesWithNesting.Contains(x.InputType)).ToList();
 
         var currentDepth = 0;
@@ -473,12 +473,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[]
-            {
-                seed,
-                actualSetSource,
-                resultRewriter
-            });
+            new object[] { seed, actualSetSource, resultRewriter });
     }
 
     private void TestProjectionQueryWithOneSource<TEntity1, TResult>(
@@ -683,16 +678,9 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
                 {
                     var replaced = new ReplacingExpressionVisitor(
                         _roots,
-                        new[]
-                        {
-                            Expression.Property(newExpression.Arguments[0], "Value"),
-                        }).Visit(_resultExpression);
+                        new[] { Expression.Property(newExpression.Arguments[0], "Value"), }).Visit(_resultExpression);
 
-                    var newArgs = new List<Expression>
-                    {
-                        newExpression.Arguments[0],
-                        replaced
-                    };
+                    var newArgs = new List<Expression> { newExpression.Arguments[0], replaced };
 
                     return newExpression.Update(newArgs);
                 }
@@ -930,7 +918,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         where TEntity5 : OperatorEntityBase
         where TEntity6 : OperatorEntityBase
     {
-        public OperatorDto6(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TEntity6 entity6, TResult result)
+        public OperatorDto6(
+            TEntity1 entity1,
+            TEntity2 entity2,
+            TEntity3 entity3,
+            TEntity4 entity4,
+            TEntity5 entity5,
+            TEntity6 entity6,
+            TResult result)
         {
             Entity1 = entity1;
             Entity2 = entity2;
@@ -991,12 +986,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[]
-            {
-                seed,
-                actualSetSource,
-                resultRewriter
-            });
+            new object[] { seed, actualSetSource, resultRewriter });
     }
 
     private void TestPredicateQueryWithOneSource<TEntity1>(
@@ -1186,23 +1176,38 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2>(
-        TEntity1 e1, TEntity2 e2)
+        TEntity1 e1,
+        TEntity2 e2)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4, TEntity5 e5)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4,
+        TEntity5 e5)
         => true;
 
     private static bool DummyTrue<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6>(
-        TEntity1 e1, TEntity2 e2, TEntity3 e3, TEntity4 e4, TEntity5 e5, TEntity6 e6)
+        TEntity1 e1,
+        TEntity2 e2,
+        TEntity3 e3,
+        TEntity4 e4,
+        TEntity5 e5,
+        TEntity6 e6)
         => true;
 
     private class ResultExpressionPredicateRewriter : ExpressionVisitor
@@ -1355,7 +1360,6 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(
                 nameof(string.EndsWith), new[] { typeof(string) })!;
-
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

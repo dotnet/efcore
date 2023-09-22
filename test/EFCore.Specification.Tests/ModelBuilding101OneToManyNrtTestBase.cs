@@ -163,6 +163,7 @@ public abstract partial class ModelBuilding101TestBase
             public class Blog
             {
                 public int Id { get; set; }
+
                 [InverseProperty("Blog")]
                 public ICollection<Post> Posts { get; } = new List<Post>();
             }
@@ -619,14 +620,12 @@ public abstract partial class ModelBuilding101TestBase
         public class Context3 : Context0
         {
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.Entity<Post>()
+                => modelBuilder.Entity<Post>()
                     .HasOne<Blog>()
                     .WithMany(e => e.Posts)
                     .HasForeignKey("BlogId")
                     .HasPrincipalKey(e => e.Id)
                     .IsRequired(false);
-            }
         }
 
         public class ContextAnnotated0 : Context101

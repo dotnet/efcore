@@ -400,18 +400,18 @@ public class RuntimeModelConvention : IModelFinalizedConvention
 
     private static RuntimeElementType Create(RuntimeProperty runtimeProperty, IElementType element, bool primitiveCollection)
         => runtimeProperty.SetElementType(
-                element.ClrType,
-                element.IsNullable,
-                element.GetMaxLength(),
-                element.IsUnicode(),
-                element.GetPrecision(),
-                element.GetScale(),
-                element.GetProviderClrType(),
-                element.GetValueConverter(),
-                element.GetValueComparer(),
-                element.GetJsonValueReaderWriter(),
-                element.GetTypeMapping(),
-                primitiveCollection);
+            element.ClrType,
+            element.IsNullable,
+            element.GetMaxLength(),
+            element.IsUnicode(),
+            element.GetPrecision(),
+            element.GetScale(),
+            element.GetProviderClrType(),
+            element.GetValueConverter(),
+            element.GetValueComparer(),
+            element.GetJsonValueReaderWriter(),
+            element.GetTypeMapping(),
+            primitiveCollection);
 
     /// <summary>
     ///     Updates the property annotations that will be set on the read-only object.

@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 

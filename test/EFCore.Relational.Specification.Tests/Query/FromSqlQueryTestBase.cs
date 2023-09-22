@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 // ReSharper disable AccessToDisposedClosure
 namespace Microsoft.EntityFrameworkCore.Query;
 
-
 public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryRelationalFixture<NoopModelCustomizer>, new()
 {
@@ -204,7 +203,6 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")),
             entryCount: 14);
-    
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -212,8 +210,8 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                NormalizeDelimitersInRawString(
-                    _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
+                    NormalizeDelimitersInRawString(
+                        _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + "* FROM [Customers]"))
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")),
             entryCount: 14);
@@ -390,8 +388,8 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
                   where
                       c.CustomerID == "ALFKI"
                       && ((DbSet<Order>)ss.Set<Order>()).FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
-                          .Select(o => o.CustomerID)
-                          .Contains(c.CustomerID)
+                      .Select(o => o.CustomerID)
+                      .Contains(c.CustomerID)
                   select c,
             ss => from c in ss.Set<Customer>()
                   where c.CustomerID == "ALFKI" && ss.Set<Order>().Select(o => o.CustomerID).Contains(c.CustomerID)
@@ -447,7 +445,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlRaw(
                       NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
                       startDate,
@@ -467,7 +465,7 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                        NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlRaw(
                       NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {0} AND {1}"),
                       startDate,
@@ -487,8 +485,8 @@ public abstract class FromSqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-            NormalizeDelimitersInRawString(
-                @"SELECT *
+                NormalizeDelimitersInRawString(
+                    @"SELECT *
 FROM [Customers]
 WHERE [City] = 'London'")),
             ss => ss.Set<Customer>().Where(x => x.City == "London"),
@@ -500,10 +498,10 @@ WHERE [City] = 'London'")),
         => AssertQuery(
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                NormalizeDelimitersInRawString(
-                    @"SELECT *
+                    NormalizeDelimitersInRawString(
+                        @"SELECT *
 FROM [Customers]"))
-            .Where(c => c.City == "London"),
+                .Where(c => c.City == "London"),
             ss => ss.Set<Customer>().Where(x => x.City == "London"),
             entryCount: 6);
 
@@ -528,7 +526,7 @@ FROM [Customers]"))
     public virtual Task FromSqlRaw_queryable_with_parameters_inline(bool async)
         => AssertQuery(
             async,
-            ss => ((DbSet<Customer>) ss.Set<Customer>()).FromSqlRaw(
+            ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                 NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0} AND [ContactTitle] = {1}"), "London",
                 "Sales Representative"),
             ss => ss.Set<Customer>().Where(x => x.City == "London" && x.ContactTitle == "Sales Representative"),
@@ -600,7 +598,7 @@ FROM [Customers]"))
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                  NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlInterpolated(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
@@ -619,7 +617,7 @@ FROM [Customers]"))
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                  NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSqlInterpolated(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
@@ -644,7 +642,7 @@ FROM [Customers]"))
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                  NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSql(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
@@ -663,7 +661,7 @@ FROM [Customers]"))
         await AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
-                  NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
+                      NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = {0}"), city)
                   from o in ((DbSet<Order>)ss.Set<Order>()).FromSql(
                       NormalizeDelimitersInInterpolatedString(
                           $"SELECT * FROM [Orders] WHERE [OrderDate] BETWEEN {startDate} AND {endDate}"))
@@ -780,15 +778,14 @@ FROM [Customers]"))
         await AssertQuery(
             async,
             ss => ((DbSet<Product>)ss.Set<Product>()).FromSqlRaw(
-                NormalizeDelimitersInRawString(
-                    @"SELECT *
+                    NormalizeDelimitersInRawString(
+                        @"SELECT *
 FROM [Products]
 WHERE [Discontinued] <> "
-                    + boolLiteral
-                    + @"
+                        + boolLiteral
+                        + @"
 AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
-            .Select(p => p.ProductName),
-
+                .Select(p => p.ProductName),
             ss => ss.Set<Product>()
                 .Where(x => x.Discontinued != true && (x.UnitsInStock + x.UnitsOnOrder) < x.ReorderLevel)
                 .Select(x => x.ProductName));
@@ -972,7 +969,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         => AssertQuery(
             async,
             ss => from c1 in ((DbSet<Customer>)ss.Set<Customer>())
-                        .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
+                      .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
                   from c2 in ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                           NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'AROUT'"))
                       .Include(c => c.Orders)
@@ -993,10 +990,10 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
         => AssertQuery(
             async,
             ss => from c in ((DbSet<Customer>)ss.Set<Customer>())
-                        .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
+                      .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'"))
                   join o in ((DbSet<Order>)ss.Set<Order>()).FromSqlRaw(
-                              NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
-                          .Include(o => o.OrderDetails)
+                          NormalizeDelimitersInRawString("SELECT * FROM [Orders] WHERE [OrderID] <> 1"))
+                      .Include(o => o.OrderDetails)
                       on c.CustomerID equals o.CustomerID
                   select new { c, o },
             ss => from c in ss.Set<Customer>().Where(x => x.CustomerID == "ALFKI")
@@ -1165,7 +1162,8 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>())
                 .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'London'"))
-                .Concat(((DbSet<Customer>)ss.Set<Customer>())
+                .Concat(
+                    ((DbSet<Customer>)ss.Set<Customer>())
                     .FromSqlRaw(NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [City] = 'Berlin'"))),
             ss => ss.Set<Customer>().Where(x => x.City == "London")
                 .Concat(ss.Set<Customer>().Where(x => x.City == "Berlin")),
@@ -1276,7 +1274,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ((DbSet<Customer>)ss.Set<Customer>())
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [CustomerID] = {0}"),
-                        CreateDbParameter("customerID", "ALFKI"))
+                    CreateDbParameter("customerID", "ALFKI"))
                 .Include(e => e.Orders)
                 .ThenInclude(o => o.OrderDetails)
                 .AsSplitQuery(),
@@ -1309,17 +1307,19 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task FromSqlRaw_in_subquery_with_dbParameter(bool async)
         => AssertQuery(
-           async,
-           ss => ss.Set<Order>().Where(o => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
+            async,
+            ss => ss.Set<Order>().Where(
+                o => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                         NormalizeDelimitersInRawString(@"SELECT * FROM [Customers] WHERE [City] = @city"),
                         // ReSharper disable once FormatStringProblem
                         CreateDbParameter("@city", "London"))
-                   .Select(c => c.CustomerID)
-                   .Contains(o.CustomerID)),
-           ss => ss.Set<Order>().Where(o => ss.Set<Customer>().Where(x => x.City == "London")
-               .Select(c => c.CustomerID)
-               .Contains(o.CustomerID)),
-           entryCount: 46);
+                    .Select(c => c.CustomerID)
+                    .Contains(o.CustomerID)),
+            ss => ss.Set<Order>().Where(
+                o => ss.Set<Customer>().Where(x => x.City == "London")
+                    .Select(c => c.CustomerID)
+                    .Contains(o.CustomerID)),
+            entryCount: 46);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1409,14 +1409,14 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ss => ((DbSet<Customer>)ss.Set<Customer>())
                 .FromSqlRaw(
                     NormalizeDelimitersInRawString(
-                    @"WITH [Customers2] AS (
+                        @"WITH [Customers2] AS (
     SELECT * FROM [Customers]
 )
 SELECT * FROM [Customers2]"))
-            .Where(c => c.ContactName.Contains("z")),
+                .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")),
             entryCount: 14);
-              
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_occurrences_of_FromSql_with_db_parameter_adds_parameter_only_once(bool async)

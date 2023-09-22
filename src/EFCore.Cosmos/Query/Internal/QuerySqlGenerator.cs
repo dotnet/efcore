@@ -530,8 +530,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         Check.DebugAssert(
             inExpression.ValuesParameter is null,
-            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in " +
-            "InExpressionValuesExpandingExpressionVisitor)");
+            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in "
+            + "InExpressionValuesExpandingExpressionVisitor)");
         Check.DebugAssert(inExpression.Values is not null, "Missing Values on InExpression");
 
         Visit(inExpression.Item);

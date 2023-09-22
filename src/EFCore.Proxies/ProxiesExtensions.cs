@@ -206,7 +206,8 @@ public static class ProxiesExtensions
         this DbContextOptionsBuilder<TContext> optionsBuilder,
         Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
         where TContext : DbContext
-        => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, lazyLoadingProxiesOptionsAction);
+        => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies(
+            (DbContextOptionsBuilder)optionsBuilder, lazyLoadingProxiesOptionsAction);
 
     /// <summary>
     ///     Creates a proxy instance for an entity type if proxy creation has been turned on.

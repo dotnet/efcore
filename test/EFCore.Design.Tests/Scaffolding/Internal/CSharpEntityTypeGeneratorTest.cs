@@ -24,7 +24,7 @@ public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -41,7 +41,7 @@ public partial class Vista
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +100,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -144,7 +144,7 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -187,7 +187,7 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -220,7 +220,7 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -268,7 +268,7 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -325,7 +325,7 @@ public partial class EntityWithIndexes
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -394,7 +394,7 @@ public partial class EntityWithAscendingDescendingIndexes
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -419,7 +419,7 @@ public partial class EntityWithIndexes
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -476,7 +476,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -494,7 +494,7 @@ public partial class Entity
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -547,7 +547,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -569,7 +569,7 @@ public partial class Post
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -627,7 +627,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -680,7 +680,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -737,7 +737,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -834,7 +834,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -896,7 +896,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -974,7 +974,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1013,7 +1013,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1046,7 +1046,7 @@ public partial class Entity
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1105,7 +1105,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1152,7 +1152,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1206,7 +1206,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1261,7 +1261,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1296,13 +1296,13 @@ public partial class Entity
                     {
                         x.ToTable(
                             tb => tb.HasComment(
-"""
+                                """
 Entity Comment
 On multiple lines
 With XML content <br/>
 """));
                         x.Property<int>("Id").HasComment(
-"""
+                            """
 Property Comment
 On multiple lines
 With XML content <br/>
@@ -1313,7 +1313,7 @@ With XML content <br/>
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1359,7 +1359,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1405,7 +1405,7 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1432,7 +1432,7 @@ public partial class Post
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1488,7 +1488,7 @@ public partial class Person
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1514,7 +1514,7 @@ public partial class Post
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1584,7 +1584,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1610,7 +1610,7 @@ public partial class Post
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1683,15 +1683,11 @@ public partial class TestDbContext : DbContext
                             .HasPrincipalKey("ColorCode")
                             .HasForeignKey("ColorCode");
                     }),
-            new ModelCodeGenerationOptions
-            {
-                UseDataAnnotations = true,
-                UseNullableReferenceTypes = true
-            },
+            new ModelCodeGenerationOptions { UseDataAnnotations = true, UseNullableReferenceTypes = true },
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1714,7 +1710,7 @@ public partial class Color
                     code.AdditionalFiles.Single(f => f.Path == "Color.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1738,7 +1734,7 @@ public partial class Car
                     code.AdditionalFiles.Single(f => f.Path == "Car.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1794,13 +1790,13 @@ public partial class TestDbContext : DbContext
     public Task Foreign_key_from_keyless_table()
         => TestAsync(
             modelBuilder => modelBuilder
-            .Entity("Blog", x => x.Property<int>("Id"))
-            .Entity("Post", x => x.HasOne("Blog", "Blog").WithMany()),
+                .Entity("Blog", x => x.Property<int>("Id"))
+                .Entity("Post", x => x.HasOne("Blog", "Blog").WithMany()),
             new ModelCodeGenerationOptions(),
             code =>
             {
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -1846,7 +1842,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -1860,7 +1856,7 @@ public partial class Blog
                     code.AdditionalFiles.First(f => f.Path == "Blog.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -1901,7 +1897,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -1955,7 +1951,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2010,7 +2006,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2080,7 +2076,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2127,7 +2123,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2146,7 +2142,7 @@ public partial class EntityWithAnnotation
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithAnnotation.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2199,7 +2195,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2218,7 +2214,7 @@ public partial class EntityWithPropertyAnnotation
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithPropertyAnnotation.cs"));
 
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2274,7 +2270,7 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2325,7 +2321,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -2341,7 +2337,7 @@ public partial class Blog
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -2399,7 +2395,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2450,7 +2446,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -2466,7 +2462,7 @@ public partial class Blog
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 
@@ -2524,7 +2520,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2575,7 +2571,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2597,7 +2593,7 @@ public partial class Blog
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2657,15 +2653,15 @@ public partial class Post
                     "Post",
                     x => x.Property<int>("Id"))
                 .Entity("Blog").HasMany("Post", "Posts").WithMany("Blogs")
-                    .UsingEntity(
-                        "BlogPost",
-                        r => r.HasOne("Post").WithMany(),
-                        l => l.HasOne("Blog").WithMany().HasPrincipalKey("Key")),
+                .UsingEntity(
+                    "BlogPost",
+                    r => r.HasOne("Post").WithMany(),
+                    l => l.HasOne("Blog").WithMany().HasPrincipalKey("Key")),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
             {
                 AssertFileContents(
-$$"""
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2718,7 +2714,7 @@ public partial class TestDbContext : DbContext
                     code.ContextFile);
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2742,7 +2738,7 @@ public partial class Blog
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-"""
+                    """
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -2790,47 +2786,47 @@ public partial class Post
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
 
-        [ConditionalFact]
-        public Task Many_to_many_ef6()
-            => TestAsync(
-                modelBuilder => modelBuilder
-                    .Entity(
-                        "Blog",
-                        x =>
-                        {
-                            x.ToTable("Blogs");
-                            x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Blogs");
+    [ConditionalFact]
+    public Task Many_to_many_ef6()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Blog",
+                    x =>
+                    {
+                        x.ToTable("Blogs");
+                        x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Blogs");
 
-                            x.Property<int>("Id");
-                        })
-                    .Entity(
-                        "Post",
-                        x =>
-                        {
-                            x.ToTable("Posts");
-                            x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Posts");
+                        x.Property<int>("Id");
+                    })
+                .Entity(
+                    "Post",
+                    x =>
+                    {
+                        x.ToTable("Posts");
+                        x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Posts");
 
-                            x.Property<int>("Id");
+                        x.Property<int>("Id");
 
-                            x.HasMany("Blog", "Blogs").WithMany("Posts")
-                                .UsingEntity(
-                                    "PostBlog",
-                                    r => r.HasOne("Blog", null).WithMany().HasForeignKey("BlogId").HasConstraintName("Post_Blogs_Target"),
-                                    l => l.HasOne("Post", null).WithMany().HasForeignKey("PostId").HasConstraintName("Post_Blogs_Source"),
-                                    j =>
-                                    {
-                                        j.ToTable("PostBlogs");
-                                        j.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "PostBlogs");
+                        x.HasMany("Blog", "Blogs").WithMany("Posts")
+                            .UsingEntity(
+                                "PostBlog",
+                                r => r.HasOne("Blog", null).WithMany().HasForeignKey("BlogId").HasConstraintName("Post_Blogs_Target"),
+                                l => l.HasOne("Post", null).WithMany().HasForeignKey("PostId").HasConstraintName("Post_Blogs_Source"),
+                                j =>
+                                {
+                                    j.ToTable("PostBlogs");
+                                    j.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "PostBlogs");
 
-                                        j.Property<int>("BlogId").HasColumnName("Blog_Id");
-                                        j.Property<int>("PostId").HasColumnName("Post_Id");
-                                    });
-                        })                ,
-                new ModelCodeGenerationOptions(),
-                code =>
-                {
-                    AssertFileContents(
-$$"""
+                                    j.Property<int>("BlogId").HasColumnName("Blog_Id");
+                                    j.Property<int>("PostId").HasColumnName("Post_Id");
+                                });
+                    }),
+            new ModelCodeGenerationOptions(),
+            code =>
+            {
+                AssertFileContents(
+                    $$"""
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -2885,57 +2881,57 @@ public partial class TestDbContext : DbContext
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
 """,
-                        code.ContextFile);
+                    code.ContextFile);
+            },
+            model => Assert.Collection(
+                model.GetEntityTypes().OrderBy(e => e.Name),
+                t1 =>
+                {
+                    Assert.Equal("PostBlog", t1.Name);
+                    Assert.Equal("PostBlogs", t1.GetTableName());
+                    Assert.Collection(
+                        t1.GetForeignKeys().OrderBy(fk => fk.GetConstraintName()),
+                        fk1 =>
+                        {
+                            Assert.Equal("Post_Blogs_Source", fk1.GetConstraintName());
+                            var property = Assert.Single(fk1.Properties);
+                            Assert.Equal("PostId", property.Name);
+                            Assert.Equal("Post_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                            Assert.Equal("TestNamespace.Post", fk1.PrincipalEntityType.Name);
+                            Assert.Equal(DeleteBehavior.Cascade, fk1.DeleteBehavior);
+                        },
+                        fk2 =>
+                        {
+                            Assert.Equal("Post_Blogs_Target", fk2.GetConstraintName());
+                            var property = Assert.Single(fk2.Properties);
+                            Assert.Equal("BlogId", property.Name);
+                            Assert.Equal("Blog_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                            Assert.Equal("TestNamespace.Blog", fk2.PrincipalEntityType.Name);
+                            Assert.Equal(DeleteBehavior.Cascade, fk2.DeleteBehavior);
+                        });
                 },
-                model => Assert.Collection(
-                    model.GetEntityTypes().OrderBy(e => e.Name),
-                    t1 =>
-                    {
-                        Assert.Equal("PostBlog", t1.Name);
-                        Assert.Equal("PostBlogs", t1.GetTableName());
-                        Assert.Collection(
-                            t1.GetForeignKeys().OrderBy(fk => fk.GetConstraintName()),
-                            fk1 =>
-                            {
-                                Assert.Equal("Post_Blogs_Source", fk1.GetConstraintName());
-                                var property = Assert.Single(fk1.Properties);
-                                Assert.Equal("PostId", property.Name);
-                                Assert.Equal("Post_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
-                                Assert.Equal("TestNamespace.Post", fk1.PrincipalEntityType.Name);
-                                Assert.Equal(DeleteBehavior.Cascade, fk1.DeleteBehavior);
-                            },
-                            fk2 =>
-                            {
-                                Assert.Equal("Post_Blogs_Target", fk2.GetConstraintName());
-                                var property = Assert.Single(fk2.Properties);
-                                Assert.Equal("BlogId", property.Name);
-                                Assert.Equal("Blog_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
-                                Assert.Equal("TestNamespace.Blog", fk2.PrincipalEntityType.Name);
-                                Assert.Equal(DeleteBehavior.Cascade, fk2.DeleteBehavior);
-                            });
-                    },
-                    t2 =>
-                    {
-                        Assert.Equal("TestNamespace.Blog", t2.Name);
-                        Assert.Equal("Blogs", t2.GetTableName());
-                        Assert.Empty(t2.GetDeclaredForeignKeys());
-                        var skipNavigation = Assert.Single(t2.GetSkipNavigations());
-                        Assert.Equal("Posts", skipNavigation.Name);
-                        Assert.Equal("Blogs", skipNavigation.Inverse.Name);
-                        Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
-                        Assert.Equal("Post_Blogs_Target", skipNavigation.ForeignKey.GetConstraintName());
-                    },
-                    t3 =>
-                    {
-                        Assert.Equal("TestNamespace.Post", t3.Name);
-                        Assert.Equal("Posts", t3.GetTableName());
-                        Assert.Empty(t3.GetDeclaredForeignKeys());
-                        var skipNavigation = Assert.Single(t3.GetSkipNavigations());
-                        Assert.Equal("Blogs", skipNavigation.Name);
-                        Assert.Equal("Posts", skipNavigation.Inverse.Name);
-                        Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
-                        Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
-                    }));
+                t2 =>
+                {
+                    Assert.Equal("TestNamespace.Blog", t2.Name);
+                    Assert.Equal("Blogs", t2.GetTableName());
+                    Assert.Empty(t2.GetDeclaredForeignKeys());
+                    var skipNavigation = Assert.Single(t2.GetSkipNavigations());
+                    Assert.Equal("Posts", skipNavigation.Name);
+                    Assert.Equal("Blogs", skipNavigation.Inverse.Name);
+                    Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
+                    Assert.Equal("Post_Blogs_Target", skipNavigation.ForeignKey.GetConstraintName());
+                },
+                t3 =>
+                {
+                    Assert.Equal("TestNamespace.Post", t3.Name);
+                    Assert.Equal("Posts", t3.GetTableName());
+                    Assert.Empty(t3.GetDeclaredForeignKeys());
+                    var skipNavigation = Assert.Single(t3.GetSkipNavigations());
+                    Assert.Equal("Blogs", skipNavigation.Name);
+                    Assert.Equal("Posts", skipNavigation.Inverse.Name);
+                    Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
+                    Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
+                }));
 
     protected override void AddModelServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());

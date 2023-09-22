@@ -2109,7 +2109,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<Index>()
             : (IEnumerable<Index>)GetDerivedTypes<EntityType>()
-            .Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
+                .Select(et => et.FindDeclaredIndex(properties)).Where(i => i != null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

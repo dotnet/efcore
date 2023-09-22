@@ -512,8 +512,14 @@ CREATE TABLE ClrType (
     [InlineData("TEXT", "'13:44:00'", typeof(TimeSpan))]
     [InlineData("TIMEONLY", "'14:34:00'", typeof(TimeOnly))]
     [InlineData("BLOB", "x'01'", null)]
-    [InlineData("GEOMETRY", "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'", null)]
-    [InlineData("POINT", "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'", null)]
+    [InlineData(
+        "GEOMETRY",
+        "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
+        null)]
+    [InlineData(
+        "POINT",
+        "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'",
+        null)]
     public void Column_ClrType_is_set_when_data(string storeType, string value, Type expected)
         => Test(
             $@"
@@ -821,7 +827,7 @@ INSERT INTO MyTable VALUES (1, 1.1, 1.2, 1.3);",
 
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("0.0", column.DefaultValueSql);
-                Assert.Equal((double)0, (double)column.DefaultValue, 3);
+                Assert.Equal(0, (double)column.DefaultValue, 3);
 
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("1.1000000000000001e+000", column.DefaultValueSql);

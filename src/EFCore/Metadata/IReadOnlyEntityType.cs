@@ -631,7 +631,7 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// <summary>
     ///     Checks whether or not this entity type has any <see cref="IServiceProperty" /> defined.
     /// </summary>
-    /// <returns><see langword="true"/> if there are any service properties defined on this entity type or base types.</returns>
+    /// <returns><see langword="true" /> if there are any service properties defined on this entity type or base types.</returns>
     bool HasServiceProperties();
 
     /// <summary>

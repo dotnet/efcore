@@ -232,7 +232,8 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     /// <returns>The newly created property.</returns>
     [RequiresUnreferencedCode("Currently used only in tests")]
     IMutableComplexProperty AddComplexProperty(MemberInfo memberInfo, string? complexTypeName = null, bool collection = false)
-        => AddComplexProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
+        => AddComplexProperty(
+            memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(),
             collection ? memberInfo.GetMemberType().GetSequenceType() : memberInfo.GetMemberType(), complexTypeName, collection);
 
     /// <summary>
@@ -412,7 +413,7 @@ public interface IMutableTypeBase : IReadOnlyTypeBase, IMutableAnnotatable
     new IMutablePropertyBase? FindMember(string name);
 
     /// <summary>
-    ///    Gets the members with the given name on this type, base types or derived types..
+    ///     Gets the members with the given name on this type, base types or derived types..
     /// </summary>
     /// <returns>Type members.</returns>
     new IEnumerable<IMutablePropertyBase> FindMembersInHierarchy(string name);

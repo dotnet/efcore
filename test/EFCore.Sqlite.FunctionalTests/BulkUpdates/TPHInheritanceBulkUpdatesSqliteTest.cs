@@ -23,7 +23,7 @@ public class TPHInheritanceBulkUpdatesSqliteTest : TPHInheritanceBulkUpdatesTest
         await base.Delete_where_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Name" = 'Great spotted kiwi'
 """);
@@ -34,7 +34,7 @@ WHERE "a"."Name" = 'Great spotted kiwi'
         await base.Delete_where_hierarchy_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_1='3'
 @__p_0='0'
 
@@ -54,7 +54,7 @@ WHERE "a"."Id" IN (
         await base.Delete_where_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Discriminator" = 'Kiwi' AND "a"."Name" = 'Great spotted kiwi'
 """);
@@ -65,7 +65,7 @@ WHERE "a"."Discriminator" = 'Kiwi' AND "a"."Name" = 'Great spotted kiwi'
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -79,7 +79,7 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Countries" AS "c"
 WHERE (
     SELECT COUNT(*)
@@ -114,7 +114,7 @@ WHERE (
         await base.Delete_GroupBy_Where_Select_First_3(async);
 
         AssertSql(
-"""
+            """
 DELETE FROM "Animals" AS "a"
 WHERE "a"."Id" IN (
     SELECT (
@@ -134,7 +134,7 @@ WHERE "a"."Id" IN (
         await base.Update_base_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'Animal'
 WHERE "a"."Name" = 'Great spotted kiwi'
@@ -146,7 +146,7 @@ WHERE "a"."Name" = 'Great spotted kiwi'
         await base.Update_base_type_with_OfType(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'NewBird'
 WHERE "a"."Discriminator" = 'Kiwi'
@@ -165,7 +165,7 @@ WHERE "a"."Discriminator" = 'Kiwi'
         await base.Update_base_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "Name" = 'SomeOtherKiwi'
 WHERE "a"."Discriminator" = 'Kiwi'
@@ -177,7 +177,7 @@ WHERE "a"."Discriminator" = 'Kiwi'
         await base.Update_derived_property_on_derived_type(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0
 WHERE "a"."Discriminator" = 'Kiwi'
@@ -189,7 +189,7 @@ WHERE "a"."Discriminator" = 'Kiwi'
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -204,7 +204,7 @@ WHERE (
         await base.Update_base_and_derived_types(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Animals" AS "a"
 SET "FoundOn" = 0,
     "Name" = 'Kiwi'
@@ -217,7 +217,7 @@ WHERE "a"."Discriminator" = 'Kiwi'
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Countries" AS "c"
 SET "Name" = 'Monovia'
 WHERE (
@@ -239,7 +239,7 @@ WHERE (
         await base.Update_with_interface_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Drinks" AS "d"
 SET "SugarGrams" = 0
 WHERE "d"."Discriminator" = 1
@@ -251,7 +251,7 @@ WHERE "d"."Discriminator" = 1
         await base.Update_with_interface_in_EF_Property_in_property_expression(async);
 
         AssertExecuteUpdateSql(
-"""
+            """
 UPDATE "Drinks" AS "d"
 SET "SugarGrams" = 0
 WHERE "d"."Discriminator" = 1

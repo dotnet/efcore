@@ -235,8 +235,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     {
         var dateTimes = new[]
         {
-            new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
-            new DateTime(9999, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc), new DateTime(9999, 1, 1, 0, 0, 0, DateTimeKind.Utc)
         };
 
         return AssertQuery(
@@ -690,7 +689,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         return AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(p => ints.Skip(1).Union(p.Ints.OrderBy(x => x).Skip(1).Distinct().OrderByDescending(x => x).Take(20)).Count() == 3),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(
+                p => ints.Skip(1).Union(p.Ints.OrderBy(x => x).Skip(1).Distinct().OrderByDescending(x => x).Take(20)).Count() == 3),
             entryCount: 2);
     }
 
@@ -812,11 +812,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     public virtual Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => new
-            {
-                Empty = x.NullableInts.Where(x => false).ToList(),
-                OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
-            }),
+            ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(
+                x => new
+                {
+                    Empty = x.NullableInts.Where(x => false).ToList(), OnlyNull = x.NullableInts.Where(x => x == null).ToList(),
+                }),
             assertOrder: true,
             elementAsserter: (e, a) =>
             {
@@ -829,13 +829,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     public virtual Task Project_multiple_collections(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => new
-            {
-                Ints = x.Ints.ToList(),
-                OrderedInts = x.Ints.OrderByDescending(xx => xx).ToList(),
-                FilteredDateTimes = x.DateTimes.Where(xx => xx.Day != 1).ToList(),
-                FilteredDateTimes2 = x.DateTimes.Where(xx => xx > new DateTime(2000, 1, 1)).ToList()
-            }),
+            ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(
+                x => new
+                {
+                    Ints = x.Ints.ToList(),
+                    OrderedInts = x.Ints.OrderByDescending(xx => xx).ToList(),
+                    FilteredDateTimes = x.DateTimes.Where(xx => xx.Day != 1).ToList(),
+                    FilteredDateTimes2 = x.DateTimes.Where(xx => xx > new DateTime(2000, 1, 1)).ToList()
+                }),
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.Ints, a.Ints, ordered: true);
@@ -850,12 +851,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
     public virtual Task Project_primitive_collections_element(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => x.Id < 4).OrderBy(x => x.Id).Select(x => new
-            {
-                Indexer = x.Ints[0],
-                EnumerableElementAt = x.DateTimes.ElementAt(0),
-                QueryableElementAt = x.Strings.AsQueryable().ElementAt(1)
-            }),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(x => x.Id < 4).OrderBy(x => x.Id).Select(
+                x => new
+                {
+                    Indexer = x.Ints[0],
+                    EnumerableElementAt = x.DateTimes.ElementAt(0),
+                    QueryableElementAt = x.Strings.AsQueryable().ElementAt(1)
+                }),
             elementAsserter: (e, a) =>
             {
                 AssertEqual(e.Indexer, a.Indexer);
@@ -975,7 +977,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 new()
                 {
                     Id = 1,
-
                     Int = 10,
                     String = "10",
                     DateTime = new DateTime(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
@@ -983,14 +984,12 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = 10,
                     NullableString = "10",
-
                     Ints = new[] { 1, 10 },
                     Strings = new[] { "1", "10" },
                     DateTimes = new DateTime[]
-                    {
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
-                    },
+                        {
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc), new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
+                        },
                     Bools = new[] { true, false },
                     Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
                     NullableInts = new int?[] { 1, 10 },
@@ -999,7 +998,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 new()
                 {
                     Id = 2,
-
                     Int = 11,
                     String = "11",
                     DateTime = new DateTime(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
@@ -1007,15 +1005,15 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value2,
                     NullableInt = null,
                     NullableString = null,
-
                     Ints = new[] { 1, 11, 111 },
                     Strings = new[] { "1", "11", "111" },
-                    DateTimes = new DateTime[]
-                    {
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
-                    },
+                    DateTimes =
+                        new DateTime[]
+                        {
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
+                        },
                     Bools = new[] { false },
                     Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
                     NullableInts = new int?[] { 1, 11, null },
@@ -1024,7 +1022,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 new()
                 {
                     Id = 3,
-
                     Int = 20,
                     String = "20",
                     DateTime = new DateTime(2022, 1, 10, 12, 30, 0, DateTimeKind.Utc),
@@ -1032,17 +1029,17 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = 20,
                     NullableString = "20",
-
                     Ints = new[] { 1, 1, 10, 10, 10, 1, 10 },
                     Strings = new[] { "1", "10", "10", "1", "1" },
-                    DateTimes = new DateTime[]
-                    {
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
-                    },
+                    DateTimes =
+                        new DateTime[]
+                        {
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
+                        },
                     Bools = new[] { true, false },
                     Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
                     NullableInts = new int?[] { 1, 1, 10, 10, null, 1 },
@@ -1051,7 +1048,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 new()
                 {
                     Id = 4,
-
                     Int = 41,
                     String = "41",
                     DateTime = new DateTime(2024, 1, 11, 12, 30, 0, DateTimeKind.Utc),
@@ -1059,20 +1055,20 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value2,
                     NullableInt = null,
                     NullableString = null,
-
                     Ints = new[] { 1, 1, 111, 11, 1, 111 },
                     Strings = new[] { "1", "11", "111", "11" },
-                    DateTimes = new DateTime[]
-                    {
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                        new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                    },
+                    DateTimes =
+                        new DateTime[]
+                        {
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
+                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
+                        },
                     Bools = new[] { false },
                     Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
                     NullableInts = new int?[] { null, null },
@@ -1081,7 +1077,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                 new()
                 {
                     Id = 5,
-
                     Int = 0,
                     String = "",
                     DateTime = new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc),
@@ -1089,7 +1084,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = null,
                     NullableString = null,
-
                     Ints = Array.Empty<int>(),
                     Strings = Array.Empty<string>(),
                     DateTimes = Array.Empty<DateTime>(),

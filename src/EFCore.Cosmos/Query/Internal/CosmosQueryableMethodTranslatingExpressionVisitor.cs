@@ -155,11 +155,11 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 }
             }
             else if (joinCondition is MethodCallExpression
-            {
-                Method.Name: "Equals",
-                Object: null,
-                Arguments: [MethodCallExpression equalsMethodCallExpression, ParameterExpression parameterExpresion]
-            }
+                     {
+                         Method.Name: "Equals",
+                         Object: null,
+                         Arguments: [MethodCallExpression equalsMethodCallExpression, ParameterExpression parameterExpresion]
+                     }
                      && equalsMethodCallExpression.TryGetEFPropertyArguments(out _, out var propertyName))
             {
                 var property = entityType.FindProperty(propertyName);

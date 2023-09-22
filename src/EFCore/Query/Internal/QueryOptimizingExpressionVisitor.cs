@@ -176,7 +176,10 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
             && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
-            && (methodInfo == EnumerableMethods.AnyWithPredicate || methodInfo == EnumerableMethods.All || methodInfo == QueryableMethods.AnyWithPredicate || methodInfo == QueryableMethods.All)
+            && (methodInfo == EnumerableMethods.AnyWithPredicate
+                || methodInfo == EnumerableMethods.All
+                || methodInfo == QueryableMethods.AnyWithPredicate
+                || methodInfo == QueryableMethods.All)
             && methodCallExpression.Arguments[1].UnwrapLambdaFromQuote() is var lambda
             && TryExtractEqualityOperands(lambda.Body, out var left, out var right, out var negated))
         {

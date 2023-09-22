@@ -21,6 +21,7 @@ public class EntityOne
 
     [NotMapped]
     public OwnedReference OwnedReference { get; set; }
+
     [NotMapped]
     public List<OwnedCollection> OwnedCollection { get; set; } = new();
 }
@@ -55,11 +56,11 @@ public class OwnedReference
     public OwnedNestedReference OwnedNestedReference { get; set; }
 }
 
-
 public class OwnedCollection
 {
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
     public int Id { get; set; }
+
     public string OwnedStringValue1 { get; set; }
     public string OwnedStringValue2 { get; set; }
     public string OwnedStringValue3 { get; set; }
@@ -90,6 +91,7 @@ public class BaseEntity
 
     [NotMapped]
     public OwnedReference OwnedReference { get; set; }
+
     [NotMapped]
     public List<OwnedCollection> OwnedCollection { get; set; } = new();
 }

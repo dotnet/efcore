@@ -871,12 +871,42 @@ public class F1Context : PoolableDbContext
         teams.Single(t => t.Id == Team.Ferrari).Sponsors.Add(shell);
 
         context.AddRange(
-            new SuperFan { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFan { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
-            new SuperFanTpt { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFanTpt { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
-            new SuperFanTpc { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
-            new MegaFanTpc { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
+            new SuperFan
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFan
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
+            new SuperFanTpt
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFanTpt
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
+            new SuperFanTpc
+            {
+                Id = 1,
+                Name = "Alice",
+                Swag = new SwagBag { Stuff = "SuperStuff" }
+            },
+            new MegaFanTpc
+            {
+                Id = 2,
+                Name = "Toast",
+                Swag = new SwagBag { Stuff = "MegaStuff" }
+            },
             new StreetCircuit { Id = 1, Name = "Monaco" },
             new City { Id = 1, Name = "Monaco" },
             new OvalCircuit { Id = 2, Name = "Indy" },

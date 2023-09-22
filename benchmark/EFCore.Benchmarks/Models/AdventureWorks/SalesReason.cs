@@ -4,20 +4,19 @@
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
+
+public class SalesReason
 {
-    public class SalesReason
+    public SalesReason()
     {
-        public SalesReason()
-        {
-            SalesOrderHeaderSalesReason = new HashSet<SalesOrderHeaderSalesReason>();
-        }
-
-        public int SalesReasonID { get; set; }
-        public DateTime ModifiedDate { get; set; }
-        public string Name { get; set; }
-        public string ReasonType { get; set; }
-
-        public virtual ICollection<SalesOrderHeaderSalesReason> SalesOrderHeaderSalesReason { get; set; }
+        SalesOrderHeaderSalesReason = new HashSet<SalesOrderHeaderSalesReason>();
     }
+
+    public int SalesReasonID { get; set; }
+    public DateTime ModifiedDate { get; set; }
+    public string Name { get; set; }
+    public string ReasonType { get; set; }
+
+    public virtual ICollection<SalesOrderHeaderSalesReason> SalesOrderHeaderSalesReason { get; set; }
 }

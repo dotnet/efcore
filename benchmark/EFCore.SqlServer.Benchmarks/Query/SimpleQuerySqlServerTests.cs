@@ -3,13 +3,10 @@
 
 using Microsoft.EntityFrameworkCore.Benchmarks.Models.Orders;
 
-namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
+namespace Microsoft.EntityFrameworkCore.Benchmarks.Query;
+
+public class SimpleQuerySqlServerTests : SimpleQueryTests
 {
-    public class SimpleQuerySqlServerTests : SimpleQueryTests
-    {
-        protected override OrdersFixtureBase CreateFixture()
-        {
-            return new OrdersSqlServerFixture("Perf_Query_Simple");
-        }
-    }
+    protected override OrdersFixtureBase CreateFixture()
+        => new OrdersSqlServerFixture("Perf_Query_Simple");
 }

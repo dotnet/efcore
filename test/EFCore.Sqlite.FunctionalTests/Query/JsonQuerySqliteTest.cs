@@ -21,7 +21,7 @@ public class JsonQuerySqliteTest : JsonQueryTestBase<JsonQuerySqliteFixture>
         await base.Json_scalar_length(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Name"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE length("j"."OwnedReferenceRoot" ->> 'Name') > 2
@@ -33,7 +33,7 @@ WHERE length("j"."OwnedReferenceRoot" ->> 'Name') > 2
         await base.Basic_json_projection_enum_inside_json_entity(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."OwnedReferenceRoot" ->> '$.OwnedReferenceBranch.Enum' AS "Enum"
 FROM "JsonEntitiesBasic" AS "j"
 """);
@@ -72,7 +72,7 @@ FROM "JsonEntitiesBasic" AS "j"
         await base.Json_collection_Any_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (
@@ -90,7 +90,7 @@ WHERE EXISTS (
         await base.Json_collection_Where_ElementAt(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
@@ -110,7 +110,7 @@ WHERE (
         await base.Json_collection_Skip(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
@@ -134,7 +134,7 @@ WHERE (
         await base.Json_collection_OrderByDescending_Skip_ElementAt(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
@@ -158,7 +158,7 @@ WHERE (
         await base.Json_collection_within_collection_Count(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (
@@ -191,12 +191,13 @@ WHERE EXISTS (
         await AssertQuery(
             async,
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSql(
-                Fixture.TestStore.NormalizeDelimitersInInterpolatedString($"SELECT * FROM [JsonEntitiesBasic] AS j WHERE [j].[Id] = {parameter}")),
+                Fixture.TestStore.NormalizeDelimitersInInterpolatedString(
+                    $"SELECT * FROM [JsonEntitiesBasic] AS j WHERE [j].[Id] = {parameter}")),
             ss => ss.Set<JsonEntityBasic>(),
             entryCount: 40);
 
         AssertSql(
-"""
+            """
 prm='1' (DbType = String)
 
 SELECT "m"."Id", "m"."EntityBasicId", "m"."Name", "m"."OwnedCollectionRoot", "m"."OwnedReferenceRoot"
@@ -211,7 +212,7 @@ FROM (
         await base.Json_collection_index_in_predicate_nested_mix(async);
 
         AssertSql(
-"""
+            """
 @__prm_0='0'
 
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
@@ -225,7 +226,7 @@ WHERE "j"."OwnedCollectionRoot" ->> '$[1].OwnedCollectionBranch' ->> @__prm_0 ->
         await base.Json_predicate_on_bool_converted_to_int_zero_one(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
 WHERE "j"."Reference" ->> 'BoolConvertedToIntZeroOne' = 1
@@ -237,7 +238,7 @@ WHERE "j"."Reference" ->> 'BoolConvertedToIntZeroOne' = 1
         await base.Json_predicate_on_bool_converted_to_string_True_False(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
 WHERE "j"."Reference" ->> 'BoolConvertedToStringTrueFalse' = 'True'
@@ -249,7 +250,7 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringTrueFalse' = 'True'
         await base.Json_predicate_on_bool_converted_to_string_Y_N(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
 WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
@@ -380,9 +381,10 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Json_collection_index_in_projection_using_untranslatable_client_method(async))).Message;
 
-        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
-            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
-            "MyMethod"),
+        Assert.Contains(
+            CoreStrings.QueryUnableToTranslateMethod(
+                "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
+                "MyMethod"),
             message);
     }
 
@@ -391,9 +393,10 @@ WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Json_collection_index_in_projection_using_untranslatable_client_method2(async))).Message;
 
-        Assert.Contains(CoreStrings.QueryUnableToTranslateMethod(
-            "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
-            "MyMethod"),
+        Assert.Contains(
+            CoreStrings.QueryUnableToTranslateMethod(
+                "Microsoft.EntityFrameworkCore.Query.JsonQueryTestBase<Microsoft.EntityFrameworkCore.Query.JsonQuerySqliteFixture>",
+                "MyMethod"),
             message);
     }
 

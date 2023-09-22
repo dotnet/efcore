@@ -10,29 +10,29 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.EntityFrameworkCore.Benchmarks
+namespace Microsoft.EntityFrameworkCore.Benchmarks;
+
+public static class SqlServerBenchmarkEnvironment
 {
-    public static class SqlServerBenchmarkEnvironment
+    public static IConfiguration Config { get; }
+
+    static SqlServerBenchmarkEnvironment()
     {
-        public static IConfiguration Config { get; }
+        var configBuilder = new ConfigurationBuilder()
+            .SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("config.json", optional: true)
+            .AddEnvironmentVariables();
 
-        static SqlServerBenchmarkEnvironment()
-        {
-            var configBuilder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("config.json", optional: true)
-                .AddEnvironmentVariables();
-
-            Config = configBuilder.Build()
-                .GetSection("Test:SqlServer");
-        }
-
-        private const string DefaultConnectionString
-            = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30;ConnectRetryCount=0";
-
-        public static string DefaultConnection => Config["DefaultConnection"] ?? DefaultConnectionString;
-
-        public static string CreateConnectionString(string name, string fileName = null, bool? multipleActiveResultSets = null)
-            => new SqlConnectionStringBuilder(DefaultConnection) { InitialCatalog = name }.ToString();
+        Config = configBuilder.Build()
+            .GetSection("Test:SqlServer");
     }
+
+    private const string DefaultConnectionString
+        = "Data Source=(localdb)\\MSSQLLocalDB;Database=master;Integrated Security=True;Connect Timeout=30;ConnectRetryCount=0";
+
+    public static string DefaultConnection
+        => Config["DefaultConnection"] ?? DefaultConnectionString;
+
+    public static string CreateConnectionString(string name, string fileName = null, bool? multipleActiveResultSets = null)
+        => new SqlConnectionStringBuilder(DefaultConnection) { InitialCatalog = name }.ToString();
 }

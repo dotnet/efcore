@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore.Storage.Json;
 
 /// <summary>
-///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable"/>.
+///     A <see cref="JsonValueReaderWriter{TValue}" /> for collections of primitive elements that are a not <see cref="Nullable" />.
 /// </summary>
 /// <typeparam name="TCollection">The collection type.</typeparam>
 /// <typeparam name="TConcreteCollection">The collection type to create an index of, if needed.</typeparam>
@@ -16,7 +16,6 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
     JsonValueReaderWriter<IEnumerable<TElement?>>,
     ICompositeJsonValueReaderWriter
     where TCollection : IEnumerable<TElement?>
-    where TConcreteCollection : IList<TElement?>
 {
     private readonly JsonValueReaderWriter<TElement> _elementReaderWriter;
 
@@ -39,7 +38,7 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
         }
         else if (existingObject == null)
         {
-            collection = Activator.CreateInstance<TConcreteCollection>();
+            collection = (IList<TElement?>)Activator.CreateInstance<TConcreteCollection>()!;
         }
         else
         {

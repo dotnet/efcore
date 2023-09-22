@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
-using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal.Json;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 

@@ -17,7 +17,7 @@ public class SimpleQuerySqlServerTest : SimpleQueryRelationalTestBase
         await base.Multiple_nested_reference_navigations(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT TOP(1) [s].[Id], [s].[Email], [s].[Logon], [s].[ManagerId], [s].[Name], [s].[SecondaryManagerId]
@@ -25,7 +25,7 @@ FROM [Staff] AS [s]
 WHERE [s].[Id] = @__p_0
 """,
             //
-"""
+            """
 @__id_0='1'
 
 SELECT TOP(2) [a].[Id], [a].[Complete], [a].[Deleted], [a].[PeriodEnd], [a].[PeriodStart], [a].[StaffId], [s].[Id], [s].[Email], [s].[Logon], [s].[ManagerId], [s].[Name], [s].[SecondaryManagerId], [s0].[Id], [s0].[Email], [s0].[Logon], [s0].[ManagerId], [s0].[Name], [s0].[SecondaryManagerId], [s1].[Id], [s1].[Email], [s1].[Logon], [s1].[ManagerId], [s1].[Name], [s1].[SecondaryManagerId]
@@ -42,7 +42,7 @@ WHERE [a].[Id] = @__id_0
         await base.Comparing_enum_casted_to_byte_with_int_parameter(async);
 
         AssertSql(
-"""
+            """
 @__bitterTaste_0='1'
 
 SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
@@ -56,7 +56,7 @@ WHERE [i].[Taste] = @__bitterTaste_0
         await base.Comparing_enum_casted_to_byte_with_int_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
 FROM [IceCreams] AS [i]
 WHERE [i].[Taste] = 1
@@ -68,7 +68,7 @@ WHERE [i].[Taste] = 1
         await base.Comparing_byte_column_to_enum_in_vb_creating_double_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT [f].[Id], [f].[Taste]
 FROM [Food] AS [f]
 WHERE [f].[Taste] = CAST(1 AS tinyint)
@@ -80,7 +80,7 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)
         await base.Null_check_removal_in_ternary_maintain_appropriate_cast(async);
 
         AssertSql(
-"""
+            """
 SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
 FROM [Food] AS [f]
 """);
@@ -91,7 +91,7 @@ FROM [Food] AS [f]
         await base.Bool_discriminator_column_works(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[BlogId], [b].[Id], [b].[IsPhotoBlog], [b].[Title], [b].[NumberOfPhotos]
 FROM [Authors] AS [a]
 LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]
@@ -103,7 +103,7 @@ LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]
         await base.Count_member_over_IReadOnlyCollection_works(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM [Books] AS [b]
@@ -117,7 +117,7 @@ FROM [Authors] AS [a]
         await base.Multiple_different_entity_type_from_different_namespaces(async);
 
         AssertSql(
-"""
+            """
 SELECT cast(null as int) AS MyValue
 """);
     }
@@ -127,7 +127,7 @@ SELECT cast(null as int) AS MyValue
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(async);
 
         AssertSql(
-"""
+            """
 @__currentUserId_0='1'
 
 SELECT CASE
@@ -152,7 +152,7 @@ FROM [Users] AS [u]
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(async);
 
         AssertSql(
-"""
+            """
 @__currentUserId_0='1'
 
 SELECT CASE
@@ -179,7 +179,7 @@ FROM [Users] AS [u]
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(async);
 
         AssertSql(
-"""
+            """
 @__currentUserId_0='1'
 
 SELECT CASE
@@ -203,7 +203,7 @@ FROM [Users] AS [u]
         await base.GroupBy_aggregate_on_right_side_of_join(async);
 
         AssertSql(
-"""
+            """
 @__orderId_0='123456'
 
 SELECT [o].[Id], [o].[CancellationDate], [o].[OrderId], [o].[ShippingDate]
@@ -227,7 +227,7 @@ ORDER BY [o].[OrderId]
         await base.Enum_with_value_converter_matching_take_value(async);
 
         AssertSql(
-"""
+            """
 @__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
 @__p_0='1'
 
@@ -254,7 +254,7 @@ ORDER BY [t].[Id]
         await base.GroupBy_Aggregate_over_navigations_repeated(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT MIN([o].[HourlyRate])
     FROM [TimeSheets] AS [t0]
@@ -281,7 +281,7 @@ GROUP BY [t].[OrderId]
         await base.Aggregate_over_subquery_in_group_by_projection(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[CustomerId], (
     SELECT MIN([o0].[HourlyRate])
     FROM [Order] AS [o0]
@@ -297,7 +297,7 @@ GROUP BY [o].[CustomerId], [o].[Number]
         await base.Aggregate_over_subquery_in_group_by_projection_2(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Value] AS [A], (
     SELECT MAX([t0].[Id])
     FROM [Table] AS [t0]
@@ -312,7 +312,7 @@ GROUP BY [t].[Value]
         await base.Group_by_aggregate_in_subquery_projection_after_group_by(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
     SELECT TOP(1) COALESCE(SUM([t].[Id]), 0) + COALESCE(SUM([t0].[Id]), 0)
     FROM [Table] AS [t0]
@@ -328,7 +328,7 @@ GROUP BY [t].[Value]
         await base.Group_by_multiple_aggregate_joining_different_tables(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM (
@@ -363,7 +363,7 @@ GROUP BY [t].[Key]
         await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM (
@@ -406,7 +406,7 @@ GROUP BY [t].[Key]
         await base.Subquery_first_member_compared_to_null(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [c1].[SomeOtherNullableDateTime]
     FROM [Child26744] AS [c1]
@@ -429,7 +429,7 @@ WHERE EXISTS (
         await base.SelectMany_where_Select(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[SomeNullableDateTime]
 FROM [Parents] AS [p]
 INNER JOIN (
@@ -450,7 +450,7 @@ WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL
         await base.StoreType_for_UDF_used(async);
 
         AssertSql(
-"""
+            """
 @__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
@@ -458,7 +458,7 @@ FROM [MyEntities] AS [m]
 WHERE [m].[SomeDate] = @__date_0
 """,
             //
-"""
+            """
 @__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
@@ -472,7 +472,7 @@ WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0
         await base.Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(async);
 
         AssertSql(
-"""
+            """
 @__p_0='123456'
 
 SELECT TOP(@__p_0) [t].[JSON]
@@ -494,7 +494,7 @@ ORDER BY [t].[ParcelNumber]
         await base.Hierarchy_query_with_abstract_type_sibling(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[Discriminator], [a].[Species], [a].[Name], [a].[EdcuationLevel], [a].[FavoriteToy]
 FROM [Animals] AS [a]
 WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND [a].[Species] LIKE N'F%'
@@ -506,7 +506,7 @@ WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND [a].[Species] LIKE N'F%'
         await base.Hierarchy_query_with_abstract_type_sibling_TPT(async);
 
         AssertSql(
-"""
+            """
 SELECT [a].[Id], [a].[Species], [p].[Name], [c].[EdcuationLevel], [d].[FavoriteToy], CASE
     WHEN [d].[Id] IS NOT NULL THEN N'Dog'
     WHEN [c].[Id] IS NOT NULL THEN N'Cat'
@@ -524,7 +524,7 @@ WHERE ([d].[Id] IS NOT NULL OR [c].[Id] IS NOT NULL) AND [a].[Species] LIKE N'F%
         await base.Hierarchy_query_with_abstract_type_sibling_TPC(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[Species], [t].[Name], [t].[EdcuationLevel], [t].[FavoriteToy], [t].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Species], [c].[Name], [c].[EdcuationLevel], NULL AS [FavoriteToy], N'Cat' AS [Discriminator]
@@ -562,7 +562,7 @@ WHERE [t].[Species] LIKE N'F%'
         }
 
         AssertSql(
-"""
+            """
 p0='1'
 
 SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]

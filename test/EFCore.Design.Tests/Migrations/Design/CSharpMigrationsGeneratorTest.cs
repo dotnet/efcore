@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local

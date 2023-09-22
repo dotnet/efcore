@@ -24,7 +24,7 @@ public abstract class UpdatesSqlServerTestBase<TFixture> : UpdatesRelationalTest
         base.Can_add_and_remove_self_refs();
 
         AssertSql(
-"""
+            """
 @p0=NULL (Size = 4000)
 @p1='1' (Nullable = false) (Size = 4000)
 @p2=NULL (DbType = Int32)
@@ -36,8 +36,8 @@ INSERT INTO [Person] ([Country], [Name], [ParentId], [ZipCode])
 OUTPUT INSERTED.[PersonId]
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                //
-                """
+            //
+            """
 @p4=NULL (Size = 4000)
 @p5='2' (Nullable = false) (Size = 4000)
 @p6='1' (Nullable = true)
@@ -57,8 +57,8 @@ INSERT ([Country], [Name], [ParentId], [ZipCode])
 VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-                //
-                """
+            //
+            """
 @p12=NULL (Size = 4000)
 @p13='4' (Nullable = false) (Size = 4000)
 @p14='2' (Nullable = true)
@@ -88,8 +88,8 @@ INSERT ([Country], [Name], [ParentId], [ZipCode])
 VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-                //
-                """
+            //
+            """
 @p0='4'
 @p1='5'
 @p2='6'
@@ -124,8 +124,8 @@ INSERT INTO [Person] ([Country], [Name], [ParentId], [ZipCode])
 OUTPUT INSERTED.[PersonId]
 VALUES (@p6, @p7, @p8, @p9);
 """,
-                //
-                """
+            //
+            """
 @p10='1'
 @p11=NULL (Size = 4000)
 @p12='2' (Nullable = false) (Size = 4000)
@@ -148,8 +148,8 @@ INSERT ([Country], [Name], [ParentId], [ZipCode])
 VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-                //
-                """
+            //
+            """
 @p19=NULL (Size = 4000)
 @p20='4' (Nullable = false) (Size = 4000)
 @p21='9' (Nullable = true)
@@ -179,8 +179,8 @@ INSERT ([Country], [Name], [ParentId], [ZipCode])
 VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[PersonId], [p].[Country], [p].[Name], [p].[ParentId], [p].[ZipCode], [p].[Address_City], [p].[Country], [p].[ZipCode], [p0].[PersonId], [p0].[Country], [p0].[Name], [p0].[ParentId], [p0].[ZipCode], [p0].[Address_City], [p0].[Country], [p0].[ZipCode], [p1].[PersonId], [p1].[Country], [p1].[Name], [p1].[ParentId], [p1].[ZipCode], [p1].[Address_City], [p1].[Country], [p1].[ZipCode], [p2].[PersonId], [p2].[Country], [p2].[Name], [p2].[ParentId], [p2].[ZipCode], [p2].[Address_City], [p2].[Country], [p2].[ZipCode]
 FROM [Person] AS [p]
 LEFT JOIN [Person] AS [p0] ON [p].[ParentId] = [p0].[PersonId]
@@ -261,6 +261,7 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).HasFilter("Name IS NOT NULL");
         }
+
         public virtual void ResetIdentity()
         {
             var context = CreateContext();
