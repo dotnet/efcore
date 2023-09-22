@@ -1254,21 +1254,33 @@ public class SqliteDataReaderTest
     [Fact]
     public void GetInt64_throws_when_non_query()
         => X_throws_when_non_query(r => r.GetInt64(0));
-#if NET7_0_OR_GREATER
-        [Fact]
-        public void GetInt128_works()
-            => GetX_works(
-                "SELECT '170141183460469231731687303715884105727';",
-                r => ((SqliteDataReader)r).GetInt128(0),
-                Int128.MaxValue);
 
-        [Fact]
-        public void GetUInt128_works()
-          => GetX_works(
-              "SELECT '0';",
-              r => ((SqliteDataReader)r).GetUInt128(0),
-              UInt128.MinValue);
+#if NET7_0_OR_GREATER
+    [Fact]
+    public void GetInt128_works()
+        => GetX_works(
+            "SELECT '170141183460469231731687303715884105727';",
+            r => ((SqliteDataReader)r).GetInt128(0),
+            Int128.MaxValue);
+
+    [Fact]
+    public void GetInt128_throws_when_null()
+        => GetX_throws_when_null(
+            r => ((SqliteDataReader)r).GetInt128(0));
+
+    [Fact]
+    public void GetUInt128_works()
+        => GetX_works(
+            "SELECT '0';",
+            r => ((SqliteDataReader)r).GetUInt128(0),
+            UInt128.MinValue);
+
+    [Fact]
+    public void GetUInt128_throws_when_null()
+        => GetX_throws_when_null(
+            r => ((SqliteDataReader)r).GetUInt128(0));
 #endif
+
     [Fact]
     public void GetBigInteger_works()
         => GetX_works(

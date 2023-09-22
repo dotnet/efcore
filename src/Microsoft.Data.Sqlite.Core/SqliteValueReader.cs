@@ -143,9 +143,15 @@ namespace Microsoft.Data.Sqlite
         protected abstract long GetInt64Core(int ordinal);
 #if NET7_0_OR_GREATER
         public virtual Int128 GetInt128(int ordinal)
-            => (Int128)GetBigInteger(ordinal);
+            => IsDBNull(ordinal)
+                ? throw new InvalidOperationException(GetOnNullErrorMsg(ordinal))
+                : Int128.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
+
         public virtual UInt128 GetUInt128(int ordinal)
-            => (UInt128)GetBigInteger(ordinal);
+            => IsDBNull(ordinal)
+                ? throw new InvalidOperationException(GetOnNullErrorMsg(ordinal))
+                : UInt128.Parse(GetString(ordinal), NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture);
+
 #endif
         public virtual BigInteger GetBigInteger(int ordinal)
             => IsDBNull(ordinal)
