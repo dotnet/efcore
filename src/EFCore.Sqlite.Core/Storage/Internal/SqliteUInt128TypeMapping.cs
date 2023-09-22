@@ -28,7 +28,6 @@ public class SqliteUInt128TypeMapping : UInt128TypeMapping
     public SqliteUInt128TypeMapping()
         : base(
             SqliteTypeMappingSource.TextTypeName,
-            dbType: System.Data.DbType.String,
             size: null,
             fixedLength: false)
     {

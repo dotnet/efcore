@@ -35,10 +35,12 @@ public class BigIntegerTypeMapping : RelationalTypeMapping
     /// </summary>
     /// <param name="storeType">The name of the database type.</param>
     /// <param name="dbType">The <see cref="DbType" /> to be used.</param>
+    /// <param name="unicode">A value indicating whether the type should handle Unicode data or not.</param>
     public BigIntegerTypeMapping(
         string storeType,
-        DbType? dbType = System.Data.DbType.String)
-        : base(storeType, typeof(BigInteger), dbType, jsonValueReaderWriter: JsonBigIntegerReaderWriter.Instance)
+        DbType? dbType = System.Data.DbType.String,
+        bool unicode = false)
+            : base(storeType, typeof(BigInteger), dbType, unicode, jsonValueReaderWriter: JsonBigIntegerReaderWriter.Instance)
     {
     }
 
