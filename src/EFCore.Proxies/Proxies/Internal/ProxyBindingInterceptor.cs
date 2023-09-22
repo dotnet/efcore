@@ -38,7 +38,11 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
     /// </summary>
     public virtual InstantiationBinding ModifyBinding(InstantiationBindingInterceptionData interceptionData, InstantiationBinding binding)
     {
-        var entityType = interceptionData.TypeBase as IEntityType ?? throw new NotImplementedException();
+        if (interceptionData.TypeBase is not IEntityType entityType)
+        {
+            return binding;
+        }
+
         var proxyType = _proxyFactory.CreateProxyType(entityType);
 
         if ((bool?)entityType.Model[ProxyAnnotationNames.LazyLoading] == true)
