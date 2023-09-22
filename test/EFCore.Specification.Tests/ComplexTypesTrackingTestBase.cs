@@ -22,25 +22,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_objects(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreatePub());
+        => TrackAndSaveTest(state, async, c => CreatePub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_type_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreatePub());
+        => MarkModifiedTest(trackFromQuery, c => CreatePub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_types(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreatePub());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreatePub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_types(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreatePub());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreatePub(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -52,25 +52,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreatePubWithStructs());
+        => TrackAndSaveTest(state, async, c => CreatePubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreatePubWithStructs());
+        => MarkModifiedTest(trackFromQuery, c => CreatePubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithStructs());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithStructs());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -82,25 +82,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreatePubWithReadonlyStructs());
+        => TrackAndSaveTest(state, async, c => CreatePubWithReadonlyStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreatePubWithReadonlyStructs());
+        => MarkModifiedTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithReadonlyStructs());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithReadonlyStructs(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -112,25 +112,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreatePubWithRecords());
+        => TrackAndSaveTest(state, async, c => CreatePubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreatePubWithRecords());
+        => MarkModifiedTest(trackFromQuery, c => CreatePubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreatePubWithRecords());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreatePubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreatePubWithRecords());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreatePubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -142,25 +142,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_objects_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreateFieldPub());
+        => TrackAndSaveTest(state, async, c => CreateFieldPub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_type_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreateFieldPub());
+        => MarkModifiedTest(trackFromQuery, c => CreateFieldPub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPub());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPub(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_complex_types_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPub());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPub(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -172,25 +172,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_structs_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreateFieldPubWithStructs());
+        => TrackAndSaveTest(state, async, c => CreateFieldPubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithStructs());
+        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_structs_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithStructs());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithStructs(c));
 
     [ConditionalTheory(Skip = "Constructor binding")]
     [InlineData(EntityState.Added, false)]
@@ -202,25 +202,25 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_readonly_structs_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreateFieldPubWithReadonlyStructs());
+        => TrackAndSaveTest(state, async, c => CreateFieldPubWithReadonlyStructs(c));
 
     [ConditionalTheory(Skip = "Constructor binding")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_readonly_readonly_struct_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithReadonlyStructs());
+        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
 
     [ConditionalTheory(Skip = "Constructor binding")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
 
     [ConditionalTheory(Skip = "Constructor binding")]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_readonly_structs_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithReadonlyStructs());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithReadonlyStructs(c));
 
     [ConditionalTheory]
     [InlineData(EntityState.Added, false)]
@@ -232,31 +232,32 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     [InlineData(EntityState.Deleted, false)]
     [InlineData(EntityState.Deleted, true)]
     public virtual Task Can_track_entity_with_complex_record_objects_with_fields(EntityState state, bool async)
-        => TrackAndSaveTest(state, async, CreateFieldPubWithRecords());
+        => TrackAndSaveTest(state, async, c => CreateFieldPubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_mark_complex_record_type_properties_modified_with_fields(bool trackFromQuery)
-        => MarkModifiedTest(trackFromQuery, CreateFieldPubWithRecords());
+        => MarkModifiedTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_read_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
-        => ReadOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords());
+        => ReadOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
 
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
     public virtual void Can_write_original_values_for_properties_of_record_complex_types_with_fields(bool trackFromQuery)
-        => WriteOriginalValuesTest(trackFromQuery, CreateFieldPubWithRecords());
+        => WriteOriginalValuesTest(trackFromQuery, c => CreateFieldPubWithRecords(c));
 
-    private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, TEntity pub)
+    private async Task TrackAndSaveTest<TEntity>(EntityState state, bool async, Func<DbContext, TEntity> createPub)
         where TEntity : class
         => await ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
+                var pub = createPub(context);
                 var entry = state switch
                 {
                     EntityState.Unchanged => context.Attach(pub),
@@ -279,11 +280,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 }
             });
 
-    private void MarkModifiedTest<TEntity>(bool trackFromQuery, TEntity pub)
+    private void MarkModifiedTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
         where TEntity : class
     {
         using var context = CreateContext();
 
+        var pub = createPub(context);
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
         Assert.Equal(EntityState.Unchanged, entry.State);
@@ -354,11 +356,12 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         AssertPropertiesModified(entry, false);
     }
 
-    private void ReadOriginalValuesTest<TEntity>(bool trackFromQuery, TEntity pub)
+    private void ReadOriginalValuesTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
         where TEntity : class
     {
         using var context = CreateContext();
 
+        var pub = createPub(context);
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
         Assert.Equal(EntityState.Unchanged, entry.State);
@@ -375,27 +378,38 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "Boris", "David", "Theresa" }, membersEntry.OriginalValue);
 
-        var dayEntry = entry.ComplexProperty("LunchtimeActivity").Property("Day");
-        dayEntry.CurrentValue = DayOfWeek.Wednesday;
-        Assert.Equal(EntityState.Modified, entry.State);
-        Assert.True(dayEntry.IsModified);
-        Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+        if (Fixture.UseProxies)
+        {
+            Assert.Equal(
+                CoreStrings.OriginalValueNotTracked(membersEntry.Metadata.Name, membersEntry.Metadata.DeclaringType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => membersEntry.OriginalValue).Message);
+        }
+        else
+        {
+            Assert.Equal(new[] { "Boris", "David", "Theresa" }, membersEntry.OriginalValue);
 
-        var coverChargeEntry = entry.ComplexProperty("EveningActivity").Property("CoverCharge");
-        coverChargeEntry.CurrentValue = 3.0m;
-        Assert.Equal(EntityState.Modified, entry.State);
-        Assert.True(coverChargeEntry.IsModified);
-        Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+            var dayEntry = entry.ComplexProperty("LunchtimeActivity").Property("Day");
+            dayEntry.CurrentValue = DayOfWeek.Wednesday;
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(dayEntry.IsModified);
+            Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
+            Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+
+            var coverChargeEntry = entry.ComplexProperty("EveningActivity").Property("CoverCharge");
+            coverChargeEntry.CurrentValue = 3.0m;
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(coverChargeEntry.IsModified);
+            Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
+            Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
-    private void WriteOriginalValuesTest<TEntity>(bool trackFromQuery, TEntity pub)
+    private void WriteOriginalValuesTest<TEntity>(bool trackFromQuery, Func<DbContext, TEntity> createPub)
         where TEntity : class
     {
         using var context = CreateContext();
+        var pub = createPub(context);
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
         Assert.Equal(EntityState.Unchanged, entry.State);
@@ -403,30 +417,40 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         AssertPropertiesModified(entry, false);
 
         var membersEntry = entry.ComplexProperty("EveningActivity").ComplexProperty("Champions").Property("Members");
-        membersEntry.OriginalValue = new List<string>
+
+        if (Fixture.UseProxies)
         {
-            "1",
-            "2",
-            "3"
-        };
-        Assert.Equal(EntityState.Modified, entry.State);
-        Assert.True(membersEntry.IsModified);
-        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "1", "2", "3" }, membersEntry.OriginalValue);
+            Assert.Equal(
+                CoreStrings.OriginalValueNotTracked(membersEntry.Metadata.Name, membersEntry.Metadata.DeclaringType.DisplayName()),
+                Assert.Throws<InvalidOperationException>(() => membersEntry.OriginalValue = new List<string>()).Message);
+        }
+        else
+        {
+            membersEntry.OriginalValue = new List<string>
+            {
+                "1",
+                "2",
+                "3"
+            };
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(membersEntry.IsModified);
+            Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.CurrentValue);
+            Assert.Equal(new[] { "1", "2", "3" }, membersEntry.OriginalValue);
 
-        var dayEntry = entry.ComplexProperty("LunchtimeActivity").Property("Day");
-        dayEntry.OriginalValue = DayOfWeek.Wednesday;
-        Assert.Equal(EntityState.Modified, entry.State);
-        Assert.True(dayEntry.IsModified);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Wednesday, dayEntry.OriginalValue);
+            var dayEntry = entry.ComplexProperty("LunchtimeActivity").Property("Day");
+            dayEntry.OriginalValue = DayOfWeek.Wednesday;
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(dayEntry.IsModified);
+            Assert.Equal(DayOfWeek.Monday, dayEntry.CurrentValue);
+            Assert.Equal(DayOfWeek.Wednesday, dayEntry.OriginalValue);
 
-        var coverChargeEntry = entry.ComplexProperty("EveningActivity").Property("CoverCharge");
-        coverChargeEntry.OriginalValue = 3.0m;
-        Assert.Equal(EntityState.Modified, entry.State);
-        Assert.True(coverChargeEntry.IsModified);
-        Assert.Equal(5.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(3.0m, coverChargeEntry.OriginalValue);
+            var coverChargeEntry = entry.ComplexProperty("EveningActivity").Property("CoverCharge");
+            coverChargeEntry.OriginalValue = 3.0m;
+            Assert.Equal(EntityState.Modified, entry.State);
+            Assert.True(coverChargeEntry.IsModified);
+            Assert.Equal(5.0m, coverChargeEntry.CurrentValue);
+            Assert.Equal(3.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
     [ConditionalTheory]
@@ -435,7 +459,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Detect_changes_in_complex_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
-        var pub = CreatePub();
+        var pub = CreatePub(context);
 
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
@@ -452,28 +476,62 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var membersEntry = entry.ComplexProperty(e => e.EveningActivity).ComplexProperty(e => e.Champions).Property(e => e.Members);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            membersEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+        }
 
         pub.LunchtimeActivity.Day = DayOfWeek.Wednesday;
         context.ChangeTracker.DetectChanges();
 
         var dayEntry = entry.ComplexProperty(e => e.LunchtimeActivity).Property(e => e.Day);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            dayEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(dayEntry.IsModified);
         Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+        }
 
         pub.EveningActivity.CoverCharge = 3.0m;
         context.ChangeTracker.DetectChanges();
 
         var coverChargeEntry = entry.ComplexProperty(e => e.EveningActivity).Property(e => e.CoverCharge);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            coverChargeEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(coverChargeEntry.IsModified);
         Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
     [ConditionalTheory]
@@ -483,7 +541,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     {
         using var context = CreateContext();
 
-        var yogurt = CreateYogurt(nullMilk: true);
+        var yogurt = CreateYogurt(context, nullMilk: true);
         var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
         entry.State = EntityState.Unchanged;
         context.ChangeTracker.DetectChanges();
@@ -502,7 +560,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     {
         using var context = CreateContext();
 
-        var yogurt = CreateYogurt(nullManufacturer: true);
+        var yogurt = CreateYogurt(context, nullManufacturer: true);
         var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
         entry.State = EntityState.Unchanged;
         context.ChangeTracker.DetectChanges();
@@ -521,7 +579,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     {
         using var context = CreateContext();
 
-        var yogurt = CreateYogurt(nullTag: true);
+        var yogurt = CreateYogurt(context, nullTag: true);
         var entry = async ? await context.AddAsync(yogurt) : context.Add(yogurt);
         entry.State = EntityState.Unchanged;
         context.ChangeTracker.DetectChanges();
@@ -539,7 +597,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Detect_changes_in_complex_struct_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
-        var pub = CreatePubWithStructs();
+        var pub = CreatePubWithStructs(context);
 
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
@@ -561,10 +619,22 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var membersEntry = entry.ComplexProperty(e => e.EveningActivity).ComplexProperty(e => e.Champions).Property(e => e.Members);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            membersEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+        }
 
         var lunchtimeActivity = pub.LunchtimeActivity;
         lunchtimeActivity.Day = DayOfWeek.Wednesday;
@@ -573,10 +643,21 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var dayEntry = entry.ComplexProperty(e => e.LunchtimeActivity).Property(e => e.Day);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            dayEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(dayEntry.IsModified);
         Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+        }
 
         eveningActivity = pub.EveningActivity;
         eveningActivity.CoverCharge = 3.0m;
@@ -585,10 +666,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var coverChargeEntry = entry.ComplexProperty(e => e.EveningActivity).Property(e => e.CoverCharge);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            coverChargeEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(coverChargeEntry.IsModified);
         Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
     [ConditionalTheory]
@@ -597,7 +688,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Detects_changes_in_complex_readonly_struct_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
-        var pub = CreatePubWithReadonlyStructs();
+        var pub = CreatePubWithReadonlyStructs(context);
 
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
@@ -629,10 +720,22 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var membersEntry = entry.ComplexProperty(e => e.EveningActivity).ComplexProperty(e => e.Champions).Property(e => e.Members);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            membersEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+        }
 
         pub.LunchtimeActivity = new ActivityReadonlyStruct
         {
@@ -667,10 +770,21 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var dayEntry = entry.ComplexProperty(e => e.LunchtimeActivity).Property(e => e.Day);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            dayEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(dayEntry.IsModified);
         Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+        }
 
         pub.EveningActivity = new ActivityReadonlyStruct
         {
@@ -696,10 +810,21 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var coverChargeEntry = entry.ComplexProperty(e => e.EveningActivity).Property(e => e.CoverCharge);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            coverChargeEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(coverChargeEntry.IsModified);
         Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
     [ConditionalTheory]
@@ -708,7 +833,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
     public virtual void Detects_changes_in_complex_record_type_properties(bool trackFromQuery)
     {
         using var context = CreateContext();
-        var pub = CreatePubWithRecords();
+        var pub = CreatePubWithRecords(context);
 
         var entry = trackFromQuery ? TrackFromQuery(context, pub) : context.Attach(pub);
 
@@ -732,28 +857,62 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         context.ChangeTracker.DetectChanges();
 
         var membersEntry = entry.ComplexProperty(e => e.EveningActivity).ComplexProperty(e => e.Champions).Property(e => e.Members);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            Assert.Equal(EntityState.Unchanged, entry.State);
+            membersEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(membersEntry.IsModified);
         Assert.Equal(new[] { "1", "2", "3" }, membersEntry.CurrentValue);
-        Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(new[] { "Robert", "Jimmy", "John", "Jason" }, membersEntry.OriginalValue);
+        }
 
         pub.LunchtimeActivity = pub.LunchtimeActivity with { Day = DayOfWeek.Wednesday };
         context.ChangeTracker.DetectChanges();
 
         var dayEntry = entry.ComplexProperty(e => e.LunchtimeActivity).Property(e => e.Day);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            dayEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(dayEntry.IsModified);
         Assert.Equal(DayOfWeek.Wednesday, dayEntry.CurrentValue);
-        Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(DayOfWeek.Monday, dayEntry.OriginalValue);
+        }
 
         pub.EveningActivity = pub.EveningActivity with { CoverCharge = 3.0m };
         context.ChangeTracker.DetectChanges();
 
         var coverChargeEntry = entry.ComplexProperty(e => e.EveningActivity).Property(e => e.CoverCharge);
+
+        if (Fixture.UseProxies)
+        {
+            // Mutating complex types does not result in notifications
+            coverChargeEntry.IsModified = true;
+        }
+
         Assert.Equal(EntityState.Modified, entry.State);
         Assert.True(coverChargeEntry.IsModified);
         Assert.Equal(3.0m, coverChargeEntry.CurrentValue);
-        Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+
+        if (!Fixture.UseProxies)
+        {
+            Assert.Equal(5.0m, coverChargeEntry.OriginalValue);
+        }
     }
 
     protected void AssertPropertyValues(EntityEntry entry)
@@ -872,6 +1031,9 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         protected override string StoreName
             => "ComplexTypesTrackingTest";
 
+        public virtual bool UseProxies
+            => false;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<Pub>(
@@ -950,82 +1112,85 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                     b.ComplexProperty(e => e.FeaturedTeam);
                 });
 
-            modelBuilder.Entity<FieldPub>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.LunchtimeActivity, b =>
-                        {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
-                        });
-                    b.ComplexProperty(
-                        e => e.EveningActivity, b =>
-                        {
-                            b.ComplexProperty(e => e.Champions);
-                            b.ComplexProperty(e => e.RunnersUp);
-                        });
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                });
+            if (!UseProxies)
+            {
+                modelBuilder.Entity<FieldPub>(
+                    b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.LunchtimeActivity, b =>
+                            {
+                                b.ComplexProperty(e => e!.Champions);
+                                b.ComplexProperty(e => e!.RunnersUp);
+                            });
+                        b.ComplexProperty(
+                            e => e.EveningActivity, b =>
+                            {
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
 
-            modelBuilder.Entity<FieldPubWithStructs>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.LunchtimeActivity, b =>
-                        {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
-                        });
-                    b.ComplexProperty(
-                        e => e.EveningActivity, b =>
-                        {
-                            b.ComplexProperty(e => e.Champions);
-                            b.ComplexProperty(e => e.RunnersUp);
-                        });
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                });
+                modelBuilder.Entity<FieldPubWithStructs>(
+                    b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.LunchtimeActivity, b =>
+                            {
+                                b.ComplexProperty(e => e!.Champions);
+                                b.ComplexProperty(e => e!.RunnersUp);
+                            });
+                        b.ComplexProperty(
+                            e => e.EveningActivity, b =>
+                            {
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
 
-            // TODO: Allow binding of complex properties to constructors
-            // modelBuilder.Entity<FieldPubWithReadonlyStructs>(
-            //     b =>
-            //     {
-            //         b.ComplexProperty(
-            //             e => e.LunchtimeActivity, b =>
-            //             {
-            //                 b.ComplexProperty(e => e!.Champions);
-            //                 b.ComplexProperty(e => e!.RunnersUp);
-            //             });
-            //         b.ComplexProperty(
-            //             e => e.EveningActivity, b =>
-            //             {
-            //                 b.ComplexProperty(e => e.Champions);
-            //                 b.ComplexProperty(e => e.RunnersUp);
-            //             });
-            //         b.ComplexProperty(e => e.FeaturedTeam);
-            //         b.ComplexProperty(e => e.FeaturedTeam);
-            //     });
+                // TODO: Allow binding of complex properties to constructors
+                // modelBuilder.Entity<FieldPubWithReadonlyStructs>(
+                //     b =>
+                //     {
+                //         b.ComplexProperty(
+                //             e => e.LunchtimeActivity, b =>
+                //             {
+                //                 b.ComplexProperty(e => e!.Champions);
+                //                 b.ComplexProperty(e => e!.RunnersUp);
+                //             });
+                //         b.ComplexProperty(
+                //             e => e.EveningActivity, b =>
+                //             {
+                //                 b.ComplexProperty(e => e.Champions);
+                //                 b.ComplexProperty(e => e.RunnersUp);
+                //             });
+                //         b.ComplexProperty(e => e.FeaturedTeam);
+                //         b.ComplexProperty(e => e.FeaturedTeam);
+                //     });
 
-            modelBuilder.Entity<FieldPubWithRecords>(
-                b =>
-                {
-                    b.ComplexProperty(
-                        e => e.LunchtimeActivity, b =>
-                        {
-                            b.ComplexProperty(e => e!.Champions);
-                            b.ComplexProperty(e => e!.RunnersUp);
-                        });
-                    b.ComplexProperty(
-                        e => e.EveningActivity, b =>
-                        {
-                            b.ComplexProperty(e => e.Champions);
-                            b.ComplexProperty(e => e.RunnersUp);
-                        });
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                    b.ComplexProperty(e => e.FeaturedTeam);
-                });
+                modelBuilder.Entity<FieldPubWithRecords>(
+                    b =>
+                    {
+                        b.ComplexProperty(
+                            e => e.LunchtimeActivity, b =>
+                            {
+                                b.ComplexProperty(e => e!.Champions);
+                                b.ComplexProperty(e => e!.RunnersUp);
+                            });
+                        b.ComplexProperty(
+                            e => e.EveningActivity, b =>
+                            {
+                                b.ComplexProperty(e => e.Champions);
+                                b.ComplexProperty(e => e.RunnersUp);
+                            });
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                        b.ComplexProperty(e => e.FeaturedTeam);
+                    });
+            }
 
             modelBuilder.Entity<Yogurt>(
                 b =>
@@ -1067,80 +1232,88 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         }
     }
 
-    protected static Pub CreatePub(bool nullActivity = false, bool nullChampions = false, bool nullRunnersUp = false)
-        => new()
-        {
-            Id = Guid.NewGuid(),
-            Name = "The FBI",
-            LunchtimeActivity = nullActivity
-                ? null!
-                : new Activity
-                {
-                    Name = "Pub Quiz",
-                    Day = DayOfWeek.Monday,
-                    Description = "A general knowledge pub quiz.",
-                    Notes = new[] { "One", "Two", "Three" },
-                    CoverCharge = 2.0m,
-                    IsTeamBased = true,
-                    Champions = nullChampions
-                        ? null!
-                        : new Team
-                        {
-                            Name = "Clueless",
-                            Members =
-                            {
-                                "Boris",
-                                "David",
-                                "Theresa"
-                            }
-                        },
-                    RunnersUp = nullRunnersUp
-                        ? null!
-                        : new Team
-                        {
-                            Name = "ZZ",
-                            Members =
-                            {
-                                "Has Beard",
-                                "Has Beard",
-                                "Is Called Beard"
-                            }
-                        },
-                },
-            EveningActivity = new Activity
+    protected Pub CreatePub(DbContext context, bool nullActivity = false, bool nullChampions = false, bool nullRunnersUp = false)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<Pub>()
+            : new Pub();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.LunchtimeActivity = nullActivity
+            ? null!
+            : new Activity
             {
-                Name = "Music Quiz",
-                Day = DayOfWeek.Friday,
-                Description = "A music pub quiz.",
-                Notes = Array.Empty<string>(),
-                CoverCharge = 5.0m,
+                Name = "Pub Quiz",
+                Day = DayOfWeek.Monday,
+                Description = "A general knowledge pub quiz.",
+                Notes = new[] { "One", "Two", "Three" },
+                CoverCharge = 2.0m,
                 IsTeamBased = true,
-                Champions = new Team
-                {
-                    Name = "Dazed and Confused",
-                    Members =
+                Champions = nullChampions
+                    ? null!
+                    : new Team
                     {
-                        "Robert",
-                        "Jimmy",
-                        "John",
-                        "Jason"
-                    }
-                },
-                RunnersUp = new Team { Name = "Banksy", Members = new List<string>() },
+                        Name = "Clueless",
+                        Members =
+                        {
+                            "Boris",
+                            "David",
+                            "Theresa"
+                        }
+                    },
+                RunnersUp = nullRunnersUp
+                    ? null!
+                    : new Team
+                    {
+                        Name = "ZZ",
+                        Members =
+                        {
+                            "Has Beard",
+                            "Has Beard",
+                            "Is Called Beard"
+                        }
+                    },
+            };
+
+        pub.EveningActivity = new Activity
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = Array.Empty<string>(),
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Champions = new Team
+            {
+                Name = "Dazed and Confused",
+                Members =
+                {
+                    "Robert",
+                    "Jimmy",
+                    "John",
+                    "Jason"
+                }
             },
-            FeaturedTeam = new Team { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } }
+            RunnersUp = new Team { Name = "Banksy", Members = new List<string>() },
         };
 
-    protected class Pub
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public Activity LunchtimeActivity { get; set; } = null!;
-        public Activity EveningActivity { get; set; } = null!;
-        public Team FeaturedTeam { get; set; } = null!;
+        pub.FeaturedTeam = new Team { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } };
+
+        return pub;
     }
 
-    protected class Activity
+    public class Pub
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual Activity LunchtimeActivity { get; set; } = null!;
+        public virtual Activity EveningActivity { get; set; } = null!;
+        public virtual Team FeaturedTeam { get; set; } = null!;
+    }
+
+    public class Activity
     {
         public string Name { get; set; } = null!;
         public decimal? CoverCharge { get; set; }
@@ -1152,80 +1325,88 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public Team RunnersUp { get; set; } = null!;
     }
 
-    protected class Team
+    public class Team
     {
         public string Name { get; set; } = null!;
         public List<string> Members { get; set; } = new();
     }
 
-    protected static PubWithStructs CreatePubWithStructs()
-        => new()
+    protected PubWithStructs CreatePubWithStructs(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithStructs>()
+            : new PubWithStructs();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.LunchtimeActivity = new ActivityStruct
         {
-            Id = Guid.NewGuid(),
-            Name = "The FBI",
-            LunchtimeActivity = new ActivityStruct
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = new[] { "One", "Two", "Three" },
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Champions = new TeamStruct
             {
-                Name = "Pub Quiz",
-                Day = DayOfWeek.Monday,
-                Description = "A general knowledge pub quiz.",
-                Notes = new[] { "One", "Two", "Three" },
-                CoverCharge = 2.0m,
-                IsTeamBased = true,
-                Champions = new TeamStruct
+                Name = "Clueless",
+                Members = new List<string>
                 {
-                    Name = "Clueless",
-                    Members = new List<string>
-                    {
-                        "Boris",
-                        "David",
-                        "Theresa"
-                    }
-                },
-                RunnersUp = new TeamStruct
-                {
-                    Name = "ZZ",
-                    Members = new List<string>
-                    {
-                        "Has Beard",
-                        "Has Beard",
-                        "Is Called Beard"
-                    }
-                },
+                    "Boris",
+                    "David",
+                    "Theresa"
+                }
             },
-            EveningActivity = new ActivityStruct
+            RunnersUp = new TeamStruct
             {
-                Name = "Music Quiz",
-                Day = DayOfWeek.Friday,
-                Description = "A music pub quiz.",
-                Notes = Array.Empty<string>(),
-                CoverCharge = 5.0m,
-                IsTeamBased = true,
-                Champions = new TeamStruct
+                Name = "ZZ",
+                Members = new List<string>
                 {
-                    Name = "Dazed and Confused",
-                    Members = new List<string>
-                    {
-                        "Robert",
-                        "Jimmy",
-                        "John",
-                        "Jason"
-                    }
-                },
-                RunnersUp = new TeamStruct { Name = "Banksy", Members = new List<string>() }
+                    "Has Beard",
+                    "Has Beard",
+                    "Is Called Beard"
+                }
             },
-            FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
-    protected class PubWithStructs
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public ActivityStruct LunchtimeActivity { get; set; }
-        public ActivityStruct EveningActivity { get; set; }
-        public TeamStruct FeaturedTeam { get; set; }
+        pub.EveningActivity = new ActivityStruct
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = Array.Empty<string>(),
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Champions = new TeamStruct
+            {
+                Name = "Dazed and Confused",
+                Members = new List<string>
+                {
+                    "Robert",
+                    "Jimmy",
+                    "John",
+                    "Jason"
+                }
+            },
+            RunnersUp = new TeamStruct { Name = "Banksy", Members = new List<string>() }
+        };
+
+        pub.FeaturedTeam = new TeamStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } };
+
+        return pub;
     }
 
-    protected struct ActivityStruct
+    public class PubWithStructs
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityStruct LunchtimeActivity { get; set; }
+        public virtual ActivityStruct EveningActivity { get; set; }
+        public virtual TeamStruct FeaturedTeam { get; set; }
+    }
+
+    public struct ActivityStruct
     {
         public string Name { get; set; }
         public decimal? CoverCharge { get; set; }
@@ -1237,80 +1418,88 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public TeamStruct RunnersUp { get; set; }
     }
 
-    protected struct TeamStruct
+    public struct TeamStruct
     {
         public string Name { get; set; }
         public List<string> Members { get; set; }
     }
 
-    protected static PubWithReadonlyStructs CreatePubWithReadonlyStructs()
-        => new()
+    protected PubWithReadonlyStructs CreatePubWithReadonlyStructs(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithReadonlyStructs>()
+            : new PubWithReadonlyStructs();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.LunchtimeActivity = new ActivityReadonlyStruct
         {
-            Id = Guid.NewGuid(),
-            Name = "The FBI",
-            LunchtimeActivity = new ActivityReadonlyStruct
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = new[] { "One", "Two", "Three" },
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Champions = new TeamReadonlyStruct
             {
-                Name = "Pub Quiz",
-                Day = DayOfWeek.Monday,
-                Description = "A general knowledge pub quiz.",
-                Notes = new[] { "One", "Two", "Three" },
-                CoverCharge = 2.0m,
-                IsTeamBased = true,
-                Champions = new TeamReadonlyStruct
+                Name = "Clueless",
+                Members = new List<string>
                 {
-                    Name = "Clueless",
-                    Members = new List<string>
-                    {
-                        "Boris",
-                        "David",
-                        "Theresa"
-                    }
-                },
-                RunnersUp = new TeamReadonlyStruct
-                {
-                    Name = "ZZ",
-                    Members = new List<string>
-                    {
-                        "Has Beard",
-                        "Has Beard",
-                        "Is Called Beard"
-                    }
-                },
+                    "Boris",
+                    "David",
+                    "Theresa"
+                }
             },
-            EveningActivity = new ActivityReadonlyStruct
+            RunnersUp = new TeamReadonlyStruct
             {
-                Name = "Music Quiz",
-                Day = DayOfWeek.Friday,
-                Description = "A music pub quiz.",
-                Notes = Array.Empty<string>(),
-                CoverCharge = 5.0m,
-                IsTeamBased = true,
-                Champions = new TeamReadonlyStruct
+                Name = "ZZ",
+                Members = new List<string>
                 {
-                    Name = "Dazed and Confused",
-                    Members = new List<string>
-                    {
-                        "Robert",
-                        "Jimmy",
-                        "John",
-                        "Jason"
-                    }
-                },
-                RunnersUp = new TeamReadonlyStruct { Name = "Banksy", Members = new List<string>() }
+                    "Has Beard",
+                    "Has Beard",
+                    "Is Called Beard"
+                }
             },
-            FeaturedTeam = new TeamReadonlyStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
-    protected class PubWithReadonlyStructs
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public ActivityReadonlyStruct LunchtimeActivity { get; set; }
-        public ActivityReadonlyStruct EveningActivity { get; set; }
-        public TeamReadonlyStruct FeaturedTeam { get; set; }
+        pub.EveningActivity = new ActivityReadonlyStruct
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = Array.Empty<string>(),
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Champions = new TeamReadonlyStruct
+            {
+                Name = "Dazed and Confused",
+                Members = new List<string>
+                {
+                    "Robert",
+                    "Jimmy",
+                    "John",
+                    "Jason"
+                }
+            },
+            RunnersUp = new TeamReadonlyStruct { Name = "Banksy", Members = new List<string>() }
+        };
+
+        pub.FeaturedTeam = new TeamReadonlyStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } };
+
+        return pub;
     }
 
-    protected readonly struct ActivityReadonlyStruct
+    public class PubWithReadonlyStructs
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityReadonlyStruct LunchtimeActivity { get; set; }
+        public virtual ActivityReadonlyStruct EveningActivity { get; set; }
+        public virtual TeamReadonlyStruct FeaturedTeam { get; set; }
+    }
+
+    public readonly struct ActivityReadonlyStruct
     {
         public string Name { get; init; }
         public decimal? CoverCharge { get; init; }
@@ -1322,80 +1511,88 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public TeamReadonlyStruct RunnersUp { get; init; }
     }
 
-    protected readonly struct TeamReadonlyStruct
+    public readonly struct TeamReadonlyStruct
     {
         public string Name { get; init; }
         public List<string> Members { get; init; }
     }
 
-    protected static PubWithRecords CreatePubWithRecords()
-        => new()
+    public PubWithRecords CreatePubWithRecords(DbContext context)
+    {
+        var pub = Fixture.UseProxies
+            ? context.CreateProxy<PubWithRecords>()
+            : new PubWithRecords();
+
+        pub.Id = Guid.NewGuid();
+        pub.Name = "The FBI";
+
+        pub.LunchtimeActivity = new ActivityRecord
         {
-            Id = Guid.NewGuid(),
-            Name = "The FBI",
-            LunchtimeActivity = new ActivityRecord
+            Name = "Pub Quiz",
+            Day = DayOfWeek.Monday,
+            Description = "A general knowledge pub quiz.",
+            Notes = new[] { "One", "Two", "Three" },
+            CoverCharge = 2.0m,
+            IsTeamBased = true,
+            Champions = new TeamRecord
             {
-                Name = "Pub Quiz",
-                Day = DayOfWeek.Monday,
-                Description = "A general knowledge pub quiz.",
-                Notes = new[] { "One", "Two", "Three" },
-                CoverCharge = 2.0m,
-                IsTeamBased = true,
-                Champions = new TeamRecord
+                Name = "Clueless",
+                Members = new List<string>
                 {
-                    Name = "Clueless",
-                    Members = new List<string>
-                    {
-                        "Boris",
-                        "David",
-                        "Theresa"
-                    }
-                },
-                RunnersUp = new TeamRecord
-                {
-                    Name = "ZZ",
-                    Members = new List<string>
-                    {
-                        "Has Beard",
-                        "Has Beard",
-                        "Is Called Beard"
-                    }
-                },
+                    "Boris",
+                    "David",
+                    "Theresa"
+                }
             },
-            EveningActivity = new ActivityRecord
+            RunnersUp = new TeamRecord
             {
-                Name = "Music Quiz",
-                Day = DayOfWeek.Friday,
-                Description = "A music pub quiz.",
-                Notes = Array.Empty<string>(),
-                CoverCharge = 5.0m,
-                IsTeamBased = true,
-                Champions = new TeamRecord
+                Name = "ZZ",
+                Members = new List<string>
                 {
-                    Name = "Dazed and Confused",
-                    Members = new List<string>
-                    {
-                        "Robert",
-                        "Jimmy",
-                        "John",
-                        "Jason"
-                    }
-                },
-                RunnersUp = new TeamRecord { Name = "Banksy", Members = new List<string>() }
+                    "Has Beard",
+                    "Has Beard",
+                    "Is Called Beard"
+                }
             },
-            FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
-    protected class PubWithRecords
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
-        public ActivityRecord LunchtimeActivity { get; set; } = null!;
-        public ActivityRecord EveningActivity { get; set; } = null!;
-        public TeamRecord FeaturedTeam { get; set; } = null!;
+        pub.EveningActivity = new ActivityRecord
+        {
+            Name = "Music Quiz",
+            Day = DayOfWeek.Friday,
+            Description = "A music pub quiz.",
+            Notes = Array.Empty<string>(),
+            CoverCharge = 5.0m,
+            IsTeamBased = true,
+            Champions = new TeamRecord
+            {
+                Name = "Dazed and Confused",
+                Members = new List<string>
+                {
+                    "Robert",
+                    "Jimmy",
+                    "John",
+                    "Jason"
+                }
+            },
+            RunnersUp = new TeamRecord { Name = "Banksy", Members = new List<string>() }
+        };
+
+        pub.FeaturedTeam = new TeamRecord { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } };
+
+        return pub;
     }
 
-    protected record ActivityRecord
+    public class PubWithRecords
+    {
+        public virtual Guid Id { get; set; }
+        public virtual string Name { get; set; } = null!;
+        public virtual ActivityRecord LunchtimeActivity { get; set; } = null!;
+        public virtual ActivityRecord EveningActivity { get; set; } = null!;
+        public virtual TeamRecord FeaturedTeam { get; set; } = null!;
+    }
+
+    public record ActivityRecord
     {
         public string Name { get; init; } = null!;
         public decimal? CoverCharge { get; init; }
@@ -1407,13 +1604,13 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public TeamRecord RunnersUp { get; init; } = null!;
     }
 
-    protected record TeamRecord
+    public record TeamRecord
     {
         public string Name { get; init; } = null!;
         public List<string> Members { get; init; } = null!;
     }
 
-    protected static FieldPub CreateFieldPub()
+    protected static FieldPub CreateFieldPub(DbContext context)
         => new()
         {
             Id = Guid.NewGuid(),
@@ -1471,7 +1668,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             FeaturedTeam = new FieldTeam { Name = "Not In This Lifetime", Members = { "Slash", "Axl" } }
         };
 
-    protected class FieldPub
+    public class FieldPub
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
@@ -1480,7 +1677,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeam FeaturedTeam = null!;
     }
 
-    protected class FieldActivity
+    public class FieldActivity
     {
         public string Name = null!;
         public decimal? CoverCharge;
@@ -1492,13 +1689,13 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public Team RunnersUp = null!;
     }
 
-    protected class FieldTeam
+    public class FieldTeam
     {
         public string Name = null!;
         public List<string> Members = new();
     }
 
-    protected static FieldPubWithStructs CreateFieldPubWithStructs()
+    protected static FieldPubWithStructs CreateFieldPubWithStructs(DbContext context)
         => new()
         {
             Id = Guid.NewGuid(),
@@ -1556,7 +1753,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             FeaturedTeam = new FieldTeamStruct { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
-    protected class FieldPubWithStructs
+    public class FieldPubWithStructs
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
@@ -1565,7 +1762,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeamStruct FeaturedTeam;
     }
 
-    protected struct FieldActivityStruct
+    public struct FieldActivityStruct
     {
         public string Name;
         public decimal? CoverCharge;
@@ -1577,13 +1774,13 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeamStruct RunnersUp;
     }
 
-    protected struct FieldTeamStruct
+    public struct FieldTeamStruct
     {
         public string Name;
         public List<string> Members;
     }
 
-    protected static FieldPubWithReadonlyStructs CreateFieldPubWithReadonlyStructs()
+    protected static FieldPubWithReadonlyStructs CreateFieldPubWithReadonlyStructs(DbContext context)
         => new()
         {
             Id = Guid.NewGuid(),
@@ -1618,7 +1815,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             FeaturedTeam = new FieldTeamReadonlyStruct("Not In This Lifetime", new List<string> { "Slash", "Axl" })
         };
 
-    protected class FieldPubWithReadonlyStructs
+    public class FieldPubWithReadonlyStructs
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
@@ -1627,7 +1824,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeamReadonlyStruct FeaturedTeam;
     }
 
-    protected readonly struct FieldActivityReadonlyStruct(
+    public readonly struct FieldActivityReadonlyStruct(
         string name,
         decimal? coverCharge,
         bool isTeamBased,
@@ -1647,13 +1844,13 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public readonly FieldTeamReadonlyStruct RunnersUp = runnersUp;
     }
 
-    protected readonly struct FieldTeamReadonlyStruct(string name, List<string> members)
+    public readonly struct FieldTeamReadonlyStruct(string name, List<string> members)
     {
         public readonly string Name = name;
         public readonly List<string> Members = members;
     }
 
-    protected static FieldPubWithRecords CreateFieldPubWithRecords()
+    protected static FieldPubWithRecords CreateFieldPubWithRecords(DbContext context)
         => new()
         {
             Id = Guid.NewGuid(),
@@ -1711,7 +1908,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
             FeaturedTeam = new FieldTeamRecord { Name = "Not In This Lifetime", Members = new List<string> { "Slash", "Axl" } }
         };
 
-    protected class FieldPubWithRecords
+    public class FieldPubWithRecords
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
@@ -1720,7 +1917,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeamRecord FeaturedTeam = null!;
     }
 
-    protected record FieldActivityRecord
+    public record FieldActivityRecord
     {
         public string Name = null!;
         public decimal? CoverCharge;
@@ -1732,20 +1929,20 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public FieldTeamRecord RunnersUp = null!;
     }
 
-    protected record FieldTeamRecord
+    public record FieldTeamRecord
     {
         public string Name = null!;
         public List<string> Members = null!;
     }
 
-    protected class Yogurt
+    public class Yogurt
     {
-        public Guid Id { get; set; }
-        public Culture Culture { get; set; }
-        public Milk Milk { get; set; } = null!;
+        public virtual Guid Id { get; set; }
+        public virtual Culture Culture { get; set; }
+        public virtual Milk Milk { get; set; } = null!;
     }
 
-    protected struct Culture
+    public struct Culture
     {
         public string Species { get; set; }
         public string? Subspecies { get; set; }
@@ -1755,7 +1952,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public License License { get; set; }
     }
 
-    protected class Milk
+    public class Milk
     {
         public string Species { get; set; } = null!;
         public string? Subspecies { get; set; }
@@ -1765,7 +1962,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public License License { get; set; }
     }
 
-    protected class Manufacturer
+    public class Manufacturer
     {
         public string? Name { get; set; }
         public int Rating { get; set; }
@@ -1773,7 +1970,7 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public Tog Tog { get; set; }
     }
 
-    protected struct License
+    public struct License
     {
         public string Title { get; set; }
         public decimal Charge { get; set; }
@@ -1781,21 +1978,50 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
         public Tog Tog { get; set; }
     }
 
-    protected class Tag
+    public class Tag
     {
         public string? Text { get; set; }
     }
 
-    protected struct Tog
+    public struct Tog
     {
         public string? Text { get; set; }
     }
 
-    protected static Yogurt CreateYogurt(bool nullMilk = false, bool nullManufacturer = false, bool nullTag = false)
-        => new()
+    protected Yogurt CreateYogurt(DbContext context, bool nullMilk = false, bool nullManufacturer = false, bool nullTag = false)
+    {
+        var yogurt = Fixture.UseProxies
+            ? context.CreateProxy<Yogurt>()
+            : new Yogurt();
+
+        yogurt.Id = Guid.NewGuid();
+
+        yogurt.Culture = new Culture
         {
-            Id = Guid.NewGuid(),
-            Culture = new Culture
+            License = new License
+            {
+                Charge = 1.0m,
+                Tag = nullTag ? null! : new Tag { Text = "Ta1" },
+                Title = "Ti1",
+                Tog = new Tog { Text = "To1" }
+            },
+            Manufacturer = nullManufacturer
+                ? null!
+                : new Manufacturer
+                {
+                    Name = "M1",
+                    Rating = 7,
+                    Tag = nullTag ? null! : new Tag { Text = "Ta2" },
+                    Tog = new Tog { Text = "To2" }
+                },
+            Rating = 8,
+            Species = "S1",
+            Validation = false
+        };
+
+        yogurt.Milk = nullMilk
+            ? null!
+            : new Milk
             {
                 License = new License
                 {
@@ -1816,30 +2042,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
                 Rating = 8,
                 Species = "S1",
                 Validation = false
-            },
-            Milk = nullMilk
-                ? null!
-                : new Milk
-                {
-                    License = new License
-                    {
-                        Charge = 1.0m,
-                        Tag = nullTag ? null! : new Tag { Text = "Ta1" },
-                        Title = "Ti1",
-                        Tog = new Tog { Text = "To1" }
-                    },
-                    Manufacturer = nullManufacturer
-                        ? null!
-                        : new Manufacturer
-                        {
-                            Name = "M1",
-                            Rating = 7,
-                            Tag = nullTag ? null! : new Tag { Text = "Ta2" },
-                            Tog = new Tog { Text = "To2" }
-                        },
-                    Rating = 8,
-                    Species = "S1",
-                    Validation = false
-                }
-        };
+            };
+
+        return yogurt;
+    }
 }
