@@ -1,12 +1,124 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
-public class StringToNumberConverterTest
+public class StringToNumberConverterTest : StringNumberConverterTestBase
 {
+    private static readonly StringToNumberConverter<UInt128> _naturalStringToUInt128 = new();
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_UInt128()
+    {
+        var converter = _naturalStringToUInt128.ConvertToProviderExpression.Compile();
+
+        Can_convert_natural_strings_to_uint(converter);
+
+        Assert.Throws<ArgumentNullException>(() => converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_UInt128_object()
+    {
+        var converter = _naturalStringToUInt128.ConvertToProvider;
+
+        Can_convert_natural_strings_to_uint((string value) => (UInt128)converter(value));
+
+        Assert.Null(converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_UInt128_to_natural_strings()
+        => Can_convert_uint_to_natural_strings(
+            _naturalStringToUInt128.ConvertFromProviderExpression.Compile());
+
+    [ConditionalFact]
+    public void Can_convert_UInt128_to_natural_strings_object()
+    {
+        var converter = _naturalStringToUInt128.ConvertFromProvider;
+
+        Can_convert_uint_to_natural_strings((UInt128 value) => (string)converter(value));
+
+        Assert.Null(converter(null));
+    }
+
+    private static readonly StringToNumberConverter<Int128> _naturalStringToInt128 = new();
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_Int128()
+    {
+        var converter = _naturalStringToInt128.ConvertToProviderExpression.Compile();
+
+        Can_convert_natural_strings_to_int(converter);
+
+        Assert.Throws<ArgumentNullException>(() => converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_Int128_object()
+    {
+        var converter = _naturalStringToInt128.ConvertToProvider;
+
+        Can_convert_natural_strings_to_int((string value) => (Int128)converter(value));
+
+        Assert.Null(converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_Int128_to_natural_strings() =>
+        Can_convert_int_to_natural_strings(
+            _naturalStringToInt128.ConvertFromProviderExpression.Compile());
+
+    [ConditionalFact]
+    public void Can_convert_Int128_to_natural_strings_object()
+    {
+        var converter = _naturalStringToInt128.ConvertFromProvider;
+
+        Can_convert_int_to_natural_strings((Int128 value) => (string)converter(value));
+
+        Assert.Null(converter(null));
+    }
+
+    private static readonly StringToNumberConverter<BigInteger> _naturalStringToBigInteger = new();
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_BigInteger()
+    {
+        var converter = _naturalStringToBigInteger.ConvertToProviderExpression.Compile();
+
+        Can_convert_natural_strings_to_BigInteger(converter);
+
+        Assert.Throws<ArgumentNullException>(() => converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_natural_strings_to_BigInteger_object()
+    {
+        var converter = _naturalStringToBigInteger.ConvertToProvider;
+
+        Can_convert_natural_strings_to_BigInteger((string value) => (BigInteger)converter(value));
+
+        Assert.Null(converter(null));
+    }
+
+    [ConditionalFact]
+    public void Can_convert_BigInteger_to_natural_strings()
+        => Can_convert_BigInteger_to_natural_strings(
+            _naturalStringToBigInteger.ConvertFromProviderExpression.Compile());
+
+    [ConditionalFact]
+    public void Can_convert_BigInteger_to_natural_strings_object()
+    {
+        var converter = _naturalStringToBigInteger.ConvertFromProvider;
+
+        Can_convert_BigInteger_to_natural_strings((BigInteger value) => converter(value).ToString());
+
+        Assert.Null(converter(null));
+    }
+
     private static readonly StringToNumberConverter<ulong> _naturalStringToUlong = new();
 
     [ConditionalFact]
@@ -633,7 +745,7 @@ public class StringToNumberConverterTest
             CoreStrings.ConverterBadType(
                 typeof(StringNumberConverter<string, Guid, Guid>).ShortDisplayName(),
                 "Guid",
-                "'int', 'long', 'short', 'byte', 'uint', 'ulong', 'ushort', 'sbyte', 'decimal', 'float', 'double'"),
+                "'int', 'long', 'Int128', 'BigInteger', 'short', 'byte', 'uint', 'ulong', 'UInt128', 'ushort', 'sbyte', 'decimal', 'float', 'double'"),
             Assert.Throws<InvalidOperationException>(
                 () => new StringToNumberConverter<Guid>()).Message);
 }
