@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.Numerics;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class ValueConvertersEndToEndSqliteTest
@@ -157,6 +159,56 @@ public class ValueConvertersEndToEndSqliteTest
         Assert.Equal(isNullable, property!.IsNullable);
     }
 
+    [ConditionalTheory]
+    [InlineData(nameof(SqliteBigIntegersEntity.Id), "TEXT", false)]
+    [InlineData(nameof(SqliteBigIntegersEntity.Int128ToString), "TEXT", false)]
+    [InlineData(nameof(SqliteBigIntegersEntity.UInt128ToString), "TEXT", false)]
+    public void Big_integers_mapped_to_text_columns_and_has_converter(
+        string propertyName,
+        string databaseType,
+        bool isNullable)
+    {
+        using var context = CreateContext();
+
+        var property = context.Model.FindEntityType(typeof(SqliteBigIntegersEntity))!.FindProperty(propertyName)!;
+
+        var converter = property.GetValueConverter();
+
+        Assert.NotNull(converter);
+        Assert.Contains("NumberToStringConverter", converter.GetType().ToString());
+        Assert.Equal(databaseType, property!.GetColumnType());
+        Assert.Equal(isNullable, property.IsNullable);
+    }
+
+    [Fact]
+    public void Can_read_and_search_big_integers()
+    {
+        Fixture.ListLoggerFactory.Clear();
+
+        using var context = CreateContext();
+
+        var entity = new SqliteBigIntegersEntity()
+        {
+            Id = BigInteger.Zero,
+            Int128ToString = Int128.MaxValue,
+            UInt128ToString = UInt128.MaxValue,
+        };
+
+        context.Set<SqliteBigIntegersEntity>().Add(entity);
+
+        Assert.Equal(1, context.SaveChanges());
+        Assert.Equal(1, context.Set<SqliteBigIntegersEntity>()
+            .Where(e => e.Id == BigInteger.Zero)
+            .Count());
+    }
+
+    protected class SqliteBigIntegersEntity
+    {
+        public BigInteger Id { get; set; }
+        public Int128 Int128ToString { get; set; }
+        public UInt128 UInt128ToString { get; set; }
+    }
+
     public class ValueConvertersEndToEndSqliteFixture : ValueConvertersEndToEndFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -173,6 +225,14 @@ public class ValueConvertersEndToEndSqliteTest
                     b.Property(e => e.ListOfInt).HasDefaultValue(new List<int>());
                     b.Property(e => e.NullableEnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
                     b.Property(e => e.EnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                });
+
+            modelBuilder.Entity<SqliteBigIntegersEntity>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasConversion(new NumberToStringConverter<BigInteger>());
+                    b.Property(e => e.Int128ToString).HasConversion(new NumberToStringConverter<Int128>());
+                    b.Property(e => e.UInt128ToString).HasConversion(new NumberToStringConverter<UInt128>());
                 });
         }
     }
