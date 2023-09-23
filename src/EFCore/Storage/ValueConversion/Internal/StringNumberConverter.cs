@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Globalization;
+using System.Numerics;
 
 namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 
@@ -49,8 +50,8 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
         CheckTypeSupported(
             type,
             typeof(StringNumberConverter<TModel, TProvider, TNumber>),
-            typeof(int), typeof(long), typeof(short), typeof(byte),
-            typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
+            typeof(int), typeof(long), typeof(Int128), typeof(BigInteger), typeof(short), typeof(byte),
+            typeof(uint), typeof(ulong), typeof(UInt128), typeof(ushort), typeof(sbyte),
             typeof(decimal), typeof(float), typeof(double));
 
         var parseMethod = type.GetMethod(
@@ -89,8 +90,8 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
         CheckTypeSupported(
             type,
             typeof(StringNumberConverter<TModel, TProvider, TNumber>),
-            typeof(int), typeof(long), typeof(short), typeof(byte),
-            typeof(uint), typeof(ulong), typeof(ushort), typeof(sbyte),
+            typeof(int), typeof(long), typeof(Int128), typeof(BigInteger), typeof(short), typeof(byte),
+            typeof(uint), typeof(ulong), typeof(UInt128), typeof(ushort), typeof(sbyte),
             typeof(decimal), typeof(float), typeof(double));
 
         var formatMethod = typeof(string).GetMethod(
@@ -98,11 +99,18 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
             new[] { typeof(IFormatProvider), typeof(string), typeof(object) })!;
 
         var param = Expression.Parameter(typeof(TNumber), "v");
+        var format = (type == typeof(float) ||
+                      type == typeof(double) ||
+                      type == typeof(Int128) ||
+                      type == typeof(UInt128) ||
+                      type == typeof(BigInteger))
+            ? "{0:R}"
+            : "{0}";
 
         Expression expression = Expression.Call(
             formatMethod,
             Expression.Constant(CultureInfo.InvariantCulture),
-            Expression.Constant(type == typeof(float) || type == typeof(double) ? "{0:R}" : "{0}"),
+            Expression.Constant(format),
             Expression.Convert(param, typeof(object)));
 
         if (typeof(TNumber).IsNullableType())
