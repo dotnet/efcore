@@ -8,6 +8,6 @@ public class OptionalDependentJsonAllOptional
     public string OpProp1 { get; set; }
     public int? OpProp2 { get; set; }
 
-    public OptionalDependentNestedJsonAllOptional OpNested1 { get; set; }
-    public OptionalDependentNestedJsonSomeRequired OpNested2 { get; set; }
+    public OptionalDependentNestedJsonAllOptional OpNav1 { get; set; }
+    public OptionalDependentNestedJsonSomeRequired OpNav2 { get; set; }
 }

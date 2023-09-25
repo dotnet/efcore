@@ -70,14 +70,14 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
         Assert.Equal(expected.OpProp1, actual.OpProp1);
         Assert.Equal(expected.OpProp2, actual.OpProp2);
 
-        if (expected.OpNested1 is not null || actual.OpNested1 is not null)
+        if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
-            AssertOptionalDependentNestedJsonAllOptional(expected.OpNested1, actual.OpNested1);
+            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);
         }
 
-        if (expected.OpNested2 is not null || actual.OpNested2 is not null)
+        if (expected.OpNav2 is not null || actual.OpNav2 is not null)
         {
-            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNested2, actual.OpNested2);
+            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2, actual.OpNav2);
         }
     }
 
@@ -90,18 +90,18 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
         Assert.Equal(expected.ReqProp, actual.ReqProp);
 
 
-        if (expected.OpNested1 is not null || actual.OpNested1 is not null)
+        if (expected.OpNav1 is not null || actual.OpNav1 is not null)
         {
-            AssertOptionalDependentNestedJsonAllOptional(expected.OpNested1, actual.OpNested1);
+            AssertOptionalDependentNestedJsonAllOptional(expected.OpNav1, actual.OpNav1);
         }
 
-        if (expected.OpNested2 is not null || actual.OpNested2 is not null)
+        if (expected.OpNav2 is not null || actual.OpNav2 is not null)
         {
-            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNested2, actual.OpNested2);
+            AssertOptionalDependentNestedJsonSomeRequired(expected.OpNav2, actual.OpNav2);
         }
 
-        AssertOptionalDependentNestedJsonAllOptional(expected.ReqNested1, actual.ReqNested1);
-        AssertOptionalDependentNestedJsonSomeRequired(expected.ReqNested2, actual.ReqNested2);
+        AssertOptionalDependentNestedJsonAllOptional(expected.ReqNav1, actual.ReqNav1);
+        AssertOptionalDependentNestedJsonSomeRequired(expected.ReqNav2, actual.ReqNav2);
     }
 
     public static void AssertOptionalDependentNestedJsonAllOptional(
@@ -143,8 +143,8 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
             {
                 b.ToJson();
 
-                b.OwnsOne(x => x.OpNested1);
-                b.OwnsOne(x => x.OpNested2);
+                b.OwnsOne(x => x.OpNav1);
+                b.OwnsOne(x => x.OpNav2);
             });
 
         modelBuilder.Entity<OptionalDependentEntitySomeRequired>().OwnsOne(
@@ -152,13 +152,13 @@ public abstract class OptionalDependentQueryFixtureBase : SharedStoreFixtureBase
             {
                 b.ToJson();
 
-                b.OwnsOne(x => x.OpNested1);
-                b.OwnsOne(x => x.OpNested2);
+                b.OwnsOne(x => x.OpNav1);
+                b.OwnsOne(x => x.OpNav2);
 
-                b.OwnsOne(x => x.ReqNested1);
-                b.Navigation(x => x.ReqNested1).IsRequired();
-                b.OwnsOne(x => x.ReqNested2);
-                b.Navigation(x => x.ReqNested2).IsRequired();
+                b.OwnsOne(x => x.ReqNav1);
+                b.Navigation(x => x.ReqNav1).IsRequired();
+                b.OwnsOne(x => x.ReqNav2);
+                b.Navigation(x => x.ReqNav2).IsRequired();
             });
     }
 }
