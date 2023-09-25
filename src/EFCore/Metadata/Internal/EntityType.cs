@@ -2937,10 +2937,16 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Property? SetDiscriminatorProperty(Property? property, ConfigurationSource configurationSource)
     {
+        if ((string?)this[CoreAnnotationNames.DiscriminatorProperty] == property?.Name)
+        {
+            return property;
+        }
+
         CheckDiscriminatorProperty(property);
 
-        return ((string?)SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource)?.Value)
-            == property?.Name
+        SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource);
+
+        return Model.ConventionDispatcher.OnDiscriminatorPropertySet(Builder, property?.Name) == property?.Name
                 ? property
                 : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
     }

@@ -126,7 +126,7 @@ public class DiscriminatorConventionTest
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<Entity>();
 
-        new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(string));
+        new EntityTypeBuilder(entityTypeBuilder.Metadata).HasDiscriminator("T", typeof(int));
 
         var baseTypeBuilder = entityTypeBuilder.ModelBuilder.Entity(typeof(EntityBase), ConfigurationSource.Convention);
         entityTypeBuilder.HasBaseType(baseTypeBuilder.Metadata, ConfigurationSource.Convention);

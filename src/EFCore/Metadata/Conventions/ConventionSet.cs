@@ -52,6 +52,11 @@ public class ConventionSet
     public virtual List<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new();
 
     /// <summary>
+    ///     Conventions to run when a discriminator property is set.
+    /// </summary>
+    public virtual List<IDiscriminatorPropertySetConvention> DiscriminatorPropertySetConventions { get; } = new();
+
+    /// <summary>
     ///     Conventions to run when the base entity type is changed.
     /// </summary>
     public virtual List<IEntityTypeBaseTypeChangedConvention> EntityTypeBaseTypeChangedConventions { get; } = new();
@@ -338,6 +343,12 @@ public class ConventionSet
             && !Replace(EntityTypeMemberIgnoredConventions, entityTypeMemberIgnoredConvention, oldConvetionType))
         {
             EntityTypeMemberIgnoredConventions.Add(entityTypeMemberIgnoredConvention);
+        }
+
+        if (newConvention is IDiscriminatorPropertySetConvention discriminatorPropertySetConvention
+            && !Replace(DiscriminatorPropertySetConventions, discriminatorPropertySetConvention, oldConvetionType))
+        {
+            DiscriminatorPropertySetConventions.Add(discriminatorPropertySetConvention);
         }
 
         if (newConvention is IEntityTypeBaseTypeChangedConvention entityTypeBaseTypeChangedConvention
@@ -680,6 +691,11 @@ public class ConventionSet
             EntityTypeMemberIgnoredConventions.Add(entityTypeMemberIgnoredConvention);
         }
 
+        if (convention is IDiscriminatorPropertySetConvention discriminatorPropertySetConvention)
+        {
+            DiscriminatorPropertySetConventions.Add(discriminatorPropertySetConvention);
+        }
+
         if (convention is IEntityTypeBaseTypeChangedConvention entityTypeBaseTypeChangedConvention)
         {
             EntityTypeBaseTypeChangedConventions.Add(entityTypeBaseTypeChangedConvention);
@@ -991,6 +1007,11 @@ public class ConventionSet
         if (typeof(IEntityTypeMemberIgnoredConvention).IsAssignableFrom(conventionType))
         {
             Remove(EntityTypeMemberIgnoredConventions, conventionType);
+        }
+
+        if (typeof(IDiscriminatorPropertySetConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(DiscriminatorPropertySetConventions, conventionType);
         }
 
         if (typeof(IEntityTypeBaseTypeChangedConvention).IsAssignableFrom(conventionType))
