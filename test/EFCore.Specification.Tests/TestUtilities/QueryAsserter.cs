@@ -63,7 +63,6 @@ public class QueryAsserter
         Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
         Expression<Func<ISetSource, TResult>> expectedQuery,
         Action<TResult, TResult> asserter,
-        int entryCount,
         bool async,
         bool filteredQuery = false)
     {
@@ -77,7 +76,6 @@ public class QueryAsserter
         var expected = rewrittenExpectedQueryExpression.Compile()(expectedData);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertQuery<TResult>(
@@ -86,7 +84,7 @@ public class QueryAsserter
         Func<TResult, object> elementSorter,
         Action<TResult, TResult> elementAsserter,
         bool assertOrder,
-        int entryCount,
+        bool assertEmpty,
         bool async,
         string testMethodName,
         bool filteredQuery = false)
@@ -131,7 +129,27 @@ public class QueryAsserter
             elementAsserter,
             assertOrder);
 
-        AssertEntryCount(context, entryCount);
+        AssertResultCount(actual.Count, assertEmpty);
+    }
+
+    private void AssertResultCount(int actualCount, bool assertEmpty)
+    {
+        if (actualCount == 0)
+        {
+            if (!assertEmpty)
+            {
+                throw new InvalidOperationException(
+                    "Query returned no results. If this is expected, set 'assertEmpty' to true in the AssertQuery method.");
+            }
+        }
+        else
+        {
+            if (assertEmpty)
+            {
+                throw new InvalidOperationException(
+                    "Query returned results but 'assertEmpty' is set to false. Either correct the query or set 'assertEmpty' to true in the AssertQuery method.");
+            }
+        }
     }
 
     private void OrderingSettingsVerifier(bool assertOrder, Type type, object elementSorter)
@@ -154,7 +172,9 @@ public class QueryAsserter
     public async Task AssertQueryScalar<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Action<TResult, TResult> asserter,
         bool assertOrder,
+        bool assertEmpty,
         bool async,
         string testMethodName,
         bool filteredQuery = false)
@@ -184,14 +204,18 @@ public class QueryAsserter
             expected,
             actual,
             e => e,
-            Assert.Equal,
+            asserter,
             assertOrder);
+
+        AssertResultCount(actual.Count, assertEmpty);
     }
 
     public async Task AssertQueryScalar<TResult>(
         Func<ISetSource, IQueryable<TResult?>> actualQuery,
         Func<ISetSource, IQueryable<TResult?>> expectedQuery,
+        Action<TResult?, TResult?> asserter,
         bool assertOrder,
+        bool assertEmpty,
         bool async,
         string testMethodName,
         bool filteredQuery = false)
@@ -221,8 +245,10 @@ public class QueryAsserter
             expected,
             actual,
             e => e,
-            Assert.Equal,
+            asserter,
             assertOrder);
+
+        AssertResultCount(actual.Count, assertEmpty);
     }
 
     #region Assert termination operation methods

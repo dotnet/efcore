@@ -72,8 +72,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
                 .OrderBy(c => c.CustomerID)
                 .Select(cv => cv.Orders.Where(cc => true).ToList()),
             assertOrder: true,
-            elementAsserter: (e, a) => AssertCollection(e, a),
-            entryCount: 6);
+            elementAsserter: (e, a) => AssertCollection(e, a));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -83,8 +82,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
             ss => from c in ss.Set<Customer>()
                   from o in ss.Set<OrderQuery>().Where(ov => ov.CustomerID == c.CustomerID)
                   select new { c, o },
-            e => e.c.CustomerID,
-            entryCount: 89);
+            e => e.c.CustomerID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -94,8 +92,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
             ss => from ov in ss.Set<OrderQuery>().Include(ov => ov.Customer)
                   where ov.CustomerID == "ALFKI"
                   select ov,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderQuery>(ov => ov.Customer)),
-            entryCount: 1);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderQuery>(ov => ov.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -108,8 +105,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<OrderQuery>(ov => ov.Customer),
-                new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-            entryCount: 1);
+                new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -154,8 +150,7 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
                   join pv in ss.Set<ProductView>() on o.CustomerID equals pv.CategoryName into grouping
                   from pv in grouping.DefaultIfEmpty()
                   select new { Order = o, ProductView = pv },
-            elementSorter: e => (e.Order.OrderID, e.ProductView?.ProductID),
-            entryCount: 830);
+            elementSorter: e => (e.Order.OrderID, e.ProductView?.ProductID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

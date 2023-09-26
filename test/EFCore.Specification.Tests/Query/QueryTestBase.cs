@@ -41,9 +41,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<TResult, object> elementSorter = null,
         Action<TResult, TResult> elementAsserter = null,
         bool assertOrder = false,
-        int entryCount = 0,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
-        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, entryCount, testMethodName);
+        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -52,62 +52,68 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<TResult, object> elementSorter = null,
         Action<TResult, TResult> elementAsserter = null,
         bool assertOrder = false,
-        int entryCount = 0,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         => QueryAsserter.AssertQuery(
-            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName);
+            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult, TResult> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => AssertQueryScalar(async, query, query, assertOrder, testMethodName);
+        => AssertQueryScalar(async, query, query, asserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Action<TResult, TResult> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty,  async, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult?>> query,
+        Action<TResult?, TResult?> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => AssertQueryScalar(async, query, query, assertOrder, testMethodName);
+        => AssertQueryScalar(async, query, query, asserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult?>> actualQuery,
         Func<ISetSource, IQueryable<TResult?>> expectedQuery,
+        Action<TResult?, TResult?> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName);
 
     protected Task AssertSingleResult<TResult>(
         bool async,
         Expression<Func<ISetSource, TResult>> syncQuery,
         Expression<Func<ISetSource, Task<TResult>>> asyncQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter);
 
     protected Task AssertSingleResult<TResult>(
         bool async,
         Expression<Func<ISetSource, TResult>> actualSyncQuery,
         Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
         Expression<Func<ISetSource, TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingleResult(
-            actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, async);
+            actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, async);
 
     #region Assert termination operation methods
 

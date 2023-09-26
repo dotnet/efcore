@@ -1071,7 +1071,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
             """
 SELECT VALUE {"OrderID" : c["OrderID"], "c" : (c["OrderID"] + 1000)}
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10243))
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10250))
 """);
     }
 

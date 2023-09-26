@@ -18,8 +18,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Basic_json_projection_owner_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>(),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -39,8 +38,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.First, a.First);
                 AssertEqual(e.Second, a.Second);
-            },
-            entryCount: 40);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -66,8 +64,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.First, a.First);
                 AssertEqual(e.Second, a.Second);
-            },
-            entryCount: 40);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -460,8 +457,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Custom_naming_projection_owner_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x),
-            entryCount: 13);
+            ss => ss.Set<JsonEntityCustomNaming>().Select(x => x));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -519,8 +515,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Project_entity_with_single_owned(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntitySingleOwned>(),
-            entryCount: 8);
+            ss => ss.Set<JsonEntitySingleOwned>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -536,8 +531,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.e1, a.e1);
                 AssertEqual(e.e2, a.e2);
-            },
-            entryCount: 48);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -581,8 +575,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.e1, a.e1);
                 AssertEqual(e.e2, a.e2);
-            },
-            entryCount: 44);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -744,16 +737,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_entity_with_inheritance_basic_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityInheritanceBase>(),
-            entryCount: 38);
+            ss => ss.Set<JsonEntityInheritanceBase>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_entity_with_inheritance_project_derived(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityInheritanceBase>().OfType<JsonEntityInheritanceDerived>(),
-            entryCount: 25);
+            ss => ss.Set<JsonEntityInheritanceBase>().OfType<JsonEntityInheritanceDerived>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1013,8 +1004,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 Assert.Equal(e.Id, a.Id);
                 AssertEqual(e.x, a.x);
-            },
-            entryCount: 40);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1028,8 +1018,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 Assert.Equal(e.Id, a.Id);
                 AssertEqual(e.x, a.x);
-            },
-            entryCount: 40);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1043,8 +1032,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 Assert.Equal(e.Id, a.Id);
                 AssertEqual(e.x, a.x);
-            },
-            entryCount: 40);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1062,8 +1050,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         return AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(
-                x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething == "e1_c2_c1_c1"),
-            entryCount: 40);
+                x => x.OwnedCollectionRoot[1].OwnedCollectionBranch[prm].OwnedCollectionLeaf[x.Id - 1].SomethingSomething == "e1_c2_c1_c1"));
     }
 
     [ConditionalTheory]
@@ -1080,8 +1067,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(
-                j => j.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_c2_c1_c1")));
-    // TODO: Need entries
+                j => j.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_r_c1_r")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1093,8 +1079,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     j.OwnedReferenceRoot.OwnedCollectionBranch
                         .Where(o => o.Enum == JsonEnum.Three)
                         .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
-                    == "e1_r_c2_r"),
-            entryCount: 40);
+                    == "e1_r_c2_r"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1106,8 +1091,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     j => j.OwnedReferenceRoot.OwnedCollectionBranch
                             .Skip(1)
                             .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
-                        == "e1_r_c2_r"),
-            entryCount: 40);
+                        == "e1_r_c2_r"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1120,8 +1104,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                             .OrderByDescending(b => b.Date)
                             .Skip(1)
                             .ElementAt(0).OwnedReferenceLeaf.SomethingSomething
-                        == "e1_r_c1_r"),
-            entryCount: 40);
+                        == "e1_r_c1_r"));
 
     // If this test is failing because of DistinctAfterOrderByWithoutRowLimitingOperatorWarning, this is because EF warns/errors by
     // default for Distinct after OrderBy (without Skip/Take); but you likely have a naturally-ordered JSON collection, where the
@@ -1138,8 +1121,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     j => j.OwnedReferenceRoot.OwnedCollectionBranch
                             .Distinct()
                             .Count(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r")
-                        == 1),
-            entryCount: 40);
+                        == 1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1147,8 +1129,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(j => j.OwnedCollectionRoot.Any(c => c.OwnedCollectionBranch.Count == 2)),
-            entryCount: 40);
+                .Where(j => j.OwnedCollectionRoot.Any(c => c.OwnedCollectionBranch.Count == 2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1467,8 +1448,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_collection_of_primitives_index_used_in_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names[0] == "e1_r1"),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names[0] == "e1_r1"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1484,8 +1464,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.OwnedReferenceRoot.Numbers[0]),
-            assertOrder: true,
-            entryCount: 40);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1493,8 +1472,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedReferenceRoot.Names.Contains("e1_r1")),
-            assertOrder: true,
-            entryCount: 40);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1939,7 +1917,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .Where(x => x.OwnedReferenceRoot.Name == x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething)
+                .Where(x => x.OwnedReferenceRoot.Name != x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething)
                 .Select(x => x.Name));
 
     [ConditionalTheory]
@@ -1964,8 +1942,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).First()),
-            entryCount: 40);
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).First()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1973,8 +1950,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
-                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).FirstOrDefault()),
-            entryCount: 40);
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1991,8 +1967,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>()
                 .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enum)
-                .Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()),
-            entryCount: 40);
+                .Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2007,8 +1982,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_with_include_on_json_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>().Include(x => x.OwnedReferenceRoot),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>().Include(x => x.OwnedReferenceRoot));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2018,8 +1992,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Include(x => x.EntityReference),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference)),
-            entryCount: 41);
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2029,8 +2002,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Include(x => x.EntityCollection),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
-            entryCount: 43);
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2040,8 +2012,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<EntityBasic>().Include(e => e.JsonEntityBasics),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)),
-            entryCount: 41);
+                new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2052,8 +2023,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<JsonEntityBasic>(x => x.EntityReference),
-                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)),
-            entryCount: 44);
+                new ExpectedInclude<JsonEntityBasic>(x => x.EntityCollection)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2184,8 +2154,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_all_types_entity_projection(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>(),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2237,8 +2206,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_boolean_predicate(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestBoolean),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestBoolean));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2246,7 +2214,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(x => !x.Reference.TestBoolean),
-            entryCount: 0);
+            assertEmpty: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2267,16 +2235,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Json_predicate_on_default_string(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDefaultString != "MyDefaultStringInReference1"),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDefaultString != "MyDefaultStringInReference1"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_max_length_string(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestMaxLengthString != "Foo"),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestMaxLengthString != "Foo"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2285,32 +2251,28 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(
                 x => (!x.Reference.TestBoolean ? x.Reference.TestMaxLengthString : x.Reference.TestDefaultString)
-                    == "MyDefaultStringInReference1"),
-            entryCount: 3);
+                    == "MyDefaultStringInReference1"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_byte(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestByte != 3),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestByte != 3));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_character(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestCharacter != 'z'),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestCharacter != 'z'));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_datetime(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateTime != new DateTime(2000, 1, 3)),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateTime != new DateTime(2000, 1, 3)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2318,272 +2280,238 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>().Where(
-                x => x.Reference.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))),
-            entryCount: 6);
+                x => x.Reference.TestDateTimeOffset != new DateTimeOffset(new DateTime(2000, 1, 4), new TimeSpan(3, 2, 0))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_decimal(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDecimal != 1.35M),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDecimal != 1.35M));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_double(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDouble != 33.25),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDouble != 33.25));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_guid(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestGuid != new Guid()),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestGuid != new Guid()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int16(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt16 != 3),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt16 != 3));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int32(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt32 != 33),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt32 != 33));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int64(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt64 != 333),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestInt64 != 333));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_signedbyte(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSignedByte != 100),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSignedByte != 100));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_single(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSingle != 10.4f),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestSingle != 10.4f));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_timespan(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeSpan != new TimeSpan(3, 2, 0)),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeSpan != new TimeSpan(3, 2, 0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_dateonly(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateOnly != new DateOnly(3, 2, 1)),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestDateOnly != new DateOnly(3, 2, 1)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_timeonly(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeOnly != new TimeOnly(3, 2, 0)),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestTimeOnly != new TimeOnly(3, 2, 0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unisgnedint16(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt16 != 100),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt16 != 100));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unsignedint32(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt32 != 1000),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt32 != 1000));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_unsignedint64(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt64 != 10000),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestUnsignedInt64 != 10000));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_enum(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnum != JsonEnum.Two),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnum != JsonEnum.Two));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_enumwithintconverter(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnumWithIntConverter != JsonEnum.Three),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestEnumWithIntConverter != JsonEnum.Three));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenum1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != JsonEnum.One),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != JsonEnum.One));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenum2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != null),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnum != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != JsonEnum.One),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != JsonEnum.One));
 
     [ConditionalTheory(Skip = "issue #29416")]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverterthathandlesnulls2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != null),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithConverterThatHandlesNulls != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverter1(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != JsonEnum.Two),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != JsonEnum.Two));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableenumwithconverter2(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != null),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableEnumWithIntConverter != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableint321(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != 100),
-            entryCount: 6);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != 100));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_nullableint322(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != null),
-            entryCount: 3);
+            ss => ss.Set<JsonEntityAllTypes>().Where(x => x.Reference.TestNullableInt32 != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_int_zero_one_with_explicit_comparison(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne == false),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne == false));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_string_True_False(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_string_True_False_with_explicit_comparison(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse == true),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse == true));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_string_Y_N(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_bool_converted_to_string_Y_N_with_explicit_comparison(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN == false),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN == false));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_int_zero_one_converted_to_bool(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.IntZeroOneConvertedToBool == 1),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.IntZeroOneConvertedToBool == 1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_string_True_False_converted_to_bool(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringTrueFalseConvertedToBool == "False"),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringTrueFalseConvertedToBool == "False"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_predicate_on_string_Y_N_converted_to_bool(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringYNConvertedToBool == "N"),
-            entryCount: 2);
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringYNConvertedToBool == "N"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2592,8 +2520,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j")),
-            ss => ss.Set<JsonEntityBasic>(),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2625,8 +2552,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
-            ss => ss.Set<JsonEntityInheritanceBase>(),
-            entryCount: 38);
+            ss => ss.Set<JsonEntityInheritanceBase>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -2635,8 +2561,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
                 Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
-            ss => ss.Set<JsonEntityInheritanceDerived>(),
-            entryCount: 25);
+            ss => ss.Set<JsonEntityInheritanceDerived>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

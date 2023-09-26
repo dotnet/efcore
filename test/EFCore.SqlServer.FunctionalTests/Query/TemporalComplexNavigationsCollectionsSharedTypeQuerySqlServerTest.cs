@@ -1047,8 +1047,8 @@ ORDER BY [l].[Id], [t2].[c], [t2].[Id], [t2].[Id0]
         await base.Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(async);
 
         AssertSql(
-            """
-@__p_0='10'
+"""
+@__p_0='1'
 @__p_1='5'
 
 SELECT [t].[Id], [t].[Date], [t].[Name], [t].[PeriodEnd], [t].[PeriodStart], [t1].[Id], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Optional_Id], [t1].[Level1_Required_Id], [t1].[Level2_Name], [t1].[OneToMany_Optional_Inverse2Id], [t1].[OneToMany_Required_Inverse2Id], [t1].[OneToOne_Optional_PK_Inverse2Id], [t1].[PeriodEnd], [t1].[PeriodStart], [t1].[Id0], [t1].[Level2_Optional_Id], [t1].[Level2_Required_Id], [t1].[Level3_Name], [t1].[OneToMany_Optional_Inverse3Id], [t1].[OneToMany_Required_Inverse3Id], [t1].[OneToOne_Optional_PK_Inverse3Id], [t1].[PeriodEnd0], [t1].[PeriodStart0]
@@ -1065,7 +1065,7 @@ OUTER APPLY (
         FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
         WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
         ORDER BY [l0].[Level2_Name] DESC
-        OFFSET 2 ROWS FETCH NEXT 4 ROWS ONLY
+        OFFSET 1 ROWS FETCH NEXT 4 ROWS ONLY
     ) AS [t0]
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[PeriodEnd], [l1].[PeriodStart]

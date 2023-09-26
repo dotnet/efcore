@@ -92,22 +92,22 @@ WHERE NOT (COALESCE("e"."StringA" IN (
         await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);
 
         AssertSql(
-            """
+"""
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE EXISTS (
     SELECT 1
     FROM "Entities2" AS "e0"
-    WHERE "e0"."NullableStringA" = "e"."NullableStringA" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringA" IS NULL))
+    WHERE "e0"."NullableStringA" = "e"."NullableStringB" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringB" IS NULL))
 """,
-            //
-            """
+                //
+                """
 SELECT "e"."Id"
 FROM "Entities1" AS "e"
 WHERE NOT EXISTS (
     SELECT 1
     FROM "Entities2" AS "e0"
-    WHERE "e0"."NullableStringA" = "e"."NullableStringA" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringA" IS NULL))
+    WHERE "e0"."NullableStringA" = "e"."NullableStringB" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringB" IS NULL))
 """);
     }
 

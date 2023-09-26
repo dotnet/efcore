@@ -107,7 +107,7 @@ INNER JOIN (
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'
+WHERE [t].[CustomerID] = N'HANAR'
 """);
     }
 
@@ -129,7 +129,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
         await base.Join_customers_orders_with_subquery_anonymous_property_method_with_take(async);
 
         AssertSql(
-            """
+"""
 @__p_0='5'
 
 SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
@@ -139,7 +139,7 @@ INNER JOIN (
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'
+WHERE [t].[CustomerID] = N'HANAR'
 """);
     }
 
@@ -176,7 +176,7 @@ INNER JOIN (
     WHERE [o].[OrderID] > 0
     ORDER BY [o].[OrderID]
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
-WHERE [t].[CustomerID] = N'ALFKI'
+WHERE [t].[CustomerID] = N'HANAR'
 """);
     }
 

@@ -666,13 +666,14 @@ WHERE (
         await base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(async);
 
         AssertSql(
-            """
+"""
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE (
     SELECT TOP(1) [e0].[EmployeeID]
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL) = 0
+    WHERE [e0].[EmployeeID] <> [e].[ReportsTo] OR [e].[ReportsTo] IS NULL
+    ORDER BY [e0].[EmployeeID]) = 1
 """);
     }
 
@@ -1514,13 +1515,13 @@ WHERE NOT EXISTS (
         await base.Any_nested_negated2(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] LIKE N'ABC%')
 """);
     }
 
@@ -1529,13 +1530,13 @@ WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
         await base.Any_nested_negated3(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] LIKE N'ABC%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
 """);
     }
 
@@ -1882,13 +1883,13 @@ WHERE [c].[CustomerID] = N'ALFKI'
         await base.Where_Join_Any(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
+WHERE [c].[CustomerID] LIKE N'A%' AND EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderDate] = '2008-10-24T00:00:00.000')
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderDate] = '1998-01-15T00:00:00.000')
 """);
     }
 
@@ -3479,10 +3480,10 @@ ORDER BY (
         await base.Query_expression_with_to_string_and_contains(async);
 
         AssertSql(
-            """
+"""
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] IS NOT NULL AND CONVERT(varchar(10), [o].[EmployeeID]) LIKE N'%10%'
+WHERE [o].[OrderDate] IS NOT NULL AND CONVERT(varchar(10), [o].[EmployeeID]) LIKE N'%7%'
 """);
     }
 
@@ -3724,7 +3725,7 @@ CROSS JOIN (
         await base.DefaultIfEmpty_in_subquery_nested(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[CustomerID], [t0].[OrderID], [o0].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN (
@@ -3735,7 +3736,7 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
-        WHERE [o].[OrderID] > 15000
+        WHERE [o].[OrderID] > 11050
     ) AS [t] ON 1 = 1
 ) AS [t0]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
@@ -3749,7 +3750,7 @@ ORDER BY [t0].[OrderID], [o0].[OrderDate]
         await base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[CustomerID], [t0].[OrderID], [t1].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN (
@@ -3760,13 +3761,13 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [o].[OrderID]
         FROM [Orders] AS [o]
-        WHERE [o].[OrderID] > 15000
+        WHERE [o].[OrderID] > 11050
     ) AS [t] ON 1 = 1
 ) AS [t0]
 OUTER APPLY (
     SELECT [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
-    WHERE [o0].[OrderID] <= CAST(LEN([c].[CustomerID]) AS int)
+    WHERE [o0].[OrderID] <= CAST(LEN([c].[CustomerID]) AS int) + 10250
 ) AS [t1]
 WHERE [c].[City] = N'Seattle' AND [t0].[OrderID] IS NOT NULL AND [t1].[OrderID] IS NOT NULL
 ORDER BY [t0].[OrderID], [t1].[OrderDate]
@@ -5732,12 +5733,12 @@ LEFT JOIN (
         await base.Select_distinct_Select_with_client_bindings(async);
 
         AssertSql(
-            """
+"""
 SELECT [t].[c]
 FROM (
     SELECT DISTINCT DATEPART(year, [o].[OrderDate]) AS [c]
     FROM [Orders] AS [o]
-    WHERE [o].[OrderID] < 10000
+    WHERE [o].[OrderID] < 20000
 ) AS [t]
 """);
     }
