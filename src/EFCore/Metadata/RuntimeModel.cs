@@ -136,6 +136,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
+        ///     A unique identifier for the <see cref="Model"/> instance and the <see cref="IRuntimeModel"/> created from it.
+        /// </summary>
+        public virtual Guid ModelId { get; set; }
+
+        /// <summary>
         ///     Adds configuration for a scalar type.
         /// </summary>
         /// <param name="clrType">The type of value the property will hold.</param>
@@ -302,5 +307,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             => _typeConfigurations.Count == 0
                 ? null
                 : _typeConfigurations.GetValueOrDefault(propertyType);
+
+        /// <inheritdoc />
+        Guid IReadOnlyModel.ModelId
+            => ModelId;
     }
 }

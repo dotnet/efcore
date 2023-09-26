@@ -199,6 +199,11 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         /// <summary>
+        ///     A unique identifier for the <see cref="Model"/> instance and the <see cref="IRuntimeModel"/> created from it.
+        /// </summary>
+        public Guid ModelId { get; }
+
+        /// <summary>
         ///     <para>
         ///         Creates a human-readable representation of the given metadata.
         ///     </para>
