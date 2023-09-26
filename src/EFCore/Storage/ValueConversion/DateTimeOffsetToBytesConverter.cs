@@ -50,14 +50,28 @@ public class DateTimeOffsetToBytesConverter : ValueConverter<DateTimeOffset, byt
     public static ValueConverterInfo DefaultInfo { get; }
         = new(typeof(DateTimeOffset), typeof(byte[]), i => new DateTimeOffsetToBytesConverter(i.MappingHints), DefaultHints);
 
-    private static byte[] ToBytes(DateTimeOffset value)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static byte[] ToBytes(DateTimeOffset value)
     {
         var timeBytes = (byte[])LongToBytes.ConvertToProvider(value.DateTime.ToBinary())!;
         var offsetBytes = (byte[])ShortToBytes.ConvertToProvider(value.Offset.TotalMinutes)!;
         return timeBytes.Concat(offsetBytes).ToArray();
     }
 
-    private static DateTimeOffset FromBytes(byte[] bytes)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static DateTimeOffset FromBytes(byte[] bytes)
     {
         var timeBinary = (long)LongToBytes.ConvertFromProvider(bytes)!;
         var offsetMins = (short)ShortToBytes.ConvertFromProvider(bytes.Skip(8).ToArray())!;
