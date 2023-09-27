@@ -29,9 +29,9 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 fieldInfo: typeof(User).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                sentinel: 0,
                 valueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: false),
-                providerValueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: true));
+                providerValueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: true),
+                sentinel: 0);
             id.SetSetter((User e, int v) => e.Id = v);
             id.SetGetter((User e) => e.Id, e => e.Id == default(int));
             id.SetAccessors(new PropertyAccessors(

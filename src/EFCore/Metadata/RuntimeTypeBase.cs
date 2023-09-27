@@ -135,7 +135,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// </summary>
     /// <param name="name">The name of the property to add.</param>
     /// <param name="clrType">The type of value the property will hold.</param>
-    /// <param name="sentinel">The property value to use to consider the property not set.</param>
     /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
     /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
@@ -162,11 +161,11 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     /// <param name="providerValueComparer">The <see cref="ValueComparer" /> to use for the provider values for this property.</param>
     /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
+    /// <param name="sentinel">The property value to use to consider the property not set.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeProperty AddProperty(
         string name,
         Type clrType,
-        object? sentinel = null,
         PropertyInfo? propertyInfo = null,
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
@@ -186,7 +185,8 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
         ValueComparer? keyValueComparer = null,
         ValueComparer? providerValueComparer = null,
         JsonValueReaderWriter? jsonValueReaderWriter = null,
-        CoreTypeMapping? typeMapping = null)
+        CoreTypeMapping? typeMapping = null,
+        object? sentinel = null)
     {
         var property = new RuntimeProperty(
             name,
