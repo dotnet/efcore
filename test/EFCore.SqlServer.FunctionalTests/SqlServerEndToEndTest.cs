@@ -856,12 +856,12 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     [ConditionalTheory]
     [MemberData(
         nameof(DataGenerator.GetCombinations),
-        new object[] { 0, 1, 2, 3, 4 },
+        new object[] { 0, 1, 2, 3, 4, 7 },
         2,
         MemberType = typeof(DataGenerator))]
     public void Can_insert_entities_with_generated_PKs(int studentCount, int courseCount)
     {
-        var students = new[]
+        var students = new Student[]
         {
             new()
             {
@@ -869,43 +869,43 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 LastName = "Alexander",
                 EnrollmentDate = DateTime.Parse("2019-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Meredith",
                 LastName = "Alonso",
                 EnrollmentDate = DateTime.Parse("2017-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Arturo",
                 LastName = "Anand",
                 EnrollmentDate = DateTime.Parse("2018-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Gytis",
                 LastName = "Barzdukas",
                 EnrollmentDate = DateTime.Parse("2017-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Yan",
                 LastName = "Li",
                 EnrollmentDate = DateTime.Parse("2017-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Peggy",
                 LastName = "Justice",
                 EnrollmentDate = DateTime.Parse("2016-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Laura",
                 LastName = "Norman",
                 EnrollmentDate = DateTime.Parse("2018-09-01")
             },
-            new Student
+            new()
             {
                 FirstMidName = "Nino",
                 LastName = "Olivetto",
@@ -913,25 +913,40 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             }
         };
 
-        var courses = new[]
+        var courses = new Course[]
         {
             new() { Title = "Chemistry", Credits = 3 },
-            new Course { Title = "Microeconomics", Credits = 3 },
-            new Course { Title = "Macroeconomics", Credits = 3 },
-            new Course { Title = "Calculus", Credits = 4 },
-            new Course { Title = "Trigonometry", Credits = 4 },
-            new Course { Title = "Composition", Credits = 3 },
-            new Course { Title = "Literature", Credits = 4 }
+            new() { Title = "Microeconomics", Credits = 3 },
+            new() { Title = "Macroeconomics", Credits = 3 },
+            new() { Title = "Calculus", Credits = 4 },
+            new() { Title = "Trigonometry", Credits = 4 },
+            new() { Title = "Composition", Credits = 3 },
+            new() { Title = "Literature", Credits = 4 }
         };
 
         using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
         var options = Fixture.CreateOptions(testDatabase);
 
+        var nextCourse = 0;
         using (var context = new UniversityContext(options))
         {
             context.Database.EnsureCreatedResiliently();
             for (var i = 0; i < studentCount; i++)
             {
+                if (courseCount > 1)
+                {
+                    students[i].Courses.Add(courses[nextCourse++]);
+                    if(nextCourse >= courseCount)
+                    {
+                        nextCourse = 0;
+                    }
+
+                    students[i].Courses.Add(courses[nextCourse++]);
+                    if (nextCourse >= courseCount)
+                    {
+                        nextCourse = 0;
+                    }
+                }
                 context.Students.Add(students[i]);
             }
 
@@ -940,13 +955,48 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 context.Courses.Add(courses[i]);
             }
 
+            Assert.All(context.Enrollments.Local, e =>
+            {
+                var entry = context.Entry(e);
+                var student = e.Student;
+                var course = e.Course;
+                Assert.Equal(student.Id, e.StudentId);
+                Assert.Equal(course.Id, e.CourseId);
+                Assert.Equal(context.Entry(student).Property(e => e.Id).CurrentValue, entry.Property(e => e.StudentId).CurrentValue);
+                Assert.Equal(context.Entry(course).Property(e => e.Id).CurrentValue, entry.Property(e => e.CourseId).CurrentValue);
+                Assert.True(entry.Property(e => e.StudentId).IsTemporary);
+                Assert.True(entry.Property(e => e.CourseId).IsTemporary);
+                Assert.True(context.Entry(student).Property(e => e.Id).IsTemporary);
+                Assert.True(context.Entry(course).Property(e => e.Id).IsTemporary);
+            });
+
             context.SaveChanges();
+
+            Assert.All(context.Enrollments.Local, e =>
+            {
+                var entry = context.Entry(e);
+                var student = e.Student;
+                var course = e.Course;
+                Assert.Equal(student.Id, e.StudentId);
+                Assert.Equal(course.Id, e.CourseId);
+                Assert.False(entry.Property(e => e.StudentId).IsTemporary);
+                Assert.False(entry.Property(e => e.CourseId).IsTemporary);
+            });
         }
 
         using (var context = new UniversityContext(options))
         {
-            Assert.Equal(studentCount, context.Students.Count());
-            Assert.Equal(courseCount, context.Courses.Count());
+            Assert.Equal(studentCount, context.Students.ToList().Count());
+            Assert.Equal(courseCount, context.Courses.ToList().Count());
+
+            var enrollments = context.Enrollments.Include(e => e.Course).Include(e => e.Student).ToList();
+            Assert.All(enrollments, e =>
+            {
+                var student = e.Student;
+                var course = e.Course;
+                Assert.Equal(student.Id, e.StudentId);
+                Assert.Equal(course.Id, e.CourseId);
+            });
         }
     }
 
@@ -959,6 +1009,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public int Credits { get; set; }
 
         public virtual ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
+        public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
@@ -974,6 +1026,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public DateTime EnrollmentDate { get; set; }
 
         public virtual ICollection<Enrollment> Enrollments { get; } = new List<Enrollment>();
+
+        public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
@@ -1030,6 +1084,10 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
                     builder.Property(x => x.RowVersion)
                         .IsRowVersion();
+
+                    builder.HasMany(x => x.Students)
+                        .WithMany(x => x.Courses)
+                        .UsingEntity<Enrollment>();
                 });
 
             modelBuilder.Entity<Student>(
