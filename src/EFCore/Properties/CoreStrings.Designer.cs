@@ -247,8 +247,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string CannotBeNullableElement(object? entityType, object? property, object? elementType)
             => string.Format(
-                GetString("CannotBeNullableElement", "entityType", "property", "elementType"),
-                property, entityType);
+                GetString("CannotBeNullableElement", nameof(entityType), nameof(property), nameof(elementType)),
+                entityType, property, elementType);
 
         /// <summary>
         ///     The property '{1_entityType}.{0_property}' cannot be marked as nullable/optional because the property is a part of a key. Any property can be marked as non-nullable/required, but only properties of nullable types and which are not part of a key can be marked as nullable/optional.
@@ -551,6 +551,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComplexPropertyWrongClrType", nameof(property), nameof(type), nameof(clrType), nameof(targetType)),
                 property, type, clrType, targetType);
+
+        /// <summary>
+        ///     '{service}' doesn't currently support complex types.
+        /// </summary>
+        public static string ComplexTypesNotSupported(object? service)
+            => string.Format(
+                GetString("ComplexTypesNotSupported", nameof(service)),
+                service);
 
         /// <summary>
         ///     There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.
@@ -2114,14 +2122,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 service);
 
         /// <summary>
-        ///     The property '{entityType}.{property}' cannot be mapped as a collection since it does not implement 'IEnumerable&lt;T&gt;'.
-        /// </summary>
-        public static string NotCollection(object? entityType, object? property)
-            => string.Format(
-                GetString("NotCollection", nameof(entityType), nameof(property)),
-                entityType, property);
-
-        /// <summary>
         ///     The database provider attempted to register an implementation of the '{service}' service. This is a service defined by Entity Framework and as such must not be registered using the 'TryAddProviderSpecificServices' method.
         /// </summary>
         public static string NotAProviderService(object? service)
@@ -2136,6 +2136,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NotAssignableClrBaseType", nameof(entityType), nameof(baseEntityType), nameof(clrType), nameof(baseClrType)),
                 entityType, baseEntityType, clrType, baseClrType);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' cannot be mapped as a collection since it does not implement 'IEnumerable&lt;T&gt;'.
+        /// </summary>
+        public static string NotCollection(object? entityType, object? property)
+            => string.Format(
+                GetString("NotCollection", nameof(entityType), nameof(property)),
+                entityType, property);
 
         /// <summary>
         ///     The given 'IQueryable' does not support generation of query strings.
@@ -4867,31 +4875,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     A string value was read from JSON for enum '{enumType}'. Starting with EF Core 8, a breaking change was made to store enum values in JSON as numbers by default. See https://aka.ms/efcore-docs-jsonenums for details.
-        /// </summary>
-        public static EventDefinition<string> LogStringEnumValueInJson(IDiagnosticsLogger logger)
-        {
-            var definition = ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson;
-            if (definition == null)
-            {
-                definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson,
-                    logger,
-                    static logger => new EventDefinition<string>(
-                        logger.Options,
-                        CoreEventId.StringEnumValueInJson,
-                        LogLevel.Warning,
-                        "CoreEventId.StringEnumValueInJson",
-                        level => LoggerMessage.Define<string>(
-                            level,
-                            CoreEventId.StringEnumValueInJson,
-                            _resourceManager.GetString("LogStringEnumValueInJson")!)));
-            }
-
-            return (EventDefinition<string>)definition;
-        }
-
-        /// <summary>
         ///     Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string> LogStartedTracking(IDiagnosticsLogger logger)
@@ -4989,6 +4972,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, string, string, EntityState, EntityState>)definition;
+        }
+
+        /// <summary>
+        ///     A string value was read from JSON for enum '{enumType}'. Starting with EF Core 8, a breaking change was made to store enum values in JSON as numbers by default. See https://aka.ms/efcore-docs-jsonenums for details.
+        /// </summary>
+        public static EventDefinition<string> LogStringEnumValueInJson(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogStringEnumValueInJson,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.StringEnumValueInJson,
+                        LogLevel.Warning,
+                        "CoreEventId.StringEnumValueInJson",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.StringEnumValueInJson,
+                            _resourceManager.GetString("LogStringEnumValueInJson")!)));
+            }
+
+            return (EventDefinition<string>)definition;
         }
 
         /// <summary>

@@ -63,7 +63,7 @@ public interface IEntityMaterializerSource
         Expression materializationExpression)
         => parameters.StructuralType is IEntityType entityType
             ? CreateMaterializeExpression(entityType, parameters.InstanceName, materializationExpression)
-            : throw new InvalidOperationException(); // TODO
+            : throw new NotImplementedException(CoreStrings.ComplexTypesNotSupported(GetType().Name));
 #pragma warning restore CS0618
 
     /// <summary>
