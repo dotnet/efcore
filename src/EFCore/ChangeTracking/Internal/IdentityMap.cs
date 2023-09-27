@@ -436,11 +436,13 @@ public class IdentityMap<TKey> : IIdentityMap<TKey>
 
         if (otherEntry == null)
         {
-            if (_identityMap.TryGetValue(key, out var existingEntry)
-                && existingEntry == entry)
+            if (!_identityMap.TryGetValue(key, out var existingEntry)
+                || existingEntry != entry)
             {
-                _identityMap.Remove(key);
+                return;
             }
+
+            _identityMap.Remove(key);
         }
         else
         {
