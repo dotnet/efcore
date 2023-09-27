@@ -65,6 +65,19 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Can_specify_discriminator_without_derived_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Q>()
+                .HasDiscriminator<string>("Discriminator");
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("Q", model.FindEntityType(typeof(Q)).GetDiscriminatorValue());
+        }
+
+        [ConditionalFact]
         public virtual void Can_specify_discriminator_values_first()
         {
             var modelBuilder = CreateModelBuilder();

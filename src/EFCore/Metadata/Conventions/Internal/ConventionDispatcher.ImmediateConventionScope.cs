@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 public partial class ConventionDispatcher
@@ -25,14 +27,13 @@ public partial class ConventionDispatcher
         private readonly ConventionContext<IConventionKey> _keyConventionContext;
         private readonly ConventionContext<IConventionPropertyBuilder> _propertyBuilderConventionContext;
         private readonly ConventionContext<IConventionProperty> _propertyConventionContext;
-        private readonly ConventionContext<IConventionPropertyBuilder> _complexTypePropertyBuilderConventionContext;
-        private readonly ConventionContext<IConventionProperty> _complexTypePropertyConventionContext;
         private readonly ConventionContext<IConventionModelBuilder> _modelBuilderConventionContext;
         private readonly ConventionContext<IConventionTriggerBuilder> _triggerBuilderConventionContext;
         private readonly ConventionContext<IConventionTrigger> _triggerConventionContext;
         private readonly ConventionContext<IConventionAnnotation> _annotationConventionContext;
         private readonly ConventionContext<IReadOnlyList<IConventionProperty>> _propertyListConventionContext;
         private readonly ConventionContext<string> _stringConventionContext;
+        private readonly ConventionContext<string?> _nullableStringConventionContext;
         private readonly ConventionContext<FieldInfo> _fieldInfoConventionContext;
         private readonly ConventionContext<IElementType> _elementTypeConventionContext;
         private readonly ConventionContext<bool?> _boolConventionContext;
@@ -58,14 +59,13 @@ public partial class ConventionDispatcher
             _keyConventionContext = new ConventionContext<IConventionKey>(dispatcher);
             _propertyBuilderConventionContext = new ConventionContext<IConventionPropertyBuilder>(dispatcher);
             _propertyConventionContext = new ConventionContext<IConventionProperty>(dispatcher);
-            _complexTypePropertyBuilderConventionContext = new ConventionContext<IConventionPropertyBuilder>(dispatcher);
-            _complexTypePropertyConventionContext = new ConventionContext<IConventionProperty>(dispatcher);
             _modelBuilderConventionContext = new ConventionContext<IConventionModelBuilder>(dispatcher);
             _triggerBuilderConventionContext = new ConventionContext<IConventionTriggerBuilder>(dispatcher);
             _triggerConventionContext = new ConventionContext<IConventionTrigger>(dispatcher);
             _annotationConventionContext = new ConventionContext<IConventionAnnotation>(dispatcher);
             _propertyListConventionContext = new ConventionContext<IReadOnlyList<IConventionProperty>>(dispatcher);
             _stringConventionContext = new ConventionContext<string>(dispatcher);
+            _nullableStringConventionContext = new ConventionContext<string?>(dispatcher);
             _fieldInfoConventionContext = new ConventionContext<FieldInfo>(dispatcher);
             _elementTypeConventionContext = new ConventionContext<IElementType>(dispatcher);
             _boolConventionContext = new ConventionContext<bool?>(dispatcher);
@@ -260,6 +260,39 @@ public partial class ConventionDispatcher
             }
 
             return !entityTypeBuilder.Metadata.IsIgnored(name) ? null : name;
+        }
+
+        public override string? OnDiscriminatorPropertySet(IConventionEntityTypeBuilder entityTypeBuilder, string? name)
+        {
+            if (!entityTypeBuilder.Metadata.IsInModel)
+            {
+                return null;
+            }
+
+#if DEBUG
+            var initialValue = entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
+#endif
+            using (_dispatcher.DelayConventions())
+            {
+                _stringConventionContext.ResetState(name);
+
+                foreach (var entityTypeConvention in _conventionSet.DiscriminatorPropertySetConventions)
+                {
+                    entityTypeConvention.ProcessDiscriminatorPropertySet(
+                        entityTypeBuilder, name, _nullableStringConventionContext);
+                    if (_stringConventionContext.ShouldStopProcessing())
+                    {
+                        return _stringConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(
+                        initialValue == entityTypeBuilder.Metadata.GetDiscriminatorPropertyName(),
+                        $"Convention {entityTypeConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return entityTypeBuilder.Metadata.GetDiscriminatorPropertyName();
         }
 
         public override IConventionEntityType? OnEntityTypeBaseTypeChanged(

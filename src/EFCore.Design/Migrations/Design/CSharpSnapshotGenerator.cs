@@ -892,9 +892,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append('.')
                 .Append("HasDiscriminator");
 
-            if (discriminatorPropertyAnnotation?.Value != null)
+            var discriminatorProperty = entityType.FindDiscriminatorProperty();
+            if (discriminatorPropertyAnnotation?.Value != null
+                && discriminatorProperty != null)
             {
-                var discriminatorProperty = entityType.FindProperty((string)discriminatorPropertyAnnotation.Value)!;
                 var propertyClrType = FindValueConverter(discriminatorProperty)?.ProviderClrType
                         .MakeNullable(discriminatorProperty.IsNullable)
                     ?? discriminatorProperty.ClrType;
@@ -902,7 +903,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .Append('<')
                     .Append(Code.Reference(propertyClrType))
                     .Append(">(")
-                    .Append(Code.Literal((string)discriminatorPropertyAnnotation.Value))
+                    .Append(Code.Literal(discriminatorProperty.Name))
                     .Append(')');
             }
             else
@@ -926,7 +927,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             if (discriminatorValueAnnotation?.Value != null)
             {
                 var value = discriminatorValueAnnotation.Value;
-                var discriminatorProperty = entityType.FindDiscriminatorProperty();
                 if (discriminatorProperty != null)
                 {
                     var valueConverter = FindValueConverter(discriminatorProperty);
