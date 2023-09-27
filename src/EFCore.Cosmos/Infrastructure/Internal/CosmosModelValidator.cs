@@ -41,6 +41,36 @@ public class CosmosModelValidator : ModelValidator
         ValidateOnlyETagConcurrencyToken(model, logger);
     }
 
+    /// <inheritdoc />
+    protected override void ValidatePrimitiveCollections(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            Validate(entityType, logger);
+        }
+
+        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
+            {
+                if (property is { IsPrimitiveCollection: true })
+                {
+                    throw new InvalidOperationException(
+                        CosmosStrings.PrimitiveCollectionsNotSupported(
+                            property.DeclaringType.ClrType.ShortDisplayName(),
+                            property.Name));
+                }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                Validate(complexProperty.ComplexType, logger);
+            }
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore.Cosmos.ChangeTracking.Internal;
 using Newtonsoft.Json.Linq;
 
@@ -101,7 +102,9 @@ public class CosmosTypeMappingSource : TypeMappingSource
             var genericTypeDefinition = clrType.GetGenericTypeDefinition();
             if (genericTypeDefinition == typeof(List<>)
                 || genericTypeDefinition == typeof(IList<>)
-                || genericTypeDefinition == typeof(IReadOnlyList<>))
+                || genericTypeDefinition == typeof(IReadOnlyList<>)
+                || genericTypeDefinition == typeof(ObservableCollection<>)
+                || genericTypeDefinition == typeof(Collection<>))
             {
                 var elementMappingInfo = new TypeMappingInfo(elementType);
                 var elementMapping = FindPrimitiveMapping(elementMappingInfo)

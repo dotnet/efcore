@@ -1775,6 +1775,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(complexType.FindProperty("Strange")!.IsNullable);
         }
 
+        [ConditionalFact]
         public virtual void Can_ignore_shadow_primitive_collections_when_they_have_been_added_explicitly()
         {
             var modelBuilder = CreateModelBuilder();
