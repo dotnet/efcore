@@ -23,6 +23,7 @@ public partial class EntityTypeTest
         var model = CreateModel();
 
         var entityTypeA = model.AddEntityType(typeof(A));
+        ((EntityType)entityTypeA).Builder.HasDiscriminator(ConfigurationSource.Explicit);
 
         model.FinalizeModel();
 

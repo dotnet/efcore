@@ -69,6 +69,10 @@ public partial class ConventionDispatcher
             IConventionEntityTypeBuilder entityTypeBuilder,
             string name);
 
+        public abstract string? OnDiscriminatorPropertySet(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string? name);
+
         public abstract IConventionKey? OnEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionKey? newPrimaryKey,

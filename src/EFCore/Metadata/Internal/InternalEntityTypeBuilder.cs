@@ -4392,13 +4392,17 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     /// </summary>
     public virtual InternalEntityTypeBuilder? HasNoDiscriminator(ConfigurationSource configurationSource)
     {
-        if (Metadata[CoreAnnotationNames.DiscriminatorProperty] != null
-            && !configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+        if (Metadata[CoreAnnotationNames.DiscriminatorProperty] == null)
+        {
+            return this;
+        }
+
+        if (!configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
         {
             return null;
         }
 
-        if (Metadata.BaseType == null)
+        if (((IReadOnlyEntityType)Metadata).FindDiscriminatorProperty()?.DeclaringType == Metadata)
         {
             RemoveUnusedDiscriminatorProperty(null, configurationSource);
         }
@@ -4457,7 +4461,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         => ((name == null && discriminatorType == null)
                 || ((name == null || discriminatorProperty?.Name == name)
                     && (discriminatorType == null || discriminatorProperty?.ClrType == discriminatorType))
-                || configurationSource.Overrides(Metadata.GetDiscriminatorPropertyConfigurationSource()))
+                || configurationSource.Overrides(Metadata.GetRootType().GetDiscriminatorPropertyConfigurationSource()))
             && (discriminatorProperty != null
                 || Metadata.GetRootType().Builder.CanAddDiscriminatorProperty(
                     discriminatorType ?? DefaultDiscriminatorType,
