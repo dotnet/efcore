@@ -553,6 +553,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
+        ///     '{service}' doesn't currently support complex types.
+        /// </summary>
+        public static string ComplexTypesNotSupported(object? service)
+            => string.Format(
+                GetString("ComplexTypesNotSupported", nameof(service)),
+                service);
+
+        /// <summary>
         ///     There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.
         /// </summary>
         public static string CompositeFkOnProperty(object? navigation, object? entityType)
