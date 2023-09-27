@@ -310,6 +310,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 property1, entityType1, storeName1, property2, entityType2, storeName2);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' is configured as an EF8 primitive collection. Primitive collections in a Cosmos model are discovered by convention.
+        /// </summary>
+        public static string PrimitiveCollectionsNotSupported(object? entityType, object? property)
+            => string.Format(
+                GetString("PrimitiveCollectionsNotSupported", nameof(entityType), nameof(property)),
+                entityType, property);
+
+        /// <summary>
         ///     Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.
         /// </summary>
         public static string ResourceIdMissing

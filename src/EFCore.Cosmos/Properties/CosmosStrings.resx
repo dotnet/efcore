@@ -259,6 +259,9 @@
   <data name="PartitionKeyStoreNameMismatch" xml:space="preserve">
     <value>The partition key property '{property1}' on '{entityType1}' is mapped as '{storeName1}', but the partition key property '{property2}' on '{entityType2}' is mapped as '{storeName2}'. All partition key properties need to be mapped to the same store property for entity types mapped to the same container.</value>
   </data>
+  <data name="PrimitiveCollectionsNotSupported" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is configured as an EF8 primitive collection. Primitive collections in a Cosmos model are discovered by convention.</value>
+  </data>
   <data name="ResourceIdMissing" xml:space="preserve">
     <value>Unable to execute a 'ReadItem' query since the 'id' value is missing and cannot be generated.</value>
   </data>
