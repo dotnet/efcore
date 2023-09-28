@@ -397,7 +397,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -415,7 +415,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -431,7 +431,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -461,7 +461,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -483,7 +483,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -501,7 +501,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -517,7 +517,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>
@@ -547,7 +547,7 @@ public static class SqlServerIndexBuilderExtensions
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see>, and
-    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and Azure SQL databases with EF Core</see>
     ///     for more information and examples.
     /// </remarks>
     /// <param name="indexBuilder">The builder for the index being configured.</param>

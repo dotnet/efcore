@@ -124,6 +124,6 @@ public class SqlServerDbContextOptionsBuilder
     ///     Configures the context to use defaults optimized for Azure SQL, including retries on errors.
     /// </summary>
     /// <param name="enable">Whether the defaults should be enabled.</param>
-    public virtual SqlServerDbContextOptionsBuilder UseAzureSql(bool enable = true)
+    public virtual SqlServerDbContextOptionsBuilder UseAzureSqlDefaults(bool enable = true)
         => WithOption(e => e.WithAzureSql(enable));
 }
