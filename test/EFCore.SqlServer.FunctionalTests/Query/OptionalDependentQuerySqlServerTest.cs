@@ -37,14 +37,24 @@ FROM [EntitiesSomeRequired] AS [e]
     {
         await base.Filter_optional_dependent_with_all_optional_compared_to_null(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [e].[Id], [e].[Name], [e].[Json]
+FROM [EntitiesAllOptional] AS [e]
+WHERE [e].[Json] IS NULL
+""");
     }
 
     public override async Task Filter_optional_dependent_with_all_optional_compared_to_not_null(bool async)
     {
         await base.Filter_optional_dependent_with_all_optional_compared_to_not_null(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [e].[Id], [e].[Name], [e].[Json]
+FROM [EntitiesAllOptional] AS [e]
+WHERE [e].[Json] IS NOT NULL
+""");
     }
 
     public override async Task Filter_optional_dependent_with_some_required_compared_to_null(bool async)
@@ -55,7 +65,7 @@ FROM [EntitiesSomeRequired] AS [e]
 """
 SELECT [e].[Id], [e].[Name], [e].[Json]
 FROM [EntitiesSomeRequired] AS [e]
-WHERE CAST(JSON_VALUE([e].[Json], '$.ReqProp') AS float) IS NULL
+WHERE [e].[Json] IS NULL
 """);
     }
 
@@ -67,7 +77,7 @@ WHERE CAST(JSON_VALUE([e].[Json], '$.ReqProp') AS float) IS NULL
 """
 SELECT [e].[Id], [e].[Name], [e].[Json]
 FROM [EntitiesSomeRequired] AS [e]
-WHERE CAST(JSON_VALUE([e].[Json], '$.ReqProp') AS float) IS NOT NULL
+WHERE [e].[Json] IS NOT NULL
 """);
     }
 
@@ -75,7 +85,12 @@ WHERE CAST(JSON_VALUE([e].[Json], '$.ReqProp') AS float) IS NOT NULL
     {
         await base.Filter_nested_optional_dependent_with_all_optional_compared_to_null(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [e].[Id], [e].[Name], [e].[Json]
+FROM [EntitiesAllOptional] AS [e]
+WHERE JSON_QUERY([e].[Json], '$.OpNav1') IS NULL
+""");
     }
 
     public override async Task Filter_nested_optional_dependent_with_all_optional_compared_to_not_null(bool async)
@@ -86,7 +101,7 @@ WHERE CAST(JSON_VALUE([e].[Json], '$.ReqProp') AS float) IS NOT NULL
 """
 SELECT [e].[Id], [e].[Name], [e].[Json]
 FROM [EntitiesAllOptional] AS [e]
-WHERE CAST(JSON_VALUE([e].[Json], '$.OpNested2.ReqNested1') AS bit) IS NOT NULL AND CAST(JSON_VALUE([e].[Json], '$.OpNested2.ReqNested2') AS datetime2) IS NOT NULL
+WHERE JSON_QUERY([e].[Json], '$.OpNav2') IS NOT NULL
 """);
     }
 
@@ -94,7 +109,12 @@ WHERE CAST(JSON_VALUE([e].[Json], '$.OpNested2.ReqNested1') AS bit) IS NOT NULL 
     {
         await base.Filter_nested_optional_dependent_with_some_required_compared_to_null(async);
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT [e].[Id], [e].[Name], [e].[Json]
+FROM [EntitiesSomeRequired] AS [e]
+WHERE JSON_QUERY([e].[Json], '$.ReqNav1') IS NULL
+""");
     }
 
     public override async Task Filter_nested_optional_dependent_with_some_required_compared_to_not_null(bool async)
@@ -105,7 +125,7 @@ WHERE CAST(JSON_VALUE([e].[Json], '$.OpNested2.ReqNested1') AS bit) IS NOT NULL 
 """
 SELECT [e].[Id], [e].[Name], [e].[Json]
 FROM [EntitiesSomeRequired] AS [e]
-WHERE CAST(JSON_VALUE([e].[Json], '$.ReqNested2.ReqNested1') AS bit) IS NOT NULL AND CAST(JSON_VALUE([e].[Json], '$.ReqNested2.ReqNested2') AS datetime2) IS NOT NULL
+WHERE JSON_QUERY([e].[Json], '$.ReqNav2') IS NOT NULL
 """);
     }
 

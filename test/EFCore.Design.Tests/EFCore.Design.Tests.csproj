@@ -52,6 +52,7 @@
     <ProjectReference Include="..\..\src\EFCore.Sqlite.NTS\EFCore.Sqlite.NTS.csproj" />
     <ProjectReference Include="..\EFCore.Relational.Tests\EFCore.Relational.Tests.csproj" />
     <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
+    <ProjectReference Include="..\EFCore.Sqlite.FunctionalTests\EFCore.Sqlite.FunctionalTests.csproj" />
   </ItemGroup>
 
   <ItemGroup>
