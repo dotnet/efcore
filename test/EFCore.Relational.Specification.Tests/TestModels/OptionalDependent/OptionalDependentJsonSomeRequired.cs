@@ -10,9 +10,9 @@ public class OptionalDependentJsonSomeRequired
 
     public double ReqProp { get; set; }
 
-    public OptionalDependentNestedJsonAllOptional OpNested1 { get; set; }
-    public OptionalDependentNestedJsonSomeRequired OpNested2 { get; set; }
+    public OptionalDependentNestedJsonAllOptional OpNav1 { get; set; }
+    public OptionalDependentNestedJsonSomeRequired OpNav2 { get; set; }
 
-    public OptionalDependentNestedJsonAllOptional ReqNested1 { get; set; }
-    public OptionalDependentNestedJsonSomeRequired ReqNested2 { get; set; }
+    public OptionalDependentNestedJsonAllOptional ReqNav1 { get; set; }
+    public OptionalDependentNestedJsonSomeRequired ReqNav2 { get; set; }
 }
