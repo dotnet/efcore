@@ -1,5 +1,6 @@
 ﻿<#
     Session["ResourceFile"] = "AbstractionsStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["NoDiagnostics"] = true;
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

@@ -118,21 +118,21 @@ Any values supplied in a LINQ query will be appropriately parameterized or escap
 
 For example, the following method looks up customers with a given last name in the database.
 
-```
+```cs
 public IEnumerable<Customer> FindCustomers(string lastName)
 {
-    using(var context = new CustomerContext())
+    using (var context = new CustomerContext())
     {
         var customers = context.Customers
             .Where(c => c.LastName == lastName)
-            .ToList;
+            .ToList();
     }
 }
 ```
 
 The last name value is passed as a parameter because it may come from an end user of the application and be subject to malicious input.
 
-```
+```sql
 SELECT [c].[CustomerId], [c].[Name]
 FROM [Customer] AS [c]
 WHERE [c].[LastName] = @p0
@@ -145,10 +145,10 @@ Any values that come from instance data (i.e. values stored in entity properties
 **Example**
 For example, the following method creates a new customer in the database based on a supplied first and last name.
 
-```
+```cs
 public Customer CreateCustomer(string firstName, string lastName)
 {
-    using(var context = new CustomerContext())
+    using (var context = new CustomerContext())
     {
         var customer = new Customer 
         {
@@ -166,7 +166,7 @@ public Customer CreateCustomer(string firstName, string lastName)
 
 The names values are passed as a parameter because they may come from an end user of the application and be subject to malicious input.
 
-```
+```sql
 INSERT INTO [Customer] ([FirstName], [LastName])
 OUTPUT INSERTED.[CustomerId]
 VALUES (@p0, @p1)
@@ -186,19 +186,19 @@ When using APIs that accept a raw SQL string the API allows values to be easily 
 
 For example, the following code makes use of parameters for some end-user supplied strings when executing a raw SQL command against a database. The command is executed by dropping down to the ADO.NET `DbCommand` for the underlying data store.
 
-```
+```cs
 public void MoveClients(string oldOwner, string newOwner)
 {
-    using (var context = new OrdersContext(str))
+    using (var context = new OrdersContext())
     {
         var connection = context.Database.AsRelational().Connection.DbConnection;
-        var cmd = connection .CreateCommand();
+        var cmd = connection.CreateCommand();
         cmd.CommandText = "UPDATE [dbo].[Customer] SET [Owner] = @p0 WHERE [Owner] = @p1";
-        cmd.Parameters.Add(new SqlParameter("p0", "newOwner"));
-        cmd.Parameters.Add(new SqlParameter("p1", "oldOwner"));
-        connection .Open();
+        cmd.Parameters.Add(new SqlParameter("p0", newOwner));
+        cmd.Parameters.Add(new SqlParameter("p1", oldOwner));
+        connection.Open();
         cmd.ExecuteNonQuery();
-        connection .Close();
+        connection.Close();
     }
 }
 ```

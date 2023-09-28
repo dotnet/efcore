@@ -1,159 +1,152 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+public class NavigationExtensionsTest
 {
-    public class NavigationExtensionsTest
+    [ConditionalFact]
+    public void Can_get_one_to_many_inverses()
     {
-        [ConditionalFact]
-        public void Can_get_one_to_many_inverses()
-        {
-            var model = BuildModel();
+        var model = BuildModel();
 
-            var category = model.FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "Category");
-            var products = model.FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "Products");
+        var category = model.FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "Category");
+        var products = model.FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "Products");
 
-            Assert.Same(category, products.Inverse);
-            Assert.Same(products, category.Inverse);
-        }
+        Assert.Same(category, products.Inverse);
+        Assert.Same(products, category.Inverse);
+    }
 
-        [ConditionalFact]
-        public void Can_get_one_to_one_inverses()
-        {
-            var model = BuildModel();
+    [ConditionalFact]
+    public void Can_get_one_to_one_inverses()
+    {
+        var model = BuildModel();
 
-            var category = model.FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "FeaturedProductCategory");
-            var product = model.FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "FeaturedProduct");
+        var category = model.FindEntityType(typeof(Product)).GetNavigations().Single(e => e.Name == "FeaturedProductCategory");
+        var product = model.FindEntityType(typeof(Category)).GetNavigations().Single(e => e.Name == "FeaturedProduct");
 
-            Assert.Same(category, product.Inverse);
-            Assert.Same(product, category.Inverse);
-        }
+        Assert.Same(category, product.Inverse);
+        Assert.Same(product, category.Inverse);
+    }
 
-        [ConditionalFact]
-        public void Can_get_target_ends()
-        {
-            var model = BuildModel();
+    [ConditionalFact]
+    public void Can_get_target_ends()
+    {
+        var model = BuildModel();
 
-            var productType = model.FindEntityType(typeof(Product));
-            var categoryType = model.FindEntityType(typeof(Category));
+        var productType = model.FindEntityType(typeof(Product));
+        var categoryType = model.FindEntityType(typeof(Category));
 
-            var category = productType.GetNavigations().Single(e => e.Name == "Category");
-            var products = categoryType.GetNavigations().Single(e => e.Name == "Products");
+        var category = productType.GetNavigations().Single(e => e.Name == "Category");
+        var products = categoryType.GetNavigations().Single(e => e.Name == "Products");
 
-            Assert.Same(productType, products.TargetEntityType);
-            Assert.Same(categoryType, category.TargetEntityType);
-        }
+        Assert.Same(productType, products.TargetEntityType);
+        Assert.Same(categoryType, category.TargetEntityType);
+    }
 
-        [ConditionalFact]
-        public void Returns_null_when_no_inverse()
-        {
-            var products = BuildModel(createCategory: false).FindEntityType(typeof(Category)).GetNavigations()
-                .Single(e => e.Name == "Products");
+    [ConditionalFact]
+    public void Returns_null_when_no_inverse()
+    {
+        var products = BuildModel(createCategory: false).FindEntityType(typeof(Category)).GetNavigations()
+            .Single(e => e.Name == "Products");
 
-            Assert.Null(products.Inverse);
+        Assert.Null(products.Inverse);
 
-            var category = BuildModel(createProducts: false).FindEntityType(typeof(Product)).GetNavigations()
-                .Single(e => e.Name == "Category");
+        var category = BuildModel(createProducts: false).FindEntityType(typeof(Product)).GetNavigations()
+            .Single(e => e.Name == "Category");
 
-            Assert.Null(category.Inverse);
+        Assert.Null(category.Inverse);
 
-            var featuredCategory = BuildModel(createFeaturedProduct: false).FindEntityType(typeof(Product)).GetNavigations()
-                .Single(e => e.Name == "FeaturedProductCategory");
+        var featuredCategory = BuildModel(createFeaturedProduct: false).FindEntityType(typeof(Product)).GetNavigations()
+            .Single(e => e.Name == "FeaturedProductCategory");
 
-            Assert.Null(featuredCategory.Inverse);
+        Assert.Null(featuredCategory.Inverse);
 
-            var featuredProduct = BuildModel(createFeaturedProductCategory: false).FindEntityType(typeof(Category)).GetNavigations()
-                .Single(e => e.Name == "FeaturedProduct");
+        var featuredProduct = BuildModel(createFeaturedProductCategory: false).FindEntityType(typeof(Category)).GetNavigations()
+            .Single(e => e.Name == "FeaturedProduct");
 
-            Assert.Null(featuredProduct.Inverse);
-        }
+        Assert.Null(featuredProduct.Inverse);
+    }
 
-        private class Category
-        {
-            public static readonly PropertyInfo ProductsProperty = typeof(Category).GetProperty(nameof(Products));
-            public static readonly PropertyInfo FeaturedProductProperty = typeof(Category).GetProperty(nameof(FeaturedProduct));
+    private class Category
+    {
+        public static readonly PropertyInfo ProductsProperty = typeof(Category).GetProperty(nameof(Products));
+        public static readonly PropertyInfo FeaturedProductProperty = typeof(Category).GetProperty(nameof(FeaturedProduct));
 
-            public int Id { get; set; }
+        public int Id { get; set; }
 
-            public int FeaturedProductId { get; set; }
-            public Product FeaturedProduct { get; set; }
+        public int FeaturedProductId { get; set; }
+        public Product FeaturedProduct { get; set; }
 
-            public ICollection<Product> Products { get; set; }
-        }
+        public ICollection<Product> Products { get; set; }
+    }
 
-        private class Product
-        {
-            public static readonly PropertyInfo CategoryProperty = typeof(Product).GetProperty(nameof(Category));
+    private class Product
+    {
+        public static readonly PropertyInfo CategoryProperty = typeof(Product).GetProperty(nameof(Category));
 
-            public static readonly PropertyInfo FeaturedProductCategoryProperty =
-                typeof(Product).GetProperty(nameof(FeaturedProductCategory));
+        public static readonly PropertyInfo FeaturedProductCategoryProperty =
+            typeof(Product).GetProperty(nameof(FeaturedProductCategory));
 
-            public int Id { get; set; }
+        public int Id { get; set; }
 
-            public Category FeaturedProductCategory { get; set; }
+        public Category FeaturedProductCategory { get; set; }
 
-            public int CategoryId { get; set; }
-            public Category Category { get; set; }
-        }
+        public int CategoryId { get; set; }
+        public Category Category { get; set; }
+    }
 
-        private static IReadOnlyModel BuildModel(
-            bool createProducts = true,
-            bool createCategory = true,
-            bool createFeaturedProductCategory = true,
-            bool createFeaturedProduct = true)
-        {
-            var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
-            var model = builder.Model;
+    private static IReadOnlyModel BuildModel(
+        bool createProducts = true,
+        bool createCategory = true,
+        bool createFeaturedProductCategory = true,
+        bool createFeaturedProduct = true)
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        var model = builder.Model;
 
-            builder.Entity<Product>(
-                e =>
-                {
-                    e.Ignore(p => p.Category);
-                    e.Ignore(p => p.FeaturedProductCategory);
-                });
-            builder.Entity<Category>(
-                e =>
-                {
-                    e.Ignore(c => c.Products);
-                    e.Ignore(c => c.FeaturedProduct);
-                });
-
-            var categoryType = model.FindEntityType(typeof(Category));
-            var productType = model.FindEntityType(typeof(Product));
-
-            var categoryFk = productType.AddForeignKey(
-                productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
-            var featuredProductFk = categoryType.AddForeignKey(
-                categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
-            featuredProductFk.IsUnique = true;
-
-            if (createProducts)
+        builder.Entity<Product>(
+            e =>
             {
-                categoryFk.SetPrincipalToDependent(Category.ProductsProperty);
-            }
-
-            if (createCategory)
+                e.Ignore(p => p.Category);
+                e.Ignore(p => p.FeaturedProductCategory);
+            });
+        builder.Entity<Category>(
+            e =>
             {
-                categoryFk.SetDependentToPrincipal(Product.CategoryProperty);
-            }
+                e.Ignore(c => c.Products);
+                e.Ignore(c => c.FeaturedProduct);
+            });
 
-            if (createFeaturedProductCategory)
-            {
-                featuredProductFk.SetPrincipalToDependent(Product.FeaturedProductCategoryProperty);
-            }
+        var categoryType = model.FindEntityType(typeof(Category));
+        var productType = model.FindEntityType(typeof(Product));
 
-            if (createFeaturedProduct)
-            {
-                featuredProductFk.SetDependentToPrincipal(Category.FeaturedProductProperty);
-            }
+        var categoryFk = productType.AddForeignKey(
+            productType.FindProperty("CategoryId"), categoryType.FindPrimaryKey(), categoryType);
+        var featuredProductFk = categoryType.AddForeignKey(
+            categoryType.FindProperty("FeaturedProductId"), productType.FindPrimaryKey(), productType);
+        featuredProductFk.IsUnique = true;
 
-            return model;
+        if (createProducts)
+        {
+            categoryFk.SetPrincipalToDependent(Category.ProductsProperty);
         }
+
+        if (createCategory)
+        {
+            categoryFk.SetDependentToPrincipal(Product.CategoryProperty);
+        }
+
+        if (createFeaturedProductCategory)
+        {
+            featuredProductFk.SetPrincipalToDependent(Product.FeaturedProductCategoryProperty);
+        }
+
+        if (createFeaturedProduct)
+        {
+            featuredProductFk.SetDependentToPrincipal(Category.FeaturedProductProperty);
+        }
+
+        return model;
     }
 }

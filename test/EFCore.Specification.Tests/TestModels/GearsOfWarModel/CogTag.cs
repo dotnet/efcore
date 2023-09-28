@@ -1,20 +1,17 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
+public class CogTag
 {
-    public class CogTag
-    {
-        // auto generated key (identity for now)
-        public Guid Id { get; set; }
+    // auto generated key (identity for now)
+    public Guid Id { get; set; }
 
-        public string Note { get; set; }
+    public string Note { get; set; }
 
-        public string GearNickName { get; set; }
-        public int? GearSquadId { get; set; }
-        public virtual Gear Gear { get; set; }
-        public DateTime IssueDate { get; set; }
-    }
+    public string GearNickName { get; set; }
+    public int? GearSquadId { get; set; }
+    public virtual Gear Gear { get; set; }
+    public DateTime IssueDate { get; set; }
 }

@@ -3,14 +3,13 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO
-{
-    public class Track
-    {
-        public int Id { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.ConferencePlanner.ConferenceDTO;
 
-        [Required]
-        [StringLength(200)]
-        public string Name { get; set; }
-    }
+public class Track
+{
+    public int Id { get; set; }
+
+    [Required]
+    [StringLength(200)]
+    public string Name { get; set; }
 }

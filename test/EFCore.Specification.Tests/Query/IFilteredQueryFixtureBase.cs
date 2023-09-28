@@ -1,12 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestUtilities;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public interface IFilteredQueryFixtureBase : IQueryFixtureBase
 {
-    public interface IFilteredQueryFixtureBase : IQueryFixtureBase
-    {
-        ISetSource GetFilteredExpectedData(DbContext context);
-    }
+    ISetSource GetFilteredExpectedData(DbContext context);
 }

@@ -4,23 +4,22 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+internal static class Json
 {
-    internal static class Json
-    {
-        public static CommandOption ConfigureOption(CommandLineApplication command)
-            => command.Option("--json", Resources.JsonDescription);
+    public static CommandOption ConfigureOption(CommandLineApplication command)
+        => command.Option("--json", Resources.JsonDescription);
 
-        public static string Literal(string? text)
-            => text != null
-                ? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
-                : "null";
+    public static string Literal(string? text)
+        => text != null
+            ? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+            : "null";
 
-        public static string Literal(bool? value)
-            => value.HasValue
-                ? value.Value
-                    ? "true"
-                    : "false"
-                : "null";
-    }
+    public static string Literal(bool? value)
+        => value.HasValue
+            ? value.Value
+                ? "true"
+                : "false"
+            : "null";
 }

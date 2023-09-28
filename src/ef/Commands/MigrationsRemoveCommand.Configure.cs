@@ -4,21 +4,20 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal partial class MigrationsRemoveCommand : ContextCommandBase
 {
-    internal partial class MigrationsRemoveCommand : ContextCommandBase
+    private CommandOption? _force;
+    private CommandOption? _json;
+
+    public override void Configure(CommandLineApplication command)
     {
-        private CommandOption? _force;
-        private CommandOption? _json;
+        command.Description = Resources.MigrationsRemoveDescription;
 
-        public override void Configure(CommandLineApplication command)
-        {
-            command.Description = Resources.MigrationsRemoveDescription;
+        _force = command.Option("-f|--force", Resources.MigrationsRemoveForceDescription);
+        _json = Json.ConfigureOption(command);
 
-            _force = command.Option("-f|--force", Resources.MigrationsRemoveForceDescription);
-            _json = Json.ConfigureOption(command);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

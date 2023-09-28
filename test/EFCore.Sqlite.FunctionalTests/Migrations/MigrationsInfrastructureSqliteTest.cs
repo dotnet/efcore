@@ -1,15 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
 using Identity30.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 using ModelSnapshot22;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
@@ -164,14 +158,10 @@ COMMIT;
         }
 
         public override void Can_generate_idempotent_up_scripts()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts());
 
         public override void Can_generate_idempotent_up_scripts_noTransactions()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts_noTransactions());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_up_scripts_noTransactions());
 
         public override void Can_generate_down_scripts()
         {
@@ -240,9 +230,7 @@ COMMIT;
         }
 
         public override void Can_generate_idempotent_down_scripts()
-        {
-            Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
-        }
+            => Assert.Throws<NotSupportedException>(() => base.Can_generate_idempotent_down_scripts());
 
         public override void Can_get_active_provider()
         {

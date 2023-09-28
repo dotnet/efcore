@@ -200,7 +200,7 @@ namespace Microsoft.Data.Sqlite
         public virtual void ResetSqliteType()
         {
             DbType = DbType.String;
-            SqliteType = SqliteType.Text;
+            _sqliteType = null;
         }
 
         internal bool Bind(sqlite3_stmt stmt)

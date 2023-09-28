@@ -232,14 +232,6 @@ dotnet_naming_rule.const_field_naming.symbols = const_field_symbol
 dotnet_naming_rule.const_field_naming.style = pascal_case_style
 dotnet_naming_rule.const_field_naming.severity = suggestion
 
-# Private Fields
-dotnet_naming_symbols.private_field_symbol.applicable_kinds = field
-dotnet_naming_symbols.private_field_symbol.applicable_accessibilities = private
-
-dotnet_naming_rule.private_field_naming.symbols = private_field_symbol
-dotnet_naming_rule.private_field_naming.style = _camelCase
-dotnet_naming_rule.private_field_naming.severity = suggestion
-
 # Parameters
 dotnet_naming_symbols.parameter_symbol.applicable_kinds = parameter
 dotnet_naming_symbols.parameter_symbol.applicable_accessibilities = *

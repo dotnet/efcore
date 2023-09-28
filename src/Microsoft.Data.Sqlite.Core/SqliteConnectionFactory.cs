@@ -9,9 +9,11 @@ namespace Microsoft.Data.Sqlite
 {
     internal class SqliteConnectionFactory
     {
+        private static readonly bool QuirkEnabled29952
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29952", out var enabled) && enabled;
+
         public static readonly SqliteConnectionFactory Instance = new();
 
-        private readonly bool _newLockingBehavior;
 #pragma warning disable IDE0052 // Remove unread private members
         private readonly Timer _pruneTimer;
 #pragma warning restore IDE0052 // Remove unread private members
@@ -23,13 +25,8 @@ namespace Microsoft.Data.Sqlite
 
         protected SqliteConnectionFactory()
         {
-            _newLockingBehavior = !AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26612", out var enabled) || !enabled;
-
-            if (!AppContext.TryGetSwitch("Microsoft.Data.Sqlite.Issue26422", out enabled) || !enabled)
-            {
-                AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
-                AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
-            }
+            AppDomain.CurrentDomain.DomainUnload += (_, _) => ClearPools();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => ClearPools();
 
             _pruneTimer = new Timer(PruneCallback, null, TimeSpan.FromMinutes(4), TimeSpan.FromSeconds(30));
         }
@@ -56,10 +53,7 @@ namespace Microsoft.Data.Sqlite
 
         public SqliteConnectionPoolGroup GetPoolGroup(string connectionString)
         {
-            if (_newLockingBehavior)
-            {
-                _lock.EnterUpgradeableReadLock();
-            }
+            _lock.EnterUpgradeableReadLock();
 
             try
             {
@@ -69,14 +63,7 @@ namespace Microsoft.Data.Sqlite
                 {
                     var connectionOptions = new SqliteConnectionStringBuilder(connectionString);
 
-                    if (_newLockingBehavior)
-                    {
-                        _lock.EnterWriteLock();
-                    }
-                    else
-                    {
-                        Monitor.Enter(this);
-                    }
+                    _lock.EnterWriteLock();
 
                     try
                     {
@@ -93,14 +80,7 @@ namespace Microsoft.Data.Sqlite
                     }
                     finally
                     {
-                        if (_newLockingBehavior)
-                        {
-                            _lock.ExitWriteLock();
-                        }
-                        else
-                        {
-                            Monitor.Exit(this);
-                        }
+                        _lock.ExitWriteLock();
                     }
                 }
 
@@ -108,10 +88,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitUpgradeableReadLock();
-                }
+                _lock.ExitUpgradeableReadLock();
             }
         }
 
@@ -132,14 +109,7 @@ namespace Microsoft.Data.Sqlite
 
         public void ClearPools()
         {
-            if (_newLockingBehavior)
-            {
-                _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
+            _lock.EnterWriteLock();
 
             try
             {
@@ -150,14 +120,7 @@ namespace Microsoft.Data.Sqlite
             }
             finally
             {
-                if (_newLockingBehavior)
-                {
-                    _lock.ExitWriteLock();
-                }
-                else
-                {
-                    Monitor.Exit(this);
-                }
+                _lock.ExitWriteLock();
             }
         }
 
@@ -178,53 +141,82 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
+            if (QuirkEnabled29952)
             {
-                var poolGroup = _idlePoolGroups[i];
-
-                if (!poolGroup.Clear())
+                for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
                 {
-                    _idlePoolGroups.Remove(poolGroup);
-                }
-            }
+                    var poolGroup = _idlePoolGroups[i];
 
-            if (_newLockingBehavior)
-            {
+                    if (!poolGroup.Clear())
+                    {
+                        _idlePoolGroups.Remove(poolGroup);
+                    }
+                }
+
                 _lock.EnterWriteLock();
-            }
-            else
-            {
-                Monitor.Enter(this);
-            }
 
-            try
-            {
-                var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
-                foreach (var entry in _poolGroups)
+                try
                 {
-                    var poolGroup = entry.Value;
+                    var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
+                    foreach (var entry in _poolGroups)
+                    {
+                        var poolGroup = entry.Value;
 
-                    if (poolGroup.Prune())
-                    {
-                        _idlePoolGroups.Add(poolGroup);
+                        if (poolGroup.Prune())
+                        {
+                            _idlePoolGroups.Add(poolGroup);
+                        }
+                        else
+                        {
+                            activePoolGroups.Add(entry.Key, poolGroup);
+                        }
                     }
-                    else
-                    {
-                        activePoolGroups.Add(entry.Key, poolGroup);
-                    }
+
+                    _poolGroups = activePoolGroups;
                 }
-
-                _poolGroups = activePoolGroups;
-            }
-            finally
-            {
-                if (_newLockingBehavior)
+                finally
                 {
                     _lock.ExitWriteLock();
                 }
-                else
+            }
+
+            else
+            {
+                _lock.EnterWriteLock();
+
+                try
                 {
-                    Monitor.Exit(this);
+
+                    for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
+                    {
+                        var poolGroup = _idlePoolGroups[i];
+
+                        if (!poolGroup.Clear())
+                        {
+                            _idlePoolGroups.Remove(poolGroup);
+                        }
+                    }
+
+                    var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
+                    foreach (var entry in _poolGroups)
+                    {
+                        var poolGroup = entry.Value;
+
+                        if (poolGroup.Prune())
+                        {
+                            _idlePoolGroups.Add(poolGroup);
+                        }
+                        else
+                        {
+                            activePoolGroups.Add(entry.Key, poolGroup);
+                        }
+                    }
+
+                    _poolGroups = activePoolGroups;
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
                 }
             }
         }

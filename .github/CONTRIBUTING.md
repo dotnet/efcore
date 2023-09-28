@@ -49,6 +49,7 @@ The typical workflow for contributing to EF Core is outlined below. This is not 
 * Make appropriate code and test changes. Follow the patterns and code style that you see in the existing code. Make sure to add tests that fail without the change and then pass with the change.
 * Consider other scenarios where your change may have an impact and add more testing. We always prefer having too many tests to having not enough of them.
 * When you are done with changes, make sure _all_ existing tests are still passing. (Again, typically by running `test` at a command prompt.)
+  * EF Core tests contain many "SQL assertions" - these verify that the precise expected SQL is generated for all scenarios. Some changes can cause SQL alterations to ripple across many scenarios, and changing all expected SQL in assertions is quite laborious. If you set the `EF_TEST_REWRITE_BASELINES` environment variable to `1` and then run the tests, the SQL assertions in the source code will be automatically changed to contain the new SQL baselines.
 * Commit changes to your branch and push the branch to your GitHub fork.
 * Go to the main [EF Core repo](https://github.com/dotnet/efcore/pulls) and you should see a yellow box suggesting you create a PR from your fork. Do this, or [create the PR by some other mechanism](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests).
 * Sign the [contributor license agreement](https://cla.dotnetfoundation.org/) if you have not already done so.

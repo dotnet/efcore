@@ -1,75 +1,95 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Update
+namespace Microsoft.EntityFrameworkCore.Update;
+
+/// <summary>
+///     Extension methods for <see cref="IUpdateEntry" />.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///     for more information and examples.
+/// </remarks>
+public static class UpdateEntryExtensions
 {
     /// <summary>
-    ///     Extension methods for <see cref="IUpdateEntry" />.
+    ///     Gets the value assigned to the property and converts it to the provider-expected value.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
-    /// </remarks>
-    public static class UpdateEntryExtensions
+    /// <param name="updateEntry">The entry.</param>
+    /// <param name="property">The property to get the value for.</param>
+    /// <returns>The value for the property.</returns>
+    public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
     {
-        /// <summary>
-        ///     Gets the value assigned to the property and converts it to the provider-expected value.
-        /// </summary>
-        /// <param name="updateEntry">The entry.</param>
-        /// <param name="property">The property to get the value for.</param>
-        /// <returns>The value for the property.</returns>
-        public static object? GetCurrentProviderValue(this IUpdateEntry updateEntry, IProperty property)
+        var value = updateEntry.GetCurrentValue(property);
+        var typeMapping = property.GetTypeMapping();
+        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
+            : value;
+
+        var converter = typeMapping.Converter;
+        if (converter != null)
         {
-            var value = updateEntry.GetCurrentValue(property);
-            var typeMapping = property.GetTypeMapping();
-            value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
-                ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
-                : value;
-
-            var converter = typeMapping.Converter;
-            if (converter != null)
-            {
-                value = converter.ConvertToProvider(value);
-            }
-
-            return value;
+            value = converter.ConvertToProvider(value);
         }
 
-        /// <summary>
-        ///     <para>
-        ///         Creates a human-readable representation of the given <see cref="IUpdateEntry" />.
-        ///     </para>
-        ///     <para>
-        ///         Warning: Do not rely on the format of the returned string.
-        ///         It is designed for debugging only and may change arbitrarily between releases.
-        ///     </para>
-        /// </summary>
-        /// <remarks>
-        ///     See <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information.
-        /// </remarks>
-        /// <param name="updateEntry">The entry.</param>
-        /// <param name="options">Options for generating the string.</param>
-        /// <param name="indent">The number of indent spaces to use before each new line.</param>
-        /// <returns>A human-readable representation.</returns>
-        public static string ToDebugString(
-            this IUpdateEntry updateEntry,
-            ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
-            int indent = 0)
-        {
-            var builder = new StringBuilder();
-            var indentString = new string(' ', indent);
+        return value;
+    }
 
+    /// <summary>
+    ///     Gets the original value that was assigned to the property and converts it to the provider-expected value.
+    /// </summary>
+    /// <param name="updateEntry">The entry.</param>
+    /// <param name="property">The property to get the value for.</param>
+    /// <returns>The value for the property.</returns>
+    public static object? GetOriginalProviderValue(this IUpdateEntry updateEntry, IProperty property)
+    {
+        var value = updateEntry.GetOriginalValue(property);
+        var typeMapping = property.GetTypeMapping();
+        value = value?.GetType().IsInteger() == true && typeMapping.ClrType.UnwrapNullableType().IsEnum
+            ? Enum.ToObject(typeMapping.ClrType.UnwrapNullableType(), value)
+            : value;
+
+        var converter = typeMapping.Converter;
+        if (converter != null)
+        {
+            value = converter.ConvertToProvider(value);
+        }
+
+        return value;
+    }
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a human-readable representation of the given <see cref="IUpdateEntry" />.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the returned string.
+    ///         It is designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-debug-views">EF Core debug views</see> for more information and examples.
+    /// </remarks>
+    /// <param name="updateEntry">The entry.</param>
+    /// <param name="options">Options for generating the string.</param>
+    /// <param name="indent">The number of indent spaces to use before each new line.</param>
+    /// <returns>A human-readable representation.</returns>
+    public static string ToDebugString(
+        this IUpdateEntry updateEntry,
+        ChangeTrackerDebugStringOptions options = ChangeTrackerDebugStringOptions.LongDefault,
+        int indent = 0)
+    {
+        var builder = new StringBuilder();
+        var indentString = new string(' ', indent);
+
+        try
+        {
             var entry = (InternalEntityEntry)updateEntry;
 
             var keyString = entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties);
@@ -157,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Update
             if ((options & ChangeTrackerDebugStringOptions.IncludeNavigations) != 0)
             {
                 foreach (var navigation in entry.EntityType.GetNavigations()
-                    .Concat<INavigationBase>(entry.EntityType.GetSkipNavigations()))
+                             .Concat<INavigationBase>(entry.EntityType.GetSkipNavigations()))
                 {
                     builder.AppendLine().Append(indentString);
 
@@ -206,8 +226,6 @@ namespace Microsoft.EntityFrameworkCore.Update
                 }
             }
 
-            return builder.ToString();
-
             void AppendValue(object? value)
             {
                 if (value == null)
@@ -227,7 +245,7 @@ namespace Microsoft.EntityFrameworkCore.Update
                     var stringValue = value.ToString();
                     if (stringValue?.Length > 63)
                     {
-                        stringValue = stringValue.Substring(0, 60) + "...";
+                        stringValue = string.Concat(stringValue.AsSpan(0, 60), "...");
                     }
 
                     builder
@@ -247,55 +265,61 @@ namespace Microsoft.EntityFrameworkCore.Update
                         : otherEntry.BuildCurrentValuesString(targetType.FindPrimaryKey()!.Properties));
             }
         }
+        catch (Exception exception)
+        {
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
+        }
 
-        /// <summary>
-        ///     Creates a formatted string representation of the given properties and their current
-        ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
-        ///     the properties.
-        /// </summary>
-        /// <param name="entry">The entry from which values will be obtained.</param>
-        /// <param name="properties">The properties to format.</param>
-        /// <returns>The string representation.</returns>
-        public static string BuildCurrentValuesString(
-            this IUpdateEntry entry,
-            IEnumerable<IPropertyBase> properties)
-            => "{"
-                + string.Join(
-                    ", ", properties.Select(
-                        p =>
-                            {
-                                var currentValue = entry.GetCurrentValue(p);
-                                return p.Name
-                                    + ": "
-                                    + (currentValue == null
-                                        ? "<null>"
-                                        : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
-                            }))
-                + "}";
-
-        /// <summary>
-        ///     Creates a formatted string representation of the given properties and their original
-        ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
-        ///     the properties.
-        /// </summary>
-        /// <param name="entry">The entry from which values will be obtained.</param>
-        /// <param name="properties">The properties to format.</param>
-        /// <returns>The string representation.</returns>
-        public static string BuildOriginalValuesString(
-            this IUpdateEntry entry,
-            IEnumerable<IPropertyBase> properties)
-            => "{"
-                + string.Join(
-                    ", ", properties.Select(
-                        p =>
-                            {
-                                var originalValue = entry.GetOriginalValue(p);
-                                return p.Name
-                                    + ": "
-                                    + (originalValue == null
-                                        ? "<null>"
-                                        : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
-                            }))
-                + "}";
+        return builder.ToString();
     }
+
+    /// <summary>
+    ///     Creates a formatted string representation of the given properties and their current
+    ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
+    ///     the properties.
+    /// </summary>
+    /// <param name="entry">The entry from which values will be obtained.</param>
+    /// <param name="properties">The properties to format.</param>
+    /// <returns>The string representation.</returns>
+    public static string BuildCurrentValuesString(
+        this IUpdateEntry entry,
+        IEnumerable<IPropertyBase> properties)
+        => "{"
+            + string.Join(
+                ", ", properties.Select(
+                    p =>
+                    {
+                        var currentValue = entry.GetCurrentValue(p);
+                        return p.Name
+                            + ": "
+                            + (currentValue == null
+                                ? "<null>"
+                                : Convert.ToString(currentValue, CultureInfo.InvariantCulture));
+                    }))
+            + "}";
+
+    /// <summary>
+    ///     Creates a formatted string representation of the given properties and their original
+    ///     values such as is useful when throwing exceptions about keys, indexes, etc. that use
+    ///     the properties.
+    /// </summary>
+    /// <param name="entry">The entry from which values will be obtained.</param>
+    /// <param name="properties">The properties to format.</param>
+    /// <returns>The string representation.</returns>
+    public static string BuildOriginalValuesString(
+        this IUpdateEntry entry,
+        IEnumerable<IPropertyBase> properties)
+        => "{"
+            + string.Join(
+                ", ", properties.Select(
+                    p =>
+                    {
+                        var originalValue = entry.GetOriginalValue(p);
+                        return p.Name
+                            + ": "
+                            + (originalValue == null
+                                ? "<null>"
+                                : Convert.ToString(originalValue, CultureInfo.InvariantCulture));
+                    }))
+            + "}";
 }

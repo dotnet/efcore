@@ -122,6 +122,20 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
+            if (connectionOptions.ForeignKeys.HasValue)
+            {
+                ExecuteNonQuery(
+                    "PRAGMA foreign_keys = " + (connectionOptions.ForeignKeys.Value ? "1" : "0") + ";",
+                    connectionOptions.DefaultTimeout);
+            }
+
+            if (connectionOptions.RecursiveTriggers)
+            {
+                ExecuteNonQuery(
+                    "PRAGMA recursive_triggers = 1;",
+                    connectionOptions.DefaultTimeout);
+            }
+
             _pool = pool;
         }
 

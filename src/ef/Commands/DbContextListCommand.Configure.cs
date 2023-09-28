@@ -4,19 +4,18 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal partial class DbContextListCommand : ProjectCommandBase
 {
-    internal partial class DbContextListCommand : ProjectCommandBase
+    private CommandOption? _json;
+
+    public override void Configure(CommandLineApplication command)
     {
-        private CommandOption? _json;
+        command.Description = Resources.DbContextListDescription;
 
-        public override void Configure(CommandLineApplication command)
-        {
-            command.Description = Resources.DbContextListDescription;
+        _json = Json.ConfigureOption(command);
 
-            _json = Json.ConfigureOption(command);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

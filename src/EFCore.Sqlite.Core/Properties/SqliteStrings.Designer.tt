@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "SqliteStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Sqlite.Properties";
     Session["LoggingDefinitionsClass"] = "Diagnostics.Internal.SqliteLoggingDefinitions";
 #>
 <#@ include file="..\..\..\tools\Resources.tt" #>

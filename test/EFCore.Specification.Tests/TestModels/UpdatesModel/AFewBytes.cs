@@ -1,13 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
+# nullable enable
 
-namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel
+namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
+
+public class AFewBytes
 {
-    public class AFewBytes
-    {
-        public Guid Id { get; set; }
-        public byte[] Bytes { get; set; }
-    }
+    public Guid Id { get; set; }
+    public byte[] Bytes { get; set; } = null!;
 }

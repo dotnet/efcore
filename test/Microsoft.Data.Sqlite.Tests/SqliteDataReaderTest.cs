@@ -457,6 +457,34 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_Blob_works_when_long_pk()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);" +
+                    $"INSERT INTO DataTable VALUES (2147483648, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = $"SELECT Id, Data FROM DataTable WHERE Id = 2147483648";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(1))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetStream_works_when_composite_pk()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -688,6 +716,7 @@ namespace Microsoft.Data.Sqlite
         public void GetDateTimeOffset_throws_when_null()
             => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
 
+#if NET6_0_OR_GREATER
         [Fact]
         public void GetFieldValue_of_DateOnly_works()
             => GetFieldValue_works(
@@ -711,6 +740,7 @@ namespace Microsoft.Data.Sqlite
             => GetFieldValue_works(
                 "SELECT '13:10:15.5';",
                 new TimeOnly(13, 10, 15, 500));
+#endif
 
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]

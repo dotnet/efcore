@@ -4,7 +4,8 @@
     "projects": [
       "src\\dotnet-ef\\dotnet-ef.csproj",
       "src\\ef\\ef.csproj",
-      "src\\EFCore.Design\\EFCore.Design.csproj",      
+      "src\\EFCore.Design\\EFCore.Design.csproj",
+      "src\\EFCore.Templates\\EFCore.Templates.csproj",
       "src\\EFCore.Tools\\EFCore.Tools.csproj",
       "test\\dotnet-ef.Tests\\dotnet-ef.Tests.csproj",
       "test\\ef.Tests\\ef.Tests.csproj",

@@ -4,21 +4,20 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal class MigrationsCommand : HelpCommandBase
 {
-    internal class MigrationsCommand : HelpCommandBase
+    public override void Configure(CommandLineApplication command)
     {
-        public override void Configure(CommandLineApplication command)
-        {
-            command.Description = Resources.MigrationsDescription;
+        command.Description = Resources.MigrationsDescription;
 
-            command.Command("add", new MigrationsAddCommand().Configure);
-            command.Command("bundle", new MigrationsBundleCommand().Configure);
-            command.Command("list", new MigrationsListCommand().Configure);
-            command.Command("remove", new MigrationsRemoveCommand().Configure);
-            command.Command("script", new MigrationsScriptCommand().Configure);
+        command.Command("add", new MigrationsAddCommand().Configure);
+        command.Command("bundle", new MigrationsBundleCommand().Configure);
+        command.Command("list", new MigrationsListCommand().Configure);
+        command.Command("remove", new MigrationsRemoveCommand().Configure);
+        command.Command("script", new MigrationsScriptCommand().Configure);
 
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

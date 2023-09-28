@@ -1,51 +1,46 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.Extensions.Logging;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
+
+public class TestLogger : TestLoggerBase, IDiagnosticsLogger, ILogger
 {
-    public class TestLogger : TestLoggerBase, IDiagnosticsLogger, ILogger
+    public TestLogger(LoggingDefinitions definitions)
     {
-        public TestLogger(LoggingDefinitions definitions)
-        {
-            Definitions = definitions;
-        }
+        Definitions = definitions;
+    }
 
-        public ILoggingOptions Options
-            => new LoggingOptions();
+    public ILoggingOptions Options
+        => new LoggingOptions();
 
-        public bool ShouldLogSensitiveData()
-            => false;
+    public bool ShouldLogSensitiveData()
+        => false;
 
-        public ILogger Logger
-            => this;
+    public ILogger Logger
+        => this;
 
-        public virtual LoggingDefinitions Definitions { get; }
+    public virtual LoggingDefinitions Definitions { get; }
 
-        public IInterceptors Interceptors { get; }
+    public IInterceptors Interceptors { get; }
 
-        public bool IsEnabled(LogLevel logLevel)
-            => EnabledFor == logLevel;
+    public bool IsEnabled(LogLevel logLevel)
+        => EnabledFor == logLevel;
 
-        public IDisposable BeginScope<TState>(TState state)
-            => null;
+    public IDisposable BeginScope<TState>(TState state)
+        => null;
 
-        public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception exception,
-            Func<TState, Exception, string> formatter)
-        {
-            LoggedEvent = eventId;
-            LoggedAt = logLevel;
-            Assert.Equal(LoggedEvent, eventId);
-            Message = formatter(state, exception);
-        }
+    public void Log<TState>(
+        LogLevel logLevel,
+        EventId eventId,
+        TState state,
+        Exception exception,
+        Func<TState, Exception, string> formatter)
+    {
+        LoggedEvent = eventId;
+        LoggedAt = logLevel;
+        Assert.Equal(LoggedEvent, eventId);
+        Message = formatter(state, exception);
     }
 }

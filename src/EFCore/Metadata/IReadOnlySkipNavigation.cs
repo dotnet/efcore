@@ -1,70 +1,69 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Diagnostics;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+/// <summary>
+///     Represents a navigation property that is part of a relationship
+///     that is forwarded through a third entity type.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
 {
     /// <summary>
-    ///     Represents a navigation property that is part of a relationship
-    ///     that is forwarded through a third entity type.
+    ///     Gets the join type used by the foreign key.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-    /// </remarks>
-    public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
+    IReadOnlyEntityType? JoinEntityType
+        => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+
+    /// <summary>
+    ///     Gets the inverse skip navigation.
+    /// </summary>
+    new IReadOnlySkipNavigation Inverse { get; }
+
+    /// <summary>
+    ///     Gets the inverse navigation.
+    /// </summary>
+    IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
     {
-        /// <summary>
-        ///     Gets the join type used by the foreign key.
-        /// </summary>
-        IReadOnlyEntityType? JoinEntityType
-            => IsOnDependent ? ForeignKey?.PrincipalEntityType : ForeignKey?.DeclaringEntityType;
+        [DebuggerStepThrough]
+        get => Inverse;
+    }
 
-        /// <summary>
-        ///     Gets the inverse skip navigation.
-        /// </summary>
-        new IReadOnlySkipNavigation Inverse { get; }
+    /// <summary>
+    ///     Gets the foreign key to the join type.
+    /// </summary>
+    IReadOnlyForeignKey? ForeignKey { get; }
 
-        /// <summary>
-        ///     Gets the inverse navigation.
-        /// </summary>
-        IReadOnlyNavigationBase IReadOnlyNavigationBase.Inverse
+    /// <summary>
+    ///     Gets a value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
+    /// </summary>
+    bool IsOnDependent { get; }
+
+    /// <summary>
+    ///     <para>
+    ///         Creates a human-readable representation of the given metadata.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the returned string.
+    ///         It is designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    /// <param name="options">Options for generating the string.</param>
+    /// <param name="indent">The number of indent spaces to use before each new line.</param>
+    /// <returns>A human-readable representation.</returns>
+    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    {
+        var builder = new StringBuilder();
+        var indentString = new string(' ', indent);
+
+        try
         {
-            [DebuggerStepThrough]
-            get => Inverse;
-        }
-
-        /// <summary>
-        ///     Gets the foreign key to the join type.
-        /// </summary>
-        IReadOnlyForeignKey? ForeignKey { get; }
-
-        /// <summary>
-        ///     Gets a value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
-        /// </summary>
-        bool IsOnDependent { get; }
-
-        /// <summary>
-        ///     <para>
-        ///         Creates a human-readable representation of the given metadata.
-        ///     </para>
-        ///     <para>
-        ///         Warning: Do not rely on the format of the returned string.
-        ///         It is designed for debugging only and may change arbitrarily between releases.
-        ///     </para>
-        /// </summary>
-        /// <param name="options">Options for generating the string.</param>
-        /// <param name="indent">The number of indent spaces to use before each new line.</param>
-        /// <returns>A human-readable representation.</returns>
-        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
-        {
-            var builder = new StringBuilder();
-            var indentString = new string(' ', indent);
-
             builder.Append(indentString);
 
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
@@ -89,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 builder.Append(" (");
             }
 
-            builder.Append(ClrType.ShortDisplayName()).Append(")");
+            builder.Append(ClrType.ShortDisplayName()).Append(')');
 
             if (IsCollection)
             {
@@ -123,8 +122,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             {
                 builder.Append(AnnotationsToDebugString(indent + 2));
             }
-
-            return builder.ToString();
         }
+        catch (Exception exception)
+        {
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
+        }
+
+        return builder.ToString();
     }
 }

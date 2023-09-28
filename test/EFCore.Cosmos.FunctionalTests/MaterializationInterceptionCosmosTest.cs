@@ -1,0 +1,27 @@
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+namespace Microsoft.EntityFrameworkCore.Cosmos;
+
+public class MaterializationInterceptionCosmosTest : MaterializationInterceptionTestBase,
+    IClassFixture<MaterializationInterceptionCosmosTest.MaterializationInterceptionCosmosFixture>
+{
+    public MaterializationInterceptionCosmosTest(MaterializationInterceptionCosmosFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    public class MaterializationInterceptionCosmosFixture : SingletonInterceptorsFixtureBase
+    {
+        protected override string StoreName
+            => "MaterializationInterception";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => CosmosTestStoreFactory.Instance;
+
+        protected override IServiceCollection InjectInterceptors(
+            IServiceCollection serviceCollection,
+            IEnumerable<ISingletonInterceptor> injectedInterceptors)
+            => base.InjectInterceptors(serviceCollection.AddEntityFrameworkCosmos(), injectedInterceptors);
+    }
+}

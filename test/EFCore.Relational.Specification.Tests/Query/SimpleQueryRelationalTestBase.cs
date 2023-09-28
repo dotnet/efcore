@@ -1,12 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+using NameSpace1;
 
 namespace Microsoft.EntityFrameworkCore.Query
 {
@@ -15,9 +11,11 @@ namespace Microsoft.EntityFrameworkCore.Query
         protected TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;
 
-        protected void ClearLog() => TestSqlLoggerFactory.Clear();
+        protected void ClearLog()
+            => TestSqlLoggerFactory.Clear();
 
-        protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+        protected void AssertSql(params string[] expected)
+            => TestSqlLoggerFactory.AssertBaseline(expected);
 
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
@@ -27,19 +25,19 @@ namespace Microsoft.EntityFrameworkCore.Query
             using var context = contextFactory.CreateContext();
             //var good1 = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
             //var good2 = context.Set<NameSpace2.TestQuery>().FromSqlRaw(@"SELECT 1 AS MyValue").ToList(); // OK
-            var bad = context.Set<NameSpace1.TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
+            var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
         }
 
         protected class Context23981 : DbContext
         {
             public Context23981(DbContextOptions options)
-                   : base(options)
+                : base(options)
             {
             }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                var mb = modelBuilder.Entity(typeof(NameSpace1.TestQuery));
+                var mb = modelBuilder.Entity(typeof(TestQuery));
 
                 mb.HasBaseType((Type)null);
                 mb.HasNoKey();
@@ -86,22 +84,51 @@ namespace Microsoft.EntityFrameworkCore.Query
             public DbSet<MyEntity> MyEntities { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .HasDbFunction(typeof(MyEntity).GetMethod(nameof(MyEntity.Modify)))
                     .HasName("ModifyDate")
                     .HasStoreType("datetime")
                     .HasSchema("dbo");
-            }
         }
 
         protected class MyEntity
         {
             public int Id { get; set; }
+
             [Column(TypeName = "datetime")]
             public DateTime SomeDate { get; set; }
-            public static DateTime Modify(DateTime date) => throw new NotSupportedException();
+
+            public static DateTime Modify(DateTime date)
+                => throw new NotSupportedException();
         }
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
+            => Hierarchy_query_with_abstract_type_sibling_helper(
+                async,
+                mb =>
+                {
+                    mb.Entity<Animal>().UseTpcMappingStrategy();
+                    mb.Entity<Pet>().ToTable("Pets");
+                    mb.Entity<Cat>().ToTable("Cats");
+                    mb.Entity<Dog>().ToTable("Dogs");
+                    mb.Entity<FarmAnimal>().ToTable("FarmAnimals");
+                });
+
+        [ConditionalTheory]
+        [MemberData(nameof(IsAsyncData))]
+        public virtual Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
+            => Hierarchy_query_with_abstract_type_sibling_helper(
+                async,
+                mb =>
+                {
+                    mb.Entity<Animal>().UseTptMappingStrategy();
+                    mb.Entity<Pet>().ToTable("Pets");
+                    mb.Entity<Cat>().ToTable("Cats");
+                    mb.Entity<Dog>().ToTable("Dogs");
+                    mb.Entity<FarmAnimal>().ToTable("FarmAnimals");
+                });
     }
 }
 

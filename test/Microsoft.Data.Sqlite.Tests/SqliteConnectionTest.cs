@@ -41,6 +41,7 @@ namespace Microsoft.Data.Sqlite
                 ConnectionString = null
             };
 
+            Assert.NotNull(connection.ConnectionString);
             Assert.Empty(connection.ConnectionString);
         }
 
@@ -1338,7 +1339,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Single(dataTable.Columns);
             Assert.Contains(
                 dataTable.Rows.Cast<DataRow>(),
-                r => r.Field<string>(DbMetaDataColumnNames.ReservedWord) == "SELECT");
+                r => (string)r[DbMetaDataColumnNames.ReservedWord] == "SELECT");
         }
     }
 }

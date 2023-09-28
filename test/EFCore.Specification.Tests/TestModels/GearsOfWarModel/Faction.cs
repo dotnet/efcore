@@ -3,15 +3,14 @@
 
 using System.Net;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
-{
-    public abstract class Faction
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public IPAddress ServerAddress { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
-        public string CapitalName { get; set; }
-        public City Capital { get; set; }
-    }
+public abstract class Faction
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public IPAddress ServerAddress { get; set; }
+
+    public string CapitalName { get; set; }
+    public City Capital { get; set; }
 }
