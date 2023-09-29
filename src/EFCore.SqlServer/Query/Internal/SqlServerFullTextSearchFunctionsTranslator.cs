@@ -77,10 +77,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
                 throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
             }
 
-            var typeMapping = propertyReference.TypeMapping;
-            var freeText = propertyReference.Type == arguments[2].Type
-                ? _sqlExpressionFactory.ApplyTypeMapping(arguments[2], typeMapping)
-                : _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
+            var freeText = _sqlExpressionFactory.ApplyDefaultTypeMapping(arguments[2]);
 
             var functionArguments = new List<SqlExpression> { propertyReference, freeText };
 
