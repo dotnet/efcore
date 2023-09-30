@@ -1121,7 +1121,7 @@
     <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator property configured.</value>
   </data>
   <data name="NoDiscriminatorValue" xml:space="preserve">
-    <value>The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.</value>
+    <value>The entity type '{entityType}' has a discriminator property, but does not have a discriminator value configured.</value>
   </data>
   <data name="NoEfServices" xml:space="preserve">
     <value>Entity Framework services have not been added to the internal service provider. Either remove the call to 'UseInternalServiceProvider' so that Entity Framework will manage its own internal services, or use the method from your database provider to add the required services to the service provider (e.g. 'AddEntityFrameworkSqlServer').</value>

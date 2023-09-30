@@ -1809,7 +1809,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is part of a hierarchy, but does not have a discriminator value configured.
+        ///     The entity type '{entityType}' has a discriminator property, but does not have a discriminator value configured.
         /// </summary>
         public static string NoDiscriminatorValue(object? entityType)
             => string.Format(
