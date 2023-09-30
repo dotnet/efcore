@@ -1691,6 +1691,15 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
+    public virtual void Detects_missing_non_hierarchy_discriminator_value()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<A>().HasDiscriminator<byte>("ClassType");
+
+        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(A).Name), modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_missing_non_string_discriminator_values()
     {
         var modelBuilder = CreateConventionModelBuilder();

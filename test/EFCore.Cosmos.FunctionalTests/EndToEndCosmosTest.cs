@@ -1754,10 +1754,12 @@ OFFSET 0 LIMIT 1
             => modelBuilder.Entity<ConflictingId>();
     }
 
-    [ConditionalFact]
-    public async Task Can_have_non_string_property_named_Discriminator()
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Can_have_non_string_property_named_Discriminator(bool useDiscriminator)
     {
-        using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions());
+        using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions(), useDiscriminator);
         context.Database.EnsureCreated();
 
         var entry = await context.AddAsync(new NonStringDiscriminator { Id = 1 });
@@ -1767,11 +1769,12 @@ OFFSET 0 LIMIT 1
         Assert.NotNull(document);
         Assert.Equal("0", document["Discriminator"]);
 
-        Assert.NotNull(
-            await context.Set<NonStringDiscriminator>()
-                .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
+        var baseEntity = await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync();
+        Assert.NotNull(baseEntity);
 
-        AssertSql(
+        if (useDiscriminator)
+        {
+            AssertSql(
             context,
             """
 SELECT c
@@ -1780,6 +1783,103 @@ WHERE (c["Discriminator"] = 0)
 ORDER BY c["Id"]
 OFFSET 0 LIMIT 1
 """);
+        }
+        else
+        {
+            AssertSql(
+                context,
+                """
+SELECT c
+FROM root c
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+
+        Fixture.ListLoggerFactory.Clear();
+        Assert.Equal(baseEntity, await context.Set<NonStringDiscriminator>()
+                .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
+
+        if (useDiscriminator)
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = 0) AND (c["Discriminator"] = 0))
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+        else
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = 0)
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+
+        Fixture.ListLoggerFactory.Clear();
+        Assert.Equal(baseEntity, await context.Set<NonStringDiscriminator>()
+                .Where(e => e.GetType() == typeof(NonStringDiscriminator)).OrderBy(e => e.Id).FirstOrDefaultAsync());
+
+        if (useDiscriminator)
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = 0)
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+        else
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+
+        Fixture.ListLoggerFactory.Clear();
+        Assert.Equal(baseEntity, await context.Set<NonStringDiscriminator>()
+                .Where(e => e is NonStringDiscriminator).OrderBy(e => e.Id).FirstOrDefaultAsync());
+
+        if (useDiscriminator)
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = 0)
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
+        else
+        {
+            AssertSql(
+            context,
+            """
+SELECT c
+FROM root c
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
+        }
     }
 
     private class NonStringDiscriminator
@@ -1796,13 +1896,24 @@ OFFSET 0 LIMIT 1
 
     public class NonStringDiscriminatorContext : DbContext
     {
-        public NonStringDiscriminatorContext(DbContextOptions dbContextOptions)
+        public NonStringDiscriminatorContext(DbContextOptions dbContextOptions, bool useDiscriminator)
             : base(dbContextOptions)
         {
+            UseDiscriminator = useDiscriminator;
         }
 
+        public bool UseDiscriminator { get; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<NonStringDiscriminator>();
+        {
+            modelBuilder.Entity<NonStringDiscriminator>();
+            if (UseDiscriminator)
+            {
+                modelBuilder.Entity<NonStringDiscriminator>()
+                    .HasDiscriminator(m => m.Discriminator)
+                    .HasValue(EntityType.Base);
+            }
+        }
     }
 
     private void AssertSql(DbContext context, params string[] expected)
@@ -1843,6 +1954,9 @@ OFFSET 0 LIMIT 1
 
         protected override bool ShouldLogCategory(string logCategory)
             => logCategory == DbLoggerCategory.Database.Command.Name;
+
+        protected override object GetAdditionalModelCacheKey(DbContext context)
+            => (context as NonStringDiscriminatorContext)?.UseDiscriminator;
 
         public Task InitializeAsync()
             => Task.CompletedTask;
