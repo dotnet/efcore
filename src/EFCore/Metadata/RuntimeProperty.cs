@@ -21,7 +21,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
-    private readonly object? _sentinel;
+    private object? _sentinel;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, ITypeBase, ValueGenerator>? _valueGeneratorFactory;
@@ -42,7 +42,6 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     public RuntimeProperty(
         string name,
         Type clrType,
-        object? sentinel,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
         RuntimeTypeBase declaringType,
@@ -63,7 +62,8 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         ValueComparer? keyValueComparer,
         ValueComparer? providerValueComparer,
         JsonValueReaderWriter? jsonValueReaderWriter,
-        CoreTypeMapping? typeMapping)
+        CoreTypeMapping? typeMapping,
+        object? sentinel)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         DeclaringType = declaringType;
@@ -108,6 +108,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         _providerValueComparer = providerValueComparer;
         _jsonValueReaderWriter = jsonValueReaderWriter;
     }
+
+    /// <summary>
+    ///     Sets the <see cref="Sentinel"/> value, converting from the provider type if needed.
+    /// </summary>
+    /// <param name="providerValue">The value, as a provider value if a value converter is being used.</param>
+    public virtual void SetSentinelFromProviderValue(object? providerValue)
+        => _sentinel = _typeMapping?.Converter?.ConvertFromProvider(providerValue) ?? providerValue;
 
     /// <summary>
     ///     Sets the element type for this property.
