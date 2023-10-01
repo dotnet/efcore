@@ -141,7 +141,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder
             .Append("[DbContext(typeof(").Append(_code.Reference(contextType)).AppendLine("))]")
             .Append("public partial class ").Append(className).AppendLine(" : " + nameof(RuntimeModel))
-            .AppendLine("{");
+            .AppendLine("{")
+            .AppendLine("    private static readonly bool _useOldBehavior31751 =")
+            .AppendLine(@"        System.AppContext.TryGetSwitch(""Microsoft.EntityFrameworkCore.Issue31751"", out var enabled31751) && enabled31751;")
+            .AppendLine();
 
         using (mainBuilder.Indent())
         {
@@ -153,7 +156,23 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     var model = new "
                     + className
                     + @"();
-    model.Initialize();
+
+    if (_useOldBehavior31751)
+    {
+        model.Initialize();
+    }
+    else
+    {
+        var thread = new System.Threading.Thread(RunInitialization, 10 * 1024 * 1024);
+        thread.Start();
+        thread.Join();
+
+        void RunInitialization()
+        {
+            model.Initialize();
+        }
+    }
+
     model.Customize();
     _instance = model;
 }")
