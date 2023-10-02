@@ -24,13 +24,13 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal
         {
             Check.DebugAssert(
                 property.DeclaringEntityType.IsOwned(), $"Expected {property.DeclaringEntityType.DisplayName()} to be owned.");
-            Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
             return property.FindContainingPrimaryKey() is IReadOnlyKey key
                 && key.Properties.Count > 1
                 && !property.IsForeignKey()
                 && property.ClrType == typeof(int)
-                && property.ValueGenerated == ValueGenerated.OnAdd;
+                && property.ValueGenerated == ValueGenerated.OnAdd
+                && property.GetJsonPropertyName().Length == 0;
         }
     }
 }
