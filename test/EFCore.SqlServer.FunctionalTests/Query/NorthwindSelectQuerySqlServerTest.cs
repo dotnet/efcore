@@ -1432,7 +1432,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
             """
 SELECT CAST([o].[OrderID] AS decimal(18,2)) / CAST([o].[OrderID] + 1000 AS decimal(18,2))
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] = 10243
+WHERE [o].[OrderID] = 10250
 """);
     }
 

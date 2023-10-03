@@ -449,9 +449,23 @@ SELECT * FROM "Customers"
 """);
     }
 
-    public override async Task SqlQueryRaw_composed_with_nullable_predicate(bool async)
+    public override async Task SqlQueryRaw_composed_with_predicate(bool async)
     {
-        await base.SqlQueryRaw_composed_with_nullable_predicate(async);
+        await base.SqlQueryRaw_composed_with_predicate(async);
+
+        AssertSql(
+"""
+SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+FROM (
+    SELECT * FROM "Customers"
+) AS [m]
+WHERE SUBSTRING([m].[ContactName], 0 + 1, 1) = SUBSTRING([m].[CompanyName], 0 + 1, 1)
+""");
+    }
+
+    public override async Task SqlQueryRaw_composed_with_empty_predicate(bool async)
+    {
+        await base.SqlQueryRaw_composed_with_empty_predicate(async);
 
         AssertSql(
             """
