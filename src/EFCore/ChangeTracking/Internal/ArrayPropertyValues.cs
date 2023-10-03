@@ -42,7 +42,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public override object ToObject()
-            => MaterializerSource.GetMaterializer(EntityType)(
+            => EntityType.GetOrCreateMaterializer(MaterializerSource)(
                 new MaterializationContext(
                     new ValueBuffer(_values),
                     InternalEntry.StateManager.Context));
