@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
-///     Converts <see cref="SqlServerOpenJsonExpression" /> expressions with WITH (the default) to OPENJSON without WITH when an
-///     ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
-///     (e.g. limit/offset).
+///     Converts <see cref="SqlServerOpenJsonExpression" /> expressions with WITH (the default) to OPENJSON without WITH under the following
+///     conditions:
+///     * When an ordering still exists on the [key] column, i.e. when the ordering of the original JSON array needs to be preserved
+///       (e.g. limit/offset).
+///     * When the column type in the WITH clause is a SQL Server "CLR type" - these are incompatible with WITH (e.g. hierarchy id).
 /// </summary>
 /// <remarks>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,14 +81,17 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
                 {
                     var table = selectExpression.Tables[i];
 
-                    if ((table is SqlServerOpenJsonExpression { ColumnInfos: not null }
-                            or JoinExpressionBase { Table: SqlServerOpenJsonExpression { ColumnInfos: not null } })
-                        && selectExpression.Orderings.Select(o => o.Expression)
-                            .Concat(selectExpression.Projection.Select(p => p.Expression))
-                            .Any(x => IsKeyColumn(x, table)))
+                    if (table.UnwrapJoin() is SqlServerOpenJsonExpression { ColumnInfos: not null } openJsonExpression
+                        && (
+                            // Condition 1: an ordering still refers to the OPENJSON's [key] column - ordering needs to be preserved.
+                            selectExpression.Orderings.Select(o => o.Expression)
+                                .Concat(selectExpression.Projection.Select(p => p.Expression))
+                                .Any(x => IsKeyColumn(x, table))
+                            ||
+                            // Condition 2: a column type in the WITH clause is a SQL Server "CLR type" (e.g. hierarchy id).
+                            openJsonExpression.ColumnInfos.Any(c => c.TypeMapping.StoreType is "hierarchyid")))
                     {
                         // Remove the WITH clause from the OPENJSON expression
-                        var openJsonExpression = (SqlServerOpenJsonExpression)((table as JoinExpressionBase)?.Table ?? table);
                         var newOpenJsonExpression = openJsonExpression.Update(
                             openJsonExpression.JsonExpression,
                             openJsonExpression.Path,

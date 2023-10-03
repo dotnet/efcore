@@ -495,7 +495,7 @@ public class SqlServerConfigPatternsTest
                         {
                             if (!_isAzure)
                             {
-                                a.UseAzureSql(false);
+                                a.UseAzureSqlDefaults(false);
                             }
                         });
 
@@ -542,7 +542,7 @@ public class SqlServerConfigPatternsTest
                         {
                             if (_isAzure)
                             {
-                                a.UseAzureSql();
+                                a.UseAzureSqlDefaults();
                             }
                         });
 

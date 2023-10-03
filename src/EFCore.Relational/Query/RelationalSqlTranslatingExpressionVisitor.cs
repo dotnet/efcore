@@ -1112,7 +1112,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     return matchingCaseWhenClauses.Count == 1
                         ? matchingCaseWhenClauses[0].Test
                         : matchingCaseWhenClauses.Select(e => e.Test)
-                            .Aggregate((l, r) => _sqlExpressionFactory.OrElse(l, r));
+                            .Aggregate(_sqlExpressionFactory.OrElse);
                 }
 
                 return discriminatorValues.Count == 1

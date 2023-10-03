@@ -191,7 +191,6 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
         var property = new RuntimeProperty(
             name,
             clrType,
-            sentinel,
             propertyInfo,
             fieldInfo,
             this,
@@ -212,7 +211,8 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
             keyValueComparer,
             providerValueComparer,
             jsonValueReaderWriter,
-            typeMapping);
+            typeMapping,
+            sentinel);
 
         _properties.Add(property.Name, property);
 
