@@ -317,7 +317,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), modelBuilder);
+        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(Customer).Name), modelBuilder);
     }
 
     [ConditionalFact]

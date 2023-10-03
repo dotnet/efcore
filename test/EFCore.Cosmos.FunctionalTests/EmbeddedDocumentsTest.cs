@@ -410,7 +410,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                             b.Property<Guid>("Id");
                         }));
             },
-            additionalModelCacheKey: "Guid_key",
             seed: false);
 
         Address address;
@@ -602,18 +601,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         public virtual CosmosTestStore TestStore { get; }
         private Action<ModelBuilder> OnModelCreatingAction { get; set; }
-        private object AdditionalModelCacheKey { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => OnModelCreatingAction?.Invoke(modelBuilder);
 
         public DbContextOptions CreateOptions(
             Action<ModelBuilder> onModelCreating = null,
-            object additionalModelCacheKey = null,
             bool seed = true)
         {
             OnModelCreatingAction = onModelCreating;
-            AdditionalModelCacheKey = additionalModelCacheKey;
             var options = CreateOptions(TestStore);
             TestStore.Initialize(
                 ServiceProvider, () => new EmbeddedTransportationContext(options), c =>
@@ -629,30 +625,16 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddSingleton<IModelCacheKeyFactory>(new TestModelCacheKeyFactory(() => AdditionalModelCacheKey));
+            => base.AddServices(serviceCollection);
+
+        protected override object GetAdditionalModelCacheKey(DbContext context)
+            => OnModelCreatingAction?.GetHashCode();
 
         public Task InitializeAsync()
             => Task.CompletedTask;
 
         public Task DisposeAsync()
             => TestStore.DisposeAsync();
-
-        private class TestModelCacheKeyFactory : IModelCacheKeyFactory
-        {
-            private readonly Func<object> _getAdditionalKey;
-
-            public TestModelCacheKeyFactory(Func<object> getAdditionalKey)
-            {
-                _getAdditionalKey = getAdditionalKey;
-            }
-
-            public object Create(DbContext context)
-                => Tuple.Create(context.GetType(), _getAdditionalKey());
-
-            public object Create(DbContext context, bool designTime)
-                => Tuple.Create(context.GetType(), _getAdditionalKey(), designTime);
-        }
     }
 
     protected class EmbeddedTransportationContext : TransportationContext
