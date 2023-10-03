@@ -855,6 +855,16 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var sentinel = property.Sentinel;
+        var converter = property.FindTypeMapping()?.Converter;
+        if (sentinel != null
+            && converter == null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("sentinel: ")
+                .Append(_code.UnknownLiteral(sentinel));
+        }
+
         var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
         if (jsonValueReaderWriterType != null)
         {
@@ -872,10 +882,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         _annotationCodeGenerator.Create(property.GetTypeMapping(), property, parameters with { TargetName = variableName });
         mainBuilder.AppendLine(";");
 
-        var sentinel = property.Sentinel;
-        if (sentinel != null)
+        if (sentinel != null
+            && converter != null)
         {
-            var converter = property.FindTypeMapping()?.Converter;
             mainBuilder.Append(variableName).Append(".SetSentinelFromProviderValue(")
                 .Append(_code.UnknownLiteral(converter?.ConvertToProvider(sentinel) ?? sentinel))
                 .AppendLine(");");
