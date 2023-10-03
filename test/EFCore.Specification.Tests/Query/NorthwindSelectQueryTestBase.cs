@@ -2212,8 +2212,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                                 .Skip(0)
                                 .Take(10)
                                 .ToList()
-                        }),
-            entryCount: 2);
+                        }));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

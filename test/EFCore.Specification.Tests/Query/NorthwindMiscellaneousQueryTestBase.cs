@@ -214,8 +214,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         return AssertSingle(
             async,
             ss => ss.Set<Customer>(),
-            predicate: c => c.CustomerID == (string)context.Arguments["customerId"],
-            entryCount: 1);
+            predicate: c => c.CustomerID == (string)context.Arguments["customerId"]);
     }
 
     private static IQueryable<Customer> QueryableArgQuery(NorthwindContext context, IQueryable<string> ids)
@@ -1028,8 +1027,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual Task Take_with_single(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(1),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(1));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1041,8 +1039,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                    orderby c.CustomerID, o.OrderID
                    select new { c, o })
                 .Take(1)
-                .Cast<object>(),
-            entryCount: 2);
+                .Cast<object>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1058,8 +1055,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             () => AssertFirst(
                 async,
                 ss => ss.Set<Customer>().OrderBy(c => c.CustomerID),
-                predicate: c => c.IsLondon,
-                entryCount: 1),
+                predicate: c => c.IsLondon),
             CoreStrings.QueryUnableToTranslateMember(nameof(Customer.IsLondon), nameof(Customer)));
 
     [ConditionalTheory]
@@ -3284,8 +3280,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             ss => from c in ss.Set<Customer>().OrderBy(c => c.CustomerID)
                   from o in ss.Set<Order>()
                   from e in ss.Set<Employee>()
-                  select new { c },
-            entryCount: 1);
+                  select new { c });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

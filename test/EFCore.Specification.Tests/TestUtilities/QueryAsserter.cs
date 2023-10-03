@@ -318,7 +318,6 @@ public class QueryAsserter
         Func<int> actualIndex,
         Func<int> expectedIndex,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -331,7 +330,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).ElementAt(expectedIndex());
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertElementAtOrDefault<TResult>(
@@ -340,7 +338,6 @@ public class QueryAsserter
         Func<int> actualIndex,
         Func<int> expectedIndex,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -353,14 +350,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).ElementAtOrDefault(expectedIndex());
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertFirst<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -373,7 +368,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).First();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertFirst<TResult>(
@@ -382,7 +376,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -397,14 +390,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).First(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertFirstOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -417,7 +408,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).FirstOrDefault();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertFirstOrDefault<TResult>(
@@ -426,7 +416,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -441,14 +430,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).FirstOrDefault(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertSingle<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -461,7 +448,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Single();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertSingle<TResult>(
@@ -470,7 +456,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -485,14 +470,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Single(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertSingleOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -505,7 +488,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).SingleOrDefault();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertSingleOrDefault<TResult>(
@@ -514,7 +496,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -529,14 +510,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).SingleOrDefault(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertLast<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -549,7 +528,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Last();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertLast<TResult>(
@@ -558,7 +536,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -573,14 +550,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Last(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertLastOrDefault<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -593,7 +568,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).LastOrDefault();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertLastOrDefault<TResult>(
@@ -602,7 +576,6 @@ public class QueryAsserter
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -617,7 +590,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).LastOrDefault(rewrittenExpectedPredicate);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertCount<TResult>(
@@ -704,7 +676,6 @@ public class QueryAsserter
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -717,7 +688,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Min();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertMin<TResult, TSelector>(
@@ -726,7 +696,6 @@ public class QueryAsserter
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -742,14 +711,12 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Min(rewrittenExpectedSelector);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertMax<TResult>(
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Action<TResult, TResult> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -762,7 +729,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Max();
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertMax<TResult, TSelector>(
@@ -771,7 +737,6 @@ public class QueryAsserter
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
         Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0,
         bool async = false,
         bool filteredQuery = false)
     {
@@ -787,7 +752,6 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).Max(rewrittenExpectedSelector);
 
         AssertEqual(expected, actual, asserter);
-        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertSum(

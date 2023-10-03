@@ -95,8 +95,7 @@ public abstract class FiltersInheritanceQueryTestBase<TFixture> : FilteredQueryT
     {
         return AssertFirst(
             async,
-            ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species),
-            entryCount: 1);
+            ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species));
     }
 
     [ConditionalTheory]

@@ -2272,7 +2272,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .Take(0)
                 .GroupBy(o => o.CustomerID)
                 .Select(g => new { g.Key, Total = g.Count() }),
-            elementSorter: o => o.Key,
             assertEmpty: true);
 
     [ConditionalTheory]
@@ -2286,7 +2285,6 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .Skip(0)
                 .Take(0)
                 .Select(g => new { g.Key, Total = g.Count() }),
-            elementSorter: o => o.Key,
             assertEmpty: true);
 
     [ConditionalTheory]

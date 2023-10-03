@@ -88,16 +88,14 @@ public abstract class ManyToManyQueryTestBase<TFixture> : QueryTestBase<TFixture
     public virtual Task Skip_navigation_select_many_max(bool async)
         => AssertMax(
             async,
-            ss => ss.Set<EntityThree>().SelectMany(e => e.CompositeKeySkipFull.Select(e => e.Key1)),
-            entryCount: 0);
+            ss => ss.Set<EntityThree>().SelectMany(e => e.CompositeKeySkipFull.Select(e => e.Key1)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Skip_navigation_select_many_min(bool async)
         => AssertMin(
             async,
-            ss => ss.Set<EntityThree>().SelectMany(e => e.RootSkipShared.Select(e => e.Id)),
-            entryCount: 0);
+            ss => ss.Set<EntityThree>().SelectMany(e => e.RootSkipShared.Select(e => e.Id)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

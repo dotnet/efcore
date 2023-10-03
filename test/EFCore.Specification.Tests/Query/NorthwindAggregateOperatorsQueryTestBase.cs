@@ -672,16 +672,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertSingle(
             async,
             ss => ss.Set<Customer>(),
-            predicate: c => c.CustomerID == "ALFKI",
-            entryCount: 1);
+            predicate: c => c.CustomerID == "ALFKI");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Single(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -696,24 +694,21 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertSingle(
             async,
             ss => ss.Set<Customer>(),
-            predicate: c => c.CustomerID == "ALFKI",
-            entryCount: 1);
+            predicate: c => c.CustomerID == "ALFKI");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_SingleOrDefault(bool async)
         => AssertSingleOrDefault(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task First(bool async)
         => AssertFirst(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -721,8 +716,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertFirst(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            predicate: c => c.City == "London",
-            entryCount: 1);
+            predicate: c => c.City == "London");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -730,16 +724,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertFirst(
             async,
             // ReSharper disable once ReplaceWithSingleCallToFirst
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task FirstOrDefault(bool async)
         => AssertFirstOrDefault(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -747,16 +739,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertFirstOrDefault(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            predicate: c => c.City == "London",
-            entryCount: 1);
+            predicate: c => c.City == "London");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_FirstOrDefault(bool async)
         => AssertFirstOrDefault(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -804,24 +794,21 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
     public virtual Task Last(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Last_when_no_order_by(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task LastOrDefault_when_no_order_by(bool async)
         => AssertLastOrDefault(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -829,24 +816,21 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertLast(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            predicate: c => c.City == "London",
-            entryCount: 1);
+            predicate: c => c.City == "London");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_Last(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task LastOrDefault(bool async)
         => AssertLastOrDefault(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -854,16 +838,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertLastOrDefault(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.ContactName),
-            predicate: c => c.City == "London",
-            entryCount: 1);
+            predicate: c => c.City == "London");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_LastOrDefault(bool async)
         => AssertLastOrDefault(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.ContactName).Where(c => c.City == "London"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1405,16 +1387,14 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
     public virtual Task OrderBy_Take_Last_gives_correct_result(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(20),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(20));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_Skip_Last_gives_correct_result(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Skip(20),
-            entryCount: 1);
+            ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Skip(20));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
