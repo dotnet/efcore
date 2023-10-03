@@ -258,7 +258,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         if (_entries.Count > 1
             || _entries is [var singleEntry]
             && (singleEntry.SharedIdentityEntry is not null
-                || singleEntry.EntityType.GetComplexProperties().Any()))
+                || singleEntry.EntityType.GetComplexProperties().Any()
+                || singleEntry.EntityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson())))
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 
@@ -293,9 +294,13 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
                 HandleSharedColumns(entry.EntityType, entry, tableMapping, deleting, sharedTableColumnMap);
 
-                if (!jsonEntry && entry.EntityType.IsMappedToJson())
+                if (!jsonEntry)
                 {
-                    jsonEntry = true;
+                    if (entry.EntityType.IsMappedToJson()
+                        || entry.EntityType.GetNavigations().Any(e => e.IsCollection && e.TargetEntityType.IsMappedToJson()))
+                    {
+                        jsonEntry = true;
+                    }
                 }
             }
         }
@@ -682,6 +687,28 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
 
                 jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
+            }
+
+            foreach (var entry in _entries.Where(e => !e.EntityType.IsMappedToJson()))
+            {
+                foreach (var jsonCollectionNavigation in entry.EntityType.GetNavigations()
+                             .Where(n => n.IsCollection
+                                 && n.TargetEntityType.IsMappedToJson()
+                                 && (entry.GetCurrentValue(n) as IEnumerable)?.Any() == false))
+                {
+                    var jsonCollectionEntityType = jsonCollectionNavigation.TargetEntityType;
+                    var jsonCollectionColumn =
+                        GetTableMapping(jsonCollectionEntityType)!.Table.FindColumn(
+                            jsonCollectionEntityType.GetContainerColumnName()!)!;
+
+                    if (!jsonColumnsUpdateMap.ContainsKey(jsonCollectionColumn))
+                    {
+                        var jsonPartialUpdateInfo = new JsonPartialUpdateInfo();
+                        jsonPartialUpdateInfo.Path.Insert(0, new JsonPartialUpdatePathEntry("$", null, entry, jsonCollectionNavigation));
+                        jsonPartialUpdateInfo.PropertyValue = entry.GetCurrentValue(jsonCollectionNavigation);
+                        jsonColumnsUpdateMap[jsonCollectionColumn] = jsonPartialUpdateInfo;
+                    }
+                }
             }
 
             foreach (var (jsonColumn, updateInfo) in jsonColumnsUpdateMap)
