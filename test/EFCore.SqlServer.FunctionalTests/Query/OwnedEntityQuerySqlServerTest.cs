@@ -166,7 +166,37 @@ ORDER BY [r].[Buyer]
 """
 SELECT [r].[Id], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
 FROM [RotRutCases] AS [r]
-WHERE ([r].[Rot_ApartmentNo] IS NOT NULL) AND ([r].[Rot_ServiceType] IS NOT NULL)
+WHERE ([r].[Rot_ApartmentNo] IS NOT NULL) OR ([r].[Rot_ServiceType] IS NOT NULL)
+""");
+    }
+
+    public override async Task Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(bool async)
+    {
+        await base.Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(async);
+
+        AssertSql(
+"""
+SELECT CASE
+    WHEN ([r].[Rot_ApartmentNo] IS NULL) AND ([r].[Rot_ServiceType] IS NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
+FROM [RotRutCases] AS [r]
+ORDER BY [r].[Id]
+""");
+    }
+
+    public override async Task Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(bool async)
+    {
+        await base.Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(async);
+
+        AssertSql(
+"""
+SELECT CASE
+    WHEN ([r].[Rot_ApartmentNo] IS NOT NULL) OR ([r].[Rot_ServiceType] IS NOT NULL) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
+FROM [RotRutCases] AS [r]
+ORDER BY [r].[Id]
 """);
     }
 
