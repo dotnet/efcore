@@ -12,6 +12,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata
@@ -802,6 +804,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         /// </summary>
         /// <returns>The service properties defined on this entity type.</returns>
         IEnumerable<IReadOnlyServiceProperty> GetServiceProperties();
+
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
 
         /// <summary>
         ///     <para>
