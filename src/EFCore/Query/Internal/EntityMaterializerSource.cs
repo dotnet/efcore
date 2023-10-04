@@ -31,6 +31,15 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
     /// </summary>
     public class EntityMaterializerSource : IEntityMaterializerSource
     {
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        public static readonly bool UseOldBehavior31866 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;
+
         private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
 
         /// <summary>
@@ -146,16 +155,21 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
         public virtual Func<MaterializationContext, object> GetMaterializer(IEntityType entityType)
-            => Materializers.GetOrAdd(
-                entityType, e =>
-                    {
-                        var materializationContextParameter
-                            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+        {
+            return UseOldBehavior31866
+                ? Materializers.GetOrAdd(entityType, static (e, s) => CreateMaterializer(s, e), this)
+                : CreateMaterializer(this, entityType);
 
-                        return Expression.Lambda<Func<MaterializationContext, object>>(
-                                CreateMaterializeExpression(e, "instance", materializationContextParameter),
-                                materializationContextParameter)
-                            .Compile();
-                    });
+            static Func<MaterializationContext, object> CreateMaterializer(EntityMaterializerSource self, IEntityType e)
+            {
+                var materializationContextParameter
+                    = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+
+                return Expression.Lambda<Func<MaterializationContext, object>>(
+                        self.CreateMaterializeExpression(e, "instance", materializationContextParameter),
+                        materializationContextParameter)
+                    .Compile();
+            }
+        }
     }
 }
