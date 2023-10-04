@@ -22,18 +22,15 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
     {
         await AssertSingle(
             async,
-            ss => ss.Set<Coke>(),
-            entryCount: 1);
+            ss => ss.Set<Coke>());
 
         await AssertSingle(
             async,
-            ss => ss.Set<Lilt>(),
-            entryCount: 1);
+            ss => ss.Set<Lilt>());
 
         await AssertSingle(
             async,
-            ss => ss.Set<Tea>(),
-            entryCount: 1);
+            ss => ss.Set<Tea>());
     }
 
     [ConditionalTheory]
@@ -121,8 +118,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Can_use_of_type_bird_first(bool async)
         => AssertFirst(
             async,
-            ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species),
-            entryCount: 1);
+            ss => ss.Set<Animal>().OfType<Bird>().OrderBy(a => a.Species));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -200,16 +196,14 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
     public virtual Task Can_query_just_kiwis(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Kiwi>(),
-            entryCount: 1);
+            ss => ss.Set<Kiwi>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Can_query_just_roses(bool async)
         => AssertSingle(
             async,
-            ss => ss.Set<Rose>(),
-            entryCount: 1);
+            ss => ss.Set<Rose>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -234,8 +228,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             asserter: (e, a) =>
             {
                 AssertInclude(e, a, new ExpectedInclude<Eagle>(x => x.Prey));
-            },
-            entryCount: 2);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
