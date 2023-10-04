@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
     /// </remarks>
     public class ValueGeneratorCache : IValueGeneratorCache
     {
+        private static readonly bool _useOldBehavior31539 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31539", out var enabled31539) && enabled31539;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
         /// </summary>
@@ -49,24 +52,48 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
 
         private readonly struct CacheKey : IEquatable<CacheKey>
         {
+            private readonly Guid _modelId;
+            private readonly string? _property;
+            private readonly string? _entityType;
+
             public CacheKey(IProperty property, IEntityType entityType)
             {
-                Property = property;
-                EntityType = entityType;
+                if (_useOldBehavior31539)
+                {
+                    _modelId = default;
+                    _property = null;
+                    _entityType = null;
+                    Property = property;
+                    EntityType = entityType;
+                }
+                else
+                {
+                    _modelId = entityType.Model.ModelId;
+                    _property = property.Name;
+                    _entityType = entityType.Name;
+                    Property = null;
+                    EntityType = null;
+                }
             }
 
-            public IProperty Property { get; }
+            public IProperty? Property { get; }
 
-            public IEntityType EntityType { get; }
+            public IEntityType? EntityType { get; }
 
             public bool Equals(CacheKey other)
-                => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
+                => _useOldBehavior31539
+                    ? Property!.Equals(other.Property) && EntityType!.Equals(other.EntityType)
+                    : (_property!.Equals(other._property, StringComparison.Ordinal)
+                        && _entityType!.Equals(other._entityType, StringComparison.Ordinal)
+                        && _modelId.Equals(other._modelId));
 
             public override bool Equals(object? obj)
                 => obj is CacheKey cacheKey && Equals(cacheKey);
 
             public override int GetHashCode()
-                => HashCode.Combine(Property, EntityType);
+                => _useOldBehavior31539
+                    ? HashCode.Combine(Property!, EntityType!)
+                    : HashCode.Combine(_property!, _entityType!, _modelId);
         }
 
         /// <summary>
@@ -88,7 +115,8 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
             Check.NotNull(property, nameof(property));
             Check.NotNull(factory, nameof(factory));
 
-            return _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
+            return _cache.GetOrAdd(
+                new CacheKey(property, entityType), static (ck, p) => p.factory(p.property, p.entityType), (factory, entityType, property));
         }
     }
 }
