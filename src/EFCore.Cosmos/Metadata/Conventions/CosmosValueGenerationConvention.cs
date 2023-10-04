@@ -21,6 +21,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
         ValueGenerationConvention,
         IEntityTypeAnnotationChangedConvention
     {
+        private static readonly bool _useOldBehavior31664 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
+
         /// <summary>
         ///     Creates a new instance of <see cref="CosmosValueGenerationConvention" />.
         /// </summary>
@@ -82,8 +85,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
                 {
                     var pk = property.FindContainingPrimaryKey();
                     if (pk != null
-                        && !ownership.Properties.Contains(property)
+                        && !property.IsForeignKey()
                         && pk.Properties.Count == ownership.Properties.Count + 1
+                        && (property.IsShadowProperty() || _useOldBehavior31664)
                         && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                     {
                         return base.GetValueGenerated(property);
