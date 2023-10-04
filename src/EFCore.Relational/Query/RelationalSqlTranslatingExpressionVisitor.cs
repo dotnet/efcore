@@ -20,6 +20,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior30996
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30996", out var enabled30996) && enabled30996;
+
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
     private static readonly List<MethodInfo> SingleResultMethodInfos = new()
@@ -1671,19 +1674,33 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     if (allNonPrincipalSharedNonPkProperties.Count != 0
                         && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
                     {
-                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
-                            .Select(
-                                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
-                                    Expression.Constant(null, p.ClrType.MakeNullable()),
-                                    nodeType != ExpressionType.Equal))
-                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                        Expression? optionalPropertiesCondition;
+                        if (!UseOldBehavior30996)
+                        {
+                            optionalPropertiesCondition = allNonPrincipalSharedNonPkProperties
+                                .Select(
+                                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                        CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                        Expression.Constant(null, p.ClrType.MakeNullable()),
+                                        nodeType != ExpressionType.Equal))
+                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.AndAlso(l, r) : Expression.OrElse(l, r));
+                        }
+                        else
+                        {
+                            optionalPropertiesCondition = allNonPrincipalSharedNonPkProperties
+                                .Select(
+                                    p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                        CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                        Expression.Constant(null, p.ClrType.MakeNullable()),
+                                        nodeType != ExpressionType.Equal))
+                                .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                        }
 
                         condition = condition == null
-                            ? atLeastOneNonNullValueInNullablePropertyCondition
+                            ? optionalPropertiesCondition
                             : nodeType == ExpressionType.Equal
-                                ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
-                                : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                                ? Expression.OrElse(condition, optionalPropertiesCondition)
+                                : Expression.AndAlso(condition, optionalPropertiesCondition);
                     }
 
                     if (condition != null)
