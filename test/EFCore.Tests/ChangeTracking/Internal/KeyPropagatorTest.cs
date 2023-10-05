@@ -183,7 +183,6 @@ public class KeyPropagatorTest
         var dependent = new ProductDetail { Product = principal };
 
         var contextServices = CreateContextServices(BuildModel(generateTemporary));
-        model = contextServices.GetService<IModel>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
         var principalEntry = stateManager.GetOrCreateEntry(principal);
         principalEntry.SetEntityState(EntityState.Added);

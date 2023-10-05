@@ -27,8 +27,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     private const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly bool UseOldBehavior31107 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31107", out var enabled31107) && enabled31107;
-    private static readonly bool UseOldBehavior31107 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31107", out var enabled31107) && enabled31107;
 
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 

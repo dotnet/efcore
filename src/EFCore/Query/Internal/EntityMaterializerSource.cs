@@ -15,10 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EntityMaterializerSource : IEntityMaterializerSource
 {
-    private static readonly MethodInfo InjectableServiceInjectedMethod
-        = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
-
-    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -26,8 +22,12 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static readonly bool UseOldBehavior31866 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;
 
+    private static readonly MethodInfo InjectableServiceInjectedMethod
+        = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
+
+    private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _emptyMaterializers;
     private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
     private readonly IMaterializationInterceptor? _materializationInterceptor;
@@ -485,20 +485,23 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     /// </summary>
     public virtual Func<MaterializationContext, object> GetMaterializer(
         IEntityType entityType)
-        => Materializers.GetOrAdd(
-            entityType,
-            static (e, self) =>
-            {
-                var materializationContextParameter
-                    = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+    {
+        return UseOldBehavior31866
+            ? Materializers.GetOrAdd(entityType, static (e, s) => CreateMaterializer(s, e), this)
+            : CreateMaterializer(this, entityType);
 
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                        ((IEntityMaterializerSource)self).CreateMaterializeExpression(
-                            new EntityMaterializerSourceParameters(e, "instance", null), materializationContextParameter),
-                        materializationContextParameter)
-                    .Compile();
-            },
-            this);
+        static Func<MaterializationContext, object> CreateMaterializer(EntityMaterializerSource self, IEntityType e)
+        {
+            var materializationContextParameter
+                = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
+
+            return Expression.Lambda<Func<MaterializationContext, object>>(
+                    ((IEntityMaterializerSource)self).CreateMaterializeExpression(
+                        new EntityMaterializerSourceParameters(e, "instance", null), materializationContextParameter),
+                    materializationContextParameter)
+                .Compile();
+        }
+    }
 
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
         => LazyInitializer.EnsureInitialized(
@@ -512,10 +515,13 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Func<MaterializationContext, object> GetEmptyMaterializer(IEntityType entityType)
-        => EmptyMaterializers.GetOrAdd(
-            entityType,
-            static (e, self) =>
-            {
+    {
+        return UseOldBehavior31866
+            ? EmptyMaterializers.GetOrAdd(entityType, static (e, s) => CreateEmptyMaterializer(s, e), this)
+            : CreateEmptyMaterializer(this, entityType);
+
+        static Func<MaterializationContext, object> CreateEmptyMaterializer(EntityMaterializerSource self, IEntityType e)
+        {
                 var binding = e.ServiceOnlyConstructorBinding;
                 if (binding == null)
                 {
@@ -564,8 +570,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                                 blockExpressions),
                         materializationContextExpression)
                     .Compile();
-            },
-            this);
+        }
+    }
 
     private InstantiationBinding ModifyBindings(ITypeBase structuralType, InstantiationBinding binding)
     {

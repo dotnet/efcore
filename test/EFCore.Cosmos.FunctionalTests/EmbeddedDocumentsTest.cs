@@ -218,7 +218,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             };
             if (useIds)
             {
-                addedAddress3.IdNotes = new List<NoteWithId> { new() { Id = 1, Content = "Another note" } };
+                addedAddress3.IdNotes = new List<NoteWithId> { new() { Id = -1, Content = "Another note" } };
             }
             else
             {

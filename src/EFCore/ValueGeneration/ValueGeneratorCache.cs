@@ -50,7 +50,7 @@ public class ValueGeneratorCache : IValueGeneratorCache
     {
         private readonly Guid _modelId;
         private readonly string? _property;
-        private readonly string? _entityType;
+        private readonly string? _typeBase;
 
         public CacheKey(IProperty property, ITypeBase typeBase)
         {
@@ -58,41 +58,38 @@ public class ValueGeneratorCache : IValueGeneratorCache
             {
                 _modelId = default;
                 _property = null;
-                _entityType = null;
+                _typeBase = null;
                 Property = property;
                 TypeBase = typeBase;
             }
             else
             {
-                _modelId = entityType.Model.ModelId;
+                _modelId = typeBase.Model.ModelId;
                 _property = property.Name;
-                _entityType = entityType.Name;
+                _typeBase = typeBase.Name;
                 Property = null;
-                EntityType = null;
+                TypeBase = null;
             }
         }
 
         public IProperty? Property { get; }
 
-        public IEntityType? EntityType { get; }
-        public ITypeBase TypeBase { get; }
+        public ITypeBase? TypeBase { get; }
 
         public bool Equals(CacheKey other)
             => _useOldBehavior31539
-                ? Property!.Equals(other.Property) && EntityType!.Equals(other.EntityType)
+                ? Property!.Equals(other.Property) && TypeBase!.Equals(other.TypeBase)
                 : (_property!.Equals(other._property, StringComparison.Ordinal)
-                    && _entityType!.Equals(other._entityType, StringComparison.Ordinal)
+                    && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
                     && _modelId.Equals(other._modelId));
-            => Property.Equals(other.Property) && TypeBase.Equals(other.TypeBase);
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
 
         public override int GetHashCode()
             => _useOldBehavior31539
-                ? HashCode.Combine(Property!, EntityType!)
-                : HashCode.Combine(_property!, _entityType!, _modelId);
-            => HashCode.Combine(Property, TypeBase);
+                ? HashCode.Combine(Property!, TypeBase!)
+                : HashCode.Combine(_property!, _typeBase!, _modelId);
     }
 
     /// <summary>
@@ -110,9 +107,6 @@ public class ValueGeneratorCache : IValueGeneratorCache
         IProperty property,
         ITypeBase typeBase,
         Func<IProperty, ITypeBase, ValueGenerator> factory)
-        => _cache.GetOrAdd(new CacheKey(property, typeBase), static (ck, f) => f(ck.Property, ck.TypeBase), factory);
-        IEntityType entityType,
-        Func<IProperty, IEntityType, ValueGenerator> factory)
         => _cache.GetOrAdd(
-                new CacheKey(property, entityType), static (ck, p) => p.factory(p.property, p.entityType), (factory, entityType, property));
+                new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

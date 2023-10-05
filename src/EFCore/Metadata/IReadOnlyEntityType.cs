@@ -656,6 +656,16 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers();
 
     /// <summary>
+    ///     Gets the <see cref="PropertyAccessMode" /> being used for navigations of this entity type.
+    /// </summary>
+    /// <remarks>
+    ///     Note that individual navigations can override this access mode. The value returned here will
+    ///     be used for any navigation for which no override has been specified.
+    /// </remarks>
+    /// <returns>The access mode being used.</returns>
+    PropertyAccessMode GetNavigationAccessMode();
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
