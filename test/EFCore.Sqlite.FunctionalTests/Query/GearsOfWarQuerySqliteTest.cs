@@ -388,10 +388,10 @@ WHERE instr("s"."Banner", char(@__someByte_0)) > 0
         await base.Byte_array_filter_by_length_literal(async);
 
         AssertSql(
-            """
+"""
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE length("s"."Banner") = 1
+WHERE length("s"."Banner") = 2
 """);
     }
 
@@ -400,8 +400,8 @@ WHERE length("s"."Banner") = 1
         await base.Byte_array_filter_by_length_parameter(async);
 
         AssertSql(
-            """
-@__p_0='1'
+"""
+@__p_0='2'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
@@ -563,8 +563,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' years') = '1993-11-10'
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).Year == 1993).AsTracking(),
-            entryCount: 1);
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).Year == 1993).AsTracking());
 
         AssertSql(
             """
@@ -580,8 +579,7 @@ WHERE CAST(strftime('%Y', "m"."Date", CAST(3 AS TEXT) || ' years') AS INTEGER) =
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)).AsTracking(),
-            entryCount: 1);
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)).AsTracking());
 
         AssertSql(
             """
@@ -2887,8 +2885,8 @@ WHERE "m"."Timeline" = '1902-01-02 10:00:00.1234567+01:30'
         await base.Parameter_used_multiple_times_take_appropriate_inferred_type_mapping(async);
 
         AssertSql(
-            """
-@__place_0='Seattle' (Size = 7)
+"""
+@__place_0='Ephyra's location' (Size = 17)
 
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
@@ -4126,20 +4124,20 @@ INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
         await base.FirstOrDefault_navigation_access_entity_equality_in_where_predicate_apply_peneding_selector(async);
 
         AssertSql(
-            """
-SELECT "f"."Id", "f"."CapitalName", "f"."Discriminator", "f"."Name", "f"."ServerAddress", "f"."CommanderName", "f"."Eradicated"
-FROM "Factions" AS "f"
-LEFT JOIN "Cities" AS "c" ON "f"."CapitalName" = "c"."Name"
+"""
+SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
+FROM "Gears" AS "g"
+LEFT JOIN "Cities" AS "c" ON "g"."AssignedCityName" = "c"."Name"
 WHERE "c"."Name" = (
     SELECT "c0"."Name"
-    FROM "Gears" AS "g"
-    INNER JOIN "Cities" AS "c0" ON "g"."CityOfBirthName" = "c0"."Name"
-    ORDER BY "g"."Nickname"
+    FROM "Gears" AS "g0"
+    INNER JOIN "Cities" AS "c0" ON "g0"."CityOfBirthName" = "c0"."Name"
+    ORDER BY "g0"."Nickname"
     LIMIT 1) OR ("c"."Name" IS NULL AND (
     SELECT "c0"."Name"
-    FROM "Gears" AS "g"
-    INNER JOIN "Cities" AS "c0" ON "g"."CityOfBirthName" = "c0"."Name"
-    ORDER BY "g"."Nickname"
+    FROM "Gears" AS "g0"
+    INNER JOIN "Cities" AS "c0" ON "g0"."CityOfBirthName" = "c0"."Name"
+    ORDER BY "g0"."Nickname"
     LIMIT 1) IS NULL)
 """);
     }
@@ -6619,9 +6617,9 @@ LEFT JOIN "Weapons" AS "w" ON "w"."SynergyWithId" IS NOT NULL
         await base.Conditional_expression_with_test_being_simplified_to_constant_complex(async);
 
         AssertSql(
-            """
+"""
 @__prm_0='True'
-@__prm2_1='Dom's Lancer' (Size = 12)
+@__prm2_1='Marcus' Lancer' (Size = 14)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
@@ -7558,13 +7556,14 @@ WHERE EXISTS (
         await base.FirstOrDefault_over_int_compared_to_zero(async);
 
         AssertSql(
-            """
+"""
 SELECT "s"."Name"
 FROM "Squads" AS "s"
-WHERE "s"."Name" = 'Kilo' AND COALESCE((
+WHERE "s"."Name" = 'Delta' AND COALESCE((
     SELECT "g"."SquadId"
     FROM "Gears" AS "g"
     WHERE "s"."Id" = "g"."SquadId" AND "g"."HasSoulPatch"
+    ORDER BY "g"."FullName"
     LIMIT 1), 0) <> 0
 """);
     }
@@ -7973,8 +7972,8 @@ ORDER BY "g"."FullName"
         await base.Contains_with_local_nullable_guid_list_closure(async);
 
         AssertSql(
-            """
-@__ids_0='["D2C26679-562B-44D1-AB96-23D1775E0926","23CBCF9B-CE14-45CF-AAFA-2C2667EBFDD3","AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4"]' (Size = 118)
+"""
+@__ids_0='["DF36F493-463F-4123-83F9-6B135DEEB7BA","23CBCF9B-CE14-45CF-AAFA-2C2667EBFDD3","AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4"]' (Size = 118)
 
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
@@ -8290,10 +8289,10 @@ ORDER BY "f"."Id", "t"."Name", "g"."Nickname", "g"."SquadId", "g0"."Nickname"
         await base.Checked_context_with_addition_does_not_fail(async);
 
         AssertSql(
-            """
+"""
 SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId"
 FROM "LocustLeaders" AS "l"
-WHERE CAST("l"."ThreatLevel" AS INTEGER) >= 5 + CAST("l"."ThreatLevel" AS INTEGER)
+WHERE CAST("l"."ThreatLevel" AS INTEGER) <= 5 + CAST("l"."ThreatLevel" AS INTEGER)
 """);
     }
 
@@ -9307,6 +9306,21 @@ WHERE NOT EXISTS (
 """);
     }
 
+    public override async Task Where_subquery_equality_to_null_with_composite_key_should_match_nulls(bool async)
+    {
+        await base.Where_subquery_equality_to_null_with_composite_key_should_match_nulls(async);
+
+        AssertSql(
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "Gears" AS "g"
+    WHERE "s"."Id" = "g"."SquadId" AND "g"."FullName" = 'Anthony Carmine')
+""");
+    }
+
     public override async Task Where_subquery_equality_to_null_without_composite_key(bool async)
     {
         await base.Where_subquery_equality_to_null_without_composite_key(async);
@@ -9319,6 +9333,21 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM "Weapons" AS "w"
     WHERE "g"."FullName" = "w"."OwnerFullName")
+""");
+    }
+
+    public override async Task Where_subquery_equality_to_null_without_composite_key_should_match_null(bool async)
+    {
+        await base.Where_subquery_equality_to_null_without_composite_key_should_match_null(async);
+
+        AssertSql(
+"""
+SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
+FROM "Gears" AS "g"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "Weapons" AS "w"
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" = 'Hammer of Dawn')
 """);
     }
 

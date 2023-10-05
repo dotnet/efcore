@@ -80,6 +80,7 @@ public class CosmosValueGenerationConvention :
                 if (pk != null
                     && !property.IsForeignKey()
                     && pk.Properties.Count == ownership.Properties.Count + 1
+                    && property.IsShadowProperty()
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {
                     return ValueGenerated.OnAddOrUpdate;

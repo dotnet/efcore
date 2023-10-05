@@ -1863,11 +1863,6 @@ public class RelationalModelValidator : ModelValidator
                 continue;
             }
 
-            if (!entityType.GetDirectlyDerivedTypes().Any())
-            {
-                continue;
-            }
-
             // Hierarchy mapping strategy must be the same across all types of mappings
             if (entityType.FindDiscriminatorProperty() != null)
             {
@@ -1890,7 +1885,8 @@ public class RelationalModelValidator : ModelValidator
             else
             {
                 if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy
-                    && entityType.FindPrimaryKey() == null)
+                    && entityType.FindPrimaryKey() == null
+                    && entityType.GetDirectlyDerivedTypes().Any())
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.KeylessMappingStrategy(
@@ -1907,12 +1903,13 @@ public class RelationalModelValidator : ModelValidator
                 var discriminatorValues = new Dictionary<string, IEntityType>();
                 foreach (var derivedType in derivedTypes)
                 {
-                    if (!derivedType.ClrType.IsInstantiable())
+                    var discriminatorValue = derivedType.GetDiscriminatorValue();
+                    if (!derivedType.ClrType.IsInstantiable()
+                        || discriminatorValue is null)
                     {
                         continue;
                     }
 
-                    var discriminatorValue = derivedType.GetDiscriminatorValue();
                     if (discriminatorValue is not string valueString)
                     {
                         throw new InvalidOperationException(

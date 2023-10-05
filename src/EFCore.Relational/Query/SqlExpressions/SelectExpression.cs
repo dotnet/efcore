@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
+    private static readonly bool UseOldBehavior31107 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31107", out var enabled31107) && enabled31107;
+
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
     private readonly List<ProjectionExpression> _projection = new();
@@ -2971,7 +2974,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             var parentNullable = identifyingColumn.IsNullable;
             var pkColumnsNullable = parentNullable
                 || (derivedType && ownerType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy);
-            var newColumnsNullable = pkColumnsNullable || !navigation.ForeignKey.IsRequiredDependent;
+            var newColumnsNullable = pkColumnsNullable
+                || !navigation.ForeignKey.IsRequiredDependent
+                || (derivedType && !UseOldBehavior31107);
             if (derivedTpt)
             {
                 principalMappings = principalMappings.Except(ownerType.BaseType!.GetViewOrTableMappings().Select(e => e.Table));

@@ -27,6 +27,9 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 /// </remarks>
 public class ValueGeneratorCache : IValueGeneratorCache
 {
+    private static readonly bool _useOldBehavior31539 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31539", out var enabled31539) && enabled31539;
+
     /// <summary>
     ///     Initializes a new instance of the <see cref="ValueGeneratorCache" /> class.
     /// </summary>
@@ -45,24 +48,48 @@ public class ValueGeneratorCache : IValueGeneratorCache
 
     private readonly struct CacheKey : IEquatable<CacheKey>
     {
+        private readonly Guid _modelId;
+        private readonly string? _property;
+        private readonly string? _typeBase;
+
         public CacheKey(IProperty property, ITypeBase typeBase)
         {
-            Property = property;
-            TypeBase = typeBase;
+            if (_useOldBehavior31539)
+            {
+                _modelId = default;
+                _property = null;
+                _typeBase = null;
+                Property = property;
+                TypeBase = typeBase;
+            }
+            else
+            {
+                _modelId = typeBase.Model.ModelId;
+                _property = property.Name;
+                _typeBase = typeBase.Name;
+                Property = null;
+                TypeBase = null;
+            }
         }
 
-        public IProperty Property { get; }
+        public IProperty? Property { get; }
 
-        public ITypeBase TypeBase { get; }
+        public ITypeBase? TypeBase { get; }
 
         public bool Equals(CacheKey other)
-            => Property.Equals(other.Property) && TypeBase.Equals(other.TypeBase);
+            => _useOldBehavior31539
+                ? Property!.Equals(other.Property) && TypeBase!.Equals(other.TypeBase)
+                : (_property!.Equals(other._property, StringComparison.Ordinal)
+                    && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
+                    && _modelId.Equals(other._modelId));
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
 
         public override int GetHashCode()
-            => HashCode.Combine(Property, TypeBase);
+            => _useOldBehavior31539
+                ? HashCode.Combine(Property!, TypeBase!)
+                : HashCode.Combine(_property!, _typeBase!, _modelId);
     }
 
     /// <summary>
@@ -80,5 +107,6 @@ public class ValueGeneratorCache : IValueGeneratorCache
         IProperty property,
         ITypeBase typeBase,
         Func<IProperty, ITypeBase, ValueGenerator> factory)
-        => _cache.GetOrAdd(new CacheKey(property, typeBase), static (ck, f) => f(ck.Property, ck.TypeBase), factory);
+        => _cache.GetOrAdd(
+                new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

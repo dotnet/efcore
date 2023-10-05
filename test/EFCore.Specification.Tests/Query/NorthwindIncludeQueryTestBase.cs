@@ -27,8 +27,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.Customer), new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-            assertOrder: true,
-            entryCount: 70);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -39,8 +38,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.Customer),
-                new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-            entryCount: 70);
+                new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -83,8 +81,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Customer>(c => c.Orders),
-                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")),
-            entryCount: 55);
+                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -126,8 +123,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -138,8 +134,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Product>(p => p.OrderDetails),
-                new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")),
-            entryCount: 237);
+                new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -147,16 +142,14 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertLast(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.CompanyName),
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 8);
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Include_collection_with_last_no_orderby(bool async)
         => AssertLast(
             async,
-            ss => ss.Set<Customer>().Include(c => c.Orders),
-            entryCount: 8);
+            ss => ss.Set<Customer>().Include(c => c.Orders));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -164,8 +157,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Skip(10).Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 811);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -173,8 +165,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Take(10).Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 110);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -182,8 +173,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Skip(10).Take(5).Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 35);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -195,8 +185,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Product>(p => p.OrderDetails),
-                new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")),
-            entryCount: 89);
+                new ExpectedInclude<OrderDetail>(od => od.Order, "OrderDetails")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -204,8 +193,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)),
-            entryCount: 227);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -215,8 +203,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.OrderDetails).Include(o => o.Customer),
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
-                new ExpectedInclude<Order>(o => o.OrderDetails), new ExpectedInclude<Order>(o => o.Customer)),
-            entryCount: 234);
+                new ExpectedInclude<Order>(o => o.OrderDetails), new ExpectedInclude<Order>(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -224,8 +211,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(5).Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 53);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -258,8 +244,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                   from c2 in ss.Set<Customer>().Where(c2 => c2.CustomerID.StartsWith("F")).Include(c2 => c2.Orders)
                   select c2,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -269,8 +254,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from c1 in ss.Set<Customer>()
                   from c2 in ss.Set<Customer>().Include(c => c.Orders).Where(c => c.CustomerID == "ALFKI")
                   select c2,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 7);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -279,8 +263,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => from c1 in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(5)
                   from c2 in ss.Set<Customer>().Include(c2 => c2.Orders)
-                  select c1,
-            entryCount: 5);
+                  select c1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -305,8 +288,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 70);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -318,8 +300,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   from o in grouping.DefaultIfEmpty()
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -330,8 +311,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   from o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(5)
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -342,8 +322,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   from o in ss.Set<Order>().Where(o => o.CustomerID == c.CustomerID).OrderBy(o => c.CustomerID).Take(5)
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 70);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -355,8 +334,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                       .OrderBy(o => c.CustomerID).Take(5).DefaultIfEmpty()
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -368,8 +346,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                       .OrderBy(o => c.CustomerID).Take(5).DefaultIfEmpty()
                   where c.CustomerID.StartsWith("F")
                   select c,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 71);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -382,8 +359,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   orderby c.City
                   select c,
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            assertOrder: true,
-            entryCount: 7);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -394,8 +370,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Include(c => c.Orders)
                 .Where(c => c.CustomerID.StartsWith("W"))
                 .OrderByDescending(c => c.Orders.OrderByDescending(oo => oo.OrderDate).FirstOrDefault().OrderDate),
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 15);
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -404,8 +379,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.CustomerID),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            assertOrder: true,
-            entryCount: 71);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -414,8 +388,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.PostalCode),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            assertOrder: true,
-            entryCount: 71);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -423,8 +396,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.ContactTitle).Take(10),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 126);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -433,8 +405,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).Include(c => c.Orders).OrderBy(c => c.ContactTitle)
                 .Skip(2),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 64);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -442,8 +413,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertFirstOrDefault(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).OrderByDescending(c => c.CompanyName),
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 8);
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -454,8 +424,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Include(c => c.Orders)
                 .Where(c => c.CustomerID == "ALFKI")
                 .OrderBy(c => c.Orders.OrderBy(o => o.EmployeeID).Select(o => o.OrderDate).FirstOrDefault()),
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 7);
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -501,8 +470,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).Where(c => c.CustomerID == "ALFKI"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 7);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -510,8 +478,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI").Include(c => c.Orders),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 7);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -526,8 +493,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.c1, a.c1, new ExpectedInclude<Customer>(c => c.Orders));
                 AssertInclude(e.c2, a.c2, new ExpectedInclude<Customer>(c => c.Orders));
-            },
-            entryCount: 34);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -542,8 +508,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.c1, a.c1, new ExpectedInclude<Customer>(c => c.Orders));
                 AssertInclude(e.c2, a.c2, new ExpectedInclude<Customer>(c => c.Orders));
-            },
-            entryCount: 15);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -558,8 +523,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.c1, a.c1, new ExpectedInclude<Customer>(c => c.Orders));
                 AssertEqual(e.c2, a.c2);
-            },
-            entryCount: 8);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -574,8 +538,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer));
                 AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer));
-            },
-            entryCount: 5);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -590,8 +553,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.o1, a.o1, new ExpectedInclude<Order>(c => c.Customer));
                 AssertEqual(e.o2, a.o2);
-            },
-            entryCount: 6);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -606,8 +568,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertEqual(e.o1, a.o1);
                 AssertInclude(e.o2, a.o2, new ExpectedInclude<Order>(c => c.Customer));
-            },
-            entryCount: 6);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -632,8 +593,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.Customer),
-                new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-            entryCount: 6);
+                new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -645,8 +605,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.OrderDetails),
-                new ExpectedInclude<OrderDetail>(od => od.Product, "OrderDetails")),
-            entryCount: 7);
+                new ExpectedInclude<OrderDetail>(od => od.Product, "OrderDetails")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -657,8 +616,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 183);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -672,8 +630,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 516);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -687,8 +644,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 516);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -700,8 +656,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 213);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -713,8 +668,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 213);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -722,8 +676,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)),
-            entryCount: 70);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -731,8 +684,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => await AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID % 23 == 13).Include(o => o.Order),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order)),
-            entryCount: 131);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<OrderDetail>(od => od.Order)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -743,8 +695,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.Customer),
-                new ExpectedInclude<Order>(o => o.OrderDetails)),
-            entryCount: 234);
+                new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -754,8 +705,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from o in ss.Set<Order>().Include(o => o.OrderDetails)
                   where o.CustomerID == "ALFKI"
                   select o,
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)),
-            entryCount: 18);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -803,8 +753,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertInclude(e.o, a.o, new ExpectedInclude<Order>(o => o.Customer));
                 AssertEqual(e.CustomerID, a.CustomerID);
-            },
-            entryCount: 70);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -812,8 +761,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Include(o => o.Customer).Where(o => o.CustomerID == "ALFKI"),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)),
-            entryCount: 7);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -821,8 +769,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.CustomerID == "ALFKI").Include(o => o.Customer),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)),
-            entryCount: 7);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -834,8 +781,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-            entryCount: 227);
+                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -846,8 +792,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Customer>(c => c.Orders),
-                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")),
-            entryCount: 235);
+                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -860,8 +805,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<Customer>(c => c.Orders),
                 new ExpectedInclude<Order>(o => o.OrderDetails, "Orders"),
-                new ExpectedInclude<OrderDetail>(od => od.Product, "Orders.OrderDetails")),
-            entryCount: 293);
+                new ExpectedInclude<OrderDetail>(od => od.Product, "Orders.OrderDetails")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -873,8 +817,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Customer>(c => c.Orders),
-                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")),
-            entryCount: 19);
+                new ExpectedInclude<Order>(o => o.OrderDetails, "Orders")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -886,8 +829,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-            entryCount: 9);
+                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -898,8 +840,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order")),
-            entryCount: 161);
+                new ExpectedInclude<Order>(o => o.Customer, "Order")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -911,8 +852,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             asserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<Order>(o => o.Customer),
-                new ExpectedInclude<Customer>(c => c.Orders, "Customer")),
-            entryCount: 6);
+                new ExpectedInclude<Customer>(c => c.Orders, "Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -928,8 +868,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 516);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -945,8 +884,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
                 new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 516);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -961,8 +899,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 213);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -977,8 +914,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<OrderDetail>(od => od.Product)),
-            entryCount: 213);
+                new ExpectedInclude<OrderDetail>(od => od.Product)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -994,8 +930,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-            entryCount: 229);
+                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1011,8 +946,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
                 new ExpectedInclude<Order>(o => o.Customer, "Order"),
-                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")),
-            entryCount: 9);
+                new ExpectedInclude<Customer>(c => c.Orders, "Order.Customer")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1026,8 +960,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<OrderDetail>(od => od.Order),
-                new ExpectedInclude<Order>(o => o.Customer, "Order")),
-            entryCount: 161);
+                new ExpectedInclude<Order>(o => o.Customer, "Order")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1052,8 +985,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().OrderByDescending(c => c.ContactName).Include(c => c.Orders).Take(10),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 75);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1061,8 +993,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Include(c => c.Orders).OrderBy(c => c.ContactName).Skip(80),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 106);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1074,8 +1005,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .OrderBy(o => o.OrderID > 0)
                 .ThenBy(o => o.Customer != null ? o.Customer.City : string.Empty)
                 .Take(5),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)),
-            entryCount: 14);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1088,8 +1018,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .OrderBy(c => c.CustomerID.StartsWith("S") ? 1 : 2)
                 .Select(c => c),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            elementSorter: e => e.CustomerID,
-            entryCount: 71);
+            elementSorter: e => e.CustomerID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1110,8 +1039,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(o => o.OrderID == 10248)
                 .Include(o => o.OrderDetails)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 4);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1122,8 +1050,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(o => o.OrderID == 10248)
                 .Include(o => o.Customer)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 2);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1139,8 +1066,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                     od => od.OrderID,
                     (o, od) => o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 4);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1156,8 +1082,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                     od => od.OrderID,
                     (o, od) => o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 2);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1172,8 +1097,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                     o => o.OrderID,
                     (od, o) => o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 4);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1187,8 +1111,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                     o => o.OrderID,
                     (od, o) => o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 919);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1199,8 +1122,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                    from od in ss.Set<OrderDetail>()
                    select o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 4);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1211,8 +1133,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                    from od in ss.Set<OrderDetail>()
                    select o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 2);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1223,8 +1144,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                    from o in ss.Set<Order>().Include(o => o.OrderDetails)
                    select o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 2985);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1235,8 +1155,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                    from o in ss.Set<Order>().Include(o => o.Customer)
                    select o)
                 .GroupBy(e => e.OrderID)
-                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()),
-            entryCount: 919);
+                .Select(e => e.OrderBy(o => o.OrderID).FirstOrDefault()));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1244,8 +1163,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(o => o.OrderID < 10250).Include(o => o.Customer).Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)),
-            entryCount: 4);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1256,8 +1174,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .Include(o => o.Orders)
                 .Distinct(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 34);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1269,8 +1186,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Include(o => o.OrderDetails)
                 .OrderBy<Order, object>(c => c.OrderID),
             elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Order>(o => o.OrderDetails)),
-            assertOrder: true,
-            entryCount: 7);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1284,8 +1200,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 27);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
     }
 
     [ConditionalTheory]
@@ -1300,8 +1215,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => !list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 27);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
     }
 
     [ConditionalTheory]
@@ -1316,8 +1230,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 29);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
     }
 
     [ConditionalTheory]
@@ -1332,8 +1245,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Where(c => c.CustomerID.StartsWith("A"))
                 .OrderBy(c => !list.Contains(c.CustomerID))
                 .Skip(1),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)),
-            entryCount: 27);
+            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Customer>(c => c.Orders)));
     }
 
     [ConditionalTheory]
@@ -1343,8 +1255,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             async,
             ss => ss.Set<Employee>().Include(e => e.Manager),
             e => e.Manager == null,
-            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Employee>(emp => emp.Manager)),
-            entryCount: 1);
+            asserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<Employee>(emp => emp.Manager)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1354,8 +1265,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             ss => from e in ss.Set<Employee>().Include(e => e.Manager)
                   where e.EmployeeID == 1 || e.EmployeeID == 2
                   orderby e.EmployeeID
-                  select e.Manager != null ? "Employee " + ClientMethod(e) : "",
-            entryCount: 2);
+                  select e.Manager != null ? "Employee " + ClientMethod(e) : "");
 
     private static string ClientMethod(Employee e)
         => e.FirstName + " reports to " + e.Manager.FirstName;
@@ -1376,8 +1286,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 AssertCollection(
                     e.Orders, a.Orders,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails)));
-            },
-            entryCount: 14);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1394,8 +1303,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 AssertCollection(
                     e.Orders, a.Orders,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails)));
-            },
-            entryCount: 18);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1412,8 +1320,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 AssertCollection(
                     e.Orders, a.Orders,
                     elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails)));
-            },
-            entryCount: 14);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1427,8 +1334,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 new ExpectedFilteredInclude<Customer, Order>(
                     c => c.Orders,
                     includeFilter: os => os.OrderBy(o => o.OrderID).Skip(1).OrderByDescending(o => o.OrderDate),
-                    assertOrder: true)),
-            entryCount: 64);
+                    assertOrder: true)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1466,8 +1372,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
             {
                 AssertEqual(e.cust, a.cust);
                 AssertInclude(e.order, a.order, new ExpectedInclude<Order>(e => e.OrderDetails));
-            },
-            entryCount: 55);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1482,8 +1387,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                   where c.CustomerID.StartsWith("F")
                   select new { c.CustomerID, Order = order },
             elementSorter: e => e.CustomerID,
-            elementAsserter: (e, a) => AssertEqual(e.Order, a.Order),
-            entryCount: 26);
+            elementAsserter: (e, a) => AssertEqual(e.Order, a.Order));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1494,8 +1398,7 @@ public abstract class NorthwindIncludeQueryTestBase<TFixture> : QueryTestBase<TF
                 .Include(b => b.OrderDetails)
                 .OrderBy(b => b.Customer.CustomerID != null)
                 .ThenBy(b => b.Customer != null ? b.Customer.CustomerID : string.Empty)
-                .Take(2),
-            entryCount: 6);
+                .Take(2));
 
     protected virtual void ClearLog()
     {

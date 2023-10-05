@@ -190,7 +190,7 @@ ORDER BY [r].[Id]
         await base.Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(async);
 
         AssertSql(
-            """
+"""
 SELECT CASE
     WHEN [r].[Rot_ApartmentNo] IS NOT NULL OR [r].[Rot_ServiceType] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)

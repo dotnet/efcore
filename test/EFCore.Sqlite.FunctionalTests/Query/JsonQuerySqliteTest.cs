@@ -72,7 +72,7 @@ FROM "JsonEntitiesBasic" AS "j"
         await base.Json_collection_Any_with_predicate(async);
 
         AssertSql(
-            """
+"""
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (
@@ -81,7 +81,7 @@ WHERE EXISTS (
         SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "t"
-    WHERE "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' = 'e1_c2_c1_c1')
+    WHERE "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' = 'e1_r_c1_r')
 """);
     }
 
@@ -193,8 +193,7 @@ WHERE EXISTS (
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSql(
                 Fixture.TestStore.NormalizeDelimitersInInterpolatedString(
                     $"SELECT * FROM [JsonEntitiesBasic] AS j WHERE [j].[Id] = {parameter}")),
-            ss => ss.Set<JsonEntityBasic>(),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>());
 
         AssertSql(
             """

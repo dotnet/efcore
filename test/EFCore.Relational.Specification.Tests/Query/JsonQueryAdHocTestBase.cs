@@ -823,7 +823,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     }
 
     #endregion
-
+    
     #region NotICollection
 
     [ConditionalTheory]

@@ -21,8 +21,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : 
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(e => e.CustomerID).AsSplitQuery()
                 .Select(c => c.Orders),
             assertOrder: true,
-            elementAsserter: (e, a) => AssertCollection(e, a),
-            entryCount: 63);
+            elementAsserter: (e, a) => AssertCollection(e, a));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -35,8 +34,7 @@ public abstract class NorthwindMiscellaneousQueryRelationalTestBase<TFixture> : 
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(
                 e, a,
-                elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails))),
-            entryCount: 227);
+                elementAsserter: (eo, ao) => AssertInclude(eo, ao, new ExpectedInclude<Order>(o => o.OrderDetails))));
 
     public override Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
         => AssertTranslationFailedWithDetails(

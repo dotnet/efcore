@@ -35,4 +35,30 @@ public class NorthwindWhereQueryInMemoryTest : NorthwindWhereQueryTestBase<North
 
     public override Task ElementAtOrDefault_over_custom_projection_compared_to_null(bool async)
         => Task.CompletedTask;
+
+    public override Task Where_compare_constructed_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_constructed_multi_value_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_constructed_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_constructed_multi_value_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_create_constructed_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_create_constructed_multi_value_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_constructed_multi_value_not_equal(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_compare_tuple_create_constructed_multi_value_not_equal(bool async)
+        => Task.CompletedTask;
+
+    
 }

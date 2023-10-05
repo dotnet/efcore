@@ -118,7 +118,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 existingAddress1Person2.IdNotes = new List<NoteWithId>
                 {
-                    new() { Content = "First note" }, new() { Content = "Second note" }
+                    new() { Id = 4, Content = "First note" }, new() { Id = 3, Content = "Second note" }
                 };
             }
             else
@@ -260,15 +260,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             await context.SaveChangesAsync();
 
-            await AssertState(context);
+            await AssertState(context, useIds);
         }
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            await AssertState(context);
+            await AssertState(context, useIds);
         }
 
-        async Task AssertState(EmbeddedTransportationContext context)
+        async Task AssertState(EmbeddedTransportationContext context, bool useIds)
         {
             var people = await context.Set<Person>().OrderBy(o => o.Id).ToListAsync();
             var firstAddress = people[0].Addresses.Single();
@@ -294,9 +294,17 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 var notes = addresses[1].IdNotes;
                 Assert.Equal(2, notes.Count);
-                Assert.Equal(1, notes.First().Id);
+                if (useIds)
+                {
+                    Assert.Equal(4, notes.First().Id);
+                    Assert.Equal(3, notes.Last().Id);
+                }
+                else
+                {
+                    Assert.Equal(1, notes.First().Id);
+                    Assert.Equal(2, notes.Last().Id);
+                }
                 Assert.Equal("First note", notes.First().Content);
-                Assert.Equal(2, notes.Last().Id);
                 Assert.Equal("Second note", notes.Last().Content);
             }
             else
@@ -339,7 +347,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             if (useIds)
             {
                 Assert.Equal(1, addresses[1].IdNotes.Count);
-                Assert.Equal(1, addresses[1].IdNotes.First().Id);
+                Assert.Equal(-1, addresses[1].IdNotes.First().Id);
                 Assert.Equal("Another note", addresses[1].IdNotes.First().Content);
             }
             else
@@ -354,7 +362,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             if (useIds)
             {
                 Assert.Equal(1, addresses[2].IdNotes.Count);
-                Assert.Equal(1, addresses[2].IdNotes.First().Id);
+                Assert.Equal(4, addresses[2].IdNotes.First().Id);
                 Assert.Equal("City note", addresses[2].IdNotes.First().Content);
             }
             else
@@ -402,7 +410,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                             b.Property<Guid>("Id");
                         }));
             },
-            additionalModelCacheKey: "Guid_key",
             seed: false);
 
         Address address;
@@ -594,18 +601,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         public virtual CosmosTestStore TestStore { get; }
         private Action<ModelBuilder> OnModelCreatingAction { get; set; }
-        private object AdditionalModelCacheKey { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => OnModelCreatingAction?.Invoke(modelBuilder);
 
         public DbContextOptions CreateOptions(
             Action<ModelBuilder> onModelCreating = null,
-            object additionalModelCacheKey = null,
             bool seed = true)
         {
             OnModelCreatingAction = onModelCreating;
-            AdditionalModelCacheKey = additionalModelCacheKey;
             var options = CreateOptions(TestStore);
             TestStore.Initialize(
                 ServiceProvider, () => new EmbeddedTransportationContext(options), c =>
@@ -621,30 +625,16 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection)
-                .AddSingleton<IModelCacheKeyFactory>(new TestModelCacheKeyFactory(() => AdditionalModelCacheKey));
+            => base.AddServices(serviceCollection);
+
+        protected override object GetAdditionalModelCacheKey(DbContext context)
+            => OnModelCreatingAction?.GetHashCode();
 
         public Task InitializeAsync()
             => Task.CompletedTask;
 
         public Task DisposeAsync()
             => TestStore.DisposeAsync();
-
-        private class TestModelCacheKeyFactory : IModelCacheKeyFactory
-        {
-            private readonly Func<object> _getAdditionalKey;
-
-            public TestModelCacheKeyFactory(Func<object> getAdditionalKey)
-            {
-                _getAdditionalKey = getAdditionalKey;
-            }
-
-            public object Create(DbContext context)
-                => Tuple.Create(context.GetType(), _getAdditionalKey());
-
-            public object Create(DbContext context, bool designTime)
-                => Tuple.Create(context.GetType(), _getAdditionalKey(), designTime);
-        }
     }
 
     protected class EmbeddedTransportationContext : TransportationContext

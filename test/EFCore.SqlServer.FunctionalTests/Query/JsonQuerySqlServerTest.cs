@@ -1006,7 +1006,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Json_collection_Any_with_predicate(async);
 
         AssertSql(
-            """
+"""
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
@@ -1021,7 +1021,7 @@ WHERE EXISTS (
         [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
         [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
     ) AS [o]
-    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_c2_c1_c1')
+    WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c1_r')
 """);
     }
 
@@ -1870,10 +1870,10 @@ WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.Number') AS int) <> CAST(LEN(
         await base.Json_scalar_optional_null_semantics(async);
 
         AssertSql(
-            """
+"""
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') = JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR (JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') IS NULL AND JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL)
+WHERE (JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') <> JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') IS NULL OR JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL) AND (JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') IS NOT NULL OR JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NOT NULL)
 """);
     }
 
@@ -2777,8 +2777,7 @@ FROM (
             ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSql(
                 Fixture.TestStore.NormalizeDelimitersInInterpolatedString(
                     $"SELECT * FROM [JsonEntitiesBasic] AS j WHERE [j].[Id] = {parameter}")),
-            ss => ss.Set<JsonEntityBasic>(),
-            entryCount: 40);
+            ss => ss.Set<JsonEntityBasic>());
 
         AssertSql(
             """

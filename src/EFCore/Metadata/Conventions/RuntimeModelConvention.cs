@@ -41,6 +41,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     protected virtual RuntimeModel Create(IModel model)
     {
         var runtimeModel = new RuntimeModel();
+        runtimeModel.ModelId = model.ModelId;
         runtimeModel.SetSkipDetectChanges(((IRuntimeModel)model).SkipDetectChanges);
         ((IModel)runtimeModel).ModelDependencies = model.ModelDependencies!;
 

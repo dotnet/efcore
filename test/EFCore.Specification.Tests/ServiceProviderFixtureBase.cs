@@ -28,8 +28,28 @@ public abstract class ServiceProviderFixtureBase : FixtureBase
 
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
         => base.AddServices(serviceCollection)
-            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory));
+            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(ShouldLogCategory))
+            .AddSingleton<IModelCacheKeyFactory>(new FuncCacheKeyFactory(GetAdditionalModelCacheKey));
 
     protected virtual bool ShouldLogCategory(string logCategory)
         => false;
+
+    protected virtual object GetAdditionalModelCacheKey(DbContext context)
+        => null;
+
+    private class FuncCacheKeyFactory : IModelCacheKeyFactory
+    {
+        private readonly Func<DbContext, object> _getAdditionalKey;
+
+        public FuncCacheKeyFactory(Func<DbContext, object> getAdditionalKey)
+        {
+            _getAdditionalKey = getAdditionalKey;
+        }
+
+        public object Create(DbContext context)
+            => Tuple.Create(context.GetType(), _getAdditionalKey(context));
+
+        public object Create(DbContext context, bool designTime)
+            => Tuple.Create(context.GetType(), _getAdditionalKey(context), designTime);
+    }
 }

@@ -408,7 +408,7 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         }
     }
 
-    public class RotRutCase
+    protected class RotRutCase
     {
         public int Id { get; set; }
         public string Buyer { get; set; }
@@ -416,19 +416,19 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         public Rut Rut { get; set; }
     }
 
-    public class Rot
+    protected class Rot
     {
         public int? ServiceType { get; set; }
         public string ApartmentNo { get; set; }
     }
 
-    public class RotDto
+    protected class RotDto
     {
         public int? MyServiceType { get; set; }
         public string MyApartmentNo { get; set; }
     }
 
-    public class Rut
+    protected class Rut
     {
         public int? Value { get; set; }
     }
@@ -498,14 +498,14 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         }
     }
 
-    public class Monarch30358
+    protected class Monarch30358
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string RulerOf { get; set; }
     }
 
-    public class Magus30358
+    protected class Magus30358
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -513,9 +513,67 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         public MagicTool30358 ToolUsed { get; set; }
     }
 
-    public class MagicTool30358
+    protected class MagicTool30358
     {
         public string Name { get; set; }
+    }
+
+    protected abstract class BaseEntity31107
+    {
+        public Guid Id { get; set; }
+    }
+
+    protected sealed class ChildData31107
+    {
+        public Guid Id { get; set; }
+    }
+
+    protected sealed class Child1Entity31107 : BaseEntity31107
+    {
+        public ChildData31107 Data { get; set; }
+    }
+
+    protected sealed class Child2Entity31107 : BaseEntity31107
+    {
+    }
+
+    [ConditionalFact]
+    public async Task Can_have_required_owned_type_on_derived_type()
+    {
+        var contextFactory = await InitializeAsync<RequiredNavigationContext>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        context.Set<BaseEntity31107>().ToList();
+    }
+
+    private class RequiredNavigationContext : DbContext
+    {
+        public RequiredNavigationContext(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<BaseEntity31107>();
+            modelBuilder.Entity<Child1Entity31107>(b =>
+            {
+                b.OwnsOne(entity => entity.Data, builder =>
+                {
+                    builder.ToTable("Child1EntityData");
+                    builder.WithOwner().HasForeignKey("Child1EntityId");
+                });
+                b.Navigation(e => e.Data).IsRequired();
+            });
+
+            modelBuilder.Entity<Child2Entity31107>();
+        }
+        public void Seed()
+        {
+            Add(new Child2Entity31107 { Id = Guid.NewGuid() });
+
+            SaveChanges();
+        }
     }
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

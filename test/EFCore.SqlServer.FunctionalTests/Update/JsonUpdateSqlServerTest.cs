@@ -127,19 +127,20 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Add_entity_with_json();
 
         AssertSql(
-            """
+"""
 @p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":2,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 352)
-@p1='2'
-@p2=NULL (DbType = Int32)
-@p3='NewEntity' (Size = 4000)
+@p1='[]' (Nullable = false) (Size = 2)
+@p2='2'
+@p3=NULL (DbType = Int32)
+@p4='NewEntity' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
-VALUES (@p0, @p1, @p2, @p3);
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3, @p4);
 """,
-            //
-            """
+//
+"""
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -150,7 +151,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Add_entity_with_json_null_navigations();
 
         AssertSql(
-            """
+"""
 @p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":2,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 330)
 @p1='2'
 @p2=NULL (DbType = Int32)
@@ -161,8 +162,8 @@ SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
 VALUES (@p0, @p1, @p2, @p3);
 """,
-            //
-            """
+//
+"""
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -2137,6 +2138,344 @@ WHERE [Id] = @p2;
 SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
+""");
+    }
+
+    public override async Task Add_and_update_top_level_optional_owned_collection_to_JSON(bool? value)
+    {
+        await base.Add_and_update_top_level_optional_owned_collection_to_JSON(value);
+
+        switch (value)
+        {
+            case true:
+                AssertSql(
+                """
+@p0='[{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 111)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                                //
+                                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                                //
+                                """
+@p0=NULL (Nullable = false)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                                //
+                                """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                                //
+                                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+            case false:
+                AssertSql(
+            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedCollectionRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                            //
+                            """
+@p0='[{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}]' (Nullable = false) (Size = 111)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+
+
+                            //
+                            """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+            default:
+                AssertSql(
+            """
+@p0='2'
+@p1=NULL (DbType = Int32)
+@p2='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2);
+""",
+
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                            //
+                            """
+@p0='[]' (Nullable = false) (Size = 2)
+@p3='2'
+@p1=NULL (DbType = Int32)
+@p2='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0, [EntityBasicId] = @p1, [Name] = @p2
+OUTPUT 1
+WHERE [Id] = @p3;
+""",
+                            //
+                            """
+select OwnedCollectionRoot from JsonEntitiesBasic where Id = 2
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+        }
+    }
+
+    public override async Task Add_and_update_nested_optional_owned_collection_to_JSON(bool? value)
+    {
+        await base.Add_and_update_nested_optional_owned_collection_to_JSON(value);
+
+        switch (value)
+        {
+            case true:
+                AssertSql(
+                """
+@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[{"Date":"0001-01-01T00:00:00","Enum":0,"Enums":null,"Fraction":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 266)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                                //
+                                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                                //
+                                """
+@p0=NULL (Nullable = false)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                                //
+                                """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+            case false:
+                AssertSql(
+            """
+@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 107)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                            //
+                            """
+@p0='[{"Date":"0001-01-01T00:00:00","Enum":0,"Enums":null,"Fraction":0,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":null,"OwnedReferenceLeaf":null}]' (Nullable = false) (Size = 161)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+            default:
+                AssertSql(
+            """
+@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":null}' (Nullable = false) (Size = 109)
+@p1='2'
+@p2=NULL (DbType = Int32)
+@p3='NewEntity' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
+VALUES (@p0, @p1, @p2, @p3);
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""",
+                            //
+                            """
+@p0='{"Name":null,"Names":null,"Number":0,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":null}' (Nullable = false) (Size = 107)
+@p1='2'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                            //
+                            """
+SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+WHERE [j].[Id] = 2
+""");
+                break;
+        }
+    }
+
+    public override async Task Add_and_update_nested_optional_primitive_collection(bool? value)
+    {
+        await base.Add_and_update_nested_optional_primitive_collection(value);
+
+        string characterCollection = value switch
+        {
+            true =>  "[\"A\"]",
+            false => "[]",
+            _ =>     "null"
+        };
+
+        string parameterSize = value switch
+        {
+            true => "1537",
+            false => "1534",
+            _ => "1536"
+        };
+
+        string updateParameter = value switch
+        {
+            true => "NULL",
+            false => "'[\"Z\"]'",
+            _ => "'[]'"
+        };
+
+        AssertSql(
+            @"@p0='[{""TestBoolean"":false,""TestBooleanCollection"":[],""TestByte"":0,""TestByteCollection"":null,""TestCharacter"":""\u0000"",""TestCharacterCollection"":" + characterCollection + @",""TestDateOnly"":""0001-01-01"",""TestDateOnlyCollection"":[],""TestDateTime"":""0001-01-01T00:00:00"",""TestDateTimeCollection"":[],""TestDateTimeOffset"":""0001-01-01T00:00:00+00:00"",""TestDateTimeOffsetCollection"":[],""TestDecimal"":0,""TestDecimalCollection"":[],""TestDefaultString"":null,""TestDefaultStringCollection"":[],""TestDouble"":0,""TestDoubleCollection"":[],""TestEnum"":0,""TestEnumCollection"":[],""TestEnumWithIntConverter"":0,""TestEnumWithIntConverterCollection"":[],""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestGuidCollection"":[],""TestInt16"":0,""TestInt16Collection"":[],""TestInt32"":0,""TestInt32Collection"":[],""TestInt64"":0,""TestInt64Collection"":[],""TestMaxLengthString"":null,""TestMaxLengthStringCollection"":[],""TestNullableEnum"":null,""TestNullableEnumCollection"":[],""TestNullableEnumWithConverterThatHandlesNulls"":null,""TestNullableEnumWithConverterThatHandlesNullsCollection"":[],""TestNullableEnumWithIntConverter"":null,""TestNullableEnumWithIntConverterCollection"":[],""TestNullableInt32"":null,""TestNullableInt32Collection"":[],""TestSignedByte"":0,""TestSignedByteCollection"":[],""TestSingle"":0,""TestSingleCollection"":[],""TestTimeOnly"":""00:00:00.0000000"",""TestTimeOnlyCollection"":[],""TestTimeSpan"":""0:00:00"",""TestTimeSpanCollection"":[],""TestUnsignedInt16"":0,""TestUnsignedInt16Collection"":[],""TestUnsignedInt32"":0,""TestUnsignedInt32Collection"":[],""TestUnsignedInt64"":0,""TestUnsignedInt64Collection"":[]}]' (Nullable = false) (Size = " + parameterSize + @")
+@p1='7624'
+@p2='[]' (Size = 4000)
+@p3=NULL (Size = 8000) (DbType = Binary)
+@p4='[]' (Size = 4000)
+@p5='[]' (Size = 4000)
+@p6='[]' (Size = 4000)
+@p7='[]' (Size = 4000)
+@p8='[]' (Size = 4000)
+@p9='[]' (Size = 4000)
+@p10='[]' (Size = 4000)
+@p11='[]' (Size = 4000)
+@p12='[]' (Nullable = false) (Size = 4000)
+@p13='[]' (Size = 4000)
+@p14='[]' (Size = 4000)
+@p15='[]' (Size = 4000)
+@p16='[]' (Size = 4000)
+@p17='[]' (Size = 4000)
+@p18='[]' (Size = 4000)
+@p19='[]' (Size = 4000)
+@p20='[]' (Size = 4000)
+@p21='[]' (Size = 4000)
+@p22='[]' (Size = 4000)
+@p23='[]' (Size = 4000)
+@p24='[]' (Size = 4000)
+@p25='[]' (Size = 4000)
+@p26='[]' (Size = 4000)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [JsonEntitiesAllTypes] ([Collection], [Id], [TestBooleanCollection], [TestByteCollection], [TestCharacterCollection], [TestDateTimeCollection], [TestDateTimeOffsetCollection], [TestDecimalCollection], [TestDefaultStringCollection], [TestDoubleCollection], [TestEnumCollection], [TestEnumWithIntConverterCollection], [TestGuidCollection], [TestInt16Collection], [TestInt32Collection], [TestInt64Collection], [TestMaxLengthStringCollection], [TestNullableEnumCollection], [TestNullableEnumWithConverterThatHandlesNullsCollection], [TestNullableEnumWithIntConverterCollection], [TestNullableInt32Collection], [TestSignedByteCollection], [TestSingleCollection], [TestTimeSpanCollection], [TestUnsignedInt16Collection], [TestUnsignedInt32Collection], [TestUnsignedInt64Collection])
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26);",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 7624
+""",
+                //
+                
+"@p0=" + updateParameter + @" (Nullable = false) (Size = 4000)
+@p1='7624'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestCharacterCollection', JSON_QUERY(@p0))
+OUTPUT 1
+WHERE [Id] = @p1;",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[TestBooleanCollection], [j].[TestByteCollection], [j].[TestCharacterCollection], [j].[TestDateTimeCollection], [j].[TestDateTimeOffsetCollection], [j].[TestDecimalCollection], [j].[TestDefaultStringCollection], [j].[TestDoubleCollection], [j].[TestEnumCollection], [j].[TestEnumWithIntConverterCollection], [j].[TestGuidCollection], [j].[TestInt16Collection], [j].[TestInt32Collection], [j].[TestInt64Collection], [j].[TestMaxLengthStringCollection], [j].[TestNullableEnumCollection], [j].[TestNullableEnumWithConverterThatHandlesNullsCollection], [j].[TestNullableEnumWithIntConverterCollection], [j].[TestNullableInt32Collection], [j].[TestSignedByteCollection], [j].[TestSingleCollection], [j].[TestTimeSpanCollection], [j].[TestUnsignedInt16Collection], [j].[TestUnsignedInt32Collection], [j].[TestUnsignedInt64Collection], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 7624
 """);
     }
 

@@ -30,7 +30,7 @@ public class NorthwindMiscellaneousQueryCosmosTest : NorthwindMiscellaneousQuery
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Simple_IQueryable(bool async)
     {
-        await AssertQuery(async, ss => ss.Set<Customer>(), entryCount: 91);
+        await AssertQuery(async, ss => ss.Set<Customer>());
 
         AssertSql(
             """

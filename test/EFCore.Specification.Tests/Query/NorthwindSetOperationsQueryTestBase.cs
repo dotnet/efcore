@@ -28,8 +28,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
-                .Concat(ss.Set<Customer>().Where(c => c.City == "London")),
-            entryCount: 7);
+                .Concat(ss.Set<Customer>().Where(c => c.City == "London")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -39,8 +38,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "México D.F.")
                 .Concat(ss.Set<Customer>().Where(s => s.City == "Berlin"))
-                .Concat(ss.Set<Customer>().Where(e => e.City == "London")),
-            entryCount: 12);
+                .Concat(ss.Set<Customer>().Where(e => e.City == "London")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -62,8 +60,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "London")
-                .Except(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
-            entryCount: 5);
+                .Except(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -72,7 +69,8 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>()
                 .Except(ss.Set<Customer>())
-                .Select(e => 1));
+                .Select(e => 1),
+            assertEmpty: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -82,8 +80,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(s => s.ContactTitle == "Owner")
                 .Except(ss.Set<Customer>().Where(s => s.City == "México D.F."))
-                .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")),
-            entryCount: 13);
+                .Except(ss.Set<Customer>().Where(e => e.City == "Seattle")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -105,8 +102,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "London")
-                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
-            entryCount: 1);
+                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -116,8 +112,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "México D.F.")
                 .Intersect(ss.Set<Customer>().Where(s => s.ContactTitle == "Owner"))
-                .Intersect(ss.Set<Customer>().Where(e => e.Fax != null)),
-            entryCount: 1);
+                .Intersect(ss.Set<Customer>().Where(e => e.Fax != null)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -139,8 +134,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
-                .Union(ss.Set<Customer>().Where(c => c.City == "London")),
-            entryCount: 7);
+                .Union(ss.Set<Customer>().Where(c => c.City == "London")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -150,8 +144,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(s => s.ContactTitle == "Owner")
                 .Union(ss.Set<Customer>().Where(s => s.City == "México D.F."))
-                .Union(ss.Set<Customer>().Where(e => e.City == "London")),
-            entryCount: 25);
+                .Union(ss.Set<Customer>().Where(e => e.City == "London")));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -178,7 +171,6 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .OrderBy(c => c.ContactName)
                 .Skip(1)
                 .Take(1),
-            entryCount: 1,
             assertOrder: true);
 
     // Should cause pushdown into a subquery
@@ -190,8 +182,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Where(c => c.ContactName.Contains("Thomas")), // pushdown
-            entryCount: 1);
+                .Where(c => c.ContactName.Contains("Thomas"))); // pushdown
 
     // Should cause pushdown into a subquery, keeping the ordering, offset and limit inside the subquery
     [ConditionalTheory]
@@ -205,8 +196,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .OrderBy(c => c.Region)
                 .ThenBy(c => c.City)
                 .Skip(0) // prevent pushdown from removing OrderBy
-                .Where(c => c.ContactName.Contains("Thomas")), // pushdown
-            entryCount: 1);
+                .Where(c => c.ContactName.Contains("Thomas"))); // pushdown
 
     // Nested set operation with same operation type - no parentheses are needed.
     [ConditionalTheory]
@@ -217,8 +207,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim")),
-            entryCount: 8);
+                .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim")));
 
     // Nested set operation but with different operation type. On SqlServer and PostgreSQL INTERSECT binds
     // more tightly than UNION/EXCEPT, so parentheses are needed.
@@ -230,8 +219,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))),
-            entryCount: 1);
+                .Intersect(ss.Set<Customer>().Where(c => c.ContactName.Contains("Thomas"))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -246,7 +234,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Union(ss.Set<Customer>().Where(c => c.City == "Mannheim"))
                 .Take(1)
                 .OrderBy(c => c.CustomerID),
-            entryCount: 1, assertOrder: true);
+            assertOrder: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -278,7 +266,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .Except(ss.Set<Customer>())
+                .Union(ss.Set<Customer>())
                 .Select(c => (object)1));
 
     [ConditionalTheory]
@@ -339,8 +327,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .OrderBy(x => x.Foo)
                 .Skip(1)
                 .Take(10)
-                .Where(x => x.Foo == "Berlin"),
-            entryCount: 1);
+                .Where(x => x.Foo == "Berlin"));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -350,8 +337,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>()
                 .Where(c => c.City == "Berlin")
                 .Union(ss.Set<Customer>().Where(c => c.City == "London"))
-                .Include(c => c.Orders),
-            entryCount: 59);
+                .Include(c => c.Orders));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -364,8 +350,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Union(
                     ss.Set<Customer>()
                         .Where(c => c.City == "London")
-                        .Include(c => c.Orders)),
-            entryCount: 59);
+                        .Include(c => c.Orders)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -377,8 +362,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Except(
                     ss.Set<Order>()
                         .Where(o => o.CustomerID == "ALFKI")
-                        .Select(o => o.Customer)),
-            entryCount: 88);
+                        .Select(o => o.Customer)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -432,8 +416,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 .Select(c => new { Customer = c, Orders = c.Orders.Count })
                 .Union(
                     ss.Set<Customer>()
-                        .Select(c => new { Customer = c, Orders = c.Orders.Count })),
-            entryCount: 91);
+                        .Select(c => new { Customer = c, Orders = c.Orders.Count })));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -805,7 +788,6 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                     ss.Set<Customer>()
                         .OrderBy(c => c.ContactName)
                         .Take(1)),
-            entryCount: 1,
             assertOrder: true);
 
     [ConditionalTheory]
@@ -821,8 +803,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             {
                 AssertEqual(e.CustomerID, a.CustomerID);
                 AssertCollection(e.Orders, a.Orders);
-            },
-            entryCount: 63);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -837,8 +818,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             {
                 AssertEqual(e.CustomerID, a.CustomerID);
                 AssertCollection(e.Orders, a.Orders);
-            },
-            entryCount: 63);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -856,8 +836,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e.Orders, a.Orders);
-            },
-            entryCount: 63);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -890,8 +869,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             elementAsserter: (e, a) =>
             {
                 AssertCollection(e, a);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -907,8 +885,7 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
             {
                 AssertEqual(e.OrderDate, a.OrderDate);
                 AssertCollection(e.Orders, a.Orders);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

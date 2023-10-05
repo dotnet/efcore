@@ -2014,8 +2014,8 @@ ORDER BY [t].[Id], [t0].[Name] DESC, [t0].[Id]
         await base.Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(async);
 
         AssertSql(
-            """
-@__p_0='10'
+"""
+@__p_0='1'
 @__p_1='5'
 
 SELECT [t].[Id], [t].[Date], [t].[Name], [t].[OneToMany_Optional_Self_Inverse1Id], [t].[OneToMany_Required_Self_Inverse1Id], [t].[OneToOne_Optional_Self1Id], [t0].[Id], [t0].[Date], [t0].[Level1_Optional_Id], [t0].[Level1_Required_Id], [t0].[Name], [t0].[OneToMany_Optional_Inverse2Id], [t0].[OneToMany_Optional_Self_Inverse2Id], [t0].[OneToMany_Required_Inverse2Id], [t0].[OneToMany_Required_Self_Inverse2Id], [t0].[OneToOne_Optional_PK_Inverse2Id], [t0].[OneToOne_Optional_Self2Id], [t0].[Id0], [t0].[Level2_Optional_Id], [t0].[Level2_Required_Id], [t0].[Name0], [t0].[OneToMany_Optional_Inverse3Id], [t0].[OneToMany_Optional_Self_Inverse3Id], [t0].[OneToMany_Required_Inverse3Id], [t0].[OneToMany_Required_Self_Inverse3Id], [t0].[OneToOne_Optional_PK_Inverse3Id], [t0].[OneToOne_Optional_Self3Id]
@@ -2032,7 +2032,7 @@ OUTER APPLY (
         FROM [LevelTwo] AS [l1]
         WHERE [t].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
         ORDER BY [l1].[Name] DESC
-        OFFSET 2 ROWS FETCH NEXT 4 ROWS ONLY
+        OFFSET 1 ROWS FETCH NEXT 4 ROWS ONLY
     ) AS [t1]
     LEFT JOIN [LevelThree] AS [l0] ON [t1].[Id] = [l0].[Level2_Optional_Id]
 ) AS [t0]

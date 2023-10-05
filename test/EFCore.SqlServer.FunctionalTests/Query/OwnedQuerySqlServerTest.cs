@@ -37,6 +37,52 @@ ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [
 """);
     }
 
+    public override async Task Query_with_owned_entity_equality_method(bool async)
+    {
+        await base.Query_with_owned_entity_equality_method(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] AS [o]
+CROSS JOIN (
+    SELECT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    WHERE [o0].[Discriminator] = N'LeafB'
+) AS [t]
+LEFT JOIN (
+    SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail]
+    FROM [Order] AS [o1]
+    LEFT JOIN [OrderDetail] AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
+) AS [t0] ON [o].[Id] = [t0].[ClientId]
+WHERE 0 = 1
+ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+""");
+    }
+
+    public override async Task Query_with_owned_entity_equality_object_method(bool async)
+    {
+        await base.Query_with_owned_entity_equality_object_method(async);
+
+        AssertSql(
+            """
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderDate], [t0].[OrderClientId], [t0].[OrderId], [t0].[Id0], [t0].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] AS [o]
+CROSS JOIN (
+    SELECT [o0].[Id]
+    FROM [OwnedPerson] AS [o0]
+    WHERE [o0].[Discriminator] = N'LeafB'
+) AS [t]
+LEFT JOIN (
+    SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o2].[OrderClientId], [o2].[OrderId], [o2].[Id] AS [Id0], [o2].[Detail]
+    FROM [Order] AS [o1]
+    LEFT JOIN [OrderDetail] AS [o2] ON [o1].[ClientId] = [o2].[OrderClientId] AND [o1].[Id] = [o2].[OrderId]
+) AS [t0] ON [o].[Id] = [t0].[ClientId]
+WHERE 0 = 1
+ORDER BY [o].[Id], [t].[Id], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]
+""");
+    }
+
     public override async Task Query_for_base_type_loads_all_owned_navs(bool async)
     {
         await base.Query_for_base_type_loads_all_owned_navs(async);

@@ -250,10 +250,10 @@ WHERE instr("s"."Banner", char(@__someByte_0)) > 0
         await base.Byte_array_filter_by_length_literal(async);
 
         AssertSql(
-            """
+"""
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE length("s"."Banner") = 1
+WHERE length("s"."Banner") = 2
 """);
     }
 
@@ -263,7 +263,7 @@ WHERE length("s"."Banner") = 1
 
         AssertSql(
             """
-@__p_0='1'
+@__p_0='2'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
