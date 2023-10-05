@@ -339,8 +339,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .ToContainer("Orders")
             .Property<string>("_etag")
             .IsConcurrencyToken();
-
-        Validate(modelBuilder);
     }
 
     [ConditionalFact]

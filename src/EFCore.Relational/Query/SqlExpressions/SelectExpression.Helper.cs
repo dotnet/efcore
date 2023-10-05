@@ -781,6 +781,9 @@ public sealed partial class SelectExpression
 
     private sealed class CloningExpressionVisitor : ExpressionVisitor
     {
+        private static readonly bool UseOldBehavior29638
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29638", out var enabled29638) && enabled29638;
+
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
@@ -913,6 +916,67 @@ public sealed partial class SelectExpression
 
                 default:
                     return base.Visit(expression);
+            }
+            if (!UseOldBehavior29638)
+            {
+                if (expression is TableValuedFunctionExpression tableValuedFunctionExpression)
+                {
+                    var newArguments = new SqlExpression[tableValuedFunctionExpression.Arguments.Count];
+                    for (var i = 0; i < newArguments.Length; i++)
+                    {
+                        newArguments[i] = (SqlExpression)Visit(tableValuedFunctionExpression.Arguments[i]);
+                    }
+
+                    var newTableValuedFunctionExpression = new TableValuedFunctionExpression(
+                        tableValuedFunctionExpression.StoreFunction,
+                        newArguments)
+                    {
+                        Alias = tableValuedFunctionExpression.Alias
+                    };
+
+                    foreach (var annotation in tableValuedFunctionExpression.GetAnnotations())
+                    {
+                        newTableValuedFunctionExpression.AddAnnotation(annotation.Name, annotation.Value);
+                    }
+
+                    return newTableValuedFunctionExpression;
+                }
+
+                if (expression is IClonableTableExpressionBase cloneable)
+                {
+                    return cloneable.Clone();
+                }
+
+                // join and set operations are fine, because they contain other TableExpressionBases inside, that will get cloned
+                // and therefore set expression's Update function will generate a new instance.
+                if (expression is CrossJoinExpression
+                    or InnerJoinExpression
+                    or LeftJoinExpression
+                    or CrossApplyExpression
+                    or OuterApplyExpression
+                    or ExceptExpression
+                    or IntersectExpression
+                    or UnionExpression)
+                {
+                    return base.Visit(expression);
+                }
+
+                if (expression is TableExpressionBase)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.TableExpressionBaseWithoutCloningLogic(
+                            expression.GetType().Name,
+                            nameof(TableExpressionBase),
+                            nameof(IClonableTableExpressionBase),
+                            nameof(CloningExpressionVisitor),
+                            nameof(SelectExpression))); ;
+                }
+
+                return base.Visit(expression);
+            }
+            else
+            {
+                return expression is IClonableTableExpressionBase cloneable ? cloneable.Clone() : base.Visit(expression);
             }
         }
     }
