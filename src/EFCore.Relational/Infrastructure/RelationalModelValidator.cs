@@ -2527,6 +2527,18 @@ public class RelationalModelValidator : ModelValidator
                 continue;
             }
 
+            foreach (var jsonEntityType in mappedTypes.Where(x => x.IsMappedToJson()))
+            {
+                var ownership = jsonEntityType.FindOwnership()!;
+                var ownerTableOrViewName = ownership.PrincipalEntityType.GetViewName() ?? ownership.PrincipalEntityType.GetTableName();
+                if (table.Name != ownerTableOrViewName)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
+                            jsonEntityType.DisplayName(), table.Name, ownership.PrincipalEntityType.DisplayName(), ownerTableOrViewName));
+                }
+            }
+
             var nonOwnedTypes = mappedTypes.Where(x => !x.IsOwned());
             var nonOwnedTypesCount = nonOwnedTypes.Count();
             if (nonOwnedTypesCount == 0)
@@ -2610,12 +2622,12 @@ public class RelationalModelValidator : ModelValidator
             }
 
             var ownership = jsonEntityType.FindOwnership()!;
-            var ownerViewName = ownership.PrincipalEntityType.GetViewName();
-            if (viewName != ownerViewName)
+            var ownerTableOrViewName = ownership.PrincipalEntityType.GetViewName() ?? ownership.PrincipalEntityType.GetTableName();
+            if (viewName != ownerTableOrViewName)
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.JsonEntityMappedToDifferentViewThanOwner(
-                        jsonEntityType.DisplayName(), viewName, ownership.PrincipalEntityType.DisplayName(), ownerViewName));
+                    RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
+                        jsonEntityType.DisplayName(), viewName, ownership.PrincipalEntityType.DisplayName(), ownerTableOrViewName));
             }
         }
     }
