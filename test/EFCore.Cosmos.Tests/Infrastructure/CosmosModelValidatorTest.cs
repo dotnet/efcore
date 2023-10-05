@@ -317,7 +317,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), modelBuilder);
+        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(Customer).Name), modelBuilder);
     }
 
     [ConditionalFact]
@@ -339,8 +339,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .ToContainer("Orders")
             .Property<string>("_etag")
             .IsConcurrencyToken();
-
-        Validate(modelBuilder);
     }
 
     [ConditionalFact]

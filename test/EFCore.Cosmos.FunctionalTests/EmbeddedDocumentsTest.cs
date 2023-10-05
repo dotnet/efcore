@@ -122,8 +122,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 existingAddress1Person2.IdNotes = new List<NoteWithId>
                 {
-                    new NoteWithId { Content = "First note" },
-                    new NoteWithId { Content = "Second note" }
+                    new NoteWithId { Id = 1, Content = "First note" },
+                    new NoteWithId { Id = 2, Content = "Second note" }
                 };
             }
             else
@@ -236,7 +236,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 addedAddress3.IdNotes = new List<NoteWithId>
                 {
-                    new NoteWithId { Id = -1, Content = "Another note" }
+                    new NoteWithId { Id = 1, Content = "Another note" }
                 };
             }
             else
@@ -382,7 +382,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             if (useIds)
             {
                 Assert.Equal(1, addresses[2].IdNotes.Count);
-                Assert.Equal(1, addresses[2].IdNotes.First().Id);
+                Assert.Equal(4, addresses[2].IdNotes.First().Id);
                 Assert.Equal("City note", addresses[2].IdNotes.First().Content);
             }
             else

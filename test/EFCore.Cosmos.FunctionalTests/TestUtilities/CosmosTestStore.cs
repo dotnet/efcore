@@ -560,6 +560,12 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IServiceProperty> GetServiceProperties()
             => throw new NotImplementedException();
 
+        public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+            => throw new NotImplementedException();
+
+        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+            => throw new NotImplementedException();
+
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
             => throw new NotImplementedException();
 

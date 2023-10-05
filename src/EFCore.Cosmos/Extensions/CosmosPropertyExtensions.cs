@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class CosmosPropertyExtensions
 {
+    private static readonly bool _useOldBehavior31664 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
+
     /// <summary>
     ///     Returns the property name that the property is mapped to when targeting Cosmos.
     /// </summary>
@@ -35,6 +38,7 @@ public static class CosmosPropertyExtensions
             var pk = property.FindContainingPrimaryKey();
             if (pk != null
                 && (property.ClrType == typeof(int) || ownership.Properties.Contains(property))
+                && (property.IsShadowProperty() || _useOldBehavior31664)
                 && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
                 && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
             {
