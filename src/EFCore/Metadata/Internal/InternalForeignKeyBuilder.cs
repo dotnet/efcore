@@ -1129,8 +1129,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         var newOwnership = newEntityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
         if (newOwnership == null)
         {
-            Check.DebugAssert(Metadata.IsInModel, "Metadata isn't in the model");
-            return Metadata.Builder;
+            return Metadata.IsInModel ? Metadata.Builder : null;
         }
 
         Check.DebugAssert(!Metadata.IsInModel, "Metadata is in the model");
@@ -2922,11 +2921,6 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ConfigurationSource.Convention)!;
         }
 
-        foreach (var removedForeignKey in removedForeignKeys)
-        {
-            Metadata.DeclaringEntityType.Model.ConventionDispatcher.Tracker.Update(removedForeignKey, newRelationshipBuilder.Metadata);
-        }
-
         if (tempIndex?.IsInModel == true)
         {
             dependentEntityType.RemoveIndex(tempIndex.Properties);
@@ -2935,6 +2929,16 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         if (keyTempIndex?.IsInModel == true)
         {
             keyTempIndex.DeclaringEntityType.RemoveIndex(keyTempIndex.Properties);
+        }
+
+        if (newRelationshipBuilder == null)
+        {
+            return null;
+        }
+
+        foreach (var removedForeignKey in removedForeignKeys)
+        {
+            Metadata.DeclaringEntityType.Model.ConventionDispatcher.Tracker.Update(removedForeignKey, newRelationshipBuilder.Metadata);
         }
 
         return newRelationshipBuilder;

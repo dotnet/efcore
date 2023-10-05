@@ -2,107 +2,12 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
-
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
     public abstract class OwnedTypesTestBase : ModelBuilderTestBase
     {
-        [ConditionalTheory] // Issue #28091
-        [InlineData(16, 2, 16, 4, 16, 4, 16, 4, 16, 4)]
-        [InlineData(16, 2, 17, 4, 17, 4, 17, 4, 17, 4)]
-        [InlineData(null, null, 16, 4, 16, 4, 16, 4, 16, 4)]
-        [InlineData(null, null, 16, 4, 15, 3, 14, 2, 13, 1)]
-        [InlineData(null, null, 16, null, 15, null, 14, null, 13, null)]
-        [InlineData(17, null, 16, null, 15, null, 14, null, 13, null)]
-        [InlineData(17, 5, 16, 4, 15, 3, 14, 2, 13, 1)]
-        [InlineData(17, 5, null, null, null, null, null, null, null, null)]
-        public virtual void Precision_and_scale_for_property_type_used_in_owned_types_can_be_overwritten(
-            int? defaultPrecision,
-            int? defaultScale,
-            int? mainPrecision,
-            int? mainScale,
-            int? otherPrecision,
-            int? otherScale,
-            int? onePrecision,
-            int? oneScale,
-            int? manyPrecision,
-            int? manyScale)
-        {
-            var modelBuilder = CreateModelBuilder(
-                c =>
-                {
-                    if (defaultPrecision.HasValue)
-                    {
-                        if (defaultScale.HasValue)
-                        {
-                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value, defaultScale.Value);
-                        }
-                        else
-                        {
-                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value);
-                        }
-                    }
-                });
-
-            modelBuilder.Entity<MainOtter>(
-                b =>
-                {
-                    HasPrecision(b.Property(x => x.Number), mainPrecision, mainScale);
-                    b.OwnsOne(
-                        b => b.OwnedEntity, b =>
-                        {
-                            HasPrecision(b.Property(x => x.Number), onePrecision, oneScale);
-                        });
-                });
-
-            modelBuilder.Entity<OtherOtter>(
-                b =>
-                {
-                    HasPrecision(b.Property(x => x.Number), otherPrecision, otherScale);
-                    b.OwnsMany(
-                        b => b.OwnedEntities, b =>
-                        {
-                            HasPrecision(b.Property(x => x.Number), manyPrecision, manyScale);
-                        });
-                });
-
-            var model = modelBuilder.FinalizeModel();
-
-            var mainType = model.FindEntityType(typeof(MainOtter))!;
-            var otherType = model.FindEntityType(typeof(OtherOtter))!;
-            var oneType = model.FindEntityType(typeof(OwnedOtter), nameof(MainOtter.OwnedEntity), mainType)!;
-            var manyType = model.FindEntityType(typeof(OwnedOtter), nameof(OtherOtter.OwnedEntities), otherType)!;
-
-            Assert.Equal(mainPrecision ?? defaultPrecision, mainType.FindProperty(nameof(MainOtter.Number))!.GetPrecision());
-            Assert.Equal(mainScale ?? defaultScale, mainType.FindProperty(nameof(MainOtter.Number))!.GetScale());
-
-            Assert.Equal(otherPrecision ?? defaultPrecision, otherType.FindProperty(nameof(OtherOtter.Number))!.GetPrecision());
-            Assert.Equal(otherScale ?? defaultScale, otherType.FindProperty(nameof(OtherOtter.Number))!.GetScale());
-
-            Assert.Equal(onePrecision ?? defaultPrecision, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
-            Assert.Equal(oneScale ?? defaultScale, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
-
-            Assert.Equal(manyPrecision ?? defaultPrecision, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
-            Assert.Equal(manyScale ?? defaultScale, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
-
-            void HasPrecision(TestPropertyBuilder<decimal> testPropertyBuilder, int? precision, int? scale)
-            {
-                if (precision.HasValue)
-                {
-                    if (scale.HasValue)
-                    {
-                        testPropertyBuilder.HasPrecision(precision.Value, scale.Value);
-                    }
-                    else
-                    {
-                        testPropertyBuilder.HasPrecision(precision.Value);
-                    }
-                }
-            }
-        }
-
         [ConditionalFact]
         public virtual void Can_configure_owned_type()
         {
@@ -1529,6 +1434,192 @@ public abstract partial class ModelBuilderTest
             Assert.True(selfOwnership.IsOwnership);
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(AnotherBookLabel)));
+        }
+
+        [ConditionalTheory] // Issue #28091
+        [InlineData(16, 2, 16, 4, 16, 4, 16, 4, 16, 4)]
+        [InlineData(16, 2, 17, 4, 17, 4, 17, 4, 17, 4)]
+        [InlineData(null, null, 16, 4, 16, 4, 16, 4, 16, 4)]
+        [InlineData(null, null, 16, 4, 15, 3, 14, 2, 13, 1)]
+        [InlineData(null, null, 16, null, 15, null, 14, null, 13, null)]
+        [InlineData(17, null, 16, null, 15, null, 14, null, 13, null)]
+        [InlineData(17, 5, 16, 4, 15, 3, 14, 2, 13, 1)]
+        [InlineData(17, 5, null, null, null, null, null, null, null, null)]
+        public virtual void Precision_and_scale_for_property_type_used_in_owned_types_can_be_overwritten(
+            int? defaultPrecision,
+            int? defaultScale,
+            int? mainPrecision,
+            int? mainScale,
+            int? otherPrecision,
+            int? otherScale,
+            int? onePrecision,
+            int? oneScale,
+            int? manyPrecision,
+            int? manyScale)
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    if (defaultPrecision.HasValue)
+                    {
+                        if (defaultScale.HasValue)
+                        {
+                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value, defaultScale.Value);
+                        }
+                        else
+                        {
+                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value);
+                        }
+                    }
+                });
+
+            modelBuilder.Entity<MainOtter>(
+                b =>
+                {
+                    HasPrecision(b.Property(x => x.Number), mainPrecision, mainScale);
+                    b.OwnsOne(
+                        b => b.OwnedEntity, b =>
+                        {
+                            HasPrecision(b.Property(x => x.Number), onePrecision, oneScale);
+                        });
+                });
+
+            modelBuilder.Entity<OtherOtter>(
+                b =>
+                {
+                    HasPrecision(b.Property(x => x.Number), otherPrecision, otherScale);
+                    b.OwnsMany(
+                        b => b.OwnedEntities, b =>
+                        {
+                            HasPrecision(b.Property(x => x.Number), manyPrecision, manyScale);
+                        });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var mainType = model.FindEntityType(typeof(MainOtter))!;
+            var otherType = model.FindEntityType(typeof(OtherOtter))!;
+            var oneType = model.FindEntityType(typeof(OwnedOtter), nameof(MainOtter.OwnedEntity), mainType)!;
+            var manyType = model.FindEntityType(typeof(OwnedOtter), nameof(OtherOtter.OwnedEntities), otherType)!;
+
+            Assert.Equal(mainPrecision ?? defaultPrecision, mainType.FindProperty(nameof(MainOtter.Number))!.GetPrecision());
+            Assert.Equal(mainScale ?? defaultScale, mainType.FindProperty(nameof(MainOtter.Number))!.GetScale());
+
+            Assert.Equal(otherPrecision ?? defaultPrecision, otherType.FindProperty(nameof(OtherOtter.Number))!.GetPrecision());
+            Assert.Equal(otherScale ?? defaultScale, otherType.FindProperty(nameof(OtherOtter.Number))!.GetScale());
+
+            Assert.Equal(onePrecision ?? defaultPrecision, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
+            Assert.Equal(oneScale ?? defaultScale, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
+
+            Assert.Equal(manyPrecision ?? defaultPrecision, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
+            Assert.Equal(manyScale ?? defaultScale, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
+
+            void HasPrecision(TestPropertyBuilder<decimal> testPropertyBuilder, int? precision, int? scale)
+            {
+                if (precision.HasValue)
+                {
+                    if (scale.HasValue)
+                    {
+                        testPropertyBuilder.HasPrecision(precision.Value, scale.Value);
+                    }
+                    else
+                    {
+                        testPropertyBuilder.HasPrecision(precision.Value);
+                    }
+                }
+            }
+        }
+
+        protected class Department
+        {
+            public DepartmentId Id { get; protected set; }
+            public List<DepartmentId> DepartmentIds { get; set; }
+        }
+
+        protected class DepartmentId
+        {
+            public DepartmentId() { }
+
+            public DepartmentId(int value)
+            {
+                Value = value;
+            }
+
+            public int Value { get; }
+        }
+
+        protected class Office
+        {
+            public int Id { get; protected set; }
+            public List<DepartmentId> DepartmentIds { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_property_and_owned_entity_of_same_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Department>(b =>
+            {
+                b.Property(d => d.Id)
+                    .HasConversion(
+                        id => id.Value,
+                        value => new DepartmentId(value));
+
+                b.OwnsMany(d => d.DepartmentIds);
+            });
+
+            modelBuilder.Entity<Office>()
+                .OwnsMany(o => o.DepartmentIds);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var departmentType = model.FindEntityType(typeof(Department))!;
+            var departmentNestedType = model.FindEntityType(typeof(DepartmentId), nameof(Department.DepartmentIds), departmentType)!;
+            var officeType = model.FindEntityType(typeof(Office))!;
+            var officeNestedType = model.FindEntityType(typeof(DepartmentId), nameof(Office.DepartmentIds), officeType)!;
+
+            var departmentIdProperty = departmentType.FindProperty(nameof(Department.Id));
+            Assert.NotNull(departmentIdProperty);
+            Assert.NotNull(departmentNestedType);
+            Assert.NotNull(officeNestedType);
+
+            var departmentIdFkProperty = departmentNestedType.GetForeignKeys().Single().Properties[0];
+            Assert.Same(departmentIdProperty.GetValueConverter(), departmentIdFkProperty.GetValueConverter());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_owned_entity_and_property_of_same_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Office>()
+                .OwnsMany(o => o.DepartmentIds);
+
+            modelBuilder.Entity<Department>(b =>
+            {
+                b.Property(d => d.Id)
+                    .HasConversion(
+                        id => id.Value,
+                        value => new DepartmentId(value));
+
+                b.OwnsMany(d => d.DepartmentIds);
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var departmentType = model.FindEntityType(typeof(Department))!;
+            var departmentNestedType = model.FindEntityType(typeof(DepartmentId), nameof(Department.DepartmentIds), departmentType)!;
+            var officeType = model.FindEntityType(typeof(Office))!;
+            var officeNestedType = model.FindEntityType(typeof(DepartmentId), nameof(Office.DepartmentIds), officeType)!;
+
+            var departmentIdProperty = departmentType.FindProperty(nameof(Department.Id));
+            Assert.NotNull(departmentIdProperty);
+            Assert.NotNull(departmentNestedType);
+            Assert.NotNull(officeNestedType);
+
+            var departmentIdFkProperty = departmentNestedType.GetForeignKeys().Single().Properties[0];
+            Assert.Same(departmentIdProperty.GetValueConverter(), departmentIdFkProperty.GetValueConverter());
         }
 
         [ConditionalFact]
