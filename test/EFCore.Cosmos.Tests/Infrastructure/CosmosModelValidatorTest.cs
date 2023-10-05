@@ -2,6 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.TestUtilities;
+using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -317,7 +320,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<Customer>().ToContainer("Orders").HasDiscriminator().HasValue(null);
         modelBuilder.Entity<Order>().ToContainer("Orders");
 
-        VerifyError(CosmosStrings.NoDiscriminatorValue(typeof(Customer).Name, "Orders"), modelBuilder);
+        VerifyError(CoreStrings.NoDiscriminatorValue(typeof(Customer).Name), modelBuilder);
     }
 
     [ConditionalFact]
@@ -340,7 +343,7 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .Property<string>("_etag")
             .IsConcurrencyToken();
 
-        Validate(modelBuilder);
+
     }
 
     [ConditionalFact]

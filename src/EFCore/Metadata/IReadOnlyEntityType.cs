@@ -3,6 +3,9 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Utilities;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -778,6 +781,31 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source);
+
+        /// <summary>
+        ///     <para>
+        ///         Creates a human-readable representation of the given metadata.
+        ///     </para>
+        ///     <para>
+        ///         Warning: Do not rely on the format of the returned string.
+        ///         It is designed for debugging only and may change arbitrarily between releases.
+        ///     </para>
+        /// </summary>
+        /// <param name="options">Options for generating the string.</param>
+        /// <param name="indent">The number of indent spaces to use before each new line.</param>
+        /// <returns>A human-readable representation.</returns>
+        string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+        {
+            var builder = new StringBuilder();
+            var indentString = new string(' ', indent);
 
         try
         {

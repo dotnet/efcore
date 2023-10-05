@@ -447,7 +447,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         {
             return Expression.Lambda<Func<object>>(
                     Expression.Convert(expression, typeof(object)))
-                .Compile()
+                .Compile(preferInterpretation: true)
                 .Invoke();
         }
         catch (Exception exception)

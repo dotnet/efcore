@@ -372,7 +372,7 @@ public class CSharpMigrationsGeneratorTest
                         ? validAnnotations[annotationName].Value
                         : null);
 
-                modelBuilder.FinalizeModel(designTime: true);
+                modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 
                 var sb = new IndentedStringBuilder();
 

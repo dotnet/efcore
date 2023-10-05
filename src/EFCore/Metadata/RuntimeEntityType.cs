@@ -5,6 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Query;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -65,6 +70,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     private Func<ISnapshot>? _emptyShadowValuesFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
+        private Func<MaterializationContext, object>? _materializer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -844,6 +850,20 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         => type.FindIndexerProperty();
 
     /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public virtual Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+            => EntityMaterializerSource.UseOldBehavior31866
+                ? source.GetMaterializer(this)
+                : NonCapturingLazyInitializer.EnsureInitialized(
+                    ref _materializer, this, source,
+                    static (e, s) => s.GetMaterializer(e));
+
+        /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>
     /// <returns>A string that represents the current object.</returns>
