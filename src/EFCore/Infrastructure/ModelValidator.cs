@@ -574,14 +574,13 @@ public class ModelValidator : IModelValidator
     protected virtual void ValidateDiscriminatorValues(IEntityType rootEntityType)
     {
         var derivedTypes = rootEntityType.GetDerivedTypesInclusive().ToList();
-
-
         var discriminatorProperty = rootEntityType.FindDiscriminatorProperty();
-        if (discriminatorProperty == null){
-                if (derivedTypes.Count == 1)
-                {
-                    return;
-                }
+        if (discriminatorProperty == null)
+        {
+            if (derivedTypes.Count == 1)
+            {
+                return;
+            }
 
             throw new InvalidOperationException(
                 CoreStrings.NoDiscriminatorProperty(rootEntityType.DisplayName()));

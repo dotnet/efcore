@@ -2,9 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
@@ -342,8 +339,6 @@ public class CosmosModelValidatorTest : ModelValidatorTestBase
             .ToContainer("Orders")
             .Property<string>("_etag")
             .IsConcurrencyToken();
-
-
     }
 
     [ConditionalFact]

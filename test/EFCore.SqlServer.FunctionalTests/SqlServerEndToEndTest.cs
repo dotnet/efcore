@@ -4,9 +4,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable VirtualMemberCallInConstructor

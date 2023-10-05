@@ -5,11 +5,6 @@ using System.Net.Sockets;
 using Azure.Core;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Update;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ContainerProperties = Microsoft.Azure.Cosmos.ContainerProperties;
@@ -565,8 +560,11 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IServiceProperty> GetServiceProperties()
             => throw new NotImplementedException();
 
-            public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
-                => throw new NotImplementedException();
+        public Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+            => throw new NotImplementedException();
+
+        public Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+            => throw new NotImplementedException();
 
         public IEnumerable<ISkipNavigation> GetSkipNavigations()
             => throw new NotImplementedException();

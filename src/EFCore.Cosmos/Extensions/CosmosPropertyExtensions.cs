@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -18,7 +16,9 @@ namespace Microsoft.EntityFrameworkCore;
 public static class CosmosPropertyExtensions
 {
     private static readonly bool _useOldBehavior31664 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;/// <summary>
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
+
+    /// <summary>
     ///     Returns the property name that the property is mapped to when targeting Cosmos.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -39,7 +39,7 @@ public static class CosmosPropertyExtensions
             if (pk != null
                 && (property.ClrType == typeof(int) || ownership.Properties.Contains(property))
                 && (property.IsShadowProperty() || _useOldBehavior31664)
-                    && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
+                && pk.Properties.Count == ownership.Properties.Count + (ownership.IsUnique ? 0 : 1)
                 && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
             {
                 return "";

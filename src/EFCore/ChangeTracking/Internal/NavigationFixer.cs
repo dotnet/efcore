@@ -1094,7 +1094,7 @@ public class NavigationFixer : INavigationFixer
         else if (!_inAttachGraph)
         {
             var joinEntityType = arguments.SkipNavigation.JoinEntityType;
-            var joinEntity = _entityMaterializerSource.GetEmptyMaterializer(joinEntityType)
+            var joinEntity = joinEntityType.GetOrCreateEmptyMaterializer(_entityMaterializerSource)
                 (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.Context));
 
             joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);

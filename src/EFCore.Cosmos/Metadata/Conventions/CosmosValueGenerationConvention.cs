@@ -18,7 +18,9 @@ public class CosmosValueGenerationConvention :
     IEntityTypeAnnotationChangedConvention
 {
     private static readonly bool _useOldBehavior31664 =
-            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;/// <summary>
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31664", out var enabled31664) && enabled31664;
+
+    /// <summary>
     ///     Creates a new instance of <see cref="CosmosValueGenerationConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
@@ -81,7 +83,7 @@ public class CosmosValueGenerationConvention :
                 if (pk != null
                     && !property.IsForeignKey()
                     && pk.Properties.Count == ownership.Properties.Count + 1
-                        && (property.IsShadowProperty() || _useOldBehavior31664)
+                    && (property.IsShadowProperty() || _useOldBehavior31664)
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {
                     return ValueGenerated.OnAddOrUpdate;
