@@ -373,7 +373,16 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .IncrementIndent()
                 .Append(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces))
                 .AppendLine(",")
-                .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces))
+                .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces));
+
+            if (converter.ConvertsNulls)
+            {
+                mainBuilder
+                    .AppendLine(",")
+                    .Append("convertsNulls: true");
+            }
+
+            mainBuilder
                 .Append(")")
                 .DecrementIndent();
         }
