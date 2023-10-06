@@ -507,13 +507,11 @@ public class RelationalCommand : IRelationalCommand
         // Guid.NewGuid is expensive, do it only if needed
         var commandId = shouldLogCommandCreate || shouldLogCommandExecute ? Guid.NewGuid() : default;
 
-        var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
-
         connection.Open();
 
+        var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
         var readerOpen = false;
         DbDataReader reader;
-
         var stopwatch = SharedStopwatch.StartNew();
 
         try
@@ -635,13 +633,11 @@ public class RelationalCommand : IRelationalCommand
         // Guid.NewGuid is expensive, do it only if needed
         var commandId = shouldLogCommandCreate || shouldLogCommandExecute ? Guid.NewGuid() : default;
 
-        var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
-
         await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
+        var command = CreateDbCommand(parameterObject, commandId, DbCommandMethod.ExecuteReader);
         var readerOpen = false;
         DbDataReader reader;
-
         var stopwatch = SharedStopwatch.StartNew();
 
         try

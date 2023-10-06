@@ -209,7 +209,7 @@ public class TestRelationalCommandBuilderFactory : IRelationalCommandBuilderFact
             RelationalCommandParameterObject parameterObject,
             Guid commandId,
             DbCommandMethod commandMethod)
-            => throw new NotSupportedException();
+            => _realRelationalCommand.CreateDbCommand(parameterObject, commandId, commandMethod);
 
         public void PopulateFrom(IRelationalCommandTemplate commandTemplate)
             => _realRelationalCommand.PopulateFrom(commandTemplate);
