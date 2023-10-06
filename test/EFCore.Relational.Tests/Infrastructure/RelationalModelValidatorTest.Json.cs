@@ -460,7 +460,7 @@ public partial class RelationalModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.JsonEntityMappedToDifferentViewThanOwner(
+            RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
                 nameof(ValidatorJsonOwnedRoot), "MyOtherView", nameof(ValidatorJsonEntityBasic), "MyView"),
             modelBuilder);
     }
@@ -485,8 +485,83 @@ public partial class RelationalModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.JsonEntityMappedToDifferentViewThanOwner(
+            RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
                 nameof(ValidatorJsonOwnedBranch), "MyOtherView", nameof(ValidatorJsonOwnedRoot), "MyView"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Json_entity_mapped_to_different_table_than_its_parent()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ToTable("MyTable");
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.ToTable("MyJsonTable");
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
+                nameof(ValidatorJsonOwnedRoot), "MyJsonTable", nameof(ValidatorJsonEntityBasic), "MyTable"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Json_entity_mapped_to_a_view_but_its_parent_is_mapped_to_a_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ToTable("MyTable");
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.ToView("MyJsonView");
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
+                nameof(ValidatorJsonOwnedRoot), "MyJsonView", nameof(ValidatorJsonEntityBasic), "MyTable"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Json_entity_mapped_to_a_table_but_its_parent_is_mapped_to_a_view()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.ToView("MyView");
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.ToTable("MyJsonTable");
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.JsonEntityMappedToDifferentTableOrViewThanOwner(
+                nameof(ValidatorJsonOwnedRoot), "MyJsonTable", nameof(ValidatorJsonEntityBasic), "MyView"),
             modelBuilder);
     }
 

@@ -1040,12 +1040,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 jsonEntity, parentEntity, navigation);
 
         /// <summary>
-        ///     Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.
+        ///     Entity '{jsonType}' is mapped to JSON and also to a table or view '{tableOrViewName}', but its owner '{ownerType}' is mapped to a different table or view '{ownerTableOrViewName}'. Every entity mapped to JSON must also map to the same table or view as its owner.
         /// </summary>
-        public static string JsonEntityMappedToDifferentViewThanOwner(object? jsonType, object? viewName, object? ownerType, object? ownerViewName)
+        public static string JsonEntityMappedToDifferentTableOrViewThanOwner(object? jsonType, object? tableOrViewName, object? ownerType, object? ownerTableOrViewName)
             => string.Format(
-                GetString("JsonEntityMappedToDifferentViewThanOwner", nameof(jsonType), nameof(viewName), nameof(ownerType), nameof(ownerViewName)),
-                jsonType, viewName, ownerType, ownerViewName);
+                GetString("JsonEntityMappedToDifferentTableOrViewThanOwner", nameof(jsonType), nameof(tableOrViewName), nameof(ownerType), nameof(ownerTableOrViewName)),
+                jsonType, tableOrViewName, ownerType, ownerTableOrViewName);
 
         /// <summary>
         ///     JSON entity '{jsonEntity}' is missing key information. This is not allowed for tracking queries since EF can't correctly build identity for this entity object.
