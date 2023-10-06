@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Numerics;
@@ -329,9 +330,17 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(string? value)
-        // do not use @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
+        // do not output @"" syntax as in Migrations this can get indented at a newline and so add spaces to the literal
         => value is not null
-            ? "\"" + value.Replace(@"\", @"\\").Replace("\"", "\\\"").Replace("\n", @"\n").Replace("\r", @"\r") + "\""
+            ? new StringBuilder(value)
+                .Replace("\\", @"\\")
+                .Replace("\0", @"\0")
+                .Replace("\n", @"\n")
+                .Replace("\r", @"\r")
+                .Replace("\"", "\\\"")
+                .Insert(0, "\"")
+                .Append("\"")
+                .ToString()
             : "null";
 
     /// <summary>
@@ -359,7 +368,17 @@ public class CSharpHelper : ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual string Literal(char value)
-        => "\'" + (value == '\'' ? "\\'" : value.ToString()) + "\'";
+        => "\'"
+            + value switch
+            {
+                '\\' => @"\\",
+                '\0' => @"\0",
+                '\n' => @"\n",
+                '\r' => @"\r",
+                '\'' => @"\'",
+                _ => value.ToString()
+            }
+            + "\'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

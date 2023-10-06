@@ -5,6 +5,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -962,6 +963,48 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                         Translate(typeof(CultureInfo)),
                         IdentifierName(nameof(CultureInfo.DefaultThreadCurrentUICulture))),
 
+                Encoding encoding when encoding == Encoding.ASCII
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.ASCII))),
+
+                Encoding encoding when encoding == Encoding.Unicode
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.Unicode))),
+
+                Encoding encoding when encoding == Encoding.BigEndianUnicode
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.BigEndianUnicode))),
+
+                Encoding encoding when encoding == Encoding.UTF8
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.UTF8))),
+
+                Encoding encoding when encoding == Encoding.UTF32
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.UTF32))),
+
+                Encoding encoding when encoding == Encoding.Latin1
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.Latin1))),
+
+                Encoding encoding when encoding == Encoding.Default
+                    => MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        Translate(typeof(Encoding)),
+                        IdentifierName(nameof(Encoding.Default))),
+
                 _ => throw new NotSupportedException(
                     $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported.")
             };
@@ -1335,10 +1378,10 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         // LINQ expression trees can directly access private members, but C# code cannot; render (slow) reflection code that does the same
         // thing. Note that assignment to private members is handled in VisitBinary.
-        // TODO: Replace this with a more efficient API for .NET 8.0.
-        switch (member.Member)
+        // TODO: Replace this with a more efficient UnsafeAccessor API. #29754
+        switch (member)
         {
-            case FieldInfo { IsPrivate: true } fieldInfo:
+            case { Member: FieldInfo { IsPrivate: true } fieldInfo }:
                 if (member.Expression is null)
                 {
                     throw new NotImplementedException("Private static field access");
@@ -1359,11 +1402,17 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                             E.Constant(BindingFlags.NonPublic | BindingFlags.Instance)),
                         _fieldGetValueMethod ??= typeof(FieldInfo).GetMethod(nameof(FieldInfo.GetValue), new[] { typeof(object) })!,
                         member.Expression));
-
                 break;
 
             // TODO: private property
             // TODO: private event
+
+            case { Member: FieldInfo closureField, Expression: ConstantExpression constantExpression }
+                when constantExpression.Type.Attributes.HasFlag(TypeAttributes.NestedPrivate)
+                    && System.Attribute.IsDefined(constantExpression.Type, typeof(CompilerGeneratedAttribute), inherit: true):
+                // Unwrap closure
+                VisitConstant(E.Constant(closureField.GetValue(constantExpression.Value), member.Type));
+                break;
 
             default:
                 Result = MemberAccessExpression(
