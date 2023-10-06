@@ -15,15 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class EntityMaterializerSource : IEntityMaterializerSource
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior31866 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;
-
     private static readonly MethodInfo InjectableServiceInjectedMethod
         = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
 
@@ -486,21 +477,14 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     public virtual Func<MaterializationContext, object> GetMaterializer(
         IEntityType entityType)
     {
-        return UseOldBehavior31866
-            ? Materializers.GetOrAdd(entityType, static (e, s) => CreateMaterializer(s, e), this)
-            : CreateMaterializer(this, entityType);
+        var materializationContextParameter
+            = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
-        static Func<MaterializationContext, object> CreateMaterializer(EntityMaterializerSource self, IEntityType e)
-        {
-            var materializationContextParameter
-                = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
-
-            return Expression.Lambda<Func<MaterializationContext, object>>(
-                    ((IEntityMaterializerSource)self).CreateMaterializeExpression(
-                        new EntityMaterializerSourceParameters(e, "instance", null), materializationContextParameter),
-                    materializationContextParameter)
-                .Compile();
-        }
+        return Expression.Lambda<Func<MaterializationContext, object>>(
+                ((IEntityMaterializerSource)this).CreateMaterializeExpression(
+                    new EntityMaterializerSourceParameters(entityType, "instance", null), materializationContextParameter),
+                materializationContextParameter)
+            .Compile();
     }
 
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>> EmptyMaterializers
@@ -516,61 +500,54 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     /// </summary>
     public virtual Func<MaterializationContext, object> GetEmptyMaterializer(IEntityType entityType)
     {
-        return UseOldBehavior31866
-            ? EmptyMaterializers.GetOrAdd(entityType, static (e, s) => CreateEmptyMaterializer(s, e), this)
-            : CreateEmptyMaterializer(this, entityType);
-
-        static Func<MaterializationContext, object> CreateEmptyMaterializer(EntityMaterializerSource self, IEntityType e)
+        var binding = entityType.ServiceOnlyConstructorBinding;
+        if (binding == null)
         {
-                var binding = e.ServiceOnlyConstructorBinding;
-                if (binding == null)
-                {
-                    var _ = e.ConstructorBinding;
-                    binding = e.ServiceOnlyConstructorBinding;
-                    if (binding == null)
-                    {
-                        throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(e.DisplayName()));
-                    }
-                }
-
-                binding = self.ModifyBindings(e, binding);
-
-                var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
-                var bindingInfo = new ParameterBindingInfo(
-                    new EntityMaterializerSourceParameters(e, "instance", null), materializationContextExpression);
-
-                var blockExpressions = new List<Expression>();
-                var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
-                var serviceProperties = e.GetServiceProperties().ToList();
-                bindingInfo.ServiceInstances.Add(instanceVariable);
-
-                CreateServiceInstances(binding, bindingInfo, blockExpressions, serviceProperties);
-
-                var constructorExpression = binding.CreateConstructorExpression(bindingInfo);
-
-                var properties = new HashSet<IPropertyBase>(serviceProperties);
-                foreach (var consumedProperty in binding.ParameterBindings.SelectMany(p => p.ConsumedProperties))
-                {
-                    properties.Remove(consumedProperty);
-                }
-
-                return Expression.Lambda<Func<MaterializationContext, object>>(
-                        self._materializationInterceptor == null
-                            ? properties.Count == 0 && blockExpressions.Count == 0
-                                ? constructorExpression
-                                : self.CreateMaterializeExpression(
-                                    blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
-                            : self.CreateInterceptionMaterializeExpression(
-                                e,
-                                new HashSet<IPropertyBase>(),
-                                self._materializationInterceptor,
-                                bindingInfo,
-                                constructorExpression,
-                                instanceVariable,
-                                blockExpressions),
-                        materializationContextExpression)
-                    .Compile();
+            var _ = entityType.ConstructorBinding;
+            binding = entityType.ServiceOnlyConstructorBinding;
+            if (binding == null)
+            {
+                throw new InvalidOperationException(CoreStrings.NoParameterlessConstructor(entityType.DisplayName()));
+            }
         }
+
+        binding = ModifyBindings(entityType, binding);
+
+        var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
+        var bindingInfo = new ParameterBindingInfo(
+            new EntityMaterializerSourceParameters(entityType, "instance", null), materializationContextExpression);
+
+        var blockExpressions = new List<Expression>();
+        var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
+        var serviceProperties = entityType.GetServiceProperties().ToList();
+        bindingInfo.ServiceInstances.Add(instanceVariable);
+
+        CreateServiceInstances(binding, bindingInfo, blockExpressions, serviceProperties);
+
+        var constructorExpression = binding.CreateConstructorExpression(bindingInfo);
+
+        var properties = new HashSet<IPropertyBase>(serviceProperties);
+        foreach (var consumedProperty in binding.ParameterBindings.SelectMany(p => p.ConsumedProperties))
+        {
+            properties.Remove(consumedProperty);
+        }
+
+        return Expression.Lambda<Func<MaterializationContext, object>>(
+                _materializationInterceptor == null
+                    ? properties.Count == 0 && blockExpressions.Count == 0
+                        ? constructorExpression
+                        : CreateMaterializeExpression(
+                            blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
+                    : CreateInterceptionMaterializeExpression(
+                        entityType,
+                        new HashSet<IPropertyBase>(),
+                        _materializationInterceptor,
+                        bindingInfo,
+                        constructorExpression,
+                        instanceVariable,
+                        blockExpressions),
+                materializationContextExpression)
+            .Compile();
     }
 
     private InstantiationBinding ModifyBindings(ITypeBase structuralType, InstantiationBinding binding)
