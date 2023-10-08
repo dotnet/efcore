@@ -375,46 +375,57 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Simplify (a != null ? new { Member = b, ... } : null).Member
         // to a != null ? b : null
         // Later null check removal will simplify it further
-        if (expression is MemberExpression
-            {
-                Expression: ConditionalExpression
-                {
-                    Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
-                } conditionalExpression
-            } visitedMemberExpression
-            // Exclude HasValue/Value over Nullable<> as they return non-null type and we don't have equivalent for it for null part
-            && !(conditionalExpression.Type.IsNullableValueType()
-                && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
+        if (expression is MemberExpression { Expression: Expression inner } visitedMemberExpression)
         {
-            var isLeftNullConstant = IsNullConstant(binaryTest.Left);
-            var isRightNullConstant = IsNullConstant(binaryTest.Right);
-
-            if (isLeftNullConstant != isRightNullConstant
-                && ((binaryTest.NodeType == ExpressionType.Equal
-                        && IsNullConstant(conditionalExpression.IfTrue))
-                    || (binaryTest.NodeType == ExpressionType.NotEqual
-                        && IsNullConstant(conditionalExpression.IfFalse))))
+            var (conditional, convert) = inner switch
             {
-                var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
-                    ? conditionalExpression.IfFalse
-                    : conditionalExpression.IfTrue;
+                ConditionalExpression c => (c, null),
+                UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConditionalExpression cond } conv => (cond, conv),
+                _ => (null, null)
+            };
 
-                // Use ReplacingExpressionVisitor rather than creating MemberExpression
-                // So that member access chain on NewExpression/MemberInitExpression condenses
-                nonNullExpression = ReplacingExpressionVisitor.Replace(
-                    visitedMemberExpression.Expression, nonNullExpression, visitedMemberExpression);
-                nonNullExpression = TryOptimizeMemberAccessOverConditional(nonNullExpression) ?? nonNullExpression;
-                if (!nonNullExpression.Type.IsNullableType())
+            if (conditional is { Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest } conditionalExpression
+                && !(conditionalExpression.Type.IsNullableValueType()
+                    && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
+            {
+                var isLeftNullConstant = IsNullConstant(binaryTest.Left);
+                var isRightNullConstant = IsNullConstant(binaryTest.Right);
+
+                if (isLeftNullConstant != isRightNullConstant
+                    && ((binaryTest.NodeType == ExpressionType.Equal
+                            && IsNullConstant(conditionalExpression.IfTrue))
+                        || (binaryTest.NodeType == ExpressionType.NotEqual
+                            && IsNullConstant(conditionalExpression.IfFalse))))
                 {
-                    nonNullExpression = Expression.Convert(nonNullExpression, nonNullExpression.Type.MakeNullable());
+                    var nonNullExpression = binaryTest.NodeType == ExpressionType.Equal
+                        ? conditionalExpression.IfFalse
+                        : conditionalExpression.IfTrue;
+
+                    // if we removed convert around ConditionalExpression
+                    // we need to re-apply it before we apply the MemberExpression
+                    if (convert is not null)
+                    {
+                        nonNullExpression = convert.Update(nonNullExpression);
+                    }
+
+                    // Use ReplacingExpressionVisitor rather than creating MemberExpression
+                    // So that member access chain on NewExpression/MemberInitExpression condenses
+                    nonNullExpression = ReplacingExpressionVisitor.Replace(
+                        visitedMemberExpression.Expression, nonNullExpression, visitedMemberExpression);
+
+                    nonNullExpression = TryOptimizeMemberAccessOverConditional(nonNullExpression) ?? nonNullExpression;
+                    if (!nonNullExpression.Type.IsNullableType())
+                    {
+                        nonNullExpression = Expression.Convert(nonNullExpression, nonNullExpression.Type.MakeNullable());
+                    }
+
+                    var nullExpression = Expression.Constant(null, nonNullExpression.Type);
+
+                    return Expression.Condition(
+                        conditionalExpression.Test,
+                        binaryTest.NodeType == ExpressionType.Equal ? nullExpression : nonNullExpression,
+                        binaryTest.NodeType == ExpressionType.Equal ? nonNullExpression : nullExpression);
                 }
-
-                var nullExpression = Expression.Constant(null, nonNullExpression.Type);
-
-                return Expression.Condition(
-                    conditionalExpression.Test,
-                    binaryTest.NodeType == ExpressionType.Equal ? nullExpression : nonNullExpression,
-                    binaryTest.NodeType == ExpressionType.Equal ? nonNullExpression : nullExpression);
             }
         }
 
