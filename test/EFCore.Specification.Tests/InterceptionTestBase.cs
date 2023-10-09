@@ -126,12 +126,12 @@ public abstract class InterceptionTestBase
 
                 if (indexFound < 0)
                 {
-                    Assert.True(false, $"Event {eventNames[i]} not found.");
+                    Assert.Fail($"Event {eventNames[i]} not found.");
                 }
 
                 if (indexFound < lastIndex)
                 {
-                    Assert.True(false, $"Event {eventNames[i]} found before {eventNames[i - 1]}.");
+                    Assert.Fail($"Event {eventNames[i]} found before {eventNames[i - 1]}.");
                 }
 
                 lastIndex = indexFound;

@@ -126,7 +126,7 @@ public abstract class TestStore : IDisposable
         }
 
         private void DistributedTransactionStarted(object sender, TransactionEventArgs e)
-            => Assert.False(true, "Distributed transaction started");
+            => Assert.Fail("Distributed transaction started");
 
         public void Dispose()
             => TransactionManager.DistributedTransactionStarted -= DistributedTransactionStarted;

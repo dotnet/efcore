@@ -26,7 +26,5 @@ public class NorthwindSelectQueryInMemoryTest : NorthwindSelectQueryTestBase<Nor
 
     public override async Task SelectMany_correlated_with_outer_3(bool async)
         // DefaultIfEmpty. Issue #17536.
-        => Assert.Equal(
-            "Madrid",
-            (await Assert.ThrowsAsync<EqualException>(() => base.SelectMany_correlated_with_outer_3(async))).Actual);
+        => await Assert.ThrowsAsync<EqualException>(() => base.SelectMany_correlated_with_outer_3(async));
 }

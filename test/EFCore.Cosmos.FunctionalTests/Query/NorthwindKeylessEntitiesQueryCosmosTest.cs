@@ -48,10 +48,8 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
     public override async Task KeylessEntity_by_database_view(bool async)
     {
         // Views are not supported.
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_by_database_view(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(
+                () => base.KeylessEntity_by_database_view(async));
 
         AssertSql(
             """
@@ -70,10 +68,9 @@ WHERE (c["Discriminator"] = "ProductView")
 
     public override async Task KeylessEntity_with_nav_defining_query(bool async)
     {
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.KeylessEntity_with_nav_defining_query(async))).Actual);
+        // Defining queries are not supported.
+        await Assert.ThrowsAsync<EqualException>(
+                () => base.KeylessEntity_with_nav_defining_query(async));
 
         AssertSql(
             """

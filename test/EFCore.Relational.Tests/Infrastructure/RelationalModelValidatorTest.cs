@@ -1391,7 +1391,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         // Should throw. Issue #23144.
         Assert.Contains(
-            "(No exception was thrown)",
+            "No exception was thrown",
             Assert.Throws<ThrowsException>(
                 () => VerifyError(
                     RelationalStrings.DuplicateForeignKeyTableMismatch(

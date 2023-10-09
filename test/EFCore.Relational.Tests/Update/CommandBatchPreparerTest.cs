@@ -862,10 +862,8 @@ FakeEntity [Deleted]"
             Assert.Equal(EntityState.Modified, command.EntityState);
 
             // Detect indirect update dependencies. Issue #17947.
-            Assert.Equal(
-                "4",
-                Assert.Throws<EqualException>(
-                    () => Assert.Equal(5, command.ColumnModifications.Count)).Actual);
+            Assert.Throws<EqualException>(
+                () => Assert.Equal(5, command.ColumnModifications.Count));
         }
 
         // var columnMod = command.ColumnModifications[0];
@@ -956,10 +954,8 @@ FakeEntity [Deleted]"
         if (state == EntityState.Deleted)
         {
             // Detect indirect update dependencies. Issue #17947.
-            Assert.Equal(
-                "1",
-                Assert.Throws<EqualException>(
-                    () => Assert.Equal(2, commandBatches.Count)).Actual);
+            Assert.Throws<EqualException>(
+                () => Assert.Equal(2, commandBatches.Count));
         }
         else
         {

@@ -33,7 +33,6 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 providerValueComparer: ValueComparer.CreateDefault<int>(favorStructuralComparisons: true),
                 sentinel: 0);
             id.SetSetter((User e, int v) => e.Id = v);
-            id.SetGetter((User e) => e.Id, e => e.Id == default(int));
             id.SetAccessors(new PropertyAccessors(
                 (InternalEntityEntry e) =>
                     ((User)e.Entity).Id == 0
@@ -63,7 +62,6 @@ namespace Microsoft.EntityFrameworkCore.NativeAotTests.CompiledModels
                 valueComparer: ValueComparer.CreateDefault<string>(favorStructuralComparisons: false),
                 providerValueComparer: ValueComparer.CreateDefault<string>(favorStructuralComparisons: true));
             name.SetSetter((User e, string v) => e.Name = v);
-            name.SetGetter((User e) => e.Name, e => e.Name == default(string));
             name.SetAccessors(new PropertyAccessors(
                 (InternalEntityEntry e) => ((User)e.Entity).Name,
                 (InternalEntityEntry e) => ((User)e.Entity).Name,

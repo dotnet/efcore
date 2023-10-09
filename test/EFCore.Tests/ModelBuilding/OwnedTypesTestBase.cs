@@ -574,7 +574,7 @@ public abstract partial class ModelBuilderTest
                             ownedNavigationBuilder.HasData(new List<OrderDetails> { new() { OrderId = -1 } });
                             break;
                         default:
-                            Assert.True(false, $"Unexpected HasData overload specification {hasDataOverload}");
+                            Assert.Fail($"Unexpected HasData overload specification {hasDataOverload}");
                             break;
                     }
                 });

@@ -120,8 +120,7 @@ public abstract class EventIdTestBase
                         }
                         catch (Exception)
                         {
-                            Assert.True(
-                                false,
+                            Assert.Fail(
                                 "Need to add fake test factory for type "
                                 + type.DisplayName()
                                 + " in class "
