@@ -261,7 +261,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
             var filePath = methodCallExpression.Arguments[1].GetConstantValue<string>();
             var lineNumber = methodCallExpression.Arguments[2].GetConstantValue<int>();
-            _queryCompilationContext.AddTag($"File: {filePath}:{lineNumber}");
+            var memberName = methodCallExpression.Arguments[3].GetConstantValue<string>();
+            _queryCompilationContext.AddTag($"File: {filePath}:{lineNumber} Method: {memberName}");
 
             return visitedExpression;
         }

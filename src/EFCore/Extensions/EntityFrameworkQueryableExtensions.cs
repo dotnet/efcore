@@ -2783,7 +2783,7 @@ public static class EntityFrameworkQueryableExtensions
         = typeof(EntityFrameworkQueryableExtensions)
             .GetMethod(
                 nameof(TagWithCallSite),
-                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
+                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int), typeof(string) })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -2828,6 +2828,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <param name="source">The source query.</param>
     /// <param name="filePath">The file name where the method was called</param>
     /// <param name="lineNumber">The file line number where the method was called</param>
+    /// <param name="memberName">The method or property name from where the method was called</param>
     /// <returns>A new query annotated with the given tag.</returns>
     /// <exception cref="ArgumentNullException">
     ///     <paramref name="source" />
@@ -2835,15 +2836,17 @@ public static class EntityFrameworkQueryableExtensions
     public static IQueryable<T> TagWithCallSite<T>(
         this IQueryable<T> source,
         [NotParameterized] [CallerFilePath] string? filePath = null,
-        [NotParameterized] [CallerLineNumber] int lineNumber = 0)
+        [NotParameterized] [CallerLineNumber] int lineNumber = 0,
+        [NotParameterized] [CallerMemberName] string? memberName = null)
         => source.Provider is EntityQueryProvider
             ? source.Provider.CreateQuery<T>(
                 Expression.Call(
                     instance: null,
                     method: TagWithCallSiteMethodInfo.MakeGenericMethod(typeof(T)),
-                    arg0: source.Expression,
-                    arg1: Expression.Constant(filePath),
-                    arg2: Expression.Constant(lineNumber)))
+                    source.Expression,
+                    Expression.Constant(filePath),
+                    Expression.Constant(lineNumber),
+                    Expression.Constant(memberName)))
             : source;
 
     #endregion
