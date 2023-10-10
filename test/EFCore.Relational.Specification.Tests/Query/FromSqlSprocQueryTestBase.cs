@@ -95,7 +95,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixtu
         var query = context
             .Set<MostExpensiveProduct>()
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
-            .TagWithCallSite("SampleFileName", 13);
+            .TagWithCallSite("SampleFileName", 13, "SampleMethodName");
 
         var queryResult = async
             ? await query.ToArrayAsync()
@@ -116,7 +116,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixtu
             .Set<MostExpensiveProduct>()
             .FromSqlRaw(TenMostExpensiveProductsSproc, GetTenMostExpensiveProductsParameters())
             .TagWith("Before")
-            .TagWithCallSite("SampleFileName", 13)
+            .TagWithCallSite("SampleFileName", 13, "SampleMethodName")
             .TagWith("After");
 
         var queryResult = async

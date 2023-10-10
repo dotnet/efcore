@@ -53,7 +53,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
 
         AssertSql(
             """
--- File: SampleFileName:13
+-- File: SampleFileName:13 Method: SampleMethodName
 
 [dbo].[Ten Most Expensive Products]
 """);
@@ -66,7 +66,7 @@ public class FromSqlSprocQuerySqlServerTest : FromSqlSprocQueryTestBase<Northwin
         AssertSql(
             """
 -- Before
--- File: SampleFileName:13
+-- File: SampleFileName:13 Method: SampleMethodName
 -- After
 
 [dbo].[Ten Most Expensive Products]
