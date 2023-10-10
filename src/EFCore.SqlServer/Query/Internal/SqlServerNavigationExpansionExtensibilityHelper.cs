@@ -51,7 +51,7 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
     /// </summary>
     public override void ValidateQueryRootCreation(IEntityType entityType, EntityQueryRootExpression? source)
     {
-        if (source is TemporalQueryRootExpression)
+        if (source is TemporalQueryRootExpression && !entityType.IsMappedToJson())
         {
             if (!entityType.GetRootType().IsTemporal())
             {
