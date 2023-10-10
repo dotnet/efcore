@@ -116,28 +116,7 @@ public static class EntityTypeExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsInOwnershipPath(this IReadOnlyEntityType entityType, IReadOnlyEntityType targetType)
-    {
-        if (entityType == targetType)
-        {
-            return true;
-        }
-
-        var owner = entityType;
-        while (true)
-        {
-            var ownership = owner.FindOwnership();
-            if (ownership == null)
-            {
-                return false;
-            }
-
-            owner = ownership.PrincipalEntityType;
-            if (owner.IsAssignableFrom(targetType))
-            {
-                return true;
-            }
-        }
-    }
+        => entityType.IsInOwnershipPath(targetType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -45,24 +45,27 @@ public class ValueGeneratorCache : IValueGeneratorCache
 
     private readonly struct CacheKey : IEquatable<CacheKey>
     {
+        private readonly Guid _modelId;
+        private readonly string? _property;
+        private readonly string? _typeBase;
+
         public CacheKey(IProperty property, ITypeBase typeBase)
         {
-            Property = property;
-            TypeBase = typeBase;
+            _modelId = typeBase.Model.ModelId;
+            _property = property.Name;
+            _typeBase = typeBase.Name;
         }
 
-        public IProperty Property { get; }
-
-        public ITypeBase TypeBase { get; }
-
         public bool Equals(CacheKey other)
-            => Property.Equals(other.Property) && TypeBase.Equals(other.TypeBase);
+            => (_property!.Equals(other._property, StringComparison.Ordinal)
+                    && _typeBase!.Equals(other._typeBase, StringComparison.Ordinal)
+                    && _modelId.Equals(other._modelId));
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
 
         public override int GetHashCode()
-            => HashCode.Combine(Property, TypeBase);
+            => HashCode.Combine(_property!, _typeBase!, _modelId);
     }
 
     /// <summary>
@@ -80,5 +83,6 @@ public class ValueGeneratorCache : IValueGeneratorCache
         IProperty property,
         ITypeBase typeBase,
         Func<IProperty, ITypeBase, ValueGenerator> factory)
-        => _cache.GetOrAdd(new CacheKey(property, typeBase), static (ck, f) => f(ck.Property, ck.TypeBase), factory);
+        => _cache.GetOrAdd(
+                new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

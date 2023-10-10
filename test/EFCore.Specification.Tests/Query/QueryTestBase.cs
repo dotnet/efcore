@@ -41,9 +41,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<TResult, object> elementSorter = null,
         Action<TResult, TResult> elementAsserter = null,
         bool assertOrder = false,
-        int entryCount = 0,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
-        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, entryCount, testMethodName);
+        => AssertQuery(async, query, query, elementSorter, elementAsserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQuery<TResult>(
         bool async,
@@ -52,62 +52,68 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<TResult, object> elementSorter = null,
         Action<TResult, TResult> elementAsserter = null,
         bool assertOrder = false,
-        int entryCount = 0,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         => QueryAsserter.AssertQuery(
-            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, entryCount, async, testMethodName);
+            actualQuery, expectedQuery, elementSorter, elementAsserter, assertOrder, assertEmpty, async, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
+        Action<TResult, TResult> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => AssertQueryScalar(async, query, query, assertOrder, testMethodName);
+        => AssertQueryScalar(async, query, query, asserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Action<TResult, TResult> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty,  async, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult?>> query,
+        Action<TResult?, TResult?> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => AssertQueryScalar(async, query, query, assertOrder, testMethodName);
+        => AssertQueryScalar(async, query, query, asserter, assertOrder, assertEmpty, testMethodName);
 
     public Task AssertQueryScalar<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult?>> actualQuery,
         Func<ISetSource, IQueryable<TResult?>> expectedQuery,
+        Action<TResult?, TResult?> asserter = null,
         bool assertOrder = false,
+        bool assertEmpty = false,
         [CallerMemberName] string testMethodName = null)
         where TResult : struct
-        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, assertOrder, async, testMethodName);
+        => QueryAsserter.AssertQueryScalar(actualQuery, expectedQuery, asserter, assertOrder, assertEmpty, async, testMethodName);
 
     protected Task AssertSingleResult<TResult>(
         bool async,
         Expression<Func<ISetSource, TResult>> syncQuery,
         Expression<Func<ISetSource, Task<TResult>>> asyncQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingleResult(async, syncQuery, asyncQuery, syncQuery, asserter);
 
     protected Task AssertSingleResult<TResult>(
         bool async,
         Expression<Func<ISetSource, TResult>> actualSyncQuery,
         Expression<Func<ISetSource, Task<TResult>>> actualAsyncQuery,
         Expression<Func<ISetSource, TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingleResult(
-            actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, entryCount, async);
+            actualSyncQuery, actualAsyncQuery, expectedQuery, asserter, async);
 
     #region Assert termination operation methods
 
@@ -157,9 +163,8 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Func<int> index,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertElementAt(async, query, query, index, index, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertElementAt(async, query, query, index, index, asserter);
 
     protected Task AssertElementAt<TResult>(
         bool async,
@@ -167,18 +172,16 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Func<int> actualIndex,
         Func<int> expectedIndex,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertElementAt(
-            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async);
 
     protected Task AssertElementAtOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Func<int> index,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertElementAtOrDefault(async, query, query, index, index, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertElementAtOrDefault(async, query, query, index, index, asserter);
 
     protected Task AssertElementAtOrDefault<TResult>(
         bool async,
@@ -186,34 +189,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Func<int> actualIndex,
         Func<int> expectedIndex,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertElementAtOrDefault(
-            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, async);
 
     protected Task AssertFirst<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertFirst(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertFirst(async, query, query, asserter);
 
     protected Task AssertFirst<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertFirst(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertFirst<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertFirst(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertFirst(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertFirst<TResult>(
         bool async,
@@ -221,17 +220,15 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertFirst(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertFirstOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertFirstOrDefault(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertFirstOrDefault(async, query, query, asserter);
 
     protected Task AssertFirstOrDefault<TResult>(
         bool async,
@@ -240,15 +237,14 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Action<TResult, TResult> asserter = null,
         int entryCount = 0)
         => QueryAsserter.AssertFirstOrDefault(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertFirstOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertFirstOrDefault(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertFirstOrDefault(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertFirstOrDefault<TResult>(
         bool async,
@@ -256,34 +252,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertFirstOrDefault(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertSingle<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingle(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingle(async, query, query, asserter);
 
     protected Task AssertSingle<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingle(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertSingle<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingle(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingle(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertSingle<TResult>(
         bool async,
@@ -291,34 +283,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingle(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertSingleOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingleOrDefault(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingleOrDefault(async, query, query, asserter);
 
     protected Task AssertSingleOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingleOrDefault(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertSingleOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertSingleOrDefault(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertSingleOrDefault(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertSingleOrDefault<TResult>(
         bool async,
@@ -326,34 +314,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertSingleOrDefault(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertLast<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertLast(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertLast(async, query, query, asserter);
 
     protected Task AssertLast<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertLast(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertLast<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertLast(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertLast(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertLast<TResult>(
         bool async,
@@ -361,34 +345,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertLast(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertLastOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertLastOrDefault(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertLastOrDefault(async, query, query, asserter);
 
     protected Task AssertLastOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertLastOrDefault(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertLastOrDefault<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, bool>> predicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertLastOrDefault(async, query, query, predicate, predicate, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertLastOrDefault(async, query, query, predicate, predicate, asserter);
 
     protected Task AssertLastOrDefault<TResult>(
         bool async,
@@ -396,10 +376,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, bool>> actualPredicate,
         Expression<Func<TResult, bool>> expectedPredicate,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertLastOrDefault(
-            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualPredicate, expectedPredicate, asserter, async);
 
     protected Task AssertCount<TResult>(
         bool async,
@@ -456,26 +435,23 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     protected Task AssertMin<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertMin(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertMin(async, query, query, asserter);
 
     protected Task AssertMin<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertMin(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertMin<TResult, TSelector>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TSelector>> selector,
-        Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0)
-        => AssertMin(async, query, query, selector, selector, asserter, entryCount);
+        Action<TSelector, TSelector> asserter = null)
+        => AssertMin(async, query, query, selector, selector, asserter);
 
     protected Task AssertMin<TResult, TSelector>(
         bool async,
@@ -483,34 +459,30 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
-        Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0)
+        Action<TSelector, TSelector> asserter = null)
         => QueryAsserter.AssertMin(
-            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
     protected Task AssertMax<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
-        => AssertMax(async, query, query, asserter, entryCount);
+        Action<TResult, TResult> asserter = null)
+        => AssertMax(async, query, query, asserter);
 
     protected Task AssertMax<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> actualQuery,
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
-        Action<TResult, TResult> asserter = null,
-        int entryCount = 0)
+        Action<TResult, TResult> asserter = null)
         => QueryAsserter.AssertMax(
-            actualQuery, expectedQuery, asserter, entryCount, async);
+            actualQuery, expectedQuery, asserter, async);
 
     protected Task AssertMax<TResult, TSelector>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
         Expression<Func<TResult, TSelector>> selector,
-        Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0)
-        => AssertMax(async, query, query, selector, selector, asserter, entryCount);
+        Action<TSelector, TSelector> asserter = null)
+        => AssertMax(async, query, query, selector, selector, asserter);
 
     protected Task AssertMax<TResult, TSelector>(
         bool async,
@@ -518,10 +490,9 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         Func<ISetSource, IQueryable<TResult>> expectedQuery,
         Expression<Func<TResult, TSelector>> actualSelector,
         Expression<Func<TResult, TSelector>> expectedSelector,
-        Action<TSelector, TSelector> asserter = null,
-        int entryCount = 0)
+        Action<TSelector, TSelector> asserter = null)
         => QueryAsserter.AssertMax(
-            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, entryCount, async);
+            actualQuery, expectedQuery, actualSelector, expectedSelector, asserter, async);
 
     protected Task AssertSum(
         bool async,

@@ -293,7 +293,7 @@ public class StateManager : IStateManager
         }
 
         var valueBuffer = new ValueBuffer(valuesArray);
-        var entity = EntityMaterializerSource.GetMaterializer(entityType)(new MaterializationContext(valueBuffer, Context));
+        var entity = entityType.GetOrCreateMaterializer(EntityMaterializerSource)(new MaterializationContext(valueBuffer, Context));
 
         var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
         var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);

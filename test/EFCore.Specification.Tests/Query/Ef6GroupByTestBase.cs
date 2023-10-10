@@ -119,8 +119,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(e.Alias, a.Alias);
                 Assert.Equal(e.FirstName, a.FirstName);
                 Assert.Equal(e.LastName, a.LastName);
-            },
-            entryCount: 10);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -419,8 +418,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 AssertEqual(e.Customer, a.Customer);
                 AssertCollection(e.Products, a.Products);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -442,8 +440,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 Assert.Equal(l.Customer.Id, r.Customer.Id);
                 Assert.Equal(l.Customer.Region, r.Customer.Region);
                 Assert.Equal(l.Customer.CompanyName, r.Customer.CompanyName);
-            },
-            entryCount: 4);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -463,8 +460,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             {
                 Assert.Equal(l.OrderId, r.OrderId);
                 AssertEqual(l.Customer, r.Customer);
-            },
-            entryCount: 11);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -477,8 +473,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 .Select(
                     g => g.OrderBy(e => e.FirstName)
                         .ThenBy(e => e.LastName)
-                        .FirstOrDefault()),
-            entryCount: 9);
+                        .FirstOrDefault()));
 
     [ConditionalTheory] // From #16648
     [MemberData(nameof(IsAsyncData))]
@@ -675,8 +670,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                     AssertEqual(lTake[i], rTake[i]);
                 }
             },
-            assertOrder: false,
-            entryCount: 8);
+            assertOrder: false);
 
     [ConditionalTheory] // From #13805
     [MemberData(nameof(IsAsyncData))]
@@ -698,8 +692,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     AssertEqual(l.People[i], r.People[i]);
                 }
-            },
-            entryCount: 36);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -719,8 +712,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     AssertEqual(l.Items[i], r.Items[i]);
                 }
-            },
-            entryCount: 12);
+            });
 
     [ConditionalTheory] // From #12088
     [MemberData(nameof(IsAsyncData))]
@@ -739,8 +731,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<Person>()
                 .GroupBy(bp => bp.Feet)
-                .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()),
-            entryCount: 12);
+                .Select(g => g.OrderByDescending(bp => bp.Id).FirstOrDefault()));
 
     [ConditionalTheory] // From #12573
     [MemberData(nameof(IsAsyncData))]

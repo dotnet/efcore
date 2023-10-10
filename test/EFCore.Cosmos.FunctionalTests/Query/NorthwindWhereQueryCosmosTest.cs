@@ -28,8 +28,7 @@ public class NorthwindWhereQueryCosmosTest : NorthwindWhereQueryTestBase<Northwi
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID + 10 == 10258),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => o.OrderID + 10 == 10258));
 
         AssertSql(
             """
@@ -45,8 +44,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] + 10) = 10258))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID - 10 == 10238),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => o.OrderID - 10 == 10238));
 
         AssertSql(
             """
@@ -62,8 +60,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] - 10) = 10238))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID * 1 == 10248),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => o.OrderID * 1 == 10248));
 
         AssertSql(
             """
@@ -79,8 +76,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] * 1) = 10248))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID / 1 == 10248),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => o.OrderID / 1 == 10248));
 
         AssertSql(
             """
@@ -96,8 +92,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] / 1) = 10248))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderID % 10248 == 0),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => o.OrderID % 10248 == 0));
 
         AssertSql(
             """
@@ -150,8 +145,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = "ALFKI") & (c["
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => (o.OrderID << 1) == 20496),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => (o.OrderID << 1) == 20496));
 
         AssertSql(
             """
@@ -167,8 +161,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] << 1) = 20496))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => (o.OrderID >> 1) == 5124),
-            entryCount: 2);
+            ss => ss.Set<Order>().Where(o => (o.OrderID >> 1) == 5124));
 
         AssertSql(
             """
@@ -184,8 +177,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] >> 1) = 5124))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.City == "Seattle" && c.ContactTitle == "Owner"));
 
         AssertSql(
             """
@@ -201,8 +193,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["City"] = "Seattle") AND (c["Co
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"),
-            entryCount: 2);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI" || c.CustomerID == "ANATR"));
 
         AssertSql(
             """
@@ -218,8 +209,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = "ALFKI") OR (c[
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => !(c.City != "Seattle")),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => !(c.City != "Seattle")));
 
         AssertSql(
             """
@@ -235,8 +225,7 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT((c["City"] != "Seattle")))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo == 2),
-            entryCount: 5);
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo == 2));
 
         AssertSql(
             """
@@ -252,8 +241,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] = 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo != 2),
-            entryCount: 4);
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo != 2));
 
         AssertSql(
             """
@@ -269,8 +257,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] != 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo > 2),
-            entryCount: 3);
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo > 2));
 
         AssertSql(
             """
@@ -286,8 +273,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] > 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo >= 2),
-            entryCount: 8);
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo >= 2));
 
         AssertSql(
             """
@@ -303,13 +289,13 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] >= 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo < 2));
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo < 3));
 
         AssertSql(
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] < 2))
+WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] < 3))
 """);
     }
 
@@ -319,8 +305,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] < 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Employee>().Where(e => e.ReportsTo <= 2),
-            entryCount: 5);
+            ss => ss.Set<Employee>().Where(e => e.ReportsTo <= 2));
 
         AssertSql(
             """
@@ -336,8 +321,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["ReportsTo"] <= 2))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID + "END" == "ALFKIEND"),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID + "END" == "ALFKIEND"));
 
         AssertSql(
             """
@@ -353,8 +337,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || "END") = "ALFK
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => -o.OrderID == -10248),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => -o.OrderID == -10248));
 
         AssertSql(
             """
@@ -370,8 +353,7 @@ WHERE ((c["Discriminator"] = "Order") AND (-(c["OrderID"]) = -10248))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => ~o.OrderID == -10249),
-            entryCount: 1);
+            ss => ss.Set<Order>().Where(o => ~o.OrderID == -10249));
 
         AssertSql(
             """
@@ -388,9 +370,8 @@ WHERE ((c["Discriminator"] = "Order") AND (~(c["OrderID"]) = -10249))
         await AssertQuery(
             async,
 #pragma warning disable IDE0029 // Use coalesce expression
-            ss => ss.Set<Customer>().Where(c => (c.Region != null ? c.Region : "SP") == "BC"),
+            ss => ss.Set<Customer>().Where(c => (c.Region != null ? c.Region : "SP") == "BC"));
 #pragma warning restore IDE0029 // Use coalesce expression
-            entryCount: 2);
 
         AssertSql(
             """
@@ -406,8 +387,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["Region"] != null) ? c["Region
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => (c.Region ?? "SP") == "BC"),
-            entryCount: 2);
+            ss => ss.Set<Customer>().Where(c => (c.Region ?? "SP") == "BC"));
 
         AssertSql(
             """
@@ -1290,7 +1270,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ("London" = c["City"]))
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = null))
+WHERE ((c["Discriminator"] = "Customer") AND (c["Region"] = null))
 """);
     }
 
@@ -1799,7 +1779,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
 
 SELECT c["CustomerID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || c["CustomerID"]) = c["CompanyName"]))
+WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || c["CustomerID"]) = "AAROUT"))
 """);
     }
 
@@ -1814,7 +1794,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || c["CustomerID"]) = c["C
 
 SELECT c["CustomerID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || (@__j_1 || c["CustomerID"])) = c["CompanyName"]))
+WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || (@__j_1 || c["CustomerID"])) = "ABANATR"))
 """);
     }
 
@@ -1830,7 +1810,7 @@ WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || (@__j_1 || c["CustomerI
 
 SELECT c["CustomerID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || (@__j_1 || (@__k_2 || c["CustomerID"]))) = c["CompanyName"]))
+WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || (@__j_1 || (@__k_2 || c["CustomerID"]))) = "ABCANTON"))
 """);
     }
 
@@ -1976,7 +1956,7 @@ WHERE ((c["Discriminator"] = "Product") AND false)
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((c["City"] = null) AND (c["Country"] = "UK")))
+WHERE ((c["Discriminator"] = "Customer") AND ((c["Region"] = null) AND (c["Country"] = "UK")))
 """);
     }
 
@@ -2469,7 +2449,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "FISSA") AND (c["City"] = "Seattle")))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "FISSA", "WHITC") AND (c["City"] = "Seattle")))
 """);
     }
 
@@ -2567,7 +2547,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["Region"] = null) ? "OR" : c["
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = null))
+WHERE ((c["Discriminator"] = "Customer") AND (c["Region"] = null))
 """);
     }
 
@@ -2601,7 +2581,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
 
         AssertSql(
             """
-@__SettableProperty_0='4'
+@__SettableProperty_0='10274'
 
 SELECT c
 FROM root c
@@ -2609,7 +2589,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = @__SettableProperty_0)
 """,
             //
             """
-@__SettableProperty_0='10'
+@__SettableProperty_0='10275'
 
 SELECT c
 FROM root c
@@ -2623,7 +2603,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = @__SettableProperty_0)
 
         AssertSql(
             """
-@__ReadOnlyProperty_0='5'
+@__ReadOnlyProperty_0='10275'
 
 SELECT c
 FROM root c
@@ -2639,7 +2619,7 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = @__ReadOnlyProperty_0)
             """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 1))
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10274))
 """);
     }
 
@@ -2923,7 +2903,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__entity_equali
 
 SELECT c["CustomerID"]
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || c["CustomerID"]) = c["CompanyName"]))
+WHERE ((c["Discriminator"] = "Customer") AND ((@__i_0 || c["CustomerID"]) = "AALFKI"))
 """);
     }
 

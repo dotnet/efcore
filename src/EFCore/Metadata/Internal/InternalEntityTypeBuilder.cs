@@ -537,9 +537,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         ConfigurationSource configurationSource,
-        bool checkClrProperty = false)
+        bool checkClrProperty,
+        bool skipTypeCheck)
         => !IsIgnored(propertyName, configurationSource)
             && (propertyType == null
+                || skipTypeCheck
                 || Metadata.Model.Builder.CanBeConfigured(propertyType, TypeConfigurationType.Property, configurationSource))
             && (!checkClrProperty
                 || propertyType != null
@@ -2810,7 +2812,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
                 shouldInvert ??= setTargetAsPrincipal != true
                     && (setTargetAsPrincipal != null
-                        || ((IReadOnlyEntityType)targetEntityType).IsInOwnershipPath(Metadata));
+                        || targetEntityType.IsInOwnershipPath(Metadata));
                 if (!shouldInvert.Value)
                 {
                     newRelationship = CreateForeignKey(
@@ -2838,7 +2840,6 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 }
 
                 relationship = newRelationship;
-
                 if (relationship == null)
                 {
                     return null;
@@ -3570,7 +3571,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
                 targetShouldBeOwned ??= true;
                 break;
             default:
-                return null;
+                if (configurationSource != ConfigurationSource.Explicit)
+                {
+                    return null;
+                }
+                break;
         }
 
         if (targetShouldBeOwned == null
@@ -3729,6 +3734,11 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         var foreignKey = SetOrAddForeignKey(
             foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
             propertyBaseName, required, configurationSource)!;
+
+        if (foreignKey == null)
+        {
+            return null;
+        }
 
         if (required.HasValue
             && foreignKey.IsRequired == required.Value)

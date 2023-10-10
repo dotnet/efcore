@@ -59,6 +59,8 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
     private RuntimePropertyBase[]? _snapshottableProperties;
+    private Func<MaterializationContext, object>? _materializer;
+    private Func<MaterializationContext, object>? _emptyMaterializer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -833,6 +835,30 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             }
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual Func<MaterializationContext, object> GetOrCreateMaterializer(IEntityMaterializerSource source)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _materializer, this, source,
+            static (e, s) => s.GetMaterializer(e));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual Func<MaterializationContext, object> GetOrCreateEmptyMaterializer(IEntityMaterializerSource source)
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _emptyMaterializer, this, source,
+            static (e, s) => s.GetEmptyMaterializer(e));
 
     /// <summary>
     ///     Returns a string that represents the current object.

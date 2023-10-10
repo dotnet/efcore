@@ -18,78 +18,68 @@ public abstract class OptionalDependentQueryTestBase<TFixture> : QueryTestBase<T
     public virtual Task Basic_projection_entity_with_all_optional(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntityAllOptional>(),
-            entryCount: 36);
+            ss => ss.Set<OptionalDependentEntityAllOptional>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_projection_entity_with_some_required(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntitySomeRequired>(),
-            entryCount: 60);
+            ss => ss.Set<OptionalDependentEntitySomeRequired>());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_optional_dependent_with_all_optional_compared_to_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json == null),
-            entryCount: 1);
+            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_optional_dependent_with_all_optional_compared_to_not_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json != null),
-            entryCount: 35);
+            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_optional_dependent_with_some_required_compared_to_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json == null),
-            entryCount: 1);
+            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_optional_dependent_with_some_required_compared_to_not_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json != null),
-            entryCount: 59);
+            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_nested_optional_dependent_with_all_optional_compared_to_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json.OpNav1 == null),
-            entryCount: 10);
+            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json.OpNav1 == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_nested_optional_dependent_with_all_optional_compared_to_not_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json.OpNav2 != null),
-            entryCount: 23);
+            ss => ss.Set<OptionalDependentEntityAllOptional>().Where(x => x.Json.OpNav2 != null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_nested_optional_dependent_with_some_required_compared_to_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json.ReqNav1 == null),
-            entryCount: 1);
+            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json.ReqNav1 == null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Filter_nested_optional_dependent_with_some_required_compared_to_not_null(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json.ReqNav2 != null),
-            entryCount: 59);
+            ss => ss.Set<OptionalDependentEntitySomeRequired>().Where(x => x.Json.ReqNav2 != null));
 }

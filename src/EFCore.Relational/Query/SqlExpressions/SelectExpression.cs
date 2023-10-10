@@ -2971,7 +2971,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             var parentNullable = identifyingColumn.IsNullable;
             var pkColumnsNullable = parentNullable
                 || (derivedType && ownerType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy);
-            var newColumnsNullable = pkColumnsNullable || !navigation.ForeignKey.IsRequiredDependent;
+            var newColumnsNullable = pkColumnsNullable
+                || !navigation.ForeignKey.IsRequiredDependent
+                || derivedType;
             if (derivedTpt)
             {
                 principalMappings = principalMappings.Except(ownerType.BaseType!.GetViewOrTableMappings().Select(e => e.Table));

@@ -117,8 +117,7 @@ WHERE "o"."OrderID" = 11077 AND acos(CAST("o"."Discount" AS REAL)) > 1.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Acosh(od.Discount + 1) > 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Acosh(od.Discount + 1) > 0));
 
         AssertSql(
             """
@@ -146,8 +145,7 @@ WHERE "o"."OrderID" = 11077 AND asin(CAST("o"."Discount" AS REAL)) > 0.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Asinh(od.Discount) > 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Asinh(od.Discount) > 0));
 
         AssertSql(
             """
@@ -187,8 +185,7 @@ WHERE "o"."OrderID" = 11077 AND atan2(CAST("o"."Discount" AS REAL), 1.0) > 0.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Atanh(od.Discount) > 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Atanh(od.Discount) > 0));
 
         AssertSql(
             """
@@ -231,8 +228,7 @@ WHERE "o"."OrderID" = 11077 AND cos(CAST("o"."Discount" AS REAL)) > 0.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Cosh(od.Discount) > 0),
-            entryCount: 25);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Cosh(od.Discount) > 0));
 
         AssertSql(
             """
@@ -287,8 +283,7 @@ WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discou
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log2(od.Discount) < 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log2(od.Discount) < 0));
 
         AssertSql(
             """
@@ -382,8 +377,7 @@ WHERE "o"."OrderID" = 11077 AND sin(CAST("o"."Discount" AS REAL)) > 0.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Sinh(od.Discount) > 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Sinh(od.Discount) > 0));
 
         AssertSql(
             """
@@ -423,8 +417,7 @@ WHERE "o"."OrderID" = 11077 AND tan(CAST("o"."Discount" AS REAL)) > 0.0
     {
         await AssertQuery(
             async,
-            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Tanh(od.Discount) > 0),
-            entryCount: 13);
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Tanh(od.Discount) > 0));
 
         AssertSql(
             """
@@ -1377,8 +1370,7 @@ WHERE 'ALFKI' REGEXP "c"."CustomerID"
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => !Regex.IsMatch(o.CustomerID, "^[^T]")),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => !Regex.IsMatch(o.CustomerID, "^[^T]")));
 
         AssertSql(
             """

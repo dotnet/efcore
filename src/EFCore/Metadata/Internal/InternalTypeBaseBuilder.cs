@@ -88,8 +88,13 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual InternalPropertyBuilder? Property(
         Type? propertyType,
         string propertyName,
-        ConfigurationSource? configurationSource)
-        => Property(propertyType, propertyName, typeConfigurationSource: configurationSource, configurationSource: configurationSource);
+        ConfigurationSource? configurationSource,
+        bool skipTypeCheck = false)
+        => Property(
+            propertyType, propertyName, memberInfo: null,
+            typeConfigurationSource: configurationSource,
+            configurationSource: configurationSource,
+            skipTypeCheck);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -101,11 +106,13 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        bool skipTypeCheck = false)
         => Property(
             propertyType, propertyName, memberInfo: null,
             typeConfigurationSource,
-            configurationSource);
+            configurationSource,
+            skipTypeCheck);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,7 +141,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual InternalPropertyBuilder? IndexerProperty(
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type? propertyType,
         string propertyName,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        bool skipTypeCheck = false)
     {
         var indexerPropertyInfo = Metadata.FindIndexerPropertyInfo();
         if (indexerPropertyInfo == null)
@@ -143,7 +151,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
         }
 
-        return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource);
+        return Property(propertyType, propertyName, indexerPropertyInfo, configurationSource, configurationSource, skipTypeCheck);
     }
 
     /// <summary>
@@ -157,7 +165,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         string propertyName,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
-        ConfigurationSource? configurationSource)
+        ConfigurationSource? configurationSource,
+        bool skipTypeCheck = false)
     {
         var entityType = Metadata;
         List<Property>? propertiesToDetach = null;
@@ -214,8 +223,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         else
         {
             if (configurationSource != ConfigurationSource.Explicit
-                && (!configurationSource.HasValue
-                    || !CanAddProperty(propertyType ?? memberInfo?.GetMemberType(), propertyName, configurationSource.Value)))
+                && (!configurationSource.HasValue || !CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
+                    propertyName, configurationSource.Value, skipTypeCheck: skipTypeCheck)))
             {
                 return null;
             }
@@ -358,11 +367,13 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual InternalPropertyBuilder? CreateUniqueProperty(
         Type propertyType,
         string propertyName,
-        bool required)
+        bool required,
+        bool checkType = false)
         => CreateUniqueProperties(
             new[] { propertyType },
             new[] { propertyName },
-            required)?.First().Builder;
+            required,
+            checkTypes: checkType)?.First().Builder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -373,14 +384,16 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual IReadOnlyList<Property>? CreateUniqueProperties(
         IReadOnlyList<Type> propertyTypes,
         IReadOnlyList<string> propertyNames,
-        bool isRequired)
+        bool isRequired,
+        bool checkTypes = false)
         => TryCreateUniqueProperties(
             propertyNames.Count,
             null,
             propertyTypes,
             propertyNames,
             isRequired,
-            "").Item2;
+            "",
+            checkTypes: checkTypes).Item2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -391,14 +404,16 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual IReadOnlyList<Property>? CreateUniqueProperties(
         IReadOnlyList<Property> principalProperties,
         bool isRequired,
-        string baseName)
+        string baseName,
+        bool checkTypes = false)
         => TryCreateUniqueProperties(
             principalProperties.Count,
             null,
             principalProperties.Select(p => p.ClrType),
             principalProperties.Select(p => p.Name),
             isRequired,
-            baseName).Item2;
+            baseName,
+            checkTypes: checkTypes).Item2;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -412,7 +427,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         IEnumerable<Type> principalPropertyTypes,
         IEnumerable<string> principalPropertyNames,
         bool isRequired,
-        string baseName)
+        string baseName,
+        bool checkTypes = false)
     {
         var newProperties = currentProperties == null ? new Property[propertyCount] : null;
         var clrProperties = Metadata.GetRuntimeProperties();
@@ -446,8 +462,11 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     if (currentProperties == null)
                     {
                         var propertyBuilder = Property(
-                            clrType, propertyName, typeConfigurationSource: null,
-                            configurationSource: ConfigurationSource.Convention);
+                            clrType,
+                            propertyName,
+                            typeConfigurationSource: null,
+                            configurationSource: ConfigurationSource.Convention,
+                            skipTypeCheck: !checkTypes);
 
                         if (propertyBuilder == null)
                         {
@@ -768,7 +787,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     || typeConfigurationSource.Overrides(existingTypeConfigurationSource)))
             || configurationSource.Overrides(existingProperty.GetConfigurationSource())
             : configurationSource.HasValue
-            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(), propertyName, configurationSource.Value, checkClrProperty);
+            && CanAddProperty(propertyType ?? memberInfo?.GetMemberType(),
+                propertyName, configurationSource.Value, checkClrProperty: checkClrProperty);
     }
 
     /// <summary>
@@ -781,7 +801,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         ConfigurationSource configurationSource,
-        bool checkClrProperty = false);
+        bool checkClrProperty = false,
+        bool skipTypeCheck = false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

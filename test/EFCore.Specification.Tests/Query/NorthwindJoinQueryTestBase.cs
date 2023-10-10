@@ -41,8 +41,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                 select new { c, o },
-            e => (e.c.CustomerID, e.o.OrderID),
-            entryCount: 70);
+            e => (e.c.CustomerID, e.o.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -53,8 +52,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>()
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID
                 select new { A = c, B = c },
-            e => (e.A.CustomerID, e.B.CustomerID),
-            entryCount: 89);
+            e => (e.A.CustomerID, e.B.CustomerID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -70,8 +68,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       o,
                       e
                   },
-            e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID),
-            entryCount: 79);
+            e => (e.c.CustomerID, e.o.OrderID, e.e.EmployeeID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -89,8 +86,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                           e2,
                           e3
                       },
-                e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID),
-                entryCount: 4));
+                e => (e.e1.EmployeeID, e.e2.EmployeeID, e.e3.EmployeeID)));
 
     private static uint GetEmployeeID(Employee employee)
         => employee.EmployeeID;
@@ -130,7 +126,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>()
                 join o1 in
                     (from o2 in ss.Set<Order>() orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1.CustomerID
-                where o1.CustomerID == "ALFKI"
+                where o1.CustomerID == "HANAR"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
 
@@ -152,8 +148,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     o1.o2,
                     Shadow = EF.Property<DateTime?>(o1.o2, "OrderDate")
                 },
-            e => e.o1.o2.OrderID,
-            entryCount: 6);
+            e => e.o1.o2.OrderID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -166,7 +161,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     (from o2 in ss.Set<Order>()
                      orderby o2.OrderID
                      select new { o2 }).Take(5) on c.CustomerID equals o1.o2.CustomerID
-                where EF.Property<string>(o1.o2, "CustomerID") == "ALFKI"
+                where EF.Property<string>(o1.o2, "CustomerID") == "HANAR"
                 select new
                 {
                     o1,
@@ -198,7 +193,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o1 in
                     (from o2 in ss.Set<Order>() where o2.OrderID > 0 orderby o2.OrderID select o2).Take(5) on c.CustomerID equals o1
                         .CustomerID
-                where o1.CustomerID == "ALFKI"
+                where o1.CustomerID == "HANAR"
                 select new { c.ContactName, o1.OrderID },
             e => e.OrderID);
 
@@ -212,8 +207,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on new { a = c.CustomerID, b = c.CustomerID }
                     equals new { a = o.CustomerID, b = o.CustomerID }
                 select new { c, o },
-            e => e.o.OrderID,
-            entryCount: 70);
+            e => e.o.OrderID);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -294,8 +288,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             async,
             ss => ss.Set<Customer>().Join(
                 ss.Set<Customer>(), o => o.CustomerID, i => i.CustomerID, (c1, c2) => new { c1, c2 }).Join(
-                ss.Set<Customer>(), o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3),
-            entryCount: 91);
+                ss.Set<Customer>(), o => o.c1.CustomerID, i => i.CustomerID, (c12, c3) => c3));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -305,8 +298,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             ss =>
                 ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")).Join(
                     ss.Set<Order>(), o => o.CustomerID, i => i.CustomerID, (_, o) => new { _, o }),
-            e => (e._.OrderID, e.o.OrderID),
-            entryCount: 63);
+            e => (e._.OrderID, e.o.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -356,8 +348,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders
-                select o,
-            entryCount: 63);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -368,8 +359,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>()
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders
-                select c,
-            entryCount: 89);
+                select c);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -392,8 +382,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F")).OrderBy(c => c.City)
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders
-                select o,
-            entryCount: 63);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -404,8 +393,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>()
                 join o in ss.Set<Order>().OrderBy(o => o.OrderID).Take(4) on c.CustomerID equals o.CustomerID into orders
                 from o in orders
-                select o,
-            entryCount: 4);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -417,8 +405,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders
                 select new { c, o },
-            e => (e.c.CustomerID, e.o.OrderID),
-            entryCount: 70);
+            e => (e.c.CustomerID, e.o.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -452,8 +439,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             {
                 AssertEqual(e.c, a.c);
                 AssertCollection(e.orders, a.orders);
-            },
-            entryCount: 71);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -471,8 +457,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             {
                 AssertEqual(e.c, a.c);
                 AssertCollection(e.orders, a.orders);
-            },
-            entryCount: 9);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -491,8 +476,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 AssertEqual(e.c2, a.c2);
                 AssertEqual(e.i.c, a.i.c);
                 AssertCollection(e.i.orders, a.i.orders);
-            },
-            entryCount: 9);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -504,8 +488,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders.DefaultIfEmpty()
                 select new { c, o },
-            e => (e.c.CustomerID, e.o?.OrderID),
-            entryCount: 71);
+            e => (e.c.CustomerID, e.o?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -524,8 +507,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     o1,
                     o2
                 },
-            e => (e.c.CustomerID, e.o1?.OrderID, e.o2?.OrderID),
-            entryCount: 71);
+            e => (e.c.CustomerID, e.o1?.OrderID, e.o2?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -537,8 +519,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>().Where(o => o.CustomerID.StartsWith("F")) on e.EmployeeID equals o.EmployeeID into orders
                 from o in orders.DefaultIfEmpty()
                 select new { e, o },
-            e => (e.e.EmployeeID, e.o?.OrderID),
-            entryCount: 72);
+            e => (e.e.EmployeeID, e.o?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -549,8 +530,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from c in ss.Set<Customer>().OrderBy(c => c.CustomerID).Take(1)
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders.DefaultIfEmpty()
-                select o,
-            entryCount: 6);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -562,8 +542,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into orders
                 from o in orders
                 where o.CustomerID == "ALFKI"
-                select o,
-            entryCount: 6);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -576,8 +555,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 from o in orders
                 where o.CustomerID == "ALFKI" || c.CustomerID == "ANATR"
                 orderby c.City
-                select o,
-            entryCount: 10);
+                select o);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -592,8 +570,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
 #pragma warning disable RCS1146 // Use conditional access.
                 where o != null && o.CustomerID == "ALFKI"
 #pragma warning restore RCS1146 // Use conditional access.
-                select o,
-            entryCount: 6);
+                select o);
     }
 
     [ConditionalTheory]
@@ -609,8 +586,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
 #pragma warning disable RCS1146 // Use conditional access.
                 where o3 != null && o3.CustomerID == "ALFKI"
 #pragma warning restore RCS1146 // Use conditional access.
-                select o3,
-            entryCount: 6);
+                select o3);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -657,8 +633,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
                 from o in lo.Where(x => x.OrderID > 5).DefaultIfEmpty()
                 select new { c.ContactName, o },
-            e => (e.ContactName, e.o?.OrderID),
-            entryCount: 63);
+            e => (e.ContactName, e.o?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -670,8 +645,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 join o in ss.Set<Order>() on c.CustomerID equals o.CustomerID into lo
                 from o in lo.Where(x => x.OrderID > 5).OrderBy(x => x.OrderDate).DefaultIfEmpty()
                 select new { c.ContactName, o },
-            e => (e.ContactName, e.o?.OrderID),
-            entryCount: 63);
+            e => (e.ContactName, e.o?.OrderID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -709,8 +683,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             async,
             ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("F"))
                 .SelectMany(c => c.Orders.Select(o => new { OrderProperty = ClientMethod(o), CustomerProperty = c.ContactName })),
-            elementSorter: e => e.OrderProperty,
-            entryCount: 63);
+            elementSorter: e => e.OrderProperty);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -732,8 +705,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                 AssertEqual(e.OrderProperty, a.OrderProperty);
                 AssertEqual(e.CustomerProperty, a.CustomerProperty);
                 AssertCollection(e.OrderDetails, a.OrderDetails);
-            },
-            entryCount: 227);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -750,8 +722,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                             CustomerProperty = c.ContactName
                         }))
                 .Select(e => new { e.OrderProperty, e.CustomerProperty }),
-            elementSorter: e => e.OrderProperty,
-            entryCount: 63);
+            elementSorter: e => e.OrderProperty);
 
     private static int ClientMethod(Order order)
         => order.OrderID;
@@ -854,8 +825,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
         => AssertQuery(
             async,
             ss => ss.Set<Customer>()
-                .SelectMany(c => c.Orders.Select(o => c)),
-            entryCount: 89);
+                .SelectMany(c => c.Orders.Select(o => c)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -887,8 +857,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     c => ss.Set<Customer>()
                         .Where(i => i.CustomerID == c.CustomerID)
                         .OrderBy(i => i.CustomerID + i.City)
-                        .Take(2)),
-            entryCount: 91);
+                        .Take(2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -902,8 +871,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     c => ss.Set<Customer>()
                         .Where(i => i.CustomerID == c.CustomerID)
                         .OrderBy(i => i.CustomerID + i.City)
-                        .Take(2)),
-            entryCount: 91);
+                        .Take(2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -916,8 +884,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     c => ss.Set<Customer>()
                         .Where(i => i.CustomerID == c.CustomerID)
                         .OrderBy(i => i.CustomerID + i.City)
-                        .Take(2)),
-            entryCount: 91);
+                        .Take(2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -932,8 +899,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     c => ss.Set<Customer>()
                         .Where(i => i.CustomerID == c.CustomerID)
                         .OrderBy(i => i.CustomerID + i.City)
-                        .Take(2)),
-            entryCount: 2);
+                        .Take(2)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

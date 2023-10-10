@@ -1435,8 +1435,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch("ALFKI", c["CustomerID"]
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.None)),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.None)));
 
         AssertSql(
             """
@@ -1452,8 +1451,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T"))
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase)),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase)));
 
         AssertSql(
             """
@@ -1469,8 +1467,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Multiline)),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Multiline)));
 
         AssertSql(
             """
@@ -1486,8 +1483,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Singleline)),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.Singleline)));
 
         AssertSql(
             """
@@ -1503,8 +1499,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnorePatternWhitespace)),
-            entryCount: 6);
+            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnorePatternWhitespace)));
 
         AssertSql(
             """
@@ -1521,8 +1516,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
         await AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(
-                o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)),
-            entryCount: 6);
+                o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)));
 
         AssertSql(
             """
@@ -1555,8 +1549,7 @@ WHERE ((c["Discriminator"] = "Customer") AND RegexMatch(c["CustomerID"], "^T", "
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("alFkI", StringComparison.OrdinalIgnoreCase)),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("alFkI", StringComparison.OrdinalIgnoreCase)));
 
         AssertSql(
             """
@@ -1572,8 +1565,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFk
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "alFkI", StringComparison.OrdinalIgnoreCase)),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "alFkI", StringComparison.OrdinalIgnoreCase)));
 
         AssertSql(
             """
@@ -1589,8 +1581,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "alFk
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("ALFKI", StringComparison.Ordinal)),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.Equals("ALFKI", StringComparison.Ordinal)));
 
         AssertSql(
             """
@@ -1606,8 +1597,7 @@ WHERE ((c["Discriminator"] = "Customer") AND STRINGEQUALS(c["CustomerID"], "ALFK
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.Ordinal)),
-            entryCount: 1);
+            ss => ss.Set<Customer>().Where(c => string.Equals(c.CustomerID, "ALFKI", StringComparison.Ordinal)));
 
         AssertSql(
             """
