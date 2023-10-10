@@ -103,7 +103,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixtu
 
         var actual = query.ToQueryString().Split(Environment.NewLine).First();
 
-        Assert.Equal("-- File: SampleFileName:13", actual);
+        Assert.Equal("-- File: SampleFileName:13 Method: SampleMethodName", actual);
     }
 
     [ConditionalTheory]
@@ -126,7 +126,7 @@ public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixtu
         var tags = query.ToQueryString().Split(Environment.NewLine).ToList();
 
         Assert.Equal("-- Before", tags[0]);
-        Assert.Equal("-- File: SampleFileName:13", tags[1]);
+        Assert.Equal("-- File: SampleFileName:13 Method: SampleMethodName", tags[1]);
         Assert.Equal("-- After", tags[2]);
     }
 
