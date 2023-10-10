@@ -213,12 +213,9 @@ public static class RelationalForeignKeyExtensions
     {
         var entityType = foreignKey.DeclaringEntityType;
         var primaryKey = entityType.FindPrimaryKey();
-        if (primaryKey == null || entityType.IsMappedToJson())
-        {
-            return false;
-        }
-
-        if (!foreignKey.PrincipalKey.IsPrimaryKey()
+        if (primaryKey == null
+            || entityType.IsMappedToJson()
+            || !foreignKey.PrincipalKey.IsPrimaryKey()
             || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
             || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
             || !IsMapped(foreignKey, storeObject))

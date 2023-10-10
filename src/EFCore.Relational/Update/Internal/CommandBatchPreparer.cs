@@ -215,56 +215,31 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 continue;
             }
 
-            var foundMapping = false;
+            using var sharedIdentityTableMappings =
+                entry.SharedIdentityEntry != null
+                    && entry.SharedIdentityEntry.EntityState == EntityState.Deleted
+                    ? entry.SharedIdentityEntry.EntityType.GetTableMappings().GetEnumerator()
+                    : null;
 
+            var foundMapping = false;
             foreach (var tableMapping in entry.EntityType.GetTableMappings())
             {
-                var sprocMapping = entry.EntityState switch
+                if (sharedIdentityTableMappings != null
+                    && sharedIdentityTableMappings.MoveNext()
+                    && sharedIdentityTableMappings.Current.Table != tableMapping.Table)
                 {
-                    EntityState.Added => tableMapping.InsertStoredProcedureMapping,
-                    EntityState.Modified => tableMapping.UpdateStoredProcedureMapping,
-                    EntityState.Deleted => tableMapping.DeleteStoredProcedureMapping,
-
-                    _ => throw new ArgumentOutOfRangeException("Unexpected entry.EntityState: " + entry.EntityState)
-                };
-
-                var table = tableMapping.Table;
-
-                IModificationCommand command;
-                var isMainEntry = true;
-                if (table.IsShared)
-                {
-                    Check.DebugAssert(sprocMapping is null, "Shared table with sproc mapping");
-
-                    sharedTablesCommandsMap ??= new Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>();
-
-                    var tableKey = (table.Name, table.Schema);
-                    if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
-                    {
-                        sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
-                        sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
-                    }
-
-                    command = sharedCommandsMap.GetOrAddValue(
-                        entry,
-                        (t, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
-                            new ModificationCommandParameters(
-                                t, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer, generateParameterName,
-                                Dependencies.UpdateLogger)));
-                    isMainEntry = sharedCommandsMap.IsMainEntry(entry);
-                }
-                else
-                {
-                    command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
-                        new ModificationCommandParameters(
-                            table, sprocMapping?.StoreStoredProcedure, _sensitiveLoggingEnabled, _detailedErrorsEnabled,
-                            comparer: null, generateParameterName, Dependencies.UpdateLogger));
+                    ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
                 }
 
-                command.AddEntry(entry, isMainEntry);
-                commands.Add(command);
+                ProcessEntry(entry, tableMapping, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
 
                 foundMapping = true;
+            }
+
+            while (sharedIdentityTableMappings != null
+                    && sharedIdentityTableMappings.MoveNext())
+            {
+                ProcessEntry(entry.SharedIdentityEntry!, sharedIdentityTableMappings.Current, commands, updateAdapter, generateParameterName, ref sharedTablesCommandsMap);
             }
 
             if (!foundMapping)
@@ -279,6 +254,60 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
 
         return commands;
+
+        void ProcessEntry(
+            IUpdateEntry entry,
+            ITableMapping tableMapping,
+            List<IModificationCommand> commands,
+            IUpdateAdapter updateAdapter,
+            Func<string> generateParameterName,
+            ref Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap)
+        {
+            var sprocMapping = entry.EntityState switch
+            {
+                EntityState.Added => tableMapping.InsertStoredProcedureMapping,
+                EntityState.Modified => tableMapping.UpdateStoredProcedureMapping,
+                EntityState.Deleted => tableMapping.DeleteStoredProcedureMapping,
+
+                _ => throw new ArgumentOutOfRangeException("Unexpected entry.EntityState: " + entry.EntityState)
+            };
+
+            var table = tableMapping.Table;
+
+            IModificationCommand command;
+            var isMainEntry = true;
+            if (table.IsShared)
+            {
+                Check.DebugAssert(sprocMapping is null, "Shared table with sproc mapping");
+
+                sharedTablesCommandsMap ??= new Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>();
+
+                var tableKey = (table.Name, table.Schema);
+                if (!sharedTablesCommandsMap.TryGetValue(tableKey, out var sharedCommandsMap))
+                {
+                    sharedCommandsMap = new SharedTableEntryMap<IModificationCommand>(table, updateAdapter);
+                    sharedTablesCommandsMap.Add(tableKey, sharedCommandsMap);
+                }
+
+                command = sharedCommandsMap.GetOrAddValue(
+                    entry,
+                    (t, comparer) => Dependencies.ModificationCommandFactory.CreateModificationCommand(
+                        new ModificationCommandParameters(
+                            t, _sensitiveLoggingEnabled, _detailedErrorsEnabled, comparer, generateParameterName,
+                            Dependencies.UpdateLogger)));
+                isMainEntry = sharedCommandsMap.IsMainEntry(entry);
+            }
+            else
+            {
+                command = Dependencies.ModificationCommandFactory.CreateModificationCommand(
+                    new ModificationCommandParameters(
+                        table, sprocMapping?.StoreStoredProcedure, _sensitiveLoggingEnabled, _detailedErrorsEnabled,
+                        comparer: null, generateParameterName, Dependencies.UpdateLogger));
+            }
+
+            command.AddEntry(entry, isMainEntry);
+            commands.Add(command);
+        }
     }
 
     private static void AddUnchangedSharingEntries(
