@@ -110,7 +110,7 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
             base.OnModelCreating(modelBuilder, context);
 
             modelBuilder.Entity<Category>().UseTpcMappingStrategy();
-            // modelBuilder.Entity<GiftObscurer>().UseTpcMappingStrategy(); Issue #29874
+            modelBuilder.Entity<GiftObscurer>().UseTpcMappingStrategy();
             modelBuilder.Entity<LiftObscurer>().UseTpcMappingStrategy();
         }
     }
