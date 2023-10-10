@@ -45,28 +45,27 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         IConventionModelBuilder modelBuilder,
         IConventionContext<IConventionModelBuilder> context)
     {
-        var tableToEntityTypes = new Dictionary<(string Name, string? Schema), List<IConventionEntityType>>();
+        var tableToEntityTypes = new Dictionary<StoreObjectIdentifier, List<IConventionEntityType>>();
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            var tableName = entityType.GetTableName();
-            if (tableName == null)
+            var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+            if (table == null)
             {
                 continue;
             }
 
-            var table = (tableName, entityType.GetSchema());
-            if (!tableToEntityTypes.TryGetValue(table, out var mappedTypes))
+            if (!tableToEntityTypes.TryGetValue(table.Value, out var mappedTypes))
             {
                 mappedTypes = new List<IConventionEntityType>();
-                tableToEntityTypes[table] = mappedTypes;
+                tableToEntityTypes[table.Value] = mappedTypes;
             }
 
             mappedTypes.Add(entityType);
         }
 
-        foreach (var ((name, schema), mappedTypes) in tableToEntityTypes)
+        foreach (var (table, mappedTypes) in tableToEntityTypes)
         {
-            var concurrencyColumns = GetConcurrencyTokensMap(StoreObjectIdentifier.Table(name, schema), mappedTypes);
+            var concurrencyColumns = GetConcurrencyTokensMap(table, mappedTypes);
             if (concurrencyColumns == null)
             {
                 continue;
@@ -81,7 +80,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                     var foundMappedProperty = !IsConcurrencyTokenMissing(readOnlyProperties, entityType, mappedTypes)
                         || entityType.GetProperties()
-                            .Any(p => p.GetColumnName(StoreObjectIdentifier.Table(name, schema)) == concurrencyColumnName);
+                            .Any(p => p.GetColumnName(table) == concurrencyColumnName);
 
                     if (!foundMappedProperty)
                     {
@@ -158,8 +157,8 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         var nonHierarchyTypesCount = 0;
         foreach (var entityType in mappedTypes)
         {
-            if (entityType.BaseType == null
-                || !mappedTypes.Contains(entityType.BaseType))
+            if ((entityType.BaseType == null && !mappedTypes.Any(t => t.BaseType == entityType))
+                || (entityType.BaseType != null && !mappedTypes.Contains(entityType.BaseType)))
             {
                 nonHierarchyTypesCount++;
             }
@@ -167,14 +166,14 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             concurrencyColumns = FindConcurrencyColumns(entityType, storeObject, concurrencyColumns);
         }
 
-        return nonHierarchyTypesCount < 2 ? null : concurrencyColumns;
+        return nonHierarchyTypesCount < 1 ? null : concurrencyColumns;
 
         static Dictionary<string, List<IReadOnlyProperty>>? FindConcurrencyColumns(
             IReadOnlyTypeBase structuralType,
             StoreObjectIdentifier storeObject,
             Dictionary<string, List<IReadOnlyProperty>>? concurrencyColumns)
         {
-            foreach (var property in structuralType.GetDeclaredProperties())
+            foreach (var property in structuralType.GetProperties())
             {
                 if (!property.IsConcurrencyToken
                     || (property.ValueGenerated & ValueGenerated.OnUpdate) == 0)
@@ -198,7 +197,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                 properties.Add(property);
             }
 
-            foreach (var complexProperty in structuralType.GetDeclaredComplexProperties())
+            foreach (var complexProperty in structuralType.GetComplexProperties())
             {
                 concurrencyColumns = FindConcurrencyColumns(complexProperty.ComplexType, storeObject, concurrencyColumns);
             }

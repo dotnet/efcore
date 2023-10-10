@@ -149,7 +149,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 var fanVersion1 = fanEntry.Property<TVersion>(propertyName).CurrentValue;
                 var swagVersion1 = default(TVersion);
 
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     swagVersion1 = swagEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
 
@@ -190,7 +190,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 Assert.NotEqual(fanVersion1, fanVersion2);
 
                 var swagVersion2 = default(TVersion);
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     swagVersion2 = swagEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
                     Assert.Equal(fanVersion2, swagVersion2);
@@ -229,7 +229,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 var fanVersion3 = fanEntry.Property<TVersion>(propertyName).CurrentValue;
                 Assert.NotEqual(fanVersion2, fanVersion3);
 
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     var swagVersion3 = swagEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
                     Assert.Equal(fanVersion3, swagVersion3);
@@ -261,7 +261,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 var circuitVersion1 = circuitEntry.Property<TVersion>(propertyName).CurrentValue;
                 var cityVersion1 = default(TVersion);
 
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     cityVersion1 = cityEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
 
@@ -302,7 +302,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 Assert.NotEqual(circuitVersion1, circuitVersion2);
 
                 var cityVersion2 = default(TVersion);
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     cityVersion2 = cityEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
                     Assert.Equal(circuitVersion2, cityVersion2);
@@ -341,7 +341,7 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
                 var circuitVersion3 = circuitEntry.Property<TVersion>(propertyName).CurrentValue;
                 Assert.NotEqual(circuitVersion2, circuitVersion3);
 
-                if (mapping == Mapping.Tph) // Issue #29750
+                if (mapping != Mapping.Tpt) // Issue #22060
                 {
                     var cityVersion3 = cityEntry.Property<TVersion>(synthesizedPropertyName).CurrentValue;
                     Assert.Equal(circuitVersion3, cityVersion3);

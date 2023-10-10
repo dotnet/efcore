@@ -1,13 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+public class FromSqlQuerySqlServerTest : FromSqlQueryTestBase<FromSqlQuerySqlServerTest.FromSqlQuerySqlServerTestFixture>
 {
-    public FromSqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+    public FromSqlQuerySqlServerTest(FromSqlQuerySqlServerTestFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
@@ -436,7 +439,7 @@ SELECT * FROM "Employees" WHERE "ReportsTo" = @p0 OR ("ReportsTo" IS NULL AND @p
 
     public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)
     {
-        var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
+        await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
         AssertSql(
             """
@@ -979,9 +982,44 @@ FROM (
         Assert.Equal(RelationalStrings.FromSqlNonComposable, exception.Message);
     }
 
+    [ConditionalFact]
+    public virtual void FromSql_output_parameter_works_with_transient_errors()
+    {
+        using var context = Fixture.CreateContext();
+        var connection = (TestSqlServerConnection)context.GetService<ISqlServerConnection>();
+        connection.ExecutionFailures.Enqueue(new bool?[] { true });
+        connection.OpenFailures.Enqueue(new bool?[] { true });
+
+        var output =
+            new SqlParameter
+            {
+                ParameterName = "returnValue",
+                Value = -1,
+                Direction = ParameterDirection.InputOutput,
+                SqlDbType = SqlDbType.Int,
+            };
+
+        var orders = context.Set<OrderQuery>()
+                .FromSqlRaw(@"SET @returnValue = 3
+SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", new[] { output } )
+                .ToList();
+
+        Assert.Equal(1, orders.Count);
+        Assert.Equal(3, output.Value);
+    }
+
     protected override DbParameter CreateDbParameter(string name, object value)
         => new SqlParameter { ParameterName = name, Value = value };
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    public class FromSqlQuerySqlServerTestFixture : NorthwindQuerySqlServerFixture<NoopModelCustomizer>
+    {
+        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+            => base.AddServices(serviceCollection)
+                .AddSingleton<IRelationalTransactionFactory, TestRelationalTransactionFactory>()
+                .AddScoped<ISqlServerConnection, TestSqlServerConnection>()
+                .AddSingleton<IRelationalCommandBuilderFactory, TestRelationalCommandBuilderFactory>();
+    }
 }
