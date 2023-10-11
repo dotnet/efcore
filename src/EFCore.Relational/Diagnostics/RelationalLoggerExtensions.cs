@@ -1721,6 +1721,40 @@ public static class RelationalLoggerExtensions
     ///     Logs for the <see cref="RelationalEventId.TransactionError" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type.</param>
+    public static void TriggerOnNonRootTphEntity(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = RelationalResources.LogTriggerOnNonRootTphEntity(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.DisplayName(), entityType.GetRootType().DisplayName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(
+                definition,
+                TriggerOnNonRootTphEntity,
+                entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string TriggerOnNonRootTphEntity(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var e = (EntityTypeEventData)payload;
+        return d.GenerateMessage(e.EntityType.DisplayName(), e.EntityType.GetRootType().DisplayName());
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.TransactionError" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="connection">The connection.</param>
     /// <param name="transaction">The transaction.</param>
     /// <param name="transactionId">The correlation ID associated with the <see cref="DbTransaction" />.</param>
