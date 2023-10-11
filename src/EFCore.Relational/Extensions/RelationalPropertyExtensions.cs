@@ -57,9 +57,24 @@ public static class RelationalPropertyExtensions
             return overrides.ColumnName;
         }
 
-        if (storeObject.StoreObjectType != StoreObjectType.Function
-            && storeObject.StoreObjectType != StoreObjectType.SqlQuery)
+        if (!ShouldBeMapped(property, storeObject))
         {
+            return null;
+        }
+
+        var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
+        return columnAnnotation != null
+            ? (string?)columnAnnotation.Value
+            : GetDefaultColumnName(property, storeObject);
+
+        static bool ShouldBeMapped(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+        {
+            if (storeObject.StoreObjectType == StoreObjectType.Function
+                || storeObject.StoreObjectType == StoreObjectType.SqlQuery)
+            {
+                return true;
+            }
+
             if (property.IsPrimaryKey())
             {
                 var tableFound = false;
@@ -81,72 +96,68 @@ public static class RelationalPropertyExtensions
 
                 if (!tableFound)
                 {
-                    return null;
+                    return false;
                 }
             }
             else
             {
                 var declaringEntityType = property.DeclaringType.ContainingEntityType;
-                if (declaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
+                if (declaringEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType);
-                    if (declaringStoreObject == null)
+                    return true;
+                }
+
+                var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType);
+                if (declaringStoreObject == null)
+                {
+                    var tableFound = false;
+                    var queue = new Queue<IReadOnlyEntityType>();
+                    queue.Enqueue(declaringEntityType);
+                    while (queue.Count > 0 && !tableFound)
                     {
-                        var tableFound = false;
-                        var queue = new Queue<IReadOnlyEntityType>();
-                        queue.Enqueue(declaringEntityType);
-                        while (queue.Count > 0 && !tableFound)
+                        foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
                         {
-                            foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                            declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
+                            if (declaringStoreObject == null)
                             {
-                                declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
-                                if (declaringStoreObject == null)
-                                {
-                                    queue.Enqueue(containingType);
-                                    continue;
-                                }
-
-                                if (declaringStoreObject == storeObject)
-                                {
-                                    tableFound = true;
-                                    break;
-                                }
+                                queue.Enqueue(containingType);
+                                continue;
                             }
-                        }
 
-                        if (!tableFound)
-                        {
-                            return null;
+                            if (declaringStoreObject == storeObject)
+                            {
+                                tableFound = true;
+                                break;
+                            }
                         }
                     }
-                    else
+
+                    if (!tableFound)
                     {
-                        var fragments = property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType).ToList();
-                        if (fragments.Count > 0)
+                        return false;
+                    }
+                }
+                else
+                {
+                    var fragments = property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType).ToList();
+                    if (fragments.Count > 0)
+                    {
+                        if (property.FindOverrides(storeObject) == null
+                            && (declaringStoreObject != storeObject
+                                || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
                         {
-                            if (overrides == null
-                                && (declaringStoreObject != storeObject
-                                    || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
-                            {
-                                return null;
-                            }
+                            return false;
                         }
-                        else if (declaringStoreObject != storeObject)
-                        {
-                            return null;
-                        }
+                    }
+                    else if (declaringStoreObject != storeObject)
+                    {
+                        return false;
                     }
                 }
             }
-        }
 
-        var columnAnnotation = property.FindAnnotation(RelationalAnnotationNames.ColumnName);
-        if (columnAnnotation != null)
-        {
-            return (string?)columnAnnotation.Value;
+            return true;
         }
-
-        return GetDefaultColumnName(property, storeObject);
     }
 
     /// <summary>
