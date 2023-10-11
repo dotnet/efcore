@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
@@ -35,6 +37,69 @@ public class TemporalOwnedQuerySqlServerTest : OwnedQueryRelationalTestBase<
         var rewriter = new TemporalPointInTimeQueryRewriter(Fixture.ChangesDate, temporalEntityTypes);
 
         return rewriter.Visit(serverQueryExpression);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Navigation_on_owned_entity_mapped_to_same_table_works_with_all_temporal_methods(bool async)
+    {
+        var context = CreateContext();
+
+        var queryAsOf = context.Set<OwnedPerson>()
+            .TemporalAsOf(new DateTime(2010, 1, 1));
+
+        var resultAsOf = async
+            ? await queryAsOf.ToListAsync()
+            : queryAsOf.ToList();
+
+        var queryAll = context.Set<OwnedPerson>()
+            .TemporalAll()
+            .Select(x => x.PersonAddress);
+
+        var resultAll = async
+            ? await queryAll.ToListAsync()
+            : queryAll.ToList();
+
+        var queryBetween = context.Set<OwnedPerson>()
+            .TemporalBetween(new DateTime(1990, 1, 1), new DateTime(2200, 1, 1))
+            .Select(x => x.PersonAddress);
+
+        var resultBetween = async
+            ? await queryBetween.ToListAsync()
+            : queryBetween.ToList();
+
+        AssertSql(
+"""
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o].[PeriodEnd], [o].[PeriodStart], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[PeriodEnd], [t].[PeriodStart], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [t].[PeriodEnd0], [t].[PeriodStart0], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o].[BranchAddress_BranchName], [o].[BranchAddress_PlaceType], [o].[BranchAddress_Country_Name], [o].[BranchAddress_Country_PlanetId], [o].[LeafBAddress_LeafBType], [o].[LeafBAddress_PlaceType], [o].[LeafBAddress_Country_Name], [o].[LeafBAddress_Country_PlanetId], [o].[LeafAAddress_LeafType], [o].[LeafAAddress_PlaceType], [o].[LeafAAddress_Country_Name], [o].[LeafAAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+LEFT JOIN (
+    SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o1].[OrderClientId], [o1].[OrderId], [o1].[Id] AS [Id0], [o1].[Detail], [o1].[PeriodEnd] AS [PeriodEnd0], [o1].[PeriodStart] AS [PeriodStart0]
+    FROM [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
+    LEFT JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+) AS [t] ON [o].[Id] = [t].[ClientId]
+ORDER BY [o].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+""",
+                //
+                """
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME ALL AS [o]
+""",
+                //
+                """
+SELECT [o].[Id], [o].[PersonAddress_AddressLine], [o].[PeriodEnd], [o].[PeriodStart], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId]
+FROM [OwnedPerson] FOR SYSTEM_TIME BETWEEN '1990-01-01T00:00:00.0000000' AND '2200-01-01T00:00:00.0000000' AS [o]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Navigation_on_owned_entity_mapped_to_different_table_fails_for_non_asof(bool async)
+    {
+        var context = CreateContext();
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<Star>().TemporalAll().Select(x => x.Planets.ToList()).ToListAsync())).Message;
+
+        Assert.Equal(SqlServerStrings.TemporalNavigationExpansionOnlySupportedForAsOf("AsOf"), message);
     }
 
     public override async Task Query_with_owned_entity_equality_operator(bool async)
