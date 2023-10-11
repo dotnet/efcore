@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -1979,6 +1980,23 @@ public class RelationalModelValidator : ModelValidator
             var storeObject = StoreObjectIdentifier.Create(entityType, storeObjectType);
             if (storeObject == null)
             {
+                var unmappedOwnedType = entityType.GetReferencingForeignKeys()
+                    .Where(fk => fk.IsOwnership)
+                    .Select(fk => fk.DeclaringEntityType)
+                    .FirstOrDefault(owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
+                        && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
+                        && !owned.IsMappedToJson());
+                if (unmappedOwnedType != null
+                    && entityType.GetDerivedTypes().Any(derived => StoreObjectIdentifier.Create(derived, storeObjectType) != null))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.UnmappedNonTPHOwner(
+                            entityType.DisplayName(),
+                            unmappedOwnedType.FindOwnership()!.PrincipalToDependent?.Name,
+                            unmappedOwnedType.DisplayName(),
+                            storeObjectType));
+                }
+
                 continue;
             }
 
