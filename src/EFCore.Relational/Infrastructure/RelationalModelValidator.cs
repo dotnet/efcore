@@ -2469,6 +2469,29 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
+
+    /// <inheritdoc/>
+    protected override void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType.IsMappedToJson() && entityType.GetSeedData().Any())
+            {
+                throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+            }
+
+            foreach (var navigation in entityType.GetNavigations().Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            {
+                if (entityType.GetSeedData().Any(x => x.TryGetValue(navigation.Name, out var _)))
+                {
+                    throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+                }
+            }
+        }
+
+        base.ValidateData(model, logger);
+    }
+
     /// <summary>
     ///     Validates that the triggers are unambiguously mapped to exactly one table.
     /// </summary>

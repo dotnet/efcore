@@ -828,6 +828,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 propertySpecification, function);
 
         /// <summary>
+        ///     Can't use HasData for entity type '{entity}'. HasData is not supported for entities mapped to JSON.
+        /// </summary>
+        public static string HasDataNotSupportedForEntitiesMappedToJson(object? entity)
+            => string.Format(
+                GetString("HasDataNotSupportedForEntitiesMappedToJson", nameof(entity)),
+                entity);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and the comment '{comment}' does not match the comment '{otherComment}'.
         /// </summary>
         public static string IncompatibleTableCommentMismatch(object? table, object? entityType, object? otherEntityType, object? comment, object? otherComment)
