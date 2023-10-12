@@ -84,14 +84,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 newArrayExpression);
 
         /// <summary>
-        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
-        /// </summary>
-        public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
-            => string.Format(
-                GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
-                complexType);
-
-        /// <summary>
         ///     Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
         /// </summary>
         public static string ClientGroupByNotSupported
@@ -806,6 +798,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 operation);
 
         /// <summary>
+        ///     ExecuteUpdate is being used over a LINQ operator which isn't natively supported by the database; this cannot be translated because complex type '{complexType}' is projected out. Rewrite your query to project out the containing entity type instead.
+        /// </summary>
+        public static string ExecuteUpdateSubqueryNotSupportedOverComplexTypes(object? complexType)
+            => string.Format(
+                GetString("ExecuteUpdateSubqueryNotSupportedOverComplexTypes", nameof(complexType)),
+                complexType);
+
+        /// <summary>
         ///     The required column '{column}' was not present in the results of a 'FromSql' operation.
         /// </summary>
         public static string FromSqlMissingColumn(object? column)
@@ -1322,18 +1322,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValues, entityState);
 
         /// <summary>
+        ///     Multiple relational database provider configurations found. A context can only be configured to use a single database provider.
+        /// </summary>
+        public static string MultipleProvidersConfigured
+            => GetString("MultipleProvidersConfigured");
+
+        /// <summary>
         ///     Multiple 'SetProperty' invocations refer to different tables ('{propertySelector1}' and '{propertySelector2}'). A single 'ExecuteUpdate' call can only update the columns of a single table.
         /// </summary>
         public static string MultipleTablesInExecuteUpdate(object? propertySelector1, object? propertySelector2)
             => string.Format(
                 GetString("MultipleTablesInExecuteUpdate", nameof(propertySelector1), nameof(propertySelector2)),
                 propertySelector1, propertySelector2);
-
-        /// <summary>
-        ///     Multiple relational database provider configurations found. A context can only be configured to use a single database provider.
-        /// </summary>
-        public static string MultipleProvidersConfigured
-            => GetString("MultipleProvidersConfigured");
 
         /// <summary>
         ///     A named connection string was used, but the name '{name}' was not found in the application's configuration. Note that named connection strings are only supported when using 'IConfiguration' and a service provider, such as in a typical ASP.NET Core application. See https://go.microsoft.com/fwlink/?linkid=850912 for more information.
@@ -1554,18 +1554,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
-        /// </summary>
-        public static string SetOperationsNotAllowedAfterClientEvaluation
-            => GetString("SetOperationsNotAllowedAfterClientEvaluation");
-
-        /// <summary>
         ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
         /// </summary>
         public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)
             => string.Format(
                 GetString("SetOperationOverDifferentStructuralTypes", nameof(type1), nameof(type2)),
                 type1, type2);
+
+        /// <summary>
+        ///     Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.
+        /// </summary>
+        public static string SetOperationsNotAllowedAfterClientEvaluation
+            => GetString("SetOperationsNotAllowedAfterClientEvaluation");
 
         /// <summary>
         ///     A set operation '{setOperationType}' requires valid type mapping for at least one of its sides.
@@ -2046,6 +2046,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 sqlGeneratorType, operationType);
 
         /// <summary>
+        ///     The entity type '{ownerType}' is not mapped, so by default the owned type '{navigation}.{ownedType}' will also be unmapped. If this is intended explicitly map the owned type to 'null', otherwise map it to a named '{storeObjectType}'.
+        /// </summary>
+        public static string UnmappedNonTPHOwner(object? ownerType, object? navigation, object? ownedType, object? storeObjectType)
+            => string.Format(
+                GetString("UnmappedNonTPHOwner", nameof(ownerType), nameof(navigation), nameof(ownedType), nameof(storeObjectType)),
+                ownerType, navigation, ownedType, storeObjectType);
+
+        /// <summary>
         ///     The store type '{type}' used for the column '{column}' in a migration data operation is not supported by the current provider.
         /// </summary>
         public static string UnsupportedDataOperationStoreType(object? type, object? column)
@@ -2062,7 +2070,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

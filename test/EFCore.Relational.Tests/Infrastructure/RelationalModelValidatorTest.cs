@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Xunit.Sdk;
 
@@ -2480,6 +2481,42 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyError(
             RelationalStrings.TpcTableSharing("Person", "Animal", "Animal"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_owned_table_sharing_on_abstract_class_with_TPC()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<LivingBeing>()
+            .UseTpcMappingStrategy()
+            .OwnsOne(b => b.Details);
+
+        modelBuilder.Entity<Animal>();
+
+        VerifyError(
+            RelationalStrings.UnmappedNonTPHOwner("LivingBeing", "Details", "OwnedEntity", "Table"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_owned_view_sharing_on_abstract_class_with_TPT()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<LivingBeing>()
+            .UseTptMappingStrategy()
+            .OwnsOne(b => b.Details, ob =>
+            {
+                ob.ToTable((string)null);
+            });
+
+        modelBuilder.Entity<Animal>()
+            .ToView("Animal");
+
+        VerifyError(
+            RelationalStrings.UnmappedNonTPHOwner("LivingBeing", "Details", "OwnedEntity", "View"),
             modelBuilder);
     }
 
