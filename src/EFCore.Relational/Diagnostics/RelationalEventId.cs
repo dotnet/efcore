@@ -103,6 +103,7 @@ public static class RelationalEventId
         TpcStoreGeneratedIdentityWarning,
         KeyPropertiesNotMappedToTable,
         StoredProcedureConcurrencyTokenNotMapped,
+        TriggerOnNonRootTphEntity,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -886,6 +887,20 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId StoredProcedureConcurrencyTokenNotMapped =
         MakeValidationId(Id.StoredProcedureConcurrencyTokenNotMapped);
+
+    /// <summary>
+    ///     Can't configure a trigger on the non-root entity type in a TPH hierarchy.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId TriggerOnNonRootTphEntity =
+        MakeValidationId(Id.TriggerOnNonRootTphEntity);
 
     /// <summary>
     ///     A foreign key specifies properties which don't map to the related tables.

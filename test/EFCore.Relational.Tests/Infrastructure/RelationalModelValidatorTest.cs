@@ -3806,11 +3806,8 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
 
-        VerifyError(
-            RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
-                modelBuilder.Model.FindEntityType(typeof(Cat))!.DisplayName(),
-                modelBuilder.Model.FindEntityType(typeof(Animal))!.DisplayName()),
-            modelBuilder);
+        VerifyWarning(RelationalResources.LogTriggerOnNonRootTphEntity(new TestLogger<TestRelationalLoggingDefinitions>())
+            .GenerateMessage("Cat", "Animal"), modelBuilder);
     }
 
     private class TpcBase

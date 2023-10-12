@@ -61,7 +61,6 @@ public class RelationalModelValidator : ModelValidator
         ValidateDefaultValuesOnKeys(model, logger);
         ValidateBoolsWithDefaults(model, logger);
         ValidateIndexProperties(model, logger);
-        ValidateTriggers(model, logger);
         ValidateJsonEntities(model, logger);
     }
 
@@ -2524,9 +2523,7 @@ public class RelationalModelValidator : ModelValidator
             if (entityType.BaseType is not null
                 && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
             {
-                throw new InvalidOperationException(
-                    RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
-                        entityType.DisplayName(), entityType.GetRootType().DisplayName()));
+                logger.TriggerOnNonRootTphEntity(entityType);
             }
 
             var tableName = entityType.GetTableName();

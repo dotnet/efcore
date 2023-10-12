@@ -60,14 +60,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotCompareComplexTypeToNull");
 
         /// <summary>
-        ///     Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.
-        /// </summary>
-        public static string CannotConfigureTriggerNonRootTphEntity(object? entityType, object? rootEntityType)
-            => string.Format(
-                GetString("CannotConfigureTriggerNonRootTphEntity", nameof(entityType), nameof(rootEntityType)),
-                entityType, rootEntityType);
-
-        /// <summary>
         ///     You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.
         /// </summary>
         public static string CannotProjectNullableComplexType(object? complexType)
@@ -3884,6 +3876,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.
+        /// </summary>
+        public static EventDefinition<string, string> LogTriggerOnNonRootTphEntity(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogTriggerOnNonRootTphEntity;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogTriggerOnNonRootTphEntity,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        RelationalEventId.TriggerOnNonRootTphEntity,
+                        LogLevel.Warning,
+                        "RelationalEventId.TriggerOnNonRootTphEntity",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            RelationalEventId.TriggerOnNonRootTphEntity,
+                            _resourceManager.GetString("LogTriggerOnNonRootTphEntity")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
