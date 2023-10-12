@@ -1007,16 +1007,14 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
         public override void Deriving_from_owned_type_throws()
             // On Cosmos the base type starts as owned
             => Assert.Contains(
-                "(No exception was thrown)",
-                Assert.Throws<ThrowsException>(
-                    () => base.Deriving_from_owned_type_throws()).Message);
+                "No exception was thrown",
+                Assert.Throws<ThrowsException>(base.Deriving_from_owned_type_throws).Message);
 
         public override void Configuring_base_type_as_owned_throws()
             // On Cosmos the base type starts as owned
             => Assert.Contains(
-                "(No exception was thrown)",
-                Assert.Throws<ThrowsException>(
-                    () => base.Deriving_from_owned_type_throws()).Message);
+                "No exception was thrown",
+                Assert.Throws<ThrowsException>(base.Deriving_from_owned_type_throws).Message);
 
         [ConditionalFact]
         public virtual void Reference_type_is_discovered_as_owned()

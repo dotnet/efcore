@@ -36,11 +36,8 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
 
         public override void WithMany_pointing_to_keyless_entity_throws()
             // Test throws exception before reaching the first exception due to entity type being property bag entity
-            => Assert.Equal(
-                CoreStrings.NavigationSingleWrongClrType(
-                    "Reference", "KeylessCollectionNavigation", "KeylessReferenceNavigation", "Dictionary<string, object>"),
-                Assert.Throws<EqualException>(
-                    () => base.WithMany_pointing_to_keyless_entity_throws()).Actual);
+            => Assert.Throws<EqualException>(
+                    base.WithMany_pointing_to_keyless_entity_throws);
     }
 
     public class NonGenericStringManyToOneType : ManyToOneTestBase

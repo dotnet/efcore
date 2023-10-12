@@ -537,11 +537,8 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
             context.TenantPrefix = "A";
 
             // Parameter-specific evaluation in ParameterExtractor. Issue #19209.
-            Assert.Equal(
-                "4",
-                Assert.Throws<EqualException>(
-                    () =>
-                        Assert.Equal(6, query(context).Count())).Actual);
+            // Assert.Equal(6, query(context).Count())
+            Assert.Equal(4, query(context).Count());
 
             context.TenantPrefix = "B";
             Assert.Equal(4, query(context).Count());

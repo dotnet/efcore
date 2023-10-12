@@ -49,10 +49,8 @@ public class TemporalGearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTes
 
     public override async Task Include_where_list_contains_navigation(bool async)
     {
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Include_where_list_contains_navigation(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Include_where_list_contains_navigation(async));
 
         AssertSql(
             """
@@ -75,10 +73,8 @@ WHERE [t].[Id] IS NOT NULL AND EXISTS (
 
     public override async Task Include_where_list_contains_navigation2(bool async)
     {
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Include_where_list_contains_navigation2(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Include_where_list_contains_navigation2(async));
 
         AssertSql(
             """
@@ -102,10 +98,8 @@ WHERE [c].[Location] IS NOT NULL AND EXISTS (
 
     public override async Task Navigation_accessed_twice_outside_and_inside_subquery(bool async)
     {
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Navigation_accessed_twice_outside_and_inside_subquery(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Navigation_accessed_twice_outside_and_inside_subquery(async));
 
         AssertSql(
             """
@@ -129,10 +123,8 @@ WHERE [t].[Id] IS NOT NULL AND EXISTS (
     public override async Task Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(bool async)
     {
         // Test infra issue
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(
+                () => base.Query_reusing_parameter_with_inner_query_doesnt_declare_duplicate_parameter(async));
 
         AssertSql(
             """
@@ -167,7 +159,7 @@ ORDER BY [t].[FullName]
     {
         // Test infra issue
         await Assert.ThrowsAsync<SingleException>(
-            () => base.Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection());
+            base.Multiple_includes_with_client_method_around_entity_and_also_projecting_included_collection);
 
         AssertSql(
             """
@@ -186,10 +178,8 @@ ORDER BY [s].[Id], [t].[Nickname], [t].[SquadId]
     public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1() // Test infra issue
     {
         // Test infra issue
-        Assert.Equal(
-            "[]",
-            Assert.Throws<EqualException>(
-                () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1()).Actual);
+        Assert.Throws<EqualException>(
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result1);
 
         AssertSql(
             """
@@ -204,10 +194,8 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
     public override void Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2() // Test infra issue
     {
         // Test infra issue
-        Assert.Equal(
-            "[]",
-            Assert.Throws<EqualException>(
-                () => base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2()).Actual);
+        Assert.Throws<EqualException>(
+            base.Include_on_GroupJoin_SelectMany_DefaultIfEmpty_with_coalesce_result2);
 
         AssertSql(
             """
@@ -222,10 +210,8 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId]
     public override void Byte_array_filter_by_length_parameter_compiled()
     {
         // Test infra issue
-        Assert.Equal(
-            "0",
-            Assert.Throws<EqualException>(
-                () => base.Byte_array_filter_by_length_parameter_compiled()).Actual);
+        Assert.Throws<EqualException>(
+            base.Byte_array_filter_by_length_parameter_compiled);
 
         AssertSql(
             """

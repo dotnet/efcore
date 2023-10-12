@@ -1993,9 +1993,7 @@ ORDER BY c["CustomerID"]
     public override async Task Where_bitwise_or_with_logical_or(bool async)
     {
         // Bitwise operators on booleans. Issue #13168.
-        Assert.Equal(
-            "1",
-            (await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_or(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_or(async));
 
         AssertSql(
             """
@@ -2020,9 +2018,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") & (c[
     public override async Task Where_bitwise_or_with_logical_and(bool async)
     {
         // Bitwise operators on booleans. Issue #13168.
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_and(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or_with_logical_and(async));
 
         AssertSql(
             """

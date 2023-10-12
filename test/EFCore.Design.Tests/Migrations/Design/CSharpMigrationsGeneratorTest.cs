@@ -393,7 +393,7 @@ public class CSharpMigrationsGeneratorTest
                 }
                 catch (Exception e)
                 {
-                    Assert.False(true, $"Annotation '{annotationName}' was not handled by the code generator: {e.Message}");
+                    Assert.Fail($"Annotation '{annotationName}' was not handled by the code generator: {e.Message}");
                 }
 
                 try

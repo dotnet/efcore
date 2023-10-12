@@ -894,7 +894,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
                 ? await query.ToArrayAsync()
                 : query.ToArray();
 
-            Assert.Empty(query);
+            Assert.False(query.Any());
             Assert.Equal(ConnectionState.Open, connection.State);
 
             context.Database.CloseConnection();

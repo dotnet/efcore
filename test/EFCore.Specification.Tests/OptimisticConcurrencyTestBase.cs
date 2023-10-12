@@ -138,7 +138,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 try
                 {
                     c.SaveChanges();
-                    Assert.True(false, "Expected second exception due to conflict in principals.");
+                    Assert.Fail("Expected second exception due to conflict in principals.");
                 }
                 catch (DbUpdateConcurrencyException ex2)
                 {
@@ -185,7 +185,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
                 try
                 {
                     c.SaveChanges();
-                    Assert.True(false, "Expected second exception due to conflict in principals.");
+                    Assert.Fail("Expected second exception due to conflict in principals.");
                 }
                 catch (DbUpdateConcurrencyException ex2)
                 {

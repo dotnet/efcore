@@ -105,9 +105,7 @@ WHERE ((c["Discriminator"] = "Order") AND ((c["OrderID"] % 10248) = 0))
     public override async Task Where_bitwise_or(bool async)
     {
         // Bitwise operators on booleans. Issue #13168.
-        Assert.Equal(
-            "0",
-            (await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(() => base.Where_bitwise_or(async));
 
         AssertSql(
             """
@@ -800,9 +798,7 @@ WHERE ((c["Discriminator"] = "Employee") AND (c["Title"] = "Sales Representative
 
     public override async Task Where_simple_shadow_subquery(bool async)
     {
-        Assert.Equal(
-            "5",
-            (await Assert.ThrowsAsync<EqualException>(() => base.Where_simple_shadow_subquery(async))).Actual);
+        await Assert.ThrowsAsync<EqualException>(() => base.Where_simple_shadow_subquery(async));
 
         AssertSql(
             """
