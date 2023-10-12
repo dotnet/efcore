@@ -1788,6 +1788,73 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Configuring_principal_type_as_keyless_inverts_the_relationship()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<OrderDetails>()
+                .Ignore(e => e.Order)
+                .HasOne<Order>().WithOne(e => e.Details);
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<CustomerDetails>();
+
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
+            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+
+            modelBuilder.Entity<Order>().HasNoKey();
+
+            var model = modelBuilder.FinalizeModel();
+
+            orderEntityType = model.FindEntityType(typeof(Order))!;
+            Assert.True(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+        }
+
+        [ConditionalFact]
+        public virtual void Configuring_principal_type_as_keyless_throws_if_not_invertible()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<OrderDetails>()
+                .Ignore(e => e.Order)
+                .HasOne<Order>().WithOne(e => e.Details)
+                .HasPrincipalKey<Order>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<CustomerDetails>();
+
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
+            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+
+            Assert.Equal(
+                CoreStrings.PrincipalKeylessType(
+                    nameof(Order),
+                    nameof(Order) + "." + nameof(Order.Details),
+                    nameof(OrderDetails)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<Order>().HasNoKey()).Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Configuring_principal_type_as_keyless_throws_when_there_is_an_explicit_navigation()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>();
+            modelBuilder.Entity<OrderDetails>()
+                .HasOne(e => e.Order).WithOne(e => e.Details);
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<CustomerDetails>();
+
+            var orderEntityType = (IEntityType)modelBuilder.Model.FindEntityType(typeof(Order));
+            Assert.False(orderEntityType.FindNavigation(nameof(Order.Details)).IsOnDependent);
+
+            Assert.Equal(
+                CoreStrings.NavigationToKeylessType(
+                    nameof(OrderDetails.Order),
+                    nameof(Order)),
+                Assert.Throws<InvalidOperationException>(
+                    () => modelBuilder.Entity<Order>().HasNoKey()).Message);
+        }
+
+        [ConditionalFact]
         public virtual void Creates_principal_key_when_specified_on_principal_with_navigation_to_dependent()
         {
             var modelBuilder = CreateModelBuilder();
