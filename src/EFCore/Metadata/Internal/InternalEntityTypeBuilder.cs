@@ -433,12 +433,61 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
         {
             foreach (var foreignKey in Metadata.GetReferencingForeignKeys().ToList())
             {
-                foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                if (foreignKey.GetConfigurationSource() != ConfigurationSource.Explicit
+                    || configurationSource != ConfigurationSource.Explicit)
+                {
+                    foreignKey.DeclaringEntityType.Builder.HasNoRelationship(foreignKey, configurationSource);
+                    continue;
+                }
+
+                if (foreignKey.DependentToPrincipal != null && foreignKey.GetDependentToPrincipalConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationToKeylessType(foreignKey.DependentToPrincipal.Name, Metadata.DisplayName()));
+                }
+                else if ((foreignKey.IsUnique || foreignKey.GetIsUniqueConfigurationSource() != ConfigurationSource.Explicit)
+                    && foreignKey.GetPrincipalEndConfigurationSource() != ConfigurationSource.Explicit
+                    && foreignKey.Builder.CanSetEntityTypes(
+                        foreignKey.DeclaringEntityType,
+                        foreignKey.PrincipalEntityType,
+                        configurationSource,
+                        out _,
+                        out var shouldResetToDependent)
+                    && (!shouldResetToDependent || foreignKey.GetPrincipalToDependentConfigurationSource() != ConfigurationSource.Explicit))
+                {
+                    foreignKey.Builder.HasEntityTypes(
+                        foreignKey.DeclaringEntityType,
+                        foreignKey.PrincipalEntityType,
+                        configurationSource);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.PrincipalKeylessType(
+                            Metadata.DisplayName(),
+                            Metadata.DisplayName()
+                            + (foreignKey.PrincipalToDependent == null
+                                ? ""
+                                : "." + foreignKey.PrincipalToDependent.Name),
+                            foreignKey.DeclaringEntityType.DisplayName()));
+                }
             }
 
             foreach (var foreignKey in Metadata.GetForeignKeys())
             {
-                foreignKey.SetPrincipalToDependent((string?)null, configurationSource);
+                if (foreignKey.PrincipalToDependent == null)
+                {
+                    continue;
+                }
+
+                if (foreignKey.GetPrincipalToDependentConfigurationSource() == ConfigurationSource.Explicit
+                    && configurationSource == ConfigurationSource.Explicit)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.NavigationToKeylessType(foreignKey.PrincipalToDependent.Name, Metadata.DisplayName()));
+                }
+
+                foreignKey.Builder.HasNavigation((string?)null, pointsToPrincipal: false, configurationSource);
             }
 
             foreach (var key in Metadata.GetKeys().ToList())

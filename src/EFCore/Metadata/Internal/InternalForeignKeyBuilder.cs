@@ -1448,6 +1448,25 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         EntityType principalEntityType,
         EntityType dependentEntityType,
         ConfigurationSource? configurationSource)
+        => CanSetEntityTypes(
+            principalEntityType,
+            dependentEntityType,
+            configurationSource,
+            out _,
+            out _);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetEntityTypes(
+        EntityType principalEntityType,
+        EntityType dependentEntityType,
+        ConfigurationSource? configurationSource,
+        out bool shouldResetToPrincipal,
+        out bool shouldResetToDependent)
         => CanSetRelatedTypes(
             principalEntityType,
             dependentEntityType,
@@ -1457,8 +1476,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             configurationSource,
             shouldThrow: false,
             out _,
-            out _,
-            out _,
+            out shouldResetToPrincipal,
+            out shouldResetToDependent,
             out _,
             out _,
             out _);
