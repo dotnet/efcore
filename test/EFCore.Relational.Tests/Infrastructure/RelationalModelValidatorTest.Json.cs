@@ -565,6 +565,55 @@ public partial class RelationalModelValidatorTest
             modelBuilder);
     }
 
+    [ConditionalFact]
+    public void SeedData_on_json_entity_throws_meaningful_exception()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.HasData(new { Id = 1, OwnedReference = new { Name = "foo", Number = 1 } });
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.ToJson();
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        VerifyError(
+            RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(nameof(ValidatorJsonEntityBasic)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void SeedData_on_entity_with_json_navigation_throws_meaningful_exception()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.HasData(new { Id = 1 });
+                b.OwnsMany(
+                    x => x.OwnedCollection, bb =>
+                    {
+                        bb.ToJson();
+                        bb.HasData(
+                            new { Name = "foo", Number = 1 },
+                            new { Name = "bar", Number = 2 });
+                        bb.Ignore(x => x.NestedCollection);
+                        bb.Ignore(x => x.NestedReference);
+                    });
+                b.Ignore(x => x.OwnedReference);
+            });
+
+        VerifyError(
+            RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(nameof(ValidatorJsonOwnedRoot)),
+            modelBuilder);
+    }
+
     private class ValidatorJsonEntityBasic
     {
         public int Id { get; set; }

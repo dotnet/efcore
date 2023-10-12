@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -60,7 +61,6 @@ public class RelationalModelValidator : ModelValidator
         ValidateDefaultValuesOnKeys(model, logger);
         ValidateBoolsWithDefaults(model, logger);
         ValidateIndexProperties(model, logger);
-        ValidateTriggers(model, logger);
         ValidateJsonEntities(model, logger);
     }
 
@@ -1979,6 +1979,23 @@ public class RelationalModelValidator : ModelValidator
             var storeObject = StoreObjectIdentifier.Create(entityType, storeObjectType);
             if (storeObject == null)
             {
+                var unmappedOwnedType = entityType.GetReferencingForeignKeys()
+                    .Where(fk => fk.IsOwnership)
+                    .Select(fk => fk.DeclaringEntityType)
+                    .FirstOrDefault(owned => StoreObjectIdentifier.Create(owned, storeObjectType) == null
+                        && ((IConventionEntityType)owned).GetStoreObjectConfigurationSource(storeObjectType) == null
+                        && !owned.IsMappedToJson());
+                if (unmappedOwnedType != null
+                    && entityType.GetDerivedTypes().Any(derived => StoreObjectIdentifier.Create(derived, storeObjectType) != null))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.UnmappedNonTPHOwner(
+                            entityType.DisplayName(),
+                            unmappedOwnedType.FindOwnership()!.PrincipalToDependent?.Name,
+                            unmappedOwnedType.DisplayName(),
+                            storeObjectType));
+                }
+
                 continue;
             }
 
@@ -2469,6 +2486,29 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
+
+    /// <inheritdoc/>
+    protected override void ValidateData(IModel model, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            if (entityType.IsMappedToJson() && entityType.GetSeedData().Any())
+            {
+                throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+            }
+
+            foreach (var navigation in entityType.GetNavigations().Where(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            {
+                if (entityType.GetSeedData().Any(x => x.TryGetValue(navigation.Name, out var _)))
+                {
+                    throw new InvalidOperationException(RelationalStrings.HasDataNotSupportedForEntitiesMappedToJson(entityType.DisplayName()));
+                }
+            }
+        }
+
+        base.ValidateData(model, logger);
+    }
+
     /// <summary>
     ///     Validates that the triggers are unambiguously mapped to exactly one table.
     /// </summary>
@@ -2483,9 +2523,7 @@ public class RelationalModelValidator : ModelValidator
             if (entityType.BaseType is not null
                 && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
             {
-                throw new InvalidOperationException(
-                    RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
-                        entityType.DisplayName(), entityType.GetRootType().DisplayName()));
+                logger.TriggerOnNonRootTphEntity(entityType);
             }
 
             var tableName = entityType.GetTableName();
