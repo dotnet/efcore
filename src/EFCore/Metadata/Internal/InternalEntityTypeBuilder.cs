@@ -3183,13 +3183,32 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
             }
         }
 
-        InternalEntityTypeBuilder? ownedEntityTypeBuilder;
-
+        InternalEntityTypeBuilder? ownedEntityTypeBuilder = null;
         using (var batch = Metadata.Model.DelayConventions())
         {
             var ownership = Metadata.FindOwnership();
-            ownedEntityTypeBuilder = GetTargetEntityTypeBuilder(
-                targetEntityType, navigation, configurationSource, targetShouldBeOwned: true);
+            var existingDerivedNavigations = Metadata.FindDerivedNavigations(navigation.Name!)
+                .Where(n => n.ForeignKey.IsOwnership).ToList();
+            if (existingDerivedNavigations.Count == 1
+                && existingDerivedNavigations[0].ForeignKey.DeclaringEntityType is EntityType existingOwnedType
+                && !existingOwnedType.HasSharedClrType)
+            {
+                ownedEntityTypeBuilder = existingOwnedType.Builder;
+                ownedEntityTypeBuilder.HasNoRelationship(existingDerivedNavigations[0].ForeignKey, configurationSource);
+            }
+            else
+            {
+                foreach (var existingDerivedNavigation in existingDerivedNavigations)
+                {
+                    ModelBuilder.HasNoEntityType(existingDerivedNavigation.DeclaringEntityType, configurationSource);
+                }
+            }
+
+            if (ownedEntityTypeBuilder?.Metadata.IsInModel != true)
+            {
+                ownedEntityTypeBuilder = GetTargetEntityTypeBuilder(
+                    targetEntityType, navigation, configurationSource, targetShouldBeOwned: true);
+            }
 
             // TODO: Use convention batch to get the updated builder, see #15898
             var principalBuilder = Metadata.IsInModel
