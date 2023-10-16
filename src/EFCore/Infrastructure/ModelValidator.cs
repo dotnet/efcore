@@ -1036,8 +1036,9 @@ public class ModelValidator : IModelValidator
                                 typeof(IList<>).MakeGenericType(elementClrType!).ShortDisplayName()));
                     }
 
-                    if (property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>)
-                        || property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>))
+                    if (property.ClrType.IsGenericType
+                        && (property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyCollection<>)
+                            || property.ClrType.GetGenericTypeDefinition() == typeof(IReadOnlyList<>)))
                     {
                         throw new InvalidOperationException(CoreStrings.ReadOnlyListType(property.ClrType.ShortDisplayName()));
                     }
