@@ -406,7 +406,7 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}' but have specified a foreign key on '{entityType}'. The foreign key must be defined on a type that is part of the relationship.</value>
   </data>
   <data name="DerivedEntityCannotBeKeyless" xml:space="preserve">
-    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as keyless.</value>
+    <value>Unable to set a base type for entity type '{entityType}' because it has been configured as keyless. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="DerivedEntityCannotHaveKeys" xml:space="preserve">
     <value>Unable to set a base type for entity type '{entityType}' because it has one or more keys defined. Only root types can have keys.</value>
@@ -415,7 +415,7 @@
     <value>Unable to set '{baseEntityType}' as the base type for entity type '{derivedEntityType}' because '{ownedEntityType}' is configured as owned, while '{nonOwnedEntityType}' is non-owned. All entity types in a hierarchy need to have the same ownership status. See https://aka.ms/efcore-docs-owned for more information and examples.</value>
   </data>
   <data name="DerivedEntityTypeHasNoKey" xml:space="preserve">
-    <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model.</value>
+    <value>'{derivedType}' cannot be configured as keyless because it is a derived type; the root type '{rootType}' must be configured as keyless instead. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder in 'OnModelCreating', or referenced from a navigation on a type that is included in the model. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="DerivedEntityTypeKey" xml:space="preserve">
     <value>A key cannot be configured on '{derivedType}' because it is a derived type. The key must be configured on the root type '{rootType}'. If you did not intend for '{rootType}' to be included in the model, ensure that it is not referenced by a DbSet property on your context, referenced in a configuration call to ModelBuilder, or referenced from a navigation on a type that is included in the model.</value>
@@ -481,7 +481,7 @@
     <value>Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
   </data>
   <data name="EntityEqualityOnKeylessEntityNotSupported" xml:space="preserve">
-    <value>Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead.</value>
+    <value>Cannot translate the '{comparisonOperator}' on an expression of entity type '{entityType}' because it is a keyless entity. Consider using entity properties instead. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="EntityRequiresKey" xml:space="preserve">
     <value>The entity type '{entityType}' requires a primary key to be defined. If you intended to use a keyless entity type, call 'HasNoKey' in 'OnModelCreating'. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
@@ -686,7 +686,7 @@
     <value>A call was made to '{replaceService}', but Entity Framework is not building its own internal service provider. Either allow Entity Framework to build the service provider by removing the call to '{useInternalServiceProvider}', or build replacement services into the service provider before passing it to '{useInternalServiceProvider}'.</value>
   </data>
   <data name="InvalidSetKeylessOperation" xml:space="preserve">
-    <value>The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key.</value>
+    <value>The invoked method cannot be used for the entity type '{entityType}' because it does not have a primary key. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="InvalidSetSameTypeWithDifferentNamespace" xml:space="preserve">
     <value>Cannot create a DbSet for '{typeName}' because this type is not included in the model for the context. However the model contains an entity type with the same name in a different namespace: '{entityTypeName}'.</value>
@@ -1154,7 +1154,7 @@
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
   <data name="NavigationToKeylessType" xml:space="preserve">
-    <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys.</value>
+    <value>The navigation '{navigation}' cannot be added because it targets the keyless entity type '{entityType}'. Navigations can only target entity types with keys. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="NoBackingField" xml:space="preserve">
     <value>No backing field was found for property '{1_entityType}.{0_property}'. Name the backing field so that it is discovered by convention, configure the backing field to use, or use a different '{propertyAccessMode}'.</value>
@@ -1298,7 +1298,7 @@
     <value>You are configuring a relationship between '{dependentEntityType}' and '{principalEntityType}', but have specified a principal key on '{entityType}'. The foreign key must target a type that is part of the relationship.</value>
   </data>
   <data name="PrincipalKeylessType" xml:space="preserve">
-    <value>The keyless entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key.</value>
+    <value>The keyless entity type '{entityType}' cannot be on the principal end of the relationship between '{firstNavigationSpecification}' and '{secondNavigationSpecification}'. The principal entity type must have a key. For more information on keyless entity types, see https://go.microsoft.com/fwlink/?linkid=2141943.</value>
   </data>
   <data name="PrincipalOwnedType" xml:space="preserve">
     <value>The relationship from '{referencingEntityTypeOrNavigation}' to '{referencedEntityTypeOrNavigation}' is not supported because the owned entity type '{ownedType}' cannot be on the principal side of a non-ownership relationship. Remove the relationship or configure the foreign key to be on '{ownedType}'.</value>

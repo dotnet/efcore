@@ -294,6 +294,43 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Can_configure_on_derived_type_first()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details);
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
+            Assert.Equal(typeof(CustomerDetails), ownership.DeclaringEntityType.ClrType);
+            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
+            Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_on_derived_types_first()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details);
+            modelBuilder.Entity<SpecialCustomer>().OwnsOne(c => c.Details);
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownership = model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Details)).ForeignKey;
+            Assert.Equal(typeof(CustomerDetails), ownership.DeclaringEntityType.ClrType);
+            Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
+            Assert.Single(ownership.DeclaringEntityType.GetForeignKeys());
+        }
+
+        [ConditionalFact]
         public virtual void Can_configure_multiple_ownerships()
         {
             var modelBuilder = CreateModelBuilder();
