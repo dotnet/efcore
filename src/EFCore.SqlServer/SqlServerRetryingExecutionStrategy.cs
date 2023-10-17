@@ -31,9 +31,9 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
     private readonly HashSet<int>? _additionalErrorNumbers;
 
     /// <summary>
-    ///     The default minimum time delay between retries for Azure SQL.
+    ///     The default minimum time delay between retries for throttling errors.
     /// </summary>
-    protected static readonly TimeSpan DefaultMinDelayAzureSql = TimeSpan.FromSeconds(5);
+    protected static readonly TimeSpan DefaultMinDelayThrottling = TimeSpan.FromSeconds(5);
 
     /// <summary>
     ///     Creates a new instance of <see cref="SqlServerRetryingExecutionStrategy" />.
@@ -193,7 +193,7 @@ public class SqlServerRetryingExecutionStrategy : ExecutionStrategy
         return CallOnWrappedException(lastException, IsMemoryOptimizedError)
             ? TimeSpan.FromMilliseconds(baseDelay.Value.TotalSeconds)
             : CallOnWrappedException(lastException, IsThrottlingError)
-                ? baseDelay + DefaultMinDelayAzureSql
+                ? baseDelay + DefaultMinDelayThrottling
                 : baseDelay;
     }
 

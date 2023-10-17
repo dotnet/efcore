@@ -462,26 +462,20 @@ public class SqlServerConfigPatternsTest
         [InlineData(true)]
         [InlineData(false)]
         [ConditionalTheory]
-        public void Retry_on_failure_enabled_by_default_on_Azure_SQL(bool azure)
+        public void Retry_on_failure_not_enabled_by_default_on_Azure_SQL(bool configured)
         {
-            using var context = new NorthwindContext(azure);
-            if (azure)
-            {
-                Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
-            }
-            else
-            {
-                Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
-            }
+            using var context = new NorthwindContext(configured);
+
+            Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
         }
 
         private class NorthwindContext : DbContext
         {
-            private readonly bool _isAzure;
+            private readonly bool _azureConfigured;
 
-            public NorthwindContext(bool azure)
+            public NorthwindContext(bool configured)
             {
-                _isAzure = azure;
+                _azureConfigured = configured;
             }
 
             public DbSet<Customer> Customers { get; set; }
@@ -493,7 +487,7 @@ public class SqlServerConfigPatternsTest
                         @"Server=test.database.windows.net:4040;Database=Test;ConnectRetryCount=0",
                         a =>
                         {
-                            if (!_isAzure)
+                            if (_azureConfigured)
                             {
                                 a.UseAzureSqlDefaults(false);
                             }
@@ -509,10 +503,10 @@ public class SqlServerConfigPatternsTest
         [InlineData(true)]
         [InlineData(false)]
         [ConditionalTheory]
-        public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool azure)
+        public void Retry_on_failure_enabled_if_Azure_SQL_configured(bool configured)
         {
-            using var context = new NorthwindContext(azure);
-            if (azure)
+            using var context = new NorthwindContext(configured);
+            if (configured)
             {
                 Assert.IsType<SqlServerRetryingExecutionStrategy>(context.Database.CreateExecutionStrategy());
             }

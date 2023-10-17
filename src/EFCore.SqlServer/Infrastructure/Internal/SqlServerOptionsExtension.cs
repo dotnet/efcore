@@ -114,12 +114,7 @@ public class SqlServerOptionsExtension : RelationalOptionsExtension, IDbContextO
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsAzureSql
-        => _azureSql ?? IsAzureSqlDefault;
-
-    private bool IsAzureSqlDefault
-        => (ConnectionString ?? Connection?.ConnectionString)
-            ?.Contains(".database.windows.net", StringComparison.InvariantCultureIgnoreCase)
-            == true;
+        => _azureSql ?? false;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
