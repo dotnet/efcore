@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -248,6 +249,49 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         public int Id { get; set; }
         public IReadOnlyList<char> Tags { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Does_not_throw_for_non_generic_collection()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<WithNonGenericCollection>(
+            eb =>
+            {
+                eb.Property(e => e.Id);
+                eb.PrimitiveCollection(e => e.Tags);
+            });
+
+        Validate(modelBuilder);
+    }
+
+    protected class MyCollection : IList<int>
+    {
+        private readonly List<int> _list = new();
+        public IEnumerator<int> GetEnumerator() => _list.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public void Add(int item) => _list.Add(item);
+        public void Clear() => _list.Clear();
+        public bool Contains(int item) => _list.Contains(item);
+        public void CopyTo(int[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
+        public bool Remove(int item) => _list.Remove(item);
+        public int Count => _list.Count;
+        public bool IsReadOnly => ((ICollection<int>)_list).IsReadOnly;
+        public int IndexOf(int item) => _list.IndexOf(item);
+        public void Insert(int index, int item) => _list.Insert(index, item);
+        public void RemoveAt(int index) => _list.RemoveAt(index);
+        public int this[int index]
+        {
+            get => _list[index];
+            set => _list[index] = value;
+        }
+    }
+
+    protected class WithNonGenericCollection
+    {
+        public int Id { get; set; }
+        public MyCollection Tags { get; set; }
     }
 
     [ConditionalFact]
