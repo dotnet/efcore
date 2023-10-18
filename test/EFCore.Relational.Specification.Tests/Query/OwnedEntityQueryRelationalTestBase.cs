@@ -286,64 +286,6 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_null_in_conditional_projection(bool async)
-    {
-        var contextFactory = await InitializeAsync<MyContext28247>(seed: c => c.Seed());
-
-        using var context = contextFactory.CreateContext();
-        var query = context.RotRutCases
-            .AsNoTracking()
-            .OrderBy(e => e.Id)
-            .Select(e => e.Rot == null ? null : new RotDto { MyApartmentNo = e.Rot.ApartmentNo, MyServiceType = e.Rot.ServiceType });
-
-        var result = async
-            ? await query.ToListAsync()
-            : query.ToList();
-
-        Assert.Collection(
-            result,
-            t =>
-            {
-                Assert.Equal("1", t.MyApartmentNo);
-                Assert.Equal(1, t.MyServiceType);
-            },
-            t =>
-            {
-                Assert.Null(t);
-            });
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Owned_entity_with_all_null_properties_in_compared_to_non_null_in_conditional_projection(bool async)
-    {
-        var contextFactory = await InitializeAsync<MyContext28247>(seed: c => c.Seed());
-
-        using var context = contextFactory.CreateContext();
-        var query = context.RotRutCases
-            .AsNoTracking()
-            .OrderBy(e => e.Id)
-            .Select(e => e.Rot != null ? new RotDto { MyApartmentNo = e.Rot.ApartmentNo, MyServiceType = e.Rot.ServiceType } : null);
-
-        var result = async
-            ? await query.ToListAsync()
-            : query.ToList();
-
-        Assert.Collection(
-            result,
-            t =>
-            {
-                Assert.Equal("1", t.MyApartmentNo);
-                Assert.Equal(1, t.MyServiceType);
-            },
-            t =>
-            {
-                Assert.Null(t);
-            });
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext28247>(seed: c => c.Seed());
@@ -420,12 +362,6 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
     {
         public int? ServiceType { get; set; }
         public string ApartmentNo { get; set; }
-    }
-
-    public class RotDto
-    {
-        public int? MyServiceType { get; set; }
-        public string MyApartmentNo { get; set; }
     }
 
     public class Rut
