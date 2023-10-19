@@ -3870,6 +3870,36 @@ ORDER BY [l].[Name]
 """);
     }
 
+    public override async Task Project_collection_and_nested_conditional(bool async)
+    {
+        await base.Project_collection_and_nested_conditional(async);
+
+        AssertSql(
+"""
+SELECT [l].[Id], [t].[Level2_Name], [t].[Id], CASE
+    WHEN [l].[Id] = 1 THEN N'01'
+    WHEN [l].[Id] = 2 THEN N'02'
+    WHEN [l].[Id] = 3 THEN N'03'
+    ELSE NULL
+END
+FROM [Level1] AS [l]
+LEFT JOIN (
+    SELECT [l0].[Level2_Name], [l0].[Id], CASE
+        WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
+    END AS [c], [l0].[OneToMany_Optional_Inverse2Id]
+    FROM [Level1] AS [l0]
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
+) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
+WHERE CASE
+    WHEN [l].[Id] = 1 THEN N'01'
+    WHEN [l].[Id] = 2 THEN N'02'
+    WHEN [l].[Id] = 3 THEN N'03'
+    ELSE NULL
+END = N'02'
+ORDER BY [l].[Id], [t].[c]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
