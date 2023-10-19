@@ -1204,10 +1204,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     if (property!.IsPrimaryKey())
                     {
-                        return MakeIndex(
+                        var valueExpression = MakeIndex(
                             keyPropertyValuesParameter,
                             ObjectArrayIndexerPropertyInfo,
                             new[] { Constant(index) });
+                        return methodCallExpression.Type != valueExpression.Type
+                            ? Convert(valueExpression, methodCallExpression.Type)
+                            : valueExpression;
                     }
 
                     var jsonReaderManagerParameter = _jsonReaderDataToJsonReaderManagerParameterMapping[jsonReaderDataParameter];
@@ -1266,6 +1269,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigation? navigation)
         {
             var jsonReaderDataShaperLambdaParameter = Parameter(typeof(JsonReaderData));
+            // TODO: Use ISnapshot instead #26544
             var keyValuesShaperLambdaParameter = Parameter(typeof(object[]));
             var shaperBlockVariables = new List<ParameterExpression>();
             var shaperBlockExpressions = new List<Expression>();
@@ -1554,7 +1558,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         new ValueBufferTryReadValueMethodsFinder(_entityType).FindValueBufferTryReadValueMethods(body);
 
                     BlockExpression jsonEntityTypeInitializerBlock;
-                    //sometimes we have shadow value buffer and sometimes not, but type initializer always comes last
+                    //sometimes we have shadow snapshot and sometimes not, but type initializer always comes last
                     switch (body.Expressions[^1])
                     {
                         case UnaryExpression { Operand: BlockExpression innerBlock } jsonEntityTypeInitializerUnary
@@ -1665,7 +1669,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // we can't use simple ExpressionReplacingVisitor, because there could be multiple instances of MethodCallExpression for given property
                     // using dedicated mini-visitor that looks for MCEs with a given shape and compare the IProperty inside
                     // order is:
-                    // - shadow value buffer (if there was one)
+                    // - shadow snapshot (if there was one)
                     // - entity construction / property assignments
                     // - navigation fixups
                     // - entity instance variable that is returned as end result
@@ -1675,14 +1679,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (body.Expressions[0] is BinaryExpression
                         {
                             NodeType: ExpressionType.Assign,
-                            Right: NewExpression
+                            Right: UnaryExpression
                             {
-                                Arguments: [NewArrayExpression]
+                                NodeType: ExpressionType.Convert,
+                                Operand: NewExpression
                             }
-                        } shadowValueBufferAssignment
-                        && shadowValueBufferAssignment.Type == typeof(ValueBuffer))
+                        } shadowSnapshotAssignment
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                        && shadowSnapshotAssignment.Type == typeof(ISnapshot))
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     {
-                        finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowValueBufferAssignment));
+                        finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(shadowSnapshotAssignment));
                     }
 
                     foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlock.Expressions.ToArray()[..^1])
@@ -1881,7 +1888,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     {
                         Assign(entityAlreadyTrackedVariable, Constant(false)),
 
-                        // shadowValueBuffer = ValueBuffer;
+                        // shadowSnapshot = Snapshot.Empty;
                         ifFalseBlock.Expressions[0],
 
                         // entityType = EntityType;
@@ -1904,12 +1911,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var newInstanceAssignmentVariables = instanceAssignmentBody.Variables.ToList();
                     var newInstanceAssignmentExpressions = new List<Expression>();
 
-                    // we only need to generate shadowValueBuffer if the entity isn't already tracked
-                    // shadow value buffer can be generated early in the block (default)
+                    // we only need to generate shadowSnapshot if the entity isn't already tracked
+                    // shadow snapshot can be generated early in the block (default)
                     // or after we read all the values from JSON (case when the entity has some shadow properties)
-                    // so we loop through the existing expressions and add the condition to value buffer assignment when we find it
+                    // so we loop through the existing expressions and add the condition to snapshot assignment when we find it
                     // expressions processed here:
-                    // shadowValueBuffer = new ValueBuffer(...)
+                    // shadowSnapshot = new Snapshot(...)
                     // jsonManagerPrm = new Utf8JsonReaderManager(jsonReaderDataPrm);
                     // tokenType = jsonManagerPrm.TokenType;
                     // property_reading_loop(...)
@@ -1917,7 +1924,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     for (var i = 0; i < 5; i++)
                     {
                         newInstanceAssignmentExpressions.Add(
-                            instanceAssignmentBody.Expressions[i].Type == typeof(ValueBuffer)
+                            instanceAssignmentBody.Expressions[i].Type == typeof(ISnapshot)
                                 ? IfThen(
                                     Not(entityAlreadyTrackedVariable),
                                     instanceAssignmentBody.Expressions[i])

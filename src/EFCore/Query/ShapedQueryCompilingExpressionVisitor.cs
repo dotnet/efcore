@@ -271,9 +271,6 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private static readonly ConstructorInfo MaterializationContextConstructor
             = typeof(MaterializationContext).GetConstructors().Single(ci => ci.GetParameters().Length == 2);
 
-        private static readonly ConstructorInfo ValueBufferConstructor
-            = typeof(ValueBuffer).GetTypeInfo().DeclaredConstructors.Single(ci => ci.GetParameters().Length == 1);
-
         private static readonly PropertyInfo DbContextMemberInfo
             = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.Context))!;
 
@@ -289,7 +286,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
-                nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ValueBuffer) })!;
+                nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType() })!;
 
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(EntityMaterializerInjectingExpressionVisitor)
@@ -488,13 +485,13 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var variables = new List<ParameterExpression>();
 
             var shadowValuesVariable = Variable(
-                typeof(ValueBuffer),
-                "shadowValueBuffer" + _currentEntityIndex);
+                typeof(ISnapshot),
+                "shadowSnapshot" + _currentEntityIndex);
             variables.Add(shadowValuesVariable);
             expressions.Add(
                 Assign(
                     shadowValuesVariable,
-                    Constant(ValueBuffer.Empty)));
+                    Constant(Snapshot.Empty)));
 
             var returnType = typeBase.ClrType;
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
@@ -584,27 +581,21 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 var valueBufferExpression = Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
-                IEnumerable<IPropertyBase> shadowProperties = runtimeEntityType.GetProperties();
-
-                if (runtimeEntityType is IEntityType concreteEntityType)
-                {
-                    shadowProperties = shadowProperties
-                        .Concat(concreteEntityType.GetNavigations())
-                        .Concat(concreteEntityType.GetSkipNavigations());
-                }
-
-                shadowProperties = shadowProperties.Where(n => n.IsShadowProperty()).OrderBy(e => e.GetShadowIndex());
+                var shadowProperties = ((IEnumerable<IPropertyBase>)runtimeEntityType.GetProperties())
+                    .Concat(runtimeEntityType.GetNavigations())
+                    .Concat(runtimeEntityType.GetSkipNavigations())
+                    .Where(n => n.IsShadowProperty())
+                    .OrderBy(e => e.GetShadowIndex());
 
                 blockExpressions.Add(
                     Assign(
                         shadowValuesVariable,
-                        New(
-                            ValueBufferConstructor,
+                        ShadowValuesFactoryFactory.Instance.CreateConstructorExpression(runtimeEntityType,
                             NewArrayInit(
                                 typeof(object),
-                                shadowProperties.Select(
-                                    p => valueBufferExpression.CreateValueBufferReadValueExpression(
-                                        typeof(object), p.GetIndex(), p))))));
+                                shadowProperties.Select(p =>
+                                    Convert(valueBufferExpression.CreateValueBufferReadValueExpression(
+                                        p.ClrType, p.GetIndex(), p), typeof(object)))))));
             }
 
             materializer = materializer.Type == returnType

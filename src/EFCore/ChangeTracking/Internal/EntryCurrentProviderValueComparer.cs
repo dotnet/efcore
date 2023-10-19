@@ -20,7 +20,7 @@ public class EntryCurrentProviderValueComparer : EntryCurrentValueComparer
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EntryCurrentProviderValueComparer(
-        IPropertyBase property,
+        IProperty property,
         ValueConverter converter)
         : base(property)
     {

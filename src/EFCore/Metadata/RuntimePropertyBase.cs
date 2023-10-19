@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -27,7 +26,6 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     private IClrPropertySetter? _materializationSetter;
     private PropertyAccessors? _accessors;
     private PropertyIndexes? _indexes;
-    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,11 +174,4 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     IClrPropertyGetter IPropertyBase.GetGetter()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _getter, this, static property => new ClrPropertyGetterFactory().Create(property));
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IComparer<IUpdateEntry> IPropertyBase.GetCurrentValueComparer()
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _currentValueComparer, this, static property =>
-                new CurrentValueComparerFactory().Create(property));
 }

@@ -216,7 +216,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     /// <returns>This expression if the type was not changed, or a new expression with the updated type.</returns>
     public virtual StructuralTypeShaperExpression WithType(ITypeBase type)
         => type != StructuralType
-            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable)
+            ? new StructuralTypeShaperExpression(type, ValueBufferExpression, IsNullable, materializationCondition: null)
             : this;
 
     /// <summary>
@@ -227,7 +227,7 @@ public class StructuralTypeShaperExpression : Expression, IPrintableExpression
     public virtual StructuralTypeShaperExpression MakeNullable(bool nullable = true)
         => IsNullable != nullable
             // Marking nullable requires re-computation of materialization condition
-            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable)
+            ? new StructuralTypeShaperExpression(StructuralType, ValueBufferExpression, nullable, materializationCondition: null)
             : this;
 
     /// <summary>

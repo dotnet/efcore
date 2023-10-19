@@ -9,6 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class PropertyAccessorsFactoryTest
 {
     [ConditionalFact]
+    [Obsolete]
     public void Can_use_PropertyAccessorsFactory_on_indexed_property()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -35,6 +36,7 @@ public class PropertyAccessorsFactoryTest
     }
 
     [ConditionalFact]
+    [Obsolete]
     public void Can_use_PropertyAccessorsFactory_on_non_indexed_property()
     {
         var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();

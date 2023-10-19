@@ -28,9 +28,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly ValueConverter? _valueConverter;
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
-    private readonly ValueComparer? _providerValueComparer;
+    private ValueComparer? _providerValueComparer;
     private readonly JsonValueReaderWriter? _jsonValueReaderWriter;
     private CoreTypeMapping? _typeMapping;
+    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -237,6 +238,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
                     : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
         set => _typeMapping = value;
     }
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IComparer<IUpdateEntry> IProperty.GetCurrentValueComparer()
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _currentValueComparer, this, static property =>
+                new CurrentValueComparerFactory().Create(property));
 
     private ValueComparer GetValueComparer()
         => (GetValueComparer(null) ?? TypeMapping.Comparer)
@@ -450,12 +458,12 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetProviderValueComparer()
-        => _providerValueComparer ?? TypeMapping.ProviderValueComparer;
+        => _providerValueComparer ??= TypeMapping.ProviderValueComparer;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetProviderValueComparer()
-        => _providerValueComparer ?? TypeMapping.ProviderValueComparer;
+        => _providerValueComparer ??= TypeMapping.ProviderValueComparer;
 
     /// <inheritdoc />
     [DebuggerStepThrough]
