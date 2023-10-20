@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+    <PackageReference Include="Azure.Identity" Version="1.10.2" />
   </ItemGroup>
 
   <ItemGroup>
