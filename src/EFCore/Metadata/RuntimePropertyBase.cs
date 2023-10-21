@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBase
+public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimePropertyBase
 {
     private readonly PropertyInfo? _propertyInfo;
     private readonly FieldInfo? _fieldInfo;

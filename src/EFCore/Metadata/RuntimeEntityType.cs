@@ -17,36 +17,19 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 {
-    private readonly List<RuntimeForeignKey> _foreignKeys = new();
-
-    private readonly SortedDictionary<string, RuntimeNavigation> _navigations
-        = new(StringComparer.Ordinal);
-
-    private readonly SortedDictionary<string, RuntimeSkipNavigation> _skipNavigations
-        = new(StringComparer.Ordinal);
-
-    private readonly SortedDictionary<string, RuntimeServiceProperty> _serviceProperties
-        = new(StringComparer.Ordinal);
-
-    private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex> _unnamedIndexes
-        = new(PropertyListComparer.Instance);
-
-    private readonly SortedDictionary<string, RuntimeIndex> _namedIndexes
-        = new(StringComparer.Ordinal);
-
-    private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey> _keys
-        = new(PropertyListComparer.Instance);
-
-    private readonly SortedDictionary<string, RuntimeTrigger> _triggers
-        = new(StringComparer.Ordinal);
-
-    private RuntimeKey? _primaryKey;
+    private readonly List<RuntimeForeignKey> _foreignKeys;
+    private readonly OrderedDictionary<string, RuntimeNavigation> _navigations;
+    private OrderedDictionary<string, RuntimeSkipNavigation>? _skipNavigations;
+    private OrderedDictionary<string, RuntimeServiceProperty>? _serviceProperties;
+    private readonly OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeIndex> _unnamedIndexes;
+    private OrderedDictionary<string, RuntimeIndex>? _namedIndexes;
+    private readonly OrderedDictionary<IReadOnlyList<IReadOnlyProperty>, RuntimeKey> _keys;
+    private OrderedDictionary<string, RuntimeTrigger>? _triggers;
+    private readonly object? _discriminatorValue;
     private readonly bool _hasSharedClrType;
-
+    private RuntimeKey? _primaryKey;
     private InstantiationBinding? _constructorBinding;
     private InstantiationBinding? _serviceOnlyConstructorBinding;
-    private readonly object? _discriminatorValue;
-    private bool _hasServiceProperties;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private PropertyCounts? _counts;
@@ -79,13 +62,47 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         ChangeTrackingStrategy changeTrackingStrategy,
         PropertyInfo? indexerPropertyInfo,
         bool propertyBag,
-        object? discriminatorValue)
-        : base(name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag)
+        object? discriminatorValue,
+        int derivedTypesCount,
+        int propertyCount,
+        int complexPropertyCount,
+        int foreignKeyCount,
+        int navigationCount,
+        int skipNavigationPropertyCount,
+        int servicePropertyCount,
+        int unnamedIndexCount,
+        int namedIndexCount,
+        int keyCount,
+        int triggerPropertyCount)
+        : base(name, type, model, baseType, changeTrackingStrategy, indexerPropertyInfo, propertyBag,
+            derivedTypesCount: derivedTypesCount,
+            propertyCount: propertyCount,
+            complexPropertyCount: complexPropertyCount)
     {
         _hasSharedClrType = sharedClrType;
 
         SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, discriminatorProperty);
         _discriminatorValue = discriminatorValue;
+        _foreignKeys = new(foreignKeyCount);
+        _navigations = new(navigationCount, StringComparer.Ordinal);
+        if (skipNavigationPropertyCount > 0)
+        {
+            _skipNavigations = new(skipNavigationPropertyCount, StringComparer.Ordinal);
+        }
+        if (servicePropertyCount > 0)
+        {
+            _serviceProperties = new(servicePropertyCount, StringComparer.Ordinal);
+        }
+        _unnamedIndexes = new(unnamedIndexCount, PropertyListComparer.Instance);
+        if(namedIndexCount > 0)
+        {
+            _namedIndexes = new(namedIndexCount, StringComparer.Ordinal);
+        }
+        _keys = new(keyCount, PropertyListComparer.Instance);
+        if(triggerPropertyCount > 0)
+        {
+            _triggers = new(triggerPropertyCount, StringComparer.Ordinal);
+        }
     }
 
     private new RuntimeEntityType? BaseType
@@ -109,16 +126,10 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         foreach (var property in key.Properties)
         {
-            Properties.Remove(property.Name);
             property.PrimaryKey = key;
         }
 
         _primaryKey = key;
-
-        foreach (var property in key.Properties)
-        {
-            Properties.Add(property.Name, property);
-        }
     }
 
     /// <summary>
@@ -258,7 +269,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             ?? BaseType?.FindForeignKey(properties, principalKey, principalEntityType);
 
     private IEnumerable<RuntimeForeignKey> GetDerivedForeignKeys()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeForeignKey>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et._foreignKeys);
 
@@ -342,7 +353,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         var navigation = new RuntimeNavigation(
             name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled);
 
-        _navigations.Add(name, navigation);
+        _navigations.Insert(name, navigation);
 
         foreignKey.AddNavigation(navigation, onDependent);
 
@@ -374,7 +385,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         Check.NotNull(name, nameof(name));
 
-        return DirectlyDerivedTypes.Count == 0
+        return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeNavigation>()
             : (IEnumerable<RuntimeNavigation>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredNavigation(name)).Where(n => n != null);
@@ -385,7 +396,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     /// <returns>Type navigations.</returns>
     public virtual IEnumerable<RuntimeNavigation> FindNavigationsInHierarchy(string name)
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? ToEnumerable(FindNavigation(name))
             : ToEnumerable(FindNavigation(name)).Concat(FindDerivedNavigations(name));
 
@@ -433,6 +444,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             eagerLoaded,
             lazyLoadingEnabled);
 
+        _skipNavigations ??= new(StringComparer.Ordinal);
         _skipNavigations.Add(name, skipNavigation);
 
         return skipNavigation;
@@ -450,30 +462,30 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => FindSkipNavigation(memberInfo.GetSimpleMemberName());
 
     private RuntimeSkipNavigation? FindDeclaredSkipNavigation(string name)
-        => _skipNavigations.TryGetValue(name, out var navigation)
+        => _skipNavigations != null && _skipNavigations.TryGetValue(name, out var navigation)
             ? navigation
             : null;
 
     private IEnumerable<RuntimeSkipNavigation> GetDeclaredSkipNavigations()
-        => _skipNavigations.Values;
+        => _skipNavigations?.Values ?? Enumerable.Empty<RuntimeSkipNavigation>();
 
     private IEnumerable<RuntimeSkipNavigation> GetDerivedSkipNavigations()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeSkipNavigation>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredSkipNavigations());
 
     private IEnumerable<RuntimeSkipNavigation> GetSkipNavigations()
         => BaseType != null
-            ? _skipNavigations.Count == 0
+            ? _skipNavigations == null
                 ? BaseType.GetSkipNavigations()
                 : BaseType.GetSkipNavigations().Concat(_skipNavigations.Values)
-            : _skipNavigations.Values;
+            : GetDeclaredSkipNavigations();
 
     private IEnumerable<RuntimeSkipNavigation> FindDerivedSkipNavigations(string name)
     {
         Check.NotNull(name, nameof(name));
 
-        return DirectlyDerivedTypes.Count == 0
+        return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeSkipNavigation>()
             : (IEnumerable<RuntimeSkipNavigation>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
@@ -484,7 +496,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     /// <returns>Type skip navigations.</returns>
     public virtual IEnumerable<RuntimeSkipNavigation> FindSkipNavigationsInHierarchy(string name)
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? ToEnumerable(FindSkipNavigation(name))
             : ToEnumerable(FindSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
 
@@ -503,7 +515,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         var index = new RuntimeIndex(properties, this, name, unique);
         if (name != null)
         {
-            _namedIndexes.Add(name, index);
+            (_namedIndexes ??= new(StringComparer.Ordinal)).Add(name, index);
         }
         else
         {
@@ -544,23 +556,23 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <param name="name">The name of the index.</param>
     /// <returns>The index, or <see langword="null" /> if none is found.</returns>
     public virtual RuntimeIndex? FindIndex(string name)
-        => _namedIndexes.TryGetValue(name, out var index)
+        => _namedIndexes != null && _namedIndexes.TryGetValue(name, out var index)
             ? index
             : BaseType?.FindIndex(name);
 
     private IEnumerable<RuntimeIndex> GetDeclaredIndexes()
-        => _namedIndexes.Count == 0
+        => _namedIndexes == null
             ? _unnamedIndexes.Values
             : _unnamedIndexes.Values.Concat(_namedIndexes.Values);
 
     private IEnumerable<RuntimeIndex> GetDerivedIndexes()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeIndex>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredIndexes());
 
     private IEnumerable<RuntimeIndex> GetIndexes()
         => BaseType != null
-            ? _namedIndexes.Count == 0 && _unnamedIndexes.Count == 0
+            ? _namedIndexes == null
                 ? BaseType.GetIndexes()
                 : BaseType.GetIndexes().Concat(GetDeclaredIndexes())
             : GetDeclaredIndexes();
@@ -589,8 +601,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             this,
             propertyAccessMode);
 
-        _serviceProperties[serviceProperty.Name] = serviceProperty;
-        _hasServiceProperties = true;
+        (_serviceProperties ??= new(StringComparer.Ordinal))[serviceProperty.Name] = serviceProperty;
 
         return serviceProperty;
     }
@@ -608,25 +619,25 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => FindDeclaredServiceProperty(name) ?? BaseType?.FindServiceProperty(name);
 
     private RuntimeServiceProperty? FindDeclaredServiceProperty(string name)
-        => _serviceProperties.TryGetValue(name, out var property)
+        => _serviceProperties != null && _serviceProperties.TryGetValue(name, out var property)
             ? property
             : null;
 
     private bool HasServiceProperties()
-        => _hasServiceProperties || BaseType != null && BaseType.HasServiceProperties();
+        => _serviceProperties != null || BaseType != null && BaseType.HasServiceProperties();
 
     private IEnumerable<RuntimeServiceProperty> GetServiceProperties()
         => BaseType != null
-            ? _hasServiceProperties
+            ? _serviceProperties != null
                 ? BaseType.GetServiceProperties().Concat(_serviceProperties.Values)
                 : BaseType.GetServiceProperties()
-            : _serviceProperties.Values;
+            : GetDeclaredServiceProperties();
 
     private IEnumerable<RuntimeServiceProperty> GetDeclaredServiceProperties()
-        => _serviceProperties.Values;
+        => _serviceProperties?.Values ?? Enumerable.Empty<RuntimeServiceProperty>();
 
     private IEnumerable<RuntimeServiceProperty> GetDerivedServiceProperties()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeServiceProperty>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredServiceProperties());
 
@@ -640,7 +651,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         Check.NotNull(propertyName, nameof(propertyName));
 
-        return DirectlyDerivedTypes.Count == 0
+        return !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeServiceProperty>()
             : (IEnumerable<RuntimeServiceProperty>)GetDerivedTypes<RuntimeEntityType>()
                 .Select(et => et.FindDeclaredServiceProperty(propertyName))
@@ -652,7 +663,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// </summary>
     /// <returns>Type service properties.</returns>
     public virtual IEnumerable<RuntimeServiceProperty> FindServicePropertiesInHierarchy(string propertyName)
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? ToEnumerable(FindServiceProperty(propertyName))
             : ToEnumerable(FindServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
 
@@ -718,7 +729,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         var trigger = new RuntimeTrigger(this, modelName);
 
-        _triggers.Add(modelName, trigger);
+        (_triggers ??= new(StringComparer.Ordinal)).Add(modelName, trigger);
 
         return trigger;
     }
@@ -732,13 +743,13 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         Check.NotEmpty(modelName, nameof(modelName));
 
-        return _triggers.TryGetValue(modelName, out var trigger)
+        return _triggers != null && _triggers.TryGetValue(modelName, out var trigger)
             ? trigger
             : null;
     }
 
     private IEnumerable<RuntimeTrigger> GetDeclaredTriggers()
-        => _triggers.Values;
+        => _triggers?.Values ?? Enumerable.Empty<RuntimeTrigger>();
 
     private IEnumerable<RuntimeTrigger> GetTriggers()
         => BaseType != null
@@ -762,13 +773,13 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     {
         get => !base.ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(
-                ref _constructorBinding, this, (Action<RuntimeEntityType>)(entityType =>
+                ref _constructorBinding, this, entityType =>
                 {
                     ((IModel)entityType.Model).GetModelDependencies().ConstructorBindingFactory.GetBindings(
                         entityType,
                         out entityType._constructorBinding,
                         out entityType._serviceOnlyConstructorBinding);
-                }))
+                })
             : _constructorBinding;
 
         [DebuggerStepThrough]
@@ -943,7 +954,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDerivedTypesInclusive()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? new[] { this }
             : new[] { this }.Concat(GetDerivedTypes<RuntimeEntityType>());
 
@@ -1106,7 +1117,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyNavigation> IReadOnlyEntityType.GetDerivedNavigations()
-        => DirectlyDerivedTypes.Count == 0
+        => !HasDirectlyDerivedTypes
             ? Enumerable.Empty<RuntimeNavigation>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredNavigations());
 

@@ -403,14 +403,14 @@ public partial class EntityTypeTest
 
         Assert.True(((Key)key1).IsInModel);
         Assert.True(((Key)key2).IsInModel);
-        Assert.Equal(new[] { key2, key1 }, entityType.GetKeys().ToArray());
+        Assert.Equal(new[] { key2, key1 }, entityType.GetKeys());
         Assert.True(idProperty.IsKey());
-        Assert.Equal(new[] { key1, key2 }, idProperty.GetContainingKeys().ToArray());
+        Assert.Equal(new[] { key2, key1 }, idProperty.GetContainingKeys());
 
         Assert.Same(key1, entityType.RemoveKey(key1.Properties));
         Assert.Null(entityType.RemoveKey(key1.Properties));
 
-        Assert.Equal(new[] { key2 }, entityType.GetKeys().ToArray());
+        Assert.Equal(new[] { key2 }, entityType.GetKeys());
 
         Assert.Same(key2, entityType.RemoveKey(new[] { idProperty }));
 

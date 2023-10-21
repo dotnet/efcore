@@ -21,7 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class AnnotatableBase : IAnnotatable
 {
-    private SortedDictionary<string, Annotation>? _annotations;
+    private Dictionary<string, Annotation>? _annotations;
     private ConcurrentDictionary<string, Annotation>? _runtimeAnnotations;
 
     /// <summary>
@@ -52,7 +52,7 @@ public class AnnotatableBase : IAnnotatable
     ///     Gets all annotations on the current object.
     /// </summary>
     public virtual IEnumerable<Annotation> GetAnnotations()
-        => _annotations?.Values ?? Enumerable.Empty<Annotation>();
+        => _annotations?.Values.OrderBy(a => a.Name, StringComparer.Ordinal) ?? Enumerable.Empty<Annotation>();
 
     /// <summary>
     ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
@@ -148,7 +148,7 @@ public class AnnotatableBase : IAnnotatable
     {
         EnsureMutable();
 
-        _annotations ??= new SortedDictionary<string, Annotation>(StringComparer.Ordinal);
+        _annotations ??= new Dictionary<string, Annotation>(StringComparer.Ordinal);
         _annotations[name] = annotation;
 
         return OnAnnotationSet(name, annotation, oldAnnotation);
@@ -280,9 +280,7 @@ public class AnnotatableBase : IAnnotatable
     ///     Gets all runtime annotations on the current object.
     /// </summary>
     public virtual IEnumerable<Annotation> GetRuntimeAnnotations()
-        => _runtimeAnnotations == null
-            ? Enumerable.Empty<Annotation>()
-            : _runtimeAnnotations.OrderBy(p => p.Key).Select(p => p.Value);
+        => _runtimeAnnotations?.OrderBy(p => p.Key).Select(p => p.Value) ?? Enumerable.Empty<Annotation>();
 
     /// <summary>
     ///     Adds a runtime annotation to this object. Throws if an annotation with the specified name already exists.

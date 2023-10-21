@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
+public class RuntimeForeignKey : RuntimeAnnotatableBase, IRuntimeForeignKey
 {
     private readonly DeleteBehavior _deleteBehavior;
     private readonly bool _isUnique;

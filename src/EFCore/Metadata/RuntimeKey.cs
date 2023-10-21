@@ -13,7 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class RuntimeKey : AnnotatableBase, IRuntimeKey
+public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
 {
     // Warning: Never access these fields directly as access needs to be thread-safe
     private Func<bool, IIdentityMap>? _identityMapFactory;
@@ -144,18 +144,10 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
         .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
 
     private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
-        where TKey : notnull
-    {
-        EnsureReadOnly();
-        return new KeyValueFactoryFactory().Create<TKey>(this);
-    }
+        where TKey : notnull => new KeyValueFactoryFactory().Create<TKey>(this);
 
     /// <inheritdoc />
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _identityMapFactory, this, static key =>
-            {
-                key.EnsureReadOnly();
-                return new IdentityMapFactoryFactory().Create(key);
-            });
+            ref _identityMapFactory, this, static key => new IdentityMapFactoryFactory().Create(key));
 }

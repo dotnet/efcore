@@ -170,18 +170,10 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,
             this,
-            static navigation =>
-            {
-                navigation.EnsureReadOnly();
-                return new ClrCollectionAccessorFactory().Create(navigation);
-            });
+            static navigation => new ClrCollectionAccessorFactory().Create(navigation));
 
     /// <inheritdoc />
     ICollectionLoader IRuntimeSkipNavigation.GetManyToManyLoader()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _manyToManyLoader, this, static navigation =>
-            {
-                navigation.EnsureReadOnly();
-                return new ManyToManyLoaderFactory().Create(navigation);
-            });
+            ref _manyToManyLoader, this, static navigation => new ManyToManyLoaderFactory().Create(navigation));
 }
