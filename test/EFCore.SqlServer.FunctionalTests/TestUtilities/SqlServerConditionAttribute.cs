@@ -87,6 +87,11 @@ public sealed class SqlServerConditionAttribute : Attribute, ITestCondition
             isMet &= TestEnvironment.SupportsJsonPathExpressions;
         }
 
+        if (Conditions.HasFlag(SqlServerCondition.SupportsSqlClr))
+        {
+            isMet &= TestEnvironment.IsSqlClrSupported;
+        }
+
         return ValueTask.FromResult(isMet);
     }
 

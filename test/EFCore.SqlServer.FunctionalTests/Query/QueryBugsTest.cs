@@ -8937,6 +8937,7 @@ WHERE [e].[Id] NOT IN (
     #region Issue23282
 
     [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Can_query_point_with_buffered_data_reader()
     {
         var contextFactory = await InitializeAsync<MyContext23282>(
