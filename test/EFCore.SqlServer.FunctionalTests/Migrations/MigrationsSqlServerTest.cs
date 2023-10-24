@@ -6727,7 +6727,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 """);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #32154")]
     public virtual async Task Convert_regular_column_of_temporal_table_to_sparse()
     {
         await Test(
