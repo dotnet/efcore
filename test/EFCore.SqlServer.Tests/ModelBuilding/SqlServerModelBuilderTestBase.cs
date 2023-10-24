@@ -10,8 +10,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 {
-    public abstract class SqlServerNonRelationship : RelationalNonRelationshipTestBase
+    public abstract class SqlServerNonRelationship : RelationalNonRelationshipTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerNonRelationship(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Index_has_a_filter_if_nonclustered_unique_with_nullable_properties()
         {
@@ -302,14 +307,24 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerComplexType : RelationalComplexTypeTestBase
+    public abstract class SqlServerComplexType : RelationalComplexTypeTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerComplexType(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerInheritance : RelationalInheritanceTestBase
+    public abstract class SqlServerInheritance : RelationalInheritanceTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerInheritance(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact] // #7240
         public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
         {
@@ -658,8 +673,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
     }
 
-    public abstract class SqlServerOneToMany : RelationalOneToManyTestBase
+    public abstract class SqlServerOneToMany : RelationalOneToManyTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerOneToMany(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Shadow_foreign_keys_to_generic_types_have_terrible_names_that_should_not_change()
         {
@@ -720,20 +740,35 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerManyToOne : RelationalManyToOneTestBase
+    public abstract class SqlServerManyToOne : RelationalManyToOneTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerManyToOne(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerOneToOne : RelationalOneToOneTestBase
+    public abstract class SqlServerOneToOne : RelationalOneToOneTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerOneToOne(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerManyToMany : RelationalManyToManyTestBase
+    public abstract class SqlServerManyToMany : RelationalManyToManyTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerManyToMany(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Join_entity_type_uses_same_schema()
         {
@@ -794,8 +829,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
     }
 
-    public abstract class SqlServerOwnedTypes : RelationalOwnedTypesTestBase
+    public abstract class SqlServerOwnedTypes : RelationalOwnedTypesTestBase, IClassFixture<SqlServerModelBuilderFixture>
     {
+        public SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+        
         [ConditionalFact]
         public virtual void Owned_types_use_table_splitting_by_default()
         {
@@ -2188,6 +2228,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
+    }
+
+    public class SqlServerModelBuilderFixture : RelationalModelBuilderFixture
+    {
     }
 
     public abstract class TestTemporalTableBuilder<TEntity>

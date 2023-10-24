@@ -12,6 +12,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 {
     public abstract class RelationalNonRelationshipTestBase : NonRelationshipTestBase
     {
+        public RelationalNonRelationshipTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_use_table_splitting()
         {
@@ -341,6 +346,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalComplexTypeTestBase : ComplexTypeTestBase
     {
+        public RelationalComplexTypeTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_use_TPH()
         {
@@ -649,6 +659,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalInheritanceTestBase : InheritanceTestBase
     {
+        public RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_use_table_splitting()
         {
@@ -693,22 +708,43 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOneToManyTestBase : OneToManyTestBase
     {
+        public RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
     }
 
     public abstract class RelationalManyToOneTestBase : ManyToOneTestBase
     {
+        public RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
     }
 
     public abstract class RelationalOneToOneTestBase : OneToOneTestBase
     {
+        public RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
     }
 
     public abstract class RelationalManyToManyTestBase : ManyToManyTestBase
     {
+        public RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
     }
 
     public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
     {
+        public RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_use_table_splitting_with_owned_reference()
         {
@@ -947,6 +983,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Null(bookOwnership2.DeclaringEntityType.GetDeleteStoredProcedure());
         }
 #nullable disable
+
         protected class JsonEntity
         {
             public int Id { get; set; }
@@ -1010,6 +1047,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             public List<OwnedEntityExtraLevel> OwnedCollection2 { get; set; }
         }
 #nullable enable
+    }
+
+    public class RelationalModelBuilderFixture : ModelBuilderFixtureBase
+    {
     }
 
     public abstract class TestTableBuilder<TEntity>

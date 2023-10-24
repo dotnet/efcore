@@ -12,6 +12,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class ComplexTypeTestBase : ModelBuilderTestBase
     {
+        public ComplexTypeTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_set_complex_property_annotation()
         {
@@ -475,6 +480,8 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, model);
+            
             var entityType = model.FindEntityType(typeof(ComplexProperties))!;
             Assert.Equal(PropertyAccessMode.Field, model.GetPropertyAccessMode());
 
@@ -1593,6 +1600,7 @@ public abstract partial class ModelBuilderTest
                     });
 
             var model = modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, model);
 
             var customerType = model.FindEntityType(typeof(ComplexProperties))!
                 .FindComplexProperty(nameof(ComplexProperties.Customer))!.ComplexType;

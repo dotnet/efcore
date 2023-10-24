@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 // ReSharper disable PossibleNullReferenceException
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class AnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
+public class TestAnnotationComparer : IEqualityComparer<IAnnotation>, IComparer<IAnnotation>
 {
-    public static readonly AnnotationComparer Instance = new();
+    public static readonly TestAnnotationComparer Instance = new();
 
-    private AnnotationComparer()
+    private TestAnnotationComparer()
     {
     }
 
