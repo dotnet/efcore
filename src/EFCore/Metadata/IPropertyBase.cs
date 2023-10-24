@@ -33,12 +33,6 @@ public interface IPropertyBase : IReadOnlyPropertyBase, IAnnotatable
     IClrPropertyGetter GetGetter();
 
     /// <summary>
-    ///     Gets a <see cref="IComparer{T}" /> for comparing values in tracked <see cref="IUpdateEntry" /> entries.
-    /// </summary>
-    /// <returns>The comparer.</returns>
-    IComparer<IUpdateEntry> GetCurrentValueComparer();
-
-    /// <summary>
     ///     Gets the <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> that should be used to
     ///     get or set a value for the given property.
     /// </summary>

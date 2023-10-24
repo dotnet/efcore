@@ -19,73 +19,70 @@ public class CurrentValueComparerFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IComparer<IUpdateEntry> Create(IPropertyBase propertyBase)
+    public virtual IComparer<IUpdateEntry> Create(IProperty property)
     {
-        var modelType = propertyBase.ClrType;
+        var modelType = property.ClrType;
         var nonNullableModelType = modelType.UnwrapNullableType();
         if (IsGenericComparable(modelType, nonNullableModelType))
         {
             return (IComparer<IUpdateEntry>)Activator.CreateInstance(
                 typeof(EntryCurrentValueComparer<>).MakeGenericType(modelType),
-                propertyBase)!;
+                property)!;
         }
 
         if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableModelType))
         {
-            return new StructuralEntryCurrentValueComparer(propertyBase);
+            return new StructuralEntryCurrentValueComparer(property);
         }
 
         if (typeof(IComparable).IsAssignableFrom(nonNullableModelType))
         {
-            return new EntryCurrentValueComparer(propertyBase);
+            return new EntryCurrentValueComparer(property);
         }
 
-        if (propertyBase is IProperty property)
+        var converter = property.GetTypeMapping().Converter;
+        if (converter != null)
         {
-            var converter = property.GetTypeMapping().Converter;
-            if (converter != null)
+            var providerType = converter.ProviderClrType;
+            var nonNullableProviderType = providerType.UnwrapNullableType();
+            if (IsGenericComparable(providerType, nonNullableProviderType))
             {
-                var providerType = converter.ProviderClrType;
-                var nonNullableProviderType = providerType.UnwrapNullableType();
-                if (IsGenericComparable(providerType, nonNullableProviderType))
-                {
-                    var elementType = property.GetElementType();
-                    var modelBaseType = elementType != null
-                        ? typeof(IEnumerable<>).MakeGenericType(elementType.ClrType)
-                        : modelType;
-                    var comparerType = modelType.IsClass
-                        ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
-                        : modelType == converter.ModelClrType
-                            ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
-                            : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
-                                nonNullableModelType, providerType);
+                var elementType = property.GetElementType();
+                var modelBaseType = elementType != null
+                    ? typeof(IEnumerable<>).MakeGenericType(elementType.ClrType)
+                    : modelType;
+                var comparerType = modelType.IsClass
+                    ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
+                    : modelType == converter.ModelClrType
+                        ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelBaseType, providerType)
+                        : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
+                            nonNullableModelType, providerType);
 
-                    return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, propertyBase, converter)!;
-                }
-
-                if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
-                {
-                    return new StructuralEntryCurrentProviderValueComparer(propertyBase, converter);
-                }
-
-                if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
-                {
-                    return new EntryCurrentProviderValueComparer(propertyBase, converter);
-                }
-
-                throw new InvalidOperationException(
-                    CoreStrings.NonComparableKeyTypes(
-                        propertyBase.DeclaringType.DisplayName(),
-                        propertyBase.Name,
-                        modelType.ShortDisplayName(),
-                        providerType.ShortDisplayName()));
+                return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, property, converter)!;
             }
+
+            if (typeof(IStructuralComparable).IsAssignableFrom(nonNullableProviderType))
+            {
+                return new StructuralEntryCurrentProviderValueComparer(property, converter);
+            }
+
+            if (typeof(IComparable).IsAssignableFrom(nonNullableProviderType))
+            {
+                return new EntryCurrentProviderValueComparer(property, converter);
+            }
+
+            throw new InvalidOperationException(
+                CoreStrings.NonComparableKeyTypes(
+                    property.DeclaringType.DisplayName(),
+                    property.Name,
+                    modelType.ShortDisplayName(),
+                    providerType.ShortDisplayName()));
         }
 
         throw new InvalidOperationException(
             CoreStrings.NonComparableKeyType(
-                propertyBase.DeclaringType.DisplayName(),
-                propertyBase.Name,
+                property.DeclaringType.DisplayName(),
+                property.Name,
                 modelType.ShortDisplayName()));
 
         static bool IsGenericComparable(Type type, Type nonNullableType)

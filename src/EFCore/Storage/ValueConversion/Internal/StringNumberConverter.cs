@@ -108,7 +108,7 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
         if (typeof(TNumber).IsNullableType())
         {
             expression = Expression.Condition(
-                Expression.Call(param, typeof(TNumber).GetMethod("get_HasValue")!),
+                Expression.MakeMemberAccess(param, typeof(TNumber).GetProperty("HasValue")!),
                 expression,
                 Expression.Constant(null, typeof(string)));
         }

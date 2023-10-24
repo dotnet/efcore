@@ -48,6 +48,7 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete]
     public virtual object? CreateFromBuffer(ValueBuffer valueBuffer)
         => _propertyAccessors.ValueBufferGetter!(valueBuffer);
 

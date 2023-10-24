@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -64,7 +65,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private Func<InternalEntityEntry, ISnapshot>? _originalValuesFactory;
     private Func<InternalEntityEntry, ISnapshot>? _temporaryValuesFactory;
     private Func<ISnapshot>? _storeGeneratedValuesFactory;
-    private Func<ValueBuffer, ISnapshot>? _shadowValuesFactory;
+    private Func<IDictionary<string, object?>, ISnapshot>? _shadowValuesFactory;
     private Func<ISnapshot>? _emptyShadowValuesFactory;
     private IProperty[]? _foreignKeyProperties;
     private IProperty[]? _valueGeneratingProperties;
@@ -2276,7 +2277,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new RelationshipSnapshotFactoryFactory().Create(entityType);
+                return RelationshipSnapshotFactoryFactory.Instance.Create(entityType);
             });
 
     /// <summary>
@@ -2291,7 +2292,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new OriginalValuesFactoryFactory().Create(entityType);
+                return OriginalValuesFactoryFactory.Instance.Create(entityType);
             });
 
     /// <summary>
@@ -2306,7 +2307,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new StoreGeneratedValuesFactoryFactory().CreateEmpty(entityType);
+                return StoreGeneratedValuesFactoryFactory.Instance.CreateEmpty(entityType);
             });
 
     /// <summary>
@@ -2321,7 +2322,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new TemporaryValuesFactoryFactory().Create(entityType);
+                return TemporaryValuesFactoryFactory.Instance.Create(entityType);
             });
 
     /// <summary>
@@ -2330,13 +2331,13 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<ValueBuffer, ISnapshot> ShadowValuesFactory
+    public virtual Func<IDictionary<string, object?>, ISnapshot> ShadowValuesFactory
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _shadowValuesFactory, this,
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new ShadowValuesFactoryFactory().Create(entityType);
+                return ShadowValuesFactoryFactory.Instance.Create(entityType);
             });
 
     /// <summary>
@@ -2351,7 +2352,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             static entityType =>
             {
                 entityType.EnsureReadOnly();
-                return new EmptyShadowValuesFactoryFactory().CreateEmpty(entityType);
+                return EmptyShadowValuesFactoryFactory.Instance.CreateEmpty(entityType);
             });
 
     /// <summary>

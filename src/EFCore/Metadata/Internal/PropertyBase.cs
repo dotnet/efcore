@@ -25,7 +25,6 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     private IClrPropertySetter? _materializationSetter;
     private PropertyAccessors? _accessors;
     private PropertyIndexes? _indexes;
-    private IComparer<IUpdateEntry>? _currentValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -406,23 +405,6 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IComparer<IUpdateEntry> CurrentValueComparer
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _currentValueComparer, this, static property =>
-            {
-                property.EnsureReadOnly();
-                return new CurrentValueComparerFactory().Create(property);
-            });
-
-    private static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object>).GetMethod(nameof(IDictionary<string, object>.ContainsKey), new[] { typeof(string) })!;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static Expression CreateMemberAccess(
         IPropertyBase? property,
         Expression instanceExpression,
@@ -438,7 +420,7 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             {
                 expression = Expression.Condition(
                     Expression.Call(
-                        instanceExpression, ContainsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
+                        instanceExpression, ShadowValuesFactoryFactory.ContainsKeyMethod, new List<Expression> { Expression.Constant(property.Name) }),
                     expression,
                     expression.Type.GetDefaultValueConstant());
             }
@@ -570,16 +552,6 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     [DebuggerStepThrough]
     IClrPropertyGetter IPropertyBase.GetGetter()
         => Getter;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IComparer<IUpdateEntry> IPropertyBase.GetCurrentValueComparer()
-        => CurrentValueComparer;
 
     /// <summary>
     ///     Gets the sentinel value that indicates that this property is not set.

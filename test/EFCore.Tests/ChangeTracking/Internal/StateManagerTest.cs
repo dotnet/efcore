@@ -606,11 +606,11 @@ public class StateManagerTest
         var stateManager = CreateStateManager(model);
 
         var category = new Category { Id = 77, PrincipalId = 777 };
-        var valueBuffer = new ValueBuffer(new object[] { 77, "Bjork", 777 });
+        var snapshot = new Snapshot<int, string, int>(77, "Bjork", 777);
 
-        var entry = stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer);
+        var entry = stateManager.StartTrackingFromQuery(categoryType, category, snapshot);
 
-        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, valueBuffer));
+        Assert.Same(entry, stateManager.StartTrackingFromQuery(categoryType, category, snapshot));
     }
 
     [ConditionalFact]
