@@ -69,6 +69,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
 
                 case ShapedQueryExpression shapedQueryExpression:
                     Visit(shapedQueryExpression.QueryExpression);
+                    Visit(shapedQueryExpression.ShaperExpression);
                     return shapedQueryExpression;
 
                 default:
