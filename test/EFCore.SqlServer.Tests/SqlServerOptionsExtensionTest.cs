@@ -41,8 +41,13 @@ public class SqlServerOptionsExtensionTest
     {
         static EmptyContextModel()
         {
-            var model = new EmptyContextModel();
+            var model = new EmptyContextModel(false, Guid.NewGuid(), 0, 0);
             _instance = model;
+        }
+
+        public EmptyContextModel(bool skipDetectChanges, Guid modelId, int entityTypeCount, int typeConfigurationCount)
+            : base(skipDetectChanges, modelId, entityTypeCount, typeConfigurationCount)
+        {
         }
 
         private static readonly EmptyContextModel _instance;

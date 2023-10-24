@@ -29,22 +29,68 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///         examples.
 ///     </para>
 /// </remarks>
-public class RuntimeModel : AnnotatableBase, IRuntimeModel
+public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
 {
-    private readonly SortedDictionary<string, RuntimeEntityType> _entityTypes = new(StringComparer.Ordinal);
-    private readonly Dictionary<Type, SortedSet<RuntimeEntityType>> _sharedTypes = new();
-    private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations = new();
     private bool _skipDetectChanges;
+    private Guid _modelId;
+    private readonly Dictionary<string, RuntimeEntityType> _entityTypes;
+    private readonly Dictionary<Type, List<RuntimeEntityType>> _sharedTypes = new();
+    private readonly Dictionary<Type, RuntimeTypeMappingConfiguration> _typeConfigurations;
 
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
     private readonly ConcurrentDictionary<Type, RuntimeEntityType> _adHocEntityTypes = new();
 
     /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    [Obsolete("Use a constructor with parameters")]
+    public RuntimeModel()
+        : base()
+    {
+        _entityTypes = new(StringComparer.Ordinal);
+        _typeConfigurations = new();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public RuntimeModel(
+        bool skipDetectChanges,
+        Guid modelId,
+        int entityTypeCount,
+        int typeConfigurationCount = 0)
+    {
+        _skipDetectChanges = skipDetectChanges;
+        _modelId = modelId;
+        _entityTypes = new(entityTypeCount, StringComparer.Ordinal);
+        _typeConfigurations = new(typeConfigurationCount);
+    }
+
+    /// <summary>
     ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
     /// </summary>
+    [Obsolete("This is set in the constructor now")]
     public virtual void SetSkipDetectChanges(bool skipDetectChanges)
         => _skipDetectChanges = skipDetectChanges;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    [Obsolete("This is set in the constructor now")]
+    public virtual Guid ModelId { get => _modelId; set => _modelId = value; }
 
     /// <summary>
     ///     Adds an entity type with a defining navigation to the model.
@@ -61,6 +107,17 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     ///     and a method that can be used to determine whether a given indexer property contains a value.
     /// </param>
     /// <param name="discriminatorValue">The discriminator value for this entity type.</param>
+    /// <param name="derivedTypesCount">The expected number of directly derived entity types.</param>
+    /// <param name="propertyCount">The expected number of declared properties for this entity type.</param>
+    /// <param name="complexPropertyCount">The expected number of declared complex properties for this entity type.</param>
+    /// <param name="navigationCount">The expected number of declared navigations for this entity type.</param>
+    /// <param name="skipNavigationCount">The expected number of declared skip navigation for this entity type.</param>
+    /// <param name="servicePropertyCount">The expected number of declared service properties for this entity type.</param>
+    /// <param name="foreignKeyCount">The expected number of declared foreign keys for this entity type.</param>
+    /// <param name="unnamedIndexCount">The expected number of declared unnamed indexes for this entity type.</param>
+    /// <param name="namedIndexCount">The expected number of declared named indexes for this entity type.</param>
+    /// <param name="keyCount">The expected number of declared keys for this entity type.</param>
+    /// <param name="triggerPropertyCount">The expected number of declared triggers for this entity type.</param>
     /// <returns>The new entity type.</returns>
     public virtual RuntimeEntityType AddEntityType(
         string name,
@@ -71,7 +128,18 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
         ChangeTrackingStrategy changeTrackingStrategy = ChangeTrackingStrategy.Snapshot,
         PropertyInfo? indexerPropertyInfo = null,
         bool propertyBag = false,
-        object? discriminatorValue = null)
+        object? discriminatorValue = null,
+        int derivedTypesCount = 0,
+        int propertyCount = 0,
+        int complexPropertyCount = 0,
+        int navigationCount = 0,
+        int skipNavigationCount = 0,
+        int servicePropertyCount = 0,
+        int foreignKeyCount = 0,
+        int unnamedIndexCount = 0,
+        int namedIndexCount = 0,
+        int keyCount = 0,
+        int triggerPropertyCount = 0)
     {
         var entityType = new RuntimeEntityType(
             name,
@@ -83,7 +151,18 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
             changeTrackingStrategy,
             indexerPropertyInfo,
             propertyBag,
-            discriminatorValue);
+            discriminatorValue,
+            derivedTypesCount: derivedTypesCount,
+            propertyCount: propertyCount,
+            complexPropertyCount: complexPropertyCount,
+            foreignKeyCount: foreignKeyCount,
+            navigationCount: navigationCount,
+            skipNavigationPropertyCount: skipNavigationCount,
+            servicePropertyCount: servicePropertyCount,
+            unnamedIndexCount: unnamedIndexCount,
+            namedIndexCount: namedIndexCount,
+            keyCount: keyCount,
+            triggerPropertyCount: triggerPropertyCount);
 
         if (sharedClrType)
         {
@@ -93,7 +172,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
             }
             else
             {
-                var types = new SortedSet<RuntimeEntityType>(TypeBaseNameComparer.Instance) { entityType };
+                var types = new List<RuntimeEntityType> { entityType };
                 _sharedTypes.Add(type, types);
             }
         }
@@ -164,18 +243,9 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
             : new[] { entityType };
 
         return _sharedTypes.TryGetValue(type, out var sharedTypes)
-            ? result.Concat(sharedTypes)
+            ? result.Concat(sharedTypes.OrderBy(n => n.Name, StringComparer.Ordinal))
             : result;
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual Guid ModelId { get; set; }
 
     /// <summary>
     ///     Adds configuration for a scalar type.
@@ -218,6 +288,16 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     private PropertyInfo? FindIndexerPropertyInfo([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
         => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual IModel FinalizeModel()
+        => this;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -312,12 +392,12 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyEntityType> IReadOnlyModel.GetEntityTypes()
-        => _entityTypes.Values;
+        => _entityTypes.Values.OrderBy(e => e.Name, StringComparer.Ordinal);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IEntityType> IModel.GetEntityTypes()
-        => _entityTypes.Values;
+        => _entityTypes.Values.OrderBy(e => e.Name, StringComparer.Ordinal);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
@@ -346,5 +426,5 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     Guid IReadOnlyModel.ModelId
-        => ModelId;
+        => _modelId;
 }

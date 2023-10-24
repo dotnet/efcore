@@ -66,15 +66,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.DbFunctions,
-                    out SortedDictionary<string, IDbFunction> functions))
+                    out IReadOnlyDictionary<string, IDbFunction> functions))
             {
-                parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
+                parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
                 parameters.Namespaces.Add(typeof(BindingFlags).Namespace!);
                 var functionsVariable = Dependencies.CSharpHelper.Identifier("functions", parameters.ScopeVariables, capitalize: false);
                 parameters.MainBuilder
-                    .Append("var ").Append(functionsVariable).AppendLine(" = new SortedDictionary<string, IDbFunction>();");
+                    .Append("var ").Append(functionsVariable).AppendLine(" = new Dictionary<string, IDbFunction>();");
 
-                foreach (var function in functions.Values)
+                foreach (var function in functions.OrderBy(t => t.Key).Select(t => t.Value))
                 {
                     Create(function, functionsVariable, parameters);
                 }
@@ -84,12 +84,12 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.Sequences,
-                    out SortedDictionary<(string, string?), ISequence> sequences))
+                    out IReadOnlyDictionary<(string, string?), ISequence> sequences))
             {
-                parameters.Namespaces.Add(typeof(SortedDictionary<,>).Namespace!);
+                parameters.Namespaces.Add(typeof(Dictionary<,>).Namespace!);
                 var sequencesVariable = Dependencies.CSharpHelper.Identifier("sequences", parameters.ScopeVariables, capitalize: false);
                 var mainBuilder = parameters.MainBuilder;
-                mainBuilder.Append("var ").Append(sequencesVariable).Append(" = new SortedDictionary<(string, string");
+                mainBuilder.Append("var ").Append(sequencesVariable).Append(" = new Dictionary<(string, string");
 
                 if (parameters.UseNullableReferenceTypes)
                 {
@@ -98,9 +98,9 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
 
                 mainBuilder.AppendLine("), ISequence>();");
 
-                foreach (var sequencePair in sequences)
+                foreach (var sequence in sequences.OrderBy(t => t.Key).Select(t => t.Value))
                 {
-                    Create(sequencePair.Value, sequencesVariable, parameters);
+                    Create(sequence, sequencesVariable, parameters);
                 }
 
                 GenerateSimpleAnnotation(RelationalAnnotationNames.Sequences, sequencesVariable, parameters);

@@ -111,9 +111,5 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,
             this,
-            static navigation =>
-            {
-                navigation.EnsureReadOnly();
-                return new ClrCollectionAccessorFactory().Create(navigation);
-            });
+            static navigation => new ClrCollectionAccessorFactory().Create(navigation));
 }

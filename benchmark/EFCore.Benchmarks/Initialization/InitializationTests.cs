@@ -66,6 +66,6 @@ public abstract class InitializationTests
         AdventureWorksContextBase.ConfigureModel(builder);
 
         // ReSharper disable once UnusedVariable
-        var model = builder.Model;
+        var model = builder.FinalizeModel();
     }
 }

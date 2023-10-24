@@ -459,7 +459,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Guid ModelId { get; } = Guid.NewGuid();
+    public virtual Guid ModelId { get; set; } = Guid.NewGuid();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1094,7 +1094,6 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         ConventionDispatcher.AssertNoScope();
 
         var finalizedModel = (IModel)ConventionDispatcher.OnModelFinalizing(Builder).Metadata;
-
         if (finalizedModel is Model model)
         {
             finalizedModel = model.MakeReadonly();

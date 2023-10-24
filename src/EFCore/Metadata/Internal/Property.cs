@@ -1323,7 +1323,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<Key> GetContainingKeys()
-        => Keys ?? Enumerable.Empty<Key>();
+        => Keys?.OrderBy(k => k.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Key>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1349,7 +1349,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
-        => ForeignKeys ?? Enumerable.Empty<ForeignKey>();
+        => ForeignKeys?.OrderBy(fk => fk.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<ForeignKey>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1375,7 +1375,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<Index> GetContainingIndexes()
-        => Indexes ?? Enumerable.Empty<Index>();
+        => Indexes?.OrderBy(i => i.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<Index>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -85,6 +85,8 @@ public class MigrationsScaffolderTest
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                     new MigrationsAnnotationProvider(
                         new MigrationsAnnotationProviderDependencies()),
+                    new RelationalAnnotationProvider(
+                        new RelationalAnnotationProviderDependencies()),
                     services.GetRequiredService<IRowIdentityMapFactory>(),
                     services.GetRequiredService<CommandBatchPreparerDependencies>()),
                 idGenerator,
