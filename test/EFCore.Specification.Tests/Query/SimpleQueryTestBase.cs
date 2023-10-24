@@ -10,6 +10,8 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "SimpleQueryTests";
 
+    #region 24368
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Multiple_nested_reference_navigations(bool async)
@@ -137,6 +139,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int? SecondaryManagerId { get; set; }
         public Staff SecondaryManager { get; set; }
     }
+
+    #endregion
+
+    #region 21770
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -268,6 +274,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public byte? Taste { get; set; }
     }
 
+    #endregion
+
+    #region 24657
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Bool_discriminator_column_works(bool async)
@@ -339,6 +349,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int NumberOfPhotos { get; set; }
     }
 
+    #endregion
+
+    #region 26433
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Count_member_over_IReadOnlyCollection_works(bool async)
@@ -404,6 +418,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int AuthorId { get; set; }
         public Author26433 Author { get; set; }
     }
+
+    #endregion
+
+    #region 26428
 
 #nullable enable
 
@@ -489,6 +507,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     }
 
 #nullable disable
+
+    #endregion
+
+    #region 26593
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -610,6 +632,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int GroupId { get; set; }
     }
 
+    #endregion
+
+    #region 26587
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task GroupBy_aggregate_on_right_side_of_join(bool async)
@@ -655,6 +681,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public DateTime? ShippingDate { get; set; }
         public DateTime? CancellationDate { get; set; }
     }
+
+    #endregion
+
+    #region 26472
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -715,6 +745,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         MyType1 = 1,
         MyType2 = 2
     }
+
+    #endregion
+
+    #region 27083
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -874,6 +908,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public Order Order { get; set; }
     }
 
+    #endregion
+
+    #region 27094
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
@@ -935,6 +973,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public int Id { get; set; }
         public int? Value { get; set; }
     }
+
+    #endregion
+
+    #region 27163
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1041,6 +1083,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public string Value2 { get; set; }
     }
 
+    #endregion
+
+    #region 26744
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Subquery_first_member_compared_to_null(bool async)
@@ -1131,6 +1177,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public Parent26744 Parent { get; set; }
     }
 
+    #endregion
+
+    #region 27343
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Flattened_GroupJoin_on_interface_generic(bool async)
@@ -1185,6 +1235,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
         public DateTime? SomeOtherNullableDateTime { get; set; }
         public Parent27343 Parent { get; set; }
     }
+
+    #endregion
+
+    #region 28196
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1255,6 +1309,10 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
             SaveChanges();
         }
     }
+
+    #endregion
+
+    #region 28039
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1344,4 +1402,133 @@ public abstract class SimpleQueryTestBase : NonSharedModelTestBase
     {
         public string FavoriteToy { get; set; }
     }
+
+    #endregion
+
+    #region 31961
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Filter_on_nested_DTO_with_interface_gets_simplified_correctly(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context31961>();
+        using var context = contextFactory.CreateContext();
+
+        var query = await context.Customers
+            .Select(m => new CustomerDto31961()
+            {
+                Id = m.Id,
+                CompanyId = m.CompanyId,
+                Company = m.Company != null ? new CompanyDto31961()
+                {
+                    Id = m.Company.Id,
+                    CompanyName = m.Company.CompanyName,
+                    CountryId = m.Company.CountryId,
+                    Country = new CountryDto31961()
+                    {
+                        Id = m.Company.Country.Id,
+                        CountryName = m.Company.Country.CountryName,
+                    },
+                } : null,
+            })
+        .Where(m => m.Company.Country.CountryName == "COUNTRY")
+        .ToListAsync();
+    }
+
+    protected class Context31961 : DbContext
+    {
+        public Context31961(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Customer31961> Customers { get; set; }
+
+        public DbSet<Company31961> Companies { get; set; }
+
+        public DbSet<Country31961> Countries { get; set; }
+    }
+
+    public class Customer31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CompanyId { get; set; }
+
+        public Company31961 Company { get; set; }
+    }
+
+    public class Country31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CountryName { get; set; } = string.Empty;
+    }
+
+    public class Company31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CompanyName { get; set; } = string.Empty;
+
+        public string CountryId { get; set; }
+
+        public Country31961 Country { get; set; }
+    }
+
+    public interface ICustomerDto31961
+    {
+        string Id { get; set; }
+
+        string CompanyId { get; set; }
+
+        ICompanyDto31961 Company { get; set; }
+    }
+
+    public interface ICountryDto31961
+    {
+        string Id { get; set; }
+
+        string CountryName { get; set; }
+    }
+
+    public interface ICompanyDto31961
+    {
+        string Id { get; set; }
+
+        string CompanyName { get; set; }
+
+        string CountryId { get; set; }
+
+        ICountryDto31961 Country { get; set; }
+    }
+
+    public class CustomerDto31961 : ICustomerDto31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CompanyId { get; set; }
+
+        public ICompanyDto31961 Company { get; set; }
+    }
+
+    public class CountryDto31961 : ICountryDto31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CountryName { get; set; } = string.Empty;
+    }
+
+    public class CompanyDto31961 : ICompanyDto31961
+    {
+        public string Id { get; set; } = string.Empty;
+
+        public string CompanyName { get; set; } = string.Empty;
+
+        public string CountryId { get; set; }
+
+        public ICountryDto31961 Country { get; set; }
+    }
+
+    #endregion
 }

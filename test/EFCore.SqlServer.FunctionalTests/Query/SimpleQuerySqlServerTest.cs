@@ -12,6 +12,66 @@ public class SimpleQuerySqlServerTest : SimpleQueryRelationalTestBase
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+
+    #region 27427
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context27427>();
+        using var context = contextFactory.CreateContext();
+        var query = context.DemoEntities
+            .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
+            .Select(e => e.Id);
+
+        var query2 = context.DemoEntities
+            .Where(e => query.Contains(e.Id))
+            .GroupBy(e => e.Id)
+            .Select(g => new { g.Key, Aggregate = g.Count() });
+
+        if (async)
+        {
+            await query2.ToListAsync();
+        }
+        else
+        {
+            query2.ToList();
+        }
+
+        AssertSql(
+            """
+p0='1'
+
+SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
+FROM [DemoEntities] AS [d]
+WHERE [d].[Id] IN (
+    SELECT [m].[Id]
+    FROM (
+        SELECT * FROM DemoEntities WHERE Id = @p0
+    ) AS [m]
+)
+GROUP BY [d].[Id]
+""");
+    }
+
+    protected class Context27427 : DbContext
+    {
+        public Context27427(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<DemoEntity> DemoEntities { get; set; }
+    }
+
+    protected class DemoEntity
+    {
+        public int Id { get; set; }
+    }
+
+    #endregion
+
     #region 30478
 
     [ConditionalTheory]
@@ -749,58 +809,23 @@ WHERE [t].[Species] LIKE N'F%'
 """);
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
+    public override async Task Filter_on_nested_DTO_with_interface_gets_simplified_correctly(bool async)
     {
-        var contextFactory = await InitializeAsync<Context27427>();
-        using var context = contextFactory.CreateContext();
-        var query = context.DemoEntities
-            .FromSqlRaw("SELECT * FROM DemoEntities WHERE Id = {0}", new SqlParameter { Value = 1 })
-            .Select(e => e.Id);
-
-        var query2 = context.DemoEntities
-            .Where(e => query.Contains(e.Id))
-            .GroupBy(e => e.Id)
-            .Select(g => new { g.Key, Aggregate = g.Count() });
-
-        if (async)
-        {
-            await query2.ToListAsync();
-        }
-        else
-        {
-            query2.ToList();
-        }
+        await base.Filter_on_nested_DTO_with_interface_gets_simplified_correctly(async);
 
         AssertSql(
-            """
-p0='1'
-
-SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
-FROM [DemoEntities] AS [d]
-WHERE [d].[Id] IN (
-    SELECT [m].[Id]
-    FROM (
-        SELECT * FROM DemoEntities WHERE Id = @p0
-    ) AS [m]
-)
-GROUP BY [d].[Id]
+"""
+SELECT [c].[Id], [c].[CompanyId], CASE
+    WHEN [c0].[Id] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c0].[Id], [c0].[CompanyName], [c0].[CountryId], [c1].[Id], [c1].[CountryName]
+FROM [Customers] AS [c]
+LEFT JOIN [Companies] AS [c0] ON [c].[CompanyId] = [c0].[Id]
+LEFT JOIN [Countries] AS [c1] ON [c0].[CountryId] = [c1].[Id]
+WHERE CASE
+    WHEN [c0].[Id] IS NOT NULL THEN [c1].[CountryName]
+    ELSE NULL
+END = N'COUNTRY'
 """);
-    }
-
-    protected class Context27427 : DbContext
-    {
-        public Context27427(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public DbSet<DemoEntity> DemoEntities { get; set; }
-    }
-
-    protected class DemoEntity
-    {
-        public int Id { get; set; }
     }
 }
