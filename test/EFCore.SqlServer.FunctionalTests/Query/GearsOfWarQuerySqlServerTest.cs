@@ -2915,6 +2915,7 @@ WHERE [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_constant(bool async)
     {
         using var context = CreateContext();
@@ -2938,6 +2939,7 @@ WHERE [m].[Timeline] = CAST('0010-05-03T12:00:00.0000000' AS datetime2) AT TIME 
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_parameter(bool async)
     {
         using var context = CreateContext();
@@ -2966,6 +2968,7 @@ WHERE [m].[Timeline] = @__dateTime_1 AT TIME ZONE @__timeZone_2
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetime_column(bool async)
     {
         using var context = CreateContext();

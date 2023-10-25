@@ -134,6 +134,7 @@ WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -163,6 +164,7 @@ WHERE [o].[Value] AT TIME ZONE 'UTC' = '2000-01-01T18:00:00.0000000+00:00'
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_parameter(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -198,6 +200,7 @@ WHERE [o].[Value] AT TIME ZONE @__timeZone_1 = @__dateTime_2
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Where_AtTimeZone_datetimeoffset_column(bool async)
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);

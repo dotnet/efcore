@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer;
 
-[SqlServerConfiguredCondition]
+[SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
 public class QueryTests : IDisposable
 {
     private readonly AbrahamicContext _db;

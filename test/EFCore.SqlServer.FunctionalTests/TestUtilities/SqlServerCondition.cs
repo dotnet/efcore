@@ -19,4 +19,5 @@ public enum SqlServerCondition
     SupportsFunctions2019 = 1 << 10,
     SupportsFunctions2017 = 1 << 11,
     SupportsJsonPathExpressions = 1 << 12,
+    SupportsSqlClr = 1 << 13,
 }
