@@ -230,7 +230,14 @@ public abstract class RuntimeTypeBase : AnnotatableBase, IRuntimeTypeBase
     public virtual RuntimeProperty? FindProperty(string name)
         => FindDeclaredProperty(name) ?? _baseType?.FindProperty(name);
 
-    private RuntimeProperty? FindDeclaredProperty(string name)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual RuntimeProperty? FindDeclaredProperty(string name)
         => _properties.TryGetValue(name, out var property)
             ? property
             : null;

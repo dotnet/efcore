@@ -1260,6 +1260,27 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    IProperty? IEntityType.FindProperty(string name) => FindProperty(name);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IReadOnlyList<IProperty>? IEntityType.FindProperties(IReadOnlyList<string> propertyNames)
+        => FindProperties(propertyNames);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IProperty? IEntityType.FindDeclaredProperty(string name) => FindDeclaredProperty(name);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IProperty> IEntityType.GetDeclaredProperties() => GetDeclaredProperties();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IEnumerable<IProperty> IEntityType.GetProperties() => GetProperties();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
     IEnumerable<IProperty> IEntityType.GetForeignKeyProperties()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _foreignKeyProperties, this,
