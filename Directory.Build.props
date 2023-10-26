@@ -40,6 +40,7 @@
     <LangVersion>11.0</LangVersion>
     <DebugType>portable</DebugType>
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
+    <PackageIconFullPath>$(MSBuildThisFileDirectory)logo\ef-logo.png</PackageIconFullPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
