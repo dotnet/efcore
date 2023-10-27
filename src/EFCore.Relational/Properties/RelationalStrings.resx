@@ -565,6 +565,9 @@
   <data name="JsonReaderInvalidTokenType" xml:space="preserve">
     <value>Invalid token type: '{tokenType}'.</value>
   </data>
+  <data name="JsonValueReadWriterMissingOnTypeMapping" xml:space="preserve">
+    <value>Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.</value>
+  </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>

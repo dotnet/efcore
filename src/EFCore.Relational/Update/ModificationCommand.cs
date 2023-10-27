@@ -873,7 +873,15 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             if (value is not null)
             {
-                (property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter)!.ToJson(writer, value);
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                if (jsonValueReaderWriter is null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonValueReadWriterMissingOnTypeMapping(
+                            property.GetTypeMapping().GetType().Name, property.Name, entityType.DisplayName()));
+                }
+
+                jsonValueReaderWriter.ToJson(writer, value);
             }
             else
             {
