@@ -902,7 +902,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
             if (value is not null)
             {
-                (property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter)!.ToJson(writer, value);
+                var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+                Check.DebugAssert(jsonValueReaderWriter is not null, "Missing JsonValueReaderWriter on JSON property");
+                jsonValueReaderWriter.ToJson(writer, value);
             }
             else
             {

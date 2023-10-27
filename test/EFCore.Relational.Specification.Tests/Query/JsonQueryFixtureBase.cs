@@ -15,14 +15,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         => () => CreateContext();
 
     public virtual ISetSource GetExpectedData()
-    {
-        if (_expectedData == null)
-        {
-            _expectedData = new JsonQueryData();
-        }
-
-        return _expectedData;
-    }
+        => _expectedData ??= new JsonQueryData();
 
     public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
     {

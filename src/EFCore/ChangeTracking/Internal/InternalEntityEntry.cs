@@ -958,8 +958,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
     private static readonly MethodInfo GetCurrentValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
-            m => m.IsGenericMethod);
+        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(m => m.IsGenericMethod);
 
     [UnconditionalSuppressMessage(
         "ReflectionAnalysis", "IL2060",

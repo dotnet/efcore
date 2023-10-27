@@ -115,29 +115,25 @@ public abstract class SnapshotFactoryFactory
         for (var i = 0; i < count; i++)
         {
             var propertyBase = propertyBases[i];
-            if (propertyBase == null)
-            {
-                arguments[i] = Expression.Constant(null);
-                types[i] = typeof(object);
-                continue;
-            }
 
-            if (propertyBase is IProperty property)
+            switch (propertyBase)
             {
-                arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
-                continue;
-            }
+                case null:
+                    arguments[i] = Expression.Constant(null);
+                    types[i] = typeof(object);
+                    continue;
 
-            if (propertyBase is IComplexProperty complexProperty)
-            {
-                arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, complexProperty), complexProperty);
-                continue;
-            }
+                case IProperty property:
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, property), property);
+                    continue;
 
-            if (propertyBase.IsShadowProperty())
-            {
-                arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
-                continue;
+                case IComplexProperty complexProperty:
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadValueExpression(parameter, complexProperty), complexProperty);
+                    continue;
+
+                case var _ when propertyBase.IsShadowProperty():
+                    arguments[i] = CreateSnapshotValueExpression(CreateReadShadowValueExpression(parameter, propertyBase), propertyBase);
+                    continue;
             }
 
             var memberInfo = propertyBase.GetMemberInfo(forMaterialization: false, forSet: false);

@@ -282,7 +282,7 @@ public partial class RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Json_entity_with_defalt_value_on_a_property()
+    public void Json_entity_with_default_value_on_a_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
         modelBuilder.Entity<ValidatorJsonEntityBasic>(
@@ -418,6 +418,31 @@ public partial class RelationalModelValidatorTest
         VerifyError(
             RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
                 nameof(ValidatorJsonOwnedRoot), nameof(ValidatorJsonOwnedRoot.Name)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Json_entity_with_property_without_JsonValueReaderWriter()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<ValidatorJsonEntityBasic>(
+            b =>
+            {
+                b.OwnsOne(
+                    x => x.OwnedReference, bb =>
+                    {
+                        bb.Property(x => x.Name).Metadata.SetJsonValueReaderWriterType(null);
+                        bb.Property(x => x.Number).HasJsonPropertyName("Foo");
+                        bb.ToJson("reference");
+                        bb.Ignore(x => x.NestedReference);
+                        bb.Ignore(x => x.NestedCollection);
+                    });
+                b.Ignore(x => x.OwnedCollection);
+            });
+
+        // The test model uses TestStringTypeMapping, which indeed doesn't have a JsonValueReaderWriter
+        VerifyError(
+            RelationalStrings.JsonValueReadWriterMissingOnTypeMapping("TestStringTypeMapping", "Name", "ValidatorJsonOwnedRoot"),
             modelBuilder);
     }
 
