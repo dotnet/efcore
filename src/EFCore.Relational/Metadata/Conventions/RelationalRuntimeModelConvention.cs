@@ -199,6 +199,34 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         }
     }
 
+    /// <summary>
+    ///     Updates the complex type annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="complexType">The source complex type.</param>
+    /// <param name="runtimeComplexType">The target complex type that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessComplexTypeAnnotations(
+        Dictionary<string, object?> annotations,
+        IComplexType complexType,
+        RuntimeComplexType runtimeComplexType,
+        bool runtime)
+    {
+        base.ProcessComplexTypeAnnotations(annotations, complexType, runtimeComplexType, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.TableMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionMappings);
+            annotations.Remove(RelationalAnnotationNames.InsertStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DeleteStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultMappings);
+        }
+    }
+
     private static RuntimeEntityTypeMappingFragment Create(
         IEntityTypeMappingFragment entityTypeMappingFragment,
         RuntimeEntityType runtimeEntityType)

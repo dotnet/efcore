@@ -258,7 +258,7 @@ public static class CoreAnnotationNames
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public const string InverseNavigationCandidates = "RelationshipDiscoveryConvention:InverseNavigationCandidates";
+    public const string InverseNavigationsNoAttribute = "RelationshipDiscoveryConvention:InverseNavigationsNoAttribute";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -267,6 +267,14 @@ public static class CoreAnnotationNames
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public const string NavigationCandidates = "RelationshipDiscoveryConvention:NavigationCandidates";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public const string NavigationCandidatesNoAttribute = "RelationshipDiscoveryConvention:NavigationCandidatesNoAttribute";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -379,10 +387,11 @@ public static class CoreAnnotationNames
         ModelDependencies,
         ReadOnlyModel,
         PreUniquificationName,
-        InverseNavigations,
         DerivedTypes,
-        InverseNavigationCandidates,
+        InverseNavigations,
+        InverseNavigationsNoAttribute,
         NavigationCandidates,
+        NavigationCandidatesNoAttribute,
         ComplexCandidates,
         AmbiguousNavigations,
         AmbiguousField,

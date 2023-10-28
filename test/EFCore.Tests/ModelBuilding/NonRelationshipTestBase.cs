@@ -453,8 +453,7 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder(
                 c =>
                     c.Conventions.Replace<DbSetFindingConvention>(
-                        s =>
-                            new TestDbSetFindingConvention(s.GetService<ProviderConventionSetBuilderDependencies>()!)));
+                        s => new TestDbSetFindingConvention(s.GetService<ProviderConventionSetBuilderDependencies>()!)));
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1138,16 +1137,10 @@ public abstract partial class ModelBuilderTest
         public virtual void Value_converter_configured_on_non_nullable_type_is_applied()
         {
             var modelBuilder = CreateModelBuilder(
-                c =>
-                {
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>();
-                });
+                c => c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>>());
 
             modelBuilder.Entity<Quarks>(
-                b =>
-                {
-                    b.Property<int?>("Wierd");
-                });
+                b => b.Property<int?>("Wierd"));
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks))!;

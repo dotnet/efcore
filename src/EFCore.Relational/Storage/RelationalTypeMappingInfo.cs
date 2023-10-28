@@ -248,6 +248,44 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+    /// </summary>
+    /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="typeMappingConfiguration">The type mapping configuration.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
+    /// <param name="storeTypeName">The database type name.</param>
+    /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
+    /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
+    /// <param name="size">Specifies a size for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
+    public RelationalTypeMappingInfo(
+        Type type,
+        ITypeMappingConfiguration typeMappingConfiguration,
+        RelationalTypeMapping? elementTypeMapping = null,
+        string? storeTypeName = null,
+        string? storeTypeNameBase = null,
+        bool? unicode = null,
+        int? size = null,
+        int? precision = null,
+        int? scale = null)
+    {
+        _coreTypeMappingInfo = new TypeMappingInfo(
+            typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
+            elementTypeMapping,
+            keyOrIndex: false,
+            unicode ?? typeMappingConfiguration.IsUnicode(),
+            size ?? typeMappingConfiguration.GetMaxLength(),
+            rowVersion: false,
+            precision ?? typeMappingConfiguration.GetPrecision(),
+            scale ?? typeMappingConfiguration.GetScale());
+
+        IsFixedLength = (bool?)typeMappingConfiguration[RelationalAnnotationNames.IsFixedLength];
+        StoreTypeName = storeTypeName;
+        StoreTypeNameBase = storeTypeNameBase;
+    }
+
+    /// <summary>
     ///     The core type mapping info.
     /// </summary>
     public TypeMappingInfo CoreTypeMappingInfo

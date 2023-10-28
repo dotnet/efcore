@@ -4,6 +4,7 @@
 #nullable enable
 
 using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -263,6 +264,38 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             Assert.Equal("Latin1_General_CS_AS_KS_WS", entityType.FindProperty("Up")!.GetCollation());
             Assert.Equal("Latin1_General_BIN", entityType.FindProperty("Down")!.GetCollation());
             Assert.Equal("Latin1_General_CI_AI", entityType.FindProperty("Charm")!.GetCollation());
+        }
+
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public virtual void Can_avoid_attributes_when_discovering_properties(bool useAttributes)
+        {
+            var modelBuilder = CreateModelBuilder(c => c.Conventions.Replace(
+                s => new PropertyDiscoveryConvention(
+                    s.GetService<ProviderConventionSetBuilderDependencies>()!, useAttributes)));
+            modelBuilder.Entity<SqlVariantEntity>();
+
+            if (useAttributes)
+            {
+                var model = modelBuilder.FinalizeModel();
+                var entityType = model.FindEntityType(typeof(SqlVariantEntity))!;
+
+                Assert.Equal([nameof(SqlVariantEntity.Id), nameof(SqlVariantEntity.Value),],
+                    entityType.GetProperties().Select(p => p.Name));
+            }
+            else
+            {
+                Assert.Equal(CoreStrings.PropertyNotAdded(nameof(SqlVariantEntity), nameof(SqlVariantEntity.Value), "object"),
+                    Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
+            }
+        }
+
+        protected class SqlVariantEntity
+        {
+            public int Id { get; set; }
+            [Column(TypeName = "sql_variant")]
+            public object? Value { get; set; }
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
@@ -599,28 +632,28 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(SqlServerTestHelpers.Instance, configure);
 
-        public class Parent
+        protected class Parent
         {
             public int Id { get; set; }
             public DisjointChildSubclass1? A { get; set; }
             public IList<DisjointChildSubclass2>? B { get; set; }
         }
 
-        public abstract class ChildBase
+        protected abstract class ChildBase
         {
             public int Id { get; set; }
         }
 
-        public abstract class Child : ChildBase
+        protected abstract class Child : ChildBase
         {
             public string? Name { get; set; }
         }
 
-        public class DisjointChildSubclass1 : Child
+        protected class DisjointChildSubclass1 : Child
         {
         }
 
-        public class DisjointChildSubclass2 : Child
+        protected class DisjointChildSubclass2 : Child
         {
         }
     }

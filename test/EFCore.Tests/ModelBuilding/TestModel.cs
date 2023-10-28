@@ -781,7 +781,7 @@ public abstract partial class ModelBuilderTest
         public long[] CollectionId = null!;
         public int[] CollectionCompanyId = null!;
         public int[] CollectionTenantId = null!;
-        public KeylessEntityWithFields? KeylessEntity;
+        public KeylessEntityWithFields KeylessEntity = new();
     }
 
     public class KeylessEntityWithFields

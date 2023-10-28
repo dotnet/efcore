@@ -76,7 +76,7 @@ public class InversePropertyAttributeConvention :
         var entityType = entityTypeBuilder.Metadata;
         var targetEntityType = targetEntityTypeBuilder.Metadata;
         var targetClrType = targetEntityType.ClrType;
-        var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType);
+        var navigationCandidates = Dependencies.MemberClassifier.GetNavigationCandidates(targetEntityType, useAttributes: true);
         var inverseNavigationPropertyInfo = targetEntityType.GetRuntimeProperties().Values
                 .FirstOrDefault(
                     p => string.Equals(p.GetSimpleMemberName(), attribute.Property, StringComparison.Ordinal)

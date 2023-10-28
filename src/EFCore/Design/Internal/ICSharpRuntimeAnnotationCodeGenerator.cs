@@ -30,14 +30,14 @@ public interface ICSharpRuntimeAnnotationCodeGenerator
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
-    /// <param name="complexProperty">The entity type to which the annotations are applied.</param>
+    /// <param name="complexProperty">The complex property to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IComplexProperty complexProperty, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 
     /// <summary>
     ///     Generates code to create the given annotations.
     /// </summary>
-    /// <param name="complexType">The entity type to which the annotations are applied.</param>
+    /// <param name="complexType">The complex type to which the annotations are applied.</param>
     /// <param name="parameters">Additional parameters used during code generation.</param>
     void Generate(IComplexType complexType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters);
 

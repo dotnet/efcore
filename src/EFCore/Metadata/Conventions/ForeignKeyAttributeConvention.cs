@@ -52,7 +52,7 @@ public class ForeignKeyAttributeConvention :
         var foreignKeyNavigations = new List<PropertyInfo>();
         var unconfiguredNavigations = new List<PropertyInfo>();
         var inverses = new List<string>();
-        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType))
+        foreach (var candidatePair in Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true))
         {
             var (targetType, shouldBeOwned) = candidatePair.Value;
             if (targetType != entityType.ClrType)
@@ -442,7 +442,7 @@ public class ForeignKeyAttributeConvention :
     }
 
     private bool IsNavigationCandidate(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType).TryGetValue(propertyInfo, out _);
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true).TryGetValue(propertyInfo, out _);
 
     private static IReadOnlyList<string>? FindCandidateDependentPropertiesThroughNavigation(
         IConventionForeignKeyBuilder relationshipBuilder,

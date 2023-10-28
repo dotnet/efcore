@@ -220,6 +220,25 @@ public readonly record struct TypeMappingInfo
     ///     Creates a new instance of <see cref="TypeMappingInfo" />.
     /// </summary>
     /// <param name="type">The CLR type in the model for which mapping is needed.</param>
+    /// <param name="typeMappingConfiguration">The type mapping configuration.</param>
+    /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
+    public TypeMappingInfo(
+        Type type,
+        ITypeMappingConfiguration typeMappingConfiguration,
+        CoreTypeMapping? elementTypeMapping = null)
+        : this(typeMappingConfiguration.GetValueConverter()?.ProviderClrType ?? type,
+              elementTypeMapping,
+              unicode: typeMappingConfiguration.IsUnicode(),
+              size: typeMappingConfiguration.GetMaxLength(),
+              precision: typeMappingConfiguration.GetPrecision(),
+              scale: typeMappingConfiguration.GetScale())
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of <see cref="TypeMappingInfo" />.
+    /// </summary>
+    /// <param name="type">The CLR type in the model for which mapping is needed.</param>
     /// <param name="elementTypeMapping">The type mapping for elements, if known.</param>
     /// <param name="keyOrIndex">If <see langword="true" />, then a special mapping for a key or index may be returned.</param>
     /// <param name="unicode">Specifies Unicode or ANSI mapping, or <see langword="null" /> for default.</param>
