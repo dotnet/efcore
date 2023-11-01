@@ -4363,8 +4363,21 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             string testName,
             string filePath)
         {
-            var baselinesDirectory = Path.Combine(Path.GetDirectoryName(filePath), "Baselines", testName);
-            Directory.CreateDirectory(baselinesDirectory);
+            var testDirectory = Path.GetDirectoryName(filePath);
+            if (!Directory.Exists(testDirectory))
+            {
+                return;
+            }
+
+            var baselinesDirectory = Path.Combine(testDirectory, "Baselines", testName);
+            try
+            {
+                Directory.CreateDirectory(baselinesDirectory);
+            }
+            catch
+            {
+                return;
+            }
 
             var shouldRewrite = Environment.GetEnvironmentVariable("EF_TEST_REWRITE_BASELINES")?.ToUpper() is "1" or "TRUE";
             foreach (var file in scaffoldedFiles)
