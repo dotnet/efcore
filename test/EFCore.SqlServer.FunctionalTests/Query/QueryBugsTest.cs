@@ -3982,13 +3982,17 @@ WHERE [r].[MyTime] IN (
 
             AssertSql(
                 """
+@__todoTypes_1='[0]' (Size = 4000)
 @__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
 @__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [t].[Id], [t].[Type]
 FROM [Todos] AS [t]
 WHERE CASE
-    WHEN [t].[Type] = 0 THEN @__key_2
+    WHEN [t].[Type] IN (
+        SELECT [t0].[value]
+        FROM OPENJSON(@__todoTypes_1) WITH ([value] int '$') AS [t0]
+    ) THEN @__key_2
     ELSE @__key_2
 END IN (
     SELECT [k].[value]

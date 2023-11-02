@@ -435,12 +435,13 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
 
-        return Expression.Call(
-            QueryableMethods.Contains.MakeGenericMethod(sourceType),
+        return VisitMethodCall(
             Expression.Call(
-                QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
-                methodCallExpression.Object!),
-            methodCallExpression.Arguments[0]);
+                QueryableMethods.Contains.MakeGenericMethod(sourceType),
+                Expression.Call(
+                    QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
+                    methodCallExpression.Object!),
+                methodCallExpression.Arguments[0]));
     }
 
     private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)

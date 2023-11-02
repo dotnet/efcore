@@ -807,12 +807,26 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             },
             assertOrder: true);
 
-    [ConditionalTheory] // #32208
+    [ConditionalTheory] // #32208, #32215
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
     {
         var ints = new List<int> { 1, 2, 3 };
         var strings = new List<string> { "one", "two", "three" };
+
+        // Note that in this query, the outer Contains really has no type mapping, neither for its source (collection parameter), nor
+        // for its item (the conditional expression returns constants). The default type mapping must be applied.
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(e => strings.Contains(ints.Contains(e.Int) ? "one" : "two")));
+    }
+
+    [ConditionalTheory] // #32208, #32215
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
+    {
+        var ints = new[] { 1, 2, 3 };
+        var strings = new[] { "one", "two", "three" };
 
         // Note that in this query, the outer Contains really has no type mapping, neither for its source (collection parameter), nor
         // for its item (the conditional expression returns constants). The default type mapping must be applied.
