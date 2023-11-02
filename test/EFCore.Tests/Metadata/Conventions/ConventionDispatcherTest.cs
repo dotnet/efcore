@@ -15,7 +15,7 @@ public class ConventionDispatcherTest
     {
         var conventions = new ConventionSet();
 
-        conventions.PropertyAddedConventions.Add(new InfinitePropertyAddedConvention());
+        conventions.Add(new InfinitePropertyAddedConvention());
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -48,9 +48,9 @@ public class ConventionDispatcherTest
         var convention1 = new ModelInitializedConvention(terminate: false);
         var convention2 = new ModelInitializedConvention(terminate: true);
         var convention3 = new ModelInitializedConvention(terminate: false);
-        conventions.ModelInitializedConventions.Add(convention1);
-        conventions.ModelInitializedConventions.Add(convention2);
-        conventions.ModelInitializedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         if (useBuilder)
         {
@@ -64,6 +64,9 @@ public class ConventionDispatcherTest
         Assert.Equal(1, convention1.Calls);
         Assert.Equal(1, convention2.Calls);
         Assert.Equal(0, convention3.Calls);
+
+        AssertSetOperations(new ModelInitializedConvention(terminate: true),
+            conventions, conventions.ModelInitializedConventions);
     }
 
     private class ModelInitializedConvention : IModelInitializedConvention
@@ -96,12 +99,12 @@ public class ConventionDispatcherTest
     {
         var conventions = new ConventionSet();
 
-        var convention1 = new ModelFinalizedConvention(terminate: false);
-        var convention2 = new ModelFinalizedConvention(terminate: true);
-        var convention3 = new ModelFinalizedConvention(terminate: false);
-        conventions.ModelFinalizingConventions.Add(convention1);
-        conventions.ModelFinalizingConventions.Add(convention2);
-        conventions.ModelFinalizingConventions.Add(convention3);
+        var convention1 = new ModelFinalizingConvention(terminate: false);
+        var convention2 = new ModelFinalizingConvention(terminate: true);
+        var convention3 = new ModelFinalizingConvention(terminate: false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var model = new Model(conventions);
 
@@ -117,14 +120,17 @@ public class ConventionDispatcherTest
         Assert.Equal(1, convention1.Calls);
         Assert.Equal(1, convention2.Calls);
         Assert.Equal(0, convention3.Calls);
+
+        AssertSetOperations(new ModelFinalizingConvention(terminate: true),
+            conventions, conventions.ModelFinalizingConventions);
     }
 
-    private class ModelFinalizedConvention : IModelFinalizingConvention
+    private class ModelFinalizingConvention : IModelFinalizingConvention
     {
         private readonly bool _terminate;
         public int Calls;
 
-        public ModelFinalizedConvention(bool terminate)
+        public ModelFinalizingConvention(bool terminate)
         {
             _terminate = terminate;
         }
@@ -154,9 +160,9 @@ public class ConventionDispatcherTest
         var convention1 = new ModelAnnotationChangedConvention(false);
         var convention2 = new ModelAnnotationChangedConvention(true);
         var convention3 = new ModelAnnotationChangedConvention(false);
-        conventions.ModelAnnotationChangedConventions.Add(convention1);
-        conventions.ModelAnnotationChangedConventions.Add(convention2);
-        conventions.ModelAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
 
@@ -210,6 +216,9 @@ public class ConventionDispatcherTest
 
         builder.Metadata[CoreAnnotationNames.ProductVersion] = "bar";
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new ModelAnnotationChangedConvention(terminate: true),
+            conventions, conventions.ModelAnnotationChangedConventions);
     }
 
     private class ModelAnnotationChangedConvention : IModelAnnotationChangedConvention
@@ -252,9 +261,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypeAddedConvention(terminate: false);
         var convention2 = new EntityTypeAddedConvention(terminate: true);
         var convention3 = new EntityTypeAddedConvention(terminate: false);
-        conventions.EntityTypeAddedConventions.Add(convention1);
-        conventions.EntityTypeAddedConventions.Add(convention2);
-        conventions.EntityTypeAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
 
@@ -286,6 +295,9 @@ public class ConventionDispatcherTest
 
         Assert.Empty(builder.Metadata.GetEntityTypes());
         Assert.Null(builder.Metadata.FindEntityType(typeof(Order)));
+
+        AssertSetOperations(new EntityTypeAddedConvention(terminate: true),
+            conventions, conventions.EntityTypeAddedConventions);
     }
 
     private class EntityTypeAddedConvention : IEntityTypeAddedConvention
@@ -323,19 +335,19 @@ public class ConventionDispatcherTest
     {
         var conventions = new ConventionSet();
 
-        var convention1 = new EntityTypeIgnoredConvention(terminate: false);
-        var convention2 = new EntityTypeIgnoredConvention(terminate: true);
-        var convention3 = new EntityTypeIgnoredConvention(terminate: false);
-        conventions.TypeIgnoredConventions.Add(convention1);
-        conventions.TypeIgnoredConventions.Add(convention2);
-        conventions.TypeIgnoredConventions.Add(convention3);
+        var convention1 = new TypeIgnoredConvention(terminate: false);
+        var convention2 = new TypeIgnoredConvention(terminate: true);
+        var convention3 = new TypeIgnoredConvention(terminate: false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var convention4 = new EntityTypeRemovedConvention(terminate: false);
         var convention5 = new EntityTypeRemovedConvention(terminate: true);
         var convention6 = new EntityTypeRemovedConvention(terminate: false);
-        conventions.EntityTypeRemovedConventions.Add(convention4);
-        conventions.EntityTypeRemovedConventions.Add(convention5);
-        conventions.EntityTypeRemovedConventions.Add(convention6);
+        conventions.Add(convention4);
+        conventions.Add(convention5);
+        conventions.Add(convention6);
 
         var builder = new InternalModelBuilder(new Model(conventions));
 
@@ -369,14 +381,19 @@ public class ConventionDispatcherTest
         Assert.Equal(1, convention4.Calls);
         Assert.Equal(1, convention5.Calls);
         Assert.Equal(0, convention6.Calls);
+
+        AssertSetOperations(new TypeIgnoredConvention(terminate: true),
+            conventions, conventions.TypeIgnoredConventions);
+        AssertSetOperations(new EntityTypeRemovedConvention(terminate: true),
+            conventions, conventions.EntityTypeRemovedConventions);
     }
 
-    private class EntityTypeIgnoredConvention : ITypeIgnoredConvention
+    private class TypeIgnoredConvention : ITypeIgnoredConvention
     {
         private readonly bool _terminate;
         public int Calls;
 
-        public EntityTypeIgnoredConvention(bool terminate)
+        public TypeIgnoredConvention(bool terminate)
         {
             _terminate = terminate;
         }
@@ -434,9 +451,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypeMemberIgnoredConvention(terminate: false);
         var convention2 = new EntityTypeMemberIgnoredConvention(terminate: true);
         var convention3 = new EntityTypeMemberIgnoredConvention(terminate: false);
-        conventions.EntityTypeMemberIgnoredConventions.Add(convention1);
-        conventions.EntityTypeMemberIgnoredConventions.Add(convention2);
-        conventions.EntityTypeMemberIgnoredConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -476,6 +493,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "A" }, convention1.Calls);
         Assert.Equal(new[] { "A" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new EntityTypeMemberIgnoredConvention(terminate: true),
+            conventions, conventions.EntityTypeMemberIgnoredConventions);
     }
 
     private class EntityTypeMemberIgnoredConvention : IEntityTypeMemberIgnoredConvention
@@ -516,9 +536,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypeBaseTypeChangedConvention(terminate: false);
         var convention2 = new EntityTypeBaseTypeChangedConvention(terminate: true);
         var convention3 = new EntityTypeBaseTypeChangedConvention(terminate: false);
-        conventions.EntityTypeBaseTypeChangedConventions.Add(convention1);
-        conventions.EntityTypeBaseTypeChangedConventions.Add(convention2);
-        conventions.EntityTypeBaseTypeChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions))
             .Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -573,6 +593,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { typeof(Order), null }, convention1.Calls);
         Assert.Equal(new[] { typeof(Order), null }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new EntityTypeBaseTypeChangedConvention(terminate: true),
+            conventions, conventions.EntityTypeBaseTypeChangedConventions);
     }
 
     private class EntityTypeBaseTypeChangedConvention : IEntityTypeBaseTypeChangedConvention
@@ -607,6 +630,104 @@ public class ConventionDispatcherTest
     [InlineData(false, true)]
     [InlineData(true, true)]
     [ConditionalTheory]
+    public void OnDiscriminatorPropertySet_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new DiscriminatorPropertySetConvention(terminate: false);
+        var convention2 = new DiscriminatorPropertySetConvention(terminate: true);
+        var convention3 = new DiscriminatorPropertySetConvention(terminate: false);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var propertyBuilder = entityBuilder.Property(Order.OrderIdProperty, ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            entityBuilder.HasDiscriminator(Order.OrderIdProperty, ConfigurationSource.Convention);
+        }
+        else
+        {
+            entityBuilder.Metadata.SetDiscriminatorProperty(propertyBuilder.Metadata, ConfigurationSource.Convention);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new string[] { nameof(Order.OrderId) }, convention1.Calls);
+        Assert.Equal(new string[] { nameof(Order.OrderId) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            entityBuilder.HasDiscriminator(Order.OrderIdProperty, ConfigurationSource.Convention);
+        }
+        else
+        {
+            entityBuilder.Metadata.SetDiscriminatorProperty(propertyBuilder.Metadata, ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new string[] { nameof(Order.OrderId) }, convention1.Calls);
+        Assert.Equal(new string[] { nameof(Order.OrderId) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            entityBuilder.HasNoDiscriminator(ConfigurationSource.Convention);
+        }
+        else
+        {
+            entityBuilder.Metadata.SetDiscriminatorProperty(null, ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new[] { nameof(Order.OrderId), null }, convention1.Calls);
+        Assert.Equal(new[] { nameof(Order.OrderId), null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new DiscriminatorPropertySetConvention(terminate: true),
+            conventions, conventions.DiscriminatorPropertySetConventions);
+    }
+
+    private class DiscriminatorPropertySetConvention : IDiscriminatorPropertySetConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public DiscriminatorPropertySetConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessDiscriminatorPropertySet(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            string name,
+            IConventionContext<string> context)
+        {
+            Assert.True(entityTypeBuilder.Metadata.IsInModel);
+
+            Calls.Add(name);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
     public void OnPrimaryKeyChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();
@@ -614,9 +735,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypePrimaryKeyChangedConvention(terminate: false);
         var convention2 = new EntityTypePrimaryKeyChangedConvention(terminate: true);
         var convention3 = new EntityTypePrimaryKeyChangedConvention(terminate: false);
-        conventions.EntityTypePrimaryKeyChangedConventions.Add(convention1);
-        conventions.EntityTypePrimaryKeyChangedConventions.Add(convention2);
-        conventions.EntityTypePrimaryKeyChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -678,6 +799,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { null, "OrderId" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
         Assert.Null(entityBuilder.Metadata.GetPrimaryKeyConfigurationSource());
+
+        AssertSetOperations(new EntityTypePrimaryKeyChangedConvention(terminate: true),
+            conventions, conventions.EntityTypePrimaryKeyChangedConventions);
     }
 
     private class EntityTypePrimaryKeyChangedConvention : IEntityTypePrimaryKeyChangedConvention
@@ -719,9 +843,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypeAnnotationChangedConvention(terminate: false);
         var convention2 = new EntityTypeAnnotationChangedConvention(terminate: true);
         var convention3 = new EntityTypeAnnotationChangedConvention(terminate: false);
-        conventions.EntityTypeAnnotationChangedConventions.Add(convention1);
-        conventions.EntityTypeAnnotationChangedConventions.Add(convention2);
-        conventions.EntityTypeAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention);
@@ -776,6 +900,9 @@ public class ConventionDispatcherTest
 
         entityBuilder.Metadata[CoreAnnotationNames.PropertyAccessMode] = PropertyAccessMode.Field;
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new EntityTypeAnnotationChangedConvention(terminate: true),
+            conventions, conventions.EntityTypeAnnotationChangedConventions);
     }
 
     private class EntityTypeAnnotationChangedConvention : IEntityTypeAnnotationChangedConvention
@@ -816,9 +943,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyAddedConvention(terminate: false);
         var convention2 = new ForeignKeyAddedConvention(terminate: true);
         var convention3 = new ForeignKeyAddedConvention(terminate: false);
-        conventions.ForeignKeyAddedConventions.Add(convention1);
-        conventions.ForeignKeyAddedConventions.Add(convention2);
-        conventions.ForeignKeyAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -854,6 +981,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "OrderId1" }, convention1.Calls);
         Assert.Equal(new[] { "OrderId1" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ForeignKeyAddedConvention(terminate: true),
+            conventions, conventions.ForeignKeyAddedConventions);
     }
 
     private class ForeignKeyAddedConvention : IForeignKeyAddedConvention
@@ -893,9 +1023,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyRemovedConvention(terminate: false);
         var convention2 = new ForeignKeyRemovedConvention(terminate: true);
         var convention3 = new ForeignKeyRemovedConvention(terminate: false);
-        conventions.ForeignKeyRemovedConventions.Add(convention1);
-        conventions.ForeignKeyRemovedConventions.Add(convention2);
-        conventions.ForeignKeyRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -930,6 +1060,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "FK" }, convention1.Calls);
         Assert.Equal(new[] { "FK" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ForeignKeyRemovedConvention(terminate: true),
+            conventions, conventions.ForeignKeyRemovedConventions);
     }
 
     private class ForeignKeyRemovedConvention : IForeignKeyRemovedConvention
@@ -968,9 +1101,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyPrincipalEndChangedConvention(terminate: false);
         var convention2 = new ForeignKeyPrincipalEndChangedConvention(terminate: true);
         var convention3 = new ForeignKeyPrincipalEndChangedConvention(terminate: false);
-        conventions.ForeignKeyPrincipalEndChangedConventions.Add(convention1);
-        conventions.ForeignKeyPrincipalEndChangedConventions.Add(convention2);
-        conventions.ForeignKeyPrincipalEndChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1058,6 +1191,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { nameof(Order), nameof(Order), nameof(OrderDetails), nameof(OrderDetails) }, convention1.Calls);
         Assert.Equal(new[] { nameof(Order), nameof(Order), nameof(OrderDetails), nameof(OrderDetails) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ForeignKeyPrincipalEndChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyPrincipalEndChangedConventions);
     }
 
     private class ForeignKeyPrincipalEndChangedConvention : IForeignKeyPrincipalEndChangedConvention
@@ -1095,9 +1231,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyPropertiesChangedConvention(terminate: false);
         var convention2 = new ForeignKeyPropertiesChangedConvention(terminate: true);
         var convention3 = new ForeignKeyPropertiesChangedConvention(terminate: false);
-        conventions.ForeignKeyPropertiesChangedConventions.Add(convention1);
-        conventions.ForeignKeyPropertiesChangedConventions.Add(convention2);
-        conventions.ForeignKeyPropertiesChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1126,6 +1262,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { ("FK", "FK2"), ("FK2", "FK3"), ("FK", "FK3") }, convention1.Calls);
         Assert.Equal(new[] { ("FK2", "FK3"), ("FK", "FK3") }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ForeignKeyPropertiesChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyPropertiesChangedConventions);
     }
 
     private class ForeignKeyPropertiesChangedConvention : IForeignKeyPropertiesChangedConvention
@@ -1181,9 +1320,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyUniquenessChangedConvention(terminate: false);
         var convention2 = new ForeignKeyUniquenessChangedConvention(terminate: true);
         var convention3 = new ForeignKeyUniquenessChangedConvention(terminate: false);
-        conventions.ForeignKeyUniquenessChangedConventions.Add(convention1);
-        conventions.ForeignKeyUniquenessChangedConventions.Add(convention2);
-        conventions.ForeignKeyUniquenessChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1243,6 +1382,9 @@ public class ConventionDispatcherTest
             foreignKey,
             dependentEntityBuilder.Metadata.RemoveForeignKey(
                 foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+
+        AssertSetOperations(new ForeignKeyUniquenessChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyUniquenessChangedConventions);
     }
 
     private class ForeignKeyUniquenessChangedConvention : IForeignKeyUniquenessChangedConvention
@@ -1282,9 +1424,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyRequirednessChangedConvention(terminate: false);
         var convention2 = new ForeignKeyRequirednessChangedConvention(terminate: true);
         var convention3 = new ForeignKeyRequirednessChangedConvention(terminate: false);
-        conventions.ForeignKeyRequirednessChangedConventions.Add(convention1);
-        conventions.ForeignKeyRequirednessChangedConventions.Add(convention2);
-        conventions.ForeignKeyRequirednessChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1344,6 +1486,9 @@ public class ConventionDispatcherTest
             foreignKey,
             dependentEntityBuilder.Metadata.RemoveForeignKey(
                 foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+
+        AssertSetOperations(new ForeignKeyRequirednessChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyRequirednessChangedConventions);
     }
 
     private class ForeignKeyRequirednessChangedConvention : IForeignKeyRequirednessChangedConvention
@@ -1383,9 +1528,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyDependentRequirednessChangedConvention(terminate: false);
         var convention2 = new ForeignKeyDependentRequirednessChangedConvention(terminate: true);
         var convention3 = new ForeignKeyDependentRequirednessChangedConvention(terminate: false);
-        conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention1);
-        conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention2);
-        conventions.ForeignKeyDependentRequirednessChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1447,6 +1592,9 @@ public class ConventionDispatcherTest
             foreignKey,
             dependentEntityBuilder.Metadata.RemoveForeignKey(
                 foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+
+        AssertSetOperations(new ForeignKeyDependentRequirednessChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyDependentRequirednessChangedConventions);
     }
 
     private class ForeignKeyDependentRequirednessChangedConvention : IForeignKeyDependentRequirednessChangedConvention
@@ -1486,9 +1634,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyOwnershipChangedConvention(terminate: false);
         var convention2 = new ForeignKeyOwnershipChangedConvention(terminate: true);
         var convention3 = new ForeignKeyOwnershipChangedConvention(terminate: false);
-        conventions.ForeignKeyOwnershipChangedConventions.Add(convention1);
-        conventions.ForeignKeyOwnershipChangedConventions.Add(convention2);
-        conventions.ForeignKeyOwnershipChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1550,6 +1698,9 @@ public class ConventionDispatcherTest
             foreignKey,
             dependentEntityBuilder.Metadata.RemoveForeignKey(
                 foreignKey.Properties, foreignKey.PrincipalKey, foreignKey.PrincipalEntityType));
+
+        AssertSetOperations(new ForeignKeyOwnershipChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyOwnershipChangedConventions);
     }
 
     private class ForeignKeyOwnershipChangedConvention : IForeignKeyOwnershipChangedConvention
@@ -1589,9 +1740,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyAnnotationChangedConvention(terminate: false);
         var convention2 = new ForeignKeyAnnotationChangedConvention(terminate: true);
         var convention3 = new ForeignKeyAnnotationChangedConvention(terminate: false);
-        conventions.ForeignKeyAnnotationChangedConventions.Add(convention1);
-        conventions.ForeignKeyAnnotationChangedConventions.Add(convention2);
-        conventions.ForeignKeyAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1650,6 +1801,9 @@ public class ConventionDispatcherTest
         foreignKey[CoreAnnotationNames.EagerLoaded] = true;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new ForeignKeyAnnotationChangedConvention(terminate: true),
+            conventions, conventions.ForeignKeyAnnotationChangedConventions);
     }
 
     private class ForeignKeyAnnotationChangedConvention : IForeignKeyAnnotationChangedConvention
@@ -1700,9 +1854,9 @@ public class ConventionDispatcherTest
         var convention1 = new ForeignKeyNullNavigationSetConvention(terminate: false);
         var convention2 = new ForeignKeyNullNavigationSetConvention(terminate: true);
         var convention3 = new ForeignKeyNullNavigationSetConvention(terminate: false);
-        conventions.ForeignKeyNullNavigationSetConventions.Add(convention1);
-        conventions.ForeignKeyNullNavigationSetConventions.Add(convention2);
-        conventions.ForeignKeyNullNavigationSetConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1741,6 +1895,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { true, false }, convention1.Calls);
         Assert.Equal(new[] { true, false }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ForeignKeyNullNavigationSetConvention(terminate: true),
+            conventions, conventions.ForeignKeyNullNavigationSetConventions);
     }
 
     private class ForeignKeyNullNavigationSetConvention : IForeignKeyNullNavigationSetConvention
@@ -1781,9 +1938,9 @@ public class ConventionDispatcherTest
         var convention1 = new NavigationAddedConvention(terminate: false);
         var convention2 = new NavigationAddedConvention(terminate: true);
         var convention3 = new NavigationAddedConvention(terminate: false);
-        conventions.NavigationAddedConventions.Add(convention1);
-        conventions.NavigationAddedConventions.Add(convention2);
-        conventions.NavigationAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1823,6 +1980,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { nameof(OrderDetails.Order), nameof(Order.OrderDetails) }, convention1.Calls);
         Assert.Equal(new[] { nameof(OrderDetails.Order), nameof(Order.OrderDetails) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new NavigationAddedConvention(terminate: true),
+            conventions, conventions.NavigationAddedConventions);
     }
 
     private class NavigationAddedConvention : INavigationAddedConvention
@@ -1874,9 +2034,9 @@ public class ConventionDispatcherTest
         var convention1 = new NavigationAnnotationChangedConvention(terminate: false);
         var convention2 = new NavigationAnnotationChangedConvention(terminate: true);
         var convention3 = new NavigationAnnotationChangedConvention(terminate: false);
-        conventions.NavigationAnnotationChangedConventions.Add(convention1);
-        conventions.NavigationAnnotationChangedConventions.Add(convention2);
-        conventions.NavigationAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -1936,6 +2096,9 @@ public class ConventionDispatcherTest
         navigation[CoreAnnotationNames.EagerLoaded] = true;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new NavigationAnnotationChangedConvention(terminate: true),
+            conventions, conventions.NavigationAnnotationChangedConventions);
     }
 
     private class NavigationAnnotationChangedConvention : INavigationAnnotationChangedConvention
@@ -1979,9 +2142,9 @@ public class ConventionDispatcherTest
         var convention1 = new NavigationRemovedConvention(terminate: false);
         var convention2 = new NavigationRemovedConvention(terminate: true);
         var convention3 = new NavigationRemovedConvention(terminate: false);
-        conventions.NavigationRemovedConventions.Add(convention1);
-        conventions.NavigationRemovedConventions.Add(convention2);
-        conventions.NavigationRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var principalEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2033,6 +2196,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { nameof(OrderDetails.Order) }, convention1.Calls);
         Assert.Equal(new[] { nameof(OrderDetails.Order) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new NavigationRemovedConvention(terminate: true),
+            conventions, conventions.NavigationRemovedConventions);
     }
 
     private class NavigationRemovedConvention : INavigationRemovedConvention
@@ -2075,9 +2241,9 @@ public class ConventionDispatcherTest
         var convention1 = new SkipNavigationAddedConvention(terminate: false);
         var convention2 = new SkipNavigationAddedConvention(terminate: true);
         var convention3 = new SkipNavigationAddedConvention(terminate: false);
-        conventions.SkipNavigationAddedConventions.Add(convention1);
-        conventions.SkipNavigationAddedConventions.Add(convention2);
-        conventions.SkipNavigationAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2108,6 +2274,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { nameof(Order.Products) }, convention1.Calls);
         Assert.Equal(new[] { nameof(Order.Products) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new SkipNavigationAddedConvention(terminate: true),
+            conventions, conventions.SkipNavigationAddedConventions);
     }
 
     private class SkipNavigationAddedConvention : ISkipNavigationAddedConvention
@@ -2149,9 +2318,9 @@ public class ConventionDispatcherTest
         var convention1 = new SkipNavigationAnnotationChangedConvention(terminate: false);
         var convention2 = new SkipNavigationAnnotationChangedConvention(terminate: true);
         var convention3 = new SkipNavigationAnnotationChangedConvention(terminate: false);
-        conventions.SkipNavigationAnnotationChangedConventions.Add(convention1);
-        conventions.SkipNavigationAnnotationChangedConventions.Add(convention2);
-        conventions.SkipNavigationAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2211,6 +2380,9 @@ public class ConventionDispatcherTest
         navigation[CoreAnnotationNames.EagerLoaded] = true;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new SkipNavigationAnnotationChangedConvention(terminate: true),
+            conventions, conventions.SkipNavigationAnnotationChangedConventions);
     }
 
     private class SkipNavigationAnnotationChangedConvention : ISkipNavigationAnnotationChangedConvention
@@ -2253,9 +2425,9 @@ public class ConventionDispatcherTest
         var convention1 = new SkipNavigationForeignKeyChangedConvention(terminate: false);
         var convention2 = new SkipNavigationForeignKeyChangedConvention(terminate: true);
         var convention3 = new SkipNavigationForeignKeyChangedConvention(terminate: false);
-        conventions.SkipNavigationForeignKeyChangedConventions.Add(convention1);
-        conventions.SkipNavigationForeignKeyChangedConventions.Add(convention2);
-        conventions.SkipNavigationForeignKeyChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2303,6 +2475,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { foreignKey, null }, convention1.Calls);
         Assert.Equal(new[] { foreignKey, null }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new SkipNavigationForeignKeyChangedConvention(terminate: true),
+            conventions, conventions.SkipNavigationForeignKeyChangedConventions);
     }
 
     private class SkipNavigationForeignKeyChangedConvention : ISkipNavigationForeignKeyChangedConvention
@@ -2349,9 +2524,9 @@ public class ConventionDispatcherTest
         var convention1 = new SkipNavigationInverseChangedConvention(terminate: false);
         var convention2 = new SkipNavigationInverseChangedConvention(terminate: true);
         var convention3 = new SkipNavigationInverseChangedConvention(terminate: false);
-        conventions.SkipNavigationInverseChangedConventions.Add(convention1);
-        conventions.SkipNavigationInverseChangedConventions.Add(convention2);
-        conventions.SkipNavigationInverseChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2401,6 +2576,9 @@ public class ConventionDispatcherTest
         }
 
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new SkipNavigationInverseChangedConvention(terminate: true),
+            conventions, conventions.SkipNavigationInverseChangedConventions);
     }
 
     private class SkipNavigationInverseChangedConvention : ISkipNavigationInverseChangedConvention
@@ -2440,9 +2618,9 @@ public class ConventionDispatcherTest
         var convention1 = new SkipNavigationRemovedConvention(terminate: false);
         var convention2 = new SkipNavigationRemovedConvention(terminate: true);
         var convention3 = new SkipNavigationRemovedConvention(terminate: false);
-        conventions.SkipNavigationRemovedConventions.Add(convention1);
-        conventions.SkipNavigationRemovedConventions.Add(convention2);
-        conventions.SkipNavigationRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var firstEntityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2474,6 +2652,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { nameof(Order.Products) }, convention1.Calls);
         Assert.Equal(new[] { nameof(Order.Products) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new SkipNavigationRemovedConvention(terminate: true),
+            conventions, conventions.SkipNavigationRemovedConventions);
     }
 
     private class SkipNavigationRemovedConvention : ISkipNavigationRemovedConvention
@@ -2514,9 +2695,9 @@ public class ConventionDispatcherTest
         var convention1 = new TriggerAddedConvention(terminate: false);
         var convention2 = new TriggerAddedConvention(terminate: true);
         var convention3 = new TriggerAddedConvention(terminate: false);
-        conventions.TriggerAddedConventions.Add(convention1);
-        conventions.TriggerAddedConventions.Add(convention2);
-        conventions.TriggerAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2546,6 +2727,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "MyTrigger" }, convention1.Calls);
         Assert.Equal(new[] { "MyTrigger" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new TriggerAddedConvention(terminate: true),
+            conventions, conventions.TriggerAddedConventions);
     }
 
     private class TriggerAddedConvention : ITriggerAddedConvention
@@ -2583,9 +2767,9 @@ public class ConventionDispatcherTest
         var convention1 = new TriggerRemovedConvention(terminate: false);
         var convention2 = new TriggerRemovedConvention(terminate: true);
         var convention3 = new TriggerRemovedConvention(terminate: false);
-        conventions.TriggerRemovedConventions.Add(convention1);
-        conventions.TriggerRemovedConventions.Add(convention2);
-        conventions.TriggerRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2615,6 +2799,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "MyTrigger" }, convention1.Calls);
         Assert.Equal(new[] { "MyTrigger" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new TriggerRemovedConvention(terminate: true),
+            conventions, conventions.TriggerRemovedConventions);
     }
 
     private class TriggerRemovedConvention : ITriggerRemovedConvention
@@ -2655,9 +2842,9 @@ public class ConventionDispatcherTest
         var convention1 = new KeyAddedConvention(terminate: false);
         var convention2 = new KeyAddedConvention(terminate: true);
         var convention3 = new KeyAddedConvention(terminate: false);
-        conventions.KeyAddedConventions.Add(convention1);
-        conventions.KeyAddedConventions.Add(convention2);
-        conventions.KeyAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2691,6 +2878,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { keyPropertyName }, convention1.Calls);
         Assert.Equal(new[] { keyPropertyName }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new KeyAddedConvention(terminate: true),
+            conventions, conventions.KeyAddedConventions);
     }
 
     private class KeyAddedConvention : IKeyAddedConvention
@@ -2727,9 +2917,9 @@ public class ConventionDispatcherTest
         var convention1 = new KeyRemovedConvention(terminate: false);
         var convention2 = new KeyRemovedConvention(terminate: true);
         var convention3 = new KeyRemovedConvention(terminate: false);
-        conventions.KeyRemovedConventions.Add(convention1);
-        conventions.KeyRemovedConventions.Add(convention2);
-        conventions.KeyRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
 
@@ -2754,6 +2944,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "OrderId" }, convention1.Calls);
         Assert.Equal(new[] { "OrderId" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new KeyRemovedConvention(terminate: true),
+            conventions, conventions.KeyRemovedConventions);
     }
 
     private class KeyRemovedConvention : IKeyRemovedConvention
@@ -2794,9 +2987,9 @@ public class ConventionDispatcherTest
         var convention1 = new KeyAnnotationChangedConvention(terminate: false);
         var convention2 = new KeyAnnotationChangedConvention(terminate: true);
         var convention3 = new KeyAnnotationChangedConvention(terminate: false);
-        conventions.KeyAnnotationChangedConventions.Add(convention1);
-        conventions.KeyAnnotationChangedConventions.Add(convention2);
-        conventions.KeyAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2854,6 +3047,9 @@ public class ConventionDispatcherTest
         key[CoreAnnotationNames.Unicode] = false;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new KeyAnnotationChangedConvention(terminate: true),
+            conventions, conventions.KeyAnnotationChangedConventions);
     }
 
     private class KeyAnnotationChangedConvention : IKeyAnnotationChangedConvention
@@ -2896,9 +3092,9 @@ public class ConventionDispatcherTest
         var convention1 = new IndexAddedConvention(terminate: false);
         var convention2 = new IndexAddedConvention(terminate: true);
         var convention3 = new IndexAddedConvention(terminate: false);
-        conventions.IndexAddedConventions.Add(convention1);
-        conventions.IndexAddedConventions.Add(convention2);
-        conventions.IndexAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2931,6 +3127,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "OrderId" }, convention1.Calls);
         Assert.Equal(new[] { "OrderId" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new IndexAddedConvention(terminate: true),
+            conventions, conventions.IndexAddedConventions);
     }
 
     private class IndexAddedConvention : IIndexAddedConvention
@@ -2967,9 +3166,9 @@ public class ConventionDispatcherTest
         var convention1 = new IndexRemovedConvention(terminate: false);
         var convention2 = new IndexRemovedConvention(terminate: true);
         var convention3 = new IndexRemovedConvention(terminate: false);
-        conventions.IndexRemovedConventions.Add(convention1);
-        conventions.IndexRemovedConventions.Add(convention2);
-        conventions.IndexRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -2999,6 +3198,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { "OrderId" }, convention1.Calls);
         Assert.Equal(new[] { "OrderId" }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new IndexRemovedConvention(terminate: true),
+            conventions, conventions.IndexRemovedConventions);
     }
 
     private class IndexRemovedConvention : IIndexRemovedConvention
@@ -3039,9 +3241,9 @@ public class ConventionDispatcherTest
         var convention1 = new IndexUniquenessChangedConvention(terminate: false);
         var convention2 = new IndexUniquenessChangedConvention(terminate: true);
         var convention3 = new IndexUniquenessChangedConvention(terminate: false);
-        conventions.IndexUniquenessChangedConventions.Add(convention1);
-        conventions.IndexUniquenessChangedConventions.Add(convention2);
-        conventions.IndexUniquenessChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3097,6 +3299,9 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
 
         Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
+
+        AssertSetOperations(new IndexUniquenessChangedConvention(terminate: true),
+            conventions, conventions.IndexUniquenessChangedConventions);
     }
 
     private class IndexUniquenessChangedConvention : IIndexUniquenessChangedConvention
@@ -3137,9 +3342,9 @@ public class ConventionDispatcherTest
         var convention1 = new IndexSortOrderChangedConvention(terminate: false);
         var convention2 = new IndexSortOrderChangedConvention(terminate: true);
         var convention3 = new IndexSortOrderChangedConvention(terminate: false);
-        conventions.IndexSortOrderChangedConventions.Add(convention1);
-        conventions.IndexSortOrderChangedConventions.Add(convention2);
-        conventions.IndexSortOrderChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention)!;
@@ -3194,6 +3399,9 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
 
         Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
+
+        AssertSetOperations(new IndexSortOrderChangedConvention(terminate: true),
+            conventions, conventions.IndexSortOrderChangedConventions);
     }
 
     private class IndexSortOrderChangedConvention : IIndexSortOrderChangedConvention
@@ -3234,9 +3442,9 @@ public class ConventionDispatcherTest
         var convention1 = new IndexAnnotationChangedConvention(terminate: false);
         var convention2 = new IndexAnnotationChangedConvention(terminate: true);
         var convention3 = new IndexAnnotationChangedConvention(terminate: false);
-        conventions.IndexAnnotationChangedConventions.Add(convention1);
-        conventions.IndexAnnotationChangedConventions.Add(convention2);
-        conventions.IndexAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var indexBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -3293,6 +3501,9 @@ public class ConventionDispatcherTest
         indexBuilder.Metadata[CoreAnnotationNames.MaxLength] = 20;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new IndexAnnotationChangedConvention(terminate: true),
+            conventions, conventions.IndexAnnotationChangedConventions);
     }
 
     private class IndexAnnotationChangedConvention : IIndexAnnotationChangedConvention
@@ -3335,9 +3546,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyAddedConvention(terminate: false);
         var convention2 = new PropertyAddedConvention(terminate: true);
         var convention3 = new PropertyAddedConvention(terminate: false);
-        conventions.PropertyAddedConventions.Add(convention1);
-        conventions.PropertyAddedConventions.Add(convention2);
-        conventions.PropertyAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3397,6 +3608,9 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
 
         Assert.Empty(entityBuilder.Metadata.GetProperties());
+
+        AssertSetOperations(new PropertyAddedConvention(terminate: true),
+            conventions, conventions.PropertyAddedConventions);
     }
 
     private class PropertyAddedConvention : IPropertyAddedConvention
@@ -3437,9 +3651,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyNullabilityChangedConvention(false);
         var convention2 = new PropertyNullabilityChangedConvention(true);
         var convention3 = new PropertyNullabilityChangedConvention(false);
-        conventions.PropertyNullabilityChangedConventions.Add(convention1);
-        conventions.PropertyNullabilityChangedConventions.Add(convention2);
-        conventions.PropertyNullabilityChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var model = new Model(conventions);
 
@@ -3536,6 +3750,9 @@ public class ConventionDispatcherTest
         }
 
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new PropertyNullabilityChangedConvention(terminate: true),
+            conventions, conventions.PropertyNullabilityChangedConventions);
     }
 
     private class PropertyNullabilityChangedConvention : IPropertyNullabilityChangedConvention
@@ -3573,9 +3790,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyFieldChangedConvention(terminate: false);
         var convention2 = new PropertyFieldChangedConvention(terminate: true);
         var convention3 = new PropertyFieldChangedConvention(terminate: false);
-        conventions.PropertyFieldChangedConventions.Add(convention1);
-        conventions.PropertyFieldChangedConventions.Add(convention2);
-        conventions.PropertyFieldChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3634,6 +3851,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { null, nameof(Order.IntField) }, convention1.Calls);
         Assert.Equal(new[] { null, nameof(Order.IntField) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new PropertyFieldChangedConvention(terminate: true),
+            conventions, conventions.PropertyFieldChangedConventions);
     }
 
     private class PropertyFieldChangedConvention : IPropertyFieldChangedConvention
@@ -3675,9 +3895,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyElementTypeChangedConvention(terminate: false);
         var convention2 = new PropertyElementTypeChangedConvention(terminate: true);
         var convention3 = new PropertyElementTypeChangedConvention(terminate: false);
-        conventions.PropertyElementTypeChangedConventions.Add(convention1);
-        conventions.PropertyElementTypeChangedConventions.Add(convention2);
-        conventions.PropertyElementTypeChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention)!;
@@ -3734,6 +3954,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention1.Calls);
         Assert.Equal(new (object, object)[] { (null, elementType), (elementType, null) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new PropertyElementTypeChangedConvention(terminate: true),
+            conventions, conventions.PropertyElementTypeChangedConventions);
     }
 
     private class PropertyElementTypeChangedConvention : IPropertyElementTypeChangedConvention
@@ -3775,9 +3998,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyAnnotationChangedConvention(false);
         var convention2 = new PropertyAnnotationChangedConvention(true);
         var convention3 = new PropertyAnnotationChangedConvention(false);
-        conventions.PropertyAnnotationChangedConventions.Add(convention1);
-        conventions.PropertyAnnotationChangedConventions.Add(convention2);
-        conventions.PropertyAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -3834,6 +4057,9 @@ public class ConventionDispatcherTest
         propertyBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new PropertyAnnotationChangedConvention(terminate: true),
+            conventions, conventions.PropertyAnnotationChangedConventions);
     }
 
     private class PropertyAnnotationChangedConvention : IPropertyAnnotationChangedConvention
@@ -3874,9 +4100,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyRemovedConvention(terminate: false);
         var convention2 = new PropertyRemovedConvention(terminate: true);
         var convention3 = new PropertyRemovedConvention(terminate: false);
-        conventions.PropertyRemovedConventions.Add(convention1);
-        conventions.PropertyRemovedConventions.Add(convention2);
-        conventions.PropertyRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -3907,6 +4133,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { property }, convention1.Calls);
         Assert.Equal(new[] { property }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new PropertyRemovedConvention(terminate: true),
+            conventions, conventions.PropertyRemovedConventions);
     }
 
     private class PropertyRemovedConvention : IPropertyRemovedConvention
@@ -3947,9 +4176,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyAddedConvention(terminate: false);
         var convention2 = new PropertyAddedConvention(terminate: true);
         var convention3 = new PropertyAddedConvention(terminate: false);
-        conventions.PropertyAddedConventions.Add(convention1);
-        conventions.PropertyAddedConventions.Add(convention2);
-        conventions.PropertyAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4028,9 +4257,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyNullabilityChangedConvention(false);
         var convention2 = new PropertyNullabilityChangedConvention(true);
         var convention3 = new PropertyNullabilityChangedConvention(false);
-        conventions.PropertyNullabilityChangedConventions.Add(convention1);
-        conventions.PropertyNullabilityChangedConventions.Add(convention2);
-        conventions.PropertyNullabilityChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var model = new Model(conventions);
 
@@ -4143,9 +4372,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyFieldChangedConvention(terminate: false);
         var convention2 = new PropertyFieldChangedConvention(terminate: true);
         var convention3 = new PropertyFieldChangedConvention(terminate: false);
-        conventions.PropertyFieldChangedConventions.Add(convention1);
-        conventions.PropertyFieldChangedConventions.Add(convention2);
-        conventions.PropertyFieldChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4221,9 +4450,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyAnnotationChangedConvention(false);
         var convention2 = new PropertyAnnotationChangedConvention(true);
         var convention3 = new PropertyAnnotationChangedConvention(false);
-        conventions.PropertyAnnotationChangedConventions.Add(convention1);
-        conventions.PropertyAnnotationChangedConventions.Add(convention2);
-        conventions.PropertyAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -4294,9 +4523,9 @@ public class ConventionDispatcherTest
         var convention1 = new PropertyRemovedConvention(terminate: false);
         var convention2 = new PropertyRemovedConvention(terminate: true);
         var convention3 = new PropertyRemovedConvention(terminate: false);
-        conventions.PropertyRemovedConventions.Add(convention1);
-        conventions.PropertyRemovedConventions.Add(convention2);
-        conventions.PropertyRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4343,9 +4572,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexPropertyAddedConvention(terminate: false);
         var convention2 = new ComplexPropertyAddedConvention(terminate: true);
         var convention3 = new ComplexPropertyAddedConvention(terminate: false);
-        conventions.ComplexPropertyAddedConventions.Add(convention1);
-        conventions.ComplexPropertyAddedConventions.Add(convention2);
-        conventions.ComplexPropertyAddedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4408,6 +4637,9 @@ public class ConventionDispatcherTest
         Assert.Empty(convention3.Calls);
 
         Assert.Empty(entityBuilder.Metadata.GetComplexProperties());
+
+        AssertSetOperations(new ComplexPropertyAddedConvention(terminate: true),
+            conventions, conventions.ComplexPropertyAddedConventions);
     }
 
     private class ComplexPropertyAddedConvention : IComplexPropertyAddedConvention
@@ -4448,9 +4680,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexPropertyNullabilityChangedConvention(false);
         var convention2 = new ComplexPropertyNullabilityChangedConvention(true);
         var convention3 = new ComplexPropertyNullabilityChangedConvention(false);
-        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention1);
-        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention2);
-        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var model = new Model(conventions);
 
@@ -4547,6 +4779,9 @@ public class ConventionDispatcherTest
         }
 
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ComplexPropertyNullabilityChangedConvention(terminate: true),
+            conventions, conventions.ComplexPropertyNullabilityChangedConventions);
     }
 
     private class ComplexPropertyNullabilityChangedConvention : IComplexPropertyNullabilityChangedConvention
@@ -4584,9 +4819,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexPropertyFieldChangedConvention(terminate: false);
         var convention2 = new ComplexPropertyFieldChangedConvention(terminate: true);
         var convention3 = new ComplexPropertyFieldChangedConvention(terminate: false);
-        conventions.ComplexPropertyFieldChangedConventions.Add(convention1);
-        conventions.ComplexPropertyFieldChangedConventions.Add(convention2);
-        conventions.ComplexPropertyFieldChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4646,6 +4881,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { null, nameof(Order.OrderDetailsField) }, convention1.Calls);
         Assert.Equal(new[] { null, nameof(Order.OrderDetailsField) }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ComplexPropertyFieldChangedConvention(terminate: true),
+            conventions, conventions.ComplexPropertyFieldChangedConventions);
     }
 
     private class ComplexPropertyFieldChangedConvention : IComplexPropertyFieldChangedConvention
@@ -4687,9 +4925,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexPropertyAnnotationChangedConvention(false);
         var convention2 = new ComplexPropertyAnnotationChangedConvention(true);
         var convention3 = new ComplexPropertyAnnotationChangedConvention(false);
-        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention1);
-        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention2);
-        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -4746,6 +4984,9 @@ public class ConventionDispatcherTest
         propertyBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new ComplexPropertyAnnotationChangedConvention(terminate: true),
+            conventions, conventions.ComplexPropertyAnnotationChangedConventions);
     }
 
     private class ComplexPropertyAnnotationChangedConvention : IComplexPropertyAnnotationChangedConvention
@@ -4786,9 +5027,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexPropertyRemovedConvention(terminate: false);
         var convention2 = new ComplexPropertyRemovedConvention(terminate: true);
         var convention3 = new ComplexPropertyRemovedConvention(terminate: false);
-        conventions.ComplexPropertyRemovedConventions.Add(convention1);
-        conventions.ComplexPropertyRemovedConventions.Add(convention2);
-        conventions.ComplexPropertyRemovedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -4819,6 +5060,9 @@ public class ConventionDispatcherTest
         Assert.Equal(new[] { property }, convention1.Calls);
         Assert.Equal(new[] { property }, convention2.Calls);
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ComplexPropertyRemovedConvention(terminate: true),
+            conventions, conventions.ComplexPropertyRemovedConventions);
     }
 
     private class ComplexPropertyRemovedConvention : IComplexPropertyRemovedConvention
@@ -4859,9 +5103,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexTypeAnnotationChangedConvention(false);
         var convention2 = new ComplexTypeAnnotationChangedConvention(true);
         var convention3 = new ComplexTypeAnnotationChangedConvention(false);
-        conventions.ComplexTypeAnnotationChangedConventions.Add(convention1);
-        conventions.ComplexTypeAnnotationChangedConventions.Add(convention2);
-        conventions.ComplexTypeAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var typeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
@@ -4919,6 +5163,9 @@ public class ConventionDispatcherTest
         typeBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new ComplexTypeAnnotationChangedConvention(terminate: true),
+            conventions, conventions.ComplexTypeAnnotationChangedConventions);
     }
 
     private class ComplexTypeAnnotationChangedConvention : IComplexTypeAnnotationChangedConvention
@@ -4961,9 +5208,9 @@ public class ConventionDispatcherTest
         var convention1 = new ComplexTypeMemberIgnoredConvention(terminate: false);
         var convention2 = new ComplexTypeMemberIgnoredConvention(terminate: true);
         var convention3 = new ComplexTypeMemberIgnoredConvention(terminate: false);
-        conventions.ComplexTypeMemberIgnoredConventions.Add(convention1);
-        conventions.ComplexTypeMemberIgnoredConventions.Add(convention2);
-        conventions.ComplexTypeMemberIgnoredConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
@@ -5022,6 +5269,9 @@ public class ConventionDispatcherTest
         }
 
         Assert.Empty(entityBuilder.Metadata.GetIgnoredMembers());
+
+        AssertSetOperations(new ComplexTypeMemberIgnoredConvention(terminate: true),
+            conventions, conventions.ComplexTypeMemberIgnoredConventions);
     }
 
     private class ComplexTypeMemberIgnoredConvention : IComplexTypeMemberIgnoredConvention
@@ -5062,9 +5312,9 @@ public class ConventionDispatcherTest
         var convention1 = new ElementTypeAnnotationChangedConvention(false);
         var convention2 = new ElementTypeAnnotationChangedConvention(true);
         var convention3 = new ElementTypeAnnotationChangedConvention(false);
-        conventions.ElementTypeAnnotationChangedConventions.Add(convention1);
-        conventions.ElementTypeAnnotationChangedConventions.Add(convention2);
-        conventions.ElementTypeAnnotationChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var elementTypeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)!
@@ -5122,6 +5372,9 @@ public class ConventionDispatcherTest
         elementTypeBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
 
         Assert.Equal(new[] { "bar", null }, convention1.Calls);
+
+        AssertSetOperations(new ElementTypeAnnotationChangedConvention(terminate: true),
+            conventions, conventions.ElementTypeAnnotationChangedConventions);
     }
 
     private class ElementTypeAnnotationChangedConvention : IElementTypeAnnotationChangedConvention
@@ -5164,9 +5417,9 @@ public class ConventionDispatcherTest
         var convention1 = new ElementTypeNullabilityChangedConvention(false);
         var convention2 = new ElementTypeNullabilityChangedConvention(true);
         var convention3 = new ElementTypeNullabilityChangedConvention(false);
-        conventions.ElementTypeNullabilityChangedConventions.Add(convention1);
-        conventions.ElementTypeNullabilityChangedConventions.Add(convention2);
-        conventions.ElementTypeNullabilityChangedConventions.Add(convention3);
+        conventions.Add(convention1);
+        conventions.Add(convention2);
+        conventions.Add(convention3);
 
         var model = new Model(conventions);
         var scope = useScope ? model.DelayConventions() : null;
@@ -5265,6 +5518,9 @@ public class ConventionDispatcherTest
         }
 
         Assert.Empty(convention3.Calls);
+
+        AssertSetOperations(new ElementTypeNullabilityChangedConvention(terminate: true),
+            conventions, conventions.ElementTypeNullabilityChangedConventions);
     }
 
     private class ElementTypeNullabilityChangedConvention : IElementTypeNullabilityChangedConvention
@@ -5288,6 +5544,19 @@ public class ConventionDispatcherTest
                 context.StopProcessing();
             }
         }
+    }
+
+    private static void AssertSetOperations<TConvention>(
+        TConvention newConvention, ConventionSet conventions, List<TConvention> conventionList)
+        where TConvention : class, IConvention
+    {
+        Assert.Equal(3, conventionList.Count);
+        conventions.Replace(newConvention);
+        Assert.Equal(3, conventionList.Count);
+        Assert.All(conventionList, c => Assert.Same(newConvention, c));
+
+        conventions.Remove(newConvention.GetType());
+        Assert.Empty(conventionList);
     }
 
     private class Order
