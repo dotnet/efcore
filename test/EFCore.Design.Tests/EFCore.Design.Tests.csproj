@@ -14,6 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Scaffolding\Internal\Baselines\**\*" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Include="Scaffolding\Internal\Baselines\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
