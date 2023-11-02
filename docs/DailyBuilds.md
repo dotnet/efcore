@@ -2,6 +2,8 @@
 
 ## Quick-start
 
+> IMPORTANT: Until EF8 ships, use build "8.0.0-rtm.23517.11" or the latest EF9 build, since the current EF8 GA builds cannot be used publicly.
+
 Create a file called "NuGet.config" with the following contents and put it next to your solution or csproj file:
 
 ```xml
