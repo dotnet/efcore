@@ -510,9 +510,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeTypeBase runtimeEntityType)
+    private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeTypeBase runtimeStructuralType)
     {
-        var runtimeComplexProperty = runtimeEntityType.AddComplexProperty(
+        var runtimeComplexProperty = runtimeStructuralType.AddComplexProperty(
             complexProperty.Name,
             complexProperty.ClrType,
             complexProperty.ComplexType.Name,
@@ -556,6 +556,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                     convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
         }
 
+        CreateAnnotations(
+            complexType, runtimeComplexType, static (convention, annotations, source, target, runtime) =>
+                convention.ProcessComplexTypeAnnotations(annotations, source, target, runtime));
         return runtimeComplexProperty;
     }
 
@@ -570,6 +573,31 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         Dictionary<string, object?> annotations,
         IComplexProperty property,
         RuntimeComplexProperty runtimeProperty,
+        bool runtime)
+    {
+        if (!runtime)
+        {
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Updates the complex type annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="complexType">The source complex type.</param>
+    /// <param name="runtimeComplexType">The target complex type that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessComplexTypeAnnotations(
+        Dictionary<string, object?> annotations,
+        IComplexType complexType,
+        RuntimeComplexType runtimeComplexType,
         bool runtime)
     {
         if (!runtime)

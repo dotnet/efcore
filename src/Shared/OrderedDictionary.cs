@@ -312,6 +312,15 @@ namespace Microsoft.EntityFrameworkCore.Utilities
         /// <param name="key">The key of the element to insert.</param>
         /// <param name="value">The value of the element to insert.</param>
         public void Insert(TKey key, TValue value)
+            => Insert(key, value, Comparer<TKey>.Default);
+
+        /// <summary>
+        /// Inserts the element in this sorted dictionary to the corresponding index using the default comparer.
+        /// </summary>
+        /// <param name="key">The key of the element to insert.</param>
+        /// <param name="value">The value of the element to insert.</param>
+        /// <param name="comparer">The comparer to use.</param>
+        public void Insert(TKey key, TValue value, IComparer<TKey> comparer)
         {
             var existingIndex = IndexOf(key, out var hashCode);
             if (existingIndex >= 0)
@@ -319,7 +328,6 @@ namespace Microsoft.EntityFrameworkCore.Utilities
                 throw new ArgumentException($"Key {key} is already present");
             }
 
-            var comparer = Comparer<TKey>.Default;
             for (var i = _count - 1; i >= 0; i--)
             {
                 if (comparer.Compare(key, _entries[i].Key) >= 0)

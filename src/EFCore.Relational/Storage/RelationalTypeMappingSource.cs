@@ -343,66 +343,34 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     {
         type = type.UnwrapNullableType();
         var typeConfiguration = model.FindTypeMappingConfiguration(type);
-        RelationalTypeMappingInfo mappingInfo;
-        Type? providerClrType = null;
-        ValueConverter? customConverter = null;
-        if (typeConfiguration == null)
+        if (typeConfiguration != null)
         {
-            mappingInfo = new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping);
-        }
-        else
-        {
-            providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
-            customConverter = typeConfiguration.GetValueConverter();
-
-            var isUnicode = typeConfiguration.IsUnicode();
-            var scale = typeConfiguration.GetScale();
-            var precision = typeConfiguration.GetPrecision();
-            var size = typeConfiguration.GetMaxLength();
-
+            bool? unicode = null;
+            int? scale = null;
+            int? precision = null;
+            int? size = null;
+            string? storeTypeNameBase = null;
             var storeTypeName = (string?)typeConfiguration[RelationalAnnotationNames.ColumnType];
-            string? storeTypeBaseName = null;
             if (storeTypeName != null)
             {
-                storeTypeBaseName = ParseStoreTypeName(storeTypeName, ref isUnicode, ref size, ref precision, ref scale);
+                storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
             }
 
-            var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
-            mappingInfo = new RelationalTypeMappingInfo(
-                customConverter?.ProviderClrType ?? type,
-                (RelationalTypeMapping?)elementMapping,
-                storeTypeName,
-                storeTypeBaseName,
-                keyOrIndex: false,
-                unicode: isUnicode,
-                size: size,
-                rowVersion: false,
-                fixedLength: isFixedLength,
-                precision: precision,
-                scale: scale);
+            var mappingInfo = new RelationalTypeMappingInfo(type, typeConfiguration, (RelationalTypeMapping?)elementMapping,
+                storeTypeName, storeTypeNameBase, unicode, size, precision, scale);
+            var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+            return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
         }
 
-        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+        return FindMappingWithConversion(
+            new RelationalTypeMappingInfo(type, (RelationalTypeMapping?)elementMapping),
+            providerClrType: null,
+            customConverter: null);
     }
 
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///         call <see cref="FindMapping(IProperty)" />
-    ///     </para>
-    ///     <para>
-    ///         Note: providers should typically not need to override this method.
-    ///     </para>
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    /// <inheritdoc/>
     public override RelationalTypeMapping? FindMapping(MemberInfo member)
     {
-        // TODO: Remove this, see #11124
         if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
         {
             var storeTypeName = attribute.TypeName;
@@ -417,7 +385,27 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
                 new RelationalTypeMappingInfo(member, null, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
         }
 
-        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null);
+        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null, null);
+    }
+
+    /// <inheritdoc/>
+    public override RelationalTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
+    {
+        if (useAttributes
+            && member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
+        {
+            var storeTypeName = attribute.TypeName;
+            bool? unicode = null;
+            int? size = null;
+            int? precision = null;
+            int? scale = null;
+            var storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
+
+            return FindMappingWithConversion(
+                new RelationalTypeMappingInfo(member, null, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
+        }
+
+        return FindMappingWithConversion(new RelationalTypeMappingInfo(member), null, null);
     }
 
     /// <summary>

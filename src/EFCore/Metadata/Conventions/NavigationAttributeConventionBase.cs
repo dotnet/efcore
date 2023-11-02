@@ -310,7 +310,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionModel model)
     {
-        var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, out _);
+        var targetClrType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(propertyInfo, model, useAttributes: true, out _);
         return targetClrType != null
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? targetClrType
@@ -318,7 +318,7 @@ public abstract class NavigationAttributeConventionBase<TAttribute>
     }
 
     private Type? FindCandidateNavigationWithAttributePropertyType(PropertyInfo propertyInfo, IConventionEntityType entityType)
-        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType)
+        => Dependencies.MemberClassifier.GetNavigationCandidates(entityType, useAttributes: true)
                 .TryGetValue(propertyInfo, out var target)
             && Attribute.IsDefined(propertyInfo, typeof(TAttribute), inherit: true)
                 ? target.Type
