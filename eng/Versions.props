@@ -26,9 +26,6 @@
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>9.0.0-alpha.1.23556.1</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>9.0.0-alpha.1.23556.1</MicrosoftExtensionsLoggingVersion>
     <SystemTextJsonVersion>9.0.0-alpha.1.23556.1</SystemTextJsonVersion>
-    <MicrosoftNETCoreAppRefVersion>9.0.0-alpha.1.23556.1</MicrosoftNETCoreAppRefVersion>
-    <MicrosoftNETCoreAppRuntimewinx64Version>9.0.0-alpha.1.23556.1</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>9.0.0-alpha.1.23556.1</MicrosoftNETCoreBrowserDebugHostTransportVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>9.0.0-beta.23553.1</MicrosoftDotNetBuildTasksTemplatingVersion>
