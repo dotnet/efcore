@@ -3072,4 +3072,36 @@ public class RelationalScaffoldingModelFactoryTest
                 }
             );
     }
+
+    [ConditionalFact]
+    public void Computed_column_when_sql_unknown()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Database = Database,
+                    Name = "Table",
+                    Columns =
+                    {
+                        IdColumn,
+                        new DatabaseColumn
+                        {
+                            Table = Table,
+                            Name = "Column",
+                            StoreType = "int",
+                            ComputedColumnSql = string.Empty
+                        }
+                    }
+                }
+            }
+        };
+
+        var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+        var column = model.FindEntityType("Table").GetProperty("Column");
+        Assert.Empty(column.GetComputedColumnSql());
+    }
 }
