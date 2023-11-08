@@ -14,6 +14,15 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly bool UseOldBehavior32235 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32235", out var enabled32235) && enabled32235;
+
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         /// <summary>
@@ -58,6 +67,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly FieldInfo Utf8JsonReaderManagerCurrentReaderField
             = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader))!;
+
+        private static readonly MethodInfo Utf8JsonReaderManagerSkipMethod
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), Array.Empty<Type>())!;
 
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), new[] { typeof(ReadOnlySpan<byte>) })!;
@@ -1830,9 +1842,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Switch(
                             tokenTypeVariable,
                             Block(
-                                Call(
-                                    Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderTrySkipMethod),
+                                UseOldBehavior32235
+                                    ? Call(
+                                        Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
+                                        Utf8JsonReaderTrySkipMethod)
+                                    : Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
                                 Default(typeof(void))),
                             SwitchCase(
                                 testExpression,

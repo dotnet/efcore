@@ -128,6 +128,14 @@ N'{{""Name"":""r1"",""JunkCollection"":[{{""Foo"":""junk value""}}],""JunkRefere
 N'{{""MyBool"":true,""JunkCollection"":[{{""Foo"":""junk value""}}],""Name"":""r1 ctor"",""JunkReference"":{{""Something"":""SomeValue"" }},""NestedCollection"":[{{""DoB"":""2001-02-01T00:00:00""}},{{""DoB"":""2001-02-02T00:00:00""}}],""NestedReference"":{{""JunkCollection"":[{{""Foo"":""junk value""}}],""DoB"":""2001-01-01T00:00:00""}}}}',
 1)");
 
+    protected override void SeedTrickyBuffering(MyContextTrickyBuffering ctx)
+        => ctx.Database.ExecuteSqlRaw(
+"""
+INSERT INTO [Entities] ([Reference], [Id])
+VALUES(
+N'{{"Name": "r1", "Number": 7, "JunkReference":{{"Something": "SomeValue" }}, "JunkCollection": [{{"Foo": "junk value"}}], "NestedReference": {{"DoB": "2000-01-01T00:00:00"}}, "NestedCollection": [{{"DoB": "2000-02-01T00:00:00", "JunkReference": {{"Something": "SomeValue"}}}}, {{"DoB": "2000-02-02T00:00:00"}}]}}',1)
+""");
+
     protected override void SeedShadowProperties(MyContextShadowProperties ctx)
         => ctx.Database.ExecuteSqlRaw(
             @"INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id], [Name])

@@ -554,6 +554,76 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region TrickyBuffering
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Tricky_buffering_basic(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContextTrickyBuffering>(
+            seed: SeedTrickyBuffering);
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.Entities;
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+
+            Assert.Equal(1, result.Count);
+            Assert.Equal("r1", result[0].Reference.Name);
+            Assert.Equal(7, result[0].Reference.Number);
+            Assert.Equal(new DateTime(2000, 1, 1), result[0].Reference.NestedReference.DoB);
+            Assert.Equal(2, result[0].Reference.NestedCollection.Count);
+        }
+    }
+
+    protected abstract void SeedTrickyBuffering(MyContextTrickyBuffering ctx);
+
+    protected class MyContextTrickyBuffering : DbContext
+    {
+        public MyContextTrickyBuffering(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<MyEntityTrickyBuffering> Entities { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MyEntityTrickyBuffering>().Property(x => x.Id).ValueGeneratedNever();
+            modelBuilder.Entity<MyEntityTrickyBuffering>().OwnsOne(
+                x => x.Reference, b =>
+                {
+                    b.ToJson();
+                    b.OwnsOne(x => x.NestedReference);
+                    b.OwnsMany(x => x.NestedCollection);
+                });
+        }
+    }
+
+    public class MyEntityTrickyBuffering
+    {
+        public int Id { get; set; }
+        public MyJsonEntityTrickyBuffering Reference { get; set; }
+    }
+
+    public class MyJsonEntityTrickyBuffering
+    {
+        public string Name { get; set; }
+        public int Number { get; set; }
+        public MyJsonEntityJunkInJsonNested NestedReference { get; set; }
+        public List<MyJsonEntityJunkInJsonNested> NestedCollection { get; set; }
+    }
+
+    public class MyJsonEntityTrickyBufferingNested
+    {
+        public DateTime DoB { get; set; }
+    }
+
+    #endregion
+
     #region ShadowProperties
 
     [ConditionalTheory]

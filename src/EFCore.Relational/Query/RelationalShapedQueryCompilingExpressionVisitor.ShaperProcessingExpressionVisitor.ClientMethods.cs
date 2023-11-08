@@ -955,6 +955,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     tokenType = manager.MoveNext();
                 }
+                else if (!UseOldBehavior32235)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                }
             }
 
             manager.CaptureState();
@@ -1042,6 +1047,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
 
                     tokenType = manager.MoveNext();
+                }
+                else if (!UseOldBehavior32235)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
                 }
             }
 

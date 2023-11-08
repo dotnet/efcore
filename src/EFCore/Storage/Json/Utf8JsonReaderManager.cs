@@ -56,6 +56,18 @@ public ref struct Utf8JsonReaderManager
     }
 
     /// <summary>
+    ///     Skips the children of the current JSON token, which may involve reading more data from the stream and creating a new <see cref="Utf8JsonReader " />
+    ///     instance in <see cref="CurrentReader" />.
+    /// </summary>
+    public void Skip()
+    {
+        while (!CurrentReader.TrySkip())
+        {
+            CurrentReader = Data.ReadBytes((int)CurrentReader.BytesConsumed, CurrentReader.CurrentState);
+        }
+    }
+
+    /// <summary>
     ///     Called to capture the state of this <see cref="Utf8JsonReaderManager" /> into the associated <see cref="JsonReaderData" /> so
     ///     that a new <see cref="Utf8JsonReaderManager" /> can later be created to pick up at the same position in the JSON document.
     /// </summary>
