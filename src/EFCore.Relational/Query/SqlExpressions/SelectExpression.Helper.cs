@@ -370,6 +370,53 @@ public sealed partial class SelectExpression
         }
     }
 
+    // Note: this is conceptually the same as ColumnExpressionReplacingExpressionVisitor; I duplicated it since this is for a patch,
+    // and we want to limit the potential risk (note that this calls the special SelectExpression.VisitChildren() with updateColumns: false,
+    // to avoid infinite recursion).
+    private sealed class ColumnTableReferenceUpdater : ExpressionVisitor
+    {
+        private readonly SelectExpression _oldSelect;
+        private readonly SelectExpression _newSelect;
+
+        public ColumnTableReferenceUpdater(SelectExpression oldSelect, SelectExpression newSelect)
+        {
+            _oldSelect = oldSelect;
+            _newSelect = newSelect;
+        }
+
+        [return: NotNullIfNotNull("expression")]
+        public override Expression? Visit(Expression? expression)
+        {
+            if (expression is ConcreteColumnExpression columnExpression
+                && _oldSelect._tableReferences.Find(t => ReferenceEquals(t.Table, columnExpression.Table)) is TableReferenceExpression
+                    oldTableReference
+                && _newSelect._tableReferences.Find(t => t.Alias == columnExpression.TableAlias) is TableReferenceExpression
+                    newTableReference
+                && newTableReference != oldTableReference)
+            {
+                return new ConcreteColumnExpression(
+                    columnExpression.Name,
+                    newTableReference,
+                    columnExpression.Type,
+                    columnExpression.TypeMapping!,
+                    columnExpression.IsNullable);
+            }
+
+            return base.Visit(expression);
+        }
+
+        protected override Expression VisitExtension(Expression node)
+        {
+            if (node is SelectExpression select)
+            {
+                Check.DebugAssert(!select._mutable, "Visiting mutable select expression in ColumnTableReferenceUpdater");
+                return select.VisitChildren(this, updateColumns: false);
+            }
+
+            return base.VisitExtension(node);
+        }
+    }
+
     private sealed class IdentifierComparer : IEqualityComparer<(ColumnExpression Column, ValueComparer Comparer)>
     {
         public bool Equals((ColumnExpression Column, ValueComparer Comparer) x, (ColumnExpression Column, ValueComparer Comparer) y)
