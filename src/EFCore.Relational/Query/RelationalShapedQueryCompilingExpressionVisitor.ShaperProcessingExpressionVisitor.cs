@@ -14,15 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior32235 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32235", out var enabled32235) && enabled32235;
-
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         /// <summary>
@@ -1842,7 +1833,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Switch(
                             tokenTypeVariable,
                             Block(
-                                UseOldBehavior32235
+                                Utf8JsonReaderManager.UseOldBehavior32235
                                     ? Call(
                                         Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
                                         Utf8JsonReaderTrySkipMethod)

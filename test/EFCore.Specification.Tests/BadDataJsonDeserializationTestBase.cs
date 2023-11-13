@@ -63,7 +63,6 @@ public abstract class BadDataJsonDeserializationTestBase
     [InlineData("""{"Prop":[-128,],23]}""")]
     [InlineData("""{"Prop":[-128,},23]}""")]
     [InlineData("""{"Prop":[-128,,23]}""")]
-    [InlineData("""{"Prop":[-128,,23]}""")]
     public virtual void Throws_for_bad_collection_of_sbyte_JSON_values(string json)
         => Throws_for_bad_JSON_value<Int8CollectionType, List<sbyte>>(
             nameof(Int8CollectionType.Int8),
@@ -80,7 +79,6 @@ public abstract class BadDataJsonDeserializationTestBase
     [InlineData("""{"Prop":[-128,{"P":127}]}""")]
     [InlineData("""{"Prop":[-128,],23]}""")]
     [InlineData("""{"Prop":[-128,},23]}""")]
-    [InlineData("""{"Prop":[-128,,23]}""")]
     [InlineData("""{"Prop":[-128,,23]}""")]
     public virtual void Throws_for_bad_collection_of_nullable_long_JSON_values(string json)
         => Throws_for_bad_JSON_value<NullableInt64CollectionType, List<long?>>(
