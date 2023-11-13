@@ -22,6 +22,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
 
+    private static readonly bool UseOldBehavior32218 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32218", out var enabled32218) && enabled32218;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -288,7 +291,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             // Server), we need to fall back to the previous IN translation.
             if (method.IsGenericMethod
                 && method.GetGenericMethodDefinition() == QueryableMethods.Contains
-                && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
+                && (UseOldBehavior32218
+                    ? methodCallExpression.Arguments[0]
+                    : UnwrapAsQueryable(methodCallExpression.Arguments[0])) is ParameterQueryRootExpression parameterSource
                 && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
                 && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
             {
@@ -300,6 +305,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     .UpdateResultCardinality(ResultCardinality.Single);
                 return shapedQueryExpression;
             }
+
+            static Expression UnwrapAsQueryable(Expression expression)
+                => expression is MethodCallExpression { Method: { IsGenericMethod: true } method } methodCall
+                    && method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
+                        ? methodCall.Arguments[0]
+                        : expression;
         }
 
         return translated;
