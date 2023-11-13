@@ -74,16 +74,16 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
                 case JsonTokenType.Null:
                     collection.Add(default);
                     break;
-                case JsonTokenType.None:
+                case JsonTokenType.Comment:
+                    break;
+                case JsonTokenType.None: // Explicitly listing all states that we throw for
                 case JsonTokenType.StartObject:
                 case JsonTokenType.EndObject:
                 case JsonTokenType.StartArray:
                 case JsonTokenType.PropertyName:
+                default:
                     throw new InvalidOperationException(
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
-                case JsonTokenType.Comment:
-                default:
-                    break;
             }
         }
 
