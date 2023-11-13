@@ -84,11 +84,8 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.Identity);
             annotations.Remove(SqlServerAnnotationNames.Sparse);
-            annotations.Remove(SqlServerAnnotationNames.IsTemporal);
-            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodStartColumn);
+            annotations.Remove(SqlServerAnnotationNames.TemporalIsPeriodEndColumn);
         }
 
         base.Generate(column, parameters);
