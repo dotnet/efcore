@@ -19,6 +19,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
     private readonly GroupJoinConvertingExpressionVisitor _groupJoinConvertingExpressionVisitor = new();
 
+    private static readonly bool UseOldBehavior32215 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32215", out var enabled32215) && enabled32215;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -435,12 +438,14 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         var sourceType = methodCallExpression.Method.DeclaringType!.GetGenericArguments()[0];
 
-        return Expression.Call(
+        var converted = Expression.Call(
             QueryableMethods.Contains.MakeGenericMethod(sourceType),
             Expression.Call(
                 QueryableMethods.AsQueryable.MakeGenericMethod(sourceType),
                 methodCallExpression.Object!),
             methodCallExpression.Arguments[0]);
+
+        return UseOldBehavior32215 ? converted : VisitMethodCall(converted);
     }
 
     private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
