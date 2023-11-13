@@ -2998,6 +2998,30 @@ ORDER BY [l].[Name]
 """);
     }
 
+    public override async Task Project_collection_and_nested_conditional(bool async)
+    {
+        await base.Project_collection_and_nested_conditional(async);
+
+        AssertSql(
+"""
+SELECT [l].[Id], [l0].[Name], [l0].[Id], CASE
+    WHEN [l].[Id] = 1 THEN N'01'
+    WHEN [l].[Id] = 2 THEN N'02'
+    WHEN [l].[Id] = 3 THEN N'03'
+    ELSE NULL
+END
+FROM [LevelOne] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
+LEFT JOIN [LevelTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+WHERE CASE
+    WHEN [l].[Id] = 1 THEN N'01'
+    WHEN [l].[Id] = 2 THEN N'02'
+    WHEN [l].[Id] = 3 THEN N'03'
+    ELSE NULL
+END = N'02'
+ORDER BY [l].[Id], [l0].[Id]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

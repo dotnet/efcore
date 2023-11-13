@@ -193,8 +193,8 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static IEnumerable<IDbFunction> GetDbFunctions(IReadOnlyModel model)
-        => ((SortedDictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
-            ?.Values
+        => ((Dictionary<string, IDbFunction>?)model[RelationalAnnotationNames.DbFunctions])
+            ?.OrderBy(t => t.Key).Select(t => t.Value)
             ?? Enumerable.Empty<IDbFunction>();
 
     /// <summary>
@@ -203,8 +203,8 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IReadOnlyDbFunction? FindDbFunction(IReadOnlyModel model, MethodInfo methodInfo)
-        => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
+    public static IDbFunction? FindDbFunction(IReadOnlyModel model, MethodInfo methodInfo)
+        => model[RelationalAnnotationNames.DbFunctions] is Dictionary<string, IDbFunction> functions
             && functions.TryGetValue(GetFunctionName(methodInfo), out var dbFunction)
                 ? dbFunction
                 : null;
@@ -215,8 +215,8 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IReadOnlyDbFunction? FindDbFunction(IReadOnlyModel model, string name)
-        => model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
+    public static IDbFunction? FindDbFunction(IReadOnlyModel model, string name)
+        => model[RelationalAnnotationNames.DbFunctions] is Dictionary<string, IDbFunction> functions
             && functions.TryGetValue(name, out var dbFunction)
                 ? dbFunction
                 : null;
@@ -256,9 +256,9 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         return function;
     }
 
-    private static SortedDictionary<string, IDbFunction> GetOrCreateFunctions(IMutableModel model)
-        => (SortedDictionary<string, IDbFunction>)(
-            model[RelationalAnnotationNames.DbFunctions] ??= new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal));
+    private static Dictionary<string, IDbFunction> GetOrCreateFunctions(IMutableModel model)
+        => (Dictionary<string, IDbFunction>)(
+            model[RelationalAnnotationNames.DbFunctions] ??= new Dictionary<string, IDbFunction>(StringComparer.Ordinal));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -270,7 +270,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         IMutableModel model,
         MethodInfo methodInfo)
     {
-        if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions)
+        if (model[RelationalAnnotationNames.DbFunctions] is Dictionary<string, IDbFunction> functions)
         {
             var name = GetFunctionName(methodInfo);
             if (functions.TryGetValue(name, out var function))
@@ -296,7 +296,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         IMutableModel model,
         string name)
     {
-        if (model[RelationalAnnotationNames.DbFunctions] is SortedDictionary<string, IDbFunction> functions
+        if (model[RelationalAnnotationNames.DbFunctions] is Dictionary<string, IDbFunction> functions
             && functions.TryGetValue(name, out var function))
         {
             functions.Remove(name);

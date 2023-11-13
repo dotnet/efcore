@@ -592,6 +592,12 @@ public class ConventionSet
             PropertyFieldChangedConventions.Add(propertyFieldChangedConvention);
         }
 
+        if (newConvention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention
+            && !Replace(PropertyElementTypeChangedConventions, propertyElementTypeChangedConvention, oldConvetionType))
+        {
+            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
+        }
+
         if (newConvention is IPropertyAnnotationChangedConvention propertyAnnotationChangedConvention
             && !Replace(PropertyAnnotationChangedConventions, propertyAnnotationChangedConvention, oldConvetionType))
         {
@@ -894,6 +900,11 @@ public class ConventionSet
         if (convention is IPropertyFieldChangedConvention propertyFieldChangedConvention)
         {
             PropertyFieldChangedConventions.Add(propertyFieldChangedConvention);
+        }
+
+        if (convention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention)
+        {
+            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
         }
 
         if (convention is IPropertyAnnotationChangedConvention propertyAnnotationChangedConvention)
@@ -1207,6 +1218,11 @@ public class ConventionSet
         if (typeof(IPropertyNullabilityChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyNullabilityChangedConventions, conventionType);
+        }
+
+        if (typeof(IPropertyElementTypeChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(PropertyElementTypeChangedConventions, conventionType);
         }
 
         if (typeof(IPropertyFieldChangedConvention).IsAssignableFrom(conventionType))

@@ -62,8 +62,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
 
             if (annotations.TryGetValue(RelationalAnnotationNames.DbFunctions, out var functions))
             {
-                var runtimeFunctions = new SortedDictionary<string, IDbFunction>(StringComparer.Ordinal);
-                foreach (var (key, dbFunction) in (SortedDictionary<string, IDbFunction>)functions!)
+                var runtimeFunctions = new Dictionary<string, IDbFunction>(StringComparer.Ordinal);
+                foreach (var (key, dbFunction) in (Dictionary<string, IDbFunction>)functions!)
                 {
                     var runtimeFunction = Create(dbFunction, runtimeModel);
                     runtimeFunctions[key] = runtimeFunction;
@@ -87,8 +87,8 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
 
             if (annotations.TryGetValue(RelationalAnnotationNames.Sequences, out var sequences))
             {
-                var runtimeSequences = new SortedDictionary<(string, string?), ISequence>();
-                foreach (var (key, value) in (SortedDictionary<(string, string?), ISequence>)sequences!)
+                var runtimeSequences = new Dictionary<(string, string?), ISequence>();
+                foreach (var (key, value) in (Dictionary<(string, string?), ISequence>)sequences!)
                 {
                     var runtimeSequence = Create(value, runtimeModel);
                     runtimeSequences[key] = runtimeSequence;
@@ -196,6 +196,34 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
 
                 annotations[RelationalAnnotationNames.UpdateStoredProcedure] = runtimeSproc;
             }
+        }
+    }
+
+    /// <summary>
+    ///     Updates the complex type annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="complexType">The source complex type.</param>
+    /// <param name="runtimeComplexType">The target complex type that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected override void ProcessComplexTypeAnnotations(
+        Dictionary<string, object?> annotations,
+        IComplexType complexType,
+        RuntimeComplexType runtimeComplexType,
+        bool runtime)
+    {
+        base.ProcessComplexTypeAnnotations(annotations, complexType, runtimeComplexType, runtime);
+
+        if (runtime)
+        {
+            annotations.Remove(RelationalAnnotationNames.TableMappings);
+            annotations.Remove(RelationalAnnotationNames.ViewMappings);
+            annotations.Remove(RelationalAnnotationNames.SqlQueryMappings);
+            annotations.Remove(RelationalAnnotationNames.FunctionMappings);
+            annotations.Remove(RelationalAnnotationNames.InsertStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DeleteStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.UpdateStoredProcedureMappings);
+            annotations.Remove(RelationalAnnotationNames.DefaultMappings);
         }
     }
 

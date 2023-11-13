@@ -147,7 +147,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
             .Select(a => new Sequence(model, a.Name));
 #pragma warning restore CS0618 // Type or member is obsolete
 
-        var sequencesDictionary = new SortedDictionary<(string, string?), ISequence>();
+        var sequencesDictionary = new Dictionary<(string, string?), ISequence>();
         foreach (var sequence in sequences)
         {
             sequencesDictionary[(sequence.Name, sequence.ModelSchema)] = sequence;

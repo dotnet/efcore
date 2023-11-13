@@ -87,10 +87,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
         int maxRetryCount,
         TimeSpan maxRetryDelay)
     {
-        if (maxRetryCount < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(maxRetryCount));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(maxRetryCount);
 
         if (maxRetryDelay.TotalMilliseconds < 0.0)
         {

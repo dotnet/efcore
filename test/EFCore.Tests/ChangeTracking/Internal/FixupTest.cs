@@ -2106,30 +2106,30 @@ public class FixupTest
 
         var stateManager = context.GetService<IStateManager>();
 
-        stateManager.StartTrackingFromQuery(categoryType, new Category(11), new ValueBuffer(new object[] { 11 }));
-        stateManager.StartTrackingFromQuery(categoryType, new Category(12), new ValueBuffer(new object[] { 12 }));
-        stateManager.StartTrackingFromQuery(categoryType, new Category(13), new ValueBuffer(new object[] { 13 }));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(11), new Snapshot<int>(11));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(12), new Snapshot<int>(12));
+        stateManager.StartTrackingFromQuery(categoryType, new Category(13), new Snapshot<int>(13));
 
-        stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new ValueBuffer(new object[] { 21, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(21, 11), new Snapshot<int, int>(21, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new ValueBuffer(new object[] { 22, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(22, 11), new Snapshot<int, int>(22, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(23, 11), new ValueBuffer(new object[] { 23, 11 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(23, 11), new Snapshot<int, int>(23, 11));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(24, 12), new ValueBuffer(new object[] { 24, 12 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(24, 12), new Snapshot<int, int>(24, 12));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new ValueBuffer(new object[] { 25, 12 }));
+        stateManager.StartTrackingFromQuery(productType, new Product(25, 12), new Snapshot<int, int>(25, 12));
         AssertAllFixedUp(context);
 
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new ValueBuffer(new object[] { 31, 22 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(31, 22), new Snapshot<int, int>(31, 22));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new ValueBuffer(new object[] { 32, 22 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(32, 22), new Snapshot<int, int>(32, 22));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(33, 24), new ValueBuffer(new object[] { 33, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(33, 24), new Snapshot<int, int>(33, 24));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(34, 24), new ValueBuffer(new object[] { 34, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(34, 24), new Snapshot<int, int>(34, 24));
         AssertAllFixedUp(context);
-        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(35, 24), new ValueBuffer(new object[] { 35, 24 }));
+        stateManager.StartTrackingFromQuery(offerType, new SpecialOffer(35, 24), new Snapshot<int, int>(35, 24));
 
         AssertAllFixedUp(context);
 

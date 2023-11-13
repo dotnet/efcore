@@ -173,9 +173,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
     }
 
-    model.Customize();
-    _instance = model;
-}")
+    model.Customize();")
+                .Append("    _instance = (")
+                .Append(className)
+                .AppendLine(")model.FinalizeModel();")
+                .AppendLine("}")
                 .AppendLine()
                 .Append("private static ").Append(className).AppendLine(" _instance;")
                 .AppendLine("public static IModel Instance => _instance;")
@@ -225,6 +227,32 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         using (mainBuilder.Indent())
         {
+            AddNamespace(typeof(Guid), namespaces);
+            mainBuilder
+                .AppendLine($"private {className}()")
+                .IncrementIndent()
+                .Append(": base(skipDetectChanges: ")
+                .Append(_code.Literal(((IRuntimeModel)model).SkipDetectChanges))
+                .Append(", modelId: ")
+                .Append(_code.Literal(model.ModelId))
+                .Append(", entityTypeCount: ")
+                .Append(_code.Literal(model.GetEntityTypes().Count()));
+
+            var typeConfigurationCount = model.GetTypeMappingConfigurations().Count();
+            if (typeConfigurationCount > 0)
+            {
+                mainBuilder
+                    .Append(", typeConfigurationCount: ")
+                    .Append(_code.Literal(typeConfigurationCount));
+            }
+
+            mainBuilder
+                .AppendLine(")")
+                .DecrementIndent()
+                .AppendLine("{")
+                .AppendLine("}")
+                .AppendLine();
+
             mainBuilder
                 .AppendLine("partial void Initialize()")
                 .AppendLine("{");
@@ -690,6 +718,82 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             mainBuilder.AppendLine(",")
                 .Append("discriminatorValue: ")
                 .Append(_code.UnknownLiteral(discriminatorValue));
+        }
+
+        var derivedTypesCount = entityType.GetDirectlyDerivedTypes().Count();
+        if (derivedTypesCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("derivedTypesCount: ")
+                .Append(_code.Literal(derivedTypesCount));
+        }
+
+        mainBuilder.AppendLine(",")
+            .Append("propertyCount: ")
+            .Append(_code.Literal(entityType.GetDeclaredProperties().Count()));
+
+        var complexPropertyCount = entityType.GetDeclaredComplexProperties().Count();
+        if (complexPropertyCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("complexPropertyCount: ")
+                .Append(_code.Literal(complexPropertyCount));
+        }
+
+        var navigationCount = entityType.GetDeclaredNavigations().Count();
+        if (navigationCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("navigationCount: ")
+                .Append(_code.Literal(navigationCount));
+        }
+
+        var skipNavigationCount = entityType.GetDeclaredSkipNavigations().Count();
+        if (skipNavigationCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("skipNavigationCount: ")
+                .Append(_code.Literal(skipNavigationCount));
+        }
+
+        var servicePropertyCount = entityType.GetDeclaredServiceProperties().Count();
+        if (servicePropertyCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("servicePropertyCount: ")
+                .Append(_code.Literal(servicePropertyCount));
+        }
+
+        var foreignKeyCount = entityType.GetDeclaredForeignKeys().Count();
+        if (foreignKeyCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("foreignKeyCount: ")
+                .Append(_code.Literal(foreignKeyCount));
+        }
+
+        var unnamedIndexCount = entityType.GetDeclaredIndexes().Count(i => i.Name == null);
+        if (unnamedIndexCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("unnamedIndexCount: ")
+                .Append(_code.Literal(unnamedIndexCount));
+        }
+
+        var namedIndexCount = entityType.GetDeclaredIndexes().Count(i => i.Name != null);
+        if (namedIndexCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("namedIndexCount: ")
+                .Append(_code.Literal(namedIndexCount));
+        }
+
+        var keyCount = entityType.GetDeclaredKeys().Count();
+        if (keyCount != 0)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("keyCount: ")
+                .Append(_code.Literal(keyCount));
         }
 
         mainBuilder
@@ -1262,6 +1366,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder.AppendLine(",")
                         .Append("propertyBag: ")
                         .Append(_code.Literal(true));
+                }
+
+                mainBuilder.AppendLine(",")
+                    .Append("propertyCount: ")
+                    .Append(_code.Literal(complexType.GetDeclaredProperties().Count()));
+
+                var complexPropertyCount = complexType.GetDeclaredComplexProperties().Count();
+                if (complexPropertyCount != 0)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("complexPropertyCount: ")
+                        .Append(_code.Literal(complexPropertyCount));
                 }
 
                 mainBuilder

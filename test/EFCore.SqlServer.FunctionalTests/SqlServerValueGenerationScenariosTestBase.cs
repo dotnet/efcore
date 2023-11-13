@@ -712,17 +712,14 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                     Id = IntSentinel,
                     Name = "One Unicorn",
                     CreatedOn = DateTimeSentinel,
-                    NeedsConverter = NeedsConverterSentinel,
-                    GeometryCollection = GeometryCollectionSentinel
+                    NeedsConverter = NeedsConverterSentinel
                 },
                 new()
                 {
                     Id = IntSentinel,
                     Name = "Two Unicorns",
                     CreatedOn = new DateTime(1969, 8, 3, 0, 10, 0),
-                    NeedsConverter = new NeedsConverter(111),
-                    GeometryCollection = GeometryFactory.CreateGeometryCollection(
-                        new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 3)) })
+                    NeedsConverter = new NeedsConverter(111)
                 }
             };
 
@@ -733,10 +730,6 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.NotEqual(new DateTime(), blogs[0].CreatedOn);
             Assert.NotEqual(new DateTime(), blogs[1].CreatedOn);
             Assert.Equal(111, blogs[1].NeedsConverter.Value);
-
-            var point = ((Point)blogs[1].GeometryCollection.Geometries[0]);
-            Assert.Equal(1, point.X);
-            Assert.Equal(3, point.Y);
         }
 
         using (var context = new BlogContextNonKeyDefaultValue(testStore.Name, OnModelCreating))
@@ -748,23 +741,13 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal(new DateTime(1969, 8, 3, 0, 10, 0), blogs[1].CreatedOn);
             Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
 
-            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
-            Assert.Equal(1, point1.X);
-            Assert.Equal(3, point1.Y);
-
-            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
-            Assert.Equal(1, point2.X);
-            Assert.Equal(2, point2.Y);
-
             blogs[0].CreatedOn = new DateTime(1973, 9, 3, 0, 10, 0);
 
             blogs[1].Name = "X Unicorns";
             blogs[1].NeedsConverter = new NeedsConverter(222);
-            blogs[1].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
 
             blogs[2].Name = "Y Unicorns";
             blogs[2].NeedsConverter = new NeedsConverter(333);
-            blogs[2].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
 
             context.SaveChanges();
         }
@@ -779,6 +762,68 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             Assert.Equal(222, blogs[1].NeedsConverter.Value);
             Assert.Equal(new DateTime(1974, 8, 3, 0, 10, 0), blogs[2].CreatedOn);
             Assert.Equal(333, blogs[2].NeedsConverter.Value);
+        }
+    }
+
+    [ConditionalFact]
+    [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
+    public void Insert_with_non_key_default_spatial_value()
+    {
+        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+
+        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        {
+            context.Database.EnsureCreatedResiliently();
+
+            var blogs = new List<BlogWithSpatial>
+            {
+                new()
+                {
+                    Id = IntSentinel,
+                    Name = "One Unicorn",
+                    GeometryCollection = GeometryCollectionSentinel
+                },
+                new()
+                {
+                    Id = IntSentinel,
+                    Name = "Two Unicorns",
+                    GeometryCollection = GeometryFactory.CreateGeometryCollection(
+                        new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 3)) })
+                }
+            };
+
+            context.AddRange(blogs);
+
+            context.SaveChanges();
+
+            var point = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            Assert.Equal(1, point.X);
+            Assert.Equal(3, point.Y);
+        }
+
+        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        {
+            var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
+            Assert.Equal(3, blogs.Count);
+
+            var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
+            Assert.Equal(1, point1.X);
+            Assert.Equal(3, point1.Y);
+
+            var point2 = ((Point)blogs[2].GeometryCollection.Geometries[0]);
+            Assert.Equal(1, point2.X);
+            Assert.Equal(2, point2.Y);
+
+            blogs[1].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 11));
+            blogs[2].GeometryCollection.Geometries[0] = GeometryFactory.CreatePoint(new Coordinate(1, 22));
+
+            context.SaveChanges();
+        }
+
+        using (var context = new BlogContextNonKeyDefaultSpatialValue(testStore.Name, OnModelCreating))
+        {
+            var blogs = context.SpatialBlogs.OrderBy(e => e.Name).ToList();
+            Assert.Equal(3, blogs.Count);
 
             var point1 = ((Point)blogs[1].GeometryCollection.Geometries[0]);
             Assert.Equal(1, point1.X);
@@ -805,7 +850,6 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 b =>
                 {
                     b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
-                    b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
 
                     b.HasData(
                         new Blog
@@ -814,6 +858,32 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                             Name = "W Unicorns",
                             CreatedOn = new DateTime(1974, 8, 3, 0, 10, 0),
                             NeedsConverter = new NeedsConverter(111),
+                        });
+                });
+        }
+    }
+
+    public class BlogContextNonKeyDefaultSpatialValue : ContextBase
+    {
+        public BlogContextNonKeyDefaultSpatialValue(string databaseName, Action<ModelBuilder> modelBuilder)
+            : base(databaseName, modelBuilder)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<BlogWithSpatial>(
+                b =>
+                {
+                    b.Property(e => e.GeometryCollection).HasDefaultValue(GeometryFactory.CreateGeometryCollection());
+
+                    b.HasData(
+                        new BlogWithSpatial
+                        {
+                            Id = 9979,
+                            Name = "W Unicorns",
                             GeometryCollection = GeometryFactory.CreateGeometryCollection(
                                 new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 2)) })
                         });
@@ -1728,7 +1798,6 @@ END");
             Id = IntSentinel,
             Name = name,
             CreatedOn = DateTimeSentinel,
-            GeometryCollection = GeometryCollectionSentinel,
             NeedsConverter = NeedsConverterSentinel,
             OtherId = NullableIntSentinel
         };
@@ -1739,8 +1808,22 @@ END");
         public string Name { get; set; }
         public DateTime CreatedOn { get; set; }
         public NeedsConverter NeedsConverter { get; set; }
-        public GeometryCollection GeometryCollection { get; set; }
         public int? OtherId { get; set; }
+    }
+
+    protected BlogWithSpatial CreateBlogWithSpatial(string name)
+        => new()
+        {
+            Id = IntSentinel,
+            Name = name,
+            GeometryCollection = GeometryCollectionSentinel,
+        };
+
+    public class BlogWithSpatial
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public GeometryCollection GeometryCollection { get; set; }
     }
 
     public class NeedsConverter
@@ -1812,6 +1895,7 @@ END");
         }
 
         public DbSet<Blog> Blogs { get; set; }
+        public DbSet<BlogWithSpatial> SpatialBlogs { get; set; }
         public DbSet<NullableKeyBlog> NullableKeyBlogs { get; set; }
         public DbSet<FullNameBlog> FullNameBlogs { get; set; }
         public DbSet<GuidBlog> GuidBlogs { get; set; }

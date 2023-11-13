@@ -274,29 +274,7 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
     {
-        var i = 0;
-        var runtimeEntityType = (IRuntimeEntityType)entityType;
-        var valuesArray = new object?[runtimeEntityType.PropertyCount];
-        var shadowPropertyValuesArray = new object?[runtimeEntityType.ShadowPropertyCount];
-        foreach (var property in entityType.GetFlattenedProperties())
-        {
-            valuesArray[i++] = values.TryGetValue(property.Name, out var value)
-                ? value
-                : property.Sentinel;
-
-            if (property.IsShadowProperty())
-            {
-                shadowPropertyValuesArray[property.GetShadowIndex()] = values.TryGetValue(property.Name, out var shadowValue)
-                    ? shadowValue
-                    : property.Sentinel;
-            }
-        }
-
-        var valueBuffer = new ValueBuffer(valuesArray);
-        var entity = entityType.GetOrCreateMaterializer(EntityMaterializerSource)(new MaterializationContext(valueBuffer, Context));
-
-        var shadowPropertyValueBuffer = new ValueBuffer(shadowPropertyValuesArray);
-        var entry = new InternalEntityEntry(this, entityType, entity, shadowPropertyValueBuffer);
+        var entry = new InternalEntityEntry(this, entityType, values, EntityMaterializerSource);
 
         UpdateReferenceMaps(entry, EntityState.Detached, null);
 
@@ -331,7 +309,7 @@ public class StateManager : IStateManager
     public virtual InternalEntityEntry StartTrackingFromQuery(
         IEntityType baseEntityType,
         object entity,
-        in ValueBuffer valueBuffer)
+        in ISnapshot snapshot)
     {
         var existingEntry = TryGetEntry(entity);
         if (existingEntry != null)
@@ -345,9 +323,9 @@ public class StateManager : IStateManager
                 ? baseEntityType
                 : _model.FindRuntimeEntityType(clrType)!;
 
-        var newEntry = valueBuffer.IsEmpty
+        var newEntry = snapshot.IsEmpty
             ? new InternalEntityEntry(this, entityType, entity)
-            : new InternalEntityEntry(this, entityType, entity, valueBuffer);
+            : new InternalEntityEntry(this, entityType, entity, snapshot);
 
         foreach (var key in baseEntityType.GetKeys())
         {

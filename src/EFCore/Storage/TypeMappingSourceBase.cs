@@ -120,22 +120,12 @@ public abstract class TypeMappingSourceBase : ITypeMappingSource
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public abstract CoreTypeMapping? FindMapping(Type type, IModel model, CoreTypeMapping? elementMapping = null);
 
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///         call <see cref="FindMapping(IProperty)" />
-    ///     </para>
-    ///     <para>
-    ///         Note: providers should typically not need to override this method.
-    ///     </para>
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    /// <inheritdoc/>
     public abstract CoreTypeMapping? FindMapping(MemberInfo member);
+
+    /// <inheritdoc/>
+    public virtual CoreTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
+        => FindMapping(member);
 
     /// <summary>
     ///     Attempts to find a JSON-based type mapping for a collection of primitive types.

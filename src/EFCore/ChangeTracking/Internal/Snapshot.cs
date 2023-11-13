@@ -39,6 +39,15 @@ public sealed class Snapshot : ISnapshot
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public static readonly FieldInfo EmptyField
+        = typeof(Snapshot).GetField(nameof(Empty), BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public object? this[int index]
     {
         get => throw new IndexOutOfRangeException();
@@ -53,6 +62,16 @@ public sealed class Snapshot : ISnapshot
     /// </summary>
     public T GetValue<T>(int index)
         => throw new IndexOutOfRangeException();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly MethodInfo GetValueMethod
+        = typeof(ISnapshot).GetMethod(nameof(GetValue), 1, BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly,
+            null, CallingConventions.Any, new[] { typeof(int) }, null)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -97,6 +116,10 @@ public sealed class Snapshot : ISnapshot
             30 => typeof(Snapshot<,,,,,,,,,,,,,,,,,,,,,,,,,,,,,>).MakeGenericType(types),
             _ => throw new IndexOutOfRangeException()
         };
+
+    /// <inheritdoc/>
+    bool ISnapshot.IsEmpty
+        => true;
 }
 
 /// <summary>

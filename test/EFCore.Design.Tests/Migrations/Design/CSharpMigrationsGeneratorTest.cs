@@ -213,7 +213,9 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.DiscriminatorProperty,
             CoreAnnotationNames.DiscriminatorValue,
             CoreAnnotationNames.InverseNavigations,
+            CoreAnnotationNames.InverseNavigationsNoAttribute,
             CoreAnnotationNames.NavigationCandidates,
+            CoreAnnotationNames.NavigationCandidatesNoAttribute,
             CoreAnnotationNames.AmbiguousNavigations,
             CoreAnnotationNames.DuplicateServiceProperties,
             CoreAnnotationNames.AdHocModel,
@@ -609,7 +611,7 @@ namespace MyNamespace
 
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: c => c.RemoveAllConventions());
         modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
-        modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
+        modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new Dictionary<string, IDbFunction>());
         modelBuilder.Entity(
             "T1", eb =>
             {

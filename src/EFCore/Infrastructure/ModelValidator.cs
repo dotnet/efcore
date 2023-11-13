@@ -236,7 +236,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 var targetType = Dependencies.MemberClassifier.FindCandidateNavigationPropertyType(
-                    clrProperty, conventionModel, out var targetOwned);
+                    clrProperty, conventionModel, useAttributes: true, out var targetOwned);
                 if (targetType == null
                     && clrProperty.FindSetterProperty() == null)
                 {

@@ -1227,6 +1227,54 @@ ORDER BY [p].[Id]
 """);
     }
 
+    public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
+    {
+        await base.Nested_contains_with_Lists_and_no_inferred_type_mapping(async);
+
+        AssertSql(
+            """
+@__ints_1='[1,2,3]' (Size = 4000)
+@__strings_0='["one","two","three"]' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE CASE
+    WHEN [p].[Int] IN (
+        SELECT [i].[value]
+        FROM OPENJSON(@__ints_1) WITH ([value] int '$') AS [i]
+    ) THEN N'one'
+    ELSE N'two'
+END IN (
+    SELECT [s].[value]
+    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
+)
+""");
+    }
+
+    public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
+    {
+        await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(async);
+
+        AssertSql(
+            """
+@__ints_1='[1,2,3]' (Size = 4000)
+@__strings_0='["one","two","three"]' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE CASE
+    WHEN [p].[Int] IN (
+        SELECT [i].[value]
+        FROM OPENJSON(@__ints_1) WITH ([value] int '$') AS [i]
+    ) THEN N'one'
+    ELSE N'two'
+END IN (
+    SELECT [s].[value]
+    FROM OPENJSON(@__strings_0) WITH ([value] nvarchar(max) '$') AS [s]
+)
+""");
+    }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

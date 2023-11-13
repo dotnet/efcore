@@ -649,6 +649,7 @@ public class SqlNullabilityProcessor
         // SQL IN returns null when the item is null, and when the values (or subquery projection) contains NULL and no match was made.
 
         var item = Visit(inExpression.Item, out var itemNullable);
+        inExpression = inExpression.Update(item, inExpression.Subquery, inExpression.Values, inExpression.ValuesParameter);
 
         if (inExpression.Subquery != null)
         {

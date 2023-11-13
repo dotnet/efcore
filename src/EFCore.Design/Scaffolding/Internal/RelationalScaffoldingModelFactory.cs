@@ -466,7 +466,14 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         if (column.ComputedColumnSql != null)
         {
-            property.HasComputedColumnSql(column.ComputedColumnSql, column.IsStored);
+            if (column.ComputedColumnSql.Length == 0)
+            {
+                property.HasComputedColumnSql();
+            }
+            else
+            {
+                property.HasComputedColumnSql(column.ComputedColumnSql, column.IsStored);
+            }
         }
 
         if (column.Comment != null)

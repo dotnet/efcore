@@ -1109,6 +1109,54 @@ ORDER BY "p"."Id"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async))).Message);
 
+    public override async Task Nested_contains_with_Lists_and_no_inferred_type_mapping(bool async)
+    {
+        await base.Nested_contains_with_Lists_and_no_inferred_type_mapping(async);
+
+        AssertSql(
+            """
+@__ints_1='[1,2,3]' (Size = 7)
+@__strings_0='["one","two","three"]' (Size = 21)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE CASE
+    WHEN "p"."Int" IN (
+        SELECT "i"."value"
+        FROM json_each(@__ints_1) AS "i"
+    ) THEN 'one'
+    ELSE 'two'
+END IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0) AS "s"
+)
+""");
+    }
+
+        public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
+        {
+            await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(async);
+
+            AssertSql(
+                """
+    @__ints_1='[1,2,3]' (Size = 7)
+    @__strings_0='["one","two","three"]' (Size = 21)
+
+    SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+    FROM "PrimitiveCollectionsEntity" AS "p"
+    WHERE CASE
+        WHEN "p"."Int" IN (
+            SELECT "i"."value"
+            FROM json_each(@__ints_1) AS "i"
+        ) THEN 'one'
+        ELSE 'two'
+    END IN (
+        SELECT "s"."value"
+        FROM json_each(@__strings_0) AS "s"
+    )
+    """);
+        }
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

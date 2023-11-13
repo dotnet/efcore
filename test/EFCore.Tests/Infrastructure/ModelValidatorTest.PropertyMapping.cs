@@ -76,7 +76,7 @@ public partial class ModelValidatorTest
         modelBuilder.Entity(typeof(NonPrimitiveReferenceTypePropertyEntity));
 
         Assert.Equal(
-            CoreStrings.PropertyNotAdded(
+            CoreStrings.NavigationNotAdded(
                 typeof(NonPrimitiveReferenceTypePropertyEntity).ShortDisplayName(),
                 nameof(NonPrimitiveReferenceTypePropertyEntity.Property),
                 typeof(ICollection<Uri>).ShortDisplayName()),

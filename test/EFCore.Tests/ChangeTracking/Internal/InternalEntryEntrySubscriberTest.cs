@@ -263,7 +263,7 @@ public class InternalEntryEntrySubscriberTest
         entity.NotifyChanging(null);
 
         Assert.Equal(
-            new[] { "Name", "RelatedCollection" },
+            ["Name", "RelatedCollection"],
             testListener.Changing.Select(e => e.Item2.Name).OrderBy(e => e).ToArray());
 
         Assert.Empty(testListener.Changed);
@@ -271,7 +271,7 @@ public class InternalEntryEntrySubscriberTest
         entity.NotifyChanged("");
 
         Assert.Equal(
-            new[] { "Name", "RelatedCollection" },
+            ["Name", "RelatedCollection"],
             testListener.Changed.Select(e => e.Item2.Name).OrderBy(e => e).ToArray());
     }
 

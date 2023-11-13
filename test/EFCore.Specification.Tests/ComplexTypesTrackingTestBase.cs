@@ -999,9 +999,8 @@ public abstract class ComplexTypesTrackingTestBase<TFixture>(TFixture fixture) :
 
     protected static EntityEntry<TEntity> TrackFromQuery<TEntity>(DbContext context, TEntity pub)
         where TEntity : class
-        => new(
-            context.GetService<IStateManager>().StartTrackingFromQuery(
-                context.Model.FindEntityType(typeof(TEntity))!, pub, new ValueBuffer()));
+        => new(context.GetService<IStateManager>().StartTrackingFromQuery(
+            context.Model.FindEntityType(typeof(TEntity))!, pub, Snapshot.Empty));
 
     protected virtual void ExecuteWithStrategyInTransaction(
         Action<DbContext> testOperation,

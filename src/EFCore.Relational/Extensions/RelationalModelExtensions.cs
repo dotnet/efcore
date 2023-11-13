@@ -313,7 +313,7 @@ public static class RelationalModelExtensions
     /// <param name="method">The <see cref="MethodInfo" /> for the method that is mapped to the function.</param>
     /// <returns>The function or <see langword="null" /> if the method is not mapped.</returns>
     public static IDbFunction? FindDbFunction(this IModel model, MethodInfo method)
-        => (IDbFunction?)((IReadOnlyModel)model).FindDbFunction(method);
+        => DbFunction.FindDbFunction(model, method);
 
     /// <summary>
     ///     Finds a function that is mapped to the method represented by the given name.
@@ -349,7 +349,7 @@ public static class RelationalModelExtensions
     /// <param name="name">The model name of the function.</param>
     /// <returns>The function or <see langword="null" /> if the method is not mapped.</returns>
     public static IDbFunction? FindDbFunction(this IModel model, string name)
-        => (IDbFunction?)((IReadOnlyModel)model).FindDbFunction(name);
+        => DbFunction.FindDbFunction(model, name);
 
     /// <summary>
     ///     Creates an <see cref="IMutableDbFunction" /> mapped to the given method.

@@ -40,7 +40,7 @@ public abstract partial class ModelBuilderTest
       AlternateKey (Guid) Required
       Id (int) Required
       Name (string)
-      Notes (List<string>) Element type: string", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
+      Notes (List<string>) Element type: string Required", complexProperty.ToDebugString(), ignoreLineEndingDifferences: true);
         }
 
         [ConditionalFact]
@@ -1555,22 +1555,20 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_ignore_a_field()
         {
-            var modelBuilder = CreateModelBuilder();
+            var modelBuilder = CreateModelBuilder(c => c.ComplexProperties<KeylessEntityWithFields>());
 
             modelBuilder
                 .Ignore<Order>()
                 .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(
-                    e => e.EntityWithFields, b =>
-                    {
-                        b.Property(e => e.Id);
-                        b.Ignore(e => e.CompanyId);
-                    });
+                    e => e.EntityWithFields,
+                    b => b.Ignore(e => e.CompanyId));
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
             Assert.Equal(5, complexProperty.ComplexType.GetProperties().Count());
+            Assert.Single(complexProperty.ComplexType.GetComplexProperties());
         }
 
         [ConditionalFact]

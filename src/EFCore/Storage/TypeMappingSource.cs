@@ -222,13 +222,10 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public override CoreTypeMapping? FindMapping(IElementType elementType)
     {
-        var providerClrType = elementType.GetProviderClrType();
-        var customConverter = elementType.GetValueConverter();
-
         var resolvedMapping = FindMappingWithConversion(
-            new TypeMappingInfo(
-                elementType, elementType.IsUnicode(), elementType.GetMaxLength(), elementType.GetPrecision(), elementType.GetScale()),
-            providerClrType, customConverter);
+            new TypeMappingInfo(elementType),
+            providerClrType: elementType.GetProviderClrType(),
+            customConverter: elementType.GetValueConverter());
 
         ValidateMapping(resolvedMapping, null);
 
@@ -268,44 +265,24 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     {
         type = type.UnwrapNullableType();
         var typeConfiguration = model.FindTypeMappingConfiguration(type);
-        TypeMappingInfo mappingInfo;
-        Type? providerClrType = null;
-        ValueConverter? customConverter = null;
-        if (typeConfiguration == null)
+        if (typeConfiguration != null)
         {
-            mappingInfo = new TypeMappingInfo(type, elementMapping);
-        }
-        else
-        {
-            providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
-            customConverter = typeConfiguration.GetValueConverter();
-            mappingInfo = new TypeMappingInfo(
-                customConverter?.ProviderClrType ?? type,
-                elementMapping,
-                unicode: typeConfiguration.IsUnicode(),
-                size: typeConfiguration.GetMaxLength(),
-                precision: typeConfiguration.GetPrecision(),
-                scale: typeConfiguration.GetScale());
+            var mappingInfo = new TypeMappingInfo(type, typeConfiguration, elementMapping);
+            var providerClrType = typeConfiguration.GetProviderClrType()?.UnwrapNullableType();
+            return FindMappingWithConversion(mappingInfo, providerClrType, customConverter: typeConfiguration.GetValueConverter());
         }
 
-        return FindMappingWithConversion(mappingInfo, providerClrType, customConverter);
+        return FindMappingWithConversion(
+            new TypeMappingInfo(type, elementMapping),
+            providerClrType: null,
+            customConverter: null);
     }
 
-    /// <summary>
-    ///     Finds the type mapping for a given <see cref="MemberInfo" /> representing
-    ///     a field or a property of a CLR type.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Note: Only call this method if there is no <see cref="IProperty" /> available, otherwise
-    ///         call <see cref="FindMapping(IProperty)" />
-    ///     </para>
-    ///     <para>
-    ///         Note: providers should typically not need to override this method.
-    ///     </para>
-    /// </remarks>
-    /// <param name="member">The field or property.</param>
-    /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
+    /// <inheritdoc/>
     public override CoreTypeMapping? FindMapping(MemberInfo member)
-        => FindMappingWithConversion(new TypeMappingInfo(member), null);
+        => FindMappingWithConversion(new TypeMappingInfo(member), null, null);
+
+    /// <inheritdoc/>
+    public override CoreTypeMapping? FindMapping(MemberInfo member, IModel model, bool useAttributes)
+        => FindMappingWithConversion(new TypeMappingInfo(member), null, null);
 }
