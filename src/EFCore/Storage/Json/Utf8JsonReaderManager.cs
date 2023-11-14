@@ -15,15 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 public ref struct Utf8JsonReaderManager
 {
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior32235 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32235", out var enabled32235) && enabled32235;
-
-    /// <summary>
     ///     Tracks state and underlying stream or buffer of UTF8 bytes.
     /// </summary>
     public readonly JsonReaderData Data;
