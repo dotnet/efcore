@@ -151,7 +151,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     public new virtual InternalEntityTypeBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(DisplayName()));
     }
 
     /// <summary>

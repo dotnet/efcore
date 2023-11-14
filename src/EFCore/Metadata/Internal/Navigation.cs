@@ -77,7 +77,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     public virtual InternalNavigationBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>

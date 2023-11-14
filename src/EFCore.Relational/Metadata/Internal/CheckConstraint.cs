@@ -231,7 +231,7 @@ public class CheckConstraint : ConventionAnnotatable, IMutableCheckConstraint, I
     public virtual InternalCheckConstraintBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(ModelName));
     }
 
     /// <summary>

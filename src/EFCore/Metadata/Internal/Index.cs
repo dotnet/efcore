@@ -93,7 +93,8 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     public virtual InternalIndexBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(
+            Property.Format(Properties.Select(p => p.Name))));
     }
 
     /// <summary>

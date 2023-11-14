@@ -85,7 +85,7 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
     public virtual InternalSkipNavigationBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>

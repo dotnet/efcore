@@ -156,7 +156,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     public virtual InternalDbFunctionBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(ModelName));
     }
 
     /// <summary>

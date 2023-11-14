@@ -54,7 +54,7 @@ public class ComplexProperty : PropertyBase, IMutableComplexProperty, IConventio
     public virtual InternalComplexPropertyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>

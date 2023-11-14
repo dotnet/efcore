@@ -63,7 +63,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual InternalPropertyBuilder Builder
     {
         [DebuggerStepThrough]
-        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel(Name));
     }
 
     /// <summary>
