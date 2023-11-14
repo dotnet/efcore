@@ -11,6 +11,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class OneToOneTestBase : ModelBuilderTestBase
     {
+        public OneToOneTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK()
         {
@@ -206,7 +211,6 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk.DependentToPrincipal, dependentType.GetNavigations().Single());
             Assert.Same(fk.PrincipalToDependent, principalType.GetNavigations().Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(principalKey, principalType.FindPrimaryKey());
@@ -1478,7 +1482,6 @@ public abstract partial class ModelBuilderTest
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
             Assert.Equal(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             Assert.Empty(principalType.GetForeignKeys());
             Assert.Same(fk.PrincipalKey, principalType.GetKeys().First(k => k != principalKey));
@@ -3451,7 +3454,6 @@ public abstract partial class ModelBuilderTest
             Assert.False(fk.IsRequired);
 
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.AddRange(fk.Properties);
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
         }
 
@@ -3473,7 +3475,6 @@ public abstract partial class ModelBuilderTest
             Assert.False(fk.IsRequired);
 
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.AddRange(fk.Properties);
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
         }
 
@@ -3497,7 +3498,6 @@ public abstract partial class ModelBuilderTest
             Assert.True(fk.Properties.All(p => !p.IsNullable));
 
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.AddRange(fk.Properties);
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
         }
 

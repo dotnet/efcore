@@ -9,8 +9,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
 {
-    public class CosmosGenericNonRelationship : GenericNonRelationship
+    public class CosmosGenericNonRelationship : GenericNonRelationship, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericNonRelationship(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Can_set_composite_key_for_primitive_collection_on_an_entity_with_fields()
             => Assert.Equal(
                 CosmosStrings.PrimitiveCollectionsNotSupported(nameof(EntityWithFields), "CollectionCompanyId"),
@@ -433,8 +438,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericComplexType : GenericComplexType
+    public class CosmosGenericComplexType : GenericComplexType, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericComplexType(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Access_mode_can_be_overridden_at_entity_and_property_levels()
             => Assert.Equal(
                 CosmosStrings.PrimitiveCollectionsNotSupported(nameof(CollectionQuarks), "Down"),
@@ -766,8 +776,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericInheritance : GenericInheritance
+    public class CosmosGenericInheritance : GenericInheritance, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericInheritance(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Base_type_can_be_discovered_after_creating_foreign_keys_on_derived()
         {
             var mb = CreateModelBuilder();
@@ -795,8 +810,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericOneToMany : GenericOneToMany
+    public class CosmosGenericOneToMany : GenericOneToMany, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericOneToMany(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -818,14 +838,24 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericManyToOne : GenericManyToOne
+    public class CosmosGenericManyToOne : GenericManyToOne, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericManyToOne(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericOneToOne : GenericOneToOne
+    public class CosmosGenericOneToOne : GenericOneToOne, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericOneToOne(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Navigation_to_shared_type_is_not_discovered_by_convention()
         {
             var modelBuilder = CreateModelBuilder();
@@ -847,8 +877,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericManyToMany : GenericManyToMany
+    public class CosmosGenericManyToMany : GenericManyToMany, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericManyToMany(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_use_shared_type_as_join_entity_with_partition_keys()
         {
@@ -1002,8 +1037,13 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
     }
 
-    public class CosmosGenericOwnedTypes : GenericOwnedTypes
+    public class CosmosGenericOwnedTypes : GenericOwnedTypes, IClassFixture<CosmosModelBuilderFixture>
     {
+        public CosmosGenericOwnedTypes(CosmosModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
         public override void Deriving_from_owned_type_throws()
             // On Cosmos the base type starts as owned
             => Assert.Contains(
@@ -1047,5 +1087,20 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
             => CreateTestModelBuilder(CosmosTestHelpers.Instance, configure);
+    }
+
+    public class CosmosModelBuilderFixture : ModelBuilderFixtureBase
+    {
+        public override void AssertEqual(
+            IEnumerable<IReadOnlyProperty> expectedProperties,
+            IEnumerable<IReadOnlyProperty> actualProperties,
+            bool assertOrder = false,
+            bool compareAnnotations = false)
+        {
+            expectedProperties = expectedProperties.Where(p => p.Name != "__jObject" && p.Name != "__id");
+            actualProperties = actualProperties.Where(p => p.Name != "__jObject" && p.Name != "__id");
+
+            base.AssertEqual(expectedProperties, actualProperties, assertOrder, compareAnnotations);
+        }
     }
 }

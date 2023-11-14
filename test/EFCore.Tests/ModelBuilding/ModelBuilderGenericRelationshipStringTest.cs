@@ -9,6 +9,11 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
 {
     public class GenericOneToManyString : OneToManyTestBase
     {
+        public GenericOneToManyString(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -17,6 +22,10 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
 
     public class GenericManyToOneString : ManyToOneTestBase
     {
+        public GenericManyToOneString(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -25,6 +34,10 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
 
     public class GenericManyToManyString : ManyToManyTestBase
     {
+        public GenericManyToManyString(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -33,6 +46,10 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
 
     public class GenericOneToOneString : OneToOneTestBase
     {
+        public GenericOneToOneString(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -41,6 +58,11 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
 
     public class GenericOwnedTypesString : OwnedTypesTestBase
     {
+        public GenericOwnedTypesString(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)

@@ -13,6 +13,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class ManyToManyTestBase : ModelBuilderTestBase
     {
+        public ManyToManyTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Discovers_navigations()
         {
@@ -1025,7 +1030,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
             modelBuilder.FinalizeModel();
         }
@@ -1086,9 +1091,9 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.Entity<Dictionary<string, object>>()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
-            modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, modelBuilder.FinalizeModel());
         }
 
         [ConditionalFact]

@@ -9,6 +9,11 @@ public class ModelBuilderNonGenericUnqualifiedStringTest : ModelBuilderNonGeneri
 {
     public class NonGenericStringOneToOneType : OneToOneTestBase
     {
+        public NonGenericStringOneToOneType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)

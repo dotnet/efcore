@@ -9,6 +9,11 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
 {
     public class GenericOneToOneType : OneToOneTestBase
     {
+        public GenericOneToOneType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -17,6 +22,11 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
 
     public class GenericNonRelationshipTest : NonRelationshipTestBase
     {
+        public GenericNonRelationshipTest(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)

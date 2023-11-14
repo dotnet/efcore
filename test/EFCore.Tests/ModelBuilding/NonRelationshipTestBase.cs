@@ -16,6 +16,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class NonRelationshipTestBase : ModelBuilderTestBase
     {
+        public NonRelationshipTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public void Can_set_model_annotation()
         {
@@ -657,8 +662,7 @@ public abstract partial class ModelBuilderTest
                         CreateModelBuilder().Entity<Quarks>(
                             b =>
                             {
-                                b.HasAlternateKey(
-                                    e => new { e.Down });
+                                b.HasAlternateKey(e => new { e.Down });
                                 b.Property(e => e.Down).IsRequired(false);
                             })).Message);
 
@@ -1913,6 +1917,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending();
 
             var model = modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, model);
 
             var entityType = model.FindEntityType(typeof(Customer))!;
             var idProperty = entityType.FindProperty(nameof(Customer.Id))!;
@@ -1965,7 +1970,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.Property<int>("Id");
 
             Assert.NotNull(entityType.FindPrimaryKey());
-            AssertEqual(new[] { "Id" }, entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { "Id" }, entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
         [ConditionalFact]
@@ -2528,8 +2533,7 @@ public abstract partial class ModelBuilderTest
                         CreateModelBuilder().Entity<CollectionQuarks>(
                             b =>
                             {
-                                b.HasAlternateKey(
-                                    e => new { e.Down });
+                                b.HasAlternateKey(e => new { e.Down });
                                 b.PrimitiveCollection(e => e.Down).IsRequired(false);
                             })).Message);
 
@@ -2928,7 +2932,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.PrimitiveCollection<List<int>>("Id");
 
             Assert.NotNull(entityType.FindPrimaryKey());
-            AssertEqual(new[] { "Id" }, entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { "Id" }, entityType.FindPrimaryKey()!.Properties.Select(p => p.Name));
         }
 
         [ConditionalFact]
@@ -2987,19 +2991,21 @@ public abstract partial class ModelBuilderTest
                 {
                     b.PrimitiveCollection(e => e.CollectionCompanyId);
                     b.HasAlternateKey(e => e.CollectionCompanyId);
+                    b.HasAlternateKey(e => e.CollectionId);
+                    b.HasKey(e => e.Id);
                 });
 
-            var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields))!;
-            var properties = entity.GetProperties();
-            Assert.Single(properties);
-            var property = properties.Single();
-            Assert.Equal(nameof(EntityWithFields.CollectionCompanyId), property.Name);
+            var model = modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, model);
+
+            var entity = model.FindEntityType(typeof(EntityWithFields))!;
+            var property = entity.FindProperty(nameof(EntityWithFields.CollectionCompanyId))!;
             Assert.Null(property.PropertyInfo);
             Assert.NotNull(property.FieldInfo);
             Assert.NotNull(property.GetElementType());
             var keys = entity.GetKeys();
-            var key = Assert.Single(keys);
-            Assert.Equal(properties, key.Properties);
+            Assert.Equal(3, keys.Count());
+            Assert.Single(keys.Where(k => k.Properties.All(p => p == property)));
         }
 
         [ConditionalFact]

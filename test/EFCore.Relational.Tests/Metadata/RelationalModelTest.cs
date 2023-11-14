@@ -3164,8 +3164,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             expectedModel.StoredProcedures.ZipAssert(actualModel.StoredProcedures, AssertEqual);
 
             Assert.Equal(((RelationalModel)expectedModel).IsReadOnly, ((RelationalModel)actualModel).IsReadOnly);
-            Assert.Equal(expectedModel.GetAnnotations(), actualModel.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expectedModel.GetRuntimeAnnotations(), actualModel.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expectedModel.GetAnnotations(), actualModel.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expectedModel.GetRuntimeAnnotations(), actualModel.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqualBase(ITableBase expected, ITableBase actual)
@@ -3191,8 +3191,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 var actualEntityType = actual.ComplexTypeMappings.Single(m => m.TypeBase.Name == expectedEntityType.Name).TypeBase;
             }
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(ITableBase expected, ITableBase actual)
@@ -3213,8 +3213,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.IsSharedTablePrincipal, actual.IsSharedTablePrincipal);
             Assert.Equal(expected.IsSplitEntityTypePrincipal, actual.IsSplitEntityTypePrincipal);
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(ITableMappingBase expected, ITableMappingBase actual)
@@ -3232,8 +3232,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.StoreType, actual.StoreType);
             Assert.Equal(expected.StoreTypeMapping.StoreType, actual.StoreTypeMapping.StoreType);
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IColumnBase expected, IColumnBase actual)
@@ -3251,8 +3251,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.Property.Name, actual.Property.Name);
             Assert.Equal(expected.TypeMapping.StoreType, actual.TypeMapping.StoreType);
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IColumnMappingBase expected, IColumnMappingBase actual)
@@ -3313,8 +3313,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 actual.MappedIndexes.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedIndexes.Select(i => i.Properties.Select(p => p.Name)));
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IForeignKeyConstraint expected, IForeignKeyConstraint actual)
@@ -3330,8 +3330,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 actual.MappedForeignKeys.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedForeignKeys.Select(i => i.Properties.Select(p => p.Name)));
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IUniqueConstraint expected, IUniqueConstraint actual)
@@ -3344,8 +3344,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 actual.MappedKeys.Select(i => i.Properties.Select(p => p.Name)),
                 expected.MappedKeys.Select(i => i.Properties.Select(p => p.Name)));
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(ITrigger expected, ITrigger actual)
@@ -3354,8 +3354,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.GetTableName(), actual.GetTableName());
             Assert.Equal(expected.GetTableSchema(), actual.GetTableSchema());
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IView expected, IView actual)
@@ -3453,8 +3453,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.IsDefaultFunctionMapping, actual.IsDefaultFunctionMapping);
             Assert.Contains(expected.DbFunction.Name, actual.DbFunction.Name);
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IFunctionColumn expected, IFunctionColumn actual)
@@ -3480,8 +3480,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Contains(actual, actual.Function.Parameters);
             Assert.Equal(expected.DbFunctionParameters.Select(p => p.Name), actual.DbFunctionParameters.Select(p => p.Name));
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IStoreStoredProcedure expected, IStoreStoredProcedure actual)
@@ -3524,8 +3524,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             Assert.Contains(expected.TableMapping?.Table.SchemaQualifiedName, actual.TableMapping?.Table.SchemaQualifiedName);
 
-            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
-            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), AnnotationComparer.Instance);
+            Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), TestAnnotationComparer.Instance);
+            Assert.Equal(expected.GetRuntimeAnnotations(), actual.GetRuntimeAnnotations(), TestAnnotationComparer.Instance);
         }
 
         public static void AssertEqual(IStoreStoredProcedureResultColumn expected, IStoreStoredProcedureResultColumn actual)

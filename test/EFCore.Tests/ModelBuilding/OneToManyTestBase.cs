@@ -9,6 +9,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class OneToManyTestBase : ModelBuilderTestBase
     {
+        public OneToManyTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK()
         {
@@ -899,7 +904,6 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
@@ -1093,9 +1097,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
             Assert.NotSame(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
             Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
@@ -1142,9 +1144,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
             Assert.NotSame(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
             Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
@@ -1191,7 +1191,6 @@ public abstract partial class ModelBuilderTest
             var principalKey = principalType.FindPrimaryKey();
             Assert.Same(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             var fkProperty = fk.Properties.Single();
             Assert.False(fkProperty.IsNullable);
@@ -1237,7 +1236,6 @@ public abstract partial class ModelBuilderTest
             var principalKey = principalType.FindPrimaryKey();
             Assert.Same(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             var fkProperty = fk.Properties.Single();
             Assert.False(fkProperty.IsNullable);
@@ -1394,14 +1392,13 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.Model;
             modelBuilder
                 .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
-                .HasForeignKey(
-                    e => new { e.BurgerId, e.Id });
+                .HasForeignKey(e => new { e.BurgerId, e.Id });
             modelBuilder.Ignore<Bun>();
 
             var dependentType = model.FindEntityType(typeof(Pickle));
             var principalType = model.FindEntityType(typeof(BigMak));
 
-            var modelClone = modelBuilder.Model.Clone();
+            var modelClone = Clone(modelBuilder.Model);
             var nonPrimaryPrincipalKey = modelClone.FindEntityType(typeof(BigMak).FullName)
                 .GetKeys().First(k => !k.IsPrimaryKey());
             var dependentKey = dependentType.FindPrimaryKey();
@@ -1419,8 +1416,8 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
             Assert.Same(fk, principalType.GetNavigations().Single().ForeignKey);
-            AssertEqual(expectedPrincipalProperties.Select(p => p.Name), principalType.GetProperties().Select(p => p.Name));
-            AssertEqual(expectedDependentProperties.Select(p => p.Name), dependentType.GetProperties().Select(p => p.Name));
+            Assert.Equivalent(expectedPrincipalProperties.Select(p => p.Name), principalType.GetProperties().Select(p => p.Name));
+            AssertEqual(expectedDependentProperties, dependentType.GetProperties());
             Assert.Empty(principalType.GetForeignKeys());
 
             var primaryPrincipalKey = principalType.FindPrimaryKey();
@@ -1441,8 +1438,7 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.Model;
             modelBuilder
                 .Entity<BigMak>().HasMany(e => e.Pickles).WithOne(e => e.BigMak)
-                .HasPrincipalKey(
-                    e => new { e.Id });
+                .HasPrincipalKey(e => new { e.Id });
             modelBuilder.Ignore<Bun>();
 
             var principalType = model.FindEntityType(typeof(BigMak));
@@ -1480,12 +1476,10 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder
                 .Entity<Tomato>().HasOne(e => e.Whoopper).WithMany()
-                .HasForeignKey(
-                    c => new { c.BurgerId1, c.BurgerId2 });
+                .HasForeignKey(c => new { c.BurgerId1, c.BurgerId2 });
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
 
@@ -1497,8 +1491,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1522,8 +1515,7 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(
-                    c => new { c.Id1, c.Id2 }));
+                b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1539,8 +1531,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1567,8 +1558,7 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(
-                    c => new { c.Id1, c.Id2 }));
+                b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1586,10 +1576,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 })
-                .HasPrincipalKey(
-                    e => new { e.AlternateKey1, e.AlternateKey2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 })
+                .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1623,8 +1611,7 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
             modelBuilder.Entity<Whoopper>(
-                b => b.HasKey(
-                    c => new { c.Id1, c.Id2 }));
+                b => b.HasKey(c => new { c.Id1, c.Id2 }));
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1642,10 +1629,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne(e => e.Whoopper)
-                .HasPrincipalKey(
-                    e => new { e.AlternateKey1, e.AlternateKey2 })
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 })
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1678,8 +1663,7 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>(
                 b =>
                 {
@@ -1700,8 +1684,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany(e => e.Tomatoes).WithOne()
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1724,8 +1707,7 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<ToastedBun>();
             modelBuilder.Ignore<Mustard>();
@@ -1738,8 +1720,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany<Tomato>().WithOne(e => e.Whoopper)
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1763,8 +1744,7 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Whoopper>().HasMany(w => w.Tomatoes).WithOne(t => t.Whoopper);
             modelBuilder.Entity<Tomato>();
             modelBuilder.Ignore<Mustard>();
@@ -1782,8 +1762,7 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany<Tomato>().WithOne()
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             modelBuilder.FinalizeModel();
 
@@ -1807,11 +1786,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
-                .HasForeignKey<ToastedBun>(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
             modelBuilder.Ignore<Tomato>();
             modelBuilder.Ignore<Mustard>();
 
@@ -1823,10 +1800,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany<ToastedBun>().WithOne()
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 })
-                .HasPrincipalKey(
-                    e => new { e.AlternateKey1, e.AlternateKey2 });
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 })
+                .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 });
 
             var navigation = dependentType.GetNavigations().Single();
             var existingFk = navigation.ForeignKey;
@@ -1857,11 +1832,9 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             var model = modelBuilder.Model;
-            modelBuilder.Entity<Whoopper>().HasKey(
-                c => new { c.Id1, c.Id2 });
+            modelBuilder.Entity<Whoopper>().HasKey(c => new { c.Id1, c.Id2 });
             modelBuilder.Entity<Whoopper>().HasOne(e => e.ToastedBun).WithOne(e => e.Whoopper)
-                .HasForeignKey<ToastedBun>(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasForeignKey<ToastedBun>(e => new { e.BurgerId1, e.BurgerId2 });
             modelBuilder.Ignore<Tomato>();
             modelBuilder.Ignore<Mustard>();
 
@@ -1873,10 +1846,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder
                 .Entity<Whoopper>().HasMany<ToastedBun>().WithOne()
-                .HasPrincipalKey(
-                    e => new { e.AlternateKey1, e.AlternateKey2 })
-                .HasForeignKey(
-                    e => new { e.BurgerId1, e.BurgerId2 });
+                .HasPrincipalKey(e => new { e.AlternateKey1, e.AlternateKey2 })
+                .HasForeignKey(e => new { e.BurgerId1, e.BurgerId2 });
 
             var existingFk = dependentType.GetNavigations().Single().ForeignKey;
             Assert.Same(existingFk, principalType.GetNavigations().Single().ForeignKey);

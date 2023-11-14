@@ -34,5 +34,7 @@
     <!-- NB: This version affects Visual Studio compatibility. See https://learn.microsoft.com/visualstudio/extensibility/roslyn-version-support -->
     <MicrosoftCodeAnalysisVersion>4.5.0</MicrosoftCodeAnalysisVersion>
     <MicrosoftCodeAnalysisTestingVersion>1.1.2-beta1.23371.1</MicrosoftCodeAnalysisTestingVersion>
+    <XUnitVersion>2.6.1</XUnitVersion>
+    <XUnitRunnerVisualstudioVersion>2.5.3</XUnitRunnerVisualstudioVersion>
   </PropertyGroup>
 </Project>

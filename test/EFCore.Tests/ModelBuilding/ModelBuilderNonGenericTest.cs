@@ -9,6 +9,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 {
     public class NonGenericNonRelationship : NonRelationshipTestBase
     {
+        public NonGenericNonRelationship(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -17,6 +22,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericComplexType : ComplexTypeTestBase
     {
+        public NonGenericComplexType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -25,6 +35,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericInheritance : InheritanceTestBase
     {
+        public NonGenericInheritance(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -33,6 +48,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericOwnedTypes : OwnedTypesTestBase
     {
+        public NonGenericOwnedTypes(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void OwnsOne_HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
@@ -55,6 +75,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericOneToMany : OneToManyTestBase
     {
+        public NonGenericOneToMany(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
@@ -140,6 +165,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericManyToOne : ManyToOneTestBase
     {
+        public NonGenericManyToOne(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -148,6 +178,10 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericManyToMany : ManyToManyTestBase
     {
+        public NonGenericManyToMany(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -156,6 +190,11 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
     public class NonGenericOneToOne : OneToOneTestBase
     {
+        public NonGenericOneToOne(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)

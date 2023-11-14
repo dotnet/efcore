@@ -47,6 +47,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericNonRelationship : NonRelationshipTestBase
     {
+        public GenericNonRelationship(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -68,6 +73,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericComplexType : ComplexTypeTestBase
     {
+        public GenericComplexType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -92,14 +102,24 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericInheritance : InheritanceTestBase
     {
+        public GenericInheritance(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(testHelpers, configure);
     }
 
-    public class GenericOwnedTypes : OwnedTypesTestBase
+    public class GenericOwnedTypes: OwnedTypesTestBase
     {
+        public GenericOwnedTypes(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -108,6 +128,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericOneToMany : OneToManyTestBase
     {
+        public GenericOneToMany(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -116,6 +141,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericManyToOne : ManyToOneTestBase
     {
+        public GenericManyToOne(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -124,6 +154,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericManyToMany : ManyToManyTestBase
     {
+        public GenericManyToMany(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -132,6 +167,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
     public class GenericOneToOne : OneToOneTestBase
     {
+        public GenericOneToOne(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)

@@ -7,8 +7,13 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class ManyToOneTestBase : ModelBuilderTestBase
+    public abstract class ManyToOneTestBase: ModelBuilderTestBase
     {
+        public ManyToOneTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Finds_existing_navigations_and_uses_associated_FK()
         {
@@ -886,7 +891,6 @@ public abstract partial class ModelBuilderTest
             Assert.Same(principalKey, principalType.FindPrimaryKey());
             Assert.Same(dependentKey, dependentType.FindPrimaryKey());
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
             expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
@@ -1019,9 +1023,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
             Assert.NotSame(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
             Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
@@ -1068,9 +1070,7 @@ public abstract partial class ModelBuilderTest
             Assert.Contains(fk.PrincipalKey, principalType.GetKeys());
             Assert.NotSame(principalKey, fk.PrincipalKey);
 
-            expectedPrincipalProperties.Add(fk.PrincipalKey.Properties.Single());
             AssertEqual(expectedPrincipalProperties, principalType.GetProperties());
-            expectedDependentProperties.Add(fk.Properties.Single());
             AssertEqual(expectedDependentProperties, dependentType.GetProperties());
 
             Assert.Equal(dependentType.GetForeignKeys().Count(), dependentType.GetIndexes().Count());
@@ -1688,7 +1688,7 @@ public abstract partial class ModelBuilderTest
             // so now the RelationshipDiscoveryConvention should be able
             // to unambiguously and automatically match up Nob.Hob and Hob.Nobs
             var oldFk = principalType.GetForeignKeys().Single();
-            AssertEqual(new[] { nameof(Nob.HobId1), nameof(Nob.HobId2) }, oldFk.Properties.Select(p => p.Name));
+            Assert.Equal(new[] { nameof(Nob.HobId1), nameof(Nob.HobId2) }, oldFk.Properties.Select(p => p.Name));
             Assert.Same(oldFk, dependentType.GetNavigations().Single(n => n.Name == nameof(Hob.Nobs)).ForeignKey);
             Assert.Same(oldFk, principalType.GetNavigations().Single(n => n.Name == nameof(Nob.Hob)).ForeignKey);
             Assert.False(oldFk.IsUnique);

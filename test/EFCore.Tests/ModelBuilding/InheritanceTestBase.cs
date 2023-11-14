@@ -12,6 +12,11 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class InheritanceTestBase : ModelBuilderTestBase
     {
+        public InheritanceTestBase(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         [ConditionalFact]
         public virtual void Can_map_derived_types_first()
         {
@@ -129,8 +134,8 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Entity<BigMak>().Ignore(b => b.Bun);
 
             Assert.Null(pickle.BaseType);
-            var pickleClone = modelBuilder.Model.Clone().FindEntityType(pickle.Name);
-            var initialProperties = pickleClone.GetProperties().Where(p => p.Name != "__jObject").ToList();
+            var pickleClone = Clone(modelBuilder.Model).FindEntityType(pickle.Name);
+            var initialProperties = pickleClone.GetProperties().ToList();
             var initialKeys = pickleClone.GetKeys().ToList();
             var initialIndexes = pickleClone.GetIndexes().ToList();
             var initialForeignKeys = pickleClone.GetForeignKeys().ToList();
@@ -142,35 +147,33 @@ public abstract partial class ModelBuilderTest
 
             Assert.Same(typeof(Ingredient), pickle.BaseType.ClrType);
 
-            var actualProperties = pickle.GetProperties().Where(p => p.Name != "__jObject").ToList();
-            AssertEqual(
+            var actualProperties = pickle.GetProperties();
+            Fixture.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
-                actualProperties.Where(p => p.Name != "Discriminator"),
-                new PropertyComparer(compareAnnotations: false));
+                actualProperties.Where(p => p.Name != "Discriminator"));
 
-            AssertEqual(initialKeys, pickle.GetKeys());
-            AssertEqual(initialIndexes, pickle.GetIndexes());
-            AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-            AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
+            Fixture.AssertEqual(initialKeys, pickle.GetKeys());
+            Fixture.AssertEqual(initialIndexes, pickle.GetIndexes());
+            Fixture.AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
+            Fixture.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
             pickleBuilder.HasBaseType(null);
 
             Assert.Null(pickle.BaseType);
-            actualProperties = pickle.GetProperties().Where(p => p.Name != "__jObject").ToList();
-            AssertEqual(initialProperties, actualProperties, new PropertyComparer(compareAnnotations: false));
-            AssertEqual(initialKeys, pickle.GetKeys());
-            AssertEqual(initialIndexes, pickle.GetIndexes());
-            AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-            AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
+            actualProperties = pickle.GetProperties();
+            Fixture.AssertEqual(initialProperties, actualProperties);
+            Fixture.AssertEqual(initialKeys, pickle.GetKeys());
+            Fixture.AssertEqual(initialIndexes, pickle.GetIndexes());
+            Fixture.AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
+            Fixture.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
-            actualProperties = ingredient.GetProperties().Where(p => p.Name != "__jObject").ToList();
-            AssertEqual(
+            actualProperties = ingredient.GetProperties();
+            Fixture.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
-                actualProperties.Where(p => p.Name != "Discriminator"),
-                new PropertyComparer(compareAnnotations: false));
+                actualProperties.Where(p => p.Name != "Discriminator"));
 
-            AssertEqual(initialKeys, ingredient.GetKeys());
-            AssertEqual(initialIndexes, ingredient.GetIndexes());
+            Fixture.AssertEqual(initialKeys, ingredient.GetKeys());
+            Fixture.AssertEqual(initialIndexes, ingredient.GetIndexes());
             Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());
             Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.GetReferencingForeignKeys().Count());
         }
@@ -584,7 +587,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-            var backOrderClone = modelBuilder.Model.Clone().FindEntityType(derivedDependentEntityType.Name);
+            var backOrderClone = Clone(modelBuilder.Model).FindEntityType(derivedDependentEntityType.Name);
             var initialProperties = backOrderClone.GetProperties().ToList();
             var initialKeys = backOrderClone.GetKeys().ToList();
             var initialIndexes = backOrderClone.GetIndexes().ToList();
@@ -603,10 +606,10 @@ public abstract partial class ModelBuilderTest
             Assert.Single(dependentEntityType.GetIndexes());
             Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
 
-            AssertEqual(initialProperties, derivedDependentEntityType.GetProperties(), new PropertyComparer(compareAnnotations: false));
-            AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
-            AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-            AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+            Fixture.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+            Fixture.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+            Fixture.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+            Fixture.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
             principalEntityBuilder.HasOne<Order>().WithOne()
                 .HasPrincipalKey<Customer>(
@@ -661,7 +664,7 @@ public abstract partial class ModelBuilderTest
             Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-            var backOrderClone = modelBuilder.Model.Clone().FindEntityType(derivedDependentEntityType.Name);
+            var backOrderClone = Clone(modelBuilder.Model).FindEntityType(derivedDependentEntityType.Name);
             var initialProperties = backOrderClone.GetProperties().ToList();
             var initialKeys = backOrderClone.GetKeys().ToList();
             var initialIndexes = backOrderClone.GetIndexes().ToList();
@@ -690,10 +693,10 @@ public abstract partial class ModelBuilderTest
             Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-            AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
-            AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
-            AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-            AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+            Fixture.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+            Fixture.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+            Fixture.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+            Fixture.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
         }
 
         [ConditionalFact]

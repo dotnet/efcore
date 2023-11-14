@@ -13,6 +13,11 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
 {
     public class NonGenericStringOwnedTypes : OwnedTypesTestBase
     {
+        public NonGenericStringOwnedTypes(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -24,11 +29,16 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
                 CoreStrings.AmbiguousSharedTypeEntityTypeName(
                     "Microsoft.EntityFrameworkCore.ModelBuilding.ModelBuilderTest+DependentEntity"),
                 Assert.Throws<InvalidOperationException>(
-                    () => base.OwnedType_can_derive_from_Collection()).Message);
+                    base.OwnedType_can_derive_from_Collection).Message);
     }
 
     public class NonGenericStringOneToManyType : OneToManyTestBase
     {
+        public NonGenericStringOneToManyType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -42,6 +52,11 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
 
     public class NonGenericStringManyToOneType : ManyToOneTestBase
     {
+        public NonGenericStringManyToOneType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
@@ -50,6 +65,11 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
 
     public class NonGenericStringOneToOneType : OneToOneTestBase
     {
+        public NonGenericStringOneToOneType(ModelBuilderFixtureBase fixture)
+            : base(fixture)
+        {
+        }
+
         protected override TestModelBuilder CreateTestModelBuilder(
             TestHelpers testHelpers,
             Action<ModelConfigurationBuilder>? configure)
