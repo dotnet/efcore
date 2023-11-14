@@ -2586,8 +2586,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             var nullable = property.IsNullable;
             var typeMapping = property.GetTypeMapping();
 
-            var jsonReaderWriterExpression = Constant(
-                property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter!);
+            var jsonValueReaderWriter = property.GetJsonValueReaderWriter() ?? property.GetTypeMapping().JsonValueReaderWriter;
+            if (jsonValueReaderWriter is null)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonValueReadWriterMissingOnTypeMapping(
+                        property.GetTypeMapping().GetType().Name, property.Name, property.DeclaringType.DisplayName()));
+            }
+
+            var jsonReaderWriterExpression = Constant(jsonValueReaderWriter);
 
             var fromJsonMethod = jsonReaderWriterExpression.Type.GetMethod(
                 nameof(JsonValueReaderWriter<object>.FromJsonTyped),

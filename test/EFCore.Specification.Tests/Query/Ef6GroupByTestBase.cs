@@ -799,14 +799,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
             => new ArubaData(context);
 
         public virtual ISetSource GetExpectedData()
-        {
-            if (_expectedData == null)
-            {
-                _expectedData = new ArubaData();
-            }
-
-            return _expectedData;
-        }
+            => _expectedData ??= new ArubaData();
 
         public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
         {

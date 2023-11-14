@@ -1184,6 +1184,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 tokenType);
 
         /// <summary>
+        ///     Type mapping type '{typeMapping}', which is being used on property '{property}' on entity type '{entityType}' in a JSON document, has not defined a JsonValueReaderWriter.
+        /// </summary>
+        public static string JsonValueReadWriterMissingOnTypeMapping(object? typeMapping, object? property, object? entityType)
+            => string.Format(
+                GetString("JsonValueReadWriterMissingOnTypeMapping", nameof(typeMapping), nameof(property), nameof(entityType)),
+                typeMapping, property, entityType);
+
+        /// <summary>
         ///     Entity {entity} is required but the JSON element containing it is null.
         /// </summary>
         public static string JsonRequiredEntityWithNullJson(object? entity)
