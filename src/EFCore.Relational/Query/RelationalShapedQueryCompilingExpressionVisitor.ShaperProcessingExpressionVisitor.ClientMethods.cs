@@ -955,7 +955,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     tokenType = manager.MoveNext();
                 }
-                else if (!Utf8JsonReaderManager.UseOldBehavior32235)
+                else
                 {
                     throw new InvalidOperationException(
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
@@ -1048,7 +1048,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     tokenType = manager.MoveNext();
                 }
-                else if (!Utf8JsonReaderManager.UseOldBehavior32235)
+                else
                 {
                     throw new InvalidOperationException(
                         CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));

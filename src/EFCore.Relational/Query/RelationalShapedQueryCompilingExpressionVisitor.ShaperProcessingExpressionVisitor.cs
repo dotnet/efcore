@@ -1840,11 +1840,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Switch(
                             tokenTypeVariable,
                             Block(
-                                Utf8JsonReaderManager.UseOldBehavior32235
-                                    ? Call(
-                                        Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
-                                        Utf8JsonReaderTrySkipMethod)
-                                    : Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
+                                Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
                                 Default(typeof(void))),
                             SwitchCase(
                                 testExpression,
