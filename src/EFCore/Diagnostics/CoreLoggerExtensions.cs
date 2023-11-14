@@ -2143,7 +2143,7 @@ public static class CoreLoggerExtensions
                 property.Name,
                 oldValue,
                 newValue,
-                internalEntityEntry.BuildCurrentValuesString(((IEntityType)property.DeclaringType).FindPrimaryKey()!.Properties));
+                internalEntityEntry.BuildCurrentValuesString(property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2170,7 +2170,7 @@ public static class CoreLoggerExtensions
             p.OldValue,
             p.NewValue,
             p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
-                ((IEntityType)p.Property.DeclaringType).FindPrimaryKey()!.Properties));
+                p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
     }
 
     /// <summary>
@@ -2246,7 +2246,7 @@ public static class CoreLoggerExtensions
                 property.Name,
                 oldValue,
                 newValue,
-                internalEntityEntry.BuildCurrentValuesString(((IEntityType)property.DeclaringType).FindPrimaryKey()!.Properties));
+                internalEntityEntry.BuildCurrentValuesString(property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2273,7 +2273,7 @@ public static class CoreLoggerExtensions
             p.OldValue,
             p.NewValue,
             p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
-                ((IEntityType)p.Property.DeclaringType).FindPrimaryKey()!.Properties));
+                p.Property.DeclaringType.ContainingEntityType.FindPrimaryKey()!.Properties));
     }
 
     /// <summary>
