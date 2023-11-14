@@ -452,7 +452,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableInt8Type
     {
-        public sbyte Int8 { get; set; }
+        public sbyte? Int8 { get; set; }
     }
 
     [ConditionalTheory]
@@ -466,7 +466,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableInt16Type
     {
-        public short Int16 { get; set; }
+        public short? Int16 { get; set; }
     }
 
     [ConditionalTheory]
@@ -480,7 +480,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableInt32Type
     {
-        public int Int32 { get; set; }
+        public int? Int32 { get; set; }
     }
 
     [ConditionalTheory]
@@ -494,7 +494,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableInt64Type
     {
-        public long Int64 { get; set; }
+        public long? Int64 { get; set; }
     }
 
     [ConditionalTheory]
@@ -507,7 +507,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableUInt8Type
     {
-        public byte UInt8 { get; set; }
+        public byte? UInt8 { get; set; }
     }
 
     [ConditionalTheory]
@@ -520,7 +520,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableUInt16Type
     {
-        public ushort UInt16 { get; set; }
+        public ushort? UInt16 { get; set; }
     }
 
     [ConditionalTheory]
@@ -533,7 +533,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableUInt32Type
     {
-        public uint UInt32 { get; set; }
+        public uint? UInt32 { get; set; }
     }
 
     [ConditionalTheory]
@@ -546,7 +546,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableUInt64Type
     {
-        public ulong UInt64 { get; set; }
+        public ulong? UInt64 { get; set; }
     }
 
     [ConditionalTheory]
@@ -560,7 +560,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableFloatType
     {
-        public float Float { get; set; }
+        public float? Float { get; set; }
     }
 
     [ConditionalTheory]
@@ -574,7 +574,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableDoubleType
     {
-        public double Double { get; set; }
+        public double? Double { get; set; }
     }
 
     [ConditionalTheory]
@@ -590,7 +590,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableDecimalType
     {
-        public decimal Decimal { get; set; }
+        public decimal? Decimal { get; set; }
     }
 
     [ConditionalTheory]
@@ -605,7 +605,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableDateOnlyType
     {
-        public DateOnly DateOnly { get; set; }
+        public DateOnly? DateOnly { get; set; }
     }
 
     [ConditionalTheory]
@@ -620,7 +620,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableTimeOnlyType
     {
-        public TimeOnly TimeOnly { get; set; }
+        public TimeOnly? TimeOnly { get; set; }
     }
 
     [ConditionalTheory]
@@ -635,7 +635,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableDateTimeType
     {
-        public DateTime DateTime { get; set; }
+        public DateTime? DateTime { get; set; }
     }
 
     [ConditionalTheory]
@@ -651,7 +651,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableDateTimeOffsetType
     {
-        public DateTimeOffset DateTimeOffset { get; set; }
+        public DateTimeOffset? DateTimeOffset { get; set; }
     }
 
     [ConditionalTheory]
@@ -667,7 +667,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableTimeSpanType
     {
-        public TimeSpan TimeSpan { get; set; }
+        public TimeSpan? TimeSpan { get; set; }
     }
 
     [ConditionalTheory]
@@ -679,7 +679,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableBooleanType
     {
-        public bool Boolean { get; set; }
+        public bool? Boolean { get; set; }
     }
 
     [ConditionalTheory]
@@ -693,7 +693,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableCharacterType
     {
-        public char Character { get; set; }
+        public char? Character { get; set; }
     }
 
     [ConditionalTheory]
@@ -708,7 +708,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableGuidType
     {
-        public Guid Guid { get; set; }
+        public Guid? Guid { get; set; }
     }
 
     [ConditionalTheory]
@@ -794,7 +794,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullablePhysicalAddressType
     {
-        public PhysicalAddress PhysicalAddress { get; set; } = null!;
+        public PhysicalAddress? PhysicalAddress { get; set; } = null!;
     }
 
     [ConditionalTheory]
@@ -810,7 +810,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnum8Type
     {
-        public Enum8 Enum8 { get; set; }
+        public Enum8? Enum8 { get; set; }
     }
 
     [ConditionalTheory]
@@ -826,7 +826,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnum16Type
     {
-        public Enum16 Enum16 { get; set; }
+        public Enum16? Enum16 { get; set; }
     }
 
     [ConditionalTheory]
@@ -842,7 +842,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnum32Type
     {
-        public Enum32 Enum32 { get; set; }
+        public Enum32? Enum32 { get; set; }
     }
 
     [ConditionalTheory]
@@ -858,7 +858,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnum64Type
     {
-        public Enum64 Enum64 { get; set; }
+        public Enum64? Enum64 { get; set; }
     }
 
     [ConditionalTheory]
@@ -873,7 +873,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnumU8Type
     {
-        public EnumU8 EnumU8 { get; set; }
+        public EnumU8? EnumU8 { get; set; }
     }
 
     [ConditionalTheory]
@@ -888,7 +888,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnumU16Type
     {
-        public EnumU16 EnumU16 { get; set; }
+        public EnumU16? EnumU16 { get; set; }
     }
 
     [ConditionalTheory]
@@ -903,7 +903,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnumU32Type
     {
-        public EnumU32 EnumU32 { get; set; }
+        public EnumU32? EnumU32 { get; set; }
     }
 
     [ConditionalTheory]
@@ -918,7 +918,7 @@ public abstract class JsonTypesTestBase
 
     protected class NullableEnumU64Type
     {
-        public EnumU64 EnumU64 { get; set; }
+        public EnumU64? EnumU64 { get; set; }
     }
 
     [ConditionalTheory]
@@ -3725,13 +3725,11 @@ public abstract class JsonTypesTestBase
 
         public override Geometry FromJsonTyped(ref Utf8JsonReaderManager manager, object? existingObject = null)
         {
-            var builder = new StringBuilder("{");
-            var depth = 1;
+            var builder = new StringBuilder();
+            var depth = 0;
             var comma = false;
-            while (depth > 0)
+            do
             {
-                manager.MoveNext();
-
                 switch (manager.CurrentReader.TokenType)
                 {
                     case JsonTokenType.EndObject:
@@ -3783,7 +3781,10 @@ public abstract class JsonTypesTestBase
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+
+                manager.MoveNext();
             }
+            while (depth > 0);
 
             var serializer = GeoJsonSerializer.Create();
             using var stringReader = new StringReader(builder.ToString());

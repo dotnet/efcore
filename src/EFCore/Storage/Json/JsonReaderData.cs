@@ -56,30 +56,67 @@ public class JsonReaderData
     /// <returns>The new <see cref="Utf8JsonReader" />, having read my bytes from the stream.</returns>
     public virtual Utf8JsonReader ReadBytes(int bytesConsumed, JsonReaderState state)
     {
-        Check.DebugAssert(_stream != null, "Only needed when buffer doesn't contain full JSON document.");
-
-        var buffer = _buffer;
-        var totalConsumed = bytesConsumed + _positionInBuffer;
-        if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
+        if (Utf8JsonReaderManager.UseOldBehavior32235)
         {
-            var leftover = buffer.AsSpan(totalConsumed);
+            Check.DebugAssert(_stream != null, "Only needed when buffer doesn't contain full JSON document.");
 
-            if (leftover.Length == buffer.Length)
+            var buffer = _buffer;
+            var totalConsumed = bytesConsumed + _positionInBuffer;
+            if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
             {
-                Array.Resize(ref buffer, buffer.Length * 2);
+                var leftover = buffer.AsSpan(totalConsumed);
+
+                if (leftover.Length == buffer.Length)
+                {
+                    Array.Resize(ref buffer, buffer.Length * 2);
+                }
+
+                leftover.CopyTo(buffer);
+                _bytesAvailable = _stream.Read(buffer.AsSpan(leftover.Length)) + leftover.Length;
+            }
+            else
+            {
+                _bytesAvailable = _stream.Read(buffer);
             }
 
-            leftover.CopyTo(buffer);
-            _bytesAvailable = _stream.Read(buffer.AsSpan(leftover.Length)) + leftover.Length;
+            _buffer = buffer;
+            _positionInBuffer = 0;
+            _readerState = state;
         }
         else
         {
-            _bytesAvailable = _stream.Read(buffer);
-        }
+            if (_stream == null)
+            {
+                _bytesAvailable = 0;
+            }
+            else
+            {
 
-        _buffer = buffer;
-        _positionInBuffer = 0;
-        _readerState = state;
+                var buffer = _buffer;
+                var totalConsumed = bytesConsumed + _positionInBuffer;
+                if (_bytesAvailable != 0 && totalConsumed < buffer.Length)
+                {
+                    var leftover = buffer.AsSpan(totalConsumed);
+
+                    if (leftover.Length == buffer.Length)
+                    {
+                        Array.Resize(ref buffer, buffer.Length * 2);
+                    }
+
+                    leftover.CopyTo(buffer);
+                    _bytesAvailable = _stream.Read(buffer.AsSpan(leftover.Length)) + leftover.Length;
+                }
+                else
+                {
+                    _bytesAvailable = _stream.Read(buffer);
+                }
+
+                _buffer = buffer;
+            }
+
+            _positionInBuffer = 0;
+            _readerState = state;
+        }
 
         return CreateReader();
     }

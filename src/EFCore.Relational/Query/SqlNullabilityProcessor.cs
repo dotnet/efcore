@@ -24,6 +24,9 @@ public class SqlNullabilityProcessor
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private bool _canCache;
 
+    private static readonly bool UseOldBehavior32208 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32208", out var enabled32208) && enabled32208;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
     /// </summary>
@@ -650,6 +653,11 @@ public class SqlNullabilityProcessor
 
         var item = Visit(inExpression.Item, out var itemNullable);
         inExpression = inExpression.Update(item, inExpression.Subquery, inExpression.Values, inExpression.ValuesParameter);
+
+        if (!UseOldBehavior32208)
+        {
+            inExpression = inExpression.Update(item, inExpression.Subquery, inExpression.Values, inExpression.ValuesParameter);
+        }
 
         if (inExpression.Subquery != null)
         {

@@ -59,6 +59,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly FieldInfo Utf8JsonReaderManagerCurrentReaderField
             = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader))!;
 
+        private static readonly MethodInfo Utf8JsonReaderManagerSkipMethod
+            = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.Skip), Array.Empty<Type>())!;
+
         private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
             = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), new[] { typeof(ReadOnlySpan<byte>) })!;
 
@@ -1837,9 +1840,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Switch(
                             tokenTypeVariable,
                             Block(
-                                Call(
-                                    Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
-                                    Utf8JsonReaderTrySkipMethod),
+                                Utf8JsonReaderManager.UseOldBehavior32235
+                                    ? Call(
+                                        Field(managerVariable, Utf8JsonReaderManagerCurrentReaderField),
+                                        Utf8JsonReaderTrySkipMethod)
+                                    : Call(managerVariable, Utf8JsonReaderManagerSkipMethod),
                                 Default(typeof(void))),
                             SwitchCase(
                                 testExpression,

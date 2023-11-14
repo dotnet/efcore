@@ -504,6 +504,55 @@ public class ChangeTrackerTest
         Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
     }
 
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void Detect_nested_property_change_is_logged(bool sensitive, bool callDetectChangesTwice)
+    {
+        var wocket = new Wocket { Id = 1, Name = "Gollum", Pocket = new() { Contents = "Handsies" } };
+
+        using var context = sensitive ? new LikeAZooContextSensitive() : new LikeAZooContext();
+        context.Database.EnsureDeleted();
+        context.Add(wocket);
+        context.SaveChanges();
+
+        _loggerFactory.Log.Clear();
+
+        wocket.Pocket.Contents = "Fishies";
+
+        context.ChangeTracker.DetectChanges();
+
+        if (callDetectChangesTwice)
+        {
+            context.ChangeTracker.DetectChanges();
+        }
+
+        var (level, _, message, _, _) = _loggerFactory.Log.Single(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id);
+        Assert.Equal(LogLevel.Debug, level);
+        Assert.Equal(
+            sensitive
+                ? CoreResources.LogPropertyChangeDetectedSensitive(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    nameof(Pocket), nameof(Pocket.Contents), "Handsies", "Fishies", "{Id: 1}")
+                : CoreResources.LogPropertyChangeDetected(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(nameof(Pocket), nameof(Pocket.Contents)),
+            message);
+
+        _loggerFactory.Log.Clear();
+
+        wocket.Pocket.Contents = "String...or nothing!";
+
+        context.ChangeTracker.DetectChanges();
+
+        if (callDetectChangesTwice)
+        {
+            context.ChangeTracker.DetectChanges();
+        }
+
+        Assert.Empty(_loggerFactory.Log.Where(e => e.Id.Id == CoreEventId.PropertyChangeDetected.Id));
+    }
+
     [ConditionalTheory] // Issue #21896
     [InlineData(false, false)]
     [InlineData(true, false)]
@@ -2133,6 +2182,18 @@ public class ChangeTrackerTest
         };
     }
 
+    private class Wocket
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public required Pocket Pocket { get; set; }
+    }
+
+    private class Pocket
+    {
+        public string? Contents { get; set; }
+    }
+
     private class Cat
     {
         public Cat(int id)
@@ -2256,6 +2317,8 @@ public class ChangeTrackerTest
                             ts => ts.HasOne<Mat>().WithMany())
                         .HasKey(ts => new { ts.CatId, ts.MatId });
                 });
+
+            modelBuilder.Entity<Wocket>().ComplexProperty(e => e.Pocket);
         }
     }
 
