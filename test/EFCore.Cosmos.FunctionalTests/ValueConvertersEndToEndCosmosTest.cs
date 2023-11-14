@@ -3,7 +3,7 @@
 
 #nullable enable
 
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class ValueConvertersEndToEndCosmosTest
     : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture>

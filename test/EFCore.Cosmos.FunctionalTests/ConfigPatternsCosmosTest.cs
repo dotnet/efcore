@@ -4,7 +4,7 @@
 using Microsoft.Azure.Cosmos;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {

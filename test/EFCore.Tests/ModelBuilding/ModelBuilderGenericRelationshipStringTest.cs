@@ -69,7 +69,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
             => new GenericStringTestModelBuilder(testHelpers, configure);
     }
 
-    private class GenericStringTestModelBuilder : TestModelBuilder
+    public class GenericStringTestModelBuilder : TestModelBuilder
     {
         public GenericStringTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
             : base(testHelpers, configure)
@@ -112,7 +112,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
             => entityType.FullName!;
     }
 
-    private class GenericStringTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>
+    protected class GenericStringTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>
         where TEntity : class
     {
         public GenericStringTestEntityTypeBuilder(EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -168,7 +168,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class GenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity> :
+    protected class GenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity> :
         GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -192,7 +192,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class GenericStringTestCollectionNavigationBuilder<TEntity, TRelatedEntity>
+    protected class GenericStringTestCollectionNavigationBuilder<TEntity, TRelatedEntity>
         : GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -216,7 +216,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
                     navigationExpression.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+    protected class GenericStringTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
         : GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -244,7 +244,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
                     keyExpression.GetMemberAccessList().Select(p => p.GetSimpleMemberName()).ToArray()));
     }
 
-    private class GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+    protected class GenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -285,7 +285,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
                     typeof(TPrincipalEntity).FullName!, keyPropertyNames));
     }
 
-    private class GenericStringTestCollectionCollectionBuilder<TLeftEntity, TRightEntity> :
+    protected class GenericStringTestCollectionCollectionBuilder<TLeftEntity, TRightEntity> :
         GenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity>
         where TLeftEntity : class
         where TRightEntity : class
@@ -297,7 +297,7 @@ public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
         }
     }
 
-    private class GenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>
+    protected class GenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>
         : GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>
         where TEntity : class
         where TDependentEntity : class

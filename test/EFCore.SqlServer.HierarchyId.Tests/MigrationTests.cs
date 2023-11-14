@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Design;
-using Microsoft.EntityFrameworkCore.SqlServer.Test.Models.Migrations;
+using Microsoft.EntityFrameworkCore.SqlServer.TestModels.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

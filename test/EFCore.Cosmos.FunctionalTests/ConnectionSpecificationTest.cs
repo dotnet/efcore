@@ -4,7 +4,7 @@
 using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class ConnectionSpecificationTest
 {

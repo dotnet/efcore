@@ -59,4 +59,8 @@
     <PackageReference Include="Azure.Identity" Version="1.10.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Internal\" />
+  </ItemGroup>
+
 </Project>

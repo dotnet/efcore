@@ -33,7 +33,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             => new GenericTypeTestModelBuilder(testHelpers, configure);
     }
 
-    private class GenericTypeTestModelBuilder : TestModelBuilder
+    public class GenericTypeTestModelBuilder : TestModelBuilder
     {
         public GenericTypeTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
             : base(testHelpers, configure)
@@ -73,7 +73,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
         }
     }
 
-    private class GenericTypeTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>
+    protected class GenericTypeTestEntityTypeBuilder<TEntity> : GenericTestEntityTypeBuilder<TEntity>
         where TEntity : class
     {
         public GenericTypeTestEntityTypeBuilder(EntityTypeBuilder<TEntity> entityTypeBuilder)
@@ -113,7 +113,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             => new GenericTypeTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(EntityTypeBuilder.HasMany(navigationExpression));
     }
 
-    private class GenericTypeTestPropertyBuilder<TProperty> : GenericTestPropertyBuilder<TProperty>
+    protected class GenericTypeTestPropertyBuilder<TProperty> : GenericTestPropertyBuilder<TProperty>
     {
         public GenericTypeTestPropertyBuilder(PropertyBuilder<TProperty> propertyBuilder)
             : base(propertyBuilder)
@@ -141,7 +141,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer), typeof(TProviderComparer)));
     }
 
-    private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity,
+    protected class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity,
         TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -174,7 +174,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
                 CollectionNavigationBuilder.WithMany(navigationExpression));
     }
 
-    private class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+    protected class GenericTypeTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         : GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
@@ -327,7 +327,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
                         new GenericTypeTestEntityTypeBuilder<TJoinEntity>(new EntityTypeBuilder<TJoinEntity>(e.Metadata)))));
     }
 
-    private class GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>
+    protected class GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>
         : GenericTestOwnedNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class

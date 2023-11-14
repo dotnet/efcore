@@ -1143,7 +1143,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
             => KeyBuilder;
     }
 
-    public class GenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
+    protected class GenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
     {
         public GenericTestIndexBuilder(IndexBuilder<TEntity> indexBuilder)
         {

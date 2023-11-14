@@ -3,7 +3,7 @@
 
 // ReSharper disable InconsistentNaming
 
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1CosmosFixture<byte[]>, byte[]>
 {
