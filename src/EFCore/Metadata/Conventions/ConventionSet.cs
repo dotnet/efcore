@@ -296,318 +296,336 @@ public class ConventionSet
     public virtual void Replace<TImplementation>(TImplementation newConvention)
         where TImplementation : IConvention
     {
-        var oldConvetionType = typeof(TImplementation);
+        var oldConventionType = typeof(TImplementation);
         if (newConvention is IModelInitializedConvention modelInitializedConvention
-            && !Replace(ModelInitializedConventions, modelInitializedConvention, oldConvetionType))
+            && !Replace(ModelInitializedConventions, modelInitializedConvention, oldConventionType))
         {
             ModelInitializedConventions.Add(modelInitializedConvention);
         }
 
         if (newConvention is IModelFinalizingConvention modelFinalizingConvention
-            && !Replace(ModelFinalizingConventions, modelFinalizingConvention, oldConvetionType))
+            && !Replace(ModelFinalizingConventions, modelFinalizingConvention, oldConventionType))
         {
             ModelFinalizingConventions.Add(modelFinalizingConvention);
         }
 
         if (newConvention is IModelFinalizedConvention modelFinalizedConvention
-            && !Replace(ModelFinalizedConventions, modelFinalizedConvention, oldConvetionType))
+            && !Replace(ModelFinalizedConventions, modelFinalizedConvention, oldConventionType))
         {
             ModelFinalizedConventions.Add(modelFinalizedConvention);
         }
 
         if (newConvention is IModelAnnotationChangedConvention modelAnnotationChangedConvention
-            && !Replace(ModelAnnotationChangedConventions, modelAnnotationChangedConvention, oldConvetionType))
+            && !Replace(ModelAnnotationChangedConventions, modelAnnotationChangedConvention, oldConventionType))
         {
             ModelAnnotationChangedConventions.Add(modelAnnotationChangedConvention);
         }
 
         if (newConvention is ITypeIgnoredConvention typeIgnoredConvention
-            && !Replace(TypeIgnoredConventions, typeIgnoredConvention, oldConvetionType))
+            && !Replace(TypeIgnoredConventions, typeIgnoredConvention, oldConventionType))
         {
             TypeIgnoredConventions.Add(typeIgnoredConvention);
         }
 
         if (newConvention is IEntityTypeAddedConvention entityTypeAddedConvention
-            && !Replace(EntityTypeAddedConventions, entityTypeAddedConvention, oldConvetionType))
+            && !Replace(EntityTypeAddedConventions, entityTypeAddedConvention, oldConventionType))
         {
             EntityTypeAddedConventions.Add(entityTypeAddedConvention);
         }
 
         if (newConvention is IEntityTypeRemovedConvention entityTypeRemovedConvention
-            && !Replace(EntityTypeRemovedConventions, entityTypeRemovedConvention, oldConvetionType))
+            && !Replace(EntityTypeRemovedConventions, entityTypeRemovedConvention, oldConventionType))
         {
             EntityTypeRemovedConventions.Add(entityTypeRemovedConvention);
         }
 
         if (newConvention is IEntityTypeMemberIgnoredConvention entityTypeMemberIgnoredConvention
-            && !Replace(EntityTypeMemberIgnoredConventions, entityTypeMemberIgnoredConvention, oldConvetionType))
+            && !Replace(EntityTypeMemberIgnoredConventions, entityTypeMemberIgnoredConvention, oldConventionType))
         {
             EntityTypeMemberIgnoredConventions.Add(entityTypeMemberIgnoredConvention);
         }
 
         if (newConvention is IDiscriminatorPropertySetConvention discriminatorPropertySetConvention
-            && !Replace(DiscriminatorPropertySetConventions, discriminatorPropertySetConvention, oldConvetionType))
+            && !Replace(DiscriminatorPropertySetConventions, discriminatorPropertySetConvention, oldConventionType))
         {
             DiscriminatorPropertySetConventions.Add(discriminatorPropertySetConvention);
         }
 
         if (newConvention is IEntityTypeBaseTypeChangedConvention entityTypeBaseTypeChangedConvention
-            && !Replace(EntityTypeBaseTypeChangedConventions, entityTypeBaseTypeChangedConvention, oldConvetionType))
+            && !Replace(EntityTypeBaseTypeChangedConventions, entityTypeBaseTypeChangedConvention, oldConventionType))
         {
             EntityTypeBaseTypeChangedConventions.Add(entityTypeBaseTypeChangedConvention);
         }
 
         if (newConvention is IEntityTypePrimaryKeyChangedConvention entityTypePrimaryKeyChangedConvention
-            && !Replace(EntityTypePrimaryKeyChangedConventions, entityTypePrimaryKeyChangedConvention, oldConvetionType))
+            && !Replace(EntityTypePrimaryKeyChangedConventions, entityTypePrimaryKeyChangedConvention, oldConventionType))
         {
             EntityTypePrimaryKeyChangedConventions.Add(entityTypePrimaryKeyChangedConvention);
         }
 
         if (newConvention is IEntityTypeAnnotationChangedConvention entityTypeAnnotationChangedConvention
-            && !Replace(EntityTypeAnnotationChangedConventions, entityTypeAnnotationChangedConvention, oldConvetionType))
+            && !Replace(EntityTypeAnnotationChangedConventions, entityTypeAnnotationChangedConvention, oldConventionType))
         {
             EntityTypeAnnotationChangedConventions.Add(entityTypeAnnotationChangedConvention);
         }
 
         if (newConvention is IComplexPropertyAddedConvention complexPropertyAddedConvention
-            && !Replace(ComplexPropertyAddedConventions, complexPropertyAddedConvention, oldConvetionType))
+            && !Replace(ComplexPropertyAddedConventions, complexPropertyAddedConvention, oldConventionType))
         {
             ComplexPropertyAddedConventions.Add(complexPropertyAddedConvention);
         }
 
         if (newConvention is IComplexPropertyRemovedConvention complexPropertyRemovedConvention
-            && !Replace(ComplexPropertyRemovedConventions, complexPropertyRemovedConvention, oldConvetionType))
+            && !Replace(ComplexPropertyRemovedConventions, complexPropertyRemovedConvention, oldConventionType))
         {
             ComplexPropertyRemovedConventions.Add(complexPropertyRemovedConvention);
         }
 
+        if (newConvention is IComplexTypeAnnotationChangedConvention complexTypeAnnotationChangedConvention
+            && !Replace(ComplexTypeAnnotationChangedConventions, complexTypeAnnotationChangedConvention, oldConventionType))
+        {
+            ComplexTypeAnnotationChangedConventions.Add(complexTypeAnnotationChangedConvention);
+        }
+
         if (newConvention is IComplexTypeMemberIgnoredConvention complexPropertyMemberIgnoredConvention
-            && !Replace(ComplexTypeMemberIgnoredConventions, complexPropertyMemberIgnoredConvention, oldConvetionType))
+            && !Replace(ComplexTypeMemberIgnoredConventions, complexPropertyMemberIgnoredConvention, oldConventionType))
         {
             ComplexTypeMemberIgnoredConventions.Add(complexPropertyMemberIgnoredConvention);
         }
 
         if (newConvention is IComplexPropertyNullabilityChangedConvention complexPropertyNullabilityChangedConvention
-            && !Replace(ComplexPropertyNullabilityChangedConventions, complexPropertyNullabilityChangedConvention, oldConvetionType))
+            && !Replace(ComplexPropertyNullabilityChangedConventions, complexPropertyNullabilityChangedConvention, oldConventionType))
         {
             ComplexPropertyNullabilityChangedConventions.Add(complexPropertyNullabilityChangedConvention);
         }
 
         if (newConvention is IComplexPropertyFieldChangedConvention complexPropertyFieldChangedConvention
-            && !Replace(ComplexPropertyFieldChangedConventions, complexPropertyFieldChangedConvention, oldConvetionType))
+            && !Replace(ComplexPropertyFieldChangedConventions, complexPropertyFieldChangedConvention, oldConventionType))
         {
             ComplexPropertyFieldChangedConventions.Add(complexPropertyFieldChangedConvention);
         }
 
         if (newConvention is IComplexPropertyAnnotationChangedConvention complexPropertyAnnotationChangedConvention
-            && !Replace(ComplexPropertyAnnotationChangedConventions, complexPropertyAnnotationChangedConvention, oldConvetionType))
+            && !Replace(ComplexPropertyAnnotationChangedConventions, complexPropertyAnnotationChangedConvention, oldConventionType))
         {
             ComplexPropertyAnnotationChangedConventions.Add(complexPropertyAnnotationChangedConvention);
         }
 
         if (newConvention is IForeignKeyAddedConvention foreignKeyAddedConvention
-            && !Replace(ForeignKeyAddedConventions, foreignKeyAddedConvention, oldConvetionType))
+            && !Replace(ForeignKeyAddedConventions, foreignKeyAddedConvention, oldConventionType))
         {
             ForeignKeyAddedConventions.Add(foreignKeyAddedConvention);
         }
 
         if (newConvention is IForeignKeyRemovedConvention foreignKeyRemovedConvention
-            && !Replace(ForeignKeyRemovedConventions, foreignKeyRemovedConvention, oldConvetionType))
+            && !Replace(ForeignKeyRemovedConventions, foreignKeyRemovedConvention, oldConventionType))
         {
             ForeignKeyRemovedConventions.Add(foreignKeyRemovedConvention);
         }
 
         if (newConvention is IForeignKeyPrincipalEndChangedConvention foreignKeyPrincipalEndChangedConvention
-            && !Replace(ForeignKeyPrincipalEndChangedConventions, foreignKeyPrincipalEndChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyPrincipalEndChangedConventions, foreignKeyPrincipalEndChangedConvention, oldConventionType))
         {
             ForeignKeyPrincipalEndChangedConventions.Add(foreignKeyPrincipalEndChangedConvention);
         }
 
         if (newConvention is IForeignKeyPropertiesChangedConvention foreignKeyPropertiesChangedConvention
-            && !Replace(ForeignKeyPropertiesChangedConventions, foreignKeyPropertiesChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyPropertiesChangedConventions, foreignKeyPropertiesChangedConvention, oldConventionType))
         {
             ForeignKeyPropertiesChangedConventions.Add(foreignKeyPropertiesChangedConvention);
         }
 
         if (newConvention is IForeignKeyUniquenessChangedConvention foreignKeyUniquenessChangedConvention
-            && !Replace(ForeignKeyUniquenessChangedConventions, foreignKeyUniquenessChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyUniquenessChangedConventions, foreignKeyUniquenessChangedConvention, oldConventionType))
         {
             ForeignKeyUniquenessChangedConventions.Add(foreignKeyUniquenessChangedConvention);
         }
 
         if (newConvention is IForeignKeyRequirednessChangedConvention foreignKeyRequirednessChangedConvention
-            && !Replace(ForeignKeyRequirednessChangedConventions, foreignKeyRequirednessChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyRequirednessChangedConventions, foreignKeyRequirednessChangedConvention, oldConventionType))
         {
             ForeignKeyRequirednessChangedConventions.Add(foreignKeyRequirednessChangedConvention);
         }
 
         if (newConvention is IForeignKeyDependentRequirednessChangedConvention foreignKeyDependentRequirednessChangedConvention
             && !Replace(
-                ForeignKeyDependentRequirednessChangedConventions, foreignKeyDependentRequirednessChangedConvention, oldConvetionType))
+                ForeignKeyDependentRequirednessChangedConventions, foreignKeyDependentRequirednessChangedConvention, oldConventionType))
         {
             ForeignKeyDependentRequirednessChangedConventions.Add(foreignKeyDependentRequirednessChangedConvention);
         }
 
         if (newConvention is IForeignKeyOwnershipChangedConvention foreignKeyOwnershipChangedConvention
-            && !Replace(ForeignKeyOwnershipChangedConventions, foreignKeyOwnershipChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyOwnershipChangedConventions, foreignKeyOwnershipChangedConvention, oldConventionType))
         {
             ForeignKeyOwnershipChangedConventions.Add(foreignKeyOwnershipChangedConvention);
         }
 
         if (newConvention is IForeignKeyAnnotationChangedConvention foreignKeyAnnotationChangedConvention
-            && !Replace(ForeignKeyAnnotationChangedConventions, foreignKeyAnnotationChangedConvention, oldConvetionType))
+            && !Replace(ForeignKeyAnnotationChangedConventions, foreignKeyAnnotationChangedConvention, oldConventionType))
         {
             ForeignKeyAnnotationChangedConventions.Add(foreignKeyAnnotationChangedConvention);
         }
 
         if (newConvention is IForeignKeyNullNavigationSetConvention foreignKeyNullNavigationSetConvention
-            && !Replace(ForeignKeyNullNavigationSetConventions, foreignKeyNullNavigationSetConvention, oldConvetionType))
+            && !Replace(ForeignKeyNullNavigationSetConventions, foreignKeyNullNavigationSetConvention, oldConventionType))
         {
             ForeignKeyNullNavigationSetConventions.Add(foreignKeyNullNavigationSetConvention);
         }
 
         if (newConvention is INavigationAddedConvention navigationAddedConvention
-            && !Replace(NavigationAddedConventions, navigationAddedConvention, oldConvetionType))
+            && !Replace(NavigationAddedConventions, navigationAddedConvention, oldConventionType))
         {
             NavigationAddedConventions.Add(navigationAddedConvention);
         }
 
         if (newConvention is INavigationAnnotationChangedConvention navigationAnnotationChangedConvention
-            && !Replace(NavigationAnnotationChangedConventions, navigationAnnotationChangedConvention, oldConvetionType))
+            && !Replace(NavigationAnnotationChangedConventions, navigationAnnotationChangedConvention, oldConventionType))
         {
             NavigationAnnotationChangedConventions.Add(navigationAnnotationChangedConvention);
         }
 
         if (newConvention is INavigationRemovedConvention navigationRemovedConvention
-            && !Replace(NavigationRemovedConventions, navigationRemovedConvention, oldConvetionType))
+            && !Replace(NavigationRemovedConventions, navigationRemovedConvention, oldConventionType))
         {
             NavigationRemovedConventions.Add(navigationRemovedConvention);
         }
 
         if (newConvention is ISkipNavigationAddedConvention skipNavigationAddedConvention
-            && !Replace(SkipNavigationAddedConventions, skipNavigationAddedConvention, oldConvetionType))
+            && !Replace(SkipNavigationAddedConventions, skipNavigationAddedConvention, oldConventionType))
         {
             SkipNavigationAddedConventions.Add(skipNavigationAddedConvention);
         }
 
         if (newConvention is ISkipNavigationAnnotationChangedConvention skipNavigationAnnotationChangedConvention
-            && !Replace(SkipNavigationAnnotationChangedConventions, skipNavigationAnnotationChangedConvention, oldConvetionType))
+            && !Replace(SkipNavigationAnnotationChangedConventions, skipNavigationAnnotationChangedConvention, oldConventionType))
         {
             SkipNavigationAnnotationChangedConventions.Add(skipNavigationAnnotationChangedConvention);
         }
 
         if (newConvention is ISkipNavigationForeignKeyChangedConvention skipNavigationForeignKeyChangedConvention
-            && !Replace(SkipNavigationForeignKeyChangedConventions, skipNavigationForeignKeyChangedConvention, oldConvetionType))
+            && !Replace(SkipNavigationForeignKeyChangedConventions, skipNavigationForeignKeyChangedConvention, oldConventionType))
         {
             SkipNavigationForeignKeyChangedConventions.Add(skipNavigationForeignKeyChangedConvention);
         }
 
         if (newConvention is ISkipNavigationInverseChangedConvention skipNavigationInverseChangedConvention
-            && !Replace(SkipNavigationInverseChangedConventions, skipNavigationInverseChangedConvention, oldConvetionType))
+            && !Replace(SkipNavigationInverseChangedConventions, skipNavigationInverseChangedConvention, oldConventionType))
         {
             SkipNavigationInverseChangedConventions.Add(skipNavigationInverseChangedConvention);
         }
 
         if (newConvention is ISkipNavigationRemovedConvention skipNavigationRemovedConvention
-            && !Replace(SkipNavigationRemovedConventions, skipNavigationRemovedConvention, oldConvetionType))
+            && !Replace(SkipNavigationRemovedConventions, skipNavigationRemovedConvention, oldConventionType))
         {
             SkipNavigationRemovedConventions.Add(skipNavigationRemovedConvention);
         }
 
         if (newConvention is IKeyAddedConvention keyAddedConvention
-            && !Replace(KeyAddedConventions, keyAddedConvention, oldConvetionType))
+            && !Replace(KeyAddedConventions, keyAddedConvention, oldConventionType))
         {
             KeyAddedConventions.Add(keyAddedConvention);
         }
 
         if (newConvention is IKeyRemovedConvention keyRemovedConvention
-            && !Replace(KeyRemovedConventions, keyRemovedConvention, oldConvetionType))
+            && !Replace(KeyRemovedConventions, keyRemovedConvention, oldConventionType))
         {
             KeyRemovedConventions.Add(keyRemovedConvention);
         }
 
         if (newConvention is ITriggerAddedConvention triggerAddedConvention
-            && !Replace(TriggerAddedConventions, triggerAddedConvention, oldConvetionType))
+            && !Replace(TriggerAddedConventions, triggerAddedConvention, oldConventionType))
         {
             TriggerAddedConventions.Add(triggerAddedConvention);
         }
 
         if (newConvention is ITriggerRemovedConvention triggerRemovedConvention
-            && !Replace(TriggerRemovedConventions, triggerRemovedConvention, oldConvetionType))
+            && !Replace(TriggerRemovedConventions, triggerRemovedConvention, oldConventionType))
         {
             TriggerRemovedConventions.Add(triggerRemovedConvention);
         }
 
         if (newConvention is IKeyAnnotationChangedConvention keyAnnotationChangedConvention
-            && !Replace(KeyAnnotationChangedConventions, keyAnnotationChangedConvention, oldConvetionType))
+            && !Replace(KeyAnnotationChangedConventions, keyAnnotationChangedConvention, oldConventionType))
         {
             KeyAnnotationChangedConventions.Add(keyAnnotationChangedConvention);
         }
 
         if (newConvention is IIndexAddedConvention indexAddedConvention
-            && !Replace(IndexAddedConventions, indexAddedConvention, oldConvetionType))
+            && !Replace(IndexAddedConventions, indexAddedConvention, oldConventionType))
         {
             IndexAddedConventions.Add(indexAddedConvention);
         }
 
         if (newConvention is IIndexRemovedConvention indexRemovedConvention
-            && !Replace(IndexRemovedConventions, indexRemovedConvention, oldConvetionType))
+            && !Replace(IndexRemovedConventions, indexRemovedConvention, oldConventionType))
         {
             IndexRemovedConventions.Add(indexRemovedConvention);
         }
 
         if (newConvention is IIndexUniquenessChangedConvention indexUniquenessChangedConvention
-            && !Replace(IndexUniquenessChangedConventions, indexUniquenessChangedConvention, oldConvetionType))
+            && !Replace(IndexUniquenessChangedConventions, indexUniquenessChangedConvention, oldConventionType))
         {
             IndexUniquenessChangedConventions.Add(indexUniquenessChangedConvention);
         }
 
         if (newConvention is IIndexSortOrderChangedConvention indexSortOrderChangedConvention
-            && !Replace(IndexSortOrderChangedConventions, indexSortOrderChangedConvention, oldConvetionType))
+            && !Replace(IndexSortOrderChangedConventions, indexSortOrderChangedConvention, oldConventionType))
         {
             IndexSortOrderChangedConventions.Add(indexSortOrderChangedConvention);
         }
 
         if (newConvention is IIndexAnnotationChangedConvention indexAnnotationChangedConvention
-            && !Replace(IndexAnnotationChangedConventions, indexAnnotationChangedConvention, oldConvetionType))
+            && !Replace(IndexAnnotationChangedConventions, indexAnnotationChangedConvention, oldConventionType))
         {
             IndexAnnotationChangedConventions.Add(indexAnnotationChangedConvention);
         }
 
         if (newConvention is IPropertyAddedConvention propertyAddedConvention
-            && !Replace(PropertyAddedConventions, propertyAddedConvention, oldConvetionType))
+            && !Replace(PropertyAddedConventions, propertyAddedConvention, oldConventionType))
         {
             PropertyAddedConventions.Add(propertyAddedConvention);
         }
 
         if (newConvention is IPropertyNullabilityChangedConvention propertyNullabilityChangedConvention
-            && !Replace(PropertyNullabilityChangedConventions, propertyNullabilityChangedConvention, oldConvetionType))
+            && !Replace(PropertyNullabilityChangedConventions, propertyNullabilityChangedConvention, oldConventionType))
         {
             PropertyNullabilityChangedConventions.Add(propertyNullabilityChangedConvention);
         }
 
         if (newConvention is IPropertyFieldChangedConvention propertyFieldChangedConvention
-            && !Replace(PropertyFieldChangedConventions, propertyFieldChangedConvention, oldConvetionType))
+            && !Replace(PropertyFieldChangedConventions, propertyFieldChangedConvention, oldConventionType))
         {
             PropertyFieldChangedConventions.Add(propertyFieldChangedConvention);
         }
 
-        if (newConvention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention
-            && !Replace(PropertyElementTypeChangedConventions, propertyElementTypeChangedConvention, oldConvetionType))
-        {
-            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
-        }
-
         if (newConvention is IPropertyAnnotationChangedConvention propertyAnnotationChangedConvention
-            && !Replace(PropertyAnnotationChangedConventions, propertyAnnotationChangedConvention, oldConvetionType))
+            && !Replace(PropertyAnnotationChangedConventions, propertyAnnotationChangedConvention, oldConventionType))
         {
             PropertyAnnotationChangedConventions.Add(propertyAnnotationChangedConvention);
         }
 
         if (newConvention is IPropertyRemovedConvention propertyRemovedConvention
-            && !Replace(PropertyRemovedConventions, propertyRemovedConvention, oldConvetionType))
+            && !Replace(PropertyRemovedConventions, propertyRemovedConvention, oldConventionType))
         {
             PropertyRemovedConventions.Add(propertyRemovedConvention);
+        }
+
+        if (newConvention is IPropertyElementTypeChangedConvention propertyElementTypeChangedConvention
+            && !Replace(PropertyElementTypeChangedConventions, propertyElementTypeChangedConvention, oldConventionType))
+        {
+            PropertyElementTypeChangedConventions.Add(propertyElementTypeChangedConvention);
+        }
+
+        if (newConvention is IElementTypeNullabilityChangedConvention elementTypeNullabilityChangedConvention
+            && !Replace(ElementTypeNullabilityChangedConventions, elementTypeNullabilityChangedConvention, oldConventionType))
+        {
+            ElementTypeNullabilityChangedConventions.Add(elementTypeNullabilityChangedConvention);
+        }
+
+        if (newConvention is IElementTypeAnnotationChangedConvention elementTypeAnnotationChangedConvention
+            && !Replace(ElementTypeAnnotationChangedConventions, elementTypeAnnotationChangedConvention, oldConventionType))
+        {
+            ElementTypeAnnotationChangedConventions.Add(elementTypeAnnotationChangedConvention);
         }
     }
 
@@ -638,17 +656,18 @@ public class ConventionSet
         Check.NotNull(conventionsList, nameof(conventionsList));
         Check.NotNull(newConvention, nameof(newConvention));
 
+        var replaced = false;
         for (var i = 0; i < conventionsList.Count; i++)
         {
             if (oldConventionType.IsInstanceOfType(conventionsList[i]!))
             {
                 conventionsList.RemoveAt(i);
                 conventionsList.Insert(i, newConvention);
-                return true;
+                replaced = true;
             }
         }
 
-        return false;
+        return replaced;
     }
 
     /// <summary>
@@ -745,6 +764,11 @@ public class ConventionSet
         if (convention is IComplexPropertyAnnotationChangedConvention complexPropertyAnnotationChangedConvention)
         {
             ComplexPropertyAnnotationChangedConventions.Add(complexPropertyAnnotationChangedConvention);
+        }
+
+        if (convention is IComplexTypeAnnotationChangedConvention complexTypeAnnotationChangedConvention)
+        {
+            ComplexTypeAnnotationChangedConventions.Add(complexTypeAnnotationChangedConvention);
         }
 
         if (convention is IForeignKeyAddedConvention foreignKeyAddedConvention)
@@ -916,6 +940,16 @@ public class ConventionSet
         {
             PropertyRemovedConventions.Add(propertyRemovedConvention);
         }
+
+        if (convention is IElementTypeNullabilityChangedConvention elementTypeNullabilityChangedConvention)
+        {
+            ElementTypeNullabilityChangedConventions.Add(elementTypeNullabilityChangedConvention);
+        }
+
+        if (convention is IElementTypeAnnotationChangedConvention elementTypeAnnotationChangedConvention)
+        {
+            ElementTypeAnnotationChangedConventions.Add(elementTypeAnnotationChangedConvention);
+        }
     }
 
     /// <summary>
@@ -1070,6 +1104,11 @@ public class ConventionSet
             Remove(ComplexPropertyAnnotationChangedConventions, conventionType);
         }
 
+        if (typeof(IComplexTypeAnnotationChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexTypeAnnotationChangedConventions, conventionType);
+        }
+
         if (typeof(IForeignKeyAddedConvention).IsAssignableFrom(conventionType))
         {
             Remove(ForeignKeyAddedConventions, conventionType);
@@ -1220,11 +1259,6 @@ public class ConventionSet
             Remove(PropertyNullabilityChangedConventions, conventionType);
         }
 
-        if (typeof(IPropertyElementTypeChangedConvention).IsAssignableFrom(conventionType))
-        {
-            Remove(PropertyElementTypeChangedConventions, conventionType);
-        }
-
         if (typeof(IPropertyFieldChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyFieldChangedConventions, conventionType);
@@ -1238,6 +1272,21 @@ public class ConventionSet
         if (typeof(IPropertyRemovedConvention).IsAssignableFrom(conventionType))
         {
             Remove(PropertyRemovedConventions, conventionType);
+        }
+
+        if (typeof(IPropertyElementTypeChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(PropertyElementTypeChangedConventions, conventionType);
+        }
+
+        if (typeof(IElementTypeNullabilityChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ElementTypeNullabilityChangedConventions, conventionType);
+        }
+
+        if (typeof(IElementTypeAnnotationChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ElementTypeAnnotationChangedConventions, conventionType);
         }
     }
 
@@ -1254,16 +1303,17 @@ public class ConventionSet
     {
         Check.NotNull(conventionsList, nameof(conventionsList));
 
+        var removed = false;
         for (var i = 0; i < conventionsList.Count; i++)
         {
             if (existingConventionType.IsInstanceOfType(conventionsList[i]))
             {
-                conventionsList.RemoveAt(i);
-                return true;
+                conventionsList.RemoveAt(i--);
+                removed = true;
             }
         }
 
-        return false;
+        return removed;
     }
 
     /// <summary>

@@ -274,15 +274,15 @@ public partial class ConventionDispatcher
 #endif
             using (_dispatcher.DelayConventions())
             {
-                _stringConventionContext.ResetState(name);
+                _nullableStringConventionContext.ResetState(name);
 
                 foreach (var entityTypeConvention in _conventionSet.DiscriminatorPropertySetConventions)
                 {
                     entityTypeConvention.ProcessDiscriminatorPropertySet(
                         entityTypeBuilder, name, _nullableStringConventionContext);
-                    if (_stringConventionContext.ShouldStopProcessing())
+                    if (_nullableStringConventionContext.ShouldStopProcessing())
                     {
-                        return _stringConventionContext.Result;
+                        return _nullableStringConventionContext.Result;
                     }
 #if DEBUG
                     Check.DebugAssert(
