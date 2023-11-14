@@ -1622,6 +1622,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("IQueryableProviderNotAsync");
 
         /// <summary>
+        ///     Invalid token type: '{tokenType}'.
+        /// </summary>
+        public static string JsonReaderInvalidTokenType(object? tokenType)
+            => string.Format(
+                GetString("JsonReaderInvalidTokenType", nameof(tokenType)),
+                tokenType);
+
+        /// <summary>
         ///     The derived type '{derivedType}' cannot have the [Key] attribute on property '{property}' since primary keys may only be declared on the root type. Move the property '{property}' to '{rootType}' or remove '{rootType}' from the model by using [NotMapped] attribute or calling 'EntityTypeBuilder.Ignore' on the base type in 'OnModelCreating'.
         /// </summary>
         public static string KeyAttributeOnDerivedEntity(object? derivedType, object? property, object? rootType)

@@ -46,21 +46,68 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
             collection.Clear();
         }
 
-        while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
+        if (Utf8JsonReaderManager.UseOldBehavior32235)
         {
-            manager.MoveNext();
-
-            switch (manager.CurrentReader.TokenType)
+            while (manager.CurrentReader.TokenType != JsonTokenType.EndArray)
             {
-                case JsonTokenType.String:
-                case JsonTokenType.Number:
-                case JsonTokenType.True:
-                case JsonTokenType.False:
-                    collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
-                    break;
-                case JsonTokenType.Null:
-                    collection.Add(default);
-                    break;
+                manager.MoveNext();
+
+                switch (manager.CurrentReader.TokenType)
+                {
+                    case JsonTokenType.String:
+                    case JsonTokenType.Number:
+                    case JsonTokenType.True:
+                    case JsonTokenType.False:
+                        collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
+                        break;
+                    case JsonTokenType.Null:
+                        collection.Add(default);
+                        break;
+                }
+            }
+        }
+        else
+        {
+            if (manager.CurrentReader.TokenType == JsonTokenType.None)
+            {
+                manager.MoveNext();
+            }
+
+            var tokenType = manager.CurrentReader.TokenType;
+            if (tokenType != JsonTokenType.StartArray)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
+            while (tokenType != JsonTokenType.EndArray)
+            {
+                manager.MoveNext();
+                tokenType = manager.CurrentReader.TokenType;
+
+                switch (tokenType)
+                {
+                    case JsonTokenType.String:
+                    case JsonTokenType.Number:
+                    case JsonTokenType.True:
+                    case JsonTokenType.False:
+                        collection.Add(_elementReaderWriter.FromJsonTyped(ref manager));
+                        break;
+                    case JsonTokenType.Null:
+                        collection.Add(default);
+                        break;
+                    case JsonTokenType.Comment:
+                    case JsonTokenType.EndArray:
+                        break;
+                    case JsonTokenType.None: // Explicitly listing all states that we throw for
+                    case JsonTokenType.StartObject:
+                    case JsonTokenType.EndObject:
+                    case JsonTokenType.StartArray:
+                    case JsonTokenType.PropertyName:
+                    default:
+                        throw new InvalidOperationException(
+                            CoreStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                }
             }
         }
 
