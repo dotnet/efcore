@@ -29,7 +29,7 @@
     <SystemTextJsonVersion>8.0.1</SystemTextJsonVersion>
     <MicrosoftNETCoreAppRefVersion>8.0.1</MicrosoftNETCoreAppRefVersion>
     <MicrosoftNETCoreAppRuntimewinx64Version>8.0.1</MicrosoftNETCoreAppRuntimewinx64Version>
-    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.1-servicing.23558.18</MicrosoftNETCoreBrowserDebugHostTransportVersion>
+    <MicrosoftNETCoreBrowserDebugHostTransportVersion>8.0.1-servicing.23563.19</MicrosoftNETCoreBrowserDebugHostTransportVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
     <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.23556.5</MicrosoftDotNetBuildTasksTemplatingVersion>

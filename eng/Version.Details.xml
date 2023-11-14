@@ -43,16 +43,16 @@
     </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Ref" Version="8.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>7d40eae25bd9a57f98f92a5bdbb984b93139904d</Sha>
+      <Sha>f57df322d49a629f2a70b7f6879b62e9ccdc5ae7</Sha>
     </Dependency>
     <Dependency Name="Microsoft.NETCore.App.Runtime.win-x64" Version="8.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>7d40eae25bd9a57f98f92a5bdbb984b93139904d</Sha>
+      <Sha>f57df322d49a629f2a70b7f6879b62e9ccdc5ae7</Sha>
     </Dependency>
     <!-- NB: Using BrowserDebugHost to represent the nonshipping version of Microsoft.NETCore.App -->
-    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.1-servicing.23558.18">
+    <Dependency Name="Microsoft.NETCore.BrowserDebugHost.Transport" Version="8.0.1-servicing.23563.19">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>7d40eae25bd9a57f98f92a5bdbb984b93139904d</Sha>
+      <Sha>f57df322d49a629f2a70b7f6879b62e9ccdc5ae7</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
