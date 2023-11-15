@@ -1258,7 +1258,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             => KeyBuilder;
     }
 
-    public class NonGenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder>
+    protected class NonGenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder>
     {
         public NonGenericTestIndexBuilder(IndexBuilder indexBuilder)
         {

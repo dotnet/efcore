@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 using Newtonsoft.Json.Linq;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosFixture>
 {

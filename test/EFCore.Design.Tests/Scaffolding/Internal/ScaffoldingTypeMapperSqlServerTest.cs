@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable CheckNamespace
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
 public class ScaffoldingTypeMapperSqlServerTest
 {

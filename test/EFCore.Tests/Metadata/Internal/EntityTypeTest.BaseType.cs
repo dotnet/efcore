@@ -96,6 +96,136 @@ public partial class EntityTypeTest
     }
 
     [ConditionalFact]
+    public void Setting_base_type_for_owned_throws()
+    {
+        var model = CreateModel();
+        var baseType = model.AddEntityType(typeof(BaseType));
+        var entityType = model.AddOwnedEntityType(typeof(Customer));
+
+        Assert.Equal(
+            CoreStrings.DerivedEntityOwnershipMismatch(
+                nameof(BaseType), nameof(Customer), nameof(Customer), nameof(BaseType)),
+            Assert.Throws<InvalidOperationException>(
+                    () => entityType.BaseType = baseType)
+                .Message);
+    }
+
+    [ConditionalFact]
+    public void Can_get_root_type()
+    {
+        var model = CreateEmptyModel();
+        var a = model.AddEntityType("A");
+        var b = model.AddEntityType("B");
+        var c = model.AddEntityType("C");
+        b.BaseType = a;
+        c.BaseType = b;
+
+        Assert.Same(a, a.GetRootType());
+        Assert.Same(a, b.GetRootType());
+        Assert.Same(a, c.GetRootType());
+    }
+
+    [ConditionalFact]
+    public void Can_get_derived_types()
+    {
+        var model = CreateEmptyModel();
+        var a = model.AddEntityType("A");
+        var b = model.AddEntityType("B");
+        var c = model.AddEntityType("C");
+        var d = model.AddEntityType("D");
+        b.BaseType = a;
+        c.BaseType = b;
+        d.BaseType = a;
+
+        Assert.Equal(new[] { b, d, c }, a.GetDerivedTypes().ToArray());
+        Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
+        Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
+    }
+
+    [ConditionalFact]
+    public void Can_determine_whether_IsAssignableFrom()
+    {
+        var model = CreateEmptyModel();
+        var a = model.AddEntityType("A");
+        var b = model.AddEntityType("B");
+        var c = model.AddEntityType("C");
+        var d = model.AddEntityType("D");
+        b.BaseType = a;
+        c.BaseType = b;
+        d.BaseType = a;
+
+        Assert.True(a.IsAssignableFrom(a));
+        Assert.True(a.IsAssignableFrom(b));
+        Assert.True(a.IsAssignableFrom(c));
+        Assert.False(b.IsAssignableFrom(a));
+        Assert.False(c.IsAssignableFrom(a));
+        Assert.False(b.IsAssignableFrom(d));
+    }
+
+    [ConditionalFact]
+    public void Setting_discriminator_on_non_root_type_throws()
+    {
+        var modelBuilder = new ModelBuilder();
+
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
+        var property = entityType.AddProperty("D", typeof(string));
+
+        var derivedType = modelBuilder
+            .Entity<SpecialCustomer>()
+            .Metadata;
+        derivedType.BaseType = entityType;
+
+        Assert.Equal(
+            CoreStrings.DiscriminatorPropertyMustBeOnRoot(nameof(SpecialCustomer)),
+            Assert.Throws<InvalidOperationException>(() => derivedType.SetDiscriminatorProperty(property)).Message);
+    }
+
+    [ConditionalFact]
+    public void Setting_discriminator_from_different_entity_type_throws()
+    {
+        var modelBuilder = new ModelBuilder();
+
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
+
+        var otherType = modelBuilder
+            .Entity<SpecialCustomer>()
+            .Metadata;
+
+        var property = entityType.AddProperty("D", typeof(string));
+
+        Assert.Equal(
+            CoreStrings.DiscriminatorPropertyNotFound("D", nameof(SpecialCustomer)),
+            Assert.Throws<InvalidOperationException>(() => otherType.SetDiscriminatorProperty(property)).Message);
+    }
+
+    [ConditionalFact]
+    public void Can_get_and_set_discriminator_value()
+    {
+        var modelBuilder = new ModelBuilder();
+
+        var entityType = modelBuilder
+            .Entity<Customer>()
+            .Metadata;
+
+        var property = entityType.AddProperty("D", typeof(string));
+        entityType.SetDiscriminatorProperty(property);
+
+        Assert.Null(entityType.GetDiscriminatorValue());
+
+        entityType.SetDiscriminatorValue("V");
+
+        Assert.Equal("V", entityType.GetDiscriminatorValue());
+
+        entityType.SetDiscriminatorValue(null);
+
+        Assert.Null(entityType.GetDiscriminatorValue());
+    }
+
+    [ConditionalFact]
     public void Properties_on_base_type_should_be_inherited()
     {
         var model = CreateModel();
@@ -169,6 +299,23 @@ public partial class EntityTypeTest
         Assert.Equal(new[] { "E", "G", "H", "I" }, c.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { 0, 1, 2, 3 }, b.GetProperties().Select(p => p.GetIndex()));
         Assert.Equal(new[] { 0, 1, 2, 3 }, c.GetProperties().Select(p => p.GetIndex()));
+    }
+
+    [ConditionalFact]
+    public void Properties_on_base_type_are_listed_before_derived_properties()
+    {
+        var model = CreateModel();
+
+        var parentType = model.AddEntityType("Parent");
+        var property2 = parentType.AddProperty("D", typeof(int));
+        var property1 = parentType.AddProperty("C", typeof(int));
+
+        var childType = model.AddEntityType("Child");
+        var property4 = childType.AddProperty("B", typeof(int));
+        var property3 = childType.AddProperty("A", typeof(int));
+        childType.BaseType = parentType;
+
+        Assert.Equal(new[] { property1, property2, property3, property4 }, childType.GetProperties());
     }
 
     [ConditionalFact]
@@ -912,6 +1059,31 @@ public partial class EntityTypeTest
     }
 
     [ConditionalFact]
+    public void Can_add_a_foreign_key_targeting_different_entity_type()
+    {
+        var model = CreateModel();
+        var baseType = model.AddEntityType(typeof(BaseType));
+        var customerType = model.AddEntityType(typeof(Customer));
+        customerType.BaseType = baseType;
+        var customerKey1 = baseType.AddKey(baseType.AddProperty(Customer.IdProperty));
+        var orderType = model.AddEntityType(typeof(Order));
+        var customerFkProperty = orderType.AddProperty(Order.CustomerIdProperty);
+
+        var fk1 = orderType.AddForeignKey(customerFkProperty, customerKey1, baseType);
+
+        Assert.NotNull(fk1);
+        Assert.Same(fk1, orderType.FindForeignKeys(customerFkProperty).Single());
+        Assert.Same(fk1, orderType.FindForeignKey(customerFkProperty, customerKey1, baseType));
+        Assert.Same(fk1, orderType.GetForeignKeys().Single());
+
+        var fk2 = orderType.AddForeignKey(customerFkProperty, customerKey1, customerType);
+
+        Assert.Equal(2, orderType.FindForeignKeys(customerFkProperty).Count());
+        Assert.Same(fk2, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
+        Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
+    }
+
+    [ConditionalFact]
     public void Adding_foreignKey_throws_when_parent_type_has_foreignKey_on_same_properties()
     {
         var model = CreateModel();
@@ -1019,6 +1191,52 @@ public partial class EntityTypeTest
                 typeof(Customer).Name),
             Assert.Throws<InvalidOperationException>(
                 () => orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType)).Message);
+    }
+
+    [ConditionalFact]
+    public void Can_add_a_key_if_any_properties_are_part_of_derived_foreign_key()
+    {
+        var model = CreateModel();
+        var baseType = model.AddEntityType(typeof(BaseType));
+        var idProperty = baseType.AddProperty(Customer.IdProperty);
+        var fkProperty = baseType.AddProperty("fk", typeof(int));
+        var key = baseType.AddKey(new[] { idProperty });
+        var entityType = model.AddEntityType(typeof(Customer));
+        entityType.BaseType = baseType;
+        entityType.AddForeignKey(new[] { fkProperty }, key, entityType);
+
+        Assert.NotNull(baseType.AddKey(new[] { fkProperty }));
+    }
+
+    [ConditionalFact]
+    public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key()
+    {
+        var model = CreateModel();
+        var baseType = model.AddEntityType(typeof(BaseType));
+        var idProperty = baseType.AddProperty(Customer.IdProperty);
+        var idProperty2 = baseType.AddProperty("id2", typeof(int));
+        var key = baseType.AddKey(new[] { idProperty, idProperty2 });
+        var entityType = model.AddEntityType(typeof(Customer));
+        entityType.BaseType = baseType;
+        var fkProperty = entityType.AddProperty("fk", typeof(int));
+
+        Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
+    }
+
+    [ConditionalFact]
+    public void Can_add_a_foreign_key_if_any_properties_are_part_of_inherited_key_with_value_generation()
+    {
+        var model = CreateModel();
+        var baseType = model.AddEntityType(typeof(BaseType));
+        var idProperty = baseType.AddProperty(Customer.IdProperty);
+        idProperty.ValueGenerated = ValueGenerated.OnAdd;
+        var idProperty2 = baseType.AddProperty("id2", typeof(int));
+        var key = baseType.AddKey(new[] { idProperty, idProperty2 });
+        var entityType = model.AddEntityType(typeof(Customer));
+        entityType.BaseType = baseType;
+        var fkProperty = entityType.AddProperty("fk", typeof(int));
+
+        Assert.NotNull(entityType.AddForeignKey(new[] { fkProperty, idProperty }, key, entityType));
     }
 
     [ConditionalFact]

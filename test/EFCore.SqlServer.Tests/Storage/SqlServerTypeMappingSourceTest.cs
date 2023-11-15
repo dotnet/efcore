@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
+public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
     [ConditionalTheory]
     [InlineData(typeof(int), "int", DbType.Int32)]

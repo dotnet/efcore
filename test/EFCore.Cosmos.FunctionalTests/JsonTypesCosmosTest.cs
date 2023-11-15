@@ -5,7 +5,7 @@
 
 using Xunit.Sdk;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos;
+namespace Microsoft.EntityFrameworkCore;
 
 public class JsonTypesCosmosTest : JsonTypesTestBase
 {

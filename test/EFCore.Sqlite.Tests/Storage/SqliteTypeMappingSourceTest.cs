@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqliteTypeMappingSourceTest : RelationalTypeMapperTestBase
+public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
 {
     [ConditionalTheory]
     [InlineData("INTEGER", typeof(byte), DbType.Byte)]
