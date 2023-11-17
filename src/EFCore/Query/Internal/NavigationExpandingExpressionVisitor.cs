@@ -15,6 +15,24 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 {
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly bool UseOldBehavior32217 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32217", out var enabled32217) && enabled32217;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static readonly bool UseOldBehavior32312 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32312", out var enabled32312) && enabled32312;
+
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
@@ -921,6 +939,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
         var queryable = Reduce(source);
 
+        if (!UseOldBehavior32217)
+        {
+            item = Visit(item);
+        }
+
         return Expression.Call(QueryableMethods.Contains.MakeGenericMethod(queryable.Type.GetSequenceType()), queryable, item);
     }
 
@@ -959,11 +982,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(result, navigationTree, navigationTree, parameterName);
     }
 
-    private static NavigationExpansionExpression ProcessSkipTake(
+    private NavigationExpansionExpression ProcessSkipTake(
         NavigationExpansionExpression source,
         MethodInfo genericMethod,
         Expression count)
     {
+        if (!UseOldBehavior32312)
+        {
+            count = Visit(count);
+        }
+
         source.UpdateSource(Expression.Call(genericMethod.MakeGenericMethod(source.SourceElementType), source.Source, count));
 
         return source;
@@ -1000,6 +1028,11 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (source.PendingSelector.Type != returnType)
         {
             source.ApplySelector(Expression.Convert(source.PendingSelector, returnType));
+        }
+
+        if (!UseOldBehavior32312)
+        {
+            index = Visit(index);
         }
 
         source.ConvertToSingleResult(genericMethod, index);
@@ -1560,11 +1593,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(newSource, navigationTree, navigationTree, parameterName);
     }
 
-    private static GroupByNavigationExpansionExpression ProcessSkipTake(
+    private GroupByNavigationExpansionExpression ProcessSkipTake(
         GroupByNavigationExpansionExpression groupBySource,
         MethodInfo genericMethod,
         Expression count)
     {
+        if (!UseOldBehavior32312)
+        {
+            count = Visit(count);
+        }
+
         groupBySource.UpdateSource(
             Expression.Call(genericMethod.MakeGenericMethod(groupBySource.SourceElementType), groupBySource.Source, count));
 
