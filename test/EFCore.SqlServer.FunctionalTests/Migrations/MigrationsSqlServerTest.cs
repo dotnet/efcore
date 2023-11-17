@@ -8429,7 +8429,7 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable';
 """);
     }
 
-    [ConditionalFact(Skip = "issue #29902")]
+    [ConditionalFact]
     public virtual async Task Change_names_of_period_columns_in_temporal_table()
     {
         await Test(

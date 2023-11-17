@@ -929,7 +929,51 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             tm =>
                                 string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
                                 && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
+            (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: true),
+            (s, t, _) => ColumnStructureEquals(s, t) && ColumnAnnotationsEqual(s, t, matchValues: false),
             (s, t, _) => ColumnStructureEquals(s, t));
+
+    private static bool ColumnAnnotationsEqual(IColumn source, IColumn target, bool matchValues)
+    {
+        var sourceAnnotations = source.GetAnnotations().ToList();
+        var targetAnnotations = target.GetAnnotations().ToList();
+
+        if (sourceAnnotations.Count != targetAnnotations.Count)
+        {
+            return false;
+        }
+
+        foreach (var sourceAnnotation in sourceAnnotations)
+        {
+            var matchFound = false;
+            for (var i = 0; i < targetAnnotations.Count; i++)
+            {
+                var targetAnnotation = targetAnnotations[i];
+
+                if (sourceAnnotation.Name != targetAnnotation.Name)
+                {
+                    continue;
+                }
+
+                if (matchValues && sourceAnnotation.Value != targetAnnotation.Value)
+                {
+                    continue;
+                }
+
+                targetAnnotations.RemoveAt(i);
+                matchFound = true;
+
+                break;
+            }
+
+            if (!matchFound)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static bool ColumnStructureEquals(IColumn source, IColumn target)
     {
