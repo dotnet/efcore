@@ -589,6 +589,18 @@ ORDER BY [p].[Id]
         AssertSql("");
     }
 
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+    {
+        await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async);
+
+        AssertSql(
+            """
+SELECT TOP(1) [p].[Ints]
+FROM [PrimitiveCollectionsEntity] AS [p]
+ORDER BY [p].[Id]
+""");
+    }
+
     public override Task Project_multiple_collections(bool async)
         // we don't propagate error details from projection
         => AssertTranslationFailed(() => base.Project_multiple_collections(async));

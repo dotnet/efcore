@@ -1084,6 +1084,12 @@ ORDER BY "p"."Id"
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Project_collection_of_nullable_ints_with_distinct(async))).Message);
 
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async))).Message);
+
     public override async Task Project_multiple_collections(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

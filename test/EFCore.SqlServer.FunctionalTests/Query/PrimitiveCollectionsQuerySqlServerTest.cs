@@ -1168,6 +1168,23 @@ ORDER BY [p].[Id]
         AssertSql("");
     }
 
+    public override async Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+    {
+        await base.Project_collection_of_ints_with_ToList_and_FirstOrDefault(async);
+
+        AssertSql(
+            """
+SELECT [t].[Id], CAST([i].[value] AS int) AS [value], [i].[key]
+FROM (
+    SELECT TOP(1) [p].[Id], [p].[Ints]
+    FROM [PrimitiveCollectionsEntity] AS [p]
+    ORDER BY [p].[Id]
+) AS [t]
+OUTER APPLY OPENJSON([t].[Ints]) AS [i]
+ORDER BY [t].[Id], CAST([i].[key] AS int)
+""");
+    }
+
     public override async Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
     {
         await base.Project_empty_collection_of_nullables_and_collection_only_containing_nulls(async);

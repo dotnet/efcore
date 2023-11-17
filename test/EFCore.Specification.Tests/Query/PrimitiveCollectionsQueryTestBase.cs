@@ -750,6 +750,14 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Project_collection_of_ints_with_ToList_and_FirstOrDefault(bool async)
+        => AssertFirstOrDefault(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().OrderBy(x => x.Id).Select(x => x.Ints.ToList()),
+            asserter: (e, a) => AssertCollection(e, a, elementSorter: ee => ee));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Project_empty_collection_of_nullables_and_collection_only_containing_nulls(bool async)
         => AssertQuery(
             async,
