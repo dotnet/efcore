@@ -184,4 +184,28 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
             ? new RegexpExpression(match, pattern, _boolTypeMapping)
             : regexpExpression;
     }
+
+    /// <inheritdoc />
+    public override bool TryCreateLeast(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? leastExpression)
+    {
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+        leastExpression = Function(
+            "min", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+        return true;
+    }
+
+    /// <inheritdoc />
+    public override bool TryCreateGreatest(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? greatestExpression)
+    {
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+        greatestExpression = Function(
+            "max", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+        return true;
+    }
 }

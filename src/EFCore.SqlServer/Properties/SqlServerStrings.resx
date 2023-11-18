@@ -165,6 +165,9 @@
   <data name="DuplicateKeyMismatchedClustering" xml:space="preserve">
     <value>The keys {key1} on '{entityType1}' and {key2} on '{entityType2}' are both mapped to '{table}.{keyName}', but have different clustering configurations.</value>
   </data>
+  <data name="LeastGreatestCompatibilityLevelTooLow" xml:space="preserve">
+    <value>This usage of Math.Min or Math.Max requires SQL Server functions LEAST and GREATEST, which require compatibility level 160.</value>
+  </data>
   <data name="IdentityBadType" xml:space="preserve">
     <value>Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.</value>
   </data>

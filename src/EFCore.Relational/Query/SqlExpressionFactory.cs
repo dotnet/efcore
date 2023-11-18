@@ -675,6 +675,30 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         return selectExpression;
     }
 
+    /// <inheritdoc />
+    public virtual bool TryCreateLeast(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? leastExpression)
+    {
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+        leastExpression = Function(
+            "LEAST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+        return true;
+    }
+
+    /// <inheritdoc />
+    public virtual bool TryCreateGreatest(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? greatestExpression)
+    {
+        var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+        greatestExpression = Function(
+            "GREATEST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
+        return true;
+    }
+
     /***
      * We need to add additional conditions on basic SelectExpression for certain cases
      * - If we are selecting from TPH then we need to add condition for discriminator if mapping is incomplete

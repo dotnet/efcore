@@ -265,7 +265,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         if (translated == QueryCompilationContext.NotTranslatedExpression)
         {
             // Attempt to translate access into a primitive collection property (i.e. array column)
-
             if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var translatedExpression, out var property)
                 && property is IProperty { IsPrimitiveCollection: true } regularProperty
                 && translatedExpression is SqlExpression sqlExpression)
@@ -564,31 +563,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
-        if (source.QueryExpression is SelectExpression
-            {
-                Tables:
-                [
-                    ValuesExpression { ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName] } valuesExpression
-                ],
-                Predicate: null,
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Limit: null,
-                Offset: null,
-                // Note that in the context of Contains we don't care about orderings
-            }
-            // Make sure that the source projects the column from the ValuesExpression directly, i.e. no projection out with some expression
-            && projection is ColumnExpression projectedColumn
-            && projectedColumn.Table == valuesExpression)
+        if (TryExtractBareInlineCollectionValues(source, out var values))
         {
-            var values = new SqlExpression[valuesExpression.RowValues.Count];
-            for (var i = 0; i < values.Length; i++)
-            {
-                // Skip the first value (_ord), which is irrelevant for Contains
-                values[i] = valuesExpression.RowValues[i].Values[1];
-            }
-
             var inExpression = _sqlExpressionFactory.In(translatedItem, values);
             return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
         }
@@ -960,13 +936,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+        => TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlExpressionFactory.TryCreateGreatest(values, resultType, out var greatestExpression)
+                ? source.Update(_sqlExpressionFactory.Select(greatestExpression), source.ShaperExpression)
+                : TranslateAggregateWithSelector(
+                    source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
-        => TranslateAggregateWithSelector(
-            source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
+        => TryExtractBareInlineCollectionValues(source, out var values)
+            && _sqlExpressionFactory.TryCreateLeast(values, resultType, out var leastExpression)
+                ? source.Update(_sqlExpressionFactory.Select(leastExpression), source.ShaperExpression)
+                : TranslateAggregateWithSelector(
+                    source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateOfType(ShapedQueryExpression source, Type resultType)
@@ -2599,6 +2581,42 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         projection = null;
+        return false;
+    }
+
+    private bool TryExtractBareInlineCollectionValues(ShapedQueryExpression shapedQuery, [NotNullWhen(true)] out SqlExpression[]? values)
+    {
+        if (TryGetProjection(shapedQuery, out var projection)
+            && shapedQuery.QueryExpression is SelectExpression
+            {
+                Tables:
+                [
+                    ValuesExpression { ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName] } valuesExpression
+                ],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null,
+                // Note that we assume ordering doesn't matter (Contains/Min/Max)
+            }
+            // Make sure that the source projects the column from the ValuesExpression directly, i.e. no projection out with some expression
+            && projection is ColumnExpression projectedColumn
+            && projectedColumn.Table == valuesExpression)
+        {
+            values = new SqlExpression[valuesExpression.RowValues.Count];
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                // Skip the first value (_ord) - this function assumes ordering doesn't matter
+                values[i] = valuesExpression.RowValues[i].Values[1];
+            }
+
+            return true;
+        }
+
+        values = null;
         return false;
     }
 

@@ -6461,13 +6461,14 @@ WHERE (
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(bool async)
     {
         await base.Nav_rewrite_doesnt_apply_null_protection_for_function_arguments(async);
 
         AssertSql(
             """
-SELECT [t].[Level1_Required_Id]
+SELECT GREATEST([t].[Level1_Required_Id], 7)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]

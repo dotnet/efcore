@@ -238,6 +238,66 @@ WHERE [p].[Id] NOT IN (2, 999)
 """);
     }
 
+    public override async Task Inline_collection_Min_with_two_values(bool async)
+    {
+        await base.Inline_collection_Min_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+    }
+
+    public override async Task Inline_collection_Max_with_two_values(bool async)
+    {
+        await base.Inline_collection_Max_with_two_values(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int])) AS [v]([Value])) = 30
+""");
+    }
+
+    public override async Task Inline_collection_Min_with_three_values(bool async)
+    {
+        await base.Inline_collection_Min_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='25'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MIN([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 25
+""");
+    }
+
+    public override async Task Inline_collection_Max_with_three_values(bool async)
+    {
+        await base.Inline_collection_Max_with_three_values(async);
+
+        AssertSql(
+            """
+@__i_0='35'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE (
+    SELECT MAX([v].[Value])
+    FROM (VALUES (CAST(30 AS int)), ([p].[Int]), (@__i_0)) AS [v]([Value])) = 35
+""");
+    }
+
     public override Task Parameter_collection_Count(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count(async));
 

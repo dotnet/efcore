@@ -1333,20 +1333,30 @@ WHERE [o].[OrderID] = 11077 AND SIGN([o].[Discount]) > 0
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Where_math_min(bool async)
     {
-        // Translate Math.Min.
-        await AssertTranslationFailed(() => base.Where_math_min(async));
+        await base.Where_math_min(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID]) = [o].[ProductID]
+""");
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Where_math_max(bool async)
     {
-        // Translate Math.Max.
-        await AssertTranslationFailed(() => base.Where_math_max(async));
+        await base.Where_math_max(async);
 
-        AssertSql();
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND GREATEST([o].[OrderID], [o].[ProductID]) = [o].[OrderID]
+""");
     }
 
     public override async Task Where_math_degrees(bool async)

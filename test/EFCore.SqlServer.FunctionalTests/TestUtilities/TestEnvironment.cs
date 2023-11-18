@@ -41,11 +41,13 @@ public static class TestEnvironment
 
     private static bool? _supportsUtf8;
 
+    private static bool? _supportsJsonPathExpressions;
+
     private static bool? _supportsFunctions2017;
 
     private static bool? _supportsFunctions2019;
 
-    private static bool? _supportsJsonPathExpressions;
+    private static bool? _supportsFunctions2022;
 
     private static byte? _productMajorVersion;
 
@@ -288,6 +290,33 @@ public static class TestEnvironment
         }
     }
 
+    public static bool SupportsJsonPathExpressions
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_supportsJsonPathExpressions.HasValue)
+            {
+                return _supportsJsonPathExpressions.Value;
+            }
+
+            try
+            {
+                _supportsJsonPathExpressions = GetProductMajorVersion() >= 14 || IsSqlAzure;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _supportsJsonPathExpressions = false;
+            }
+
+            return _supportsJsonPathExpressions.Value;
+        }
+    }
+
     public static bool IsFunctions2017Supported
     {
         get
@@ -342,7 +371,7 @@ public static class TestEnvironment
         }
     }
 
-    public static bool SupportsJsonPathExpressions
+    public static bool IsFunctions2022Supported
     {
         get
         {
@@ -351,21 +380,21 @@ public static class TestEnvironment
                 return false;
             }
 
-            if (_supportsJsonPathExpressions.HasValue)
+            if (_supportsFunctions2022.HasValue)
             {
-                return _supportsJsonPathExpressions.Value;
+                return _supportsFunctions2022.Value;
             }
 
             try
             {
-                _supportsJsonPathExpressions = GetProductMajorVersion() >= 14 || IsSqlAzure;
+                _supportsFunctions2022 = GetProductMajorVersion() >= 16 || IsSqlAzure;
             }
             catch (PlatformNotSupportedException)
             {
-                _supportsJsonPathExpressions = false;
+                _supportsFunctions2022 = false;
             }
 
-            return _supportsJsonPathExpressions.Value;
+            return _supportsFunctions2022.Value;
         }
     }
 

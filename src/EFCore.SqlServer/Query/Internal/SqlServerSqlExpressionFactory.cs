@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -15,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerSqlExpressionFactory : SqlExpressionFactory
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
+    private readonly int _sqlServerCompatibilityLevel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -22,10 +24,13 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerSqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
+    public SqlServerSqlExpressionFactory(
+        SqlExpressionFactoryDependencies dependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies)
     {
         _typeMappingSource = dependencies.TypeMappingSource;
+        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
     }
 
     /// <summary>
@@ -61,5 +66,35 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
             atTimeZoneExpression.TimeZone,
             atTimeZoneExpression.Type,
             typeMapping);
+    }
+
+    /// <inheritdoc />
+    public override bool TryCreateLeast(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? leastExpression)
+    {
+        if (_sqlServerCompatibilityLevel >= 160)
+        {
+            return base.TryCreateLeast(expressions, resultType, out leastExpression);
+        }
+
+        leastExpression = null;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public override bool TryCreateGreatest(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? greatestExpression)
+    {
+        if (_sqlServerCompatibilityLevel >= 160)
+        {
+            return base.TryCreateGreatest(expressions, resultType, out greatestExpression);
+        }
+
+        greatestExpression = null;
+        return false;
     }
 }

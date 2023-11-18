@@ -50,6 +50,48 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
             c => c.ContactName == EF.Functions.Collate("maria anders", CaseSensitiveCollation),
             c => c.ContactName.Equals("maria anders", StringComparison.Ordinal));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Least(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(od.OrderID, 10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Min(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Greatest(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, 10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Least_with_parameter_array_is_not_supported(bool async)
+    {
+        var arr = new[] { 1, 2 };
+
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(arr) == 10251)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Greatest_with_parameter_array_is_not_supported(bool async)
+    {
+        var arr = new[] { 1, 2 };
+
+        await AssertTranslationFailed(
+            () =>
+                AssertQuery(
+                    async,
+                    ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(arr) == 10251)));
+    }
+
     protected abstract string CaseInsensitiveCollation { get; }
     protected abstract string CaseSensitiveCollation { get; }
 }
