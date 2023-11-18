@@ -2066,7 +2066,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     OrElse(
                                         ReferenceEqual(currentVariable, Constant(null)),
                                         ReferenceEqual(parameter, Constant(null))),
-                                    MakeBinary(node.NodeType, node.Left, parameter),
+                                    node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                        ? leftMemberExpression.Assign(parameter)
+                                        : MakeBinary(node.NodeType, node.Left, parameter),
                                     Call(
                                         PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
                                         parameter,
