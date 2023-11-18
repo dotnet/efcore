@@ -673,6 +673,11 @@ public class StateManager : IStateManager
                     {
                         disposable.Dispose();
                     }
+                    else if (resetting
+                             && service is ILazyLoader lazyLoader)
+                    {
+                        lazyLoader.Dispose();
+                    }
                     else if (service is not IInjectableService detachable
                              || detachable.Detaching(Context, entry.Entity))
                     {

@@ -126,6 +126,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IAdHocMapper), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Transient) },
+            { typeof(ILazyLoaderFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             {
@@ -285,12 +286,14 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IDesignTimeModel>(p => new DesignTimeModel(GetContextServices(p)));
         TryAdd(p => GetContextServices(p).CurrentContext);
         TryAdd<IDbContextOptions>(p => GetContextServices(p).ContextOptions);
+        TryAdd<IResettableService, ILazyLoaderFactory>(p => p.GetRequiredService<ILazyLoaderFactory>());
         TryAdd<IResettableService, IStateManager>(p => p.GetRequiredService<IStateManager>());
         TryAdd<IResettableService, IDbContextTransactionManager>(p => p.GetRequiredService<IDbContextTransactionManager>());
         TryAdd<IEvaluatableExpressionFilter, EvaluatableExpressionFilter>();
         TryAdd<IValueConverterSelector, ValueConverterSelector>();
         TryAdd<IConstructorBindingFactory, ConstructorBindingFactory>();
-        TryAdd<ILazyLoader, LazyLoader>();
+        TryAdd<ILazyLoaderFactory, LazyLoaderFactory>();
+        TryAdd<ILazyLoader>(p => p.GetRequiredService<ILazyLoaderFactory>().Create());
         TryAdd<IParameterBindingFactories, ParameterBindingFactories>();
         TryAdd<IMemberClassifier, MemberClassifier>();
         TryAdd<IPropertyParameterBindingFactory, PropertyParameterBindingFactory>();
