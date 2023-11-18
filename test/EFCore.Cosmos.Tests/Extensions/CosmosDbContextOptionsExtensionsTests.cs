@@ -51,21 +51,6 @@ public class CosmosDbContextOptionsExtensionsTests
     }
 
     [ConditionalFact]
-    public void Throws_with_multiple_providers_new_when_no_provider()
-    {
-        var options = new DbContextOptionsBuilder()
-            .UseCosmos("serviceEndPoint", "authKeyOrResourceToken", "databaseName")
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        var context = new DbContext(options);
-
-        Assert.Equal(
-            CoreStrings.MultipleProvidersConfigured("'Microsoft.EntityFrameworkCore.Cosmos', 'Microsoft.EntityFrameworkCore.InMemory'"),
-            Assert.Throws<InvalidOperationException>(() => context.Model).Message);
-    }
-
-    [ConditionalFact]
     public void Can_create_options_with_valid_values()
     {
         Test(o => o.Region(Regions.EastAsia), o => Assert.Equal(Regions.EastAsia, o.Region));

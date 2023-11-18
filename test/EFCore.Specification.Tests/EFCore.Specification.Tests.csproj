@@ -11,6 +11,8 @@
     <ImplicitUsings>true</ImplicitUsings>
     <!-- HACK: Work around dotnet/arcade#13798 -->
     <NoWarn>$(NoWarn);NETSDK1023</NoWarn>
+    <!-- Avoid referencing EFCore.Relational -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,7 +48,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Abstractions\EFCore.Abstractions.csproj" />
+    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" PrivateAssets="contentfiles;build" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +62,5 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XUnitRunnerVisualstudioVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
-
 
 </Project>

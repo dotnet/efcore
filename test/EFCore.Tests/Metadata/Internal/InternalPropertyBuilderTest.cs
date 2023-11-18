@@ -126,10 +126,10 @@ public class InternalPropertyBuilderTest
         Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
         Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.Equal("2", metadata.Sentinel);
 
         Assert.Null(builder.HasSentinel(1, ConfigurationSource.Convention));
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.Equal("2", metadata.Sentinel);
     }
 
     [ConditionalFact]
@@ -139,13 +139,13 @@ public class InternalPropertyBuilderTest
         metadata.SetSentinel(1, ConfigurationSource.Explicit);
         var builder = metadata.Builder;
 
-        Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
-        Assert.Null(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasSentinel("1", ConfigurationSource.DataAnnotation));
+        Assert.Null(builder.HasSentinel("2", ConfigurationSource.DataAnnotation));
 
-        Assert.Equal(1, metadata.Sentinel);
+        Assert.Equal("1", metadata.Sentinel);
 
-        Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.Explicit));
-        Assert.Equal(2, metadata.Sentinel);
+        Assert.NotNull(builder.HasSentinel("2", ConfigurationSource.Explicit));
+        Assert.Equal("2", metadata.Sentinel);
     }
 
     [ConditionalFact]

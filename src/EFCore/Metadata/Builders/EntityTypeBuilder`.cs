@@ -279,7 +279,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// </param>
     /// <returns>An object that can be used to configure the complex property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression)
+        Expression<Func<TEntity, TProperty?>> propertyExpression)
         => new(
             Builder.ComplexProperty(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
@@ -299,7 +299,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="complexTypeName">The name of the complex type.</param>
     /// <returns>An object that can be used to configure the complex property.</returns>
     public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Expression<Func<TEntity, TProperty?>> propertyExpression,
         string complexTypeName)
         => new(
             Builder.ComplexProperty(
@@ -320,7 +320,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Expression<Func<TEntity, TProperty?>> propertyExpression,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {
         Check.NotNull(buildAction, nameof(buildAction));
@@ -342,7 +342,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <param name="buildAction">An action that performs configuration of the property.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-        Expression<Func<TEntity, TProperty>> propertyExpression,
+        Expression<Func<TEntity, TProperty?>> propertyExpression,
         string complexTypeName,
         Action<ComplexPropertyBuilder<TProperty>> buildAction)
     {

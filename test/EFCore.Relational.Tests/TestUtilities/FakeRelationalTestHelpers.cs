@@ -13,7 +13,7 @@ public class FakeRelationalTestHelpers : TestHelpers
 
     public static FakeRelationalTestHelpers Instance { get; } = new();
 
-    protected virtual EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(
+    protected override EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(
         IServiceCollection services)
         => new EntityFrameworkRelationalDesignServicesBuilder(services);
 

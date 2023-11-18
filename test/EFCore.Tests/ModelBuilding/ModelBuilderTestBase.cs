@@ -1174,18 +1174,18 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression);
+            Expression<Func<TEntity, TProperty?>> propertyExpression);
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
@@ -1347,18 +1347,18 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName);
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression);
+            Expression<Func<TComplex, TProperty?>> propertyExpression);
 
         public abstract TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
         public abstract TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction);
 
@@ -1416,7 +1416,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
-        public abstract TestPropertyBuilder<TProperty> HasSentinel(object? sentinel);
+        public abstract TestPropertyBuilder<TProperty> HasSentinel(TProperty? sentinel);
         public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision);
         public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale);
         public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);
@@ -1502,7 +1502,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestPrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPrimitiveCollectionBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);
-        public abstract TestPrimitiveCollectionBuilder<TProperty> HasSentinel(object? sentinel);
+        public abstract TestPrimitiveCollectionBuilder<TProperty> HasSentinel(TProperty? sentinel);
         public abstract TestPrimitiveCollectionBuilder<TProperty> IsUnicode(bool unicode = true);
         public abstract TestPrimitiveCollectionBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true);
 
@@ -1585,7 +1585,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexTypePropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestComplexTypePropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestComplexTypePropertyBuilder<TProperty> HasMaxLength(int maxLength);
-        public abstract TestComplexTypePropertyBuilder<TProperty> HasSentinel(object? sentinel);
+        public abstract TestComplexTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel);
         public abstract TestComplexTypePropertyBuilder<TProperty> HasPrecision(int precision);
         public abstract TestComplexTypePropertyBuilder<TProperty> HasPrecision(int precision, int scale);
         public abstract TestComplexTypePropertyBuilder<TProperty> IsUnicode(bool unicode = true);
@@ -1665,7 +1665,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);
-        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasSentinel(object? sentinel);
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasSentinel(TProperty? sentinel);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> IsUnicode(bool unicode = true);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> IsConcurrencyToken(bool isConcurrencyToken = true);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ValueGeneratedNever();

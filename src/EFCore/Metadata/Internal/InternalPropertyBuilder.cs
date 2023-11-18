@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Reflection;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -171,8 +173,32 @@ public class InternalPropertyBuilder
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetSentinel(object? sentinel, ConfigurationSource? configurationSource)
-        => configurationSource.Overrides(Metadata.GetSentinelConfigurationSource())
-            || Equals(Metadata.Sentinel, sentinel);
+    {
+        if (configurationSource.Overrides(Metadata.GetSentinelConfigurationSource()))
+        {
+            return true;
+        }
+
+        if (sentinel == null
+            || Metadata.ClrType.UnwrapNullableType().IsAssignableFrom(sentinel.GetType()))
+        {
+            return Equals(Metadata.Sentinel, sentinel);
+        }
+        else
+        {
+            try
+            {
+                return Equals(Metadata.Sentinel, Convert.ChangeType(sentinel, Metadata.ClrType, CultureInfo.InvariantCulture));
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IncompatibleSentinelValue(
+                        sentinel, Metadata.DeclaringType.DisplayName(), Metadata.Name, Metadata.ClrType.ShortDisplayName()));
+            }
+        }
+    }
+
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

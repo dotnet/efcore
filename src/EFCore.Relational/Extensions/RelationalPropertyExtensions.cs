@@ -993,7 +993,7 @@ public static class RelationalPropertyExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.IncorrectDefaultValueType(
-                        value, valueType, property.Name, property.ClrType, property.DeclaringType.DisplayName()));
+                        value, valueType.ShortDisplayName(), property.Name, property.ClrType, property.DeclaringType.DisplayName()));
             }
         }
 
