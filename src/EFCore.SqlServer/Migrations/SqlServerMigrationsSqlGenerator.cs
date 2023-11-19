@@ -2676,8 +2676,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 case AddColumnOperation addColumnOperation:
                 {
-                    operations.Add(addColumnOperation);
-
                     // when adding a period column, we need to add it as a normal column first, and only later enable period
                     // removing the period information now, so that when we generate SQL that adds the column we won't be making them
                     // auto generated as period it won't work, unless period is enabled but we can't enable period without adding the
@@ -2694,6 +2692,29 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             addColumnOperation.DefaultValue = DateTime.MaxValue;
                         }
 
+                        // when adding sparse column to temporal table, we need to disable versioning.
+                        // This is because it may be the case that HistoryTable is using compression (by default)
+                        // and the add column operation fails in that situation
+                        // in order to make it work we need to disable versioning (if we haven't done it already)
+                        // and de-compress the HistoryTable
+                        if (addColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true)
+                        {
+                            if (!temporalInformation.DisabledVersioning
+                                && !temporalInformation.ShouldEnableVersioning)
+                            {
+                                DisableVersioning(
+                                    tableName,
+                                    schema,
+                                    temporalInformation,
+                                    suppressTransaction,
+                                    shouldEnableVersioning: true);
+                            }
+
+                            DecompressTable(temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
+                        }
+
+                        operations.Add(addColumnOperation);
+
                         // when adding (non-period) column to an existing temporal table we need to check if we have disabled versioning
                         // due to some other operations in the same migration (e.g. delete column)
                         // if so, we need to also add the same column to history table
@@ -2706,6 +2727,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             addHistoryTableColumnOperation.Schema = temporalInformation.HistoryTableSchema;
                             operations.Add(addHistoryTableColumnOperation);
                         }
+                    }
+                    else
+                    {
+                        operations.Add(addColumnOperation);
                     }
 
                     break;
@@ -2798,8 +2823,15 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         // for alter column operation converting column from nullable to non-nullable in the temporal table
                         // we must disable versioning in order to properly handle it
                         // specifically, switching values in history table from null to the default value
-                        if (alterColumnOperation.OldColumn.IsNullable
-                            && !alterColumnOperation.IsNullable
+                        var changeToNonNullable = alterColumnOperation.OldColumn.IsNullable
+                            && !alterColumnOperation.IsNullable;
+
+                        // for alter column converting to sparse we also need to disable versioning
+                        // in case HistoryTable is compressed (so that we can de-compress it)
+                        var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
+                            && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
+
+                        if ((changeToNonNullable || changeToSparse)
                             && !temporalInformation.DisabledVersioning
                             && !temporalInformation.ShouldEnableVersioning)
                         {
@@ -2809,6 +2841,11 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                 temporalInformation,
                                 suppressTransaction,
                                 shouldEnableVersioning: true);
+                        }
+
+                        if (changeToSparse)
+                        {
+                            DecompressTable(temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
                         }
 
                         operations.Add(alterColumnOperation);
@@ -3039,6 +3076,38 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(periodEndColumnName))
                         .Append(" ADD HIDDEN")
                         .ToString(),
+                    SuppressTransaction = suppressTransaction
+                });
+        }
+
+        void DecompressTable(string tableName, string? schema, bool suppressTransaction)
+        {
+            var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+
+            var decompressTableCommand = new StringBuilder()
+                .Append("IF EXISTS (")
+                .Append("SELECT 1 FROM [sys].[tables] [t] ")
+                .Append("INNER JOIN [sys].[partitions] [p] ON [t].[object_id] = [p].[object_id] ")
+                .Append($"WHERE [t].[name] = '{tableName}' ");
+
+            if (schema != null)
+            {
+                decompressTableCommand.Append($"AND [t].[schema_id] = schema_id('{schema}') ");
+            }
+
+            decompressTableCommand.AppendLine("AND data_compression <> 0)")
+                .Append("EXEC(")
+                .Append(stringTypeMapping.GenerateSqlLiteral("ALTER TABLE " +
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(tableName, schema) +
+                    " REBUILD PARTITION = ALL WITH (DATA_COMPRESSION = NONE)" +
+                    Dependencies.SqlGenerationHelper.StatementTerminator))
+                .Append(")")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+
+            operations.Add(
+                new SqlOperation
+                {
+                    Sql = decompressTableCommand.ToString(),
                     SuppressTransaction = suppressTransaction
                 });
         }
