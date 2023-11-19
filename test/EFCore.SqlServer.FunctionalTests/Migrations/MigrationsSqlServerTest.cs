@@ -6727,7 +6727,71 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 """);
     }
 
-    [ConditionalFact(Skip = "Issue #32154")]
+    [ConditionalFact]
+    public virtual async Task Add_sparse_column_to_temporal_table()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<string>("Name");
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+                    e.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
+                }),
+            builder => { },
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int?>("MyColumn").IsSparse();
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("Name", c.Name),
+                    c => Assert.Equal("MyColumn", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
+""",
+                //
+                """
+ALTER TABLE [Customer] ADD [MyColumn] int SPARSE NULL;
+""",
+                //
+                """
+ALTER TABLE [HistoryTable] ADD [MyColumn] int SPARSE NULL;
+""",
+                //
+                """
+DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+""");
+    }
+
+    [ConditionalFact]
     public virtual async Task Convert_regular_column_of_temporal_table_to_sparse()
     {
         await Test(
@@ -6783,6 +6847,10 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
         AssertSql(
 """
+ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
+""",
+                //
+                """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -6790,6 +6858,168 @@ INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [
 WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int SPARSE NULL;
+""",
+                //
+                """
+DECLARE @var1 sysname;
+SELECT @var1 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[HistoryTable]') AND [c].[name] = N'MyColumn');
+IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [HistoryTable] DROP CONSTRAINT [' + @var1 + '];');
+ALTER TABLE [HistoryTable] ALTER COLUMN [MyColumn] int SPARSE NULL;
+""",
+                //
+                """
+DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Convert_sparse_column_of_temporal_table_to_regular()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.HasKey("Id");
+
+                    e.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
+                    e.HasData(
+                        new { MyColumn = 1 },
+                        new { MyColumn = 2 },
+                        new { MyColumn = (int?)null },
+                        new { MyColumn = (int?)null });
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int?>("MyColumn").IsSparse();
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int?>("MyColumn");
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customer", table.Name);
+                Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("MyColumn", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+DECLARE @var0 sysname;
+SELECT @var0 = [d].[name]
+FROM [sys].[default_constraints] [d]
+INNER JOIN [sys].[columns] [c] ON [d].[parent_column_id] = [c].[column_id] AND [d].[parent_object_id] = [c].[object_id]
+WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customer]') AND [c].[name] = N'MyColumn');
+IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customer] DROP CONSTRAINT [' + @var0 + '];');
+ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Convert_regular_table_with_sparse_column_to_temporal()
+    {
+        await Test(
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<int>("Id").ValueGeneratedOnAdd();
+                    e.HasKey("Id");
+                    e.Property<int?>("MyColumn").IsSparse();
+                    e.HasData(
+                        new { MyColumn = 1 },
+                        new { MyColumn = 2 },
+                        new { MyColumn = (int?)null },
+                        new { MyColumn = (int?)null });
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.ToTable("Customers");
+                }),
+            builder => builder.Entity(
+                "Customer", e =>
+                {
+                    e.Property<DateTime>("Start").ValueGeneratedOnAddOrUpdate();
+                    e.Property<DateTime>("End").ValueGeneratedOnAddOrUpdate();
+                    e.ToTable(
+                        "Customers",
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.UseHistoryTable("HistoryTable");
+                                ttb.HasPeriodStart("Start");
+                                ttb.HasPeriodEnd("End");
+                            }));
+                }),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                Assert.Equal("Customers", table.Name);
+                Assert.NotNull(table[SqlServerAnnotationNames.IsTemporal]);
+                Assert.Equal("HistoryTable", table[SqlServerAnnotationNames.TemporalHistoryTableName]);
+                Assert.Equal("Start", table[SqlServerAnnotationNames.TemporalPeriodStartPropertyName]);
+                Assert.Equal("End", table[SqlServerAnnotationNames.TemporalPeriodEndPropertyName]);
+
+                Assert.Collection(
+                    table.Columns,
+                    c => Assert.Equal("Id", c.Name),
+                    c => Assert.Equal("MyColumn", c.Name));
+                Assert.Same(
+                    table.Columns.Single(c => c.Name == "Id"),
+                    Assert.Single(table.PrimaryKey!.Columns));
+            });
+
+        AssertSql(
+"""
+ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
+""",
+                //
+                """
+ALTER TABLE [Customers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
+""",
+                //
+                """
+ALTER TABLE [Customers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
+""",
+                //
+                """
+ALTER TABLE [Customers] ALTER COLUMN [Start] ADD HIDDEN
+""",
+                //
+                """
+ALTER TABLE [Customers] ALTER COLUMN [End] ADD HIDDEN
+""",
+                //
+                """
+DECLARE @historyTableSchema sysname = SCHEMA_NAME()
+EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
     }
 
@@ -8494,6 +8724,31 @@ EXEC sp_rename N'[Customers].[PeriodStart]', N'ValidFrom', N'COLUMN';
 EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', N'COLUMN';
 """);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     [ConditionalFact]
     public virtual async Task Temporal_multiop_convert_to_temporal_and_add_new_column()

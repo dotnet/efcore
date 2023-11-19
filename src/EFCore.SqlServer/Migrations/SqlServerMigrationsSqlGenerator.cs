@@ -2676,8 +2676,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 case AddColumnOperation addColumnOperation:
                 {
-                    operations.Add(addColumnOperation);
-
                     // when adding a period column, we need to add it as a normal column first, and only later enable period
                     // removing the period information now, so that when we generate SQL that adds the column we won't be making them
                     // auto generated as period it won't work, unless period is enabled but we can't enable period without adding the
@@ -2694,6 +2692,23 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             addColumnOperation.DefaultValue = DateTime.MaxValue;
                         }
 
+                        // when adding sparse column to temporal table, we need to disable versioning.
+                        // This is because it may be the case that HistoryTable is using compression (by default)
+                        // and the add column operation fails in that situation
+                        if (addColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true
+                            && !temporalInformation.DisabledVersioning
+                            && !temporalInformation.ShouldEnableVersioning)
+                        {
+                            DisableVersioning(
+                                tableName,
+                                schema,
+                                temporalInformation,
+                                suppressTransaction,
+                                shouldEnableVersioning: true);
+                        }
+
+                        operations.Add(addColumnOperation);
+
                         // when adding (non-period) column to an existing temporal table we need to check if we have disabled versioning
                         // due to some other operations in the same migration (e.g. delete column)
                         // if so, we need to also add the same column to history table
@@ -2706,6 +2721,10 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             addHistoryTableColumnOperation.Schema = temporalInformation.HistoryTableSchema;
                             operations.Add(addHistoryTableColumnOperation);
                         }
+                    }
+                    else
+                    {
+                        operations.Add(addColumnOperation);
                     }
 
                     break;
@@ -2798,8 +2817,15 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         // for alter column operation converting column from nullable to non-nullable in the temporal table
                         // we must disable versioning in order to properly handle it
                         // specifically, switching values in history table from null to the default value
-                        if (alterColumnOperation.OldColumn.IsNullable
-                            && !alterColumnOperation.IsNullable
+                        var changeToNonNullable = alterColumnOperation.OldColumn.IsNullable
+                            && !alterColumnOperation.IsNullable;
+
+                        // for alter column converting to sparse we also need to disable versioning
+                        // in case HistoryTable is compressed
+                        var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
+                            && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
+
+                        if ((changeToNonNullable || changeToSparse)
                             && !temporalInformation.DisabledVersioning
                             && !temporalInformation.ShouldEnableVersioning)
                         {
