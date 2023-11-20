@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     where TEntity : class
 {
+    private static readonly bool UseOldBehavior32314 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32314", out var enabled32314) && enabled32314;
+
     private readonly IStateManager _stateManager;
     private readonly IDbSetSource _setSource;
     private readonly IDbSetCache _setCache;
@@ -715,7 +718,8 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         for (var i = 0; i < values.Length; i++)
         {
             var property = properties[i];
-            if (property.IsShadowProperty() && (detached || (entry.EntityState != EntityState.Added && entry.IsUnknown(property))))
+            if (property.IsShadowProperty() && (detached
+                    || ((UseOldBehavior32314 || entry.EntityState != EntityState.Added) && entry.IsUnknown(property))))
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
