@@ -113,6 +113,37 @@ CREATE TABLE "People" (
 """);
     }
 
+    public override async Task Create_table_with_json_column()
+    {
+        await base.Create_table_with_json_column();
+
+        AssertSql(
+            """
+CREATE TABLE "Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL,
+    "OwnedRequiredReference" TEXT NOT NULL
+);
+""");
+    }
+
+    public override async Task Create_table_with_json_column_explicit_json_column_names()
+    {
+        await base.Create_table_with_json_column_explicit_json_column_names();
+
+        AssertSql(
+            """
+CREATE TABLE "Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "json_collection" TEXT NULL,
+    "json_reference" TEXT NULL
+);
+""");
+    }
+
     public override async Task Alter_table_add_comment()
     {
         await base.Alter_table_add_comment();
@@ -331,6 +362,47 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Rename_table_with_json_column()
+    {
+        await base.Rename_table_with_json_column();
+
+        AssertSql(
+            """
+ALTER TABLE "Entities" RENAME TO "NewEntities";
+""",
+            //
+            """
+CREATE TABLE "ef_temp_NewEntities" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_NewEntities" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_NewEntities" ("Id", "Name", "OwnedCollection", "OwnedReference")
+SELECT "Id", "Name", "OwnedCollection", "OwnedReference"
+FROM "NewEntities";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "NewEntities";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_NewEntities" RENAME TO "NewEntities";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
     // SQLite does not support schemas.
     public override async Task Move_table()
     {
@@ -372,13 +444,21 @@ ALTER TABLE "People" ADD "Sum" INTEGER NOT NULL DEFAULT (1 + 2);
 """);
     }
 
-    public override async Task Add_non_nullable_owned_json_column()
+    public override async Task Add_json_columns_to_existing_table()
     {
-        await base.Add_non_nullable_owned_json_column();
+        await base.Add_json_columns_to_existing_table();
 
         AssertSql(
             """
-ALTER TABLE "Owner" ADD "Owned" TEXT NOT NULL DEFAULT '{}';
+ALTER TABLE "Entity" ADD "OwnedCollection" TEXT NULL;
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedReference" TEXT NULL;
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedRequiredReference" TEXT NOT NULL DEFAULT '{}';
 """);
     }
 
@@ -1020,6 +1100,189 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Convert_json_entities_to_regular_owned()
+    {
+        await base.Convert_json_entities_to_regular_owned();
+
+AssertSql(
+"""
+ALTER TABLE "Entity" RENAME COLUMN "OwnedReference" TO "OwnedReference_Date";
+""",
+                //
+                """
+ALTER TABLE "Entity" ADD "OwnedReference_NestedReference_Number" INTEGER NULL;
+""",
+                //
+                """
+CREATE TABLE "Entity_NestedCollection" (
+    "OwnedEntityId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Number2" INTEGER NOT NULL,
+    CONSTRAINT "PK_Entity_NestedCollection" PRIMARY KEY ("OwnedEntityId", "Id"),
+    CONSTRAINT "FK_Entity_NestedCollection_Entity_OwnedEntityId" FOREIGN KEY ("OwnedEntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
+);
+""",
+                //
+                """
+CREATE TABLE "Entity_OwnedCollection" (
+    "EntityId" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Date2" TEXT NOT NULL,
+    "NestedReference2_Number3" INTEGER NULL,
+    CONSTRAINT "PK_Entity_OwnedCollection" PRIMARY KEY ("EntityId", "Id"),
+    CONSTRAINT "FK_Entity_OwnedCollection_Entity_EntityId" FOREIGN KEY ("EntityId") REFERENCES "Entity" ("Id") ON DELETE CASCADE
+);
+""",
+                //
+                """
+CREATE TABLE "Entity_OwnedCollection_NestedCollection2" (
+    "Owned2EntityId" INTEGER NOT NULL,
+    "Owned2Id" INTEGER NOT NULL,
+    "Id" INTEGER NOT NULL,
+    "Number4" INTEGER NOT NULL,
+    CONSTRAINT "PK_Entity_OwnedCollection_NestedCollection2" PRIMARY KEY ("Owned2EntityId", "Owned2Id", "Id"),
+    CONSTRAINT "FK_Entity_OwnedCollection_NestedCollection2_Entity_OwnedCollection_Owned2EntityId_Owned2Id" FOREIGN KEY ("Owned2EntityId", "Owned2Id") REFERENCES "Entity_OwnedCollection" ("EntityId", "Id") ON DELETE CASCADE
+);
+""",
+                //
+                """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedReference_Date" TEXT NULL,
+    "OwnedReference_NestedReference_Number" INTEGER NULL
+);
+""",
+                //
+                """
+INSERT INTO "ef_temp_Entity" ("Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number")
+SELECT "Id", "Name", "OwnedReference_Date", "OwnedReference_NestedReference_Number"
+FROM "Entity";
+""",
+                //
+                """
+PRAGMA foreign_keys = 0;
+""",
+                //
+                """
+DROP TABLE "Entity";
+""",
+                //
+                """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+                //
+                """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_regular_owned_entities_to_json()
+    {
+        await base.Convert_regular_owned_entities_to_json();
+
+        AssertSql(
+            """
+DROP TABLE "Entity_NestedCollection";
+""",
+            //
+            """
+DROP TABLE "Entity_OwnedCollection_NestedCollection2";
+""",
+            //
+            """
+DROP TABLE "Entity_OwnedCollection";
+""",
+            //
+            """
+ALTER TABLE "Entity" RENAME COLUMN "OwnedReference_Date" TO "OwnedReference";
+""",
+            //
+            """
+ALTER TABLE "Entity" ADD "OwnedCollection" TEXT NULL;
+""",
+            //
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL,
+    "OwnedCollection" TEXT NULL,
+    "OwnedReference" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name", "OwnedCollection", "OwnedReference")
+SELECT "Id", "Name", "OwnedCollection", "OwnedReference"
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_reference()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_reference();
+
+        AssertSql();
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_required_reference()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_required_reference();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name")
+SELECT "Id", IFNULL("Name", '{}')
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
+    public override async Task Convert_string_column_to_a_json_column_containing_collection()
+    {
+        await base.Convert_string_column_to_a_json_column_containing_collection();
+
+        AssertSql();
+    }
+
     public override async Task Drop_column()
     {
         await base.Drop_column();
@@ -1088,6 +1351,41 @@ PRAGMA foreign_keys = 1;
 """);
     }
 
+    public override async Task Drop_json_columns_from_existing_table()
+    {
+        await base.Drop_json_columns_from_existing_table();
+
+        AssertSql(
+            """
+CREATE TABLE "ef_temp_Entity" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Entity" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NULL
+);
+""",
+            //
+            """
+INSERT INTO "ef_temp_Entity" ("Id", "Name")
+SELECT "Id", "Name"
+FROM "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 0;
+""",
+            //
+            """
+DROP TABLE "Entity";
+""",
+            //
+            """
+ALTER TABLE "ef_temp_Entity" RENAME TO "Entity";
+""",
+            //
+            """
+PRAGMA foreign_keys = 1;
+""");
+    }
+
     public override async Task Rename_column()
     {
         await base.Rename_column();
@@ -1095,6 +1393,20 @@ PRAGMA foreign_keys = 1;
         AssertSql(
             """
 ALTER TABLE "People" RENAME COLUMN "SomeColumn" TO "SomeOtherColumn";
+""");
+    }
+
+    public override async Task Rename_json_column()
+    {
+        await base.Rename_json_column();
+
+        AssertSql(
+            """
+ALTER TABLE "Entity" RENAME COLUMN "json_reference" TO "new_json_reference";
+""",
+            //
+            """
+ALTER TABLE "Entity" RENAME COLUMN "json_collection" TO "new_json_collection";
 """);
     }
 
