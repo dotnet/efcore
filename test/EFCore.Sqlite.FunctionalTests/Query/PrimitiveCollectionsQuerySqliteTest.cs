@@ -833,6 +833,7 @@ WHERE (
 """);
     }
 
+    [ConditionalFact(Skip = "Underlying SQLite issue")]
     public override async Task Parameter_collection_Concat_column_collection(bool async)
     {
         await base.Parameter_collection_Concat_column_collection(async);
@@ -1212,12 +1213,12 @@ END IN (
 """);
     }
 
-        public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
-        {
-            await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(async);
+    public override async Task Nested_contains_with_arrays_and_no_inferred_type_mapping(bool async)
+    {
+        await base.Nested_contains_with_arrays_and_no_inferred_type_mapping(async);
 
-            AssertSql(
-                """
+        AssertSql(
+            """
     @__ints_1='[1,2,3]' (Size = 7)
     @__strings_0='["one","two","three"]' (Size = 21)
 
@@ -1234,7 +1235,7 @@ END IN (
         FROM json_each(@__strings_0) AS "s"
     )
     """);
-        }
+    }
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()

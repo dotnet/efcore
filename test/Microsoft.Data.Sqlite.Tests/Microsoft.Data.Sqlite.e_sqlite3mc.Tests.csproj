@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>$(DefaultNetCoreTargetFramework);net462</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);SQLITE3</DefineConstants>
+    <DefineConstants>$(DefineConstants);E_SQLITE3MC</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_sqlite3" Version="2.1.7-pre20231117161811" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3mc" Version="2.1.7-pre20231117161811" />
   </ItemGroup>
 
 </Project>
