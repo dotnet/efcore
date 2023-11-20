@@ -715,7 +715,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         for (var i = 0; i < values.Length; i++)
         {
             var property = properties[i];
-            if (property.IsShadowProperty() && (detached || entry.IsUnknown(property)))
+            if (property.IsShadowProperty() && (detached || (entry.EntityState != EntityState.Added && entry.IsUnknown(property))))
             {
                 throw new InvalidOperationException(
                     CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
