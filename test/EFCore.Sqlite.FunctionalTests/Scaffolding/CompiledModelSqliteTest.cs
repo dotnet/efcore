@@ -15,6 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding;
 
 public class CompiledModelSqliteTest : CompiledModelRelationalTestBase
 {
+    [SpatialiteRequired]
+    public override void BigModel()
+        => base.BigModel();
+
+    [SpatialiteRequired]
+    public override void BigModel_with_JSON_columns()
+        => base.BigModel_with_JSON_columns();
+
     protected override void BuildBigModel(ModelBuilder modelBuilder, bool jsonColumns)
     {
         base.BuildBigModel(modelBuilder, jsonColumns);
