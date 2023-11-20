@@ -16,6 +16,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
+        public static readonly bool UseOldBehavior32310 =
+            AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32310", out var enabled32310) && enabled32310;
+
         /// <summary>
         ///     Reading database values
         /// </summary>
@@ -2063,7 +2066,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     OrElse(
                                         ReferenceEqual(currentVariable, Constant(null)),
                                         ReferenceEqual(parameter, Constant(null))),
-                                    MakeBinary(node.NodeType, node.Left, parameter),
+                                    !UseOldBehavior32310
+                                    && node is { NodeType: ExpressionType.Assign, Left: MemberExpression leftMemberExpression }
+                                        ? leftMemberExpression.Assign(parameter)
+                                        : MakeBinary(node.NodeType, node.Left, parameter),
                                     Call(
                                         PopulateListMethod.MakeGenericMethod(property.ClrType.TryGetElementType(typeof(IEnumerable<>))!),
                                         parameter,
