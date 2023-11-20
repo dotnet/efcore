@@ -129,4 +129,7 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
 
     public override Task Where_compare_anonymous_types(bool async)
         => Task.CompletedTask;
+
+    public override Task Subquery_inside_Take_argument(bool async)
+        => Task.CompletedTask;
 }

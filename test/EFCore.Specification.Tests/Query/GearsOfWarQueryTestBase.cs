@@ -8280,6 +8280,87 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .GroupBy(x => new { x.Name })
                 .Select(x => new { x.Key.Name, SumOfLengths = x.Sum(xx => xx.Location.Length) }));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_inside_Contains_argument(bool async)
+    {
+        var numbers = new[] { 1, -1 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Where(x => numbers.Contains(x.Weapons.Any() ? 1 : 0)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_with_member_pushdown_inside_Contains_argument(bool async)
+    {
+        var weapons = new[] { "Marcus' Lancer", "Dom's Gnasher" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().Where(x => weapons.Contains(x.Weapons.OrderBy(w => w.Id).FirstOrDefault().Name)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Subquery_inside_Take_argument(bool async)
+    {
+        var numbers = new[] { 0, 1, 2 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
+                x => x.Weapons.OrderBy(g => g.Id).Take(numbers.OrderBy(xx => xx).Skip(1).FirstOrDefault())),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+    }
+
+    [ConditionalTheory(Skip = "issue #32303")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_inside_Skip_correlated_to_source(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<City>().OrderBy(x => x.Name).Select(
+                x => x.BornGears.OrderBy(g => g.FullName).Skip(x.StationedGears.Any() ? 1 : 0)));
+    }
+
+    [ConditionalTheory(Skip = "issue #32303")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_inside_Take_correlated_to_source(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
+                x => x.Weapons.OrderBy(g => g.Id).Take(x.AssignedCity.Name.Length)));
+    }
+
+    [ConditionalTheory(Skip = "issue #32303")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_with_member_pushdown_inside_Take_correlated_to_source(bool async)
+    {
+        var numbers = new[] { 0, 1, 2 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
+                x => x.Weapons.OrderBy(g => g.Id).Take(
+                    ss.Set<Gear>().OrderBy(xx => xx.Nickname).FirstOrDefault().AssignedCity.Name.Length)),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e, a, ordered: true));
+    }
+
+    [ConditionalTheory(Skip = "issue #32303")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nav_expansion_inside_ElementAt_correlated_to_source(bool async)
+    {
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>().OrderBy(x => x.Nickname).Select(
+                x => x.Weapons.OrderBy(g => g.Id).ElementAt(x.AssignedCity != null ? 1 : 0)));
+    }
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 

@@ -10045,6 +10045,108 @@ GROUP BY [s].[Name]
 """);
     }
 
+    public override async Task Nav_expansion_inside_Contains_argument(bool async)
+    {
+        await base.Nav_expansion_inside_Contains_argument(async);
+
+        AssertSql(
+"""
+@__numbers_0='[1,-1]' (Size = 4000)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+WHERE CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]) THEN 1
+    ELSE 0
+END IN (
+    SELECT [n].[value]
+    FROM OPENJSON(@__numbers_0) WITH ([value] int '$') AS [n]
+)
+""");
+    }
+
+    public override async Task Nav_expansion_with_member_pushdown_inside_Contains_argument(bool async)
+    {
+        await base.Nav_expansion_with_member_pushdown_inside_Contains_argument(async);
+
+        AssertSql(
+"""
+@__weapons_0='["Marcus\u0027 Lancer","Dom\u0027s Gnasher"]' (Size = 4000)
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON(@__weapons_0) WITH ([value] nvarchar(max) '$') AS [w0]
+    WHERE [w0].[value] = (
+        SELECT TOP(1) [w].[Name]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+        ORDER BY [w].[Id]) OR ([w0].[value] IS NULL AND (
+        SELECT TOP(1) [w].[Name]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+        WHERE [g].[FullName] = [w].[OwnerFullName]
+        ORDER BY [w].[Id]) IS NULL))
+""");
+    }
+
+    public override async Task Subquery_inside_Take_argument(bool async)
+    {
+        await base.Subquery_inside_Take_argument(async);
+
+        AssertSql(
+"""
+@__numbers_0='[0,1,2]' (Size = 4000)
+
+SELECT [g].[Nickname], [g].[SquadId], [t0].[Id], [t0].[AmmunitionType], [t0].[IsAutomatic], [t0].[Name], [t0].[OwnerFullName], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[SynergyWithId]
+FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
+LEFT JOIN (
+    SELECT [t].[Id], [t].[AmmunitionType], [t].[IsAutomatic], [t].[Name], [t].[OwnerFullName], [t].[PeriodEnd], [t].[PeriodStart], [t].[SynergyWithId]
+    FROM (
+        SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[PeriodEnd], [w].[PeriodStart], [w].[SynergyWithId], ROW_NUMBER() OVER(PARTITION BY [w].[OwnerFullName] ORDER BY [w].[Id]) AS [row]
+        FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
+    ) AS [t]
+    WHERE [t].[row] <= COALESCE((
+        SELECT [n].[value]
+        FROM OPENJSON(@__numbers_0) WITH ([value] int '$') AS [n]
+        ORDER BY [n].[value]
+        OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY), 0)
+) AS [t0] ON [g].[FullName] = [t0].[OwnerFullName]
+ORDER BY [g].[Nickname], [g].[SquadId], [t0].[OwnerFullName], [t0].[Id]
+""");
+    }
+
+    public override async Task Nav_expansion_inside_Skip_correlated_to_source(bool async)
+    {
+        await base.Nav_expansion_inside_Skip_correlated_to_source(async);
+
+        AssertSql();
+    }
+
+    public override async Task Nav_expansion_inside_Take_correlated_to_source(bool async)
+    {
+        await base.Nav_expansion_inside_Take_correlated_to_source(async);
+
+        AssertSql();
+    }
+
+    public override async Task Nav_expansion_with_member_pushdown_inside_Take_correlated_to_source(bool async)
+    {
+        await base.Nav_expansion_with_member_pushdown_inside_Take_correlated_to_source(async);
+
+        AssertSql();
+    }
+
+    public override async Task Nav_expansion_inside_ElementAt_correlated_to_source(bool async)
+    {
+        await base.Nav_expansion_inside_ElementAt_correlated_to_source(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
