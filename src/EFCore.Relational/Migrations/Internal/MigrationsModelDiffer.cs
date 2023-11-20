@@ -1283,7 +1283,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.ClrType = typeof(string);
         columnOperation.DefaultValue = inline || isNullable
             ? null
-            : GetDefaultValue(columnOperation.ClrType);
+            : "{}";
 
         columnOperation.AddAnnotations(migrationsAnnotations);
     }

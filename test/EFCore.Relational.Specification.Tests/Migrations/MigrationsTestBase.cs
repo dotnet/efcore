@@ -432,6 +432,30 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(RelationalStrings.DefaultValueUnspecified("People", "Sum"), ex.Message);
     }
 
+    [ConditionalFact]
+    public virtual Task Add_non_nullable_owned_json_column()
+        => Test(
+            builder => builder.Entity<Owner>().Ignore(o => o.Owned),
+            builder => { },
+            builder => builder.Entity<Owner>(
+                b =>
+                {
+                    b.OwnsOne(o => o.Owned, o => o.ToJson());
+                    b.Navigation(o => o.Owned).IsRequired();
+                }),
+            model => { });
+
+    protected class Owner
+    {
+        public int Id { get; set; }
+        public Owned Owned { get; set; }
+    }
+
+    protected class Owned
+    {
+        public int Foo { get; set; }
+    }
+
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]

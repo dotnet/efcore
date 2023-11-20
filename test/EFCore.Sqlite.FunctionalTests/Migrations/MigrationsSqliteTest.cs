@@ -372,6 +372,16 @@ ALTER TABLE "People" ADD "Sum" INTEGER NOT NULL DEFAULT (1 + 2);
 """);
     }
 
+    public override async Task Add_non_nullable_owned_json_column()
+    {
+        await base.Add_non_nullable_owned_json_column();
+
+        AssertSql(
+            """
+ALTER TABLE "Owner" ADD "Owned" TEXT NOT NULL DEFAULT '{}';
+""");
+    }
+
     public override async Task Add_column_with_computedSql(bool? stored)
     {
         await base.Add_column_with_computedSql(stored);
