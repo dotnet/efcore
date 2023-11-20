@@ -266,7 +266,7 @@ public class EntityFrameworkServicesBuilderTest
         {
             services = context.GetService<IEnumerable<IResettableService>>().ToList();
 
-            Assert.Equal(3, services.Count);
+            Assert.Equal(4, services.Count);
             Assert.Contains(typeof(FakeResetableService), services.Select(s => s.GetType()));
             Assert.Contains(typeof(StateManager), services.Select(s => s.GetType()));
             Assert.Contains(typeof(InMemoryTransactionManager), services.Select(s => s.GetType()));
@@ -281,7 +281,7 @@ public class EntityFrameworkServicesBuilderTest
         {
             var newServices = context.GetService<IEnumerable<IResettableService>>().ToList();
 
-            Assert.Equal(3, newServices.Count);
+            Assert.Equal(4, newServices.Count);
 
             foreach (var service in newServices)
             {

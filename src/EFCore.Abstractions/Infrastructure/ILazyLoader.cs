@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public interface ILazyLoader : IDisposable
+public interface ILazyLoader
 {
     /// <summary>
     ///     Sets the given navigation as known to be completely loaded or known to be
@@ -66,4 +66,9 @@ public interface ILazyLoader : IDisposable
         object entity,
         CancellationToken cancellationToken = default,
         [CallerMemberName] string navigationName = "");
+
+    /// <summary>
+    ///     Disposes the loader.
+    /// </summary>
+    void Dispose();
 }
