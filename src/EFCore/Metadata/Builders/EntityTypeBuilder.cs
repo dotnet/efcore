@@ -1428,7 +1428,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
     }
 
     /// <summary>
-    ///     Configures a trigger for the the entity type.
+    ///     Configures a trigger for the entity type.
     /// </summary>
     /// <param name="entityType">The entity type.</param>
     /// <param name="modelName">The name of the trigger.</param>
