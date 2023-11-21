@@ -2553,9 +2553,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     }
 
                     var isTemporalTable = renameTableOperation[SqlServerAnnotationNames.IsTemporal] as bool? == true;
-                    if (isTemporalTable &&
-                        !temporalInformation.DisabledVersioning &&
-                        !temporalInformation.ShouldEnableVersioning)
+                    if (isTemporalTable)
                     {
                         DisableVersioning(
                             tableName,
@@ -2636,16 +2634,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             var oldPeriodEndColumnName =
                                 alterTableOperation.OldTable[SqlServerAnnotationNames.TemporalPeriodEndColumnName] as string;
 
-                            if (!temporalInformation.DisabledVersioning
-                                && !temporalInformation.ShouldEnableVersioning)
-                            {
-                                DisableVersioning(
-                                    tableName,
-                                    schema,
-                                    temporalInformation,
-                                    suppressTransaction,
-                                    shouldEnableVersioning: null);
-                            }
+                            DisableVersioning(
+                                tableName,
+                                schema,
+                                temporalInformation,
+                                suppressTransaction,
+                                shouldEnableVersioning: null);
 
                             if (!temporalInformation.DisabledPeriod)
                             {
@@ -2692,25 +2686,37 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             addColumnOperation.DefaultValue = DateTime.MaxValue;
                         }
 
+                        var isSparse = addColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
+                        var isComputed = addColumnOperation.ComputedColumnSql != null;
+
+                        if (isSparse || isComputed)
+                        {
+                            DisableVersioning(
+                                tableName,
+                                schema,
+                                temporalInformation,
+                                suppressTransaction,
+                                shouldEnableVersioning: true);
+                        }
+
                         // when adding sparse column to temporal table, we need to disable versioning.
                         // This is because it may be the case that HistoryTable is using compression (by default)
                         // and the add column operation fails in that situation
                         // in order to make it work we need to disable versioning (if we haven't done it already)
                         // and de-compress the HistoryTable
-                        if (addColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true)
+                        if (isSparse)
                         {
-                            if (!temporalInformation.DisabledVersioning
-                                && !temporalInformation.ShouldEnableVersioning)
-                            {
-                                DisableVersioning(
-                                    tableName,
-                                    schema,
-                                    temporalInformation,
-                                    suppressTransaction,
-                                    shouldEnableVersioning: true);
-                            }
-
                             DecompressTable(temporalInformation.HistoryTableName!, temporalInformation.HistoryTableSchema, suppressTransaction);
+                        }
+
+                        if (addColumnOperation.ComputedColumnSql != null)
+                        {
+                            DisableVersioning(
+                                tableName,
+                                schema,
+                                temporalInformation,
+                                suppressTransaction,
+                                shouldEnableVersioning: true);
                         }
 
                         operations.Add(addColumnOperation);
@@ -2725,6 +2731,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                             var addHistoryTableColumnOperation = CopyColumnOperation<AddColumnOperation>(addColumnOperation);
                             addHistoryTableColumnOperation.Table = temporalInformation.HistoryTableName!;
                             addHistoryTableColumnOperation.Schema = temporalInformation.HistoryTableSchema;
+
+                            if (addHistoryTableColumnOperation.ComputedColumnSql != null)
+                            {
+                                // computed columns are not allowed inside HistoryTables
+                                // but the historical computed value will be copied over to the non-computed counterpart,
+                                // as long as their names and types (including nullability) match
+                                // so we remove ComputedColumnSql info, so that the column in history table "appears normal"
+                                addHistoryTableColumnOperation.ComputedColumnSql = null;
+                            }
+
                             operations.Add(addHistoryTableColumnOperation);
                         }
                     }
@@ -2743,18 +2759,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var droppingPeriodColumn = dropColumnOperation.Name == temporalInformation.PeriodStartColumnName
                             || dropColumnOperation.Name == temporalInformation.PeriodEndColumnName;
 
-                        if (!temporalInformation.DisabledVersioning
-                            && !temporalInformation.ShouldEnableVersioning)
-                        {
-                            // if we are dropping non-period column, we should enable versioning at the end.
-                            // When dropping period column there is no need - we are removing the versioning for this table altogether
-                            DisableVersioning(
-                                tableName,
-                                schema,
-                                temporalInformation,
-                                suppressTransaction,
-                                shouldEnableVersioning: droppingPeriodColumn ? null : true);
-                        }
+                        // if we are dropping non-period column, we should enable versioning at the end.
+                        // When dropping period column there is no need - we are removing the versioning for this table altogether
+                        DisableVersioning(
+                            tableName,
+                            schema,
+                            temporalInformation,
+                            suppressTransaction,
+                            shouldEnableVersioning: droppingPeriodColumn ? null : true);
 
                         if (droppingPeriodColumn && !temporalInformation.DisabledPeriod)
                         {
@@ -2820,6 +2832,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                     if (temporalInformation.IsTemporalTable)
                     {
+                        if (alterColumnOperation.OldColumn.ComputedColumnSql != alterColumnOperation.ComputedColumnSql)
+                        {
+                            throw new NotSupportedException(
+                                SqlServerStrings.TemporalMigrationModifyingComputedColumnNotSupported(
+                                    alterColumnOperation.Name,
+                                    alterColumnOperation.Table));
+                        }
+
                         // for alter column operation converting column from nullable to non-nullable in the temporal table
                         // we must disable versioning in order to properly handle it
                         // specifically, switching values in history table from null to the default value
@@ -2831,9 +2851,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                         var changeToSparse = alterColumnOperation.OldColumn[SqlServerAnnotationNames.Sparse] as bool? != true
                             && alterColumnOperation[SqlServerAnnotationNames.Sparse] as bool? == true;
 
-                        if ((changeToNonNullable || changeToSparse)
-                            && !temporalInformation.DisabledVersioning
-                            && !temporalInformation.ShouldEnableVersioning)
+                        if (changeToNonNullable || changeToSparse)
                         {
                             DisableVersioning(
                                 tableName!,
@@ -2878,9 +2896,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
                 case DropPrimaryKeyOperation:
                 case AddPrimaryKeyOperation:
-                    if (temporalInformation.IsTemporalTable
-                        && !temporalInformation.DisabledVersioning
-                        && !temporalInformation.ShouldEnableVersioning)
+                    if (temporalInformation.IsTemporalTable)
                     {
                         DisableVersioning(
                             tableName!,
@@ -2948,16 +2964,20 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             bool suppressTransaction,
             bool? shouldEnableVersioning)
         {
-            temporalInformation.DisabledVersioning = true;
-
-            AddDisableVersioningOperation(tableName, schema, suppressTransaction);
-
-            if (shouldEnableVersioning != null)
+            if (!temporalInformation.DisabledVersioning
+                && !temporalInformation.ShouldEnableVersioning)
             {
-                temporalInformation.ShouldEnableVersioning = shouldEnableVersioning.Value;
-                if (shouldEnableVersioning.Value)
+                temporalInformation.DisabledVersioning = true;
+
+                AddDisableVersioningOperation(tableName, schema, suppressTransaction);
+
+                if (shouldEnableVersioning != null)
                 {
-                    temporalInformation.SuppressTransaction = suppressTransaction;
+                    temporalInformation.ShouldEnableVersioning = shouldEnableVersioning.Value;
+                    if (shouldEnableVersioning.Value)
+                    {
+                        temporalInformation.SuppressTransaction = suppressTransaction;
+                    }
                 }
             }
         }

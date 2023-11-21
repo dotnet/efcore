@@ -320,6 +320,9 @@
   <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
   </data>
+  <data name="TemporalMigrationModifyingComputedColumnNotSupported" xml:space="preserve">
+    <value>Modifying SQL of a computed column '{columnName}' on a temporal table '{tableName}' is not supported by migrations.</value>
+  </data>
   <data name="TemporalMustDefinePeriodProperties" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.</value>
   </data>
