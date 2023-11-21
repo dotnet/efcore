@@ -582,7 +582,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     when TryGetInferredTypeMapping(jsonEachExpression, "value", out var typeMapping):
                     return ApplyTypeMappingsOnJsonEachExpression(jsonEachExpression, typeMapping);
 
-                // Above, we applied the type mapping the the parameter that json_each accepts as an argument.
+                // Above, we applied the type mapping to the parameter that json_each accepts as an argument.
                 // But the inferred type mapping also needs to be applied as a SQL conversion on the column projections coming out of the
                 // SelectExpression containing the json_each call. So we set state to know about json_each tables and their type mappings
                 // in the immediate SelectExpression, and continue visiting down (see ColumnExpression visitation below).

@@ -225,7 +225,7 @@ namespace Microsoft.Data.Sqlite
         /// <summary>
         ///     Empties the connection pool.
         /// </summary>
-        /// <remarks>Any open connections will not be returned the the pool when closed.</remarks>
+        /// <remarks>Any open connections will not be returned to the pool when closed.</remarks>
         public static void ClearAllPools()
             => SqliteConnectionFactory.Instance.ClearPools();
 
@@ -233,7 +233,7 @@ namespace Microsoft.Data.Sqlite
         ///     Empties the connection pool associated with the connection.
         /// </summary>
         /// <param name="connection">The connection.</param>
-        /// <remarks>Any open connections will not be returned the the pool when closed.</remarks>
+        /// <remarks>Any open connections will not be returned to the pool when closed.</remarks>
         public static void ClearPool(SqliteConnection connection)
             => connection.PoolGroup.Clear();
 
@@ -690,14 +690,14 @@ namespace Microsoft.Data.Sqlite
         }
 
         /// <summary>
-        ///     Returns schema information for the data source of this conneciton.
+        ///     Returns schema information for the data source of this connection.
         /// </summary>
         /// <returns>Schema information.</returns>
         public override DataTable GetSchema()
             => GetSchema(DbMetaDataCollectionNames.MetaDataCollections);
 
         /// <summary>
-        ///     Returns schema information for the data source of this conneciton.
+        ///     Returns schema information for the data source of this connection.
         /// </summary>
         /// <param name="collectionName">The name of the schema.</param>
         /// <returns>Schema information.</returns>
@@ -705,7 +705,7 @@ namespace Microsoft.Data.Sqlite
             => GetSchema(collectionName, Array.Empty<string>());
 
         /// <summary>
-        ///     Returns schema information for the data source of this conneciton.
+        ///     Returns schema information for the data source of this connection.
         /// </summary>
         /// <param name="collectionName">The name of the schema.</param>
         /// <param name="restrictionValues">The restrictions.</param>
