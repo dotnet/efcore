@@ -2006,7 +2006,8 @@ public abstract partial class LoadTestBase<TFixture>
 
         if (LazyLoadingEnabled)
         {
-            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll
+                || state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
             {
                 Assert.Null(child.Parent); // Explicitly detached
             }
@@ -2094,7 +2095,8 @@ public abstract partial class LoadTestBase<TFixture>
 
         if (LazyLoadingEnabled)
         {
-            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll
+                || state == EntityState.Added && queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
             {
                 Assert.Null(single.Parent); // Explicitly detached
             }
@@ -2258,7 +2260,8 @@ public abstract partial class LoadTestBase<TFixture>
             {
                 Assert.Null(child.Parent); // Explicitly detached
             }
-            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll
+                     && state != EntityState.Added)
             {
                 Assert.Equal(
                     CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
@@ -2327,7 +2330,8 @@ public abstract partial class LoadTestBase<TFixture>
             {
                 Assert.Null(single.Parent);
             }
-            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll
+                     && state != EntityState.Added)
             {
                 Assert.Equal(
                     CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
