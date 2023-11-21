@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -76,7 +75,7 @@ public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
                 candidates = candidates.Prepend(instance);
             }
 
-            var typeMapping = ExpressionExtensions.InferTypeMapping(candidates.ToArray())
+            var typeMapping = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions.InferTypeMapping(candidates.ToArray())
                 ?? _typeMappingSource.FindMapping(typeof(HierarchyId))!;
 
             var newArguments = new List<SqlExpression>();

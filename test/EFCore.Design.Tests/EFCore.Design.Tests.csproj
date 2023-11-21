@@ -14,14 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Scaffolding\Internal\Baselines\**\*" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Include="Scaffolding\Internal\Baselines\**\*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
@@ -53,7 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EFCore.Cosmos\EFCore.Cosmos.csproj" />
     <ProjectReference Include="..\..\src\EFCore.InMemory\EFCore.InMemory.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer.NTS\EFCore.SqlServer.NTS.csproj" />

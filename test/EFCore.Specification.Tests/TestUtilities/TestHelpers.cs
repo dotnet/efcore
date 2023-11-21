@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -48,6 +50,73 @@ public abstract class TestHelpers
         }
 
         return services.BuildServiceProvider(); // No scope validation; test doubles violate scopes, but only resolved once.
+    }
+
+    public IServiceProvider CreateDesignServiceProvider(
+        IServiceCollection customServices = null,
+        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
+        Action<IServiceCollection> addDesignTimeServices = null,
+        IOperationReporter reporter = null)
+        => CreateDesignServiceProvider(
+            CreateContext().GetService<IDatabaseProvider>().Name,
+            customServices,
+            replaceServices,
+            addDesignTimeServices,
+            reporter);
+
+    public IServiceProvider CreateDesignServiceProvider(
+        string provider,
+        IServiceCollection customServices = null,
+        Action<EntityFrameworkDesignServicesBuilder> replaceServices = null,
+        Action<IServiceCollection> addDesignTimeServices = null,
+        IOperationReporter reporter = null)
+        => CreateServiceProvider(
+            customServices, services =>
+            {
+                if (replaceServices != null)
+                {
+                    var builder = CreateEntityFrameworkDesignServicesBuilder(services);
+                    replaceServices(builder);
+                }
+
+                if (addDesignTimeServices != null)
+                {
+                    addDesignTimeServices(services);
+                }
+
+                ConfigureProviderServices(provider, services);
+                services.AddEntityFrameworkDesignTimeServices(reporter);
+
+                return services;
+            });
+
+    protected virtual EntityFrameworkDesignServicesBuilder CreateEntityFrameworkDesignServicesBuilder(IServiceCollection services)
+        => new(services);
+
+    private void ConfigureProviderServices(string provider, IServiceCollection services)
+    {
+        var providerAssembly = Assembly.Load(new AssemblyName(provider));
+
+        var providerServicesAttribute = providerAssembly.GetCustomAttribute<DesignTimeProviderServicesAttribute>();
+        if (providerServicesAttribute == null)
+        {
+            throw new InvalidOperationException(DesignStrings.CannotFindDesignTimeProviderAssemblyAttribute(provider));
+        }
+
+        var designTimeServicesType = providerAssembly.GetType(
+            providerServicesAttribute.TypeName,
+            throwOnError: true,
+            ignoreCase: false)!;
+
+        ConfigureDesignTimeServices(designTimeServicesType, services);
+    }
+
+    private static void ConfigureDesignTimeServices(
+        Type designTimeServicesType,
+        IServiceCollection services)
+    {
+        var designTimeServices = (IDesignTimeServices)Activator.CreateInstance(designTimeServicesType)!;
+        designTimeServices.ConfigureDesignTimeServices(services);
     }
 
     public abstract IServiceCollection AddProviderServices(IServiceCollection services);

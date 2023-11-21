@@ -316,7 +316,8 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             => new NonGenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName));
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression)
+            Expression<Func<TEntity, TProperty?>> propertyExpression)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return new NonGenericTestComplexPropertyBuilder<TProperty>(
@@ -324,8 +325,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return new NonGenericTestComplexPropertyBuilder<TProperty>(
@@ -333,8 +335,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(
@@ -345,9 +348,10 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Expression<Func<TEntity, TProperty?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(
@@ -655,15 +659,17 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             => Wrap<TProperty>(PropertyBuilder.ComplexProperty<TProperty>(propertyName));
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression)
+            Expression<Func<TComplex, TProperty?>> propertyExpression)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             return Wrap<TProperty>(
@@ -681,8 +687,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
@@ -691,9 +698,10 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            Expression<Func<TComplex, TProperty>> propertyExpression,
+            Expression<Func<TComplex, TProperty?>> propertyExpression,
             string complexTypeName,
             Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            where TProperty : default
         {
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(
@@ -793,7 +801,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
-        public override TestPropertyBuilder<TProperty> HasSentinel(object? sentinel)
+        public override TestPropertyBuilder<TProperty> HasSentinel(TProperty? sentinel)
             => Wrap(PropertyBuilder.HasSentinel(sentinel));
 
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision)
@@ -950,7 +958,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PrimitiveCollectionBuilder.HasMaxLength(maxLength));
 
-        public override TestPrimitiveCollectionBuilder<TProperty> HasSentinel(object? sentinel)
+        public override TestPrimitiveCollectionBuilder<TProperty> HasSentinel(TProperty? sentinel)
             => Wrap(PrimitiveCollectionBuilder.HasSentinel(sentinel));
 
         public override TestPrimitiveCollectionBuilder<TProperty> IsUnicode(bool unicode = true)
@@ -1019,7 +1027,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestComplexTypePropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
-        public override TestComplexTypePropertyBuilder<TProperty> HasSentinel(object? sentinel)
+        public override TestComplexTypePropertyBuilder<TProperty> HasSentinel(TProperty? sentinel)
             => Wrap(PropertyBuilder.HasSentinel(sentinel));
 
         public override TestComplexTypePropertyBuilder<TProperty> HasPrecision(int precision)
@@ -1168,7 +1176,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PrimitiveCollectionBuilder.HasMaxLength(maxLength));
 
-        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasSentinel(object? sentinel)
+        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasSentinel(TProperty? sentinel)
             => Wrap(PrimitiveCollectionBuilder.HasSentinel(sentinel));
 
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> IsUnicode(bool unicode = true)

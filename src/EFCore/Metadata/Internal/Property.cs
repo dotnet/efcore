@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
@@ -574,6 +575,32 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         EnsureMutable();
 
         _sentinel = sentinel;
+        if (sentinel == null)
+        {
+            if (!ClrType.IsNullableType())
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.IncompatibleSentinelValue(
+                        "null", DeclaringType.DisplayName(), Name, ClrType.ShortDisplayName()));
+            }
+        }
+        else
+        {
+            var valueType = sentinel.GetType();
+            if (!ClrType.UnwrapNullableType().IsAssignableFrom(valueType))
+            {
+                try
+                {
+                    _sentinel = Convert.ChangeType(sentinel, ClrType, CultureInfo.InvariantCulture);
+                }
+                catch (Exception)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.IncompatibleSentinelValue(
+                            sentinel, DeclaringType.DisplayName(), Name, ClrType.ShortDisplayName()));
+                }
+            }
+        }
 
         _sentinelConfigurationSource = configurationSource.Max(_sentinelConfigurationSource);
 

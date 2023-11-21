@@ -187,8 +187,12 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(WithEnum));
-        entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!.SetDefaultValue(X.A);
-        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValue(X.B);
+        var defaultEnum = entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!;
+        defaultEnum!.SetDefaultValue(X.A);
+        defaultEnum.Sentinel = X.A;
+        var nullableEnum = entityType.FindProperty(nameof(WithEnum.NullableEnum))!;
+        nullableEnum.SetDefaultValue(X.B);
+        nullableEnum.Sentinel = X.B;
 
         Validate(modelBuilder);
 
@@ -209,7 +213,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyWarning(
             RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "0", "X"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -257,7 +261,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         VerifyWarning(
             RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "0", "X"), modelBuilder);
     }
 
     [ConditionalFact]

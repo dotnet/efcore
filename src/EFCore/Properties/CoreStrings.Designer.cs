@@ -1334,6 +1334,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigationName, inverseNavigationName);
 
         /// <summary>
+        ///     The sentinel value '{sentinel}' is not assignable to the property '{entityType}.{property}' of type '{type}'.
+        /// </summary>
+        public static string IncompatibleSentinelValue(object? sentinel, object? entityType, object? property, object? type)
+            => string.Format(
+                GetString("IncompatibleSentinelValue", nameof(sentinel), nameof(entityType), nameof(property), nameof(type)),
+                sentinel, entityType, property, type);
+
+        /// <summary>
         ///     Incompatible sources used for set operation.
         /// </summary>
         public static string IncompatibleSourcesForSetOperation

@@ -67,7 +67,6 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
 
         if (sqlExpression.TypeMapping is not { } typeMapping)
         {
-            Check.DebugFail("SQL expression is missing a type mapping.");
             return null;
         }
 

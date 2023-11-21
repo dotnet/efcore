@@ -310,7 +310,7 @@ public class CSharpHelper : ICSharpHelper
     {
         var @namespace = new StringBuilder();
         foreach (var piece in name.Where(p => !string.IsNullOrEmpty(p))
-                     .SelectMany(p => p.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries)))
+                     .SelectMany(p => p.Split('.', StringSplitOptions.RemoveEmptyEntries)))
         {
             var identifier = Identifier(piece);
             if (!string.IsNullOrEmpty(identifier))
@@ -338,8 +338,8 @@ public class CSharpHelper : ICSharpHelper
                 .Replace("\n", @"\n")
                 .Replace("\r", @"\r")
                 .Replace("\"", "\\\"")
-                .Insert(0, "\"")
-                .Append("\"")
+                .Insert(0, '"')
+                .Append('"')
                 .ToString()
             : "null";
 
@@ -996,7 +996,8 @@ public class CSharpHelper : ICSharpHelper
             (previous, current) =>
                 previous == null
                     ? GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName)
-                    : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))!;
+                    : previous + " | " + GetSimpleEnumValue(type, Enum.GetName(type, current)!, fullName))
+            ?? $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(flags, Enum.GetUnderlyingType(type)))}";
     }
 
     internal static IReadOnlyCollection<Enum> GetFlags(Enum flags)

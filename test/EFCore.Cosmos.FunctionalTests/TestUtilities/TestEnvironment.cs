@@ -11,8 +11,8 @@ public static class TestEnvironment
 {
     public static IConfiguration Config { get; } = new ConfigurationBuilder()
         .SetBasePath(Directory.GetCurrentDirectory())
-        .AddJsonFile("config.json", optional: true)
-        .AddJsonFile("config.test.json", optional: true)
+        .AddJsonFile("cosmosConfig.json", optional: true)
+        .AddJsonFile("cosmosConfig.test.json", optional: true)
         .AddEnvironmentVariables()
         .Build()
         .GetSection("Test:Cosmos");

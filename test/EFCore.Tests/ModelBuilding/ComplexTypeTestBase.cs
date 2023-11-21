@@ -1532,7 +1532,7 @@ public abstract partial class ModelBuilderTest
                 .ValueGeneratedOnUpdate()
                 .IsUnicode()
                 .HasMaxLength(100)
-                .HasSentinel(null)
+                .HasSentinel(1)
                 .HasPrecision(10, 1)
                 .HasValueGenerator<CustomValueGenerator>()
                 .HasValueGenerator(typeof(CustomValueGenerator))
@@ -2084,24 +2084,24 @@ public abstract partial class ModelBuilderTest
                     e => e.CollectionQuarks,
                     b =>
                     {
-                        b.PrimitiveCollection(e => e.Up).HasSentinel(1);
-                        b.PrimitiveCollection(e => e.Down).HasSentinel("100");
-                        b.PrimitiveCollection<int[]>("Charm").HasSentinel(-1);
-                        b.PrimitiveCollection<List<string>>("Strange").HasSentinel("-1");
-                        b.PrimitiveCollection<int[]>("Top").HasSentinel(77);
-                        b.PrimitiveCollection<List<string>>("Bottom").HasSentinel("100");
+                        b.PrimitiveCollection(e => e.Up).HasSentinel(null);
+                        b.PrimitiveCollection(e => e.Down).HasSentinel(new ObservableCollection<string>());
+                        b.PrimitiveCollection<int[]>("Charm").HasSentinel(new int[0]);
+                        b.PrimitiveCollection<List<string>>("Strange").HasSentinel(new List<string> { });
+                        b.PrimitiveCollection<int[]>("Top").HasSentinel(new int[] { 77 });
+                        b.PrimitiveCollection<List<string>>("Bottom").HasSentinel(new List<string> { "" });
                     });
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties))!.GetComplexProperties().Single().ComplexType;
 
             Assert.Equal(0, complexType.FindProperty(nameof(CollectionQuarks.Id))!.Sentinel);
-            Assert.Equal(1, complexType.FindProperty("Up")!.Sentinel);
-            Assert.Equal("100", complexType.FindProperty("Down")!.Sentinel);
-            Assert.Equal(-1, complexType.FindProperty("Charm")!.Sentinel);
-            Assert.Equal("-1", complexType.FindProperty("Strange")!.Sentinel);
-            Assert.Equal(77, complexType.FindProperty("Top")!.Sentinel);
-            Assert.Equal("100", complexType.FindProperty("Bottom")!.Sentinel);
+            Assert.Null(complexType.FindProperty("Up")!.Sentinel);
+            Assert.Equal(new ObservableCollection<string>(), complexType.FindProperty("Down")!.Sentinel);
+            Assert.Equal(new int[0], complexType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal(new List<string> { }, complexType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(new int[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
+            Assert.Equal(new List<string> { "" }, complexType.FindProperty("Bottom")!.Sentinel);
         }
 
         [ConditionalFact]

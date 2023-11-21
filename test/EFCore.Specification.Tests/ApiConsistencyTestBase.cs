@@ -199,14 +199,6 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                                     targetMethod.GetParameters().Select(p => p.ParameterType),
                                     new ParameterTypeEqualityComparer(method, targetMethod, this)))
                         {
-                            Check.DebugAssert(
-                                matchingMethod == null,
-                                "There should only be one method with the expected signature. Found: "
-                                + Environment.NewLine
-                                + Format(matchingMethod ?? targetMethod, tuple.Value)
-                                + Environment.NewLine
-                                + Format(targetMethod, tuple.Value));
-
                             matchingMethod = targetMethod;
                         }
                     }

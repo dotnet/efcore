@@ -182,7 +182,7 @@ public abstract class ModelValidatorTestBase
 
     protected enum X
     {
-        A,
+        A = 1,
         B
     }
 
