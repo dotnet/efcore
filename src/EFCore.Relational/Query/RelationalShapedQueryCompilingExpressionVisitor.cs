@@ -200,7 +200,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                                 state.commandSource),
                             cancellationToken);
                     },
-                    null);
+                    null,
+                    relationalQueryContext.CancellationToken);
             }
             finally
             {
