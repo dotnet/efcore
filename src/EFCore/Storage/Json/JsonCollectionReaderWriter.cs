@@ -46,11 +46,6 @@ public class JsonCollectionReaderWriter<TCollection, TConcreteCollection, TEleme
             collection.Clear();
         }
 
-        if (manager.CurrentReader.TokenType == JsonTokenType.None)
-        {
-            manager.MoveNext();
-        }
-
         var tokenType = manager.CurrentReader.TokenType;
         if (tokenType != JsonTokenType.StartArray)
         {
