@@ -142,6 +142,8 @@ public class ClrICollectionAccessor<TEntity, TCollection, TElement> : IClrCollec
     {
         if (_shadow)
         {
+            // This method is only used when getting a collection from a not tracked or not-yet tracked entity,
+            // which means there is never an existing collection.
             return (ICollection<TElement>?)_createCollection?.Invoke();
         }
 
