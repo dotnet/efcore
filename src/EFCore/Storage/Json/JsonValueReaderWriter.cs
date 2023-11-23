@@ -64,6 +64,7 @@ public abstract class JsonValueReaderWriter
     public object FromJsonString(string json, object? existingObject = null)
     {
         var readerManager = new Utf8JsonReaderManager(new JsonReaderData(Encoding.UTF8.GetBytes(json)), null);
+        readerManager.MoveNext();
         return FromJson(ref readerManager, existingObject);
     }
 

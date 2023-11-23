@@ -3505,6 +3505,10 @@ public abstract class JsonTypesTestBase
         var jsonReaderWriter = property.GetJsonValueReaderWriter()
             ?? property.GetTypeMapping().JsonValueReaderWriter!;
 
+        var toString = value == null ? null : jsonReaderWriter.ToJsonString(value);
+        var fromString = toString == null ? null : jsonReaderWriter.FromJsonString(toString, existingObject);
+        Assert.Equal(value, fromString);
+
         var actual = ToJsonPropertyString(jsonReaderWriter, value);
         Assert.Equal(json, actual);
 
@@ -3782,7 +3786,10 @@ public abstract class JsonTypesTestBase
                         throw new ArgumentOutOfRangeException();
                 }
 
-                manager.MoveNext();
+                if (depth > 0)
+                {
+                    manager.MoveNext();
+                }
             }
             while (depth > 0);
 
