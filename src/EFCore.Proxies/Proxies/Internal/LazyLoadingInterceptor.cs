@@ -20,8 +20,8 @@ public class LazyLoadingInterceptor : IInterceptor
     private static readonly MethodInfo LazyLoaderGetter = LazyLoaderProperty.GetMethod!;
     private static readonly MethodInfo LazyLoaderSetter = LazyLoaderProperty.SetMethod!;
 
-    private readonly IEntityType _entityType;
     private ILazyLoader? _loader;
+    private readonly Dictionary<string, bool> _navigations;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,8 +33,11 @@ public class LazyLoadingInterceptor : IInterceptor
         IEntityType entityType,
         ILazyLoader loader)
     {
-        _entityType = entityType;
         _loader = loader;
+        _navigations = entityType!.GetNavigations()
+            .Cast<INavigationBase>()
+            .Concat(entityType.GetSkipNavigations())
+            .ToDictionary(n => n.Name, n => n is INavigation { ForeignKey.IsOwnership: true });
     }
 
     /// <summary>
@@ -61,10 +64,8 @@ public class LazyLoadingInterceptor : IInterceptor
                 && methodName.StartsWith("get_", StringComparison.Ordinal))
             {
                 var navigationName = methodName[4..];
-                var navigationBase = _entityType.FindNavigation(navigationName)
-                    ?? (INavigationBase?)_entityType.FindSkipNavigation(navigationName);
-
-                if (navigationBase is not (null or INavigation { ForeignKey.IsOwnership: true }))
+                if (_navigations.TryGetValue(navigationName, out var isOwnership)
+                    && !isOwnership)
                 {
                     _loader.Load(invocation.Proxy, navigationName);
                 }

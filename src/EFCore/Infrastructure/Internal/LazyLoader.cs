@@ -20,7 +20,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private List<(object Entity, string NavigationName)>? _isLoading;
-    private IEntityType? _entityType;
+    private Dictionary<string, bool>? _navigations;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +45,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     public virtual void Injected(DbContext context, object entity, ParameterBindingInfo bindingInfo)
     {
         _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
-        _entityType = bindingInfo.StructuralType as IEntityType ?? throw new NotImplementedException();
+        _navigations ??= InitNavigationsMetadata(bindingInfo.StructuralType as IEntityType ?? throw new NotImplementedException());
     }
 
     /// <summary>
@@ -214,10 +214,9 @@ public class LazyLoader : ILazyLoader, IInjectableService
     {
         if (!_detached && !IsLoaded(entity, navigationName))
         {
-            var navigation = _entityType?.FindNavigation(navigationName)
-                ?? (INavigationBase?)_entityType?.FindSkipNavigation(navigationName);
-
-            if (navigation?.LazyLoadingEnabled != false)
+            if (_navigations == null
+                || !_navigations.TryGetValue(navigationName, out var lazyLoadingEnabled)
+                || lazyLoadingEnabled)
             {
                 if (_disposed)
                 {
@@ -275,7 +274,13 @@ public class LazyLoader : ILazyLoader, IInjectableService
     {
         _disposed = false;
         _detached = false;
-        _entityType = entityType;
         Context = context;
+        _navigations ??= InitNavigationsMetadata(entityType);
     }
+
+    private Dictionary<string, bool> InitNavigationsMetadata(IEntityType entityType)
+        => entityType!.GetNavigations()
+            .Cast<INavigationBase>()
+            .Concat(entityType.GetSkipNavigations())
+            .ToDictionary(n => n.Name, n => n.LazyLoadingEnabled);
 }
