@@ -389,12 +389,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     }));
         }
 
-        if (rowExpressions.Count == 0)
-        {
-            AddTranslationErrorDetails(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
-            return null;
-        }
-
         var valuesExpression = new ValuesExpression("v", rowExpressions, new[] { ValuesOrderingColumnName, ValuesValueColumnName });
 
         // Note: we leave the element type mapping null, to allow it to get inferred based on queryable operators composed on top.
@@ -574,11 +568,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             {
                 Tables:
                 [
-                    ValuesExpression
-                    {
-                        RowValues: [{ Values.Count: 2 }, ..],
-                        ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName]
-                    } valuesExpression
+                    ValuesExpression { ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName] } valuesExpression
                 ],
                 Predicate: null,
                 GroupBy: [],
