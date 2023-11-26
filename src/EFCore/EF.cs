@@ -64,6 +64,24 @@ public static partial class EF
         => throw new InvalidOperationException(CoreStrings.PropertyMethodInvoked);
 
     /// <summary>
+    ///     Within the context of an EF LINQ query, forces its argument to be inserted into the query as a constant expression. This can be
+    ///     used to e.g. integrate a value as a constant inside an EF query, instead of as a parameter, for query performance reasons.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that this is a static method accessed through the top-level <see cref="EF" /> static type.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-efproperty">Using EF.Property in EF Core queries</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="T">The type of the expression to be integrated as a constant into the query.</typeparam>
+    /// <param name="argument">The expression to be integrated as a constant into the query.</param>
+    /// <returns>The same value for further use in the query.</returns>
+    public static T Constant<T>(T argument)
+        => throw new InvalidOperationException(CoreStrings.EFConstantInvoked);
+
+    /// <summary>
     ///     Provides CLR methods that get translated to database functions when used in LINQ to Entities queries.
     ///     Calling these methods in other contexts (e.g. LINQ to Objects) will throw a <see cref="NotSupportedException" />.
     /// </summary>
