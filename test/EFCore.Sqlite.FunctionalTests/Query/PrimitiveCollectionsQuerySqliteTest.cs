@@ -152,6 +152,18 @@ WHERE "p"."Id" IN (2, 999, 1000)
 """);
     }
 
+    public override async Task Inline_collection_Contains_with_EF_Constant(bool async)
+    {
+        await base.Inline_collection_Contains_with_EF_Constant(async);
+
+        AssertSql(
+            """
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Id" IN (2, 999, 1000)
+""");
+    }
+
     public override async Task Inline_collection_Contains_with_all_parameters(bool async)
     {
         await base.Inline_collection_Contains_with_all_parameters(async);
