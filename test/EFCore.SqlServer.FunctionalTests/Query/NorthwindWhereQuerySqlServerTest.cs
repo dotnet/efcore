@@ -3286,6 +3286,55 @@ WHERE [c].[CustomerID] = N'ALF' + N'KI'
         AssertSql();
     }
 
+    public override async Task EF_Parameter(bool async)
+    {
+        await base.EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__p_0
+""");
+    }
+
+    public override async Task EF_Parameter_with_subtree(bool async)
+    {
+        await base.EF_Parameter_with_subtree(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__p_0
+""");
+    }
+
+    public override async Task EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        await base.EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(async);
+
+        AssertSql(
+            """
+@__id_0='ALF' (Size = 5)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = @__id_0 + N'KI'
+""");
+    }
+
+    public override async Task EF_Parameter_with_non_evaluatable_argument_throws(bool async)
+    {
+        await base.EF_Parameter_with_non_evaluatable_argument_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
