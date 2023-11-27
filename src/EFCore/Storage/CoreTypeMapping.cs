@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -134,11 +135,21 @@ public abstract class CoreTypeMapping
                 ?? (converter == null || JsonValueReaderWriter == null
                     ? JsonValueReaderWriter
                     : RuntimeFeature.IsDynamicCodeSupported
-                        ? (JsonValueReaderWriter)Activator.CreateInstance(
-                            typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
-                                converter.ModelClrType, JsonValueReaderWriter.ValueType),
-                            JsonValueReaderWriter, converter)!
+                        ? CreateReaderWriter(converter, JsonValueReaderWriter)
                         : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)));
+
+            static JsonValueReaderWriter CreateReaderWriter(ValueConverter converter, JsonValueReaderWriter readerWriter)
+            {
+                if (readerWriter is IJsonConvertedValueReaderWriter convertedValueReaderWriter)
+                {
+                    readerWriter = convertedValueReaderWriter.InnerReaderWriter;
+                }
+
+                return (JsonValueReaderWriter)Activator.CreateInstance(
+                    typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
+                        converter.ModelClrType, readerWriter.ValueType),
+                    readerWriter, converter)!;
+            }
         }
     }
 
