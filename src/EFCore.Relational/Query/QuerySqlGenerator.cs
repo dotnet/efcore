@@ -1441,6 +1441,11 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual void GenerateValues(ValuesExpression valuesExpression)
     {
+        if (valuesExpression.RowValues.Count == 0)
+        {
+            throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
+        }
+
         var rowValues = valuesExpression.RowValues;
 
         // Some databases support providing the names of columns projected out of VALUES, e.g.
