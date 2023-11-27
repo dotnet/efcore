@@ -327,7 +327,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             TParent entity,
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             INavigationBase navigation,
-            IClrCollectionAccessor clrCollectionAccessor,
+            IClrCollectionAccessor? clrCollectionAccessor,
             bool trackingQuery,
             bool setLoaded)
             where TParent : class
@@ -348,7 +348,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                collection = clrCollectionAccessor.GetOrCreate(entity, forMaterialization: true);
+                collection = clrCollectionAccessor?.GetOrCreate(entity, forMaterialization: true);
             }
 
             var parentKey = parentIdentifier(queryContext, parentDataReader);

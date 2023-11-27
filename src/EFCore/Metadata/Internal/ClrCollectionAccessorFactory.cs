@@ -205,6 +205,7 @@ public class ClrCollectionAccessorFactory
 
         return new ClrICollectionAccessor<TEntity, TCollection, TElement>(
             navigation.Name,
+            navigation.IsShadowProperty(),
             getterDelegate,
             setterDelegate,
             setterDelegateForMaterialization,
