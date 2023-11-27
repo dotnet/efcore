@@ -40,8 +40,6 @@ public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBas
         IEnumerable<IAnnotation>? annotations = null)
         : base(alias, annotations)
     {
-        Check.NotEmpty(rowValues, nameof(rowValues));
-
         Check.DebugAssert(
             rowValues.All(rv => rv.Values.Count == columnNames.Count),
             "All row values must have a value count matching the number of column names");

@@ -25,6 +25,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private static readonly bool UseOldBehavior32218 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32218", out var enabled32218) && enabled32218;
 
+    private static readonly bool UseOldBehavior32375 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32375", out var enabled32375) && enabled32375;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -394,7 +397,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     }));
         }
 
-        if (rowExpressions.Count == 0)
+        if (UseOldBehavior32375 && rowExpressions.Count == 0)
         {
             AddTranslationErrorDetails(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
             return null;
@@ -579,11 +582,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             {
                 Tables:
                 [
-                    ValuesExpression
-                    {
-                        RowValues: [{ Values.Count: 2 }, ..],
-                        ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName]
-                    } valuesExpression
+                    ValuesExpression { ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName] } valuesExpression
                 ],
                 Predicate: null,
                 GroupBy: [],

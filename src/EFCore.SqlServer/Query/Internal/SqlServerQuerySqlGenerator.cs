@@ -21,6 +21,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private readonly int _sqlServerCompatibilityLevel;
 
+    private static readonly bool UseOldBehavior32375 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32375", out var enabled32375) && enabled32375;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -194,6 +197,11 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateValues(ValuesExpression valuesExpression)
     {
+        if (!UseOldBehavior32375 && valuesExpression.RowValues.Count == 0)
+        {
+            throw new InvalidOperationException(RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
+        }
+
         // SQL Server supports providing the names of columns projected out of VALUES: (VALUES (1, 3), (2, 4)) AS x(a, b)
         // (this is implemented in VisitValues above).
         // But since other databases sometimes don't, the default relational implementation is complex, involving a SELECT for the first row

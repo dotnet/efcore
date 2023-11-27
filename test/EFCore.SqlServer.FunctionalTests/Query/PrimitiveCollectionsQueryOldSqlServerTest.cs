@@ -59,10 +59,12 @@ WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
 """);
     }
 
-    public override Task Inline_collection_Count_with_zero_values(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Inline_collection_Count_with_zero_values(async),
-            RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
+    public override async Task Inline_collection_Count_with_zero_values(bool async)
+    {
+        await base.Inline_collection_Count_with_zero_values(async);
+
+        AssertSql();
+    }
 
     public override async Task Inline_collection_Count_with_one_value(bool async)
     {
@@ -109,10 +111,17 @@ WHERE (
 """);
     }
 
-    public override Task Inline_collection_Contains_with_zero_values(bool async)
-        => AssertTranslationFailedWithDetails(
-            () => base.Inline_collection_Contains_with_zero_values(async),
-            RelationalStrings.EmptyCollectionNotSupportedAsInlineQueryRoot);
+    public override async Task Inline_collection_Contains_with_zero_values(bool async)
+    {
+        await base.Inline_collection_Contains_with_zero_values(async);
+
+        AssertSql(
+            """
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[NullableString], [p].[NullableStrings], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE 0 = 1
+""");
+    }
 
     public override async Task Inline_collection_Contains_with_one_value(bool async)
     {
