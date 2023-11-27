@@ -99,6 +99,7 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
             modelBuilder.Entity<Category>().UseTptMappingStrategy();
             modelBuilder.Entity<GiftObscurer>().UseTptMappingStrategy();
             modelBuilder.Entity<LiftObscurer>().UseTptMappingStrategy();
+            modelBuilder.Entity<Baked>().UseTptMappingStrategy();
         }
     }
 }

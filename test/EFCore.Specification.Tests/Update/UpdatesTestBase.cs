@@ -665,6 +665,238 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             });
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public Task Ignore_before_save_property_is_still_generated(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entities = new List<object>
+                {
+                    new CupCake
+                    {
+                        Id = -1102,
+                        Name = "B2",
+                        CakeName = "C2",
+                        CupCakeName = "CC2"
+                    }
+                };
+
+                if (async)
+                {
+                    await context.AddRangeAsync(entities);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(entities);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var query = context.Set<Baked>().Include(e => e.Tin).Include(e => e.Ingredients).Include(e => ((Muffin)e).Top);
+                var bakedGoods = async ? await query.ToListAsync() : query.ToList();
+
+                Assert.Equal(1, bakedGoods.Count);
+                Assert.Equal("B2", bakedGoods[0].Name);
+                Assert.Equal("C2", ((Cake)bakedGoods[0]).CakeName);
+                Assert.Equal("CC2", ((CupCake)bakedGoods[0]).CupCakeName);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public Task Ignore_before_save_property_is_still_generated_graph(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entities = new List<object>
+                {
+                    new Baked { Id = -100, Name = "B0" },
+                    new Tin
+                    {
+                        Id = -1000,
+                        BakedId = -100,
+                        TinName = "B0"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2000,
+                        BakedId = -100,
+                        IngredientName = "B00"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2001,
+                        BakedId = -100,
+                        IngredientName = "B01"
+                    },
+                    new Cake
+                    {
+                        Id = -101,
+                        Name = "B1",
+                        CakeName = "C1"
+                    },
+                    new Tin
+                    {
+                        Id = -1001,
+                        BakedId = -101,
+                        TinName = "B1"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2010,
+                        BakedId = -101,
+                        IngredientName = "B10"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2011,
+                        BakedId = -101,
+                        IngredientName = "B11"
+                    },
+                    new CupCake
+                    {
+                        Id = -102,
+                        Name = "B2",
+                        CakeName = "C2",
+                        CupCakeName = "CC2"
+                    },
+                    new Tin
+                    {
+                        Id = -1002,
+                        BakedId = -102,
+                        TinName = "B2"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2020,
+                        BakedId = -102,
+                        IngredientName = "B20"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2021,
+                        BakedId = -102,
+                        IngredientName = "B21"
+                    },
+                    new Muffin
+                    {
+                        Id = -103,
+                        Name = "B3",
+                        MuffinName = "M1"
+                    },
+                    new Tin
+                    {
+                        Id = -1003,
+                        BakedId = -103,
+                        TinName = "B3"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2030,
+                        BakedId = -103,
+                        IngredientName = "B30"
+                    },
+                    new Ingredient
+                    {
+                        Id = -2031,
+                        BakedId = -103,
+                        IngredientName = "B31"
+                    },
+                    new Top
+                    {
+                        Id = -3003,
+                        MuffinId = -103,
+                        TopName = "M1"
+                    }
+                };
+
+                if (async)
+                {
+                    await context.AddRangeAsync(entities);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.AddRange(entities);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var query = context.Set<Baked>().Include(e => e.Tin).Include(e => e.Ingredients).Include(e => ((Muffin)e).Top);
+                var bakedGoods = async ? await query.ToListAsync() : query.ToList();
+
+                Assert.Equal(4, bakedGoods.Count);
+                AssertFixup("B0");
+                AssertFixup("B1");
+                AssertFixup("B2");
+                AssertFixup("B3");
+
+                var muffin = bakedGoods.OfType<Muffin>().Single();
+                Assert.Equal("M1", muffin.MuffinName);
+                Assert.Equal("M1", muffin.Top.TopName);
+
+                void AssertFixup(string bakedName)
+                {
+                    var b0 = bakedGoods.Single(e => e.Name == bakedName);
+                    Assert.Equal(bakedName, b0.Tin!.TinName);
+                    Assert.Equal(2, b0.Ingredients.Count);
+                    Assert.Contains(bakedName + "0", b0.Ingredients.Select(e => e.IngredientName));
+                    Assert.Contains(bakedName + "1", b0.Ingredients.Select(e => e.IngredientName));
+                }
+            });
+
+    protected class Baked
+    {
+        public long Id { get; set; }
+        public required string Name { get; set; }
+        public Tin? Tin { get; set; }
+        public List<Ingredient> Ingredients { get; } = new();
+    }
+
+    protected class Cake : Baked
+    {
+        public required string CakeName { get; set; }
+    }
+
+    protected class CupCake : Cake
+    {
+        public required string CupCakeName { get; set; }
+    }
+
+    protected class Muffin : Baked
+    {
+        public required string MuffinName { get; set; }
+        public Top Top { get; set; } = null!;
+
+    }
+
+    protected class Tin
+    {
+        public long Id { get; set; }
+        public long? BakedId { get; set; }
+        public string? TinName { get; set; }
+        public Baked? Baked { get; set; }
+    }
+
+    protected class Ingredient
+    {
+        public long Id { get; set; }
+        public long BakedId { get; set; }
+        public string? IngredientName { get; set; }
+        public Baked Baked { get; set; } = null!;
+    }
+
+    protected class Top
+    {
+        public long Id { get; set; }
+        public long MuffinId { get; set; }
+        public string? TopName { get; set; }
+        public Muffin Muffin { get; set; } = null!;
+    }
+
     protected abstract string UpdateConcurrencyMessage { get; }
 
     protected abstract string UpdateConcurrencyTokenMessage { get; }
@@ -699,6 +931,14 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<Baked>().Property(e => e.Id).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.Entity<Cake>();
+            modelBuilder.Entity<CupCake>();
+            modelBuilder.Entity<Muffin>();
+            modelBuilder.Entity<Tin>().Property(e => e.Id).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.Entity<Ingredient>().Property(e => e.Id).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.Entity<Top>().Property(e => e.Id).Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Ignore);
+
             modelBuilder.Entity<Product>().HasMany(e => e.ProductCategories).WithOne()
                 .HasForeignKey(e => e.ProductId);
             modelBuilder.Entity<ProductWithBytes>().HasMany(e => e.ProductCategories).WithOne()

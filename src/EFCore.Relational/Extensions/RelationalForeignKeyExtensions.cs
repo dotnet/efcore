@@ -270,7 +270,7 @@ public static class RelationalForeignKeyExtensions
 
     /// <summary>
     ///     <para>
-    ///         Finds the first <see cref="IConventionForeignKey" /> that is mapped to the same constraint in a shared table-like object.
+    ///         Finds the first <see cref="IForeignKey" /> that is mapped to the same constraint in a shared table-like object.
     ///     </para>
     ///     <para>
     ///         This method is typically used by database providers (and other extensions). It is generally

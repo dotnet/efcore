@@ -853,7 +853,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         {
             var keyProperty = keyProperties[i];
 
-            if (entry.HasTemporaryValue(keyProperty))
+            if (entry.IsStoreGenerated(keyProperty))
             {
                 return true;
             }
