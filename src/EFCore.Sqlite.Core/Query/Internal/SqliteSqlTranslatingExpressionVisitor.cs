@@ -96,6 +96,9 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         { typeof(float), "mod" }
     };
 
+    private static readonly bool UseOldBehavior32432 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32432", out var enabled32432) && enabled32432;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -328,8 +331,10 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                             Expression.Constant(startsWith)),
                         QueryCompilationContext.QueryContextParameter);
 
-                    var escapedPatternParameter =
-                        _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda);
+                    var escapedPatternParameter = UseOldBehavior32432
+                        ? _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda)
+                        : _queryCompilationContext.RegisterRuntimeParameter(
+                            $"{patternParameter.Name}_{(startsWith ? "startswith" : "endswith")}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
                         translatedInstance,

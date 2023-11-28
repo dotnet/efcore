@@ -96,11 +96,11 @@ WHERE [c].[ContactName] LIKE N'M%'
 
         AssertSql(
             """
-@__pattern_0_rewritten='M%' (Size = 30)
+@__pattern_0_startswith='M%' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_startswith ESCAPE N'\'
 """);
     }
 
@@ -158,11 +158,11 @@ WHERE [c].[ContactName] LIKE N'%b'
 
         AssertSql(
             """
-@__pattern_0_rewritten='%b' (Size = 30)
+@__pattern_0_endswith='%b' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_endswith ESCAPE N'\'
 """);
     }
 
@@ -259,11 +259,11 @@ WHERE [c].[ContactName] LIKE N'%     %'
 
         AssertSql(
             """
-@__pattern_0_rewritten='%     %' (Size = 30)
+@__pattern_0_contains='%     %' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_contains ESCAPE N'\'
 """);
     }
 
