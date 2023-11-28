@@ -682,6 +682,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         [NotNullWhen(true)] out SqlExpression? leastExpression)
     {
         var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        expressions = FlattenLeastGreatest("LEAST", expressions);
+
         leastExpression = Function(
             "LEAST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
         return true;
@@ -694,9 +697,43 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         [NotNullWhen(true)] out SqlExpression? greatestExpression)
     {
         var resultTypeMapping = ExpressionExtensions.InferTypeMapping(expressions);
+
+        expressions = FlattenLeastGreatest("GREATEST", expressions);
+
         greatestExpression = Function(
             "GREATEST", expressions, nullable: true, Enumerable.Repeat(true, expressions.Count), resultType, resultTypeMapping);
         return true;
+    }
+
+    private IReadOnlyList<SqlExpression> FlattenLeastGreatest(string functionName, IReadOnlyList<SqlExpression> expressions)
+    {
+        List<SqlExpression>? flattenedExpressions = null;
+
+        for (var i = 0; i < expressions.Count; i++)
+        {
+            var expression = expressions[i];
+            if (expression is SqlFunctionExpression { IsBuiltIn: true } nestedFunction
+                && nestedFunction.Name == functionName)
+            {
+                if (flattenedExpressions is null)
+                {
+                    flattenedExpressions = new List<SqlExpression>();
+                    for (var j = 0; j < i; j++)
+                    {
+                        flattenedExpressions.Add(expressions[j]);
+                    }
+                }
+
+                Check.DebugAssert(nestedFunction.Arguments is not null, "Null arguments to " + functionName);
+                flattenedExpressions.AddRange(nestedFunction.Arguments);
+            }
+            else
+            {
+                flattenedExpressions?.Add(expressions[i]);
+            }
+        }
+
+        return flattenedExpressions ?? expressions;
     }
 
     /***

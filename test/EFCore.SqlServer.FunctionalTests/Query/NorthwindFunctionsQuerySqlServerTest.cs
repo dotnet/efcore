@@ -1347,6 +1347,32 @@ WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID]) = [o].[Pro
     }
 
     [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Where_math_min_nested(bool async)
+    {
+        await base.Where_math_min_nested(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID], 99999) = [o].[ProductID]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Where_math_min_nested_twice(bool async)
+    {
+        await base.Where_math_min_nested_twice(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND LEAST(99999, [o].[OrderID], 99998, [o].[ProductID]) = [o].[ProductID]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
     public override async Task Where_math_max(bool async)
     {
         await base.Where_math_max(async);
@@ -1356,6 +1382,32 @@ WHERE [o].[OrderID] = 11077 AND LEAST([o].[OrderID], [o].[ProductID]) = [o].[Pro
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] = 11077 AND GREATEST([o].[OrderID], [o].[ProductID]) = [o].[OrderID]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Where_math_max_nested(bool async)
+    {
+        await base.Where_math_max_nested(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND GREATEST([o].[OrderID], [o].[ProductID], 1) = [o].[OrderID]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Where_math_max_nested_twice(bool async)
+    {
+        await base.Where_math_max_nested_twice(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] = 11077 AND GREATEST(1, [o].[OrderID], 2, [o].[ProductID]) = [o].[OrderID]
 """);
     }
 

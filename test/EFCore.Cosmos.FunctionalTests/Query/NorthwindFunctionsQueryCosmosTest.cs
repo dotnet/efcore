@@ -593,7 +593,39 @@ WHERE (((c["Discriminator"] = "OrderDetail") AND (c["OrderID"] = 11077)) AND (SI
         AssertSql();
     }
 
+    public override async Task Where_math_min_nested(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_min(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_math_min_nested_twice(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_min(async));
+
+        AssertSql();
+    }
+
     public override async Task Where_math_max(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_max(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_math_max_nested(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Where_math_max(async));
+
+        AssertSql();
+    }
+
+    public override async Task Where_math_max_nested_twice(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
         await AssertTranslationFailed(() => base.Where_math_max(async));
