@@ -542,6 +542,21 @@ public abstract class FunkyDataQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertEqual(e.last, a.last);
             });
 
+
+    [ConditionalTheory] // #32432
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task String_Contains_and_StartsWith_with_same_parameter(bool async)
+    {
+        var s = "B";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<FunkyCustomer>().Where(
+                c => c.FirstName.Contains(s) || c.LastName.StartsWith(s)),
+            ss => ss.Set<FunkyCustomer>().Where(
+                c => c.FirstName.MaybeScalar(f => f.Contains(s)) == true || c.LastName.MaybeScalar(l => l.StartsWith(s)) == true));
+    }
+
     protected FunkyDataContext CreateContext()
         => Fixture.CreateContext();
 

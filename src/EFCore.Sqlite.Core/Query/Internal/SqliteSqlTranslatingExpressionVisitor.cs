@@ -329,7 +329,8 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                         QueryCompilationContext.QueryContextParameter);
 
                     var escapedPatternParameter =
-                        _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda);
+                        _queryCompilationContext.RegisterRuntimeParameter(
+                            $"{patternParameter.Name}_{(startsWith ? "startswith" : "endswith")}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
                         translatedInstance,

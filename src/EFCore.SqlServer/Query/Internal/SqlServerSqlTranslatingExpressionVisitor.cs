@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -279,7 +280,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                         QueryCompilationContext.QueryContextParameter);
 
                     var escapedPatternParameter =
-                        _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda);
+                        _queryCompilationContext.RegisterRuntimeParameter(
+                            $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
                         translatedInstance,
