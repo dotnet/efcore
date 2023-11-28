@@ -178,18 +178,35 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
-        if (methodCallExpression.Method.DeclaringType == typeof(EF) && methodCallExpression.Method.Name == nameof(EF.Constant))
+        // If this is a call to EF.Constant(), or EF.Parameter(), then examine the operand; it it's isn't evaluatable (i.e. contains a
+        // reference to a database table), throw immediately. Otherwise, evaluate the operand (either as a constant or as a parameter) and
+        // return that.
+        if (methodCallExpression.Method.DeclaringType == typeof(EF))
         {
-            // If this is a call to EF.Constant(), then examine its operand. If the operand isn't evaluatable (i.e. contains a reference
-            // to a database table), throw immediately.
-            // Otherwise, evaluate the operand as a constant and return that.
-            var operand = methodCallExpression.Arguments[0];
-            if (!_evaluatableExpressions.TryGetValue(operand, out _))
+            switch (methodCallExpression.Method.Name)
             {
-                throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluableArgument);
-            }
+                case nameof(EF.Constant):
+                {
+                    var operand = methodCallExpression.Arguments[0];
+                    if (!_evaluatableExpressions.TryGetValue(operand, out _))
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluableArgument);
+                    }
 
-            return Evaluate(operand, generateParameter: false);
+                    return Evaluate(operand, generateParameter: false);
+                }
+
+                case nameof(EF.Parameter):
+                {
+                    var operand = methodCallExpression.Arguments[0];
+                    if (!_evaluatableExpressions.TryGetValue(operand, out _))
+                    {
+                        throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluableArgument);
+                    }
+
+                    return Evaluate(operand, generateParameter: true);
+                }
+            }
         }
 
         return base.VisitMethodCall(methodCallExpression);
@@ -686,7 +703,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
                 case ExpressionType.Call
                     when expression is MethodCallExpression { Method: var method }
                     && method.DeclaringType == typeof(EF)
-                    && method.Name == nameof(EF.Constant):
+                    && method.Name is nameof(EF.Constant) or nameof(EF.Parameter):
                     preferNoEvaluation = true;
                     return false;
 

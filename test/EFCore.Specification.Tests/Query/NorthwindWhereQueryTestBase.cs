@@ -2393,4 +2393,51 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
         Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter("ALFKI")),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter_with_subtree(bool async)
+    {
+        // This is a somewhat silly scenario: a subtree would get parameterized anyway, with or without EF.Parameter().
+        // But including for completeness.
+        var i = "ALF";
+        var j = "KI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(i + j)),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        var id = "ALF";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(id) + "KI"),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALF" + "KI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task EF_Parameter_with_non_evaluatable_argument_throws(bool async)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Parameter(c.CustomerID))));
+
+        Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
+    }
 }

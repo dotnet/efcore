@@ -977,6 +977,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("EFConstantWithNonEvaluableArgument");
 
         /// <summary>
+        ///     The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        /// </summary>
+        public static string EFParameterInvoked
+            => GetString("EFParameterInvoked");
+
+        /// <summary>
+        ///     The EF.Parameter&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
+        /// </summary>
+        public static string EFParameterWithNonEvaluableArgument
+            => GetString("EFParameterWithNonEvaluableArgument");
+
+        /// <summary>
         ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
         /// </summary>
         public static string EmptyComplexType(object? complexType)

@@ -2946,6 +2946,55 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = ("ALF" || "KI"))
         AssertSql();
     }
 
+    public override async Task EF_Parameter(bool async)
+    {
+        await base.EF_Parameter(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
+""");
+    }
+
+    public override async Task EF_Parameter_with_subtree(bool async)
+    {
+        await base.EF_Parameter_with_subtree(async);
+
+        AssertSql(
+            """
+@__p_0='ALFKI'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = @__p_0))
+""");
+    }
+
+    public override async Task EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        await base.EF_Parameter_does_not_parameterized_as_part_of_bigger_subtree(async);
+
+        AssertSql(
+            """
+@__id_0='ALF'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = (@__id_0 || "KI")))
+""");
+    }
+
+    public override async Task EF_Parameter_with_non_evaluatable_argument_throws(bool async)
+    {
+        await base.EF_Parameter_with_non_evaluatable_argument_throws(async);
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
