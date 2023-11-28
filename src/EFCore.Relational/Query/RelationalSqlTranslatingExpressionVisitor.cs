@@ -51,6 +51,12 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
         = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
 
+    private static readonly MethodInfo LeastMethodInfo
+        = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Least))!;
+
+    private static readonly MethodInfo GreatestMethodInfo
+        = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Greatest))!;
+
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
     private readonly QueryCompilationContext _queryCompilationContext;
@@ -931,6 +937,47 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }
+        }
+        // Translate EF.Functions.Greatest/Least.
+        // These are here rather than in a MethodTranslator since the parameter is an array, and that's not supported in regular
+        // translation.
+        else if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions)
+                 && method.IsGenericMethod
+                 && method.GetGenericMethodDefinition() is var genericMethodDefinition
+                 && (genericMethodDefinition == LeastMethodInfo || genericMethodDefinition == GreatestMethodInfo)
+                 && methodCallExpression.Arguments[1] is NewArrayExpression newArray)
+        {
+            var values = newArray.Expressions;
+            var translatedValues = new SqlExpression[values.Count];
+
+            for (var i = 0; i < values.Count; i++)
+            {
+                var value = values[i];
+                var visitedValue = Visit(value);
+
+                if (TranslationFailed(value, visitedValue, out var translatedValue))
+                {
+                    return QueryCompilationContext.NotTranslatedExpression;
+                }
+
+                translatedValues[i] = translatedValue!;
+            }
+
+            var elementClrType = newArray.Type.GetElementType()!;
+
+            if (genericMethodDefinition == LeastMethodInfo
+                && _sqlExpressionFactory.TryCreateLeast(translatedValues, elementClrType, out var leastExpression))
+            {
+                return leastExpression;
+            }
+
+            if (genericMethodDefinition == GreatestMethodInfo
+                && _sqlExpressionFactory.TryCreateGreatest(translatedValues, elementClrType, out var greatestExpression))
+            {
+                return greatestExpression;
+            }
+
+            throw new UnreachableException();
         }
         else
         {

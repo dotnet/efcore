@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -184,6 +186,31 @@ public class SqlServerMathTranslator : IMethodCallTranslator
             }
 
             return _sqlExpressionFactory.ApplyTypeMapping(result, argument.TypeMapping);
+        }
+
+        if (method.DeclaringType == typeof(Math))
+        {
+            if (method.Name == nameof(Math.Min))
+            {
+                if (_sqlExpressionFactory.TryCreateLeast(
+                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
+                {
+                    return leastExpression;
+                }
+
+                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
+            }
+
+            if (method.Name == nameof(Math.Max))
+            {
+                if (_sqlExpressionFactory.TryCreateGreatest(
+                        new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression))
+                {
+                    return leastExpression;
+                }
+
+                throw new InvalidOperationException(SqlServerStrings.LeastGreatestCompatibilityLevelTooLow);
+            }
         }
 
         return null;

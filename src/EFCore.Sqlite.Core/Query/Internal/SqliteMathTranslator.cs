@@ -37,24 +37,6 @@ public class SqliteMathTranslator : IMethodCallTranslator
         { typeof(Math).GetMethod(nameof(Math.Log), new[] { typeof(double) })!, "ln" },
         { typeof(Math).GetMethod(nameof(Math.Log2), new[] { typeof(double) })!, "log2" },
         { typeof(Math).GetMethod(nameof(Math.Log10), new[] { typeof(double) })!, "log10" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(byte), typeof(byte) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(double), typeof(double) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(float), typeof(float) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(int), typeof(int) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(long), typeof(long) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(sbyte), typeof(sbyte) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(short), typeof(short) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(uint), typeof(uint) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Max), new[] { typeof(ushort), typeof(ushort) })!, "max" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(byte), typeof(byte) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(double), typeof(double) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(float), typeof(float) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(int), typeof(int) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(long), typeof(long) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(sbyte), typeof(sbyte) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(short), typeof(short) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(uint), typeof(uint) })!, "min" },
-        { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(ushort), typeof(ushort) })!, "min" },
         { typeof(Math).GetMethod(nameof(Math.Pow), new[] { typeof(double), typeof(double) })!, "pow" },
         { typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(double) })!, "round" },
         { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(double) })!, "sign" },
@@ -177,6 +159,25 @@ public class SqliteMathTranslator : IMethodCallTranslator
                 argumentsPropagateNullability: new[] { true, true },
                 method.ReturnType,
                 typeMapping);
+        }
+
+        if (method.DeclaringType == typeof(Math))
+        {
+            if (method.Name == nameof(Math.Min))
+            {
+                var success = _sqlExpressionFactory.TryCreateLeast(
+                    new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression);
+                Check.DebugAssert(success, "Couldn't generate min");
+                return leastExpression;
+            }
+
+            if (method.Name == nameof(Math.Max))
+            {
+                var success = _sqlExpressionFactory.TryCreateGreatest(
+                    new[] { arguments[0], arguments[1] }, method.ReturnType, out var leastExpression);
+                Check.DebugAssert(success, "Couldn't generate max");
+                return leastExpression;
+            }
         }
 
         return null;

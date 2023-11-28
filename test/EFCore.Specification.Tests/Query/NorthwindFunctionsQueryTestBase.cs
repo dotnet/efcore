@@ -1027,11 +1027,43 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_math_max_nested(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
+                .Where(od => Math.Max(od.OrderID, Math.Max(od.ProductID, 1)) == od.OrderID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_math_max_nested_twice(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
+                .Where(od => Math.Max(Math.Max(1, Math.Max(od.OrderID, 2)), od.ProductID) == od.OrderID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_math_min(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
                 .Where(od => Math.Min(od.OrderID, od.ProductID) == od.ProductID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_math_min_nested(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
+                .Where(od => Math.Min(od.OrderID, Math.Min(od.ProductID, 99999)) == od.ProductID));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_math_min_nested_twice(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077)
+                .Where(od => Math.Min(Math.Min(99999, Math.Min(od.OrderID, 99998)), od.ProductID) == od.ProductID));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

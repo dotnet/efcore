@@ -483,4 +483,30 @@ public interface ISqlExpressionFactory
     /// <param name="tableExpressionBase">A table source to project from.</param>
     /// <returns>An expression representing a SELECT in a SQL tree.</returns>
     SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase);
+
+    /// <summary>
+    ///     Attempts to creates a new expression that returns the smallest value from a list of expressions, e.g. an invocation of the
+    ///     <c>LEAST</c> SQL function.
+    /// </summary>
+    /// <param name="expressions">An entity type to project.</param>
+    /// <param name="resultType">The result CLR type for the returned expression.</param>
+    /// <param name="leastExpression">The expression which computes the smallest value.</param>
+    /// <returns><see langword="true" /> if the expression could be created, <see langword="false" /> otherwise.</returns>
+    bool TryCreateLeast(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? leastExpression);
+
+    /// <summary>
+    ///     Attempts to creates a new expression that returns the greatest value from a list of expressions, e.g. an invocation of the
+    ///     <c>GREATEST</c> SQL function.
+    /// </summary>
+    /// <param name="expressions">An entity type to project.</param>
+    /// <param name="resultType">The result CLR type for the returned expression.</param>
+    /// <param name="greatestExpression">The expression which computes the greatest value.</param>
+    /// <returns><see langword="true" /> if the expression could be created, <see langword="false" /> otherwise.</returns>
+    bool TryCreateGreatest(
+        IReadOnlyList<SqlExpression> expressions,
+        Type resultType,
+        [NotNullWhen(true)] out SqlExpression? greatestExpression);
 }

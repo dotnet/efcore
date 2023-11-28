@@ -1196,6 +1196,30 @@ WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID") = "o"."Produ
 """);
     }
 
+    public override async Task Where_math_min_nested(bool async)
+    {
+        await base.Where_math_min_nested(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID", 99999) = "o"."ProductID"
+""");
+    }
+
+    public override async Task Where_math_min_nested_twice(bool async)
+    {
+        await base.Where_math_min_nested_twice(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND min(99999, "o"."OrderID", 99998, "o"."ProductID") = "o"."ProductID"
+""");
+    }
+
     public override async Task Where_math_max(bool async)
     {
         await base.Where_math_max(async);
@@ -1205,6 +1229,30 @@ WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID") = "o"."Produ
 SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
 FROM "Order Details" AS "o"
 WHERE "o"."OrderID" = 11077 AND max("o"."OrderID", "o"."ProductID") = "o"."OrderID"
+""");
+    }
+
+    public override async Task Where_math_max_nested(bool async)
+    {
+        await base.Where_math_max_nested(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND max("o"."OrderID", "o"."ProductID", 1) = "o"."OrderID"
+""");
+    }
+
+    public override async Task Where_math_max_nested_twice(bool async)
+    {
+        await base.Where_math_max_nested_twice(async);
+
+        AssertSql(
+            """
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND max(1, "o"."OrderID", 2, "o"."ProductID") = "o"."OrderID"
 """);
     }
 
