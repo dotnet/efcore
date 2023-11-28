@@ -287,7 +287,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             // Server), we need to fall back to the previous IN translation.
             if (method.IsGenericMethod
                 && method.GetGenericMethodDefinition() == QueryableMethods.Contains
-                && UnwrapAsQueryable(methodCallExpression.Arguments[0]) is ParameterQueryRootExpression parameterSource
+                && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
                 && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
                 && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
             {
@@ -299,12 +299,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     .UpdateResultCardinality(ResultCardinality.Single);
                 return shapedQueryExpression;
             }
-
-            static Expression UnwrapAsQueryable(Expression expression)
-                => expression is MethodCallExpression { Method: { IsGenericMethod: true } method } methodCall
-                    && method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
-                        ? methodCall.Arguments[0]
-                        : expression;
         }
 
         return translated;
