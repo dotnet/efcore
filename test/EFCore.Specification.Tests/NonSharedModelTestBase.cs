@@ -38,7 +38,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     protected virtual ContextFactory<TContext> Initialize<TContext>(
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
-        Action<IServiceCollection> addServices = null,
+        Func<IServiceCollection, IServiceCollection> addServices = null,
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
@@ -58,7 +58,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     protected virtual Task<ContextFactory<TContext>> InitializeAsync<TContext>(
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
-        Action<IServiceCollection> addServices = null,
+        Func<IServiceCollection, IServiceCollection> addServices = null,
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
@@ -78,7 +78,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     protected ContextFactory<TContext> CreateContextFactory<TContext>(
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
-        Action<IServiceCollection> addServices = null,
+        Func<IServiceCollection, IServiceCollection> addServices = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
         bool usePooling = true)

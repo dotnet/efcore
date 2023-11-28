@@ -371,10 +371,28 @@ public partial class CSharpMigrationsGeneratorTest
                 nameof(CoreAnnotationNames) + "." + nameof(CoreAnnotationNames.AllNames) + " doesn't contain " + annotationName);
         }
 
-        foreach (var field in coreAnnotations.Concat(
-                     typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
+        var relationalAnnotations = typeof(RelationalAnnotationNames).GetFields()
+            .Where(f => f.FieldType == typeof(string)
+                && f.Name != "Prefix").ToList();
+
+        foreach (var field in relationalAnnotations)
         {
             var annotationName = (string)field.GetValue(null);
+
+            if (field.Name != nameof(RelationalAnnotationNames.TpcMappingStrategy)
+                && field.Name != nameof(RelationalAnnotationNames.TptMappingStrategy)
+                && field.Name != nameof(RelationalAnnotationNames.TphMappingStrategy))
+            {
+                Assert.True(
+                    RelationalAnnotationNames.AllNames.Contains(annotationName),
+                    nameof(RelationalAnnotationNames) + "." + nameof(RelationalAnnotationNames.AllNames) + " doesn't contain " + annotationName);
+            }
+        }
+
+        foreach (var field in coreAnnotations.Concat(relationalAnnotations))
+        {
+            var annotationName = (string)field.GetValue(null);
+
             if (!invalidAnnotations.Contains(annotationName))
             {
                 var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();

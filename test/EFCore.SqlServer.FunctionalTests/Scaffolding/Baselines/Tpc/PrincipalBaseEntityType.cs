@@ -626,6 +626,7 @@ namespace TestNamespace
                 new[] { principalBaseId },
                 name: "PrincipalIndex",
                 unique: true);
+            principalIndex.AddAnnotation("Relational:Filter", "AlternateId <> NULL");
             principalIndex.AddAnnotation("Relational:Name", "PIX");
 
             return runtimeEntityType;

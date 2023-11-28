@@ -3,11 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class ModelBuilderAssemblyScanTest : ModelBuilderTest
+public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
 {
     private readonly Assembly _mockEntityTypeAssembly;
 
-    public ModelBuilderAssemblyScanTest()
+    public InMemoryModelBuilderAssemblyScanTest()
     {
         _mockEntityTypeAssembly = MockAssembly.Create(
             typeof(ScannerCustomerEntityConfiguration), typeof(ScannerCustomerEntityConfiguration2),

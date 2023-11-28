@@ -46,28 +46,4 @@
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="ModelBuilderTest\GiantModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GiantModel.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="ModelBuilding\GiantModel.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GiantModel.tt</DependentUpon>
-    </Compile>
-
-    <None Update="ModelBuilding\GiantModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GiantModel.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
 </Project>

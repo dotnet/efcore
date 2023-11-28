@@ -5,25 +5,23 @@
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class ModelBuilderNonGenericUnqualifiedStringTest : ModelBuilderNonGenericTest
+public class InMemoryModelBuilderNonGenericUnqualifiedStringTest : InMemoryModelBuilderNonGenericTest
 {
-    public class NonGenericStringOneToOneType : OneToOneTestBase
+    public class NonGenericStringOneToOne : InMemoryOneToOne
     {
-        public NonGenericStringOneToOneType(ModelBuilderFixtureBase fixture)
+        public NonGenericStringOneToOne(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new NonGenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
     private class NonGenericStringTestModelBuilder : TestModelBuilder
     {
-        public NonGenericStringTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
-            : base(testHelpers, configure)
+        public NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+            : base(fixture, configure)
         {
         }
 

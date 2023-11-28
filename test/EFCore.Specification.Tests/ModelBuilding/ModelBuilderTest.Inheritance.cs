@@ -148,33 +148,55 @@ public abstract partial class ModelBuilderTest
             Assert.Same(typeof(Ingredient), pickle.BaseType.ClrType);
 
             var actualProperties = pickle.GetProperties();
-            Fixture.AssertEqual(
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
+            Assert.Equal(initialKeys, pickle.GetKeys(),
+                (expected, actual) =>
+                {
+                    Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                        expected.Properties,
+                        actual.Properties);
 
-            Fixture.AssertEqual(initialKeys, pickle.GetKeys());
-            Fixture.AssertEqual(initialIndexes, pickle.GetIndexes());
-            Fixture.AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-            Fixture.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
+                    return true;
+                });
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                initialIndexes.Single().Properties,
+                pickle.GetIndexes().Single().Properties);
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                initialForeignKeys.Single().Properties,
+                pickle.GetForeignKeys().Single().Properties);
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
             pickleBuilder.HasBaseType(null);
 
             Assert.Null(pickle.BaseType);
             actualProperties = pickle.GetProperties();
-            Fixture.AssertEqual(initialProperties, actualProperties);
-            Fixture.AssertEqual(initialKeys, pickle.GetKeys());
-            Fixture.AssertEqual(initialIndexes, pickle.GetIndexes());
-            Fixture.AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
-            Fixture.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialProperties, actualProperties);
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialKeys, pickle.GetKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialIndexes, pickle.GetIndexes());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialForeignKeys, pickle.GetForeignKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialReferencingForeignKeys, pickle.GetReferencingForeignKeys());
 
             actualProperties = ingredient.GetProperties();
-            Fixture.AssertEqual(
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
                 initialProperties.Where(p => p.Name != "Discriminator"),
                 actualProperties.Where(p => p.Name != "Discriminator"));
+            Assert.Equal(initialKeys, ingredient.GetKeys(),
+                (expected, actual) =>
+                {
+                    Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                        expected.Properties,
+                        actual.Properties);
 
-            Fixture.AssertEqual(initialKeys, ingredient.GetKeys());
-            Fixture.AssertEqual(initialIndexes, ingredient.GetIndexes());
-            Assert.Equal(initialForeignKeys.Count(), ingredient.GetForeignKeys().Count());
+                    return true;
+                });
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                initialIndexes.Single().Properties,
+                ingredient.GetIndexes().Single().Properties);
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(
+                initialForeignKeys.Single().Properties,
+                ingredient.GetForeignKeys().Single().Properties);
             Assert.Equal(initialReferencingForeignKeys.Count(), ingredient.GetReferencingForeignKeys().Count());
         }
 
@@ -606,10 +628,10 @@ public abstract partial class ModelBuilderTest
             Assert.Single(dependentEntityType.GetIndexes());
             Assert.False(dependentEntityType.FindIndex(fk.Properties).IsUnique);
 
-            Fixture.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
-            Fixture.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
-            Fixture.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-            Fixture.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
 
             principalEntityBuilder.HasOne<Order>().WithOne()
                 .HasPrincipalKey<Customer>(
@@ -679,13 +701,6 @@ public abstract partial class ModelBuilderTest
 
             derivedDependentEntityBuilder.HasBaseType<Order>();
 
-            modelBuilder.FinalizeModel();
-
-            var indexRemoveMessage =
-                CoreResources.LogRedundantIndexRemoved(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
-                    "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
-            Assert.Equal(1, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
-
             var baseFK = dependentEntityType.GetForeignKeys().Single();
             var baseIndex = dependentEntityType.FindIndex(baseFK.Properties);
             Assert.False(baseIndex.IsUnique);
@@ -693,10 +708,17 @@ public abstract partial class ModelBuilderTest
             Assert.False(derivedDependentEntityType.GetDeclaredForeignKeys().Single().IsUnique);
             Assert.Empty(derivedDependentEntityType.GetDeclaredIndexes());
 
-            Fixture.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
-            Fixture.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
-            Fixture.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
-            Fixture.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialProperties, derivedDependentEntityType.GetProperties());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialKeys, derivedDependentEntityType.GetKeys());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialIndexes, derivedDependentEntityType.GetIndexes());
+            Fixture.TestHelpers.ModelAsserter.AssertEqual(initialForeignKeys, derivedDependentEntityType.GetForeignKeys());
+
+            modelBuilder.FinalizeModel();
+
+            var indexRemoveMessage =
+                CoreResources.LogRedundantIndexRemoved(new TestLogger<TestLoggingDefinitions>()).GenerateMessage(
+                    "{'CustomerId'}", nameof(Order), "{'CustomerId', 'AnotherCustomerId'}");
+            Assert.Equal(1, modelBuilder.ModelLoggerFactory.Log.Count(l => l.Message == indexRemoveMessage));
         }
 
         [ConditionalFact]

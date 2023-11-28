@@ -64,4 +64,23 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ModelBuilding\GiantModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GiantModel.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ModelBuilding\GiantModel.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GiantModel.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 </Project>

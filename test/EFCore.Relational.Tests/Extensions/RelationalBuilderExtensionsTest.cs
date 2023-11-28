@@ -1187,7 +1187,7 @@ public class RelationalBuilderExtensionsTest
     public void Can_create_dbFunction()
     {
         var modelBuilder = CreateConventionModelBuilder();
-        var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
+        var testMethod = typeof(RelationalBuilderExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
         modelBuilder.HasDbFunction(testMethod);
 
         var dbFunc = modelBuilder.Model.FindDbFunction(testMethod) as DbFunction;
@@ -1196,6 +1196,9 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("MethodA", dbFunc.Name);
         Assert.Null(dbFunc.Schema);
     }
+
+    public static int MethodA(string a, int b)
+        => throw new NotImplementedException();
 
     [ConditionalFact]
     public void Relational_entity_methods_dont_break_out_of_the_generics()

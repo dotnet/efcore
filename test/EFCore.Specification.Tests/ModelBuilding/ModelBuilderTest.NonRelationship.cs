@@ -844,22 +844,22 @@ public abstract partial class ModelBuilderTest
 
             var up = entityType.FindProperty("Up")!;
             Assert.Null(up.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.True(up.GetValueComparer()?.IsDefault());
 
             var down = entityType.FindProperty("Down")!;
             Assert.Same(typeof(byte[]), down.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.Same(typeof(long), charm.GetProviderClrType());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer()?.IsDefault());
 
             var strange = entityType.FindProperty("Strange")!;
             Assert.Null(strange.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
+            Assert.True(strange.GetValueComparer()?.IsDefault());
+            Assert.True(strange.GetProviderValueComparer()?.IsDefault());
 
             var top = entityType.FindProperty("Top")!;
             Assert.Same(typeof(string), top.GetProviderClrType());
@@ -915,12 +915,12 @@ public abstract partial class ModelBuilderTest
 
             var down = entityType.FindProperty("Down")!;
             Assert.Same(stringConverter, down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.Same(intConverter, charm.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
+            Assert.True(charm.GetValueComparer()?.IsDefault());
             Assert.IsType<CustomValueComparer<long>>(charm.GetProviderValueComparer());
 
             Assert.Null(entityType.FindProperty("Strange")!.GetValueConverter());
@@ -959,12 +959,12 @@ public abstract partial class ModelBuilderTest
             var charm = entityType.FindProperty("Charm")!;
             Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer()?.IsDefault());
 
             var strange = entityType.FindProperty("Strange")!;
             Assert.Null(strange.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
+            Assert.True(strange.GetValueComparer()?.IsDefault());
+            Assert.True(strange.GetProviderValueComparer()?.IsDefault());
         }
 
         private class UTF8StringToBytesConverter : StringToBytesConverter
@@ -1004,18 +1004,18 @@ public abstract partial class ModelBuilderTest
             var up = entityType.FindProperty("Up")!;
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+            Assert.True(up.GetValueComparer()?.IsDefault());
+            Assert.True(up.GetProviderValueComparer()?.IsDefault());
 
             var down = entityType.FindProperty("Down")!;
             Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
+            Assert.True(down.GetProviderValueComparer()?.IsDefault());
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer()?.IsDefault());
 
             var strange = entityType.FindProperty("Strange")!;
             Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
@@ -1047,18 +1047,18 @@ public abstract partial class ModelBuilderTest
             var up = entityType.FindProperty("Up")!;
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+            Assert.True(up.GetValueComparer()?.IsDefault());
+            Assert.True(up.GetProviderValueComparer()?.IsDefault());
 
             var down = entityType.FindProperty("Down")!;
             Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
+            Assert.True(down.GetProviderValueComparer()?.IsDefault());
 
             var charm = entityType.FindProperty("Charm")!;
             Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer()?.IsDefault());
 
             var strange = entityType.FindProperty("Strange")!;
             Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
@@ -2060,18 +2060,18 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_alternate_key_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => e.CompanyId);
 
             var entity = modelBuilder.Model.FindEntityType(typeof(EntityWithFields))!;
-            var properties = entity.GetProperties();
+            var properties = entity.GetProperties().Where(p => !p.IsShadowProperty());
             Assert.Single(properties);
             var property = properties.Single();
             Assert.Equal(nameof(EntityWithFields.CompanyId), property.Name);
             Assert.Null(property.PropertyInfo);
             Assert.NotNull(property.FieldInfo);
-            var keys = entity.GetKeys();
+            var keys = entity.GetKeys().Where(k => k.Properties.Any(p => p.Name.Contains("Id")));
             var key = Assert.Single(keys);
             Assert.Equal(properties, key.Properties);
         }
@@ -2079,11 +2079,12 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_composite_alternate_key_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => new { e.TenantId, e.CompanyId });
 
-            var keys = modelBuilder.Model.FindEntityType(typeof(EntityWithFields))!.GetKeys();
+            var keys = modelBuilder.Model.FindEntityType(typeof(EntityWithFields))!.GetKeys()
+                .Where(k => k.Properties.Any(p => p.Name.Contains("Id")));
             Assert.Single(keys);
             var properties = keys.Single().Properties;
             Assert.Equal(2, properties.Count);
@@ -2100,12 +2101,12 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_call_Property_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().Property(e => e.Id);
 
             var model = modelBuilder.FinalizeModel();
-            var properties = model.FindEntityType(typeof(EntityWithFields))!.GetProperties();
+            var properties = model.FindEntityType(typeof(EntityWithFields))!.GetProperties().Where(p => !p.IsShadowProperty());
             var property = Assert.Single(properties);
             Assert.Equal(nameof(EntityWithFields.Id), property.Name);
             Assert.Null(property.PropertyInfo);
@@ -2152,7 +2153,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_ignore_a_field_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>()
                 .Ignore(e => e.CompanyId)
@@ -2160,14 +2161,14 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var entity = model.FindEntityType(typeof(EntityWithFields))!;
-            var property = Assert.Single(entity.GetProperties());
+            var property = Assert.Single(entity.GetProperties().Where(p => !p.IsShadowProperty()));
             Assert.Equal(nameof(EntityWithFields.Id), property.Name);
         }
 
         [ConditionalFact]
         public virtual void Can_ignore_a_field_on_a_keyless_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<KeylessEntityWithFields>()
                 .HasNoKey()
@@ -2176,7 +2177,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             var entity = model.FindEntityType(typeof(KeylessEntityWithFields))!;
-            var property = Assert.Single(entity.GetProperties());
+            var property = Assert.Single(entity.GetProperties().Where(p => !p.IsShadowProperty()));
             Assert.Equal(nameof(KeylessEntityWithFields.LastName), property.Name);
         }
 
@@ -3013,7 +3014,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_alternate_key_for_primitive_collection_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>(
                 b =>
@@ -3040,7 +3041,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_call_PrimitiveCollection_on_an_entity_with_fields()
         {
-            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().PrimitiveCollection(e => e.CollectionId);
             modelBuilder.Entity<EntityWithFields>().HasKey(e => e.CollectionId);
@@ -3302,11 +3303,11 @@ public abstract partial class ModelBuilderTest
 
             var up = entityType.FindProperty("Up")!.GetElementType()!;
             Assert.Null(up.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.True(up.GetValueComparer()?.IsDefault());
 
             var down = entityType.FindProperty("Down")!.GetElementType()!;
             Assert.Same(typeof(byte[]), down.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
 
             var charm = entityType.FindProperty("Charm")!.GetElementType()!;
             Assert.Same(typeof(long), charm.GetProviderClrType());
@@ -3314,7 +3315,7 @@ public abstract partial class ModelBuilderTest
 
             var strange = entityType.FindProperty("Strange")!.GetElementType()!;
             Assert.Null(strange.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
+            Assert.True(strange.GetValueComparer()?.IsDefault());
 
             var top = entityType.FindProperty("Top")!.GetElementType()!;
             Assert.Same(typeof(string), top.GetProviderClrType());
@@ -3346,11 +3347,11 @@ public abstract partial class ModelBuilderTest
 
             var down = entityType.FindProperty("Down")!.GetElementType()!;
             Assert.Same(stringConverter, down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
 
             var charm = entityType.FindProperty("Charm")!.GetElementType()!;
             Assert.Same(intConverter, charm.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
+            Assert.True(charm.GetValueComparer()?.IsDefault());
 
             Assert.Null(entityType.FindProperty("Strange")!.GetElementType()!.GetValueConverter());
         }
@@ -3392,7 +3393,7 @@ public abstract partial class ModelBuilderTest
 
             var strange = entityType.FindProperty("Strange")!.GetElementType()!;
             Assert.Null(strange.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
+            Assert.True(strange.GetValueComparer()?.IsDefault());
 
             var top = entityType.FindProperty("Top")!.GetElementType()!;
             Assert.Null(top.GetValueConverter());
@@ -3422,11 +3423,11 @@ public abstract partial class ModelBuilderTest
             var up = entityType.FindProperty("Up")!.GetElementType()!;
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.True(up.GetValueComparer()?.IsDefault());
 
             var down = entityType.FindProperty("Down")!.GetElementType()!;
             Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer()?.IsDefault());
 
             var charm = entityType.FindProperty("Charm")!.GetElementType()!;
             Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());

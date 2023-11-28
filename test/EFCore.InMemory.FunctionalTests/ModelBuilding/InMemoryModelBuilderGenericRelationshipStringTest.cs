@@ -5,74 +5,64 @@
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class ModelBuilderGenericRelationshipStringTest : ModelBuilderGenericTest
+public class InMemoryModelBuilderGenericRelationshipStringTest : InMemoryModelBuilderGenericTest
 {
-    public class GenericOneToManyString : OneToManyTestBase
+    public class GenericOneToManyString : InMemoryOneToMany
     {
-        public GenericOneToManyString(ModelBuilderFixtureBase fixture)
+        public GenericOneToManyString(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericManyToOneString : ManyToOneTestBase
+    public class GenericManyToOneString : InMemoryManyToOne
     {
-        public GenericManyToOneString(ModelBuilderFixtureBase fixture)
+        public GenericManyToOneString(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericManyToManyString : ManyToManyTestBase
+    public class GenericManyToManyString : InMemoryManyToMany
     {
-        public GenericManyToManyString(ModelBuilderFixtureBase fixture)
+        public GenericManyToManyString(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericOneToOneString : OneToOneTestBase
+    public class GenericOneToOneString : InMemoryOneToOne
     {
-        public GenericOneToOneString(ModelBuilderFixtureBase fixture)
+        public GenericOneToOneString(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericOwnedTypesString : OwnedTypesTestBase
+    public class GenericOwnedTypesString : InMemoryOwnedTypes
     {
-        public GenericOwnedTypesString(ModelBuilderFixtureBase fixture)
+        public GenericOwnedTypesString(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new GenericStringTestModelBuilder(Fixture, configure);
     }
 
     public class GenericStringTestModelBuilder : TestModelBuilder
     {
-        public GenericStringTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
-            : base(testHelpers, configure)
+        public GenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+            : base(fixture, configure)
         {
         }
 

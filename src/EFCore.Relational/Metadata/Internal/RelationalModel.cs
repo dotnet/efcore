@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -1435,11 +1436,11 @@ public class RelationalModel : Annotatable, IRelationalModel
     {
         TableMappingBase<TColumnMapping>? mainMapping = null;
         var mappedEntityTypes = new HashSet<IEntityType>();
-        foreach (TableMappingBase<TColumnMapping> entityTypeMapping in table.EntityTypeMappings)
+        foreach (TableMappingBase<TColumnMapping> entityTypeMapping in table.EntityTypeMappings.ToList())
         {
             if (table.EntityTypeMappings.Count > 1)
             {
-                entityTypeMapping.IsSharedTablePrincipal = false;
+                entityTypeMapping.SetIsSharedTablePrincipal(false);
             }
 
             var entityType = (IEntityType)entityTypeMapping.TypeBase;
@@ -1489,10 +1490,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         if (table.EntityTypeMappings.Count > 1)
         {
-            // Re-add the mapping to update the order
-            mainMapping.Table.EntityTypeMappings.Remove(mainMapping);
-            mainMapping.IsSharedTablePrincipal = true;
-            mainMapping.Table.EntityTypeMappings.Add(mainMapping);
+            mainMapping.SetIsSharedTablePrincipal(true);
         }
 
         var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;

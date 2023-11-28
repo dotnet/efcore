@@ -5,4 +5,5 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public abstract class RelationalTestHelpers : TestHelpers
 {
+    public override ModelAsserter ModelAsserter => RelationalModelAsserter.Instance;
 }

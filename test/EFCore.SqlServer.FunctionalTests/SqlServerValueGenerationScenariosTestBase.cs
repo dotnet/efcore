@@ -1148,7 +1148,10 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
     [ConditionalFact]
     public void Insert_and_update_with_computed_column_with_querying_function()
     {
-        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        SqlServerTestStore testStore = null;
+        try
+        {
+            testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
         using (var context = new BlogContextComputedColumnWithTriggerMetadata(testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
         {
             context.GetService<IRelationalDatabaseCreator>().CreateTables();
@@ -1167,8 +1170,6 @@ END");
             context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs ADD FullName AS [dbo].[GetFullName]([Id]); ");
         }
 
-        try
-        {
             using (var context = new BlogContextComputedColumnWithTriggerMetadata(
                        testStore.Name, OnModelCreating, IntSentinel, StringSentinel))
             {
@@ -1230,9 +1231,10 @@ END");
         finally
         {
             using var context = new BlogContextComputedColumnWithTriggerMetadata(
-                testStore.Name, OnModelCreating, IntSentinel, StringSentinel);
+                DatabaseName, OnModelCreating, IntSentinel, StringSentinel);
             context.Database.ExecuteSqlRaw("ALTER TABLE dbo.FullNameBlogs DROP COLUMN FullName;");
             context.Database.ExecuteSqlRaw("DROP FUNCTION [dbo].[GetFullName];");
+            testStore?.Dispose();
         }
     }
 

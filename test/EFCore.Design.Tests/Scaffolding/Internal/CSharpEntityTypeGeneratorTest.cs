@@ -2933,10 +2933,10 @@ public partial class TestDbContext : DbContext
                     Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
                 }));
 
-    protected override void AddModelServices(IServiceCollection services)
+    protected override IServiceCollection AddModelServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
-    protected override void AddScaffoldingServices(IServiceCollection services)
+    protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
     private class TestModelAnnotationProvider : SqlServerAnnotationProvider

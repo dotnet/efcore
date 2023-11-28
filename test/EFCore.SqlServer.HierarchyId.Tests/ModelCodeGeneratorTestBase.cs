@@ -17,18 +17,13 @@ public abstract class ModelCodeGeneratorTestBase
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold)
     {
-        var designServices = new ServiceCollection();
-        AddModelServices(designServices);
-
-        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(customServices: designServices);
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(addServices: AddModelServices);
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);
 
         var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
 
-        var services = CreateServices();
-        AddScaffoldingServices(services);
-
+        var services = AddScaffoldingServices(CreateServices());
         var generator = services.BuildServiceProvider(validateScopes: true)
             .GetRequiredService<IModelCodeGenerator>();
 
@@ -51,13 +46,11 @@ public abstract class ModelCodeGeneratorTestBase
         return services;
     }
 
-    protected virtual void AddModelServices(IServiceCollection services)
-    {
-    }
+    protected virtual IServiceCollection AddModelServices(IServiceCollection services)
+        => services;
 
-    protected virtual void AddScaffoldingServices(IServiceCollection services)
-    {
-    }
+    protected virtual IServiceCollection AddScaffoldingServices(IServiceCollection services)
+        => services;
 
     protected static void AssertFileContents(
         string expectedCode,

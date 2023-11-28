@@ -192,7 +192,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             }
 
             // All the mappings below are added in a way that preserves the order
-            foreach (var mapping in typeBase.GetDefaultMappings())
+            if (typeBase.GetDefaultMappings().Any())
             {
                 var tableMappingsVariable = code.Identifier("defaultTableMappings", parameters.ScopeVariables, capitalize: false);
                 mainBuilder
@@ -200,7 +200,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                     .AppendLine($"var {tableMappingsVariable} = new List<TableMappingBase<ColumnMappingBase>>();")
                     .Append($"{typeBaseVariable}.SetRuntimeAnnotation(")
                     .AppendLine($"{code.Literal(RelationalAnnotationNames.DefaultMappings)}, {tableMappingsVariable});");
-                Create(mapping, tableMappingsVariable, metadataVariables, parameters);
+                foreach (var mapping in typeBase.GetDefaultMappings())
+                {
+                    Create(mapping, tableMappingsVariable, metadataVariables, parameters);
+                }
             }
 
             if (typeBase.GetTableMappings().Any())
@@ -2090,8 +2093,10 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
     /// <inheritdoc />
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
-        var annotations = parameters.Annotations;
-        annotations.Remove(parameters.IsRuntime ? RelationalAnnotationNames.TableIndexMappings : RelationalAnnotationNames.Filter);
+        if (parameters.IsRuntime)
+        {
+            parameters.Annotations.Remove(RelationalAnnotationNames.TableIndexMappings);
+        }
 
         base.Generate(index, parameters);
     }
