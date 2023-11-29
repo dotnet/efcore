@@ -298,6 +298,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 entityType, propertyName);
 
         /// <summary>
+        ///     Modifying SQL of a computed column '{columnName}' on a temporal table '{tableName}' is not supported by migrations.
+        /// </summary>
+        public static string TemporalMigrationModifyingComputedColumnNotSupported(object? columnName, object? tableName)
+            => string.Format(
+                GetString("TemporalMigrationModifyingComputedColumnNotSupported", nameof(columnName), nameof(tableName)),
+                columnName, tableName);
+
+        /// <summary>
         ///     Entity type '{entityType}' mapped to temporal table must have a period start and a period end property.
         /// </summary>
         public static string TemporalMustDefinePeriodProperties(object? entityType)
