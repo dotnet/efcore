@@ -461,7 +461,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     ? parameterMapping.Parameter
                     : null;
                 var isKey = property.IsPrimaryKey();
-                var isFk = (column.Table is ITable table) && table.ForeignKeyConstraints.Any(t => t.Columns.Contains(column));
                 var isCondition = !adding
                     && (isKey
                         || storedProcedureParameter is { ForOriginalValue: true }
@@ -469,14 +468,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
                 // Store-generated properties generally need to be read back (unless we're deleting).
                 // One exception is if the property is mapped to a non-output parameter.
-                var isStoreGenerated = ColumnModification.IsStoreGenerated(entry, property);
-                var propagatedFromFk = state == EntityState.Added
-                    && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
-                    && isFk;
-
                 var readValue = state != EntityState.Deleted
-                    && isStoreGenerated
-                    && !propagatedFromFk
+                    && ColumnModification.IsStoreGenerated(entry, property)
                     && (storedProcedureParameter is null || storedProcedureParameter.Direction.HasFlag(ParameterDirection.Output));
 
                 ColumnValuePropagator? columnPropagator = null;
@@ -487,7 +480,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (adding)
                     {
-                        writeValue = propagatedFromFk || property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save
+                            || entry.HasStoreGeneratedValue(property);
+
                         columnPropagator?.TryPropagate(columnMapping, entry);
                     }
                     else if (storedProcedureParameter is not { ForOriginalValue: true }

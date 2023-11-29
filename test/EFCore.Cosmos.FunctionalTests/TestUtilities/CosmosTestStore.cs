@@ -346,6 +346,9 @@ public class CosmosTestStore : TestStore
         public bool HasTemporaryValue(IProperty property)
             => throw new NotImplementedException();
 
+        public bool HasStoreGeneratedValue(IProperty property)
+            => throw new NotImplementedException();
+
         public bool IsModified(IProperty property)
             => throw new NotImplementedException();
 

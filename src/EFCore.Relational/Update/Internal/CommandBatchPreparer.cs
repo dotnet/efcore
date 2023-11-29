@@ -674,7 +674,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         if (!CanCreateDependency(foreignKey, command, principal: true)
                             || !IsModified(foreignKey.PrincipalKey.Properties, entry)
                             || command.Table != null
-                            && !HasTempKey(entry, foreignKey.PrincipalKey))
+                            && !IsStoreGenerated(entry, foreignKey.PrincipalKey))
                         {
                             continue;
                         }
@@ -843,7 +843,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private static bool HasTempKey(IUpdateEntry entry, IKey key)
+    private static bool IsStoreGenerated(IUpdateEntry entry, IKey key)
     {
         var keyProperties = key.Properties;
 
@@ -1052,7 +1052,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var j = 0; j < predecessor.Entries.Count; j++)
                         {
                             var entry = predecessor.Entries[j];
-                            if (HasTempKey(entry, foreignKey.PrincipalKey))
+                            if (IsStoreGenerated(entry, foreignKey.PrincipalKey))
                             {
                                 requiresBatchingBoundary = true;
                                 goto AfterLoop;
@@ -1096,7 +1096,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             foreach (var key in foreignKey.PrincipalUniqueConstraint.MappedKeys)
                             {
                                 if (key.DeclaringEntityType.IsAssignableFrom(entry.EntityType)
-                                    && HasTempKey(entry, key))
+                                    && IsStoreGenerated(entry, key))
                                 {
                                     requiresBatchingBoundary = true;
                                     goto AfterLoop;
