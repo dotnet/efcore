@@ -131,15 +131,20 @@ public abstract class CoreTypeMapping
                 ProviderValueComparer,
                 ValueGeneratorFactory,
                 elementMapping ?? ElementTypeMapping,
-                jsonValueReaderWriter
-                ?? (converter == null || JsonValueReaderWriter == null
-                    ? JsonValueReaderWriter
-                    : RuntimeFeature.IsDynamicCodeSupported
-                        ? CreateReaderWriter(converter, JsonValueReaderWriter)
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)));
+                jsonValueReaderWriter ?? CreateReaderWriter(converter, JsonValueReaderWriter));
 
-            static JsonValueReaderWriter CreateReaderWriter(ValueConverter converter, JsonValueReaderWriter readerWriter)
+            static JsonValueReaderWriter? CreateReaderWriter(ValueConverter? converter, JsonValueReaderWriter? readerWriter)
             {
+                if (converter == null || readerWriter == null)
+                {
+                    return readerWriter;
+                }
+
+                if (!RuntimeFeature.IsDynamicCodeSupported)
+                {
+                    throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+                }
+
                 if (readerWriter is IJsonConvertedValueReaderWriter convertedValueReaderWriter)
                 {
                     readerWriter = convertedValueReaderWriter.InnerReaderWriter;
