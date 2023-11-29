@@ -249,11 +249,23 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
 
+            // Inline query roots can contain arbitrary expressions, including subqueries with navigations; visit inside to process those.
+            case InlineQueryRootExpression inlineQueryRootExpression:
+            {
+                var visited = inlineQueryRootExpression.Update(this.VisitAndConvert(inlineQueryRootExpression.Values));
+                var currentTree = new NavigationTreeExpression(Expression.Default(inlineQueryRootExpression.ElementType));
+                var parameterName = GetParameterName("e");
+
+                return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
+            }
+
             case QueryRootExpression queryRootExpression:
+            {
                 var currentTree = new NavigationTreeExpression(Expression.Default(queryRootExpression.ElementType));
                 var parameterName = GetParameterName("e");
 
                 return new NavigationExpansionExpression(queryRootExpression, currentTree, currentTree, parameterName);
+            }
 
             case NavigationExpansionExpression:
             case OwnedNavigationReference:
