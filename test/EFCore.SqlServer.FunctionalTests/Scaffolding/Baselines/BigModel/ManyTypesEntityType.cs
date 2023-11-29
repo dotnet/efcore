@@ -8574,12 +8574,8 @@ namespace TestNamespace
                 converter: new ValueConverter<string, string>(
                     (string v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)(v.Length < 1 ? '\0' : v[0])),
                     (string v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)(v.Length < 1 ? '\0' : v[0]))),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, char>(
-                    new JsonConvertedValueReaderWriter<char, string>(
-                        JsonStringReaderWriter.Instance,
-                        new ValueConverter<char, string>(
-                            (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
-                            (string v) => v.Length < 1 ? '\0' : v[0])),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, string>(
+                    JsonStringReaderWriter.Instance,
                     new ValueConverter<string, string>(
                         (string v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)(v.Length < 1 ? '\0' : v[0])),
                         (string v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)(v.Length < 1 ? '\0' : v[0])))));
@@ -8762,12 +8758,8 @@ namespace TestNamespace
                 converter: new ValueConverter<string, long>(
                     (string v) => (long)StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v),
                     (long value) => ((CompiledModelTestBase.EnumU32)value).ToString()),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, CompiledModelTestBase.EnumU32>(
-                    new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
-                        JsonInt64ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.EnumU32, long>(
-                            (CompiledModelTestBase.EnumU32 value) => (long)value,
-                            (long value) => (CompiledModelTestBase.EnumU32)value)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, long>(
+                    JsonInt64ReaderWriter.Instance,
                     new ValueConverter<string, long>(
                         (string v) => (long)StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v),
                         (long value) => ((CompiledModelTestBase.EnumU32)value).ToString())));
@@ -8916,12 +8908,8 @@ namespace TestNamespace
                     (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString(),
                     (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString()),
                 storeTypePostfix: StoreTypePostfix.None,
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, Uri>(
-                    new JsonConvertedValueReaderWriter<Uri, string>(
-                        JsonStringReaderWriter.Instance,
-                        new ValueConverter<Uri, string>(
-                            (Uri v) => v.ToString(),
-                            (string v) => new Uri(v, UriKind.RelativeOrAbsolute))),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, string>(
+                    JsonStringReaderWriter.Instance,
                     new ValueConverter<string, string>(
                         (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString(),
                         (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString())));

@@ -7630,12 +7630,8 @@ namespace TestNamespace
                 converter: new ValueConverter<string, uint>(
                     (string v) => (uint)StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v),
                     (uint value) => ((CompiledModelTestBase.EnumU32)value).ToString()),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, CompiledModelTestBase.EnumU32>(
-                    new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, uint>(
-                        JsonUInt32ReaderWriter.Instance,
-                        new ValueConverter<CompiledModelTestBase.EnumU32, uint>(
-                            (CompiledModelTestBase.EnumU32 value) => (uint)value,
-                            (uint value) => (CompiledModelTestBase.EnumU32)value)),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, uint>(
+                    JsonUInt32ReaderWriter.Instance,
                     new ValueConverter<string, uint>(
                         (string v) => (uint)StringEnumConverter<string, CompiledModelTestBase.EnumU32, CompiledModelTestBase.EnumU32>.ConvertToEnum(v),
                         (uint value) => ((CompiledModelTestBase.EnumU32)value).ToString())));
@@ -7761,12 +7757,8 @@ namespace TestNamespace
                 converter: new ValueConverter<string, string>(
                     (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString(),
                     (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString()),
-                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, Uri>(
-                    new JsonConvertedValueReaderWriter<Uri, string>(
-                        JsonStringReaderWriter.Instance,
-                        new ValueConverter<Uri, string>(
-                            (Uri v) => v.ToString(),
-                            (string v) => new Uri(v, UriKind.RelativeOrAbsolute))),
+                jsonValueReaderWriter: new JsonConvertedValueReaderWriter<string, string>(
+                    JsonStringReaderWriter.Instance,
                     new ValueConverter<string, string>(
                         (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString(),
                         (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString())));

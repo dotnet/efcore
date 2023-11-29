@@ -1667,6 +1667,72 @@ public abstract class JsonTypesTestBase
         public DddId? DddId { get; set; }
     }
 
+    [ConditionalTheory]
+    [InlineData(EnumProperty.FieldA, """{"Prop":"A"}""")]
+    [InlineData(EnumProperty.FieldB, """{"Prop":"B"}""")]
+    public virtual void Can_read_write_enum_char_converted_type_JSON_values(int value, string json)
+        => Can_read_and_write_JSON_value<EnumCharType, EnumProperty>(
+            b => b.Entity<EnumCharType>().HasNoKey().Property(e => e.EnumProperty),
+            b => b.Properties<EnumProperty>().HaveConversion<EnumValueConverter<EnumProperty>>(),
+            nameof(EnumCharType.EnumProperty),
+            (EnumProperty)value,
+            json);
+
+    protected class EnumValueConverter<T>() : ValueConverter<T, char>(
+        p => p.ToChar(null), p => (T)Enum.Parse(typeof(T), Convert.ToInt32(p).ToString()))
+        where T : Enum, IConvertible;
+
+    protected class EnumCharType
+    {
+        public EnumProperty EnumProperty { get; set; }
+    }
+
+    protected enum EnumProperty
+    {
+        FieldA = 'A',
+        FieldB = 'B',
+        FieldC = 'C',
+    }
+
+    [ConditionalTheory]
+    [InlineData("127.0.0.1", """{"Prop":"127.0.0.1"}""")]
+    [InlineData("0.0.0.0", """{"Prop":"0.0.0.0"}""")]
+    [InlineData("255.255.255.255", """{"Prop":"255.255.255.255"}""")]
+    [InlineData("192.168.1.156", """{"Prop":"192.168.1.156"}""")]
+    [InlineData("::1", """{"Prop":"::1"}""")]
+    [InlineData("::", """{"Prop":"::"}""")]
+    [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", """{"Prop":"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"}""")]
+    public virtual void Can_read_write_custom_converted_type_JSON_values(string value, string json)
+        => Can_read_and_write_JSON_value<IpAddressType, IpAddress>(
+            b => b.Entity<IpAddressType>().HasNoKey().Property(e => e.Address),
+            b => b.Properties<IpAddress>().HaveConversion<IpAddressConverter>(),
+            nameof(IpAddressType.Address),
+            new(IPAddress.Parse(value)),
+            json);
+
+    protected class IpAddressConverter() : ValueConverter<IpAddress, IPAddress>(
+        v => v.Address,
+        v => new IpAddress(v));
+
+    protected class IpAddressType
+    {
+        public IpAddress? Address { get; set; }
+    }
+
+    protected class IpAddress(IPAddress address)
+    {
+        public IPAddress Address { get; } = address;
+
+        protected bool Equals(IpAddress other)
+            => Address.Equals(other.Address);
+
+        public override bool Equals(object? obj)
+            => !ReferenceEquals(null, obj) && (ReferenceEquals(this, obj) || obj.GetType() == GetType() && Equals((IpAddress)obj));
+
+        public override int GetHashCode()
+            => Address.GetHashCode();
+    }
+
     [ConditionalFact]
     public virtual void Can_read_write_collection_of_sbyte_JSON_values()
         => Can_read_and_write_JSON_value<Int8CollectionType, List<sbyte>>(
