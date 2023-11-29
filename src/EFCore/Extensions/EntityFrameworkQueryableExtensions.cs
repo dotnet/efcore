@@ -2300,7 +2300,7 @@ public static class EntityFrameworkQueryableExtensions
         CancellationToken cancellationToken = default)
     {
         var list = new List<TSource>();
-        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             list.Add(element);
         }
@@ -3059,7 +3059,7 @@ public static class EntityFrameworkQueryableExtensions
         Check.NotNull(elementSelector, nameof(elementSelector));
 
         var d = new Dictionary<TKey, TElement>(comparer);
-        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             d.Add(keySelector(element), elementSelector(element));
         }
@@ -3100,7 +3100,7 @@ public static class EntityFrameworkQueryableExtensions
     {
         Check.NotNull(action, nameof(action));
 
-        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             action(element);
         }
