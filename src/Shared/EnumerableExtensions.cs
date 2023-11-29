@@ -125,7 +125,7 @@ internal static class EnumerableExtensions
         CancellationToken cancellationToken = default)
     {
         var list = new List<TSource>();
-        await foreach (var element in source.WithCancellation(cancellationToken))
+        await foreach (var element in source.WithCancellation(cancellationToken).ConfigureAwait(false))
         {
             list.Add(element);
         }
