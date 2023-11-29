@@ -673,8 +673,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     {
                         if (!CanCreateDependency(foreignKey, command, principal: true)
                             || !IsModified(foreignKey.PrincipalKey.Properties, entry)
-                            || command.Table != null
-                            && !IsStoreGenerated(entry, foreignKey.PrincipalKey))
+                            || (command.Table != null
+                                && !IsStoreGenerated(entry, foreignKey.PrincipalKey)))
                         {
                             continue;
                         }
