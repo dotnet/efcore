@@ -5652,4 +5652,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(prm).OrderDetails == null),
             ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(prm) == null));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Subquery_with_navigation_inside_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new[] { 100, c.Orders.Count }.Sum() > 101));
 }
