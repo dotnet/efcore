@@ -4670,6 +4670,14 @@ WHERE ((c["Discriminator"] = "Customer") AND @__Contains_0)
 """);
     }
 
+    public override async Task Subquery_with_navigation_inside_inline_collection(bool async)
+    {
+        await AssertTranslationFailed(
+            () => base.Subquery_with_navigation_inside_inline_collection(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
