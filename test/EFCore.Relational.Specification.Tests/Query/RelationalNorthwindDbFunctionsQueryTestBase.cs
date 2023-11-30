@@ -67,6 +67,22 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Least_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Least(od.OrderID, (int?)10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Min(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Greatest_with_nullable_value_type(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(od.OrderID, (int?)10251) == 10251),
+            ss => ss.Set<OrderDetail>().Where(od => Math.Max(od.OrderID, 10251) == 10251));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Least_with_parameter_array_is_not_supported(bool async)
     {
         var arr = new[] { 1, 2 };

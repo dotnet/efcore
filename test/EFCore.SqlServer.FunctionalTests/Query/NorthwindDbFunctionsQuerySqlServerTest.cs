@@ -147,6 +147,32 @@ WHERE GREATEST([o].[OrderID], 10251) = 10251
 """);
     }
 
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Least_with_nullable_value_type(bool async)
+    {
+        await base.Least_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE LEAST([o].[OrderID], 10251) = 10251
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsFunctions2022)]
+    public override async Task Greatest_with_nullable_value_type(bool async)
+    {
+        await base.Greatest_with_nullable_value_type(async);
+
+        AssertSql(
+            """
+SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE GREATEST([o].[OrderID], 10251) = 10251
+""");
+    }
+
     public override async Task Least_with_parameter_array_is_not_supported(bool async)
     {
         await base.Least_with_parameter_array_is_not_supported(async);
