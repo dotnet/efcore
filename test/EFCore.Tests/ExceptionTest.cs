@@ -118,6 +118,9 @@ public class ExceptionTest
         public bool HasTemporaryValue(IProperty property)
             => throw new NotImplementedException();
 
+        public bool HasStoreGeneratedValue(IProperty property)
+            => throw new NotImplementedException();
+
         public bool IsStoreGenerated(IProperty property)
             => throw new NotImplementedException();
 

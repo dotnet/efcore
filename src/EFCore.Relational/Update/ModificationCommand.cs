@@ -480,7 +480,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 {
                     if (adding)
                     {
-                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
+                        writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save
+                            || entry.HasStoreGeneratedValue(property);
+
                         columnPropagator?.TryPropagate(columnMapping, entry);
                     }
                     else if (storedProcedureParameter is not { ForOriginalValue: true }
