@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class JsonQueryAdHocSqlServerTest : JsonQueryAdHocTestBase
+public class AdHocJsonQuerySqlServerTest : AdHocJsonQueryTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;

@@ -3,10 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
+public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
-        => "JsonQueryAdHocTest";
+        => "AdHocJsonQueryTest";
 
     #region 32310
 

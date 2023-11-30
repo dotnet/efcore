@@ -3335,6 +3335,80 @@ WHERE [c].[CustomerID] = @__id_0 + N'KI'
         AssertSql();
     }
 
+    public override async Task Implicit_cast_in_predicate(bool async)
+    {
+        await base.Implicit_cast_in_predicate(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'1337'
+""",
+                //
+                """
+@__prm_Value_0='1337' (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @__prm_Value_0
+""",
+                //
+                """
+@__ToString_0='1337' (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @__ToString_0
+""",
+                //
+                """
+@__p_0='1337' (Size = 5)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = @__p_0
+""",
+                //
+                """
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[CustomerID] = N'1337'
+""");
+    }
+
+    public override async Task Interface_casting_though_generic_method(bool async)
+    {
+        await base.Interface_casting_though_generic_method(async);
+
+        AssertSql(
+"""
+@__id_0='10252'
+
+SELECT [o].[OrderID] AS [Id]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = @__id_0
+""",
+                //
+                """
+SELECT [o].[OrderID] AS [Id]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10252
+""",
+                //
+                """
+SELECT [o].[OrderID] AS [Id]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10252
+""",
+                //
+                """
+SELECT [o].[OrderID] AS [Id]
+FROM [Orders] AS [o]
+WHERE [o].[OrderID] = 10252
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

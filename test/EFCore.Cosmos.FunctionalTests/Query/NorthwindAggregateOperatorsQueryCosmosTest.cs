@@ -2237,14 +2237,16 @@ WHERE (c["Discriminator"] = "Customer")
 
     public override async Task All_true(bool async)
     {
-        await base.All_true(async);
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.All_true(async));
 
         AssertSql();
     }
 
     public override async Task Not_Any_false(bool async)
     {
-        await base.Not_Any_false(async);
+        // Aggregates. Issue #16146.
+        await AssertTranslationFailed(() => base.Not_Any_false(async));
 
         AssertSql();
     }
@@ -2327,6 +2329,64 @@ SELECT MIN((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
 FROM root c
 WHERE (c["Discriminator"] = "Customer")
 """);
+    }
+
+    public override async Task Return_type_of_singular_operator_is_preserved(bool async)
+    {
+        await base.Return_type_of_singular_operator_is_preserved(async);
+
+        AssertSql(
+"""
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+OFFSET 0 LIMIT 1
+""",
+                //
+                """
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+OFFSET 0 LIMIT 1
+""",
+                //
+                """
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+OFFSET 0 LIMIT 2
+""",
+                //
+                """
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
+OFFSET 0 LIMIT 2
+""",
+                //
+                """
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+ORDER BY c["CustomerID"] DESC
+OFFSET 0 LIMIT 1
+""",
+                //
+                """
+SELECT c["CustomerID"], c["City"]
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "A"))
+ORDER BY c["CustomerID"] DESC
+OFFSET 0 LIMIT 1
+""");
+    }
+
+    [ConditionalTheory(Skip = "Issue #20677")]
+    public override async Task Type_casting_inside_sum(bool async)
+    {
+        await base.Type_casting_inside_sum(async);
+
+        AssertSql();
     }
 
     private void AssertSql(params string[] expected)

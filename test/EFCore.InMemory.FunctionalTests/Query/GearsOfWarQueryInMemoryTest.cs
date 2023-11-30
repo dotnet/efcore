@@ -132,4 +132,21 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
 
     public override Task Subquery_inside_Take_argument(bool async)
         => Task.CompletedTask;
+
+    public override async Task Find_underlying_property_after_GroupJoin_DefaultIfEmpty(bool async)
+        => Assert.Equal(
+            "Nullable object must have a value.",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base
+                    .Find_underlying_property_after_GroupJoin_DefaultIfEmpty(
+                        async))).Message);
+
+    public override Task Join_include_coalesce_simple(bool async)
+        => Task.CompletedTask;
+
+    public override Task Join_include_coalesce_nested(bool async)
+        => Task.CompletedTask;
+
+    public override Task Join_include_conditional(bool async)
+        => Task.CompletedTask;
 }

@@ -2732,6 +2732,44 @@ WHERE [c].[CustomerID] LIKE N'F%'
 """);
     }
 
+    public override async Task Entity_passed_to_DTO_constructor_works(bool async)
+    {
+        await base.Entity_passed_to_DTO_constructor_works(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Set_operation_in_pending_collection(bool async)
+    {
+        await base.Set_operation_in_pending_collection(async);
+
+        AssertSql(
+"""
+@__p_0='5'
+
+SELECT [t].[CustomerID], [t0].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    ORDER BY [c].[CustomerID]
+) AS [t]
+OUTER APPLY (
+    SELECT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [o].[CustomerID] = [t].[CustomerID]
+    UNION
+    SELECT [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    WHERE [o0].[CustomerID] = [t].[CustomerID]
+) AS [t0]
+ORDER BY [t].[CustomerID]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

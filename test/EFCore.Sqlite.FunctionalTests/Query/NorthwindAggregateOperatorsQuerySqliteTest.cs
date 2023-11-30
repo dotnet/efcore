@@ -206,4 +206,11 @@ FROM "Customers" AS "c"
 
     protected override void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
+
+    public override async Task Type_casting_inside_sum(bool async)
+        => Assert.Equal(
+            SqliteStrings.AggregateOperationNotSupported("Sum", "decimal"),
+            (await Assert.ThrowsAsync<NotSupportedException>(
+                async () => await base.Type_casting_inside_sum(async)))
+            .Message);
 }

@@ -7402,6 +7402,14 @@ WHERE @__Contains_0 = CAST(1 AS bit)
 """);
     }
 
+    public override async Task Compiler_generated_local_closure_produces_valid_parameter_name(bool async)
+    {
+        await base.Compiler_generated_local_closure_produces_valid_parameter_name(async);
+
+        // No AssertSQL since compiler generated variable names are different between local and CI
+        //AssertSql("");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

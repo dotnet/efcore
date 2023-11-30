@@ -30,8 +30,6 @@ public class OwnedEntityQueryInMemoryTest : OwnedEntityQueryTestBase
         {
         }
 
-        public DbSet<Warehouse> Warehouses { get; set; }
-
         public void Seed()
         {
             Add(new Foo());
