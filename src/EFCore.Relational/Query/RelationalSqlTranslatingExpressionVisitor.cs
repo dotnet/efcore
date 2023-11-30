@@ -966,13 +966,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             var elementClrType = newArray.Type.GetElementType()!;
 
             if (genericMethodDefinition == LeastMethodInfo
-                && _sqlExpressionFactory.TryCreateLeast(translatedValues, elementClrType, out var leastExpression))
+                && _sqlExpressionFactory.TryCreateLeast(
+                    translatedValues, elementClrType.UnwrapNullableType(), out var leastExpression))
             {
                 return leastExpression;
             }
 
             if (genericMethodDefinition == GreatestMethodInfo
-                && _sqlExpressionFactory.TryCreateGreatest(translatedValues, elementClrType, out var greatestExpression))
+                && _sqlExpressionFactory.TryCreateGreatest(
+                    translatedValues, elementClrType.UnwrapNullableType(), out var greatestExpression))
             {
                 return greatestExpression;
             }
