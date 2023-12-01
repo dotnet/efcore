@@ -5659,4 +5659,26 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => new[] { 100, c.Orders.Count }.Sum() > 101));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        var data = new[] { "ALFKI" + "Alfreds Futterkiste", "ANATR" + "Ana Trujillo Emparedados y helados" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + c.CompanyName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + "SomeConstant")));
+    }
 }

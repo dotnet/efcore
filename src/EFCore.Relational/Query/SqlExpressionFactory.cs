@@ -202,6 +202,40 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             }
 
             case ExpressionType.Add:
+                inferredTypeMapping = typeMapping;
+
+                if (inferredTypeMapping is null)
+                {
+                    // Infer null size (nvarchar(max)) if either side has no size.
+                    // Note that for constants, we could instead look at the value length; but that requires we know the type mappings which
+                    // can have a size (string/byte[], maybe something else?).
+                    var inferredSize = left.TypeMapping?.Size is int leftSize && right.TypeMapping?.Size is int rightSize
+                        ? leftSize + rightSize
+                        : (int?)null;
+
+                    // Unless both sides are fixed length, the result isn't fixed length.
+                    var inferredFixedLength = left.TypeMapping?.IsFixedLength is true && right.TypeMapping?.IsFixedLength is true;
+                    // Default to Unicode unless both sides are non-unicode.
+                    var inferredUnicode = !(left.TypeMapping?.IsUnicode is false && right.TypeMapping?.IsUnicode is false);
+
+                    var baseTypeMapping = left.TypeMapping
+                        ?? right.TypeMapping
+                        ?? ApplyDefaultTypeMapping(left).TypeMapping
+                        ?? throw new InvalidOperationException("Couldn't find type mapping");
+
+                    inferredTypeMapping = baseTypeMapping.Size == inferredSize
+                        && baseTypeMapping.IsFixedLength == inferredFixedLength
+                        && baseTypeMapping.IsUnicode == inferredUnicode
+                            ? baseTypeMapping
+                            : _typeMappingSource.FindMapping(
+                                baseTypeMapping.ClrType, storeTypeName: null, keyOrIndex: false, inferredUnicode, inferredSize,
+                                rowVersion: false, inferredFixedLength, baseTypeMapping.Precision, baseTypeMapping.Scale);
+                }
+
+                resultType = inferredTypeMapping?.ClrType ?? left.Type;
+                resultTypeMapping = inferredTypeMapping;
+                break;
+
             case ExpressionType.Subtract:
             case ExpressionType.Multiply:
             case ExpressionType.Divide:
