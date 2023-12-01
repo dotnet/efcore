@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
 public partial class CosmosShapedQueryCompilingExpressionVisitor
 {
+    private static readonly bool _useOldBehavior32363 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32363", out var enabled32363) && enabled32363;
+
     private abstract class CosmosProjectionBindingRemovingExpressionVisitorBase : ExpressionVisitor
     {
         private static readonly MethodInfo GetItemMethodInfo
@@ -651,7 +654,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             }
 
             // Workaround for old databases that didn't store the key property
-            if (ownership != null
+            if (!_useOldBehavior32363
+                && ownership != null
                 && !ownership.IsUnique
                 && !entityType.IsDocumentRoot()
                 && property.ClrType == typeof(int)
