@@ -32,6 +32,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     private bool _useRelationalNulls;
     private QuerySplittingBehavior? _querySplittingBehavior;
     private string? _migrationsAssembly;
+    private Assembly? _migrationsAssemblyObject;
+
     private string? _migrationsHistoryTableName;
     private string? _migrationsHistoryTableSchema;
     private Func<ExecutionStrategyDependencies, IExecutionStrategy>? _executionStrategyFactory;
@@ -271,6 +273,12 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         => _migrationsAssembly;
 
     /// <summary>
+    ///     The Assembly that contains migrations, or <see langword="null" /> if none has been set.
+    /// </summary>
+    public virtual Assembly? MigrationsAssemblyObject
+        => _migrationsAssemblyObject;
+
+    /// <summary>
     ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
     ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
     /// </summary>
@@ -281,6 +289,21 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._migrationsAssembly = migrationsAssembly;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="migrationsAssembly">The option to change.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual RelationalOptionsExtension WithMigrationsAssembly(Assembly migrationsAssembly)
+    {
+        var clone = Clone();
+
+        clone._migrationsAssemblyObject = migrationsAssembly;
 
         return clone;
     }
