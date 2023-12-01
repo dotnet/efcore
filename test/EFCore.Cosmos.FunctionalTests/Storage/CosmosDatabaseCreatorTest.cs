@@ -11,9 +11,8 @@ public class CosmosDatabaseCreatorTest
         new object[] { false }
     };
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public async Task EnsureCreated_returns_true_when_database_does_not_exist(bool async)
+    [ConditionalFact]
+    public async Task EnsureCreated_returns_true_when_database_does_not_exist()
     {
         await using var testDatabase = CosmosTestStore.Create("NonExisting");
         try
@@ -21,7 +20,7 @@ public class CosmosDatabaseCreatorTest
             using var context = new BloggingContext(testDatabase);
             var creator = context.GetService<IDatabaseCreator>();
 
-            Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+            Assert.True(await creator.EnsureCreatedAsync());
         }
         finally
         {
@@ -29,9 +28,8 @@ public class CosmosDatabaseCreatorTest
         }
     }
 
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not(bool async)
+    [ConditionalFact]
+    public async Task EnsureCreated_returns_true_when_database_exists_but_collections_do_not()
     {
         await using var testDatabase = CosmosTestStore.Create("EnsureCreatedTest");
         try
@@ -39,7 +37,7 @@ public class CosmosDatabaseCreatorTest
             using var context = new BloggingContext(testDatabase);
             var creator = context.GetService<IDatabaseCreator>();
 
-            Assert.True(async ? await creator.EnsureCreatedAsync() : creator.EnsureCreated());
+            Assert.True(await creator.EnsureCreatedAsync());
         }
         finally
         {
