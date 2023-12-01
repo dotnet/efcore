@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
@@ -576,6 +577,15 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                 .HasMany(entity => entity.Entities)
                 .WithMany()
                 .UsingEntity<RootStructure>();
+
+            modelBuilder.Entity<OwnerRoot>(
+                b =>
+                {
+                    b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
+                    b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
+                    b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
+                    b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
+                });
         }
 
         protected virtual object CreateFullGraph()
@@ -792,6 +802,21 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
     protected virtual IQueryable<Root> ModifyQueryRoot(IQueryable<Root> query)
         => query;
+
+    protected virtual OwnerRoot CreateOwnerRoot()
+        => new()
+        {
+            OptionalSingle = new() { Name = "OS", Single = new() { Name = "OS2" } },
+            RequiredSingle = new() { Name = "RS", Single = new() { Name = "RS2 " } },
+            OptionalChildren =
+            {
+                new() { Name = "OC1" }, new() { Name = "OC2", Children = { new() { Name = "OCC1" }, new() { Name = "OCC2" } } }
+            },
+            RequiredChildren =
+            {
+                new() { Name = "RC1", Children = { new() { Name = "RCC1" }, new() { Name = "RCC2" } } }, new() { Name = "RC2" }
+            }
+        };
 
     protected Root LoadRequiredGraph(DbContext context)
         => QueryRequiredGraph(context)
@@ -2904,6 +2929,169 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
         public override int GetHashCode()
             => base.GetHashCode();
+    }
+
+    protected class OwnerRoot : NotifyingEntity
+    {
+        private int _id;
+        private ICollection<OwnedRequired1> _requiredChildren = new ObservableHashSet<OwnedRequired1>(ReferenceEqualityComparer.Instance);
+        private ICollection<OwnedOptional1> _optionalChildren = new ObservableHashSet<OwnedOptional1>(ReferenceEqualityComparer.Instance);
+        private OwnedRequiredSingle1 _requiredSingle;
+        private OwnedOptionalSingle1 _optionalSingle;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public OwnedRequiredSingle1 RequiredSingle
+        {
+            get => _requiredSingle;
+            set => SetWithNotify(value, ref _requiredSingle);
+        }
+
+        public OwnedOptionalSingle1 OptionalSingle
+        {
+            get => _optionalSingle;
+            set => SetWithNotify(value, ref _optionalSingle);
+        }
+
+        public ICollection<OwnedRequired1> RequiredChildren
+        {
+            get => _requiredChildren;
+            set => SetWithNotify(value, ref _requiredChildren);
+        }
+
+        public ICollection<OwnedOptional1> OptionalChildren
+        {
+            get => _optionalChildren;
+            set => SetWithNotify(value, ref _optionalChildren);
+        }
+    }
+
+    protected class OwnedRequired1 : NotifyingEntity
+    {
+        private ICollection<OwnedRequired2> _children = new ObservableHashSet<OwnedRequired2>(ReferenceEqualityComparer.Instance);
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public ICollection<OwnedRequired2> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class OwnedRequired2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedOptional1 : NotifyingEntity
+    {
+        private ICollection<OwnedOptional2> _children = new ObservableHashSet<OwnedOptional2>(ReferenceEqualityComparer.Instance);
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public ICollection<OwnedOptional2> Children
+        {
+            get => _children;
+            set => SetWithNotify(value, ref _children);
+        }
+    }
+
+    protected class OwnedOptional2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedRequiredSingle1 : NotifyingEntity
+    {
+        private OwnedRequiredSingle2 _single;
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public OwnedRequiredSingle2 Single
+        {
+            get => _single;
+            set => SetWithNotify(value, ref _single);
+        }
+    }
+
+    protected class OwnedRequiredSingle2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+    }
+
+    protected class OwnedOptionalSingle1 : NotifyingEntity
+    {
+        private string _name;
+        private OwnedOptionalSingle2 _single;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
+
+        public OwnedOptionalSingle2 Single
+        {
+            get => _single;
+            set => SetWithNotify(value, ref _single);
+        }
+    }
+
+    protected class OwnedOptionalSingle2 : NotifyingEntity
+    {
+        private string _name;
+
+        [Required]
+        public string Name
+        {
+            get => _name;
+            set => SetWithNotify(value, ref _name);
+        }
     }
 
     protected class BadCustomer : NotifyingEntity

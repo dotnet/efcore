@@ -184,7 +184,7 @@ public class ColumnModification : IColumnModification
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static object? GetOriginalValue(IUpdateEntry entry, IProperty property)
-        => entry.GetOriginalValue(property);
+        => entry.GetOriginalOrCurrentValue(property);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1666,6 +1666,126 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Contains(entries, e => e.Entity.GetType() == typeof(Swede));
             });
 
+    [ConditionalFact] // Issue #32168
+    public virtual void Save_changed_owned_one_to_one()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                context.Add(CreateOwnerRoot());
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var root = context.Set<OwnerRoot>().Single();
+
+                if (Fixture.ForceClientNoAction)
+                {
+                    context.Entry(root.OptionalSingle.Single).State = EntityState.Deleted;
+                    context.Entry(root.OptionalSingle).State = EntityState.Deleted;
+                    context.Entry(root.RequiredSingle.Single).State = EntityState.Deleted;
+                    context.Entry(root.RequiredSingle).State = EntityState.Deleted;
+                }
+
+                root.OptionalSingle = new() { Name = "OS`", Single = new() { Name = "OS2`" } };
+                root.RequiredSingle = new() { Name = "RS`", Single = new() { Name = "RS2`" } };
+
+                Assert.True(context.ChangeTracker.HasChanges());
+
+                context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
+
+                Assert.Equal("OS`", root.OptionalSingle.Name);
+                Assert.Equal("OS2`", root.OptionalSingle.Single.Name);
+                Assert.Equal("RS`", root.RequiredSingle.Name);
+                Assert.Equal("RS2`", root.RequiredSingle.Single.Name);
+            },
+            context =>
+            {
+                var root = context.Set<OwnerRoot>().Single();
+                Assert.Equal("OS`", root.OptionalSingle.Name);
+                Assert.Equal("OS2`", root.OptionalSingle.Single.Name);
+                Assert.Equal("RS`", root.RequiredSingle.Name);
+                Assert.Equal("RS2`", root.RequiredSingle.Single.Name);
+            });
+
+    [ConditionalFact]
+    public virtual void Save_changed_owned_one_to_many()
+    {
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                context.Add(CreateOwnerRoot());
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var root = context.Set<OwnerRoot>().Single();
+                var optionalChildren = root.OptionalChildren.Single(e => e.Name == "OC1");
+                var requiredChildren = root.RequiredChildren.Single(e => e.Name == "RC1");
+
+                if (Fixture.ForceClientNoAction)
+                {
+                    optionalChildren.Children.ForEach(c => context.Entry(c).State = EntityState.Deleted);
+                    context.Entry(optionalChildren).State = EntityState.Deleted;
+                    requiredChildren.Children.ForEach(c => context.Entry(c).State = EntityState.Deleted);
+                    context.Entry(requiredChildren).State = EntityState.Deleted;
+                }
+
+                root.OptionalChildren.Remove(optionalChildren);
+                root.RequiredChildren.Remove(requiredChildren);
+                root.OptionalChildren.First().Children.Add(new() { Name = "OCC3" });
+                root.OptionalChildren.Add(new() { Name = "OC3", Children = { new() { Name = "OCC4" }, new() { Name = "OCC5" } } });
+                root.RequiredChildren.First().Children.Add(new() { Name = "RCC3" });
+                root.RequiredChildren.Add(new() { Name = "RC3", Children = { new() { Name = "RCC4" }, new() { Name = "RCC5" } } });
+
+                Assert.True(context.ChangeTracker.HasChanges());
+
+                context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
+
+                AssertGraph(root);
+            },
+            context =>
+            {
+                var root = context.Set<OwnerRoot>().Single();
+
+                AssertGraph(root);
+            });
+
+        void AssertGraph(OwnerRoot ownerRoot)
+        {
+            Assert.Equal(2, ownerRoot.OptionalChildren.Count);
+            Assert.Contains("OC2", ownerRoot.OptionalChildren.Select(e => e.Name));
+            Assert.Contains("OC3", ownerRoot.OptionalChildren.Select(e => e.Name));
+
+            var oc2Children = ownerRoot.OptionalChildren.Single(e => e.Name == "OC2").Children;
+            Assert.Equal(3, oc2Children.Count);
+            Assert.Contains("OCC1", oc2Children.Select(e => e.Name));
+            Assert.Contains("OCC2", oc2Children.Select(e => e.Name));
+            Assert.Contains("OCC3", oc2Children.Select(e => e.Name));
+
+            var oc3Children = ownerRoot.OptionalChildren.Single(e => e.Name == "OC3").Children;
+            Assert.Equal(2, oc3Children.Count);
+            Assert.Contains("OCC4", oc3Children.Select(e => e.Name));
+            Assert.Contains("OCC5", oc3Children.Select(e => e.Name));
+
+            Assert.Equal(2, ownerRoot.RequiredChildren.Count);
+            Assert.Contains("RC2", ownerRoot.RequiredChildren.Select(e => e.Name));
+            Assert.Contains("RC3", ownerRoot.RequiredChildren.Select(e => e.Name));
+
+            var rc2Children = ownerRoot.RequiredChildren.Single(e => e.Name == "RC2").Children;
+            Assert.Equal(1, rc2Children.Count);
+            Assert.Contains("RCC3", rc2Children.Select(e => e.Name));
+
+            var rc3Children = ownerRoot.RequiredChildren.Single(e => e.Name == "RC3").Children;
+            Assert.Equal(2, rc3Children.Count);
+            Assert.Contains("RCC4", rc3Children.Select(e => e.Name));
+            Assert.Contains("RCC5", rc3Children.Select(e => e.Name));
+        }
+    }
+
     [ConditionalTheory] // Issue #30135
     [InlineData(false)]
     [InlineData(true)]
