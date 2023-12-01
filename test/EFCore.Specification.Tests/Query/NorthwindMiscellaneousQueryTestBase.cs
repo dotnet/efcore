@@ -5674,5 +5674,27 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .Select(g => new { g.Key, MaxTimestamp = g.Select(e => e.Order.OrderDate).Max() })
                 .OrderBy(x => x.MaxTimestamp)
                 .Select(x => x));
+	}
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        var data = new[] { "ALFKI" + "Alfreds Futterkiste", "ANATR" + "Ana Trujillo Emparedados y helados" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + c.CompanyName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + "SomeConstant")));
     }
 }

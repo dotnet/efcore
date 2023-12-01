@@ -7316,6 +7316,40 @@ ORDER BY (
     ) AND [o].[Quantity] = [o2].[Quantity])
 """);
 #endif
+	}
+
+    public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        await base.Contains_over_concatenated_columns_with_different_sizes (async);
+
+        AssertSql(
+            """
+@__data_0='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] + [c].[CompanyName] IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(45) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        await base.Contains_over_concatenated_column_and_constant (async);
+
+        AssertSql(
+            """
+@__data_0='["ALFKISomeConstant","ANATRSomeConstant"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] + N'SomeConstant' IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+)
+""");
     }
 
     private void AssertSql(params string[] expected)
