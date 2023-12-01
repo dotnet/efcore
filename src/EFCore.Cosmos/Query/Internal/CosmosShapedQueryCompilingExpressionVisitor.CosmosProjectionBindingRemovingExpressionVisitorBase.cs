@@ -596,25 +596,27 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 return _projectionBindings[jObjectExpression];
             }
 
+            var entityType = property.DeclaringType as IEntityType;
+            var ownership = entityType?.FindOwnership();
             var storeName = property.GetJsonPropertyName();
             if (storeName.Length == 0)
             {
-                var entityType = property.DeclaringType as IEntityType;
                 if (entityType == null
                     || !entityType.IsDocumentRoot())
                 {
-                    var ownership = entityType?.FindOwnership();
                     if (ownership != null
-                        && !ownership.IsUnique
-                        && property.IsOrdinalKeyProperty())
+                        && !ownership.IsUnique)
                     {
-                        var readExpression = _ordinalParameterBindings[jObjectExpression];
-                        if (readExpression.Type != type)
+                        if (property.IsOrdinalKeyProperty())
                         {
-                            readExpression = Convert(readExpression, type);
-                        }
+                            var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
+                            if (ordinalExpression.Type != type)
+                            {
+                                ordinalExpression = Convert(ordinalExpression, type);
+                            }
 
-                        return readExpression;
+                            return ordinalExpression;
+                        }
                     }
 
                     var principalProperty = property.FindFirstPrincipal();
@@ -646,6 +648,37 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 return Default(type);
+            }
+
+            // Workaround for old databases that didn't store the key property
+            if (ownership != null
+                && !ownership.IsUnique
+                && !entityType.IsDocumentRoot()
+                && property.ClrType == typeof(int)
+                && !property.IsForeignKey()
+                && property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
+                && property.GetJsonPropertyName().Length != 0
+                && !property.IsShadowProperty())
+            {
+                var readExpression = CreateGetValueExpression(
+                    jObjectExpression, storeName, type.MakeNullable(), property.GetTypeMapping());
+
+                var nonNullReadExpression = readExpression;
+                if (nonNullReadExpression.Type != type)
+                {
+                    nonNullReadExpression = Convert(nonNullReadExpression, type);
+                }
+
+                var ordinalExpression = _ordinalParameterBindings[jObjectExpression];
+                if (ordinalExpression.Type != type)
+                {
+                    ordinalExpression = Convert(ordinalExpression, type);
+                }
+
+                return Condition(
+                    Equal(readExpression, Constant(null, readExpression.Type)),
+                    ordinalExpression,
+                    nonNullReadExpression);
             }
 
             return Convert(

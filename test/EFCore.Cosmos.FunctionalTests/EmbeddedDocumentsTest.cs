@@ -103,6 +103,14 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = Fixture.CreateOptions(seed: false);
+        var swappedOptions = Fixture.CreateOptions(modelBuilder => modelBuilder.Entity<Person>(
+                eb => eb.OwnsMany(
+                    v => v.Addresses, b =>
+                    {
+                        b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                        b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                    })),
+                seed: false);
 
         Address existingAddress1Person2;
         Address existingAddress1Person3;
@@ -201,6 +209,10 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             if (useIds)
             {
                 addedAddress2.IdNotes = existingAddress1Person2.IdNotes;
+                foreach (var note in addedAddress2.IdNotes)
+                {
+                    note.AddressId = 0;
+                }
             }
             else
             {
@@ -374,6 +386,75 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     }
 
     [ConditionalFact]
+    public virtual async Task Old_still_works()
+    {
+        var options = Fixture.CreateOptions(seed: false);
+        var swappedOptions = Fixture.CreateOptions(modelBuilder => modelBuilder.Entity<Person>(
+                eb => eb.OwnsMany(
+                    v => v.Addresses, b =>
+                    {
+                        b.OwnsMany(a => a.Notes).ToJsonProperty("IdNotes");
+                        b.OwnsMany(a => a.IdNotes).ToJsonProperty("Notes");
+                    })),
+                seed: false);
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            await context.AddAsync(new Person
+            {
+                Id = 1,
+                Addresses = new List<Address>
+                {
+                    new()
+                    {
+                        Street = "Second",
+                        City = "Village",
+                        Notes = new List<Note>
+                        {
+                            new() { Content = "First note" }
+                        },
+                        IdNotes = new List<NoteWithId>
+                        {
+                            new() { Id = 3, Content = "Second note" }
+                        }
+                    }
+                }
+            });
+
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new EmbeddedTransportationContext(options))
+        {
+            var people = await context.Set<Person>().ToListAsync();
+            var address = people.Single().Addresses.Single();
+
+            Assert.Equal("First note", address.Notes.Single().Content);
+
+            var idNote = address.IdNotes.Single();
+            Assert.Equal(3, idNote.Id);
+            Assert.Equal("Second note", idNote.Content);
+
+            var noteEntry = context.Entry(idNote);
+            var noteJson = noteEntry.Property<JObject>("__jObject").CurrentValue;
+
+            Assert.Equal(3, noteJson[nameof(NoteWithId.Id)]);
+            Assert.Null(noteJson[nameof(NoteWithId.AddressId)]);
+        }
+
+        using (var context = new EmbeddedTransportationContext(swappedOptions))
+        {
+            var people = await context.Set<Person>().ToListAsync();
+            var address = people.Single().Addresses.Single();
+
+            Assert.Equal("Second note", address.Notes.Single().Content);
+            Assert.Equal("First note", address.IdNotes.Single().Content);
+        }
+    }
+
+    public record struct CosmosPage<T>(List<T> Results, string ContinuationToken);
+
+    [ConditionalFact]
     public virtual async Task Properties_on_owned_types_can_be_client_generated()
     {
         var options = Fixture.CreateOptions(seed: false);
@@ -408,6 +489,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                         v => v.Addresses, b =>
                         {
                             b.Property<Guid>("Id");
+                            b.Ignore(a => a.IdNotes);
                         }));
             },
             seed: false);
@@ -600,19 +682,15 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             => CosmosTestStoreFactory.Instance;
 
         public virtual CosmosTestStore TestStore { get; }
-        private Action<ModelBuilder> OnModelCreatingAction { get; set; }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-            => OnModelCreatingAction?.Invoke(modelBuilder);
-
-        public DbContextOptions CreateOptions(
+        public EmbeddedTransportationContextOptions CreateOptions(
             Action<ModelBuilder> onModelCreating = null,
             bool seed = true)
         {
-            OnModelCreatingAction = onModelCreating;
             var options = CreateOptions(TestStore);
+            var embeddedOptions = new EmbeddedTransportationContextOptions(options, onModelCreating);
             TestStore.Initialize(
-                ServiceProvider, () => new EmbeddedTransportationContext(options), c =>
+                ServiceProvider, () => new EmbeddedTransportationContext(embeddedOptions), c =>
                 {
                     if (seed)
                     {
@@ -621,14 +699,19 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 });
 
             ListLoggerFactory.Clear();
-            return options;
+            return embeddedOptions;
         }
 
-        protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
-            => base.AddServices(serviceCollection);
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+            => ((EmbeddedTransportationContext)context).Options.OnModelCreating?.Invoke(modelBuilder);
 
         protected override object GetAdditionalModelCacheKey(DbContext context)
-            => OnModelCreatingAction?.GetHashCode();
+        {
+            var options = ((EmbeddedTransportationContext)context).Options;
+            return options.OnModelCreating  == null
+                ? null
+                : options;
+        }
 
         public Task InitializeAsync()
             => Task.CompletedTask;
@@ -637,12 +720,17 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             => TestStore.DisposeAsync();
     }
 
+    public record class EmbeddedTransportationContextOptions(DbContextOptions Options, Action<ModelBuilder> OnModelCreating);
+
     protected class EmbeddedTransportationContext : TransportationContext
     {
-        public EmbeddedTransportationContext(DbContextOptions options)
-            : base(options)
+        public EmbeddedTransportationContext(EmbeddedTransportationContextOptions options)
+            : base(options.Options)
         {
+            Options = options;
         }
+
+        public EmbeddedTransportationContextOptions Options { get; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -734,6 +822,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     public class NoteWithId
     {
         public int Id { get; set; }
+        public int AddressId { get; set; }
         public string Content { get; set; }
     }
 }
