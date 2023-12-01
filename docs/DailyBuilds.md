@@ -2,15 +2,13 @@
 
 ## Quick-start
 
-> IMPORTANT: Until EF8 ships, use build "8.0.0-rtm.23517.11" or the latest EF9 build, since the current EF8 GA builds cannot be used publicly.
-
 Create a file called "NuGet.config" with the following contents and put it next to your solution or csproj file:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet9" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -38,7 +36,7 @@ For EF8 daily builds, `NuGet.config` should contain:
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet9" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -49,7 +47,7 @@ For EF8 daily builds, `NuGet.config` should contain:
 `dotnet ef` is the [the EF command-line tool](https://learn.microsoft.com/ef/core/cli/dotnet), used to perform various design-time tasks such as creating and applying migrations. Stable versions of `dotnet ef` usually work fine with daily build versions of EF; but in some situations you must also update to daily builds of the CLI tool. To use a daily build version of `dotnet ef`, do the following:
 
 ```sh
-dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
+dotnet tool install -g dotnet-ef --version 9.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json
 ```
 
 ### EF reverse engineering templates
@@ -57,7 +55,7 @@ dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev
 EF features code templates for [reverse engineering (or "scaffolding") existing databases](https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/templates); installing daily versions of these templates typically isn't necessary, but you may want to do so to experiment with new features or test bug fixes in the templates:
 
 ```sh
-dotnet new install Microsoft.EntityFrameworkCore.Templates::8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
+dotnet new install Microsoft.EntityFrameworkCore.Templates::9.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json
 ```
 
 ## Package versions to use
@@ -68,10 +66,10 @@ The easiest way to use daily builds is with wildcards in project references. For
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="9.0.0-*" />
   </ItemGroup>
 ```
 
@@ -116,7 +114,7 @@ In addition, packages may be missing if the standard `nuget.org` package source 
         <clear />
     </disabledPackageSources>
     <packageSources>
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet9" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -132,7 +130,7 @@ A good way to ensure you're dealing with a completely clean NuGet configuration 
     </disabledPackageSources>
     <packageSources>
         <clear />
-        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="dotnet9" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet9/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
