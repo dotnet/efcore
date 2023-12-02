@@ -81,6 +81,15 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
+            modelBuilder.Entity<OwnerRoot>(
+                b =>
+                {
+                    b.OwnsOne(e => e.OptionalSingle).OwnsOne(e => e.Single);
+                    b.OwnsOne(e => e.RequiredSingle).OwnsOne(e => e.Single);
+                    b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
+                    b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
+                });
+
             modelBuilder.Entity<Root>(
                 b =>
                 {

@@ -334,6 +334,9 @@ public class CosmosTestStore : TestStore
         public object GetCurrentValue(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 
+        public object GetOriginalOrCurrentValue(IPropertyBase propertyBase)
+            => throw new NotImplementedException();
+
         public TProperty GetCurrentValue<TProperty>(IPropertyBase propertyBase)
             => throw new NotImplementedException();
 

@@ -67,6 +67,31 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
         {
             base.OnModelCreating(modelBuilder, context);
 
+            modelBuilder.Entity<OwnerRoot>(
+                b =>
+                {
+                    b.OwnsMany(
+                        e => e.OptionalChildren, b =>
+                        {
+                            b.HasKey("Id");
+                            b.OwnsMany(
+                                e => e.Children, b =>
+                                {
+                                    b.HasKey("Id");
+                                });
+                        });
+                    b.OwnsMany(
+                        e => e.RequiredChildren, b =>
+                        {
+                            b.HasKey("Id");
+                            b.OwnsMany(
+                                e => e.Children, b =>
+                                {
+                                    b.HasKey("Id");
+                                });
+                        });
+                });
+
             modelBuilder.Entity<AccessState>(
                 b =>
                 {
