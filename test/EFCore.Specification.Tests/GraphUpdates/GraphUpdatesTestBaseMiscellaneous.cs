@@ -2120,4 +2120,45 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(1, entities.Count);
                 Assert.Equal(nameof(Lettuce2), context.Entry(entities[0]).Property<string>("Discriminator").CurrentValue);
             });
+
+    [ConditionalTheory] // Issue #32084
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async)
+    {
+        var parentId = Guid.NewGuid();
+        var childId = Guid.NewGuid();
+
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                context.Add(new ParentEntity32084 { Id = parentId });
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var parent = async
+                    ? await context.FindAsync<ParentEntity32084>(parentId)
+                    : context.Find<ParentEntity32084>(parentId);
+
+                var child = new ChildEntity32084
+                {
+                    Id = childId,
+                    ParentId = parent!.Id,
+                    ChildValue = "test value"
+                };
+
+                parent.Child = child;
+
+                context.ChangeTracker.DetectChanges();
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+
+                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                    async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges());
+
+            });
+    }
 }

@@ -586,6 +586,12 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     b.OwnsMany(e => e.OptionalChildren).OwnsMany(e => e.Children);
                     b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
                 });
+
+            modelBuilder.Entity<ParentEntity32084>().HasOne(x => x.Child)
+                .WithOne()
+                .HasForeignKey<ChildBaseEntity32084>(x => x.ParentId);
+
+            modelBuilder.Entity<ChildEntity32084>();
         }
 
         protected virtual object CreateFullGraph()
@@ -4339,6 +4345,53 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
     protected class Beetroot2 : Parsnip2
     {
+    }
+
+    protected class ParentEntity32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private ChildBaseEntity32084 _child;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ChildBaseEntity32084 Child
+        {
+            get => _child;
+            set => SetWithNotify(value, ref _child);
+        }
+    }
+
+    protected abstract class ChildBaseEntity32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+    }
+
+    protected class ChildEntity32084 : ChildBaseEntity32084
+    {
+        private string _childValue;
+
+        public string ChildValue
+        {
+            get => _childValue;
+            set => SetWithNotify(value, ref _childValue);
+        }
     }
 
     protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged

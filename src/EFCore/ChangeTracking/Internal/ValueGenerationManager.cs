@@ -96,14 +96,22 @@ public class ValueGenerationManager : IValueGenerationManager
         //TODO: Handle complex properties
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
+            var valueGenerator = GetValueGenerator(property);
+            if (valueGenerator.GeneratesStableValues)
+            {
+                hasStableValues = true;
+            }
+            else
+            {
+                hasNonStableValues = true;
+            }
+
             if (entry.HasExplicitValue(property)
                 || (!includePrimaryKey
                     && property.IsPrimaryKey()))
             {
                 continue;
             }
-
-            var valueGenerator = GetValueGenerator(property);
 
             var generatedValue = valueGenerator.Next(entityEntry);
             var temporary = valueGenerator.GeneratesTemporaryValues;
