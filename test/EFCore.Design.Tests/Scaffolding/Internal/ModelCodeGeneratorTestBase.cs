@@ -24,7 +24,8 @@ public abstract class ModelCodeGeneratorTestBase
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
         Action<IModel> assertModel,
-        bool skipBuild = false)
+        bool skipBuild = false,
+        bool useTemplateGenerator = true)
     {
         var designServices = new ServiceCollection();
         AddModelServices(designServices);
@@ -39,7 +40,7 @@ public abstract class ModelCodeGeneratorTestBase
 
         var serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
-        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild);
+        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild, useTemplateGenerator);
     }
 
     protected Task TestAsync(
@@ -47,7 +48,8 @@ public abstract class ModelCodeGeneratorTestBase
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
         Action<IModel> assertModel,
-        bool skipBuild = false)
+        bool skipBuild = false,
+        bool useTemplateGenerator = true)
     {
         var designServices = new ServiceCollection();
         AddModelServices(designServices);
@@ -56,7 +58,7 @@ public abstract class ModelCodeGeneratorTestBase
         var serviceProvider = services.BuildServiceProvider(validateScopes: true);
         var model = buildModel(serviceProvider);
 
-        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild);
+        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild, useTemplateGenerator);
     }
 
     protected async Task TestAsync(
@@ -65,12 +67,14 @@ public abstract class ModelCodeGeneratorTestBase
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
         Action<IModel> assertModel,
-        bool skipBuild = false)
+        bool skipBuild = false,
+        bool useTemplateGenerator = true)
     {
         var generators = serviceProvider.GetServices<IModelCodeGenerator>();
-        var generator = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+        var generator =
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
             || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
-            || Random.Shared.Next() % 12 != 0
+            || !useTemplateGenerator
                 ? generators.Last(g => g is CSharpModelGenerator)
                 : generators.Last(g => g is TextTemplatingModelGenerator);
 

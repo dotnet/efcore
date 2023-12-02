@@ -2,9 +2,11 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.CodeDom.Compiler;
+using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.VisualStudio.TextTemplating;
 using Mono.TextTemplating;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -102,12 +104,18 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         };
         var contextTemplate = Path.Combine(options.ProjectDir!, TemplatesDirectory, DbContextTemplate);
 
-        string generatedCode;
+        string? generatedCode = null;
         if (File.Exists(contextTemplate))
         {
             host.TemplateFile = contextTemplate;
 
-            generatedCode = Engine.ProcessTemplate(File.ReadAllText(contextTemplate), host);
+            var compiledTemplate = Engine.CompileTemplateAsync(File.ReadAllText(contextTemplate), host, new()).GetAwaiter().GetResult();
+
+            if (compiledTemplate != null)
+            {
+                generatedCode = ProcessTemplate(compiledTemplate, host);
+            }
+
             CheckEncoding(host.OutputEncoding);
             HandleErrors(host);
         }
@@ -142,7 +150,7 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
                 Path = options.ContextDir != null
                     ? Path.Combine(options.ContextDir, dbContextFileName)
                     : dbContextFileName,
-                Code = generatedCode
+                Code = generatedCode!
             }
         };
 
@@ -165,12 +173,16 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     if (compiledEntityTypeTemplate is null)
                     {
-                        compiledEntityTypeTemplate = Engine.CompileTemplate(File.ReadAllText(entityTypeTemplate), host);
+                        compiledEntityTypeTemplate = Engine.CompileTemplateAsync(File.ReadAllText(entityTypeTemplate), host, new()).GetAwaiter().GetResult();;
                         entityTypeExtension = host.Extension;
                         CheckEncoding(host.OutputEncoding);
                     }
 
-                    generatedCode = compiledEntityTypeTemplate.Process();
+                    if (compiledEntityTypeTemplate != null)
+                    {
+                        generatedCode = ProcessTemplate(compiledEntityTypeTemplate, host);
+                    }
+
                     HandleErrors(host);
 
                     if (string.IsNullOrWhiteSpace(generatedCode))
@@ -208,12 +220,16 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
 
                     if (compiledConfigurationTemplate is null)
                     {
-                        compiledConfigurationTemplate = Engine.CompileTemplate(File.ReadAllText(configurationTemplate), host);
+                        compiledConfigurationTemplate = Engine.CompileTemplateAsync(File.ReadAllText(configurationTemplate), host, new()).GetAwaiter().GetResult();;
                         configurationExtension = host.Extension;
                         CheckEncoding(host.OutputEncoding);
                     }
 
-                    generatedCode = compiledConfigurationTemplate.Process();
+                    if (compiledConfigurationTemplate != null)
+                    {
+                        generatedCode = ProcessTemplate(compiledConfigurationTemplate, host);
+                    }
+
                     HandleErrors(host);
 
                     if (string.IsNullOrWhiteSpace(generatedCode))
@@ -239,6 +255,61 @@ public class TextTemplatingModelGenerator : TemplatedModelGenerator
         }
 
         return resultingFiles;
+    }
+
+    private static string ProcessTemplate(CompiledTemplate compiledTemplate, TextTemplatingEngineHost host)
+    {
+        var templateAssemblyData = GetField(compiledTemplate, "templateAssemblyData")!;
+        var templateClassFullName = (string)GetField(compiledTemplate, "templateClassFullName")!;
+        var culture = GetField(compiledTemplate, "culture");
+        var assemblyBytes = (byte[])templateAssemblyData.GetType().GetProperty("Assembly")!.GetValue(templateAssemblyData)!;
+
+        var assembly = Assembly.Load(assemblyBytes);
+        var transformType = assembly.GetType(templateClassFullName)!;
+        var textTransformation = Activator.CreateInstance(transformType);
+
+        var hostProp = transformType.GetProperty("Host", typeof(ITextTemplatingEngineHost));
+        if (hostProp != null)
+        {
+            hostProp.SetValue(textTransformation, host, null);
+        }
+
+        var sessionProp = transformType.GetProperty("Session", typeof(IDictionary<string, object>));
+        if (sessionProp != null)
+        {
+            sessionProp.SetValue(textTransformation, host.Session, null);
+        }
+
+        var errorProp = transformType.GetProperty("Errors", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var errorMethod = transformType.GetMethod("Error", new[] { typeof(string) })!;
+
+        var errors = (CompilerErrorCollection)errorProp.GetValue(textTransformation, null)!;
+        errors.Clear();
+
+        ToStringHelper.FormatProvider = culture != null ? (IFormatProvider)culture : CultureInfo.InvariantCulture;
+
+        string? output = null;
+
+        var initMethod = transformType.GetMethod("Initialize")!;
+        var transformMethod = transformType.GetMethod("TransformText")!;
+
+        try
+        {
+            initMethod.Invoke(textTransformation, null);
+            output = (string?)transformMethod.Invoke(textTransformation, null);
+        }
+        catch (Exception ex)
+        {
+            errorMethod.Invoke(textTransformation, new object[] { "Error running transform: " + ex });
+        }
+
+        host.LogErrors(errors);
+        return output!;
+
+        static object? GetField(CompiledTemplate compiledTemplate, string fieldName)
+            => compiledTemplate.GetType()
+                .GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic)!
+                .GetValue(compiledTemplate);
     }
 
     private void CheckEncoding(Encoding outputEncoding)
