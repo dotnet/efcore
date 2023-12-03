@@ -834,13 +834,14 @@ public class SqliteCommandTest
                         {
                             selectedSignal.Set();
 
-                            await Task.Delay(1000);
+                            await Task.Delay(5000);
                         }
                     }
                 }),
             Task.Run(
-                () =>
+                async () =>
                 {
+                    await Task.Delay(1000);
                     using (var connection = new SqliteConnection(connectionString))
                     {
                         connection.Open();
@@ -883,13 +884,14 @@ public class SqliteCommandTest
                             {
                                 selectedSignal.Set();
 
-                                await Task.Delay(1000);
+                                await Task.Delay(5000);
                             }
                         }
                     }),
                 Task.Run(
-                    () =>
+                    async () =>
                     {
+                        await Task.Delay(1000);
                         using (var connection = new SqliteConnection(connectionString))
                         {
                             connection.Open();
@@ -1001,12 +1003,13 @@ public class SqliteCommandTest
                         {
                             selectedSignal.Set();
 
-                            await Task.Delay(1000);
+                            await Task.Delay(5000);
                         }
                     }),
                 Task.Run(
-                    () =>
+                    async () =>
                     {
+                        await Task.Delay(1000);
                         using var connection = new SqliteConnection(connectionString);
                         connection.Open();
 
