@@ -106,6 +106,121 @@ public abstract class ComplexTypeBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
                 s => s.SetProperty(c => c.ZipCode, 12345),
                 rowsAffectedCount: 3));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_parameter(bool async)
+    {
+        var newAddress = new Address
+        {
+            AddressLine1 = "New AddressLine1",
+            AddressLine2 = "New AddressLine2",
+            ZipCode = 99999,
+            Country = new()
+            {
+                Code = "FR",
+                FullName = "France"
+            },
+            Tags = new List<string> { "new_tag1", "new_tag2" }
+        };
+
+        return AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress, newAddress),
+            rowsAffectedCount: 3);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_nested_complex_type_to_parameter(bool async)
+    {
+        var newCountry = new Country
+        {
+            Code = "FR",
+            FullName = "France"
+        };
+
+        return AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress.Country, newCountry),
+            rowsAffectedCount: 3);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_another_database_complex_type(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress, x => x.BillingAddress),
+            rowsAffectedCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_inline_without_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress, new Address
+            {
+                AddressLine1 = "New AddressLine1",
+                AddressLine2 = "New AddressLine2",
+                ZipCode = 99999,
+                Country = new()
+                {
+                    Code = "FR",
+                    FullName = "France"
+                },
+                Tags = new List<string> { "new_tag1", "new_tag2" }
+            }),
+            rowsAffectedCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_inline_with_lambda(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress, x => new Address
+            {
+                AddressLine1 = "New AddressLine1",
+                AddressLine2 = "New AddressLine2",
+                ZipCode = 99999,
+                Country = new()
+                {
+                    Code = "FR",
+                    FullName = "France"
+                },
+                Tags = new List<string> { "new_tag1", "new_tag2" }
+            }),
+            rowsAffectedCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_complex_type_to_another_database_complex_type_with_subquery(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>().OrderBy(c => c.Id).Skip(1),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress, x => x.BillingAddress),
+            rowsAffectedCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_collection_inside_complex_type(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Customer>(),
+            c => c,
+            s => s.SetProperty(x => x.ShippingAddress.Tags, new List<string> { "new_tag1", "new_tag2" }),
+            rowsAffectedCount: 3);
+
     private void ClearLog()
         => Fixture.TestSqlLoggerFactory.Clear();
 }
