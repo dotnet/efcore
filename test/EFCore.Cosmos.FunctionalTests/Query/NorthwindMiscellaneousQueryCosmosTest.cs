@@ -4614,6 +4614,14 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
+    public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
+    {
+        await AssertTranslationFailed(
+            () => base.Parameter_collection_Contains_with_projection_and_ordering(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
