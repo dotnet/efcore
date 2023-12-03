@@ -143,8 +143,15 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
                     {
                         AddressLine1 = "804 S. Lakeshore Road",
                         ZipCode = 38654,
-                        Country = new Country { FullName = "United States", Code = "US" }
-                    }));
+                        Country = new Country { FullName = "United States", Code = "US" },
+                        Tags = new List<string> { "foo", "bar" }
+                    }),
+            ss => ss.Set<Customer>().Where(
+                c =>
+                    c.ShippingAddress.AddressLine1 == "804 S. Lakeshore Road"
+                    && c.ShippingAddress.ZipCode == 38654
+                    && c.ShippingAddress.Country == new Country { FullName = "United States", Code = "US" }
+                    && c.ShippingAddress.Tags.SequenceEqual(new List<string> { "foo", "bar" })));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -154,12 +161,19 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
         {
             AddressLine1 = "804 S. Lakeshore Road",
             ZipCode = 38654,
-            Country = new Country { FullName = "United States", Code = "US" }
+            Country = new Country { FullName = "United States", Code = "US" },
+            Tags = new List<string> { "foo", "bar" }
         };
 
         return AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(c => c.ShippingAddress == address));
+            ss => ss.Set<Customer>().Where(c => c.ShippingAddress == address),
+            ss => ss.Set<Customer>().Where(
+                c =>
+                    c.ShippingAddress.AddressLine1 == "804 S. Lakeshore Road"
+                    && c.ShippingAddress.ZipCode == 38654
+                    && c.ShippingAddress.Country == new Country { FullName = "United States", Code = "US" }
+                    && c.ShippingAddress.Tags.SequenceEqual(new List<string> { "foo", "bar" })));
     }
 
     [ConditionalTheory]
@@ -194,13 +208,21 @@ public abstract class ComplexTypeQueryTestBase<TFixture> : QueryTestBase<TFixtur
         {
             AddressLine1 = "804 S. Lakeshore Road",
             ZipCode = 38654,
-            Country = new Country { FullName = "United States", Code = "US" }
+            Country = new Country { FullName = "United States", Code = "US" },
+            Tags = new List<string> { "foo", "bar" }
         };
 
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(
-                c => ss.Set<Customer>().Select(c => c.ShippingAddress).Contains(address)));
+                c => ss.Set<Customer>().Select(c => c.ShippingAddress).Contains(address)),
+            ss => ss.Set<Customer>().Where(
+                c => ss.Set<Customer>().Select(c => c.ShippingAddress).Any(
+                    a =>
+                        a.AddressLine1 == "804 S. Lakeshore Road"
+                        && a.ZipCode == 38654
+                        && a.Country == new Country { FullName = "United States", Code = "US" }
+                        && a.Tags.SequenceEqual(new List<string> { "foo", "bar" }))));
     }
 
     [ConditionalTheory]
