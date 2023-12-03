@@ -25,8 +25,11 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
+
     private static readonly bool UseOldBehavior31107 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31107", out var enabled31107) && enabled31107;
+    private static readonly bool UseOldBehavior32234 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32234", out var enabled32234) && enabled32234;
 
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
@@ -4612,6 +4615,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
+        => VisitChildren(visitor, updateColumns: true);
+
+    private Expression VisitChildren(ExpressionVisitor visitor, bool updateColumns)
     {
         if (_mutable)
         {
@@ -4800,14 +4806,38 @@ public sealed partial class SelectExpression : TableExpressionBase
                 newSelectExpression._childIdentifiers.AddRange(
                     childIdentifier.Zip(_childIdentifiers).Select(e => (e.First, e.Second.Comparer)));
 
-                // Remap tableReferences in new select expression
-                foreach (var tableReference in newTableReferences)
-                {
-                    tableReference.UpdateTableReference(this, newSelectExpression);
-                }
+                // We duplicated the SelectExpression, and must therefore also update all table reference expressions to point to it.
+                // If any tables have changed, we must duplicate the TableReferenceExpressions and replace all ColumnExpressions to use
+                // them; otherwise we end up two SelectExpressions sharing the same TableReferenceExpression instance, and if that's later
+                // mutated, both SelectExpressions are affected (this happened in AliasUniquifier, see #32234).
 
-                var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, newSelectExpression);
-                tableReferenceUpdatingExpressionVisitor.Visit(newSelectExpression);
+                // Otherwise, if no tables have changed, we mutate the TableReferenceExpressions (this was the previous code, left it for
+                // a more low-risk fix). Note that updateColumns is false only if we're already being called from
+                // ColumnTableReferenceUpdater to replace the ColumnExpressions, in which case we avoid infinite recursion.
+                if (tablesChanged && updateColumns && !UseOldBehavior32234)
+                {
+                    for (var i = 0; i < newTableReferences.Count; i++)
+                    {
+                        newTableReferences[i] = new TableReferenceExpression(newSelectExpression, _tableReferences[i].Alias);
+                    }
+
+                    var columnTableReferenceUpdater = new ColumnTableReferenceUpdater(this, newSelectExpression);
+                    newSelectExpression = (SelectExpression)columnTableReferenceUpdater.Visit(newSelectExpression);
+                }
+                else
+                {
+                    // Remap tableReferences in new select expression
+                    foreach (var tableReference in newTableReferences)
+                    {
+                        tableReference.UpdateTableReference(this, newSelectExpression);
+                    }
+
+                    // TODO: Why does need to be done? We've already updated all table references on the new select just above, and
+                    // no ColumnExpression in the query is every supposed to reference a TableReferenceExpression that isn't in the
+                    // select's list... The same thing is done in all other places where TableReferenceUpdatingExpressionVisitor is used.
+                    var tableReferenceUpdatingExpressionVisitor = new TableReferenceUpdatingExpressionVisitor(this, newSelectExpression);
+                    tableReferenceUpdatingExpressionVisitor.Visit(newSelectExpression);
+                }
 
                 return newSelectExpression;
             }
