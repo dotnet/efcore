@@ -2983,15 +2983,15 @@ WHERE [c].[Location] LIKE '%Jacinto%'
 """);
     }
 
-    public override async Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool async)
+    public override async Task Unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool async)
     {
-        await base.Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(async);
+        await base.Unicode_string_literals_is_used_for_non_unicode_column_with_concat(async);
 
         AssertSql(
-            """
+"""
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE COALESCE([c].[Location], '') + 'Added' LIKE '%Add%'
+WHERE COALESCE([c].[Location], N'') + N'Added' LIKE N'%Add%'
 """);
     }
 

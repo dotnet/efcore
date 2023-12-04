@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
@@ -11,6 +12,65 @@ using System.Runtime.CompilerServices;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
+
+public class Scrathcy
+{
+    [ConditionalFact]
+    public async Task Main()
+    {
+        using (var context = new SomeDbContext())
+        {
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+
+            context.AddRange(
+                new Person { ThreeCharacterProperty = "AAA", FiveCharacterProperty = "BBBBB" },
+                new Person { ThreeCharacterProperty = "AAA", FiveCharacterProperty = "CCCCC" },
+                new Person { ThreeCharacterProperty = "AAA", FiveCharacterProperty = "DDDDD" },
+                new Person { ThreeCharacterProperty = "BBB", FiveCharacterProperty = "EEEEE" });
+
+            await context.SaveChangesAsync();
+        }
+
+        using (var context = new SomeDbContext())
+        {
+            var queryData = new List<string> { "AAA;BBBBB", "AAA;CCCCC" };
+            var queryable = context.Persons.Where(x => queryData.Contains(x.ThreeCharacterProperty + ";" + x.FiveCharacterProperty));
+            var query = queryable.ToQueryString();
+
+            var results = queryable.ToList();
+        }
+    }
+
+    public class SomeDbContext : DbContext
+{
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder
+            .UseSqlServer(@"Server=192.168.0.106;Database=One;user=sa;password=nedspub1;TrustServerCertificate=True")
+            .LogTo(Console.WriteLine, LogLevel.Information)
+            .EnableSensitiveDataLogging();
+
+    public DbSet<Person> Persons { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+    }
+}
+
+public class Person
+{
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+
+    [Column(TypeName = "char(3)")]
+    public string ThreeCharacterProperty { get; set; }
+
+    [Column(TypeName = "char(5)")]
+    public string FiveCharacterProperty { get; set; }
+}
+
+}
 
 public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 {

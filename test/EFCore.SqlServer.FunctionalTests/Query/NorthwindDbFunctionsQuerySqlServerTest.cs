@@ -838,10 +838,10 @@ WHERE CAST(ISDATE(CONVERT(varchar(100), [o].[OrderDate])) AS bit) = CAST(1 AS bi
             c => false);
 
         AssertSql(
-            """
+"""
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) AS bit) = CAST(1 AS bit)
+WHERE CAST(ISDATE(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) AS bit) = CAST(1 AS bit)
 """);
     }
 
@@ -911,10 +911,10 @@ WHERE ISNUMERIC(CONVERT(varchar(100), [o].[UnitPrice])) = 1
             c => false);
 
         AssertSql(
-            """
+"""
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))) = 1
+WHERE ISNUMERIC(COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))) = 1
 """);
     }
 

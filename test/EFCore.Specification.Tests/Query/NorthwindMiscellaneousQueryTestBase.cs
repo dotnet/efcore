@@ -5697,4 +5697,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + "SomeConstant")));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_columns_both_fixed_length(bool async)
+    {
+        var data = new[] { "ALFKIALFKI", "ALFKI", "ANATR" + "Ana Trujillo Emparedados y helados", "ANATR" + "ANATR"};
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => data.Contains(o.CustomerID + o.Customer.CustomerID)));
+    }
+
 }

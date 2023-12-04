@@ -1549,12 +1549,12 @@ WHERE [c].[CustomerID] = N'ALFKI'
         await base.Where_concat_string_int_comparison1(async);
 
         AssertSql(
-            """
+"""
 @__i_0='10'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + CAST(@__i_0 AS nchar(5)) = [c].[CompanyName]
+WHERE [c].[CustomerID] + CAST(@__i_0 AS nvarchar(max)) = [c].[CompanyName]
 """);
     }
 
@@ -1563,12 +1563,12 @@ WHERE [c].[CustomerID] + CAST(@__i_0 AS nchar(5)) = [c].[CompanyName]
         await base.Where_concat_string_int_comparison2(async);
 
         AssertSql(
-            """
+"""
 @__i_0='10'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] = [c].[CompanyName]
+WHERE CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1577,13 +1577,13 @@ WHERE CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] = [c].[CompanyName]
         await base.Where_concat_string_int_comparison3(async);
 
         AssertSql(
-            """
+"""
 @__p_0='30'
 @__j_1='21'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE CAST(@__p_0 AS nchar(5)) + [c].[CustomerID] + CAST(@__j_1 AS nchar(5)) + CAST(42 AS nchar(5)) = [c].[CompanyName]
+WHERE CAST(@__p_0 AS nvarchar(max)) + [c].[CustomerID] + CAST(@__j_1 AS nvarchar(max)) + CAST(42 AS nvarchar(max)) = [c].[CompanyName]
 """);
     }
 
@@ -1592,10 +1592,10 @@ WHERE CAST(@__p_0 AS nchar(5)) + [c].[CustomerID] + CAST(@__j_1 AS nchar(5)) + C
         await base.Where_concat_string_int_comparison4(async);
 
         AssertSql(
-            """
+"""
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
+WHERE CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
 """);
     }
 
@@ -1605,7 +1605,7 @@ WHERE CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'') = [o].[C
 
         AssertSql(
 """
-@__i_0='A' (Size = 5)
+@__i_0='A' (Size = 4000)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -1619,7 +1619,7 @@ WHERE @__i_0 + [c].[CustomerID] = N'AALFKI'
 
         AssertSql(
 """
-@__i_0='A' (Size = 5)
+@__i_0='A' (Size = 4000)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -1633,8 +1633,8 @@ WHERE @__i_0 + [c].[CustomerID] = N'AAROUT'
 
         AssertSql(
 """
-@__i_0='A' (Size = 5)
-@__j_1='B' (Size = 5)
+@__i_0='A' (Size = 4000)
+@__j_1='B' (Size = 4000)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
@@ -1648,9 +1648,9 @@ WHERE @__i_0 + @__j_1 + [c].[CustomerID] = N'ABANATR'
 
         AssertSql(
 """
-@__i_0='A' (Size = 5)
-@__j_1='B' (Size = 5)
-@__k_2='C' (Size = 5)
+@__i_0='A' (Size = 4000)
+@__j_1='B' (Size = 4000)
+@__k_2='C' (Size = 4000)
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]

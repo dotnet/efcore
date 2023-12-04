@@ -3056,8 +3056,8 @@ WHERE [c].[CustomerID] LIKE @__NewLine_0_contains ESCAPE N'\'
         await base.Concat_string_int(async);
 
         AssertSql(
-            """
-SELECT CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')
+"""
+SELECT CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'')
 FROM [Orders] AS [o]
 """);
     }
@@ -3067,8 +3067,8 @@ FROM [Orders] AS [o]
         await base.Concat_int_string(async);
 
         AssertSql(
-            """
-SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))
+"""
+SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))
 FROM [Orders] AS [o]
 """);
     }
@@ -7348,6 +7348,24 @@ FROM [Customers] AS [c]
 WHERE [c].[CustomerID] + N'SomeConstant' IN (
     SELECT [d].[value]
     FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_columns_both_fixed_length(bool async)
+    {
+        await base.Contains_over_concatenated_columns_both_fixed_length(async);
+
+        AssertSql(
+"""
+@__data_0='["ALFKIALFKI","ALFKI","ANATRAna Trujillo Emparedados y helados","ANATRANATR"]' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nchar(10) '$') AS [d]
 )
 """);
     }
