@@ -512,6 +512,13 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Distinct().Count() == 3));
 
+    [ConditionalTheory] // #32505
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_SelectMany(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().SelectMany(c => c.Ints));
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_projection_from_top_level(bool async)

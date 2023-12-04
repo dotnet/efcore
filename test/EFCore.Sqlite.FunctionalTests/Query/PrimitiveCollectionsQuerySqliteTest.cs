@@ -790,6 +790,12 @@ WHERE (
 """);
     }
 
+    public override async Task Column_collection_SelectMany(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Column_collection_SelectMany(async))).Message);
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);
