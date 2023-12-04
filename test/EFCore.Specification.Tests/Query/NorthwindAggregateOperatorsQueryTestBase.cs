@@ -1923,4 +1923,89 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => !c.Orders.Any(o => false)).Select(c => c.CustomerID));
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_aggregate_function_with_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .GroupBy(c => c.Country)
+                .Select(g => g.Count(c => cities.Contains(c.City))));
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_Average_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertAverage(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => cities.Contains(c.City) ? 1.0 : 0.0);
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_Sum_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertSum(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => cities.Contains(c.City) ? 1 : 0);
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_Count_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertCount(
+            async,
+            ss => ss.Set<Customer>(),
+            predicate: c => cities.Contains(c.City));
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_LongCount_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertLongCount(
+            async,
+            ss => ss.Set<Customer>(),
+            predicate: c => cities.Contains(c.City));
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_Max_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertMax(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => cities.Contains(c.City) ? 1 : 0);
+    }
+
+    [ConditionalTheory] // #32374
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_inside_Min_without_GroupBy(bool async)
+    {
+        var cities = new[] { "London", "Berlin" };
+
+        return AssertMin(
+            async,
+            ss => ss.Set<Customer>(),
+            selector: c => cities.Contains(c.City) ? 1 : 0);
+    }
 }

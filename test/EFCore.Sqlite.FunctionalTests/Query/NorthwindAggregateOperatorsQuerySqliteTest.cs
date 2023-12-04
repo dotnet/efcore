@@ -71,4 +71,139 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
 
     public override async Task Contains_with_local_tuple_array_closure(bool async)
         => await AssertTranslationFailed(() => base.Contains_with_local_tuple_array_closure(async));
+
+    public override async Task Contains_inside_aggregate_function_with_GroupBy(bool async)
+    {
+        await base.Contains_inside_aggregate_function_with_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT COUNT(CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM json_each(@__cities_0) AS "c0"
+        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+END)
+FROM "Customers" AS "c"
+GROUP BY "c"."Country"
+""");
+    }
+
+    public override async Task Contains_inside_Average_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Average_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT AVG(CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM json_each(@__cities_0) AS "c0"
+        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1.0
+    ELSE 0.0
+END)
+FROM "Customers" AS "c"
+""");
+    }
+
+    public override async Task Contains_inside_Sum_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Sum_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT COALESCE(SUM(CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM json_each(@__cities_0) AS "c0"
+        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ELSE 0
+END), 0)
+FROM "Customers" AS "c"
+""");
+    }
+
+    public override async Task Contains_inside_Count_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Count_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT COUNT(*)
+FROM "Customers" AS "c"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each(@__cities_0) AS "c0"
+    WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL))
+""");
+    }
+
+    public override async Task Contains_inside_LongCount_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_LongCount_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT COUNT(*)
+FROM "Customers" AS "c"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each(@__cities_0) AS "c0"
+    WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL))
+""");
+    }
+
+    public override async Task Contains_inside_Max_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Max_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT MAX(CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM json_each(@__cities_0) AS "c0"
+        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ELSE 0
+END)
+FROM "Customers" AS "c"
+""");
+    }
+
+    public override async Task Contains_inside_Min_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Min_without_GroupBy(async);
+
+        AssertSql(
+            """
+@__cities_0='["London","Berlin"]' (Size = 19)
+
+SELECT MIN(CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM json_each(@__cities_0) AS "c0"
+        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ELSE 0
+END)
+FROM "Customers" AS "c"
+""");
+    }
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+
+    protected override void ClearLog()
+        => Fixture.TestSqlLoggerFactory.Clear();
 }
