@@ -1997,7 +1997,7 @@ WHERE NOT EXISTS (
         await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (

@@ -5691,11 +5691,35 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Contains_over_concatenated_column_and_constant(bool async)
     {
-        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant" };
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant",  "ALFKI" + "X"};
 
         return AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + "SomeConstant")));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_column_and_parameter(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeVariable", "ANATR" + "SomeVariable",  "ALFKI" + "X" };
+        var someVariable = "SomeVariable";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + someVariable)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_parameter_and_constant(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant" };
+        var someVariable = "ALFKI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(someVariable + "SomeConstant")));
     }
 
     [ConditionalTheory]
@@ -5708,5 +5732,4 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(o => data.Contains(o.CustomerID + o.Customer.CustomerID)));
     }
-
 }

@@ -507,7 +507,7 @@ ORDER BY [c].[Id], [t].[Id]
         await base.Whats_new_2021_sample_3(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [p1].[LastName]
     FROM [Person] AS [p1]
@@ -537,7 +537,7 @@ ORDER BY CAST(LEN((
         await base.Whats_new_2021_sample_5(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [p1].[LastName]
     FROM [Person] AS [p1]
@@ -566,7 +566,7 @@ ORDER BY (
         await base.Whats_new_2021_sample_6(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT TOP(1) [p1].[MiddleInitial]
     FROM [Person] AS [p1]

@@ -208,12 +208,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 {
                     var leftTypeMapping = left.TypeMapping;
                     var rightTypeMapping = right.TypeMapping;
-
-                    if (leftTypeMapping is null && rightTypeMapping is null)
-                    {
-                        inferredTypeMapping = typeMapping ?? ExpressionExtensions.InferTypeMapping(left, right);
-                    }
-                    else
+                    if (leftTypeMapping != null || rightTypeMapping != null)
                     {
                         // Infer null size (nvarchar(max)) if either side has no size.
                         // Note that for constants, we could instead look at the value length; but that requires we know the type mappings

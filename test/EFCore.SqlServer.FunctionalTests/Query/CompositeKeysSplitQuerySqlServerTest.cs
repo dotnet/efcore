@@ -161,7 +161,7 @@ ORDER BY [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
         await base.Projecting_multiple_collections_on_multiple_levels_some_explicit_ordering(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[Id1], [c].[Id2]
 FROM [CompositeOnes] AS [c]
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2]

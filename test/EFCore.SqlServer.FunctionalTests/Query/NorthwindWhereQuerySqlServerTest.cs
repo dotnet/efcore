@@ -1010,7 +1010,7 @@ WHERE DATEPART(millisecond, [o].[OrderDate]) = 0
         await base.Where_datetimeoffset_now_component(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE CAST([o].[OrderDate] AS datetimeoffset) < SYSDATETIMEOFFSET()
@@ -1022,7 +1022,7 @@ WHERE CAST([o].[OrderDate] AS datetimeoffset) < SYSDATETIMEOFFSET()
         await base.Where_datetimeoffset_utcnow_component(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE CAST([o].[OrderDate] AS datetimeoffset) <> CAST(SYSUTCDATETIME() AS datetimeoffset) OR [o].[OrderDate] IS NULL
@@ -1046,7 +1046,7 @@ WHERE N'London' = [c].[City]
         await base.Where_is_null(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL
@@ -1549,7 +1549,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         await base.Where_concat_string_int_comparison1(async);
 
         AssertSql(
-"""
+            """
 @__i_0='10'
 
 SELECT [c].[CustomerID]
@@ -1563,7 +1563,7 @@ WHERE [c].[CustomerID] + CAST(@__i_0 AS nvarchar(max)) = [c].[CompanyName]
         await base.Where_concat_string_int_comparison2(async);
 
         AssertSql(
-"""
+            """
 @__i_0='10'
 
 SELECT [c].[CustomerID]
@@ -1577,7 +1577,7 @@ WHERE CAST(@__i_0 AS nvarchar(max)) + [c].[CustomerID] = [c].[CompanyName]
         await base.Where_concat_string_int_comparison3(async);
 
         AssertSql(
-"""
+            """
 @__p_0='30'
 @__j_1='21'
 
@@ -1592,7 +1592,7 @@ WHERE CAST(@__p_0 AS nvarchar(max)) + [c].[CustomerID] + CAST(@__j_1 AS nvarchar
         await base.Where_concat_string_int_comparison4(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
 WHERE CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
@@ -1604,7 +1604,7 @@ WHERE CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'') = [
         await base.Where_concat_string_string_comparison(async);
 
         AssertSql(
-"""
+            """
 @__i_0='A' (Size = 4000)
 
 SELECT [c].[CustomerID]
@@ -1618,7 +1618,7 @@ WHERE @__i_0 + [c].[CustomerID] = N'AALFKI'
         await base.Where_string_concat_method_comparison(async);
 
         AssertSql(
-"""
+            """
 @__i_0='A' (Size = 4000)
 
 SELECT [c].[CustomerID]
@@ -1632,7 +1632,7 @@ WHERE @__i_0 + [c].[CustomerID] = N'AAROUT'
         await base.Where_string_concat_method_comparison_2(async);
 
         AssertSql(
-"""
+            """
 @__i_0='A' (Size = 4000)
 @__j_1='B' (Size = 4000)
 
@@ -1647,7 +1647,7 @@ WHERE @__i_0 + @__j_1 + [c].[CustomerID] = N'ABANATR'
         await base.Where_string_concat_method_comparison_3(async);
 
         AssertSql(
-"""
+            """
 @__i_0='A' (Size = 4000)
 @__j_1='B' (Size = 4000)
 @__k_2='C' (Size = 4000)
@@ -1797,7 +1797,7 @@ WHERE 0 = 1
         await base.Where_compare_null(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL AND [c].[Country] = N'UK'
@@ -1809,7 +1809,7 @@ WHERE [c].[Region] IS NULL AND [c].[Country] = N'UK'
         await base.Where_compare_null_with_cast_to_object(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[Region] IS NULL
@@ -2021,7 +2021,7 @@ WHERE 0 = 1
         await base.Enclosing_class_settable_member_generates_parameter(async);
 
         AssertSql(
-"""
+            """
 @__SettableProperty_0='10274'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -2043,7 +2043,7 @@ WHERE [o].[OrderID] = @__SettableProperty_0
         await base.Enclosing_class_readonly_member_generates_parameter(async);
 
         AssertSql(
-"""
+            """
 @__ReadOnlyProperty_0='10275'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
@@ -2057,7 +2057,7 @@ WHERE [o].[OrderID] = @__ReadOnlyProperty_0
         await base.Enclosing_class_const_member_does_not_generate_parameter(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10274
@@ -2126,7 +2126,7 @@ WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'
         await base.Using_same_parameter_twice_in_query_generates_one_sql_parameter(async);
 
         AssertSql(
-"""
+            """
 @__i_0='10'
 
 SELECT [c].[CustomerID]
@@ -2918,7 +2918,7 @@ WHERE EXISTS (
         await base.Where_Contains_and_comparison(async);
 
         AssertSql(
-"""
+            """
 @__customerIds_0='["ALFKI","FISSA","WHITC"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
