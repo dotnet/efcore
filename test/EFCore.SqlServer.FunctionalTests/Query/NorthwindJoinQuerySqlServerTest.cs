@@ -129,7 +129,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
         await base.Join_customers_orders_with_subquery_anonymous_property_method_with_take(async);
 
         AssertSql(
-"""
+            """
 @__p_0='5'
 
 SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]

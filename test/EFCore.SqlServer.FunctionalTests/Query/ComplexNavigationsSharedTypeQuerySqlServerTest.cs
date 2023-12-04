@@ -591,7 +591,7 @@ ORDER BY [l].[Id], [t1].[Id0], [t1].[Id1], [t1].[Id]
         await base.Null_check_different_structure_does_not_remove_null_checks(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -797,7 +797,7 @@ ORDER BY [t].[Level2_Name], [l].[Id]
         await base.Select_with_joined_where_clause_cast_using_as(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -2114,7 +2114,7 @@ END
         await base.Required_navigation_on_a_subquery_with_First_in_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -2857,7 +2857,7 @@ END
         await base.Projection_select_correct_table_with_anonymous_projection_in_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT TOP(@__p_0) [t].[Level2_Name]
@@ -4552,7 +4552,7 @@ WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] I
         await base.Null_check_removal_applied_recursively(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -4953,7 +4953,7 @@ WHERE (
         await base.Query_source_materialization_bug_4547(async);
 
         AssertSql(
-"""
+            """
 SELECT [l2].[Id]
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -5163,7 +5163,7 @@ WHERE [t1].[Level3_Required_Id] IS NULL OR [t1].[OneToMany_Required_Inverse4Id] 
         await base.Where_on_multilevel_reference_in_subquery_with_outer_projection(async);
 
         AssertSql(
-"""
+            """
 @__p_0='0'
 @__p_1='10'
 
@@ -5205,7 +5205,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         await base.Projection_select_correct_table_in_subquery_when_materialization_is_not_required_in_multiple_joins(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT TOP(@__p_0) [l1].[Name]
@@ -6340,7 +6340,7 @@ WHERE (
         await base.Complex_navigations_with_predicate_projected_into_anonymous_type2(async);
 
         AssertSql(
-"""
+            """
 SELECT [t0].[Level3_Name] AS [Name], [l4].[Id]
 FROM [Level1] AS [l]
 LEFT JOIN (

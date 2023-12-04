@@ -151,7 +151,7 @@ WHERE CAST(strftime('%d', "o"."OrderDate") AS INTEGER) = 4
         await base.Where_datetime_hour_component(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE CAST(strftime('%H', "o"."OrderDate") AS INTEGER) = 0
@@ -163,7 +163,7 @@ WHERE CAST(strftime('%H', "o"."OrderDate") AS INTEGER) = 0
         await base.Where_datetime_minute_component(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE CAST(strftime('%M', "o"."OrderDate") AS INTEGER) = 0
@@ -175,7 +175,7 @@ WHERE CAST(strftime('%M', "o"."OrderDate") AS INTEGER) = 0
         await base.Where_datetime_second_component(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE CAST(strftime('%S', "o"."OrderDate") AS INTEGER) = 0
@@ -187,7 +187,7 @@ WHERE CAST(strftime('%S', "o"."OrderDate") AS INTEGER) = 0
         await base.Where_datetime_millisecond_component(async);
 
         AssertSql(
-"""
+            """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
 WHERE (CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 = 0.0

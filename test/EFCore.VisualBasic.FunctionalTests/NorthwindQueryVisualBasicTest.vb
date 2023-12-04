@@ -51,7 +51,7 @@ WHERE [c].[CustomerID] <= N'ALFKI'")
         AssertSql(
             "SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE [p].[UnitsInStock] + CAST(1 AS smallint) = CAST(102 AS smallint)")
+WHERE [p].[UnitsInStock] + 1 = 102")
     End Sub
 
     <ConditionalTheory>

@@ -4418,7 +4418,7 @@ ORDER BY [l].[Name]
         await base.Project_collection_and_nested_conditional(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'

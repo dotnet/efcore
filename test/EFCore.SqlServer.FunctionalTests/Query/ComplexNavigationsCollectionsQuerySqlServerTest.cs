@@ -2014,7 +2014,7 @@ ORDER BY [t].[Id], [t0].[Name] DESC, [t0].[Id]
         await base.Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 @__p_1='5'
 
@@ -2983,7 +2983,7 @@ ORDER BY [l].[Name]
         await base.Project_collection_and_nested_conditional(async);
 
         AssertSql(
-"""
+            """
 SELECT [l].[Id], [l0].[Name], [l0].[Id], CASE
     WHEN [l].[Id] = 1 THEN N'01'
     WHEN [l].[Id] = 2 THEN N'02'

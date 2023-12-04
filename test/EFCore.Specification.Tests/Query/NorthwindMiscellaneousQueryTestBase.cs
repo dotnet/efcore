@@ -5674,5 +5674,62 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 .Select(g => new { g.Key, MaxTimestamp = g.Select(e => e.Order.OrderDate).Max() })
                 .OrderBy(x => x.MaxTimestamp)
                 .Select(x => x));
+	}
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        var data = new[] { "ALFKI" + "Alfreds Futterkiste", "ANATR" + "Ana Trujillo Emparedados y helados" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + c.CompanyName)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant",  "ALFKI" + "X"};
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + "SomeConstant")));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_column_and_parameter(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeVariable", "ANATR" + "SomeVariable",  "ALFKI" + "X" };
+        var someVariable = "SomeVariable";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(c.CustomerID + someVariable)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_parameter_and_constant(bool async)
+    {
+        var data = new[] { "ALFKI" + "SomeConstant", "ANATR" + "SomeConstant" };
+        var someVariable = "ALFKI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => data.Contains(someVariable + "SomeConstant")));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Contains_over_concatenated_columns_both_fixed_length(bool async)
+    {
+        var data = new[] { "ALFKIALFKI", "ALFKI", "ANATR" + "Ana Trujillo Emparedados y helados", "ANATR" + "ANATR"};
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => data.Contains(o.CustomerID + o.Customer.CustomerID)));
     }
 }

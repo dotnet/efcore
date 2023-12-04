@@ -168,7 +168,7 @@ WHERE NOT ([f].[FirstName] IS NOT NULL AND [f0].[LastName] IS NOT NULL AND (CHAR
         await base.String_starts_with_on_argument_with_wildcard_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\%B%' ESCAPE N'\'
@@ -366,7 +366,7 @@ WHERE [f].[FirstName] IS NULL OR [f0].[LastName] IS NULL OR LEFT([f].[FirstName]
         await base.String_ends_with_on_argument_with_wildcard_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\%r' ESCAPE N'\'

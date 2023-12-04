@@ -6946,7 +6946,7 @@ EXEC sp_rename N'[Customer].[Name]', N'FullName', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7024,7 +7024,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'CREATE TABLE [Customer] (
     [Id] int NOT NULL IDENTITY,
@@ -7084,7 +7084,7 @@ EXEC(N'CREATE TABLE [Customer] (
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7148,7 +7148,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7211,7 +7211,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7346,7 +7346,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
 """);
     }
@@ -7401,7 +7401,7 @@ ALTER TABLE [Customer] ADD [Number] int NOT NULL DEFAULT 0;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7483,7 +7483,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', N'COLUMN';
 """);
     }
@@ -7534,7 +7534,7 @@ EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7605,7 +7605,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7682,7 +7682,7 @@ ALTER TABLE [mySchema].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = 
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -7772,7 +7772,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -7838,7 +7838,7 @@ ALTER TABLE [Customer] ALTER COLUMN [MyColumn] int NULL;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
                 //
@@ -9487,7 +9487,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customers].[PeriodStart]', N'Start', N'COLUMN';
 """,
                 //
@@ -9557,7 +9557,7 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable';
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customers].[PeriodStart]', N'ValidFrom', N'COLUMN';
 """,
                 //
@@ -9616,7 +9616,7 @@ EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', N'COLUMN';
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
                 //
@@ -9695,7 +9695,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -9782,7 +9782,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 EXEC sp_rename N'[Customers].[Number]', N'NewNumber', N'COLUMN';
 """,
                 //
@@ -9859,7 +9859,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -9941,7 +9941,7 @@ ALTER TABLE [Customers] ADD [Number] int NOT NULL DEFAULT 0;
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -10041,7 +10041,7 @@ DROP TABLE [HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -10128,7 +10128,7 @@ DROP TABLE [HistoryTable];
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
                 //
@@ -10219,7 +10219,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
                 //
@@ -10318,7 +10318,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
                 //
@@ -10406,7 +10406,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -10512,7 +10512,7 @@ ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //
@@ -10616,7 +10616,7 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             });
 
         AssertSql(
-"""
+            """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
                 //

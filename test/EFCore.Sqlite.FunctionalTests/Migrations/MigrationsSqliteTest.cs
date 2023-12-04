@@ -1105,7 +1105,7 @@ PRAGMA foreign_keys = 1;
         await base.Convert_json_entities_to_regular_owned();
 
 AssertSql(
-"""
+            """
 ALTER TABLE "Entity" RENAME COLUMN "OwnedReference" TO "OwnedReference_Date";
 """,
                 //

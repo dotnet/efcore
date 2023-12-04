@@ -385,7 +385,7 @@ FROM [Customer] AS [c0]
         await base.Filter_on_property_inside_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[ShippingAddress_ZipCode] = 7728
@@ -397,7 +397,7 @@ WHERE [v].[ShippingAddress_ZipCode] = 7728
         await base.Filter_on_property_inside_nested_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[ShippingAddress_Country_Code] = N'DE'
@@ -409,7 +409,7 @@ WHERE [v].[ShippingAddress_Country_Code] = N'DE'
         await base.Filter_on_property_inside_struct_complex_type_after_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
@@ -428,7 +428,7 @@ WHERE [t].[ShippingAddress_ZipCode] = 7728
         await base.Filter_on_property_inside_nested_struct_complex_type_after_subquery(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
@@ -447,7 +447,7 @@ WHERE [t].[ShippingAddress_Country_Code] = N'DE'
         await base.Filter_on_required_property_inside_required_struct_complex_type_on_optional_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[OptionalCustomerId], [v].[RequiredCustomerId], [v0].[Id], [v0].[Name], [v0].[BillingAddress_AddressLine1], [v0].[BillingAddress_AddressLine2], [v0].[BillingAddress_ZipCode], [v0].[BillingAddress_Country_Code], [v0].[BillingAddress_Country_FullName], [v0].[ShippingAddress_AddressLine1], [v0].[ShippingAddress_AddressLine2], [v0].[ShippingAddress_ZipCode], [v0].[ShippingAddress_Country_Code], [v0].[ShippingAddress_Country_FullName], [v1].[Id], [v1].[Name], [v1].[BillingAddress_AddressLine1], [v1].[BillingAddress_AddressLine2], [v1].[BillingAddress_ZipCode], [v1].[BillingAddress_Country_Code], [v1].[BillingAddress_Country_FullName], [v1].[ShippingAddress_AddressLine1], [v1].[ShippingAddress_AddressLine2], [v1].[ShippingAddress_ZipCode], [v1].[ShippingAddress_Country_Code], [v1].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomerGroup] AS [v]
 LEFT JOIN [ValuedCustomer] AS [v0] ON [v].[OptionalCustomerId] = [v0].[Id]
@@ -461,7 +461,7 @@ WHERE [v0].[ShippingAddress_ZipCode] <> 7728 OR [v0].[ShippingAddress_ZipCode] I
         await base.Filter_on_required_property_inside_required_struct_complex_type_on_required_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[OptionalCustomerId], [v].[RequiredCustomerId], [v1].[Id], [v1].[Name], [v1].[BillingAddress_AddressLine1], [v1].[BillingAddress_AddressLine2], [v1].[BillingAddress_ZipCode], [v1].[BillingAddress_Country_Code], [v1].[BillingAddress_Country_FullName], [v1].[ShippingAddress_AddressLine1], [v1].[ShippingAddress_AddressLine2], [v1].[ShippingAddress_ZipCode], [v1].[ShippingAddress_Country_Code], [v1].[ShippingAddress_Country_FullName], [v0].[Id], [v0].[Name], [v0].[BillingAddress_AddressLine1], [v0].[BillingAddress_AddressLine2], [v0].[BillingAddress_ZipCode], [v0].[BillingAddress_Country_Code], [v0].[BillingAddress_Country_FullName], [v0].[ShippingAddress_AddressLine1], [v0].[ShippingAddress_AddressLine2], [v0].[ShippingAddress_ZipCode], [v0].[ShippingAddress_Country_Code], [v0].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomerGroup] AS [v]
 INNER JOIN [ValuedCustomer] AS [v0] ON [v].[RequiredCustomerId] = [v0].[Id]
@@ -485,7 +485,7 @@ WHERE [v0].[ShippingAddress_ZipCode] <> 7728
         await base.Project_struct_complex_type_via_required_navigation(async);
 
         AssertSql(
-"""
+            """
 SELECT [v0].[ShippingAddress_AddressLine1], [v0].[ShippingAddress_AddressLine2], [v0].[ShippingAddress_ZipCode], [v0].[ShippingAddress_Country_Code], [v0].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomerGroup] AS [v]
 INNER JOIN [ValuedCustomer] AS [v0] ON [v].[RequiredCustomerId] = [v0].[Id]
@@ -497,7 +497,7 @@ INNER JOIN [ValuedCustomer] AS [v0] ON [v].[RequiredCustomerId] = [v0].[Id]
         await base.Load_struct_complex_type_after_subquery_on_entity_type(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 
 SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
@@ -515,7 +515,7 @@ FROM (
         await base.Select_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 """);
@@ -526,7 +526,7 @@ FROM [ValuedCustomer] AS [v]
         await base.Select_nested_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 """);
@@ -537,7 +537,7 @@ FROM [ValuedCustomer] AS [v]
         await base.Select_single_property_on_nested_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 """);
@@ -548,7 +548,7 @@ FROM [ValuedCustomer] AS [v]
         await base.Select_struct_complex_type_Where(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[ShippingAddress_ZipCode] = 7728
@@ -560,7 +560,7 @@ WHERE [v].[ShippingAddress_ZipCode] = 7728
         await base.Select_struct_complex_type_Distinct(async);
 
         AssertSql(
-"""
+            """
 SELECT DISTINCT [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 """);
@@ -571,7 +571,7 @@ FROM [ValuedCustomer] AS [v]
         await base.Struct_complex_type_equals_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[ShippingAddress_AddressLine1] = [v].[BillingAddress_AddressLine1] AND ([v].[ShippingAddress_AddressLine2] = [v].[BillingAddress_AddressLine2] OR ([v].[ShippingAddress_AddressLine2] IS NULL AND [v].[BillingAddress_AddressLine2] IS NULL)) AND [v].[ShippingAddress_ZipCode] = [v].[BillingAddress_ZipCode]
@@ -583,7 +583,7 @@ WHERE [v].[ShippingAddress_AddressLine1] = [v].[BillingAddress_AddressLine1] AND
         await base.Struct_complex_type_equals_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[ShippingAddress_AddressLine1] = N'804 S. Lakeshore Road' AND [v].[ShippingAddress_AddressLine2] IS NULL AND [v].[ShippingAddress_ZipCode] = 38654 AND [v].[ShippingAddress_Country_Code] = N'US' AND [v].[ShippingAddress_Country_FullName] = N'United States'
@@ -595,7 +595,7 @@ WHERE [v].[ShippingAddress_AddressLine1] = N'804 S. Lakeshore Road' AND [v].[Shi
         await base.Struct_complex_type_equals_parameter(async);
 
         AssertSql(
-"""
+            """
 @__entity_equality_address_0_AddressLine1='804 S. Lakeshore Road' (Size = 4000)
 @__entity_equality_address_0_ZipCode='38654' (Nullable = true)
 @__entity_equality_address_0_Code='US' (Size = 4000)
@@ -619,7 +619,7 @@ WHERE [v].[ShippingAddress_AddressLine1] = @__entity_equality_address_0_AddressL
         await base.Contains_over_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 @__entity_equality_address_0_AddressLine1='804 S. Lakeshore Road' (Size = 4000)
 @__entity_equality_address_0_ZipCode='38654' (Nullable = true)
 @__entity_equality_address_0_Code='US' (Size = 4000)
@@ -639,7 +639,7 @@ WHERE EXISTS (
         await base.Concat_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[Id] = 1
@@ -655,7 +655,7 @@ WHERE [v0].[Id] = 2
         await base.Concat_entity_type_containing_struct_complex_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[Id] = 1
@@ -671,7 +671,7 @@ WHERE [v0].[Id] = 2
         await base.Union_entity_type_containing_struct_complex_property(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[Id], [v].[Name], [v].[BillingAddress_AddressLine1], [v].[BillingAddress_AddressLine2], [v].[BillingAddress_ZipCode], [v].[BillingAddress_Country_Code], [v].[BillingAddress_Country_FullName], [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[Id] = 1
@@ -687,7 +687,7 @@ WHERE [v0].[Id] = 2
         await base.Union_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1], [v].[ShippingAddress_AddressLine2], [v].[ShippingAddress_ZipCode], [v].[ShippingAddress_Country_Code], [v].[ShippingAddress_Country_FullName]
 FROM [ValuedCustomer] AS [v]
 WHERE [v].[Id] = 1
@@ -703,7 +703,7 @@ WHERE [v0].[Id] = 2
         await base.Concat_property_in_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1]
 FROM [ValuedCustomer] AS [v]
 UNION ALL
@@ -717,7 +717,7 @@ FROM [ValuedCustomer] AS [v0]
         await base.Union_property_in_struct_complex_type(async);
 
         AssertSql(
-"""
+            """
 SELECT [v].[ShippingAddress_AddressLine1]
 FROM [ValuedCustomer] AS [v]
 UNION
