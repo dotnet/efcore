@@ -262,7 +262,7 @@ WHERE length("s"."Banner") = 2
         await base.Byte_array_filter_by_length_parameter(async);
 
         AssertSql(
-"""
+            """
 @__p_0='2'
 
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"

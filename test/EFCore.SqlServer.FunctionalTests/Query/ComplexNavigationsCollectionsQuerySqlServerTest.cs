@@ -2014,7 +2014,7 @@ ORDER BY [t].[Id], [t0].[Name] DESC, [t0].[Id]
         await base.Filtered_include_Skip_Take_with_another_Skip_Take_on_top_level(async);
 
         AssertSql(
-"""
+            """
 @__p_0='1'
 @__p_1='5'
 

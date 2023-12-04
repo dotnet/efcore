@@ -202,6 +202,53 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             }
 
             case ExpressionType.Add:
+                inferredTypeMapping = typeMapping;
+
+                if (inferredTypeMapping is null)
+                {
+                    var leftTypeMapping = left.TypeMapping;
+                    var rightTypeMapping = right.TypeMapping;
+                    if (leftTypeMapping != null || rightTypeMapping != null)
+                    {
+                        // Infer null size (nvarchar(max)) if either side has no size.
+                        // Note that for constants, we could instead look at the value length; but that requires we know the type mappings
+                        // which can have a size (string/byte[], maybe something else?).
+                        var inferredSize = leftTypeMapping?.Size is { } leftSize && rightTypeMapping?.Size is { } rightSize
+                            ? leftSize + rightSize
+                            : (int?)null;
+
+                        // Unless both sides are fixed length, the result isn't fixed length.
+                        var inferredFixedLength = leftTypeMapping?.IsFixedLength is true && rightTypeMapping?.IsFixedLength is true;
+
+                        // Default to Unicode unless both sides are non-unicode.
+                        var inferredUnicode = !(leftTypeMapping?.IsUnicode is false && rightTypeMapping?.IsUnicode is false);
+                        var baseTypeMapping = leftTypeMapping ?? rightTypeMapping!;
+
+                        inferredTypeMapping = leftTypeMapping?.Size == inferredSize
+                            && leftTypeMapping?.IsFixedLength == inferredFixedLength
+                            && leftTypeMapping?.IsUnicode == inferredUnicode
+                                ? leftTypeMapping
+                                : rightTypeMapping?.Size == inferredSize
+                                && rightTypeMapping?.IsFixedLength == inferredFixedLength
+                                && rightTypeMapping?.IsUnicode == inferredUnicode
+                                    ? rightTypeMapping
+                                    : _typeMappingSource.FindMapping(
+                                        baseTypeMapping.ClrType,
+                                        storeTypeName: null,
+                                        keyOrIndex: false,
+                                        inferredUnicode,
+                                        inferredSize,
+                                        rowVersion: false,
+                                        inferredFixedLength,
+                                        baseTypeMapping.Precision,
+                                        baseTypeMapping.Scale);
+                    }
+                }
+
+                resultType = inferredTypeMapping?.ClrType ?? left.Type;
+                resultTypeMapping = inferredTypeMapping;
+                break;
+
             case ExpressionType.Subtract:
             case ExpressionType.Multiply:
             case ExpressionType.Divide:
