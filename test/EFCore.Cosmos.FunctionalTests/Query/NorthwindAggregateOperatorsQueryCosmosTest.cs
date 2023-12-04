@@ -2249,6 +2249,86 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
+    public override async Task Contains_inside_aggregate_function_with_GroupBy(bool async)
+    {
+        // GroupBy. Issue #17313.
+        await AssertTranslationFailed(() => base.Contains_inside_aggregate_function_with_GroupBy(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_inside_Average_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Average_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT AVG((c["City"] IN ("London", "Berlin") ? 1.0 : 0.0)) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
+    public override async Task Contains_inside_Sum_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Sum_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT SUM((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
+    public override async Task Contains_inside_Count_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Count_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COUNT(1) AS c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["City"] IN ("London", "Berlin"))
+""");
+    }
+
+    public override async Task Contains_inside_LongCount_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_LongCount_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COUNT(1) AS c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND c["City"] IN ("London", "Berlin"))
+""");
+    }
+
+    public override async Task Contains_inside_Max_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Max_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT MAX((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
+    public override async Task Contains_inside_Min_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Min_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT MIN((c["City"] IN ("London", "Berlin") ? 1 : 0)) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -39,4 +39,16 @@ public class SqlServerQueryCompilationContext : RelationalQueryCompilationContex
         => base.IsBuffering
             || (QuerySplittingBehavior == EntityFrameworkCore.QuerySplittingBehavior.SplitQuery
                 && !_multipleActiveResultSetsEnabled);
+
+    /// <summary>
+    ///     Tracks whether translation is currently within the argument of an aggregate method (e.g. MAX, COUNT); SQL Server does not
+    ///     allow subqueries and aggregates in that context.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    public virtual bool InAggregateFunction { get; set; }
 }
