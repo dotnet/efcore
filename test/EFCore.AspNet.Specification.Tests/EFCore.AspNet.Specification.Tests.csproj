@@ -10,6 +10,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);8981</NoWarn>
+    <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx</TargetOsName>
   </PropertyGroup>
 
   <ItemGroup>
@@ -50,11 +51,11 @@
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.59.0" />
+    <PackageReference Condition="$(TargetOsName) != 'osx'" Include="Grpc.AspNetCore" Version="2.59.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="ProtoTest.proto" />
+    <Protobuf Condition="$(TargetOsName) != 'osx'" Include="ProtoTest.proto" />
   </ItemGroup>
 
 </Project>

@@ -181,8 +181,6 @@ stages:
                 # Rely on task Arcade injects, not auto-injected build step.
                 - skipComponentGovernanceDetection: true
               steps:
-                - script: sudo xcode-select -s /Applications/Xcode_12.5.1.app/Contents/Developer
-                  displayName: Use XCode 12.5.1
                 - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                   - task: Bash@3
                     displayName: Setup Private Feeds Credentials

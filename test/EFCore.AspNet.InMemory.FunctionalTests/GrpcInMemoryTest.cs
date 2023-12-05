@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#if !osx
+
 public class GrpcInMemoryTest : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>
 {
     public GrpcInMemoryTest(GrpcInMemoryFixture fixture)
@@ -16,3 +18,5 @@ public class GrpcInMemoryTest : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixtur
             => InMemoryTestStoreFactory.Instance;
     }
 }
+
+#endif

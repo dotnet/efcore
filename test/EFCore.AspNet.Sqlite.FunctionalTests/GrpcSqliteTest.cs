@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#if !osx
+
 public class GrpcSqliteTest : GrpcTestBase<GrpcSqliteTest.GrpcSqliteFixture>
 {
     public GrpcSqliteTest(GrpcSqliteFixture fixture)
@@ -16,3 +18,5 @@ public class GrpcSqliteTest : GrpcTestBase<GrpcSqliteTest.GrpcSqliteFixture>
             => SqliteTestStoreFactory.Instance;
     }
 }
+
+#endif

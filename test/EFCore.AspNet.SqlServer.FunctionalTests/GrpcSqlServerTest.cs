@@ -3,6 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+#if !osx
+
 public class GrpcSqlServerTest : GrpcTestBase<GrpcSqlServerTest.GrpcSqlServerFixture>
 {
     public GrpcSqlServerTest(GrpcSqlServerFixture fixture)
@@ -16,3 +18,5 @@ public class GrpcSqlServerTest : GrpcTestBase<GrpcSqlServerTest.GrpcSqlServerFix
             => SqlServerTestStoreFactory.Instance;
     }
 }
+
+#endif
