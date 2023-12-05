@@ -3,8 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-public class AdventureWorksSqliteContext : AdventureWorksContextBase
+public class AdventureWorksPoolableSqlServerContext : AdventureWorksContextBase
 {
+    public AdventureWorksPoolableSqlServerContext(DbContextOptions<AdventureWorksPoolableSqlServerContext> options)
+        : base(options)
+    {
+    }
+
     protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlite(AdventureWorksSqliteFixture.ConnectionString);
+    {
+    }
 }

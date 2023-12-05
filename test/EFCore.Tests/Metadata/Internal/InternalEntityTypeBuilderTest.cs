@@ -1909,7 +1909,7 @@ public class InternalEntityTypeBuilderTest
     [ConditionalTheory]
     [MemberData(
         nameof(DataGenerator.GetCombinations),
-        new object[] { new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+        [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
         MemberType = typeof(DataGenerator))]
     public void Can_ignore_property_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
     {
@@ -2396,7 +2396,7 @@ public class InternalEntityTypeBuilderTest
     [ConditionalTheory]
     [MemberData(
         nameof(DataGenerator.GetCombinations),
-        new object[] { new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+        [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
         MemberType = typeof(DataGenerator))]
     public void Can_ignore_navigation_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
     {
@@ -2482,7 +2482,7 @@ public class InternalEntityTypeBuilderTest
     [ConditionalTheory]
     [MemberData(
         nameof(DataGenerator.GetCombinations),
-        new object[] { new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) } },
+        [new[] { typeof(ConfigurationSource), typeof(ConfigurationSource) }],
         MemberType = typeof(DataGenerator))]
     public void Can_ignore_skip_navigation_in_hierarchy(ConfigurationSource ignoreSource, ConfigurationSource addSource)
     {
@@ -2525,10 +2525,9 @@ public class InternalEntityTypeBuilderTest
     [ConditionalTheory]
     [MemberData(
         nameof(DataGenerator.GetCombinations),
-        new object[]
-        {
+        [
             new[] { typeof(ConfigurationSource), typeof(ConfigurationSource), typeof(MemberType), typeof(MemberType), typeof(bool) }
-        },
+        ],
         MemberType = typeof(DataGenerator))]
     public void Can_override_members_in_hierarchy(
         ConfigurationSource firstSource,
