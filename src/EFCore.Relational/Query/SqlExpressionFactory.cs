@@ -207,7 +207,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             case ExpressionType.Add:
                 inferredTypeMapping = typeMapping;
 
-                if (inferredTypeMapping is null && !UseOldBehavior32325)
+                if (UseOldBehavior32325)
+                {
+                    inferredTypeMapping ??= ExpressionExtensions.InferTypeMapping(left, right);
+                }
+                else if (inferredTypeMapping is null)
                 {
                     var leftTypeMapping = left.TypeMapping;
                     var rightTypeMapping = right.TypeMapping;
