@@ -6,6 +6,7 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
     <ImplicitUsings>true</ImplicitUsings>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(DefineConstants);EXCLUDE_ON_MAC</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
