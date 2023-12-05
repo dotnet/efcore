@@ -10,6 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class SqlExpressionFactory : ISqlExpressionFactory
 {
+    private static readonly bool UseOldBehavior32325 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32325", out var enabled32325) && enabled32325;
+
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly RelationalTypeMapping _boolTypeMapping;
 
@@ -204,7 +207,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             case ExpressionType.Add:
                 inferredTypeMapping = typeMapping;
 
-                if (inferredTypeMapping is null)
+                if (inferredTypeMapping is null && !UseOldBehavior32325)
                 {
                     var leftTypeMapping = left.TypeMapping;
                     var rightTypeMapping = right.TypeMapping;
