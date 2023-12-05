@@ -10,7 +10,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <ImplicitUsings>true</ImplicitUsings>
     <NoWarn>$(NoWarn);8981</NoWarn>
-    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">EXCLUDE_ON_MAC</DefineConstants>
+    <DefineConstants Condition="$([MSBuild]::IsOSPlatform('OSX'))">$(DefineConstants);EXCLUDE_ON_MAC</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
