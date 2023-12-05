@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-#if !osx
+#if !EXCLUDE_ON_MAC
 
 public class GrpcSqliteTest : GrpcTestBase<GrpcSqliteTest.GrpcSqliteFixture>
 {
