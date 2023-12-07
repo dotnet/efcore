@@ -1381,7 +1381,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                && (trimmed.Length == 2
+                    || char.IsWhiteSpace(trimmed[2])))
             {
                 var batch = batchBuilder.ToString();
                 batchBuilder.Clear();
@@ -2489,7 +2491,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     // for create table we always generate new temporal information from the operation itself
                     // just in case there was a table with that name before that got deleted/renamed
                     // this shouldn't happen as we re-use existin tables rather than drop/recreate
-                    // but we are being extra defensive here 
+                    // but we are being extra defensive here
                     // and also, temporal state (disabled versioning etc.) should always reset when creating a table
                     temporalInformation = BuildTemporalInformationFromMigrationOperation(schema, createTableOperation);
 

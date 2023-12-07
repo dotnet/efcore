@@ -71,7 +71,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             history.GetAppliedMigrations(),
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-            x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
+            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -142,7 +143,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             await history.GetAppliedMigrationsAsync(),
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
-            x => Assert.Equal("00000000000003_Migration3", x.MigrationId));
+            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -405,6 +407,44 @@ public abstract class
             {
                 migrationBuilder.Sql("CREATE DATABASE TransactionSuppressed;", suppressTransaction: true);
                 migrationBuilder.Sql("DROP DATABASE TransactionSuppressed;", suppressTransaction: true);
+            }
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000004_Migration4")]
+    private class Migration4 : Migration
+    {
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            if (ActiveProvider == "Microsoft.EntityFrameworkCore.SqlServer")
+            {
+                migrationBuilder.Sql("""
+                CREATE PROCEDURE [dbo].[GotoReproduction]
+                AS
+                BEGIN
+                    DECLARE @Counter int;
+                    SET @Counter = 1;
+                    WHILE @Counter < 10
+                    BEGIN
+                        SELECT @Counter
+                        SET @Counter = @Counter + 1
+                        IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+                        IF @Counter = 5 GOTO Branch_Two --This will never execute.
+                    END
+                    Branch_One:
+                        SELECT 'Jumping To Branch One.'
+                        GOTO Branch_Three; --This will prevent Branch_Two from executing.
+                    Branch_Two:
+                        SELECT 'Jumping To Branch Two.'
+                    Branch_Three:
+                        SELECT 'Jumping To Branch Three.'
+                END;
+            """);
             }
         }
 

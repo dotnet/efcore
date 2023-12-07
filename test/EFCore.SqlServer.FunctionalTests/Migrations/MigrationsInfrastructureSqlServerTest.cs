@@ -123,6 +123,38 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+    CREATE PROCEDURE [dbo].[GotoReproduction]
+    AS
+    BEGIN
+        DECLARE @Counter int;
+        SET @Counter = 1;
+        WHILE @Counter < 10
+        BEGIN
+            SELECT @Counter
+            SET @Counter = @Counter + 1
+            IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+            IF @Counter = 5 GOTO Branch_Two --This will never execute.
+        END
+        Branch_One:
+            SELECT 'Jumping To Branch One.'
+            GOTO Branch_Three; --This will prevent Branch_Two from executing.
+        Branch_Two:
+            SELECT 'Jumping To Branch Two.'
+        Branch_Three:
+            SELECT 'Jumping To Branch Three.'
+    END;
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000004_Migration4', N'7.0.0-test');
+GO
+
+COMMIT;
+GO
+
 
 """,
                 Sql,
@@ -171,6 +203,32 @@ GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+GO
+
+    CREATE PROCEDURE [dbo].[GotoReproduction]
+    AS
+    BEGIN
+        DECLARE @Counter int;
+        SET @Counter = 1;
+        WHILE @Counter < 10
+        BEGIN
+            SELECT @Counter
+            SET @Counter = @Counter + 1
+            IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+            IF @Counter = 5 GOTO Branch_Two --This will never execute.
+        END
+        Branch_One:
+            SELECT 'Jumping To Branch One.'
+            GOTO Branch_Three; --This will prevent Branch_Two from executing.
+        Branch_Two:
+            SELECT 'Jumping To Branch Two.'
+        Branch_Three:
+            SELECT 'Jumping To Branch Three.'
+    END;
+GO
+
+INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 GO
 
 
@@ -333,6 +391,50 @@ GO
 COMMIT;
 GO
 
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000004_Migration4'
+)
+BEGIN
+        CREATE PROCEDURE [dbo].[GotoReproduction]
+        AS
+        BEGIN
+            DECLARE @Counter int;
+            SET @Counter = 1;
+            WHILE @Counter < 10
+            BEGIN
+                SELECT @Counter
+                SET @Counter = @Counter + 1
+                IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+                IF @Counter = 5 GOTO Branch_Two --This will never execute.
+            END
+            Branch_One:
+                SELECT 'Jumping To Branch One.'
+                GOTO Branch_Three; --This will prevent Branch_Two from executing.
+            Branch_Two:
+                SELECT 'Jumping To Branch Two.'
+            Branch_Three:
+                SELECT 'Jumping To Branch Three.'
+        END;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000004_Migration4'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000004_Migration4', N'7.0.0-test');
+END;
+GO
+
+COMMIT;
+GO
+
 
 """,
                 Sql,
@@ -422,6 +524,44 @@ IF NOT EXISTS (
 BEGIN
     INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
     VALUES (N'00000000000003_Migration3', N'7.0.0-test');
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000004_Migration4'
+)
+BEGIN
+        CREATE PROCEDURE [dbo].[GotoReproduction]
+        AS
+        BEGIN
+            DECLARE @Counter int;
+            SET @Counter = 1;
+            WHILE @Counter < 10
+            BEGIN
+                SELECT @Counter
+                SET @Counter = @Counter + 1
+                IF @Counter = 4 GOTO Branch_One --Jumps to the first branch.
+                IF @Counter = 5 GOTO Branch_Two --This will never execute.
+            END
+            Branch_One:
+                SELECT 'Jumping To Branch One.'
+                GOTO Branch_Three; --This will prevent Branch_Two from executing.
+            Branch_Two:
+                SELECT 'Jumping To Branch Two.'
+            Branch_Three:
+                SELECT 'Jumping To Branch Three.'
+        END;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'00000000000004_Migration4'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'00000000000004_Migration4', N'7.0.0-test');
 END;
 GO
 
