@@ -873,7 +873,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     protected void OnConfiguringLazyLoadingProxies(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseLazyLoadingProxies();
 
-    protected void AddServicesLazyLoadingProxies(IServiceCollection addServices)
+    protected IServiceCollection AddServicesLazyLoadingProxies(IServiceCollection addServices)
         => addServices.AddEntityFrameworkProxies();
 
     private void SeedLazyLoadingProxies(MyContextLazyLoadingProxies ctx)

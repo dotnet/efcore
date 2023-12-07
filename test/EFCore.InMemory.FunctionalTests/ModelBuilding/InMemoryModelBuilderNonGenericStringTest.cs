@@ -9,19 +9,17 @@ using Xunit.Sdk;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
+public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonGenericTest
 {
-    public class NonGenericStringOwnedTypes : OwnedTypesTestBase
+    public class NonGenericStringOwnedTypes : InMemoryOwnedTypes
     {
-        public NonGenericStringOwnedTypes(ModelBuilderFixtureBase fixture)
+        public NonGenericStringOwnedTypes(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new NonGenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new NonGenericStringTestModelBuilder(Fixture, configure);
 
         public override void OwnedType_can_derive_from_Collection()
             // Shadow navigations. Issue #3864.
@@ -32,17 +30,15 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
                     base.OwnedType_can_derive_from_Collection).Message);
     }
 
-    public class NonGenericStringOneToManyType : OneToManyTestBase
+    public class NonGenericStringOneToManyType : InMemoryOneToMany
     {
-        public NonGenericStringOneToManyType(ModelBuilderFixtureBase fixture)
+        public NonGenericStringOneToManyType(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new NonGenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new NonGenericStringTestModelBuilder(Fixture, configure);
 
         public override void WithMany_pointing_to_keyless_entity_throws()
             // Test throws exception before reaching the first exception due to entity type being property bag entity
@@ -50,36 +46,32 @@ public class ModelBuilderNonGenericStringTest : ModelBuilderNonGenericTest
                     base.WithMany_pointing_to_keyless_entity_throws);
     }
 
-    public class NonGenericStringManyToOneType : ManyToOneTestBase
+    public class NonGenericStringManyToOneType : InMemoryManyToOne
     {
-        public NonGenericStringManyToOneType(ModelBuilderFixtureBase fixture)
+        public NonGenericStringManyToOneType(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new NonGenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class NonGenericStringOneToOneType : OneToOneTestBase
+    public class NonGenericStringOneToOneType : InMemoryOneToOne
     {
-        public NonGenericStringOneToOneType(ModelBuilderFixtureBase fixture)
+        public NonGenericStringOneToOneType(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new NonGenericStringTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
+            => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
     private class NonGenericStringTestModelBuilder : TestModelBuilder
     {
-        public NonGenericStringTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
-            : base(testHelpers, configure)
+        public NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+            : base(fixture, configure)
         {
         }
 

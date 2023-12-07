@@ -13,6 +13,8 @@ public class CosmosTestHelpers : TestHelpers
 
     public static CosmosTestHelpers Instance { get; } = new();
 
+    public override ModelAsserter ModelAsserter => CosmosModelAsserter.Instance;
+
     public override IServiceCollection AddProviderServices(IServiceCollection services)
         => services.AddEntityFrameworkCosmos();
 

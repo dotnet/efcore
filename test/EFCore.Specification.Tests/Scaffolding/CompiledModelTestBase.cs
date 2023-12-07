@@ -1241,8 +1241,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         Action<DbContext>? useContext = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         CompiledModelCodeGenerationOptions? options = null,
-        Action<IServiceCollection>? addServices = null,
-        Action<IServiceCollection>? addDesignTimeServices = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
@@ -1262,8 +1262,8 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         Action<TContext>? useContext = null,
         Action<DbContextOptionsBuilder>? onConfiguring = null,
         CompiledModelCodeGenerationOptions? options = null,
-        Action<IServiceCollection>? addServices = null,
-        Action<IServiceCollection>? addDesignTimeServices = null,
+        Func<IServiceCollection, IServiceCollection>? addServices = null,
+        Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
@@ -1313,7 +1313,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         var compiledModel = CompileModel(scaffoldedFiles, options, context);
         assertModel?.Invoke(compiledModel);
 
-        //TODO: Assert model equality
+        TestHelpers.ModelAsserter.AssertEqual(context.Model, compiledModel);
 
         if (useContext != null)
         {

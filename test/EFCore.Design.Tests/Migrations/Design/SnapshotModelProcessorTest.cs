@@ -272,11 +272,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         }
 
         private static IEnumerable<string> GetAnnotationNames()
-            => typeof(RelationalAnnotationNames)
-                .GetTypeInfo()
-                .GetRuntimeFields()
-                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix))
-                .Select(p => (string)p.GetValue(null));
+            => RelationalAnnotationNames.AllNames;
 
         private class DummyModelRuntimeInitializer : IModelRuntimeInitializer
         {

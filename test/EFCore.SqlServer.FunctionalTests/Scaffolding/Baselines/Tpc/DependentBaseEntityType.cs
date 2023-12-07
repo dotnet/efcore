@@ -73,6 +73,7 @@ namespace TestNamespace
             var index = runtimeEntityType.AddIndex(
                 new[] { principalId },
                 unique: true);
+            index.AddAnnotation("Relational:Filter", "[PrincipalId] IS NOT NULL");
 
             return runtimeEntityType;
         }

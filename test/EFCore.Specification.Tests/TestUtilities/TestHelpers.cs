@@ -189,9 +189,11 @@ public abstract class TestHelpers
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null,
         Action<TestModelConfigurationBuilder> configureConventions = null,
         Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureContext = null,
-        IServiceCollection customServices = null)
+        Func<IServiceCollection, IServiceCollection> addServices = null)
     {
-        customServices ??= new ServiceCollection();
+        var customServices = new ServiceCollection();
+        addServices?.Invoke(customServices);
+
         if (modelLogger != null)
         {
             customServices.AddScoped(_ => modelLogger);
@@ -202,11 +204,10 @@ public abstract class TestHelpers
             customServices.AddScoped(_ => validationLogger);
         }
 
+        var optionsBuilder = UseProviderOptions(new DbContextOptionsBuilder());
         var services = configureContext == null
-            ? CreateContextServices(customServices)
-            : CreateContextServices(
-                customServices,
-                configureContext(UseProviderOptions(new DbContextOptionsBuilder())).Options);
+            ? CreateContextServices(customServices, optionsBuilder.Options)
+            : CreateContextServices(customServices, configureContext(optionsBuilder).Options);
 
         return CreateConventionBuilder(services, configureConventions, validationLogger);
     }
@@ -246,6 +247,8 @@ public abstract class TestHelpers
 
         return entry;
     }
+
+    public virtual ModelAsserter ModelAsserter => ModelAsserter.Instance;
 
     private static int AssertResults<T>(IList<T> expected, IList<T> actual)
     {

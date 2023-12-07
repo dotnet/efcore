@@ -406,7 +406,7 @@ public class RelationalMetadataExtensionsTest
     [ConditionalFact]
     public void Can_get_and_set_dbfunction()
     {
-        var testMethod = typeof(TestDbFunctions).GetTypeInfo().GetDeclaredMethod(nameof(TestDbFunctions.MethodA));
+        var testMethod = typeof(RelationalMetadataExtensionsTest).GetTypeInfo().GetDeclaredMethod(nameof(MethodA));
 
         var modelBuilder = new ModelBuilder();
         var model = modelBuilder.Model;
@@ -424,6 +424,9 @@ public class RelationalMetadataExtensionsTest
 
         Assert.False(((IConventionDbFunction)dbFunc).IsInModel);
     }
+
+    public static int MethodA(string a, int b)
+        => throw new NotImplementedException();
 
     [ConditionalFact]
     public void Can_get_and_set_sequence()

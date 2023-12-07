@@ -1047,9 +1047,92 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             public List<OwnedEntityExtraLevel> OwnedCollection2 { get; set; }
         }
 #nullable enable
+
+        public override void Can_configure_owned_type()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var ownedBuilder = modelBuilder.Entity<OtherCustomer>().OwnsOne(c => c.Details)
+                .ToTable(
+                    "OtherCustomerDetails", tb =>
+                        tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
+            ownedBuilder.Property(d => d.CustomerId);
+            ownedBuilder.HasIndex(d => d.CustomerId);
+            ownedBuilder.WithOwner(d => (OtherCustomer?)d.Customer)
+                .HasPrincipalKey(c => c.AlternateKey);
+
+            modelBuilder.Entity<SpecialCustomer>().OwnsOne(
+                c => c.Details, b =>
+                {
+                    b.ToTable(
+                        "SpecialCustomerDetails", tb =>
+                            tb.HasCheckConstraint("CK_CustomerDetails_T", "AlternateKey <> 0").HasName("CK_Guid"));
+                    b.Property(d => d.CustomerId);
+                    b.HasIndex(d => d.CustomerId);
+                    b.WithOwner(d => (SpecialCustomer?)d.Customer)
+                        .HasPrincipalKey(c => c.AlternateKey);
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var owner1 = model.FindEntityType(typeof(OtherCustomer))!;
+            Assert.Equal(typeof(OtherCustomer).FullName, owner1.Name);
+            AssertOwnership(owner1);
+
+            var owner2 = model.FindEntityType(typeof(SpecialCustomer))!;
+            Assert.Equal(typeof(SpecialCustomer).FullName, owner2.Name);
+            AssertOwnership(owner2);
+
+            Assert.Null(model.FindEntityType(typeof(CustomerDetails)));
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
+
+            static void AssertOwnership(IEntityType owner)
+            {
+                var ownership1 = owner.FindNavigation(nameof(Customer.Details))!.ForeignKey;
+                Assert.True(ownership1.IsOwnership);
+                Assert.Equal(nameof(Customer.Details), ownership1.PrincipalToDependent?.Name);
+                Assert.Equal("CustomerAlternateKey", ownership1.Properties.Single().Name);
+                Assert.Equal(nameof(Customer.AlternateKey), ownership1.PrincipalKey.Properties.Single().Name);
+                var owned = ownership1.DeclaringEntityType;
+                Assert.Equal(owner.ShortName() + "Details", owned.GetTableName());
+                var checkConstraint = owned.GetCheckConstraints().Single();
+                Assert.Same(owned, checkConstraint.EntityType);
+                Assert.Equal("CK_CustomerDetails_T", checkConstraint.ModelName);
+                Assert.Equal("AlternateKey <> 0", checkConstraint.Sql);
+                Assert.Equal("CK_Guid", checkConstraint.Name);
+                Assert.Single(owned.GetForeignKeys());
+                var index = owned.GetIndexes().Single();
+                Assert.Same(owned, index.DeclaringEntityType);
+                Assert.Equal(nameof(CustomerDetails.CustomerId), index.Properties.Single().Name);
+                Assert.Equal(
+                    new[] { "CustomerAlternateKey", nameof(CustomerDetails.CustomerId), nameof(CustomerDetails.Id) },
+                    owned.GetProperties().Select(p => p.Name));
+            }
+        }
+        public override void Can_configure_owned_type_key()
+        {
+            var modelBuilder = CreateModelBuilder();
+            var model = modelBuilder.Model;
+
+            modelBuilder.Entity<Customer>().OwnsOne(c => c.Details)
+                .ToTable("Details")
+                .HasKey(c => c.Id);
+
+            modelBuilder.FinalizeModel();
+
+            var owner = model.FindEntityType(typeof(Customer))!;
+            var owned = owner.FindNavigation(nameof(Customer.Details))!.ForeignKey.DeclaringEntityType;
+            Assert.Equal(
+                new[] { nameof(CustomerDetails.Id), nameof(CustomerDetails.CustomerId) },
+                owned.GetProperties().Select(p => p.Name).ToArray());
+            Assert.Equal(nameof(CustomerDetails.Id), owned.FindPrimaryKey()!.Properties.Single().Name);
+        }
     }
 
-    public class RelationalModelBuilderFixture : ModelBuilderFixtureBase
+    public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase
     {
     }
 

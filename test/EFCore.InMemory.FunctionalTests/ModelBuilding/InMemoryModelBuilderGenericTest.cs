@@ -1,48 +1,90 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+#nullable enable
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class InMemoryModelBuilderGenericTest : ModelBuilderGenericTest
+public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 {
-    public class InMemoryGenericNonRelationship : GenericNonRelationship, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericNonRelationship : InMemoryNonRelationship
     {
         public InMemoryGenericNonRelationship(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        [ConditionalFact]
+        public void Can_discover_large_models_through_navigations()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<GiantModel.RelatedEntity1>();
+
+            Assert.Equal(2000, modelBuilder.Model.GetEntityTypes().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Changing_propertyInfo_updates_Property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<DoubleProperty>().Property(e => ((IReplaceable)e).Property);
+
+            modelBuilder.FinalizeModel();
+
+            var property = modelBuilder.Model.FindEntityType(typeof(DoubleProperty))!.GetProperty("Property");
+            Assert.EndsWith(typeof(IReplaceable).Name + "." + nameof(IReplaceable.Property), property.GetIdentifyingMemberInfo()!.Name);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericComplexTypeTestBase : GenericComplexType, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericComplexType : InMemoryComplexType
     {
-        public InMemoryGenericComplexTypeTestBase(InMemoryModelBuilderFixture fixture)
+        public InMemoryGenericComplexType(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        [ConditionalFact]
+        public virtual void Changing_propertyInfo_updates_Property()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Ignore<Order>()
+                .Entity<ComplexProperties>().ComplexProperty(e => e.DoubleProperty).Property(e => ((IReplaceable?)e)!.Property);
+
+            modelBuilder.FinalizeModel();
+
+            var property = modelBuilder.Model.FindEntityType(typeof(ComplexProperties))!.FindComplexProperty(nameof(DoubleProperty))!
+                .ComplexType.FindProperty("Property")!;
+            Assert.EndsWith(typeof(IReplaceable).Name + "." + nameof(IReplaceable.Property), property.GetIdentifyingMemberInfo()!.Name);
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericInheritance : GenericInheritance, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericInheritance : InMemoryInheritance
     {
         public InMemoryGenericInheritance(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOneToMany : GenericOneToMany, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericOneToMany : InMemoryOneToMany
     {
         public InMemoryGenericOneToMany(InMemoryModelBuilderFixture fixture)
             : base(fixture)
@@ -128,12 +170,11 @@ public class InMemoryModelBuilderGenericTest : ModelBuilderGenericTest
             [DatabaseGenerated(DatabaseGeneratedOption.None)]
             public int AccountId { get; set; }
 
-            [Required]
             [StringLength(50)]
-            public string GroupBatchName { get; set; }
+            public string GroupBatchName { get; set; } = null!;
 
             [StringLength(200)]
-            public string GroupBatchNameAlt { get; set; }
+            public string? GroupBatchNameAlt { get; set; }
 
             public int MaxModifierSelectCount { get; set; }
 
@@ -143,40 +184,49 @@ public class InMemoryModelBuilderGenericTest : ModelBuilderGenericTest
 
             public DateTime CreatedDate { get; set; }
 
-            [Required]
             [StringLength(50)]
-            public string CreatedBy { get; set; }
+            public string CreatedBy { get; set; } = null!;
 
             public DateTime ModifiedDate { get; set; }
 
-            [Required]
             [StringLength(50)]
-            public string ModifiedBy { get; set; }
+            public string ModifiedBy { get; set; } = null!;
 
             public bool? IsFollowSet { get; set; }
 
             public virtual ICollection<ModifierGroupHeader> ModifierGroupHeader1 { get; set; }
                 = new HashSet<ModifierGroupHeader>();
 
-            public virtual ModifierGroupHeader ModifierGroupHeader2 { get; set; }
+            public virtual ModifierGroupHeader? ModifierGroupHeader2 { get; set; }
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericManyToOne : GenericManyToOne, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericManyToMany : InMemoryManyToMany
+    {
+        public InMemoryGenericManyToMany(InMemoryModelBuilderFixture fixture)
+            : base(fixture)
+        {
+        }
+
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
+    }
+
+    public class InMemoryGenericManyToOne : InMemoryManyToOne
     {
         public InMemoryGenericManyToOne(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOneToOne : GenericOneToOne, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericOneToOne : InMemoryOneToOne
     {
         public InMemoryGenericOneToOne(InMemoryModelBuilderFixture fixture)
             : base(fixture)
@@ -258,26 +308,22 @@ public class InMemoryModelBuilderGenericTest : ModelBuilderGenericTest
             public int PreviousNodeId { get; set; }
             public int NextNodeId { get; set; }
 
-            public Node PreviousNode { get; set; }
-            public Node NextNode { get; set; }
+            public Node? PreviousNode { get; set; }
+            public Node? NextNode { get; set; }
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOwnedTypes : GenericOwnedTypes, IClassFixture<InMemoryModelBuilderFixture>
+    public class InMemoryGenericOwnedTypes : InMemoryOwnedTypes
     {
         public InMemoryGenericOwnedTypes(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
-    }
-
-    public class InMemoryModelBuilderFixture : ModelBuilderFixtureBase
-    {
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTestModelBuilder(Fixture, configure);
     }
 }

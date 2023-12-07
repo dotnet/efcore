@@ -527,22 +527,22 @@ public abstract partial class ModelBuilderTest
 
             var up = complexType.FindProperty("Up");
             Assert.Null(up.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
+            Assert.True(up.GetValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
             Assert.Same(typeof(byte[]), down.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer().IsDefault());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = complexType.FindProperty("Charm");
             Assert.Same(typeof(long), charm.GetProviderClrType());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
             Assert.Null(strange.GetProviderClrType());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
+            Assert.True(strange.GetValueComparer().IsDefault());
+            Assert.True(strange.GetProviderValueComparer().IsDefault());
 
             var top = complexType.FindProperty("Top");
             Assert.Same(typeof(string), top.GetProviderClrType());
@@ -608,12 +608,12 @@ public abstract partial class ModelBuilderTest
 
             var down = complexType.FindProperty("Down");
             Assert.Same(stringConverter, down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
+            Assert.True(down.GetValueComparer().IsDefault());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
 
             var charm = complexType.FindProperty("Charm");
             Assert.Same(intConverter, charm.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
+            Assert.True(charm.GetValueComparer().IsDefault());
             Assert.IsType<CustomValueComparer<long>>(charm.GetProviderValueComparer());
 
             Assert.Null(complexType.FindProperty("Strange").GetValueConverter());
@@ -657,12 +657,12 @@ public abstract partial class ModelBuilderTest
             var charm = complexType.FindProperty("Charm");
             Assert.IsType<CastingConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
             Assert.Null(strange.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(strange.GetProviderValueComparer());
+            Assert.True(strange.GetValueComparer().IsDefault());
+            Assert.True(strange.GetProviderValueComparer().IsDefault());
         }
 
         private class UTF8StringToBytesConverter : StringToBytesConverter
@@ -707,18 +707,18 @@ public abstract partial class ModelBuilderTest
             var up = complexType.FindProperty("Up");
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+            Assert.True(up.GetValueComparer().IsDefault());
+            Assert.True(up.GetProviderValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
             Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+            Assert.True(down.GetValueComparer().IsDefault());
+            Assert.True(down.GetProviderValueComparer().IsDefault());
 
             var charm = complexType.FindProperty("Charm");
             Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
             Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());
@@ -755,18 +755,18 @@ public abstract partial class ModelBuilderTest
             var up = complexType.FindProperty("Up");
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(up.GetProviderValueComparer());
+            Assert.True(up.GetValueComparer().IsDefault());
+            Assert.True(up.GetProviderValueComparer().IsDefault());
 
             var down = complexType.FindProperty("Down");
             Assert.IsType<ValueConverter<string, int>>(down.GetValueConverter());
-            Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<int>>(down.GetProviderValueComparer());
+            Assert.True(down.GetValueComparer().IsDefault());
+            Assert.True(down.GetProviderValueComparer().IsDefault());
 
             var charm = complexType.FindProperty("Charm");
             Assert.IsType<ValueConverter<int, long>>(charm.GetValueConverter());
             Assert.IsType<CustomValueComparer<int>>(charm.GetValueComparer());
-            Assert.IsType<ValueComparer.DefaultValueComparer<long>>(charm.GetProviderValueComparer());
+            Assert.True(charm.GetProviderValueComparer().IsDefault());
 
             var strange = complexType.FindProperty("Strange");
             Assert.IsType<ValueConverter<float, double>>(strange.GetValueConverter());

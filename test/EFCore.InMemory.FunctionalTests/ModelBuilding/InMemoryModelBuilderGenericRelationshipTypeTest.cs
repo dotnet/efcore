@@ -5,38 +5,34 @@
 
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
-public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
+public class InMemoryModelBuilderGenericRelationshipTypeTest : InMemoryModelBuilderGenericTest
 {
-    public class GenericOneToOneType : OneToOneTestBase
+    public class GenericOneToOneType : InMemoryOneToOne
     {
-        public GenericOneToOneType(ModelBuilderFixtureBase fixture)
+        public GenericOneToOneType(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericTypeTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTypeTestModelBuilder(Fixture, configure);
     }
 
-    public class GenericNonRelationshipTest : NonRelationshipTestBase
+    public class GenericNonRelationshipTest : InMemoryNonRelationship
     {
-        public GenericNonRelationshipTest(ModelBuilderFixtureBase fixture)
+        public GenericNonRelationshipTest(InMemoryModelBuilderFixture fixture)
             : base(fixture)
         {
         }
 
-        protected override TestModelBuilder CreateTestModelBuilder(
-            TestHelpers testHelpers,
-            Action<ModelConfigurationBuilder>? configure)
-            => new GenericTypeTestModelBuilder(testHelpers, configure);
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
+            => new GenericTypeTestModelBuilder(Fixture, configure);
     }
 
     public class GenericTypeTestModelBuilder : TestModelBuilder
     {
-        public GenericTypeTestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
-            : base(testHelpers, configure)
+        public GenericTypeTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
+            : base(fixture, configure)
         {
         }
 

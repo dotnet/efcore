@@ -588,7 +588,6 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             "bar2",
             id.FindOverrides(StoreObjectIdentifier.Create(principalBase, StoreObjectType.View)!.Value)!["foo"]);
 
-
         var enum1 = principalBase.FindProperty(nameof(PrincipalBase.Enum1))!;
         Assert.Equal(AnEnum.A, enum1.GetDefaultValue());
 
@@ -599,8 +598,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         Assert.True(alternateIndex.IsUnique);
         Assert.Equal("PrincipalIndex", alternateIndex.Name);
         Assert.Equal("PIX", alternateIndex.GetDatabaseName());
-        Assert.Null(alternateIndex[RelationalAnnotationNames.Filter]);
-        Assert.Null(alternateIndex.GetFilter());
+        Assert.Equal("AlternateId <> NULL", alternateIndex.GetFilter());
 
         Assert.Equal(new[] { alternateIndex }, principalBaseId.GetContainingIndexes());
 
@@ -1213,43 +1211,4 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder)
             .ConfigureWarnings(w => w.Ignore(RelationalEventId.ForeignKeyTpcPrincipalWarning));
-
-    protected override (TContext?, IModel?) Test<TContext>(
-        Action<ModelBuilder>? onModelCreating = null,
-        Action<IModel>? assertModel = null,
-        Action<TContext>? useContext = null,
-        Action<DbContextOptionsBuilder>? onConfiguring = null,
-        CompiledModelCodeGenerationOptions? options = null,
-        Action<IServiceCollection>? addServices = null,
-        Action<IServiceCollection>? addDesignTimeServices = null,
-        string? expectedExceptionMessage = null,
-        [CallerMemberName] string testName = "")
-        where TContext : class
-    {
-        var (context, compiledModel) = base.Test(
-            onModelCreating,
-            assertModel,
-            useContext,
-            onConfiguring,
-            options,
-            addServices,
-            addDesignTimeServices,
-            expectedExceptionMessage,
-            testName);
-
-        if (context == null
-            || compiledModel == null)
-        {
-            return (null, null);
-        }
-
-        var relationalModel = (IRelationalModel)context.Model.FindRuntimeAnnotationValue(RelationalAnnotationNames.RelationalModel)!;
-        if (relationalModel != null)
-        {
-            // TODO: Move the asserts
-            //RelationalModelTest.AssertEqual(relationalModel, compiledModel.GetRelationalModel());
-        }
-
-        return (context, compiledModel);
-    }
 }

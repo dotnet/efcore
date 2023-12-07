@@ -1488,7 +1488,7 @@ namespace RootNamespace
                 var fragment = orderEntityType.GetMappingFragments().Single();
                 var splitTable = relationalModel.FindTable(fragment.StoreObject.Name, fragment.StoreObject.Schema);
                 Assert.Equal(
-                    new[] { billingEntityType, orderEntityType },
+                    new[] { orderEntityType, billingEntityType },
                     splitTable.FindColumn("Shadow").PropertyMappings.Select(m => m.TableMapping.TypeBase));
                 Assert.Equal("bar", fragment["foo"]);
 
@@ -8172,8 +8172,7 @@ namespace RootNamespace
 
     protected TestHelpers.TestModelBuilder CreateConventionalModelBuilder()
         => TestHelpers.CreateConventionBuilder(
-            customServices: new ServiceCollection()
-                .AddEntityFrameworkSqlServerNetTopologySuite());
+            addServices: SqlServerNetTopologySuiteServiceCollectionExtensions.AddEntityFrameworkSqlServerNetTopologySuite);
 
     protected virtual MigrationsModelDiffer CreateModelDiffer(DbContextOptions options)
         => (MigrationsModelDiffer)TestHelpers.CreateContext(options).GetService<IMigrationsModelDiffer>();
