@@ -57,17 +57,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         {
             tests[i] = () =>
             {
-                Assert.Equal(children, parent.Children);
+                Assert.Equal(children, parent.Children!);
                 Assert.Equal(singlePkToPk, parent.SinglePkToPk);
                 Assert.Equal(single, parent.Single);
-                Assert.Equal(childrenAk, parent.ChildrenAk);
+                Assert.Equal(childrenAk, parent.ChildrenAk!);
                 Assert.Equal(singleAk, parent.SingleAk);
-                Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk);
+                Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk!);
                 Assert.Equal(singleShadowFk, parent.SingleShadowFk);
-                Assert.Equal(childrenCompositeKey, parent.ChildrenCompositeKey);
+                Assert.Equal(childrenCompositeKey, parent.ChildrenCompositeKey!);
                 Assert.Equal(singleCompositeKey, parent.SingleCompositeKey);
                 Assert.Equal(withRecursiveProperty, parent.WithRecursiveProperty);
-                Assert.Equal(manyChildren, parent.ManyChildren);
+                Assert.Equal(manyChildren, parent.ManyChildren!);
             };
         }
 
