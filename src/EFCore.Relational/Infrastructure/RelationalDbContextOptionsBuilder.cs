@@ -97,6 +97,17 @@ public abstract class RelationalDbContextOptionsBuilder<TBuilder, TExtension> : 
         => WithOption(e => (TExtension)e.WithMigrationsAssembly(Check.NullButNotEmpty(assemblyName, nameof(assemblyName))));
 
     /// <summary>
+    ///     Configures the assembly where migrations are maintained for this context.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
+    /// </remarks>
+    /// <param name="assembly">The <see cref="Assembly"/> where the migrations are located.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual TBuilder MigrationsAssembly(Assembly assembly)
+        => WithOption(e => (TExtension)e.WithMigrationsAssembly(assembly));
+
+    /// <summary>
     ///     Configures the name of the table used to record which migrations have been applied to the database.
     /// </summary>
     /// <remarks>
