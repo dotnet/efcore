@@ -3,6 +3,7 @@
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -833,10 +834,12 @@ WHERE (
 """);
     }
 
-    [ConditionalFact(Skip = "Underlying SQLite issue")]
+    [ConditionalTheory]
     public override async Task Parameter_collection_Concat_column_collection(bool async)
     {
-        await base.Parameter_collection_Concat_column_collection(async);
+        // Issue #32561
+        await Assert.ThrowsAsync<EqualException>(
+            () => base.Parameter_collection_Concat_column_collection(async));
 
         AssertSql(
             """
