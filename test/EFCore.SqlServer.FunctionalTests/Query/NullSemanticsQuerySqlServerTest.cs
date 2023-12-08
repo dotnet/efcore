@@ -910,14 +910,14 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
 
         AssertSql(
             """
-@__ids_0='["Foo",null]' (Size = 4000)
+@__ids_0_without_nulls='["Foo"]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(max) '$') AS [i]
-    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
+WHERE [e].[NullableStringA] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0_without_nulls) AS [i]
+) OR [e].[NullableStringA] IS NULL
 """);
     }
 
@@ -927,14 +927,14 @@ WHERE EXISTS (
 
         AssertSql(
             """
-@__ids_0='["Foo",null]' (Size = 4000)
+@__ids_0_without_nulls='["Foo"]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(max) '$') AS [i]
-    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
+WHERE [e].[NullableStringA] NOT IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0_without_nulls) AS [i]
+) AND [e].[NullableStringA] IS NOT NULL
 """);
     }
 
@@ -948,10 +948,10 @@ WHERE NOT EXISTS (
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[NullableStringA] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(max) '$') AS [i]
-    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
+) OR [e].[NullableStringA] IS NULL
 """);
     }
 
@@ -961,14 +961,14 @@ WHERE NOT EXISTS (
 
         AssertSql(
             """
-@__ids_0='[null,"Foo",null,null]' (Size = 4000)
+@__ids_0_without_nulls='["Foo"]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(max) '$') AS [i]
-    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
+WHERE [e].[NullableStringA] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0_without_nulls) AS [i]
+) OR [e].[NullableStringA] IS NULL
 """);
     }
 
@@ -1783,10 +1783,10 @@ END = COALESCE([e0].[NullableBoolA], [e0].[BoolC])
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
+WHERE [e].[NullableIntA] IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+)
 """,
             //
             """
@@ -1794,32 +1794,32 @@ WHERE EXISTS (
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[NullableIntA] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+) OR [e].[NullableIntA] IS NULL
 """,
             //
             """
-@__ids2_0='[1,2,null]' (Size = 4000)
+@__ids2_0_without_nulls='[1,2]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids2_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+WHERE [e].[NullableIntA] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids2_0_without_nulls) AS [i]
+) OR [e].[NullableIntA] IS NULL
 """,
             //
             """
-@__ids2_0='[1,2,null]' (Size = 4000)
+@__ids2_0_without_nulls='[1,2]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids2_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+WHERE [e].[NullableIntA] NOT IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids2_0_without_nulls) AS [i]
+) AND [e].[NullableIntA] IS NOT NULL
 """,
             //
             """
@@ -1857,10 +1857,10 @@ WHERE [e].[NullableIntA] NOT IN (1, 2) AND [e].[NullableIntA] IS NOT NULL
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
+WHERE [e].[NullableIntA] IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+)
 """,
             //
             """
@@ -1868,32 +1868,32 @@ WHERE EXISTS (
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[NullableIntA] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+) OR [e].[NullableIntA] IS NULL
 """,
             //
             """
-@__ids2_0='[null]' (Size = 4000)
+@__ids2_0_without_nulls='[]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids2_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+WHERE [e].[NullableIntA] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids2_0_without_nulls) AS [i]
+) OR [e].[NullableIntA] IS NULL
 """,
             //
             """
-@__ids2_0='[null]' (Size = 4000)
+@__ids2_0_without_nulls='[]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids2_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
+WHERE [e].[NullableIntA] NOT IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids2_0_without_nulls) AS [i]
+) AND [e].[NullableIntA] IS NOT NULL
 """,
             //
             """
@@ -2036,9 +2036,9 @@ WHERE [e].[IntA] NOT IN (1, 2)
 """);
     }
 
-    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_non_nullable_values_with_null(bool async)
+    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_null(bool async)
     {
-        await base.Null_semantics_contains_with_non_nullable_item_and_inline_non_nullable_values_with_null(async);
+        await base.Null_semantics_contains_with_non_nullable_item_and_inline_values_with_null(async);
 
         AssertSql(
             """
@@ -2054,9 +2054,9 @@ WHERE [e].[IntA] NOT IN (1, 2)
 """);
     }
 
-    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values(bool async)
+    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column(bool async)
     {
-        await base.Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values(async);
+        await base.Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column(async);
 
         AssertSql(
             """
@@ -2072,9 +2072,9 @@ WHERE [e].[IntA] NOT IN (1, 2) AND ([e].[IntA] <> [e].[NullableIntB] OR [e].[Nul
 """);
     }
 
-    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values_with_null(bool async)
+    public override async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column_and_null(bool async)
     {
-        await base.Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values_with_null(async);
+        await base.Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column_and_null(async);
 
         AssertSql(
             """
@@ -2108,9 +2108,9 @@ WHERE [e].[NullableIntA] NOT IN (1, 2) OR [e].[NullableIntA] IS NULL
 """);
     }
 
-    public override async Task Null_semantics_contains_with_nullable_item_and_inline_non_nullable_values_with_null(bool async)
+    public override async Task Null_semantics_contains_with_nullable_item_and_inline_values_with_null(bool async)
     {
-        await base.Null_semantics_contains_with_nullable_item_and_inline_non_nullable_values_with_null(async);
+        await base.Null_semantics_contains_with_nullable_item_and_inline_values_with_null(async);
 
         AssertSql(
             """
@@ -2126,9 +2126,9 @@ WHERE [e].[NullableIntA] NOT IN (1, 2) AND [e].[NullableIntA] IS NOT NULL
 """);
     }
 
-    public override async Task Null_semantics_contains_with_nullable_item_and_inline_nullable_values(bool async)
+    public override async Task Null_semantics_contains_with_nullable_item_and_inline_values_with_nullable_column(bool async)
     {
-        await base.Null_semantics_contains_with_nullable_item_and_inline_nullable_values(async);
+        await base.Null_semantics_contains_with_nullable_item_and_inline_values_with_nullable_column(async);
 
         AssertSql(
             """
@@ -2144,9 +2144,9 @@ WHERE ([e].[NullableIntA] NOT IN (1, 2) OR [e].[NullableIntA] IS NULL) AND ([e].
 """);
     }
 
-    public override async Task Null_semantics_contains_with_nullable_item_and_inline_nullable_values_with_null(bool async)
+    public override async Task Null_semantics_contains_with_nullable_item_and_values_with_nullable_column_and_null(bool async)
     {
-        await base.Null_semantics_contains_with_nullable_item_and_inline_nullable_values_with_null(async);
+        await base.Null_semantics_contains_with_nullable_item_and_values_with_nullable_column_and_null(async);
 
         AssertSql(
             """
@@ -2264,14 +2264,14 @@ WHERE [e].[IntA] IN (
 """,
             //
             """
-@__ids_0='[1,2,null]' (Size = 4000)
+@__ids_0_without_nulls='[1,2]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[IntA])
+WHERE [e].[IntA] NOT IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0_without_nulls) AS [i]
+)
 """,
             //
             """
@@ -2290,10 +2290,10 @@ WHERE [e].[IntA] IN (
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[IntA] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids2_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[IntA])
+)
 """,
             //
             """
@@ -2312,10 +2312,10 @@ WHERE [e].[IntA] IN (
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[IntA] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids3_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[IntA])
+)
 """,
             //
             """
@@ -2330,14 +2330,14 @@ WHERE [e].[IntA] IN (
 """,
             //
             """
-@__ids4_0='[null]' (Size = 4000)
+@__ids4_0_without_nulls='[]' (Size = 4000)
 
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
-    FROM OPENJSON(@__ids4_0) WITH ([value] int '$') AS [i]
-    WHERE [i].[value] = [e].[IntA])
+WHERE [e].[IntA] NOT IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids4_0_without_nulls) AS [i]
+)
 """);
     }
 
