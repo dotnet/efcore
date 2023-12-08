@@ -4044,8 +4044,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_adding_two_contexts_using_non_generic_options()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
@@ -4078,7 +4078,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void AddDbContext_adds_single_options_for_all_types()
+        public void AddDbContext_adds_options_for_all_types()
         {
             var services = new ServiceCollection()
                 .AddSingleton<DbContextOptions>(_ => new DbContextOptions<NonGenericOptions1>())
@@ -4086,18 +4086,23 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<NonGenericOptions2>(optionsLifetime: ServiceLifetime.Singleton)
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Single(services.GetServices<DbContextOptions>());
+            Assert.Equal(3, services.GetServices<DbContextOptions>().Count());
+            Assert.Equal(
+                2, services.GetServices<DbContextOptions>()
+                    .Select(o => o.ContextType)
+                    .Distinct()
+                    .Count());
         }
 
         [ConditionalFact]
-        public void First_DbContextOptions_in_serviceCollection_selected()
+        public void Last_DbContextOptions_in_serviceCollection_selected()
         {
             var services = new ServiceCollection()
                 .AddDbContext<NonGenericOptions1>(optionsLifetime: ServiceLifetime.Singleton)
                 .AddDbContext<NonGenericOptions2>(optionsLifetime: ServiceLifetime.Singleton)
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Equal(typeof(NonGenericOptions1), services.GetService<DbContextOptions>().ContextType);
+            Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>().ContextType);
         }
 
         [ConditionalFact]
