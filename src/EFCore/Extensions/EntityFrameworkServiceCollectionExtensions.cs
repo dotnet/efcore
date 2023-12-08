@@ -1134,7 +1134,7 @@ public static class EntityFrameworkServiceCollectionExtensions
                 CreateDbContextOptions<TContextImplementation>,
                 optionsLifetime));
 
-        serviceCollection.TryAdd(
+        serviceCollection.Add(
             new ServiceDescriptor(
                 typeof(DbContextOptions),
                 CreateDbContextOptions<TContextImplementation>,
