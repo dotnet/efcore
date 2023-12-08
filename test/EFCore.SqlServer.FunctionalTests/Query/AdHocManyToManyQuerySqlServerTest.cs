@@ -5,10 +5,35 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyHeterogeneousQuerySqlServerTest : ManyToManyHeterogeneousQueryRelationalTestBase
+public class AdHocManyToManyQuerySqlServerTest : AdHocManyToManyQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
+
+    public override async Task SelectMany_with_collection_selector_having_subquery()
+    {
+        await base.SelectMany_with_collection_selector_having_subquery();
+
+        AssertSql(
+            """
+SELECT [u].[Id] AS [UserId], [t0].[Id] AS [OrgId]
+FROM [Users] AS [u]
+CROSS JOIN (
+    SELECT [t].[Id]
+    FROM (
+        SELECT NULL AS [empty]
+    ) AS [e]
+    LEFT JOIN (
+        SELECT [o].[Id]
+        FROM [Organisations] AS [o]
+        WHERE EXISTS (
+            SELECT 1
+            FROM [OrganisationUser] AS [o0]
+            WHERE [o].[Id] = [o0].[OrganisationId])
+    ) AS [t] ON 1 = 1
+) AS [t0]
+""");
+    }
 
     public override async Task Many_to_many_load_works_when_join_entity_has_custom_key(bool async)
     {

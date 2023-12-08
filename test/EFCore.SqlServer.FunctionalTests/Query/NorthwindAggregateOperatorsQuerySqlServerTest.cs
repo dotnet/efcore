@@ -2996,6 +2996,61 @@ FROM [Customers] AS [c]
 """);
     }
 
+    public override async Task Return_type_of_singular_operator_is_preserved(bool async)
+    {
+        await base.Return_type_of_singular_operator_is_preserved(async);
+
+        AssertSql(
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+                //
+                """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+                //
+                """
+SELECT TOP(2) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+                //
+                """
+SELECT TOP(2) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = N'ALFKI'
+""",
+                //
+                """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID] DESC
+""",
+                //
+                """
+SELECT TOP(1) [c].[CustomerID], [c].[City]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'A%'
+ORDER BY [c].[CustomerID] DESC
+""");
+    }
+
+    public override async Task Type_casting_inside_sum(bool async)
+    {
+        await base.Type_casting_inside_sum(async);
+
+        AssertSql(
+"""
+SELECT COALESCE(SUM(CAST([o].[Discount] AS decimal(18,2))), 0.0)
+FROM [Order Details] AS [o]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

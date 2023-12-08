@@ -2444,4 +2444,43 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                     c => c.Orders.OrderBy(o => o.OrderDate)
                         .Select(e => e.OrderDetails.Select(od => od.ProductID)).FirstOrDefault()),
             asserter: (e, a) => AssertCollection(e, a, elementSorter: e => e, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Entity_passed_to_DTO_constructor_works(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Select(x => new CustomerDtoWithEntityInCtor(x)),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) => Assert.Equal(e.Id, a.Id));
+
+    public class CustomerDtoWithEntityInCtor
+    {
+        public CustomerDtoWithEntityInCtor(Customer customer)
+        {
+            Id = customer.CustomerID;
+        }
+
+        public string Id { get; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Set_operation_in_pending_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .OrderBy(x => x.CustomerID)
+                .Select(x => new
+                {
+                    OrderIds = (from o1 in ss.Set<Order>()
+                                where o1.CustomerID == x.CustomerID
+                                select o1.OrderID)
+                        .Union(from o2 in ss.Set<Order>()
+                               where o2.CustomerID == x.CustomerID
+                               select o2.OrderID)
+                    .ToList()
+                }).Take(5),
+            assertOrder: true,
+            elementAsserter: (e, a) => AssertCollection(e.OrderIds, a.OrderIds, elementSorter: ee => ee));
 }

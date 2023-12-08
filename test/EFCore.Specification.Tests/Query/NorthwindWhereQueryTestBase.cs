@@ -2440,4 +2440,97 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
         Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
     }
+
+    private class EntityWithImplicitCast
+    {
+        private readonly int _value;
+
+        public EntityWithImplicitCast(int value)
+        {
+            _value = value;
+        }
+
+        public string Value
+            => _value.ToString();
+
+        public override string ToString()
+            => Value;
+
+        public static implicit operator string(EntityWithImplicitCast entity)
+            => entity.Value;
+
+        public EntityWithImplicitCast Clone()
+            => new(_value);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Implicit_cast_in_predicate(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == new EntityWithImplicitCast(1337)),
+            assertEmpty: true);
+
+        var prm = new EntityWithImplicitCast(1337);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm.Value),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm.ToString()),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == prm),
+            assertEmpty: true);
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(x => x.CustomerID == new EntityWithImplicitCast(1337).Clone()),
+            assertEmpty: true);
+    }
+
+    public interface IHaveId
+    {
+        int Id { get; }
+    }
+
+    public class DtoWithInterface : IHaveId
+    {
+        public int Id { get; set; }
+    }
+
+    public static IQueryable<T> AddFilter<T>(IQueryable<T> query, int id)
+        where T : IHaveId
+        => query.Where(a => a.Id == id);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Interface_casting_though_generic_method(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => AddFilter(ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }), 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where<IHaveId>(x => x.Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => ((IHaveId)x).Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Select(x => new DtoWithInterface { Id = x.OrderID }).Where(x => (x as IHaveId).Id == 10252),
+            elementAsserter: (e, a) => AssertEqual(e.Id, a.Id));
+    }
 }

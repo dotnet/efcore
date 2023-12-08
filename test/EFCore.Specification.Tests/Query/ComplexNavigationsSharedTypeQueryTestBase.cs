@@ -71,4 +71,11 @@ public abstract class ComplexNavigationsSharedTypeQueryTestBase<TFixture> : Comp
 
     public override Task Project_shadow_properties9(bool async)
         => AssertUnableToTranslateEFProperty(() => base.Project_shadow_properties9(async));
+
+    public override async Task Null_check_removal_applied_recursively_complex(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Null_check_removal_applied_recursively_complex(async))).Message;
+
+        Assert.Equal(CoreStrings.IncludeOnNonEntity("x => x.OneToMany_Required_Inverse3"), message);
+    }
 }

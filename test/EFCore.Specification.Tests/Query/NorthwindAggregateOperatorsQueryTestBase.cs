@@ -1903,6 +1903,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
                 }
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task All_true(bool async)
         => AssertAll(
             async,
@@ -1919,6 +1921,8 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
                 .Select(o => new { o.OrderID, Customer = o.Customer is Customer ? new { o.Customer.ContactName } : null })
                 .Take(1));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Not_Any_false(bool async)
         => AssertQuery(
             async,
@@ -2007,5 +2011,72 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
             async,
             ss => ss.Set<Customer>(),
             selector: c => cities.Contains(c.City) ? 1 : 0);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Return_type_of_singular_operator_is_preserved(bool async)
+    {
+        await AssertFirst<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID == "ALFKI")
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+
+        await AssertFirstOrDefault<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID == "ALFKI")
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+
+        await AssertSingle<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID == "ALFKI")
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+
+        await AssertSingleOrDefault<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID == "ALFKI")
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+
+        await AssertLast<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID.StartsWith("A"))
+                .OrderBy(x => x.CustomerID)
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+
+        await AssertLastOrDefault<CustomerIdDto>(
+            async,
+            ss => ss.Set<Customer>()
+                .Where(x => x.CustomerID.StartsWith("A"))
+                .OrderBy(x => x.CustomerID)
+                .Select(x => new CustomerIdAndCityDto { CustomerId = x.CustomerID, City = x.City }),
+            asserter: (e, a) => Assert.Equal(e.CustomerId, a.CustomerId));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Type_casting_inside_sum(bool async)
+        => AssertSum(
+            async,
+            ss => ss.Set<OrderDetail>(),
+            x => (decimal)x.Discount);
+
+    private class CustomerIdDto
+    {
+        public string CustomerId { get; set; }
+    }
+
+    private class CustomerIdAndCityDto : CustomerIdDto
+    {
+        public string City { get; set; }
     }
 }

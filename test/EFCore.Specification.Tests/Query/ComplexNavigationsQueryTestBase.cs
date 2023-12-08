@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.CodeDom.Compiler;
 using Microsoft.EntityFrameworkCore.TestModels.ComplexNavigationsModel;
 
 #pragma warning disable RCS1155 // Use StringComparison when comparing strings.
@@ -3961,4 +3962,184 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                 Assert.Equal(e.Id3, a.Id3);
             });
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Multiple_optional_navs_should_not_deadlock(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Level2>().Where(x => x.OneToMany_Optional_Inverse2 != null
+                && x.OneToMany_Optional_Inverse2.Name.Contains("L1 01")
+                || x.OneToOne_Optional_FK_Inverse2 != null
+                    && x.OneToOne_Optional_FK_Inverse2.Name.Contains("L1 01")));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Null_check_removal_applied_recursively_complex(bool async)
+    {
+        var userParam = Expression.Parameter(typeof(Level3), "l3");
+        var builderProperty = Expression.MakeMemberAccess(
+            userParam, typeof(Level3).GetProperty(nameof(Level3.OneToMany_Required_Inverse3)));
+        var cityProperty = Expression.MakeMemberAccess(
+            builderProperty, typeof(Level2).GetProperty(nameof(Level2.OneToMany_Required_Inverse2)));
+        var nameProperty = Expression.MakeMemberAccess(cityProperty, typeof(Level1).GetProperty(nameof(Level1.Name)));
+
+        //{s => (IIF((IIF((l3.Inverse3 == null), null, s.Inverse3.Inverse2) == null), null, s.Inverse3.Inverse2.Name) == "L1 01")}
+        var selection = Expression.Lambda<Func<Level3, bool>>(
+            Expression.Equal(
+                Expression.Condition(
+                    Expression.Equal(
+                        Expression.Condition(
+                            Expression.Equal(
+                                builderProperty,
+                                Expression.Constant(null, typeof(Level2))),
+                            Expression.Constant(null, typeof(Level1)),
+                            cityProperty),
+                        Expression.Constant(null, typeof(Level1))),
+                    Expression.Constant(null, typeof(string)),
+                    nameProperty),
+                Expression.Constant("L1 01", typeof(string))),
+            userParam);
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Level3>()
+                .Where(selection)
+                .Include(x => x.OneToMany_Required_Inverse3).ThenInclude(x => x.OneToMany_Required_Inverse2)
+                .Include(x => x.OneToMany_Optional3),
+            elementAsserter: (e, a) => AssertInclude(
+                e, a, new ExpectedInclude<Level3>(x => x.OneToMany_Required_Inverse3),
+                new ExpectedInclude<Level2>(x => x.OneToMany_Required_Inverse2, "OneToMany_Required_Inverse3"),
+                new ExpectedInclude<Level3>(x => x.OneToMany_Optional3)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Correlated_projection_with_first(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Select(x => new
+            {
+                x.Id,
+                Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
+            }),
+            ss => ss.Set<Level1>().Select(x => new
+            {
+                x.Id,
+                Results = x.OneToMany_Optional1.OrderBy(xx => xx.Id).Any()
+                    ? x.OneToMany_Optional1.OrderBy(xx => xx.Id).First().OneToMany_Optional2.Select(xx => xx.OneToOne_Required_FK3.Id)
+                    : new List<int>() 
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(e.Results, a.Results);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Max_in_multi_level_nested_subquery(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Take(2).Select(x => new
+            {
+                x.Id,
+                LevelTwos = x.OneToMany_Optional1.AsQueryable().Select(xx => new
+                {
+                    xx.Id,
+                    LevelThree = new
+                    {
+                        xx.OneToOne_Required_FK2.Id,
+                        LevelFour = new
+                        {
+                            xx.OneToOne_Required_FK2.OneToOne_Required_FK3.Id,
+                            Result = (xx.OneToOne_Required_FK2.OneToMany_Optional3.Max(xxx => (int?)xxx.Id) ?? 0) > 1
+                        }
+                    }
+                }).ToList()
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(
+                    e.LevelTwos,
+                    a.LevelTwos,
+                    elementSorter: ee => ee.Id,
+                    elementAsserter: (ee, aa) =>
+                    {
+                        AssertEqual(ee.Id, aa.Id);
+                        AssertEqual(ee.LevelThree.Id, aa.LevelThree.Id);
+                        AssertEqual(ee.LevelThree.LevelFour.Id, aa.LevelThree.LevelFour.Id);
+                        AssertEqual(ee.LevelThree.LevelFour.Result, aa.LevelThree.LevelFour.Result);
+                    });
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Multiple_select_many_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Select(x => new
+            {
+                x.Id,
+                Collection = x.OneToMany_Optional1
+                    .SelectMany(xx => xx.OneToMany_Optional2)
+                    .OrderBy(xx => xx.Id).Take(12)
+                    .Select(xx => new
+                    {
+                        xx.Id,
+                        RefId = xx.OneToOne_Optional_FK3.Id
+                    }).ToList(),
+                Count = x.OneToMany_Optional1
+                    .SelectMany(xx => xx.OneToMany_Optional2).Count(xx => xx.Name != "")
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(
+                    e.Collection,
+                    a.Collection,
+                    ordered: true,
+                    elementAsserter: (ee, aa) =>
+                    {
+                        AssertEqual(ee.Id, aa.Id);
+                        AssertEqual(ee.RefId, aa.RefId);
+                    });
+                AssertEqual(e.Count, a.Count);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Single_select_many_in_projection_with_take(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Level1>().Select(x => new
+            {
+                x.Id,
+                Collection = x.OneToMany_Optional1
+                    .SelectMany(xx => xx.OneToMany_Optional2)
+                    .OrderBy(xx => xx.Id).Take(12)
+                    .Select(xx => new
+                    {
+                        xx.Id,
+                        RefId = xx.OneToOne_Optional_FK3.Id
+                    }).ToList(),
+            }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Id, a.Id);
+                AssertCollection(
+                    e.Collection,
+                    a.Collection,
+                    ordered: true,
+                    elementAsserter: (ee, aa) =>
+                    {
+                        AssertEqual(ee.Id, aa.Id);
+                        AssertEqual(ee.RefId, aa.RefId);
+                    });
+            });
 }

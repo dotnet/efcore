@@ -3,13 +3,82 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class ManyToManyHeterogeneousQueryTestBase : NonSharedModelTestBase
+public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
 {
     protected override string StoreName
-        => "ManyToManyHeterogeneousQueryTests";
+        => "AdHocManyToManyQueryTests";
 
     protected virtual void ClearLog()
         => ListLoggerFactory.Clear();
+
+    #region 7973
+
+    [ConditionalFact]
+    public virtual async Task SelectMany_with_collection_selector_having_subquery()
+    {
+        var contextFactory = await InitializeAsync<MyContext7973>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+        var users = (from user in context.Users
+                     from organisation in context.Organisations.Where(o => o.OrganisationUsers.Any()).DefaultIfEmpty()
+                     select new { UserId = user.Id, OrgId = organisation.Id }).ToList();
+
+        Assert.Equal(2, users.Count);
+    }
+
+    private class MyContext7973 : DbContext
+    {
+        public DbSet<User> Users { get; set; }
+        public DbSet<Organisation> Organisations { get; set; }
+
+        public MyContext7973(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrganisationUser>().HasKey(ou => new { ou.OrganisationId, ou.UserId });
+            modelBuilder.Entity<OrganisationUser>().HasOne(ou => ou.Organisation).WithMany(o => o.OrganisationUsers)
+                .HasForeignKey(ou => ou.OrganisationId);
+            modelBuilder.Entity<OrganisationUser>().HasOne(ou => ou.User).WithMany(u => u.OrganisationUsers)
+                .HasForeignKey(ou => ou.UserId);
+        }
+
+        public void Seed()
+        {
+            AddRange(
+                new OrganisationUser { Organisation = new Organisation(), User = new User() },
+                new Organisation(),
+                new User());
+
+            SaveChanges();
+        }
+
+        public class User
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser> OrganisationUsers { get; set; }
+        }
+
+        public class Organisation
+        {
+            public int Id { get; set; }
+            public List<OrganisationUser> OrganisationUsers { get; set; }
+        }
+
+        public class OrganisationUser
+        {
+            public int OrganisationId { get; set; }
+            public Organisation Organisation { get; set; }
+
+            public int UserId { get; set; }
+            public User User { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region 20277
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -116,4 +185,6 @@ public abstract class ManyToManyHeterogeneousQueryTestBase : NonSharedModelTestB
         public int? ManyN_Id { get; set; }
         public ManyN_DB ManyN_DB { get; set; }
     }
+
+    #endregion
 }

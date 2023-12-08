@@ -5732,4 +5732,28 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(o => data.Contains(o.CustomerID + o.Customer.CustomerID)));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Compiler_generated_local_closure_produces_valid_parameter_name(bool async)
+        => Run_compiler_generated_local_closure_produces_valid_parameter_name(
+            async,
+            new MyCustomerDetails { CustomerId = "ALFKI", City = "Berlin" });
+
+    private Task Run_compiler_generated_local_closure_produces_valid_parameter_name(
+        bool async,
+        MyCustomerDetails details)
+    {
+        var customerId = details.CustomerId;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(x => x.CustomerID == customerId && x.City == details.City));
+    }
+
+    private class MyCustomerDetails
+    {
+        public string CustomerId { get; set; }
+        public string City { get; set; }
+    }
 }

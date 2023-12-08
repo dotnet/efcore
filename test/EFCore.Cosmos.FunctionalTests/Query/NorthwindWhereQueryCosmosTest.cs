@@ -2995,6 +2995,80 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = (@__id_0 || "KI"
         AssertSql();
     }
 
+    public override async Task Implicit_cast_in_predicate(bool async)
+    {
+        await base.Implicit_cast_in_predicate(async);
+
+        AssertSql(
+"""
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "1337"))
+""",
+                //
+                """
+@__prm_Value_0='1337'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = @__prm_Value_0))
+""",
+                //
+                """
+@__ToString_0='1337'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = @__ToString_0))
+""",
+                //
+                """
+@__p_0='1337'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = @__p_0))
+""",
+                //
+                """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "1337"))
+""");
+    }
+
+    public override async Task Interface_casting_though_generic_method(bool async)
+    {
+        await base.Interface_casting_though_generic_method(async);
+
+        AssertSql(
+"""
+@__id_0='10252'
+
+SELECT VALUE {"Id" : c["OrderID"]}
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = @__id_0))
+""",
+                //
+                """
+SELECT VALUE {"Id" : c["OrderID"]}
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
+""",
+                //
+                """
+SELECT VALUE {"Id" : c["OrderID"]}
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
+""",
+                //
+                """
+SELECT VALUE {"Id" : c["OrderID"]}
+FROM root c
+WHERE ((c["Discriminator"] = "Order") AND (c["OrderID"] = 10252))
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

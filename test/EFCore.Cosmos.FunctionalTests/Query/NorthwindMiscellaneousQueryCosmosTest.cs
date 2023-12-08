@@ -4682,6 +4682,21 @@ WHERE ((c["Discriminator"] = "Customer") AND @__Contains_0)
 """);
     }
 
+    public override async Task Compiler_generated_local_closure_produces_valid_parameter_name(bool async)
+    {
+        await base.Compiler_generated_local_closure_produces_valid_parameter_name(async);
+
+        AssertSql(
+"""
+@__customerId_0='ALFKI'
+@__details_City_1='Berlin'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] = @__customerId_0) AND (c["City"] = @__details_City_1)))
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

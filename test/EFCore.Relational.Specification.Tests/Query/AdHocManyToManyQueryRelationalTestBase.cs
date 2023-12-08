@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class ManyToManyHeterogeneousQueryRelationalTestBase : ManyToManyHeterogeneousQueryTestBase
+public abstract class AdHocManyToManyQueryRelationalTestBase : AdHocManyToManyQueryTestBase
 {
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;

@@ -1840,6 +1840,26 @@ WHERE ((c["Discriminator"] = "Customer") AND STARTSWITH(c["CustomerID"], "F"))
     public override Task List_from_result_of_single_result_3(bool async)
         => base.List_from_result_of_single_result_3(async);
 
+    public override async Task Entity_passed_to_DTO_constructor_works(bool async)
+    {
+        await base.Entity_passed_to_DTO_constructor_works(async);
+
+        AssertSql(
+"""
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
+    public override async Task Set_operation_in_pending_collection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Set_operation_in_pending_collection(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

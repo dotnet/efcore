@@ -3,8 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyHeterogeneousQueryInMemoryTest : ManyToManyHeterogeneousQueryTestBase
+public class AdHocManyToManyQuerySqliteTest : AdHocManyToManyQueryRelationalTestBase
 {
     protected override ITestStoreFactory TestStoreFactory
-        => InMemoryTestStoreFactory.Instance;
+        => SqliteTestStoreFactory.Instance;
 }
