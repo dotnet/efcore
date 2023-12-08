@@ -88,6 +88,13 @@ VALUES ('00000000000003_Migration3', '7.0.0-test');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000004_Migration4', '7.0.0-test');
+
+COMMIT;
+
 
 """,
                 Sql,
@@ -120,6 +127,9 @@ VALUES ('00000000000002_Migration2', '7.0.0-test');
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000003_Migration3', '7.0.0-test');
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000004_Migration4', '7.0.0-test');
 
 
 """,

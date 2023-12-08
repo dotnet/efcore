@@ -1418,7 +1418,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             var trimmed = line.TrimStart();
-            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
+                && (trimmed.Length == 2
+                    || char.IsWhiteSpace(trimmed[2])))
             {
                 var batch = batchBuilder.ToString();
                 batchBuilder.Clear();
