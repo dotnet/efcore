@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedMember.Local
@@ -77,7 +76,7 @@ namespace Microsoft.EntityFrameworkCore
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
                 optionsBuilder.UseInMemoryDatabase(typeof(InfoLogContext).FullName)
-                    .ConfigureWarnings(w => w.Default(WarningBehavior.Throw));
+                    .ConfigureWarnings(w => w.Default(WarningBehavior.Log));
 
                 if (_useLoggerFactory)
                 {
@@ -2014,8 +2013,7 @@ namespace Microsoft.EntityFrameworkCore
             var appServiceProvider = new ServiceCollection()
                 .AddDbContext<DbContext>(
                     b => b.EnableServiceProviderCaching(false)
-                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
-                        .ConfigureWarnings(w => w.Default(WarningBehavior.Throw)))
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider(validateScopes: true);
 
             var singleton = new object[4];
@@ -3089,6 +3087,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        private class CustomModelCustomizer2 : ModelCustomizer
+        {
+            public CustomModelCustomizer2(ModelCustomizerDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+        }
+
         private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
         {
             public CustomInMemoryValueGeneratorSelector(
@@ -3931,6 +3937,97 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
+        [ConditionalTheory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void Can_add_non_derived_context_and_override_options(bool useOptions)
+        {
+            var serviceCollection = new ServiceCollection().AddEntityFrameworkInMemoryDatabase();
+
+            if (useOptions)
+            {
+                serviceCollection.ConfigureDbContext<DbContext>(
+                    (p, b) => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ReplaceService<IParameterBindingFactory, CustomParameterBindingFactory>()
+                        .ReplaceService<IModelCustomizer, CustomModelCustomizer>());
+            }
+            else
+            {
+                serviceCollection.AddDbContext<DbContext>(
+                    (p, b) => b
+                        .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                        .ReplaceService<IParameterBindingFactory, CustomParameterBindingFactory>()
+                        .ReplaceService<IModelCustomizer, CustomModelCustomizer>());
+            }
+
+            serviceCollection.AddDbContext<DbContext>(
+                (p, b) => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ReplaceService<IParameterBindingFactory, EntityTypeParameterBindingFactory, CustomParameterBindingFactory2>()
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer2>());
+
+            var appServiceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
+
+            using (var serviceScope = appServiceProvider
+                       .GetRequiredService<IServiceScopeFactory>()
+                       .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DbContext>();
+
+                Assert.IsType<CustomModelCustomizer2>(context.GetService<IModelCustomizer>());
+                Assert.Single(context.GetService<IEnumerable<IModelCustomizer>>());
+
+                var replacedServices = context.GetService<IEnumerable<IParameterBindingFactory>>().ToList();
+                Assert.Equal(3, replacedServices.Count);
+
+                Assert.Equal(2, replacedServices.Count(t => t is CustomParameterBindingFactory));
+                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+            }
+        }
+
+        [ConditionalFact]
+        public void Non_derived_options_dont_override_derived_options()
+        {
+            var serviceCollection = new ServiceCollection().AddEntityFrameworkInMemoryDatabase();
+
+            serviceCollection.ConfigureDbContext<DbContext>(
+                (p, b) => b
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ReplaceService<IParameterBindingFactory, CustomParameterBindingFactory>()
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>());
+
+            serviceCollection.AddDbContext<DerivedContext1>(
+                (p, b) => b.EnableServiceProviderCaching(false)
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ReplaceService<IParameterBindingFactory, EntityTypeParameterBindingFactory, CustomParameterBindingFactory2>()
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer2>());
+
+            serviceCollection.ConfigureDbContext<DbContext>(
+                (p, b) => b
+                    .UseInMemoryDatabase(Guid.NewGuid().ToString())
+                    .ReplaceService<IParameterBindingFactory, CustomParameterBindingFactory>()
+                    .ReplaceService<IModelCustomizer, CustomModelCustomizer>());
+
+            var appServiceProvider = serviceCollection.BuildServiceProvider(validateScopes: true);
+
+            using (var serviceScope = appServiceProvider
+                       .GetRequiredService<IServiceScopeFactory>()
+                       .CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<DerivedContext1>();
+
+                Assert.IsType<CustomModelCustomizer2>(context.GetService<IModelCustomizer>());
+                Assert.Single(context.GetService<IEnumerable<IModelCustomizer>>());
+
+                var replacedServices = context.GetService<IEnumerable<IParameterBindingFactory>>().ToList();
+                Assert.Equal(3, replacedServices.Count);
+
+                Assert.Empty(replacedServices.Where(t => t is CustomParameterBindingFactory));
+                Assert.Single(replacedServices.Where(t => t is CustomParameterBindingFactory2));
+            }
+        }
+
         [ConditionalFact]
         public void Throws_when_wrong_DbContextOptions_used()
         {
@@ -3947,8 +4044,8 @@ namespace Microsoft.EntityFrameworkCore
         public void Throws_when_adding_two_contexts_using_non_generic_options()
         {
             var appServiceProvider = new ServiceCollection()
-                .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .AddDbContext<NonGenericOptions1>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
+                .AddDbContext<NonGenericOptions2>(b => b.UseInMemoryDatabase(Guid.NewGuid().ToString()))
                 .BuildServiceProvider(validateScopes: true);
 
             using var serviceScope = appServiceProvider
@@ -3981,7 +4078,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         [ConditionalFact]
-        public void AddDbContext_adds_options_for_all_types()
+        public void AddDbContext_adds_single_options_for_all_types()
         {
             var services = new ServiceCollection()
                 .AddSingleton<DbContextOptions>(_ => new DbContextOptions<NonGenericOptions1>())
@@ -3989,23 +4086,18 @@ namespace Microsoft.EntityFrameworkCore
                 .AddDbContext<NonGenericOptions2>(optionsLifetime: ServiceLifetime.Singleton)
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Equal(3, services.GetServices<DbContextOptions>().Count());
-            Assert.Equal(
-                2, services.GetServices<DbContextOptions>()
-                    .Select(o => o.ContextType)
-                    .Distinct()
-                    .Count());
+            Assert.Single(services.GetServices<DbContextOptions>());
         }
 
         [ConditionalFact]
-        public void Last_DbContextOptions_in_serviceCollection_selected()
+        public void First_DbContextOptions_in_serviceCollection_selected()
         {
             var services = new ServiceCollection()
                 .AddDbContext<NonGenericOptions1>(optionsLifetime: ServiceLifetime.Singleton)
                 .AddDbContext<NonGenericOptions2>(optionsLifetime: ServiceLifetime.Singleton)
                 .BuildServiceProvider(validateScopes: true);
 
-            Assert.Equal(typeof(NonGenericOptions2), services.GetService<DbContextOptions>().ContextType);
+            Assert.Equal(typeof(NonGenericOptions1), services.GetService<DbContextOptions>().ContextType);
         }
 
         [ConditionalFact]
