@@ -29,6 +29,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 /// </remarks>
 public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 {
+    private static readonly bool UseOldBehavior32457 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32457", out var enabled32457) && enabled32457;
+
     private IReadOnlyList<MigrationOperation> _operations = null!;
     private int _variableCounter;
 
@@ -1419,7 +1422,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
             var trimmed = line.TrimStart();
             if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
-                && (trimmed.Length == 2
+                && (UseOldBehavior32457
+                    || trimmed.Length == 2
                     || char.IsWhiteSpace(trimmed[2])))
             {
                 var batch = batchBuilder.ToString();
