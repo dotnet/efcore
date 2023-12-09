@@ -212,7 +212,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         {
             if (property.ForeignKeys == null)
             {
-                property.ForeignKeys = new List<RuntimeForeignKey> { foreignKey };
+                property.ForeignKeys = new SortedSet<RuntimeForeignKey>(ForeignKeyComparer.Instance) { foreignKey };
             }
             else
             {

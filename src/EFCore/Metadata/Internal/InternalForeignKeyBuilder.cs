@@ -3677,7 +3677,11 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             && (((navigationToPrincipal != null)
                     && (navigationToPrincipal.Value.Name == Metadata.PrincipalToDependent?.Name))
                 || ((navigationToDependent != null)
-                    && (navigationToDependent.Value.Name == Metadata.DependentToPrincipal?.Name)));
+                    && (navigationToDependent.Value.Name == Metadata.DependentToPrincipal?.Name))
+                || ((navigationToPrincipal == null)
+                    && (navigationToDependent == null)
+                    && principalEntityType == Metadata.DeclaringEntityType
+                    && dependentEntityType == Metadata.PrincipalEntityType));
 
         var someAspectsFitNonInverted = false;
         if (!sameHierarchyInvertedNavigations

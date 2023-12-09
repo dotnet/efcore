@@ -665,6 +665,13 @@ public class ModelAsserter
                     Assert.Equal(expected.DeclaringEntityType.Name, actual.DeclaringEntityType.Name);
                 }
             },
+            () =>
+            {
+                if (compareBackreferences)
+                {
+                    Assert.Equal(expected.GetReferencingForeignKeys().ToList(), actual.GetReferencingForeignKeys(), ForeignKeyComparer.Instance);
+                }
+            },
             () => Assert.Equal(expectedAnnotations, actualAnnotations, TestAnnotationComparer.Instance));
 
         return true;
