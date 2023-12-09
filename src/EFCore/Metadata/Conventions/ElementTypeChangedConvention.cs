@@ -39,7 +39,7 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
             foreach (var foreignKey in key.GetReferencingForeignKeys())
             {
                 var foreignKeyProperty = foreignKey.Properties[index];
-                foreignKeyProperty.SetElementType(newElementType?.ClrType);
+                foreignKeyProperty.Builder.SetElementType(newElementType?.ClrType);
             }
         }
     }
@@ -52,7 +52,7 @@ public class ElementTypeChangedConvention : IPropertyElementTypeChangedConventio
         var principalKeyProperties = foreignKeyBuilder.Metadata.PrincipalKey.Properties;
         for (var i = 0; i < foreignKeyProperties.Count; i++)
         {
-            foreignKeyProperties[i].SetElementType(principalKeyProperties[i].GetElementType()?.ClrType);
+            foreignKeyProperties[i].Builder.SetElementType(principalKeyProperties[i].GetElementType()?.ClrType);
         }
     }
 }
