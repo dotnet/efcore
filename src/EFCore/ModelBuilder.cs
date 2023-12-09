@@ -516,11 +516,15 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
                     && e.GetParameters().SingleOrDefault()?.ParameterType.GetGenericTypeDefinition()
                     == typeof(IEntityTypeConfiguration<>));
 
-        foreach (var type in assembly.GetConstructibleTypes().OrderBy(t => t.FullName))
+        var logger = Builder.Metadata.ScopedModelDependencies?.Logger;
+        var foundOne = false;
+        foreach (var type in assembly.GetConstructibleTypes(logger).OrderBy(t => t.FullName))
         {
             // Only accept types that contain a parameterless constructor, are not abstract and satisfy a predicate if it was used.
-            if (type.GetConstructor(Type.EmptyTypes) == null
-                || (!predicate?.Invoke(type) ?? false))
+            var hasConstructor
+                = type.GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, Type.EmptyTypes) != null;
+
+            if (hasConstructor && predicate != null && !predicate(type))
             {
                 continue;
             }
@@ -534,10 +538,23 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
 
                 if (@interface.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>))
                 {
-                    var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
-                    target.Invoke(this, new[] { Activator.CreateInstance(type) });
+                    if (hasConstructor)
+                    {
+                        var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
+                        target.Invoke(this, new[] { Activator.CreateInstance(type, nonPublic: true) });
+                        foundOne = true;
+                    }
+                    else
+                    {
+                        logger?.SkippedEntityTypeConfigurationWarning(type);
+                    }
                 }
             }
+        }
+
+        if (!foundOne)
+        {
+            logger?.NoEntityTypeConfigurationsWarning(assembly);
         }
 
         return this;

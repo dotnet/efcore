@@ -4192,6 +4192,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     No instantiatable types implementing `IEntityTypeConfiguration` were found while while scanning assembly '{assemblyName}'.
+        /// </summary>
+        public static EventDefinition<string> LogNoEntityTypeConfigurationsWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).NoEntityTypeConfigurationsWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).NoEntityTypeConfigurationsWarning,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.NoEntityTypeConfigurationsWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.NoEntityTypeConfigurationsWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.NoEntityTypeConfigurationsWarning,
+                            _resourceManager.GetString("LogNoEntityTypeConfigurationsWarning")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
         ///     The navigation '{targetEntityType}.{inverseNavigation}' specified in the [InverseProperty] attribute cannot be used as the inverse of '{ownedEntityType}.{navigation}' because it's not the ownership navigation '{ownershipNavigation}'.
         /// </summary>
         public static EventDefinition<string, string?, string, string?, string?> LogNonOwnershipInverseNavigation(IDiagnosticsLogger logger)
@@ -4917,6 +4942,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The type '{entityTypeConfig}' was found while scanning assemblies but could not instantiated because it does not have a parameterless constructor.
+        /// </summary>
+        public static EventDefinition<string> LogSkippedEntityTypeConfigurationWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).SkippedEntityTypeConfigurationWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).SkippedEntityTypeConfigurationWarning,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.SkippedEntityTypeConfigurationWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.SkippedEntityTypeConfigurationWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.SkippedEntityTypeConfigurationWarning,
+                            _resourceManager.GetString("LogSkippedEntityTypeConfigurationWarning")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
         ///     Context '{contextType}' started tracking '{entityType}' entity. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string> LogStartedTracking(IDiagnosticsLogger logger)
@@ -5089,6 +5139,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string, object?, string, string>)definition;
+        }
+
+        /// <summary>
+        ///     Attempting to load types from '{assemblyName}' resulted in ignored error: '{exceptionMessage}'.
+        /// </summary>
+        public static EventDefinition<string, string> LogTypeLoadingErrorWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogTypeLoadingErrorWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogTypeLoadingErrorWarning,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.TypeLoadingErrorWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.TypeLoadingErrorWarning",
+                        level => LoggerMessage.Define<string, string>(
+                            level,
+                            CoreEventId.TypeLoadingErrorWarning,
+                            _resourceManager.GetString("LogTypeLoadingErrorWarning")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
