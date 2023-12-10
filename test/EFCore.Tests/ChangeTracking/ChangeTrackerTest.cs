@@ -2299,17 +2299,17 @@ public class ChangeTrackerTest
             modelBuilder
                 .Entity<Cat>()
                 .Property(e => e.Id)
-                .HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+                .HasValueGenerator((_, __) => new ResettableValueGenerator());
 
             modelBuilder
                 .Entity<Hat>()
                 .Property(e => e.Id)
-                .HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+                .HasValueGenerator((_, __) => new ResettableValueGenerator());
 
             modelBuilder.Entity<Mat>(
                 b =>
                 {
-                    b.Property(e => e.Id).HasValueGenerator<InMemoryIntegerValueGenerator<int>>();
+                    b.Property(e => e.Id).HasValueGenerator((_, __) => new ResettableValueGenerator());
                     b.HasMany(e => e.Cats)
                         .WithMany(e => e.Mats)
                         .UsingEntity<CatMat>(

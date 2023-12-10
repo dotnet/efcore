@@ -73,6 +73,9 @@ public class GraphUpdatesSqlServerTptIdentityTest : GraphUpdatesSqlServerTestBas
             modelBuilder.Entity<Poost>().ToTable(nameof(Poost));
             modelBuilder.Entity<Bloog>().ToTable(nameof(Bloog));
             modelBuilder.Entity<Produce>().ToTable(nameof(Produce));
+            modelBuilder.Entity<ParentEntity32084>().ToTable(nameof(ParentEntity32084));
+            modelBuilder.Entity<ChildBaseEntity32084>().ToTable(nameof(ChildBaseEntity32084));
+            modelBuilder.Entity<ChildEntity32084>().ToTable(nameof(ChildEntity32084));
         }
     }
 }

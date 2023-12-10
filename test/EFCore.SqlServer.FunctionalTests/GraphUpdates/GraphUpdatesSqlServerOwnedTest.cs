@@ -15,6 +15,18 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
         => Task.CompletedTask;
 
     // No owned types
+    public override Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async, bool useAdd)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Mark_explicitly_set_stable_dependent_appropriately(bool async, bool useAdd)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Mark_explicitly_set_stable_dependent_appropriately_when_deep_in_graph(bool async, bool useAdd)
+        => Task.CompletedTask;
+
+    // No owned types
     public override Task Update_root_by_collection_replacement_of_deleted_first_level(bool async)
         => Task.CompletedTask;
 
