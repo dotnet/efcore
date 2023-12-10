@@ -11,6 +11,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// </remarks>
 public class ElementTypeChangedConvention : IPropertyElementTypeChangedConvention, IForeignKeyAddedConvention
 {
+    internal static readonly bool UseOldBehavior32411 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32411", out var enabled32411) && enabled32411;
+
     /// <summary>
     ///     Creates a new instance of <see cref="ElementTypeChangedConvention" />.
     /// </summary>

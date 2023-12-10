@@ -42,7 +42,15 @@ public class ElementMappingConvention : IModelFinalizingConvention
                 var typeMapping = Dependencies.TypeMappingSource.FindMapping((IProperty)property);
                 if (typeMapping is { ElementTypeMapping: not null })
                 {
-                    property.Builder.SetElementType(property.ClrType.TryGetElementType(typeof(IEnumerable<>)));
+                    var elementType = property.ClrType.TryGetElementType(typeof(IEnumerable<>));
+                    if (ElementTypeChangedConvention.UseOldBehavior32411)
+                    {
+                        property.SetElementType(elementType);
+                    }
+                    else
+                    {
+                        property.Builder.SetElementType(elementType);
+                    }
                 }
             }
 
