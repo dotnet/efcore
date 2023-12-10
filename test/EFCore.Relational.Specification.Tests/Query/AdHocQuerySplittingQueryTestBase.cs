@@ -182,14 +182,13 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_async()
     {
-        var contextFactory = await CreateContext25225Async();
-        var task1 = QueryAsync(Context25225.Parent1Id, Context25225.Collection1Id);
-        var task2 = QueryAsync(Context25225.Parent2Id, Context25225.Collection2Id);
+        var (context1, context2) = await CreateTwoContext25225();
+        var task1 = QueryAsync(context1, Context25225.Parent1Id, Context25225.Collection1Id);
+        var task2 = QueryAsync(context2, Context25225.Parent2Id, Context25225.Collection2Id);
         await Task.WhenAll(task1, task2);
 
-        async Task QueryAsync(Guid parentId, Guid collectionId)
+        async Task QueryAsync(Context25225 context, Guid parentId, Guid collectionId)
         {
-            using var context = contextFactory.CreateContext();
             ClearLog();
             for (var i = 0; i < 100; i++)
             {
@@ -202,14 +201,13 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
     [ConditionalFact]
     public virtual async Task Can_query_with_nav_collection_in_projection_with_split_query_in_parallel_sync()
     {
-        var contextFactory = await CreateContext25225Async();
-        var task1 = Task.Run(() => Query(Context25225.Parent1Id, Context25225.Collection1Id));
-        var task2 = Task.Run(() => Query(Context25225.Parent2Id, Context25225.Collection2Id));
+        var (context1, context2) = await CreateTwoContext25225();
+        var task1 = Task.Run(() => Query(context1, Context25225.Parent1Id, Context25225.Collection1Id));
+        var task2 = Task.Run(() => Query(context2, Context25225.Parent2Id, Context25225.Collection2Id));
         await Task.WhenAll(task1, task2);
 
-        void Query(Guid parentId, Guid collectionId)
+        void Query(Context25225 context, Guid parentId, Guid collectionId)
         {
-            using var context = contextFactory.CreateContext();
             ClearLog();
             for (var i = 0; i < 10; i++)
             {
@@ -217,6 +215,17 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
                 AssertParent25225(parentId, collectionId, parent);
             }
         }
+    }
+
+    private async Task<(Context25225, Context25225)> CreateTwoContext25225()
+    {
+        var context1 = (await CreateContext25225Async()).CreateContext();
+        var context2 = (await CreateContext25225Async()).CreateContext();
+
+        // Can't run in parallel with the same connection instance. Issue #22921
+        Assert.NotSame(context1.Database.GetDbConnection(), context2.Database.GetDbConnection());
+
+        return (context1, context2);
     }
 
     private Task<ContextFactory<Context25225>> CreateContext25225Async()
