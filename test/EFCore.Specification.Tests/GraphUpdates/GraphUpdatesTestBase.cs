@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -587,11 +588,46 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     b.OwnsMany(e => e.RequiredChildren).OwnsMany(e => e.Children);
                 });
 
-            modelBuilder.Entity<ParentEntity32084>().HasOne(x => x.Child)
+            modelBuilder.Entity<ParentEntity32084>()
+                .HasOne(x => x.Child)
                 .WithOne()
                 .HasForeignKey<ChildBaseEntity32084>(x => x.ParentId);
 
             modelBuilder.Entity<ChildEntity32084>();
+
+            modelBuilder.Entity<StableParent32084>(
+                b =>
+                {
+                    b.HasOne(x => x.Child).WithOne().HasForeignKey<StableChild32084>(x => x.ParentId);
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+
+            modelBuilder.Entity<StableChild32084>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+
+            modelBuilder.Entity<SneakyUncle32084>(
+                b =>
+                {
+                    b.HasOne(x => x.Brother).WithOne().HasForeignKey<SneakyUncle32084>(x => x.BrotherId);
+                    b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
+                });
+        }
+
+        private class StableGuidGenerator : ValueGenerator<Guid>
+        {
+            private readonly ConcurrentDictionary<object, Guid> _guids = new(ReferenceEqualityComparer.Instance);
+
+            public override Guid Next(EntityEntry entry)
+                => _guids.GetOrAdd(entry.Entity, _ => Guid.NewGuid());
+
+            public override bool GeneratesTemporaryValues
+                => false;
+
+            public override bool GeneratesStableValues
+                => true;
         }
 
         protected virtual object CreateFullGraph()
@@ -4391,6 +4427,67 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         {
             get => _childValue;
             set => SetWithNotify(value, ref _childValue);
+        }
+    }
+
+    protected class StableParent32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private StableChild32084 _child;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public StableChild32084 Child
+        {
+            get => _child;
+            set => SetWithNotify(value, ref _child);
+        }
+    }
+
+    protected class StableChild32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+    }
+
+    protected class SneakyUncle32084 : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid? _brotherId;
+        private StableParent32084 _brother;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid? BrotherId
+        {
+            get => _brotherId;
+            set => SetWithNotify(value, ref _brotherId);
+        }
+
+        public StableParent32084 Brother
+        {
+            get => _brother;
+            set => SetWithNotify(value, ref _brother);
         }
     }
 

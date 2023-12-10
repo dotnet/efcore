@@ -2122,9 +2122,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
             });
 
     [ConditionalTheory] // Issue #32084
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async)
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Mark_explicitly_set_dependent_appropriately_with_any_inheritance_and_stable_generator(bool async, bool useAdd)
     {
         var parentId = Guid.NewGuid();
         var childId = Guid.NewGuid();
@@ -2132,8 +2134,16 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
         return ExecuteWithStrategyInTransactionAsync(
             async context =>
             {
-                context.Add(new ParentEntity32084 { Id = parentId });
-                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                if (async)
+                {
+                    await context.AddAsync(new ParentEntity32084 { Id = parentId });
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(new ParentEntity32084 { Id = parentId });
+                    context.SaveChanges();
+                }
             },
             async context =>
             {
@@ -2148,17 +2158,137 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     ChildValue = "test value"
                 };
 
-                parent.Child = child;
-
-                context.ChangeTracker.DetectChanges();
+                if (useAdd)
+                {
+                    _ = async ? await context.AddAsync(child) : context.Add(child);
+                }
+                else
+                {
+                    parent.Child = child;
+                    context.ChangeTracker.DetectChanges();
+                }
 
                 Assert.Equal(2, context.ChangeTracker.Entries().Count());
-                Assert.Equal(EntityState.Modified, context.Entry(child).State);
                 Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
 
-                await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
-                    async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges());
+                if (useAdd) // If we call Add explicitly, then the key value is forced to Added
+                {
+                    Assert.Equal(EntityState.Added, context.Entry(child).State);
+                    _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+                }
+                else
+                {
+                    Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                    await Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+                        async () => _ = async ? await context.SaveChangesAsync() : context.SaveChanges());
+                }
+            });
+    }
 
+    [ConditionalTheory] // Issue #32084
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Mark_explicitly_set_stable_dependent_appropriately(bool async, bool useAdd)
+    {
+        var parentId = Guid.NewGuid();
+        var childId = Guid.NewGuid();
+
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                if (async)
+                {
+                    await context.AddAsync(new StableParent32084 { Id = parentId });
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(new StableParent32084 { Id = parentId });
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var parent = async
+                    ? await context.FindAsync<StableParent32084>(parentId)
+                    : context.Find<StableParent32084>(parentId);
+
+                var child = new StableChild32084()
+                {
+                    Id = childId, ParentId = parent!.Id,
+                };
+
+                if (useAdd)
+                {
+                    _ = async ? await context.AddAsync(child) : context.Add(child);
+                }
+                else
+                {
+                    parent.Child = child;
+                    context.ChangeTracker.DetectChanges();
+                }
+
+                Assert.Equal(EntityState.Unchanged, context.Entry(parent).State);
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Added, context.Entry(child).State);
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            });
+    }
+
+    [ConditionalTheory] // Issue #32084
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Mark_explicitly_set_stable_dependent_appropriately_when_deep_in_graph(bool async, bool useAdd)
+    {
+        var parentId = Guid.NewGuid();
+        var childId = Guid.NewGuid();
+        var brotherId = Guid.NewGuid();
+
+        return ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                if (async)
+                {
+                    await context.AddAsync(new SneakyUncle32084 { Id = brotherId });
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(new SneakyUncle32084 { Id = brotherId });
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var brother = async
+                    ? (await context.FindAsync<SneakyUncle32084>(brotherId))!
+                    : context.Find<SneakyUncle32084>(brotherId)!;
+
+                var child = new StableChild32084 { Id = childId };
+                var parent = new StableParent32084 { Id = parentId, Child = child };
+
+                if (useAdd)
+                {
+                    brother.BrotherId = parentId;
+                    _ = async ? await context.AddAsync(parent) : context.Add(parent);
+                }
+                else
+                {
+                    brother.Brother = parent;
+                    context.ChangeTracker.DetectChanges();
+                }
+
+                Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(EntityState.Modified, context.Entry(brother).State);
+                Assert.Equal(EntityState.Added, context.Entry(parent).State);
+                Assert.Equal(EntityState.Added, context.Entry(child).State);
+
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             });
     }
 }

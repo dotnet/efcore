@@ -116,15 +116,6 @@ public class ValueGenerationManager : IValueGenerationManager
             var generatedValue = valueGenerator.Next(entityEntry);
             var temporary = valueGenerator.GeneratesTemporaryValues;
 
-            if (valueGenerator.GeneratesStableValues)
-            {
-                hasStableValues = true;
-            }
-            else
-            {
-                hasNonStableValues = true;
-            }
-
             Log(entry, property, generatedValue, temporary);
 
             SetGeneratedValue(entry, property, generatedValue, temporary);
@@ -163,17 +154,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasNonStableValues = false;
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
-            if (entry.HasExplicitValue(property)
-                || (!includePrimaryKey
-                    && property.IsPrimaryKey()))
-            {
-                continue;
-            }
-
             var valueGenerator = GetValueGenerator(property);
-            var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken).ConfigureAwait(false);
-            var temporary = valueGenerator.GeneratesTemporaryValues;
-
             if (valueGenerator.GeneratesStableValues)
             {
                 hasStableValues = true;
@@ -182,6 +163,16 @@ public class ValueGenerationManager : IValueGenerationManager
             {
                 hasNonStableValues = true;
             }
+
+            if (entry.HasExplicitValue(property)
+                || (!includePrimaryKey
+                    && property.IsPrimaryKey()))
+            {
+                continue;
+            }
+
+            var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken).ConfigureAwait(false);
+            var temporary = valueGenerator.GeneratesTemporaryValues;
 
             Log(entry, property, generatedValue, temporary);
 
