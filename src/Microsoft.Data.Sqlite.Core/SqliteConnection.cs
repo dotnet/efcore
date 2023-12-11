@@ -338,9 +338,10 @@ namespace Microsoft.Data.Sqlite
 
             Transaction?.Dispose();
 
-            for (var i = _commands.Count - 1; i >= 0; i--)
+            var commands = _commands;
+            for (var i = commands.Count - 1; i >= 0; i--)
             {
-                var reference = _commands[i];
+                var reference = commands[i];
                 if (reference.TryGetTarget(out var command))
                 {
                     // NB: Calls RemoveCommand()
@@ -348,12 +349,13 @@ namespace Microsoft.Data.Sqlite
                 }
                 else
                 {
-                    _commands.RemoveAt(i);
+                    _commands.Remove(reference);
                 }
             }
 
             Debug.Assert(_commands.Count == 0);
 
+            _commands.Clear();
             _innerConnection!.Close();
             _innerConnection = null;
 
