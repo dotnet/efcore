@@ -899,6 +899,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             return (Type?)annotation.Value;
         }
 
+        if (!Property.UseOldBehavior32422)
+        {
+            return ((Property)property).GetConversion(throwOnProviderClrTypeConflict: false, throwOnValueConverterConflict: false)
+                .ValueConverterType;
+        }
+
         var principalProperty = property;
         var i = 0;
         for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
