@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
@@ -767,53 +768,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual ValueConverter? GetValueConverter()
     {
         var annotation = FindAnnotation(CoreAnnotationNames.ValueConverter);
-        if (annotation != null)
-        {
-            return (ValueConverter?)annotation.Value;
-        }
-
-        var property = this;
-        var i = 0;
-        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
-        {
-            Property? nextProperty = null;
-            foreach (var foreignKey in property.GetContainingForeignKeys())
-            {
-                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                {
-                    if (property == foreignKey.Properties[propertyIndex])
-                    {
-                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (principalProperty == this
-                            || principalProperty == property)
-                        {
-                            break;
-                        }
-
-                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
-                        if (annotation != null)
-                        {
-                            return (ValueConverter?)annotation.Value;
-                        }
-
-                        nextProperty = principalProperty;
-                    }
-                }
-            }
-
-            if (nextProperty == null)
-            {
-                break;
-            }
-
-            property = nextProperty;
-        }
-
-        return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    DeclaringType.DisplayName(), Name, "ValueConverter"))
-            : null;
+        return annotation != null
+            ? (ValueConverter?)annotation.Value
+            : GetConversion(throwOnProviderClrTypeConflict: FindAnnotation(CoreAnnotationNames.ProviderClrType) == null)
+                .ValueConverter;
     }
 
     /// <summary>
@@ -859,53 +817,120 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual Type? GetProviderClrType()
     {
         var annotation = FindAnnotation(CoreAnnotationNames.ProviderClrType);
-        if (annotation != null)
-        {
-            return (Type?)annotation.Value;
-        }
+        return annotation != null
+            ? (Type?)annotation.Value
+            : GetConversion(throwOnValueConverterConflict: FindAnnotation(CoreAnnotationNames.ValueConverter) == null)
+                .ProviderClrType;
+    }
 
-        var property = this;
-        var i = 0;
-        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
+    private (ValueConverter? ValueConverter, Type? ProviderClrType) GetConversion(
+        bool throwOnValueConverterConflict = true, bool throwOnProviderClrTypeConflict = true)
+    {
+        var queue = new Queue<(Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)>();
+        queue.Enqueue((this, this, 0, 2));
+
+        ValueConverter? valueConverter = null;
+        Type? providerClrType = null;
+        while (queue.Count > 0)
         {
-            Property? nextProperty = null;
+            var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = queue.Dequeue();
+            if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength)
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.RelationshipCycle(DeclaringType.DisplayName(), Name, "ValueConverter"));
+            }
+
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
                 {
-                    if (property == foreignKey.Properties[propertyIndex])
+                    if (property != foreignKey.Properties[propertyIndex])
                     {
-                        var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (principalProperty == this
-                            || principalProperty == property)
-                        {
-                            break;
-                        }
-
-                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
-                        if (annotation != null)
-                        {
-                            return (Type?)annotation.Value;
-                        }
-
-                        nextProperty = principalProperty;
+                        continue;
                     }
+
+                    var principalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                    if (principalProperty == cycleBreakingProperty)
+                    {
+                        break;
+                    }
+
+                    var annotationFound = false;
+                    var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
+                    if (valueConverterAnnotation != null)
+                    {
+                        var annotationValue = (ValueConverter?)valueConverterAnnotation.Value;
+                        if (annotationValue != null)
+                        {
+                            if (valueConverter != null)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.ConflictingRelationshipConversions(
+                                        DeclaringType.DisplayName(), Name,
+                                        valueConverter.GetType().ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
+                            }
+
+                            if (providerClrType != null
+                                && throwOnProviderClrTypeConflict)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.ConflictingRelationshipConversions(
+                                        DeclaringType.DisplayName(), Name,
+                                        providerClrType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
+                            }
+
+                            valueConverter = annotationValue;
+                        }
+                        annotationFound = true;
+                    }
+
+                    var providerClrTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
+                    if (providerClrTypeAnnotation != null)
+                    {
+                        var annotationValue = (Type?)providerClrTypeAnnotation.Value;
+                        if (annotationValue != null)
+                        {
+                            if (providerClrType != null)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.ConflictingRelationshipConversions(
+                                        DeclaringType.DisplayName(), Name,
+                                        providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
+                            }
+
+                            if (valueConverter != null
+                                && throwOnValueConverterConflict)
+                            {
+                                throw new InvalidOperationException(
+                                    CoreStrings.ConflictingRelationshipConversions(
+                                        DeclaringType.DisplayName(), Name,
+                                        valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
+                            }
+
+                            providerClrType = annotationValue;
+                        }
+                        annotationFound = true;
+                    }
+
+                    if (!annotationFound)
+                    {
+                        if (cyclePosition == maxCycleLength - 1)
+                        {
+                            // We need to use different primes to ensure a different cycleBreakingProperty is selected
+                            // each time when traversing properties that participate in multiple relationship cycles
+                            queue.Enqueue((principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1)));
+                        }
+                        else
+                        {
+                            queue.Enqueue((principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength));
+                        }
+                    }
+                    break;
                 }
             }
-
-            if (nextProperty == null)
-            {
-                break;
-            }
-
-            property = nextProperty;
         }
 
-        return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    DeclaringType.DisplayName(), Name, "ProviderClrType"))
-            : null;
+        return (valueConverter, providerClrType);
     }
 
     /// <summary>
@@ -1376,7 +1401,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IEnumerable<ForeignKey> GetContainingForeignKeys()
-        => ForeignKeys?.OrderBy(fk => fk.Properties, PropertyListComparer.Instance) ?? Enumerable.Empty<ForeignKey>();
+        => ForeignKeys?.OrderBy(fk => fk, ForeignKeyComparer.Instance) ?? Enumerable.Empty<ForeignKey>();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
