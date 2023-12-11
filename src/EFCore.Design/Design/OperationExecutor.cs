@@ -17,8 +17,8 @@ namespace Microsoft.EntityFrameworkCore.Design;
 public class OperationExecutor : MarshalByRefObject
 {
     private readonly string _projectDir;
-    private readonly string _targetName;
-    private readonly string _startupTargetName;
+    private readonly string _targetAssemblyName;
+    private readonly string _startupTargetAssemblyName;
     private readonly string? _rootNamespace;
     private readonly string? _language;
     private readonly bool _nullable;
@@ -52,8 +52,8 @@ public class OperationExecutor : MarshalByRefObject
         Check.NotNull(args, nameof(args));
 
         _reporter = new OperationReporter(reportHandler);
-        _targetName = (string)args["targetName"]!;
-        _startupTargetName = (string)args["startupTargetName"]!;
+        _targetAssemblyName = (string)args["targetName"]!;
+        _startupTargetAssemblyName = (string)args["startupTargetName"]!;
         _projectDir = (string)args["projectDir"]!;
         _rootNamespace = (string?)args["rootNamespace"];
         _language = (string?)args["language"];
@@ -77,12 +77,12 @@ public class OperationExecutor : MarshalByRefObject
             {
                 try
                 {
-                    return Assembly.Load(new AssemblyName(_targetName));
+                    return Assembly.Load(new AssemblyName(_targetAssemblyName));
                 }
                 catch (Exception ex)
                 {
                     throw new OperationException(
-                        DesignStrings.UnreferencedAssembly(_targetName, _startupTargetName),
+                        DesignStrings.UnreferencedAssembly(_targetAssemblyName, _startupTargetAssemblyName),
                         ex);
                 }
             }
@@ -93,7 +93,7 @@ public class OperationExecutor : MarshalByRefObject
 
     private Assembly StartupAssembly
         => _startupAssembly
-            ??= Assembly.Load(new AssemblyName(_startupTargetName));
+            ??= Assembly.Load(new AssemblyName(_startupTargetAssemblyName));
 
     private MigrationsOperations MigrationsOperations
         => _migrationsOperations
