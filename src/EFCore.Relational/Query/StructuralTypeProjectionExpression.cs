@@ -66,26 +66,20 @@ public class StructuralTypeProjectionExpression : Expression
     public virtual ITypeBase StructuralType { get; }
 
     /// <summary>
-    ///     TODO
-    /// </summary>
-    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
+    /// </summary>
     [EntityFrameworkInternal]
     public virtual IReadOnlyDictionary<ITableBase, TableReferenceExpression> TableMap { get; }
 
     /// <summary>
-    ///     TODO
-    /// </summary>
-    /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
+    /// </summary>
     [EntityFrameworkInternal]
     public virtual bool IsNullable { get; }
 
@@ -94,15 +88,30 @@ public class StructuralTypeProjectionExpression : Expression
     /// </summary>
     public virtual SqlExpression? DiscriminatorExpression { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     The <see cref="ExpressionType"/> of the <see cref="Expression"/>.
+    /// </summary>
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     The <see cref="Type"/> of the value represented by this <see cref="Expression"/>.
+    /// </summary>
     public override Type Type
         => StructuralType.ClrType;
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Reduces the node and then calls the <see cref="ExpressionVisitor.Visit(Expression)"/> method passing the reduced expression.
+    ///     Throws an exception if the node isn't reducible.
+    /// </summary>
+    /// <param name="visitor">An instance of <see cref="ExpressionVisitor"/>.</param>
+    /// <returns>The expression being visited, or an expression which should replace it in the tree.</returns>
+    /// <remarks>
+    ///     Override this method to provide logic to walk the node's children.
+    ///     A typical implementation will call visitor.Visit on each of its
+    ///     children, and if any of them change, should return a new copy of
+    ///     itself with the modified children.
+    /// </remarks>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var changed = false;
@@ -347,7 +356,10 @@ public class StructuralTypeProjectionExpression : Expression
             : null;
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Creates a <see cref="string"/> representation of the Expression.
+    /// </summary>
+    /// <returns>A <see cref="string"/> representation of the Expression.</returns>
     public override string ToString()
         => $"EntityProjectionExpression: {StructuralType.ShortName()}";
 }

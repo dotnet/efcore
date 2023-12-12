@@ -8,13 +8,15 @@ using System.ComponentModel;
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
-///     A hash set that implements the interfaces required for Entity Framework to use notification based change tracking
-///     for a collection navigation property.
+///     <para>
+///         A hash set that implements the interfaces required for Entity Framework to use notification based change tracking
+///         for a collection navigation property.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more
+///         information and examples.
+///     </para>
 /// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-local-views">Local views of tracked entities in EF Core</see> for more information and
-///     examples.
-/// </remarks>
 /// <typeparam name="T">The type of elements in the hash set.</typeparam>
 public class ObservableHashSet<T>
     : ISet<T>, IReadOnlyCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged, INotifyPropertyChanging
@@ -113,8 +115,7 @@ public class ObservableHashSet<T>
     }
 
     /// <summary>
-    ///     Determines whether the hash set object contains the
-    ///     specified element.
+    ///     Determines whether the hash set object contains the specified element.
     /// </summary>
     /// <param name="item">The element to locate in the hash set.</param>
     /// <returns>
@@ -362,7 +363,7 @@ public class ObservableHashSet<T>
         => _set.IsProperSupersetOf(other);
 
     /// <summary>
-    ///     Determines whether the current System.Collections.Generic.HashSet`1 object and a specified collection share common elements.
+    ///     Determines whether the current hash set object and a specified collection share common elements.
     /// </summary>
     /// <param name="other">The collection to compare to the current hash set.</param>
     /// <returns>
