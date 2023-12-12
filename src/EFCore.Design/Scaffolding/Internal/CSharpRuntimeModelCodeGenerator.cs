@@ -998,53 +998,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     private static Type? GetValueConverterType(IProperty property)
     {
         var annotation = property.FindAnnotation(CoreAnnotationNames.ValueConverterType);
-        if (annotation != null)
-        {
-            return (Type?)annotation.Value;
-        }
-
-        var principalProperty = property;
-        var i = 0;
-        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
-        {
-            IProperty? nextProperty = null;
-            foreach (var foreignKey in principalProperty.GetContainingForeignKeys())
-            {
-                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
-                {
-                    if (principalProperty == foreignKey.Properties[propertyIndex])
-                    {
-                        var newPrincipalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (newPrincipalProperty == property
-                            || newPrincipalProperty == principalProperty)
-                        {
-                            break;
-                        }
-
-                        annotation = newPrincipalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
-                        if (annotation != null)
-                        {
-                            return (Type?)annotation.Value;
-                        }
-
-                        nextProperty = newPrincipalProperty;
-                    }
-                }
-            }
-
-            if (nextProperty == null)
-            {
-                break;
-            }
-
-            principalProperty = nextProperty;
-        }
-
-        return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
-            : null;
+        return annotation != null
+            ? (Type?)annotation.Value
+            : ((Property)property).GetConversion(throwOnProviderClrTypeConflict: false, throwOnValueConverterConflict: false)
+                .ValueConverterType;
     }
 
     private void PropertyBaseParameters(

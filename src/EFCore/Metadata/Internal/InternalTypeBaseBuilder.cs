@@ -642,19 +642,39 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             return null;
         }
 
+        if (properties.Count == 0)
+        {
+            return properties;
+        }
+
+        for (var i = 0; ; i++)
+        {
+            var property = properties[i];
+            if (!property.IsInModel || !property.DeclaringType.IsAssignableFrom(Metadata))
+            {
+                break;
+            }
+
+            if (i == properties.Count - 1)
+            {
+                return properties;
+            }
+        }
+
         var actualProperties = new Property[properties.Count];
         for (var i = 0; i < actualProperties.Length; i++)
         {
             var property = properties[i];
             var typeConfigurationSource = property.GetTypeConfigurationSource();
-            var builder = property.IsInModel && property.DeclaringType.IsAssignableFrom(Metadata)
-                ? property.Builder
-                : Property(
-                    typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? property.ClrType : null,
-                    property.Name,
-                    property.GetIdentifyingMemberInfo(),
-                    typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
-                    configurationSource);
+            var builder = Property(
+                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation)
+                    || (property.IsInModel && Metadata.IsAssignableFrom(property.DeclaringType))
+                    ? property.ClrType
+                    : null,
+                property.Name,
+                property.GetIdentifyingMemberInfo(),
+                typeConfigurationSource.Overrides(ConfigurationSource.DataAnnotation) ? typeConfigurationSource : null,
+                configurationSource);
 
             if (builder == null)
             {

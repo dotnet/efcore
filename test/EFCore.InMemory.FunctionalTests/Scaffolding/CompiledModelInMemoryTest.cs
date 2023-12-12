@@ -361,6 +361,59 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 options: new CompiledModelCodeGenerationOptions { ModelNamespace = "Scaffolding" },
                 addDesignTimeServices: services => services.AddSingleton<ICSharpHelper, FullyQualifiedCSharpHelper>());
 
+        [ConditionalFact]
+        public virtual void RelationshipCycles()
+            => Test(
+                BuildCyclesModel,
+                AssertCyclesModel,
+                options: new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true });
+
+        protected virtual void BuildCyclesModel(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Ignore<OwnedType>();
+
+            modelBuilder.Entity<DependentBase<long?>>(
+                eb =>
+                {
+                    eb.Property<long?>("Id");
+
+                    eb.HasOne<PrincipalBase>().WithOne()
+                        .HasPrincipalKey<DependentBase<long?>>("PrincipalId")
+                        .HasForeignKey<PrincipalBase>(e => e.Id);
+                });
+
+            modelBuilder.Entity<PrincipalDerived<DependentBase<long?>>>(
+                eb =>
+                {
+                    eb.Ignore(d => d.Principals);
+                    eb.HasOne<PrincipalBase>()
+                        .WithMany(e => (ICollection<PrincipalDerived<DependentBase<long?>>>)e.Deriveds)
+                        .HasPrincipalKey(e => e.Id)
+                        .HasForeignKey("PrincipalId");
+
+                    eb.HasOne(e => e.Dependent).WithOne(e => e.Principal)
+                        .HasForeignKey<DependentBase<long?>>("PrincipalId")
+                        .HasPrincipalKey<PrincipalDerived<DependentBase<long?>>>("PrincipalId");
+                });
+        }
+
+        protected virtual void AssertCyclesModel(IModel model)
+        {
+            var dependentBase = model.FindEntityType(typeof(DependentBase<long?>))!;
+            var dependentFk = dependentBase.GetForeignKeys().Single();
+
+            var principalDerived = dependentFk.PrincipalEntityType;
+            var principalFk = principalDerived.GetDeclaredForeignKeys().Single();
+            TestHelpers.ModelAsserter.AssertEqual(dependentFk.PrincipalKey.Properties, principalFk.Properties);
+
+            var principalBase = principalFk.PrincipalEntityType;
+            var principalBaseFk = principalBase.GetForeignKeys().Single();
+            TestHelpers.ModelAsserter.AssertEqual(principalFk.PrincipalKey.Properties, principalBaseFk.Properties);
+
+            Assert.Same(dependentBase, principalBaseFk.PrincipalEntityType);
+            TestHelpers.ModelAsserter.AssertEqual(principalBaseFk.PrincipalKey.Properties, dependentFk.Properties);
+        }
+
         // Primitive collections not supported completely
         public override void BigModel()
         {

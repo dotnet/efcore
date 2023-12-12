@@ -822,18 +822,27 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             : GetConversion(throwOnValueConverterConflict: FindAnnotation(CoreAnnotationNames.ValueConverter) == null)
                 .ProviderClrType;
     }
-
-    private (ValueConverter? ValueConverter, Type? ProviderClrType) GetConversion(
-        bool throwOnValueConverterConflict = true, bool throwOnProviderClrTypeConflict = true)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual (ValueConverter? ValueConverter, Type? ValueConverterType, Type? ProviderClrType) GetConversion(
+        bool throwOnValueConverterConflict = true,
+        bool throwOnProviderClrTypeConflict = true)
     {
-        var queue = new Queue<(Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)>();
-        queue.Enqueue((this, this, 0, 2));
+        Queue<(Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)>? queue = null;
+        (Property CurrentProperty, Property CycleBreakingPropert, int CyclePosition, int MaxCycleLength)? currentNode =
+            (this, this, 0, 2);
 
         ValueConverter? valueConverter = null;
+        Type? valueConverterType = null;
         Type? providerClrType = null;
-        while (queue.Count > 0)
+        while (currentNode is not null || queue is { Count: > 0 })
         {
-            var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = queue.Dequeue();
+            var (property, cycleBreakingProperty, cyclePosition, maxCycleLength) = currentNode ?? queue!.Dequeue();
+            currentNode = null;
             if (cyclePosition >= ForeignKey.LongestFkChainAllowedLength)
             {
                 throw new InvalidOperationException(
@@ -855,74 +864,38 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                         break;
                     }
 
-                    var annotationFound = false;
-                    var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
-                    if (valueConverterAnnotation != null)
-                    {
-                        var annotationValue = (ValueConverter?)valueConverterAnnotation.Value;
-                        if (annotationValue != null)
-                        {
-                            if (valueConverter != null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.ConflictingRelationshipConversions(
-                                        DeclaringType.DisplayName(), Name,
-                                        valueConverter.GetType().ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                            }
-
-                            if (providerClrType != null
-                                && throwOnProviderClrTypeConflict)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.ConflictingRelationshipConversions(
-                                        DeclaringType.DisplayName(), Name,
-                                        providerClrType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
-                            }
-
-                            valueConverter = annotationValue;
-                        }
-                        annotationFound = true;
-                    }
-
-                    var providerClrTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
-                    if (providerClrTypeAnnotation != null)
-                    {
-                        var annotationValue = (Type?)providerClrTypeAnnotation.Value;
-                        if (annotationValue != null)
-                        {
-                            if (providerClrType != null)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.ConflictingRelationshipConversions(
-                                        DeclaringType.DisplayName(), Name,
-                                        providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
-                            }
-
-                            if (valueConverter != null
-                                && throwOnValueConverterConflict)
-                            {
-                                throw new InvalidOperationException(
-                                    CoreStrings.ConflictingRelationshipConversions(
-                                        DeclaringType.DisplayName(), Name,
-                                        valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
-                            }
-
-                            providerClrType = annotationValue;
-                        }
-                        annotationFound = true;
-                    }
-
+                    var annotationFound = GetConversion(
+                        principalProperty,
+                        throwOnValueConverterConflict,
+                        throwOnProviderClrTypeConflict,
+                        ref valueConverter,
+                        ref valueConverterType,
+                        ref providerClrType);
                     if (!annotationFound)
                     {
+                        var useQueue = queue != null;
+                        if (currentNode != null)
+                        {
+                            useQueue = true;
+                            queue = new();
+                            queue.Enqueue(currentNode.Value);
+                        }
+
                         if (cyclePosition == maxCycleLength - 1)
                         {
                             // We need to use different primes to ensure a different cycleBreakingProperty is selected
                             // each time when traversing properties that participate in multiple relationship cycles
-                            queue.Enqueue((principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1)));
+                            currentNode = (principalProperty, property, 0, HashHelpers.GetPrime(maxCycleLength << 1));
                         }
                         else
                         {
-                            queue.Enqueue((principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength));
+                            currentNode = (principalProperty, cycleBreakingProperty, cyclePosition + 1, maxCycleLength);
+                        }
+
+                        if (useQueue)
+                        {
+                            queue!.Enqueue(currentNode.Value);
+                            currentNode = null;
                         }
                     }
                     break;
@@ -930,9 +903,135 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
             }
         }
 
-        return (valueConverter, providerClrType);
-    }
+        return (valueConverter, valueConverterType, providerClrType);
 
+        bool GetConversion(
+        Property principalProperty,
+        bool throwOnValueConverterConflict,
+        bool throwOnProviderClrTypeConflict,
+        ref ValueConverter? valueConverter,
+        ref Type? valueConverterType,
+        ref Type? providerClrType)
+        {
+            var annotationFound = false;
+            var valueConverterAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
+            if (valueConverterAnnotation != null)
+            {
+                var annotationValue = (ValueConverter?)valueConverterAnnotation.Value;
+                if (annotationValue != null)
+                {
+                    if (valueConverter != null
+                        && annotationValue.GetType() != valueConverter.GetType())
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverter.GetType().ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
+                    }
+
+                    if (valueConverterType != null
+                        && annotationValue.GetType() != valueConverterType)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverterType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
+                    }
+
+                    if (providerClrType != null
+                        && throwOnProviderClrTypeConflict)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                providerClrType.ShortDisplayName(), annotationValue.GetType().ShortDisplayName()));
+                    }
+
+                    valueConverter = annotationValue;
+                }
+                annotationFound = true;
+            }
+
+            var valueConverterTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
+            if (valueConverterTypeAnnotation != null)
+            {
+                var annotationValue = (Type?)valueConverterTypeAnnotation.Value;
+                if (annotationValue != null)
+                {
+                    if (valueConverter != null
+                        && valueConverter.GetType() != annotationValue)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    if (valueConverterType != null
+                        && valueConverterType != annotationValue)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    if (providerClrType != null
+                        && throwOnProviderClrTypeConflict)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    valueConverterType = annotationValue;
+                }
+                annotationFound = true;
+            }
+
+            var providerClrTypeAnnotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
+            if (providerClrTypeAnnotation != null)
+            {
+                var annotationValue = (Type?)providerClrTypeAnnotation.Value;
+                if (annotationValue != null)
+                {
+                    if (providerClrType != null
+                        && annotationValue != providerClrType)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                providerClrType.ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    if (valueConverter != null
+                        && throwOnValueConverterConflict)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverter.GetType().ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    if (valueConverterType != null
+                        && throwOnValueConverterConflict)
+                    {
+                        throw new InvalidOperationException(
+                            CoreStrings.ConflictingRelationshipConversions(
+                                DeclaringType.DisplayName(), Name,
+                                valueConverterType.ShortDisplayName(), annotationValue.ShortDisplayName()));
+                    }
+
+                    providerClrType = annotationValue;
+                }
+                annotationFound = true;
+            }
+
+            return annotationFound;
+        }
+    }
+    
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
