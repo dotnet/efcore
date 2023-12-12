@@ -3194,6 +3194,18 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 .Select(r => r.Builder));
         foreach (var candidateRelationship in candidates)
         {
+            var candidateFk = candidateRelationship.Metadata;
+            if (principalEndConfigurationSource.OverridesStrictly(
+                    candidateFk.GetDependentToPrincipalConfigurationSource())
+                    && (principalEntityType != candidateFk.PrincipalEntityType
+                        || dependentEntityType != candidateFk.DeclaringEntityType)
+                    && (principalEntityType.IsAssignableFrom(dependentEntityType)
+                        || dependentEntityType.IsAssignableFrom(principalEntityType)))
+            {
+                // Favor the intra-hierarchical relationship with higher configuration source
+                continue;
+            }
+
             if (!candidateRelationship.CanSetRelatedTypes(
                     principalEntityType,
                     dependentEntityType,
@@ -3216,26 +3228,26 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             if (configurationSource != ConfigurationSource.Explicit
                 && (shouldResetToPrincipal || shouldResetToDependent)
                 && (navigationToPrincipal?.Name is null || navigationToDependent?.Name is null)
-                && candidateRelationship.Metadata is { DependentToPrincipal: not null, PrincipalToDependent: not null }
+                && candidateFk is { DependentToPrincipal: not null, PrincipalToDependent: not null }
                 && ((!candidateRelationshipInverted
-                        && principalEntityType.IsAssignableFrom(candidateRelationship.Metadata.PrincipalEntityType)
-                        && dependentEntityType.IsAssignableFrom(candidateRelationship.Metadata.DeclaringEntityType))
+                        && principalEntityType.IsAssignableFrom(candidateFk.PrincipalEntityType)
+                        && dependentEntityType.IsAssignableFrom(candidateFk.DeclaringEntityType))
                     || (candidateRelationshipInverted
-                        && principalEntityType.IsAssignableFrom(candidateRelationship.Metadata.DeclaringEntityType)
-                        && dependentEntityType.IsAssignableFrom(candidateRelationship.Metadata.PrincipalEntityType))))
+                        && principalEntityType.IsAssignableFrom(candidateFk.DeclaringEntityType)
+                        && dependentEntityType.IsAssignableFrom(candidateFk.PrincipalEntityType))))
             {
                 // Favor derived bi-directional relationships over one-directional on base
                 continue;
             }
 
             if (dependentProperties != null
-                && !Property.AreCompatible(dependentProperties, candidateRelationship.Metadata.DeclaringEntityType))
+                && !Property.AreCompatible(dependentProperties, candidateFk.DeclaringEntityType))
             {
                 continue;
             }
 
             if (principalProperties != null
-                && !Property.AreCompatible(principalProperties, candidateRelationship.Metadata.PrincipalEntityType))
+                && !Property.AreCompatible(principalProperties, candidateFk.PrincipalEntityType))
             {
                 continue;
             }

@@ -3800,7 +3800,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     {
         using var batch = ModelBuilder.Metadata.DelayConventions();
         var foreignKey = SetOrAddForeignKey(
-            foreignKey: null, principalEntityTypeBuilder, dependentProperties, principalKey,
+            foreignKey: null, principalEntityTypeBuilder, this, dependentProperties, principalKey,
             propertyBaseName, required, configurationSource)!;
 
         if (foreignKey == null)
@@ -3833,8 +3833,14 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     {
         using var batch = ModelBuilder.Metadata.DelayConventions();
         var updatedForeignKey = SetOrAddForeignKey(
-            foreignKey, foreignKey.PrincipalEntityType.Builder, dependentProperties, principalKey,
-            propertyBaseName, isRequired, configurationSource)!;
+            foreignKey,
+            foreignKey.PrincipalEntityType.Builder,
+            foreignKey.DeclaringEntityType.Builder,
+            dependentProperties,
+            principalKey,
+            propertyBaseName,
+            isRequired,
+            configurationSource)!;
 
         return (InternalForeignKeyBuilder?)batch.Run(updatedForeignKey)?.Builder;
     }
@@ -3842,6 +3848,7 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
     private ForeignKey? SetOrAddForeignKey(
         ForeignKey? foreignKey,
         InternalEntityTypeBuilder principalEntityTypeBuilder,
+        InternalEntityTypeBuilder dependentEntityTypeBuilder,
         IReadOnlyList<Property>? dependentProperties,
         Key? principalKey,
         string? propertyBaseName,
@@ -3889,7 +3896,8 @@ public class InternalEntityTypeBuilder : InternalTypeBaseBuilder, IConventionEnt
 
         if (dependentProperties != null)
         {
-            dependentProperties = GetActualProperties(dependentProperties, ConfigurationSource.Convention)!;
+            dependentProperties = dependentEntityTypeBuilder.GetActualProperties(dependentProperties, ConfigurationSource.Convention)!;
+
             if (principalKey == null)
             {
                 var principalKeyProperties = principalBaseEntityTypeBuilder.TryCreateUniqueProperties(
