@@ -23,6 +23,7 @@ public class OperationExecutorTest
     }
 
     [ConditionalTheory]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("MgOne", "MgOne")]
     [InlineData("Name with Spaces", "NamewithSpaces")]
     [InlineData(" Space Space ", "SpaceSpace")]
@@ -33,7 +34,7 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory] // Issue #24024
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases are Windows-specific")]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("to fix error: add column is_deleted")]
     [InlineData(@"A\B\C")]
     public void AddMigration_errors_for_bad_names(string migrationName)
@@ -45,6 +46,7 @@ public class OperationExecutorTest
             DesignStrings.BadMigrationName(migrationName, string.Join("','", Path.GetInvalidFileNameChars())));
 
     [ConditionalTheory]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("output", "output")]
     [InlineData("Name with Spaces", "Name with Spaces")]
     [InlineData(" Space Space", " Space Space")]
@@ -55,7 +57,7 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases are Windows-specific")]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("Something:Else")]
     public void AddMigration_errors_for_bad_output_dirs(string outputDir)
         => TestAddMigrationNegative("MgTwo", outputDir, ProductInfo.GetVersion(), typeof(IOException), null);
