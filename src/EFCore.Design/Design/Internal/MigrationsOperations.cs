@@ -68,6 +68,13 @@ public class MigrationsOperations
         string? contextType,
         string? @namespace)
     {
+        var invalidPathChars = Path.GetInvalidFileNameChars();
+        if (name.Any(c => invalidPathChars.Contains(c)))
+        {
+            throw new OperationException(
+                DesignStrings.BadMigrationName(name, string.Join("','", invalidPathChars)));
+        }
+
         if (outputDir != null)
         {
             outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));

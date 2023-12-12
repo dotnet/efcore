@@ -28,6 +28,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 exceptionMessage);
 
         /// <summary>
+        ///     The migration name '{name}' is not valid. Migration names cannot contain any of the following characters: '{characters}'.
+        /// </summary>
+        public static string BadMigrationName(object? name, object? characters)
+            => string.Format(
+                GetString("BadMigrationName", nameof(name), nameof(characters)),
+                name, characters);
+
+        /// <summary>
         ///     Cannot scaffold sequence '{sequenceName}' because it uses type '{typeName}' which is unsupported.
         /// </summary>
         public static string BadSequenceType(object? sequenceName, object? typeName)
