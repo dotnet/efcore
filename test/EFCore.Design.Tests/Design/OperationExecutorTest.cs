@@ -33,7 +33,7 @@ public class OperationExecutorTest
 
     [ConditionalTheory] // Issue #24024
     [InlineData("to fix error: add column is_deleted")]
-    [InlineData(@"\A\B\C")]
+    [InlineData(@"A\B\C")]
     public void AddMigration_errors_for_bad_names(string migrationName)
         => TestAddMigrationNegative(
             migrationName,
@@ -68,7 +68,7 @@ public class OperationExecutorTest
         string outputDir, string processedOutputDir,
         string productVersion)
     {
-        var tempPath = Path.GetTempPath();
+        using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddMigration(tempPath, migrationName, outputDir, productVersion);
 
         Assert.True(resultHandler.HasResult);
@@ -82,9 +82,9 @@ public class OperationExecutorTest
         Assert.StartsWith(tempPath, migrationFilePath);
         Assert.StartsWith(tempPath, snapshotFilePath);
 
-        var metadataFileName = metadataFilePath.Substring(tempPath.Length);
-        var migrationFileName = migrationFilePath.Substring(tempPath.Length);
-        var snapshotFileName = snapshotFilePath.Substring(tempPath.Length);
+        var metadataFileName = metadataFilePath.Substring(tempPath.Path.Length + 1);
+        var migrationFileName = migrationFilePath.Substring(tempPath.Path.Length + 1);
+        var snapshotFileName = snapshotFilePath.Substring(tempPath.Path.Length + 1);
 
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.Designer.cs"), metadataFileName);
         Assert.Equal(Path.Combine(processedOutputDir, $"11112233445566_{migrationName}.cs"), migrationFileName);
@@ -182,17 +182,6 @@ namespace My.Gnomespace.Data
 }
 
 """, snapshotFile);
-
-        try
-        {
-            File.Delete(metadataFilePath);
-            File.Delete(migrationFilePath);
-            File.Delete(snapshotFilePath);
-        }
-        catch
-        {
-            // Ignored
-        }
     }
 
     private void TestAddMigrationNegative(
@@ -202,7 +191,7 @@ namespace My.Gnomespace.Data
         Type errorType,
         string? message)
     {
-        var tempPath = Path.GetTempPath();
+        using var tempPath = new TempDirectory();
         var resultHandler = ExecuteAddMigration(tempPath, migrationName, outputDir, productVersion);
 
         Assert.False(resultHandler.HasResult);
