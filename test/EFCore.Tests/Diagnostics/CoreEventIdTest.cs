@@ -75,7 +75,8 @@ public class CoreEventIdTest : EventIdTestBase
                 typeof(IList<IDictionary<string, string>>),
                 () => new List<IDictionary<string, string>> { new Dictionary<string, string> { { "A", "B" } } }
             },
-            { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() }
+            { typeof(IDictionary<string, string>), () => new Dictionary<string, string>() },
+            { typeof(Assembly), () => MockAssembly.Create() }
         };
 
         TestEventLogging(

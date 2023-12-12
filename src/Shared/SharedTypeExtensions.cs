@@ -413,12 +413,14 @@ internal static class SharedTypeExtensions
     }
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
-    public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
-        => assembly.GetLoadableDefinedTypes().Where(
+    public static IEnumerable<TypeInfo> GetConstructibleTypes(
+        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
+        => assembly.GetLoadableDefinedTypes(logger).Where(
             t => t is { IsAbstract: false, IsGenericTypeDefinition: false });
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
-    public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)
+    public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(
+        this Assembly assembly, IDiagnosticsLogger<DbLoggerCategory.Model>? logger = null)
     {
         try
         {
@@ -426,6 +428,8 @@ internal static class SharedTypeExtensions
         }
         catch (ReflectionTypeLoadException ex)
         {
+            logger?.TypeLoadingErrorWarning(assembly, ex.Message);
+
             return ex.Types.Where(t => t != null).Select(IntrospectionExtensions.GetTypeInfo!);
         }
     }
