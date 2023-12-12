@@ -522,6 +522,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
                 operation.NewName,
+                "OBJECT",
                 builder);
 
             name = operation.NewName;
@@ -755,6 +756,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             Rename(
                 Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema),
                 operation.NewName,
+                "OBJECT",
                 builder);
 
             name = operation.NewName;
@@ -1687,19 +1689,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         string? type,
         MigrationCommandListBuilder builder)
     {
-        var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+        // Types come from https://learn.microsoft.com/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql
+        var typeMappingSource = Dependencies.TypeMappingSource;
+        var nameTypeMapping = typeMappingSource.FindMapping(typeof(string), "nvarchar(776)")!;
 
         builder
             .Append("EXEC sp_rename ")
-            .Append(stringTypeMapping.GenerateSqlLiteral(name))
+            .Append(nameTypeMapping.GenerateSqlLiteral(name))
             .Append(", ")
-            .Append(stringTypeMapping.GenerateSqlLiteral(newName));
+            .Append(nameTypeMapping.GenerateSqlLiteral(newName));
 
         if (type != null)
         {
             builder
                 .Append(", ")
-                .Append(stringTypeMapping.GenerateSqlLiteral(type));
+                .Append(typeMappingSource.FindMapping(typeof(string), "varchar(13)")!.GenerateSqlLiteral(type));
         }
 
         builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);

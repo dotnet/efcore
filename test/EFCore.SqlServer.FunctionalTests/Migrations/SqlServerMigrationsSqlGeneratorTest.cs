@@ -699,7 +699,7 @@ ALTER SCHEMA [hr] TRANSFER [dbo].[People];
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
+EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence', 'OBJECT';
 """);
     }
 
@@ -710,7 +710,7 @@ EXEC sp_rename N'[dbo].[EntityFrameworkHiLoSequence]', N'MySequence';
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[People]', N'Person';
+EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 
@@ -720,7 +720,7 @@ EXEC sp_rename N'[dbo].[People]', N'Person';
 
         AssertSql(
             """
-EXEC sp_rename N'[dbo].[People]', N'Person';
+EXEC sp_rename N'[dbo].[People]', N'Person', 'OBJECT';
 """);
     }
 

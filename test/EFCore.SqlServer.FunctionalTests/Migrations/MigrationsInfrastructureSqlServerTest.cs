@@ -97,7 +97,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -188,7 +188,7 @@ INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
 VALUES (N'00000000000001_Migration1', N'7.0.0-test');
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -246,7 +246,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -271,7 +271,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 GO
 
 INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
@@ -340,7 +340,7 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'00000000000002_Migration2'
 )
 BEGIN
-    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 END;
 GO
 
@@ -485,7 +485,7 @@ IF NOT EXISTS (
     WHERE [MigrationId] = N'00000000000002_Migration2'
 )
 BEGIN
-    EXEC sp_rename N'[Table1].[Foo]', N'Bar', N'COLUMN';
+    EXEC sp_rename N'[Table1].[Foo]', N'Bar', 'COLUMN';
 END;
 GO
 
@@ -580,7 +580,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
@@ -623,7 +623,7 @@ IF EXISTS (
     WHERE [MigrationId] = N'00000000000002_Migration2'
 )
 BEGIN
-    EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+    EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 END;
 GO
 
@@ -680,7 +680,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
@@ -705,7 +705,7 @@ GO
 BEGIN TRANSACTION;
 GO
 
-EXEC sp_rename N'[Table1].[Bar]', N'Foo', N'COLUMN';
+EXEC sp_rename N'[Table1].[Bar]', N'Foo', 'COLUMN';
 GO
 
 DELETE FROM [__EFMigrationsHistory]
