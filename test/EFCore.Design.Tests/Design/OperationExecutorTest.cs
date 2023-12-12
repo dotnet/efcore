@@ -6,6 +6,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
+using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
@@ -32,6 +33,7 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory] // Issue #24024
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases are Windows-specific")]
     [InlineData("to fix error: add column is_deleted")]
     [InlineData(@"A\B\C")]
     public void AddMigration_errors_for_bad_names(string migrationName)
@@ -45,7 +47,7 @@ public class OperationExecutorTest
     [ConditionalTheory]
     [InlineData("output", "output")]
     [InlineData("Name with Spaces", "Name with Spaces")]
-    [InlineData(" Space Space ", " Space Space")]
+    [InlineData(" Space Space", " Space Space")]
     public void AddMigration_can_scaffold_for_different_output_dirs(string outputDir, string processedOutputDir)
         => TestAddMigrationPositive(
             "MgTwo", "MgTwo",
@@ -53,6 +55,7 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory]
+    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases are Windows-specific")]
     [InlineData("Something:Else")]
     public void AddMigration_errors_for_bad_output_dirs(string outputDir)
         => TestAddMigrationNegative("MgTwo", outputDir, ProductInfo.GetVersion(), typeof(IOException), null);
