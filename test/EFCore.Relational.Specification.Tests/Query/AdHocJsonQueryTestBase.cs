@@ -306,7 +306,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #32611")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_collection(bool async)
     {
