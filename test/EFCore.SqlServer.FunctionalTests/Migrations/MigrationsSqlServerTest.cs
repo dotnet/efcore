@@ -430,7 +430,7 @@ ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
             """
-EXEC sp_rename N'[People]', N'Persons';
+EXEC sp_rename N'[People]', N'Persons', 'OBJECT';
 """,
             //
             """
@@ -448,7 +448,7 @@ ALTER TABLE [People] DROP CONSTRAINT [PK_People];
 """,
             //
             """
-EXEC sp_rename N'[People]', N'Persons';
+EXEC sp_rename N'[People]', N'Persons', 'OBJECT';
 """,
             //
             """
@@ -466,7 +466,7 @@ ALTER TABLE [Entities] DROP CONSTRAINT [PK_Entities];
 """,
             //
             """
-EXEC sp_rename N'[Entities]', N'NewEntities';
+EXEC sp_rename N'[Entities]', N'NewEntities', 'OBJECT';
 """,
             //
             """
@@ -1905,7 +1905,7 @@ ALTER TABLE [Entity] DROP COLUMN [OwnedReference];
 
         AssertSql(
             """
-EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', N'COLUMN';
+EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', 'COLUMN';
 """);
     }
 
@@ -1915,11 +1915,11 @@ EXEC sp_rename N'[People].[SomeColumn]', N'SomeOtherColumn', N'COLUMN';
 
         AssertSql(
             """
-EXEC sp_rename N'[Entity].[json_reference]', N'new_json_reference', N'COLUMN';
+EXEC sp_rename N'[Entity].[json_reference]', N'new_json_reference', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', N'COLUMN';
+EXEC sp_rename N'[Entity].[json_collection]', N'new_json_collection', 'COLUMN';
 """);
     }
 
@@ -2703,7 +2703,7 @@ DROP INDEX [IX_People_SomeField] ON [People];
 
         AssertSql(
             """
-EXEC sp_rename N'[People].[Foo]', N'foo', N'INDEX';
+EXEC sp_rename N'[People].[Foo]', N'foo', 'INDEX';
 """);
     }
 
@@ -3076,7 +3076,7 @@ DROP SEQUENCE [TestSequence];
 
         AssertSql(
             """
-EXEC sp_rename N'[TestSequence]', N'testsequence';
+EXEC sp_rename N'[TestSequence]', N'testsequence', 'OBJECT';
 """);
     }
 
@@ -4330,7 +4330,7 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
             """
-EXEC sp_rename N'[Customers]', N'RenamedCustomers';
+EXEC sp_rename N'[Customers]', N'RenamedCustomers', 'OBJECT';
 """,
             //
             """
@@ -4408,15 +4408,15 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
             """
-EXEC sp_rename N'[Customers]', N'RenamedCustomers';
+EXEC sp_rename N'[Customers]', N'RenamedCustomers', 'OBJECT';
 """,
             //
             """
-EXEC sp_rename N'[RenamedCustomers].[DoB]', N'DateOfBirth', N'COLUMN';
+EXEC sp_rename N'[RenamedCustomers].[DoB]', N'DateOfBirth', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[DoB]', N'DateOfBirth', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[DoB]', N'DateOfBirth', 'COLUMN';
 """,
             //
             """
@@ -4505,7 +4505,7 @@ ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
             //
             """
-EXEC sp_rename N'[Customers]', N'RenamedCustomers';
+EXEC sp_rename N'[Customers]', N'RenamedCustomers', 'OBJECT';
 """,
             //
             """
@@ -4723,7 +4723,7 @@ ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[Customers];
 """,
             //
             """
-EXEC sp_rename N'[mySchema].[HistoryTable]', N'HistoryTable2';
+EXEC sp_rename N'[mySchema].[HistoryTable]', N'HistoryTable2', 'OBJECT';
 ALTER SCHEMA [mySchema2] TRANSFER [mySchema].[HistoryTable2];
 """,
             //
@@ -4806,7 +4806,7 @@ ALTER SCHEMA [mySchema2] TRANSFER [defaultSchema].[Customers];
 """,
             //
             """
-EXEC sp_rename N'[defaultSchema].[HistoryTable]', N'HistoryTable2';
+EXEC sp_rename N'[defaultSchema].[HistoryTable]', N'HistoryTable2', 'OBJECT';
 ALTER SCHEMA [mySchema2] TRANSFER [defaultSchema].[HistoryTable2];
 """,
             //
@@ -4891,7 +4891,7 @@ ALTER SCHEMA [mySchema2] TRANSFER [modifiedSchema].[Customers];
 """,
             //
             """
-EXEC sp_rename N'[modifiedSchema].[HistoryTable]', N'HistoryTable2';
+EXEC sp_rename N'[modifiedSchema].[HistoryTable]', N'HistoryTable2', 'OBJECT';
 ALTER SCHEMA [mySchema2] TRANSFER [modifiedSchema].[HistoryTable2];
 """,
             //
@@ -5039,7 +5039,7 @@ ALTER TABLE [mySchema2].[Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE =
 
         AssertSql(
             """
-EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable';
+EXEC sp_rename N'[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
 """);
     }
 
@@ -5182,7 +5182,7 @@ IF SCHEMA_ID(N'newSchema') IS NULL EXEC(N'CREATE SCHEMA [newSchema];');
 """,
             //
             """
-EXEC sp_rename N'[Customers]', N'RenamedCustomers';
+EXEC sp_rename N'[Customers]', N'RenamedCustomers', 'OBJECT';
 ALTER SCHEMA [newSchema] TRANSFER [RenamedCustomers];
 """,
             //
@@ -5191,7 +5191,7 @@ IF SCHEMA_ID(N'newHistorySchema') IS NULL EXEC(N'CREATE SCHEMA [newHistorySchema
 """,
             //
             """
-EXEC sp_rename N'[historySchema].[HistoryTable]', N'RenamedHistoryTable';
+EXEC sp_rename N'[historySchema].[HistoryTable]', N'RenamedHistoryTable', 'OBJECT';
 ALTER SCHEMA [newHistorySchema] TRANSFER [historySchema].[RenamedHistoryTable];
 """,
             //
@@ -6711,11 +6711,11 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
         AssertSql(
             """
-EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', N'COLUMN';
+EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
+EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
@@ -6776,11 +6776,11 @@ EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
 
         AssertSql(
             """
-EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', N'COLUMN';
+EXEC sp_rename N'[Customer].[Start]', N'ModifiedStart', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', N'COLUMN';
+EXEC sp_rename N'[Customer].[End]', N'ModifiedEnd', 'COLUMN';
 """);
     }
 
@@ -6886,7 +6886,7 @@ EXEC sp_addextendedproperty 'MS_Description', @description, 'SCHEMA', @defaultSc
 
         AssertSql(
             """
-EXEC sp_rename N'[Customer].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[Customer].[Name]', N'FullName', 'COLUMN';
 """);
     }
 
@@ -7484,7 +7484,7 @@ EXEC(N'ALTER TABLE [Customer] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + 
 
         AssertSql(
             """
-EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', N'COLUMN';
+EXEC sp_rename N'[Customer].[Number]', N'RenamedNumber', 'COLUMN';
 """);
     }
 
@@ -8723,19 +8723,19 @@ ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
-EXEC sp_rename N'[Customers].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[Customers].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[Customers].[Dob]', N'DateOfBirth', N'COLUMN';
+EXEC sp_rename N'[Customers].[Dob]', N'DateOfBirth', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[Dob]', N'DateOfBirth', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[Dob]', N'DateOfBirth', 'COLUMN';
 """,
             //
             """
@@ -8835,15 +8835,15 @@ ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
-EXEC sp_rename N'[Customers]', N'ModifiedCustomers';
+EXEC sp_rename N'[Customers]', N'ModifiedCustomers', 'OBJECT';
 """,
             //
             """
-EXEC sp_rename N'[ModifiedCustomers].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[ModifiedCustomers].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
@@ -8943,15 +8943,15 @@ ALTER TABLE [HistoryTable] DROP COLUMN [Number];
 """,
             //
             """
-EXEC sp_rename N'[Customers].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[Customers].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[Name]', N'FullName', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable]', N'ModifiedHistoryTable';
+EXEC sp_rename N'[HistoryTable]', N'ModifiedHistoryTable', 'OBJECT';
 """,
             //
             """
@@ -9209,7 +9209,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             """
-EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', N'COLUMN';
+EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', 'COLUMN';
 """,
             //
             """
@@ -9304,11 +9304,11 @@ ALTER TABLE [HistoryTable] DROP COLUMN [DateOfBirth];
 """,
             //
             """
-EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', N'COLUMN';
+EXEC sp_rename N'[Customers].[Start]', N'ModifiedStart', 'COLUMN';
 """,
             //
             """
-EXEC sp_rename N'[HistoryTable].[Start]', N'ModifiedStart', N'COLUMN';
+EXEC sp_rename N'[HistoryTable].[Start]', N'ModifiedStart', 'COLUMN';
 """,
             //
             """
@@ -9488,15 +9488,15 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             """
-EXEC sp_rename N'[Customers].[PeriodStart]', N'Start', N'COLUMN';
+EXEC sp_rename N'[Customers].[PeriodStart]', N'Start', 'COLUMN';
 """,
-                //
-                """
-EXEC sp_rename N'[Customers].[PeriodEnd]', N'End', N'COLUMN';
+            //
+            """
+EXEC sp_rename N'[Customers].[PeriodEnd]', N'End', 'COLUMN';
 """,
-                //
-                """
-EXEC sp_rename N'[CustomersHistory]', N'HistoryTable';
+            //
+            """
+EXEC sp_rename N'[CustomersHistory]', N'HistoryTable', 'OBJECT';
 """);
     }
 
@@ -9558,11 +9558,11 @@ EXEC sp_rename N'[CustomersHistory]', N'HistoryTable';
 
         AssertSql(
             """
-EXEC sp_rename N'[Customers].[PeriodStart]', N'ValidFrom', N'COLUMN';
+EXEC sp_rename N'[Customers].[PeriodStart]', N'ValidFrom', 'COLUMN';
 """,
                 //
                 """
-EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', N'COLUMN';
+EXEC sp_rename N'[Customers].[PeriodEnd]', N'ValidTo', 'COLUMN';
 """);
     }
 
@@ -9783,7 +9783,7 @@ EXEC(N'ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' +
 
         AssertSql(
             """
-EXEC sp_rename N'[Customers].[Number]', N'NewNumber', N'COLUMN';
+EXEC sp_rename N'[Customers].[Number]', N'NewNumber', 'COLUMN';
 """,
                 //
                 """
@@ -10070,7 +10070,7 @@ ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
                 //
                 """
-EXEC sp_rename N'[Customers].[Number]', N'NewNumber', N'COLUMN';
+EXEC sp_rename N'[Customers].[Number]', N'NewNumber', 'COLUMN';
 """,
                 //
                 """
@@ -10131,40 +10131,40 @@ DROP TABLE [HistoryTable];
             """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
-                //
-                """
-EXEC sp_rename N'[Customers]', N'NewCustomers';
+            //
+            """
+EXEC sp_rename N'[Customers]', N'NewCustomers', 'OBJECT';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Number] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -10222,8 +10222,8 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10232,36 +10232,36 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Num
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Number];
 """,
-                //
-                """
-EXEC sp_rename N'[Customers]', N'NewCustomers';
+            //
+            """
+EXEC sp_rename N'[Customers]', N'NewCustomers', 'OBJECT';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -10321,40 +10321,40 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
-                //
-                """
-EXEC sp_rename N'[Customers]', N'NewCustomers';
+            //
+            """
+EXEC sp_rename N'[Customers]', N'NewCustomers', 'OBJECT';
 """,
-                //
-                """
-EXEC sp_rename N'[NewCustomers].[Number]', N'NewNumber', N'COLUMN';
+            //
+            """
+EXEC sp_rename N'[NewCustomers].[Number]', N'NewNumber', 'COLUMN';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [End] datetime2 NOT NULL DEFAULT '9999-12-31T23:59:59.9999999';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Start] datetime2 NOT NULL DEFAULT '0001-01-01T00:00:00.0000000';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD PERIOD FOR SYSTEM_TIME ([Start], [End])
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [Start] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ALTER COLUMN [End] ADD HIDDEN
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[HistoryTable]))')
 """);
@@ -10409,16 +10409,16 @@ EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP PERIOD FOR SYSTEM_TIME
 """,
-                //
-                """
+            //
+            """
 DECLARE @var0 sysname;
 SELECT @var0 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10427,8 +10427,8 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'End
 IF @var0 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var0 + '];');
 ALTER TABLE [Customers] DROP COLUMN [End];
 """,
-                //
-                """
+            //
+            """
 DECLARE @var1 sysname;
 SELECT @var1 = [d].[name]
 FROM [sys].[default_constraints] [d]
@@ -10437,20 +10437,20 @@ WHERE ([d].[parent_object_id] = OBJECT_ID(N'[Customers]') AND [c].[name] = N'Sta
 IF @var1 IS NOT NULL EXEC(N'ALTER TABLE [Customers] DROP CONSTRAINT [' + @var1 + '];');
 ALTER TABLE [Customers] DROP COLUMN [Start];
 """,
-                //
-                """
-EXEC sp_rename N'[Customers]', N'NewCustomers';
+            //
+            """
+EXEC sp_rename N'[Customers]', N'NewCustomers', 'OBJECT';
 """,
-                //
-                """
+            //
+            """
 DROP TABLE [HistoryTable];
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Number] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """);
     }
@@ -10515,32 +10515,32 @@ ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
             """
 ALTER TABLE [Customers] SET (SYSTEM_VERSIONING = OFF)
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [Customers] DROP CONSTRAINT [PK_Customers];
 """,
-                //
-                """
-EXEC sp_rename N'[Customers]', N'NewCustomers';
+            //
+            """
+EXEC sp_rename N'[Customers]', N'NewCustomers', 'OBJECT';
 """,
-                //
-                """
-EXEC sp_rename N'[HistoryTable]', N'NewHistoryTable';
+            //
+            """
+EXEC sp_rename N'[HistoryTable]', N'NewHistoryTable', 'OBJECT';
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD [Number] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewHistoryTable] ADD [Number] int NOT NULL DEFAULT 0;
 """,
-                //
-                """
+            //
+            """
 ALTER TABLE [NewCustomers] ADD CONSTRAINT [PK_NewCustomers] PRIMARY KEY ([Id]);
 """,
-                //
-                """
+            //
+            """
 DECLARE @historyTableSchema sysname = SCHEMA_NAME()
 EXEC(N'ALTER TABLE [NewCustomers] SET (SYSTEM_VERSIONING = ON (HISTORY_TABLE = [' + @historyTableSchema + '].[NewHistoryTable]))')
 """);
