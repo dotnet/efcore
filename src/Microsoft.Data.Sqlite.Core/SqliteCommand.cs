@@ -320,7 +320,7 @@ namespace Microsoft.Data.Sqlite
                 ? PrepareAndEnumerateStatements()
                 : _preparedStatements)
             {
-                var boundParams = _parameters?.Bind(stmt) ?? 0;
+                var boundParams = Parameters.Bind(stmt);
 
                 if (expectedParams != boundParams)
                 {
@@ -329,8 +329,8 @@ namespace Microsoft.Data.Sqlite
                     {
                         var name = sqlite3_bind_parameter_name(stmt, i).utf8_to_string();
 
-                        if (_parameters != null
-                            && !_parameters.Cast<SqliteParameter>().Any(p => p.ParameterName == name))
+                        if (Parameters.Count > 0
+                            && Parameters.Cast<SqliteParameter>().All(p => p.ParameterName != name))
                         {
                             unboundParams.Add(name);
                         }
