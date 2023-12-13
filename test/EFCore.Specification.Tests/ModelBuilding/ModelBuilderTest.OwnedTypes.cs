@@ -1659,6 +1659,7 @@ public abstract partial class ModelBuilderTest
 
             var departmentIdProperty = departmentType.FindProperty(nameof(Department.Id));
             Assert.NotNull(departmentIdProperty);
+            Assert.NotNull(departmentIdProperty.GetValueConverter());
             Assert.NotNull(departmentNestedType);
             Assert.NotNull(officeNestedType);
 

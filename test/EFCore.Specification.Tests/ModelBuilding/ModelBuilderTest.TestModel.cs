@@ -340,6 +340,10 @@ public abstract partial class ModelBuilderTest
 #pragma warning restore 67
     }
 
+    protected class DerivedCollectionQuarks : CollectionQuarks
+    {
+    }
+
     protected class Hob
     {
         public string? Id1 { get; set; }
