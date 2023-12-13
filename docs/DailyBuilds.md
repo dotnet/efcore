@@ -87,13 +87,11 @@ Alternately, your IDE might provide auto-completion directly in the .csproj file
 
 ## What about Visual Studio and the SDK?
 
-EF8 currently targets .NET 6. This means that:
+EF8 targets .NET 8. This means that:
 
-* Your application must target .NET 6 or later; .NET Framework, .NET Core 3.1, and .NET 5 are no longer supported targets.
-* The daily builds should work with any IDE that supports .NET 6.
-* The daily builds require that the .NET 6 SDK is installed.
-
-However, it's likely that EF8 will be changed to target .NET 8 before it's released.
+* Your application must target .NET 8 or later; .NET Framework and .NET 6 and earlier are no longer supported targets.
+* The daily builds should work with any IDE that supports .NET 8.
+* The daily builds require that the .NET 8 SDK is installed.
 
 ## Troubleshooting
 
