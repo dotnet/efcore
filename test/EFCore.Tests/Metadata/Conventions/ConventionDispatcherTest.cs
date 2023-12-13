@@ -8,8 +8,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 public class ConventionDispatcherTest
 {
-    // TODO: Use public API to add conventions, issue #214
-
     [ConditionalFact]
     public void Infinite_recursion_throws()
     {
@@ -3930,7 +3928,7 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            Assert.Null(propertyBuilder.SetElementType(typeof(int), ConfigurationSource.Convention));
+            Assert.NotNull(propertyBuilder.SetElementType(typeof(int), ConfigurationSource.Convention));
             elementType = propertyBuilder.Metadata.GetElementType()!;
         }
         else
