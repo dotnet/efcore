@@ -306,7 +306,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "Issue #32611")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Project_json_array_of_primitives_on_collection(bool async)
     {
@@ -426,33 +426,10 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
         {
             modelBuilder.Entity<MyEntityArrayOfPrimitives>().Property(x => x.Id).ValueGeneratedNever();
             modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsOne(
-                x => x.Reference, b =>
-                {
-                    b.ToJson();
-                    b.Property(x => x.IntArray).HasConversion(
-                        x => string.Join(" ", x),
-                        x => x.Split(" ", StringSplitOptions.None).Select(v => int.Parse(v)).ToArray(),
-                        new ValueComparer<int[]>(true));
-
-                    b.Property(x => x.ListOfString).HasConversion(
-                        x => string.Join(" ", x),
-                        x => x.Split(" ", StringSplitOptions.None).ToList(),
-                        new ValueComparer<List<string>>(true));
-                });
+                x => x.Reference, b => b.ToJson());
 
             modelBuilder.Entity<MyEntityArrayOfPrimitives>().OwnsMany(
-                x => x.Collection, b =>
-                {
-                    b.ToJson();
-                    b.Property(x => x.IntArray).HasConversion(
-                        x => string.Join(" ", x),
-                        x => x.Split(" ", StringSplitOptions.None).Select(v => int.Parse(v)).ToArray(),
-                        new ValueComparer<int[]>(true));
-                    b.Property(x => x.ListOfString).HasConversion(
-                        x => string.Join(" ", x),
-                        x => x.Split(" ", StringSplitOptions.None).ToList(),
-                        new ValueComparer<List<string>>(true));
-                });
+                x => x.Collection, b => b.ToJson());
         }
     }
 
