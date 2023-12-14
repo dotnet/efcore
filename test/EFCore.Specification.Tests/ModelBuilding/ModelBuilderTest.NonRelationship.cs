@@ -3285,6 +3285,45 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Conversion_on_base_property_prevents_primitive_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<DerivedCollectionQuarks>();
+            modelBuilder.Entity<CollectionQuarks>(b =>
+            {
+                b.Property(c => c.Down).HasConversion(gs => string.Join(',', gs!),
+                    s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries)));
+            });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var property = model.FindEntityType(typeof(CollectionQuarks))!.FindProperty(nameof(CollectionQuarks.Down))!;
+            Assert.False(property.IsPrimitiveCollection);
+            Assert.NotNull(property.GetValueConverter());
+        }
+
+        [ConditionalFact]
+        public virtual void Conversion_on_base_property_prevents_primitive_collection_when_base_first()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<CollectionQuarks>(b =>
+            {
+                b.Property(c => c.Down).HasConversion(gs => string.Join(',', gs!),
+                    s => new ObservableCollection<string>(s.Split(',', StringSplitOptions.RemoveEmptyEntries)));
+            });
+
+            var property = (IProperty)modelBuilder.Model.FindEntityType(typeof(CollectionQuarks))!.FindProperty(nameof(CollectionQuarks.Down))!;
+            Assert.False(property.IsPrimitiveCollection);
+
+            modelBuilder.Entity<DerivedCollectionQuarks>();
+
+            var model = modelBuilder.FinalizeModel();
+            property = model.FindEntityType(typeof(CollectionQuarks))!.FindProperty(nameof(CollectionQuarks.Down))!;
+            Assert.False(property.IsPrimitiveCollection);
+            Assert.NotNull(property.GetValueConverter());
+        }
+
+        [ConditionalFact]
         public virtual void Element_types_can_have_provider_type_set()
         {
             var modelBuilder = CreateModelBuilder();
