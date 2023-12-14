@@ -320,7 +320,7 @@ namespace Microsoft.Data.Sqlite
                 ? PrepareAndEnumerateStatements()
                 : _preparedStatements)
             {
-                var boundParams = _parameters?.Bind(stmt) ?? 0;
+                var boundParams = _parameters?.Bind(stmt, Connection!.Handle!) ?? 0;
 
                 if (expectedParams != boundParams)
                 {
