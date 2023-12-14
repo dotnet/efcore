@@ -5,7 +5,7 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
@@ -42,7 +42,11 @@ CREATE TABLE "Products" (
 """;
         _ = async ? await command.ExecuteNonQueryAsync() : command.ExecuteNonQuery();
 
-        SetLimit(connection.Handle!, 0, 10);
+        var sqliteProvider = (ISQLite3Provider)typeof(raw)
+            .GetProperty("Provider", BindingFlags.Static | BindingFlags.NonPublic)!
+            .GetValue(null)!;
+
+        sqliteProvider.sqlite3_limit(connection.Handle!, 0, 10);
 
         command.CommandText = @"INSERT INTO ""Products"" (""Name"")  VALUES (@p0);";
         command.Parameters.Add("@p0", SqliteType.Text);
@@ -71,25 +75,6 @@ CREATE TABLE "Products" (
             connection.Close();
 #endif
         }
-
-#if E_SQLITE3
-        [DllImport("e_sqlite3", CallingConvention = CallingConvention.Cdecl, EntryPoint = "sqlite3_limit")]
-        static extern int SetLimit(sqlite3 db, int id, int newVal);
-#elif E_SQLCIPHER
-        [DllImport("e_sqlcipher", CallingConvention = CallingConvention.Cdecl, EntryPoint = "sqlite3_limit")]
-        static extern int SetLimit(sqlite3 db, int id, int newVal);
-#elif E_SQLITE3MC
-        [DllImport("e_sqlite3mc", CallingConvention = CallingConvention.Cdecl, EntryPoint = "sqlite3_limit")]
-        static extern int SetLimit(sqlite3 db, int id, int newVal);
-#elif WINSQLITE3
-        [DllImport("winsqlite3", CallingConvention = CallingConvention.Cdecl, EntryPoint = "sqlite3_limit")]
-        static extern int SetLimit(sqlite3 db, int id, int newVal);
-#elif SQLITE3
-        [DllImport("e_sqlite3", CallingConvention = CallingConvention.Cdecl, EntryPoint = "sqlite3_limit")]
-        static extern int SetLimit(sqlite3 db, int id, int newVal);
-#else
-#error Unexpected native library
-#endif
     }
 
     [Fact]
