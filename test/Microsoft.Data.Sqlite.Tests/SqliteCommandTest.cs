@@ -5,11 +5,9 @@ using System;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite.Properties;
-using SQLitePCL;
 using Xunit;
 using static SQLitePCL.raw;
 
@@ -42,16 +40,12 @@ CREATE TABLE "Products" (
 """;
         _ = async ? await command.ExecuteNonQueryAsync() : command.ExecuteNonQuery();
 
-        var sqliteProvider = (ISQLite3Provider)typeof(raw)
-            .GetProperty("Provider", BindingFlags.Static | BindingFlags.NonPublic)!
-            .GetValue(null)!;
-
-        sqliteProvider.sqlite3_limit(connection.Handle!, 0, 10);
+        sqlite3_limit(connection.Handle!, 0, 10);
 
         command.CommandText = @"INSERT INTO ""Products"" (""Name"")  VALUES (@p0);";
         command.Parameters.Add("@p0", SqliteType.Text);
         command.Parameters[0].Value = new string('A', 15);
-        Batteries_V2.Init();
+
         try
         {
             _ = async ? await command.ExecuteReaderAsync() : command.ExecuteReader();
