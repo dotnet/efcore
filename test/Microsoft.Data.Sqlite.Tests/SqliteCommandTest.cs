@@ -15,6 +15,62 @@ namespace Microsoft.Data.Sqlite;
 
 public class SqliteCommandTest
 {
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task Correct_error_code_is_returned_when_parameter_is_too_long(bool async) // Issue #27597
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+
+        if (async)
+        {
+            await connection.OpenAsync();
+        }
+        else
+        {
+            connection.Open();
+        }
+
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+CREATE TABLE "Products" (
+          "Id" INTEGER NOT NULL CONSTRAINT "PK_Products" PRIMARY KEY AUTOINCREMENT,
+          "Name" TEXT NOT NULL
+      );
+""";
+        _ = async ? await command.ExecuteNonQueryAsync() : command.ExecuteNonQuery();
+
+        sqlite3_limit(connection.Handle!, 0, 10);
+
+        command.CommandText = @"INSERT INTO ""Products"" (""Name"")  VALUES (@p0);";
+        command.Parameters.Add("@p0", SqliteType.Text);
+        command.Parameters[0].Value = new string('A', 15);
+
+        try
+        {
+            _ = async ? await command.ExecuteReaderAsync() : command.ExecuteReader();
+        }
+        catch (SqliteException ex)
+        {
+            Assert.Equal(18, ex.SqliteErrorCode);
+        }
+        finally
+        {
+#if NET5_0_OR_GREATER
+            if (async)
+            {
+                await connection.CloseAsync();
+            }
+            else
+            {
+                connection.Close();
+            }
+#else
+            connection.Close();
+#endif
+        }
+    }
+
     [Fact]
     public void Ctor_sets_values()
     {
