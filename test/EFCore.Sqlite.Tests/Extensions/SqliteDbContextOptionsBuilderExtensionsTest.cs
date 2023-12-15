@@ -100,6 +100,38 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Connection_overrides_connection_string()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        var connection = new SqliteConnection();
+
+        optionsBuilder.UseSqlite("Database=Whisper");
+        optionsBuilder.UseSqlite(connection);
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+        Assert.Same(connection, extension.Connection);
+        Assert.False(extension.IsConnectionOwned);
+        Assert.Null(extension.ConnectionString);
+    }
+
+    [ConditionalFact]
+    public void Connection_string_overrides_connection()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        var connection = new SqliteConnection();
+
+        optionsBuilder.UseSqlite(connection);
+        optionsBuilder.UseSqlite("Database=Whisper");
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+        Assert.False(extension.IsConnectionOwned);
+        Assert.Null(extension.Connection);
+        Assert.Equal("Database=Whisper", extension.ConnectionString);
+    }
+
+    [ConditionalFact]
     public void Can_add_extension_with_connection_using_generic_options()
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();

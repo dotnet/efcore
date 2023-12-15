@@ -46,10 +46,10 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 newArrayExpression);
 
         /// <summary>
-        ///     Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.
+        ///     None of connection string, CredentialToken, account key or account endpoint were specified. Specify a set of connection details.
         /// </summary>
-        public static string ConnectionStringConflictingConfiguration
-            => GetString("ConnectionStringConflictingConfiguration");
+        public static string ConnectionInfoMissing
+            => GetString("ConnectionInfoMissing");
 
         /// <summary>
         ///     The entity type '{entityType}' is mapped to the container '{container}' but it is also configured as being contained in property '{property}'.
