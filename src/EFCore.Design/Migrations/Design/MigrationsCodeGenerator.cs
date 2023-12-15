@@ -223,8 +223,7 @@ public abstract class MigrationsCodeGenerator : IMigrationsCodeGenerator
                 .SelectMany(a => GetProviderType(a.Annotatable, a.Annotation.Value!.GetType()).GetNamespaces()));
 
     private ValueConverter? FindValueConverter(IProperty property)
-        => (property.FindTypeMapping()
-            ?? Dependencies.RelationalTypeMappingSource.FindMapping(property))?.Converter;
+        => property.GetTypeMapping().Converter;
 
     private Type GetProviderType(IAnnotatable annotatable, Type valueType)
         => annotatable is IProperty property

@@ -140,7 +140,6 @@ namespace MyNamespace
                 eb.Property(e => e.Decimal).HasDefaultValue(decimal.MinValue);
                 eb.Property(e => e.Double).HasDefaultValue(double.MinValue); //double.NegativeInfinity
                 eb.Property(e => e.Enum).HasDefaultValue(Enum1.Default);
-                eb.Property(e => e.NullableEnum).HasDefaultValue(Enum1.Default).HasConversion<string>();
                 eb.Property(e => e.Guid).HasDefaultValue(Guid.NewGuid());
                 eb.Property(e => e.Int16).HasDefaultValue(short.MaxValue);
                 eb.Property(e => e.Int32).HasDefaultValue(int.MaxValue);
@@ -5300,7 +5299,8 @@ namespace RootNamespace
     [ConditionalFact]
     public virtual void Property_of_nullable_enum()
         => Test(
-            builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day),
+            builder => builder.Entity<EntityWithNullableEnumType>().Property(e => e.Day)
+                .HasConversion(d => d, d => d),
             AddBoilerPlate(
                 GetHeading()
                 + """
