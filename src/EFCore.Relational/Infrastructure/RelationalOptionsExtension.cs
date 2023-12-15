@@ -94,6 +94,10 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._connectionString = connectionString;
+        if (connectionString is not null)
+        {
+            clone._connection = null;
+        }
 
         return clone;
     }
@@ -136,6 +140,10 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
 
         clone._connection = connection;
         clone._connectionOwned = owned;
+        if (connection is not null)
+        {
+            clone._connectionString = null;
+        }
 
         return clone;
     }

@@ -260,6 +260,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
 
     private DbContextOptions CreateOptions(CosmosTestStore testDatabase)
         => testDatabase.AddProviderOptions(new DbContextOptionsBuilder())
+            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
             .EnableDetailedErrors()
             .Options;
 

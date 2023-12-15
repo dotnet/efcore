@@ -68,10 +68,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
             _connection = relationalOptions.Connection;
             _connectionOwned = relationalOptions.IsConnectionOwned;
 
-            if (_connectionString != null)
-            {
-                _connection.ConnectionString = _connectionString;
-            }
+            Check.DebugAssert(_connectionString == null, "ConnectionString is not null");
         }
         else
         {

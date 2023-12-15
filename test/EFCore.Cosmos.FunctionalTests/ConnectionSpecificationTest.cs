@@ -1,7 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -30,93 +29,29 @@ public class ConnectionSpecificationTest
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration());
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
+            => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
 
         public DbSet<Blog> Blogs { get; set; }
     }
 
     [ConditionalFact]
-    public async Task Specifying_connection_string_and_TokenCredential_throws()
+    public async Task Throws_for_missing_connection_info()
     {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
-        using var context = new BloggingContextWithTokenCredential(testDatabase);
+        using var context = new NoConnectionContext();
+        var creator = context.GetService<IDatabaseCreator>();
 
-        Assert.Equal(
-            CosmosStrings.ConnectionStringConflictingConfiguration,
-            Assert.Throws<InvalidOperationException>(() => context.GetService<IDatabaseCreator>()).Message);
+        Assert.Equal(CosmosStrings.ConnectionInfoMissing,
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => creator.EnsureDeletedAsync())).Message);
     }
 
-    public class BloggingContextWithTokenCredential : DbContext
+    public class NoConnectionContext : DbContext
     {
-        private readonly string _connectionString;
-        private readonly string _connectionUri;
-        private readonly TokenCredential _tokenCredential;
-        private readonly string _name;
-
-        public BloggingContextWithTokenCredential(CosmosTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-            _connectionUri = testStore.ConnectionUri;
-            _tokenCredential = testStore.TokenCredential;
-            _name = testStore.Name;
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
-                .UseCosmos(_connectionUri, _tokenCredential, _name, b => b.ApplyConfiguration());
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
-
-        public DbSet<Blog> Blogs { get; set; }
+            => optionsBuilder.UseCosmos(b => b.ApplyConfiguration())
+                .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
     }
 
-    [ConditionalFact]
-    public async Task Specifying_connection_string_and_account_endpoint_throws()
-    {
-        await using var testDatabase = CosmosTestStore.Create("NonExisting");
-
-        using var context = new BloggingContextWithConnectionConflict(testDatabase);
-
-        Assert.Equal(
-            CosmosStrings.ConnectionStringConflictingConfiguration,
-            Assert.Throws<InvalidOperationException>(() => context.GetService<IDatabaseCreator>()).Message);
-    }
-
-    public class BloggingContextWithConnectionConflict : DbContext
-    {
-        private readonly string _connectionString;
-        private readonly string _connectionUri;
-        private readonly string _authToken;
-        private readonly string _name;
-
-        public BloggingContextWithConnectionConflict(CosmosTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-            _connectionUri = testStore.ConnectionUri;
-            _authToken = testStore.AuthToken;
-            _name = testStore.Name;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
-                .UseCosmos(
-                    _connectionUri,
-                    _authToken,
-                    _name,
-                    b => b.ApplyConfiguration());
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
-
-        public DbSet<Blog> Blogs { get; set; }
-    }
 
     public class Blog
     {
