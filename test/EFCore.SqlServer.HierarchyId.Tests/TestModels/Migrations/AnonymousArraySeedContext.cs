@@ -142,7 +142,7 @@ namespace {rootNamespace}.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType(""int"");
 
-                    b.Property<HierarchyId>(""HierarchyId"")
+                    b.Property<SqlHierarchyId?>(""HierarchyId"")
                         .HasColumnType(""hierarchyid"");
 
                     b.Property<string>(""Name"")
