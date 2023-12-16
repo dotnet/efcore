@@ -73,7 +73,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             _cSharpUtilities,
             options.NoPluralize
                 ? null
-                : _pluralizer.Singularize);
+                : _pluralizer.Singularize,
+            caseSensitive: false);
         _dbSetNamer = new CSharpUniqueNamer<DatabaseTable>(
             options.UseDatabaseNames
                 ? (t => t.Name)
@@ -81,7 +82,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             _cSharpUtilities,
             options.NoPluralize
                 ? null
-                : _pluralizer.Pluralize);
+                : _pluralizer.Pluralize,
+            caseSensitive: true);
         _columnNamers = new Dictionary<DatabaseTable, CSharpUniqueNamer<DatabaseColumn>>();
         _options = options;
 
@@ -133,7 +135,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                         c => c.Name,
                         usedNames,
                         _cSharpUtilities,
-                        singularizePluralizer: null));
+                        singularizePluralizer: null,
+                        caseSensitive: true));
             }
             else
             {
@@ -143,7 +146,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                         c => _candidateNamingService.GenerateCandidateIdentifier(c),
                         usedNames,
                         _cSharpUtilities,
-                        singularizePluralizer: null));
+                        singularizePluralizer: null,
+                        caseSensitive: true));
             }
         }
 
