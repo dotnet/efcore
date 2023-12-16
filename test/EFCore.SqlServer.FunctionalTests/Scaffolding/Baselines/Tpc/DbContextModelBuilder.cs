@@ -56,7 +56,7 @@ namespace TestNamespace
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("PrincipalId", principalIdColumnBase);
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
-            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(dependentBase, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, true);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(dependentBase, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase, false);
             defaultTableMappings.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, dependentBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
@@ -89,7 +89,7 @@ namespace TestNamespace
             RelationalModel.GetOrCreateTableIndexes(iX_DependentBasebyte_PrincipalIdIx).Add(iX_DependentBasebyte_PrincipalId);
             dependentBasebyteTable.Indexes.Add("IX_DependentBase<byte?>_PrincipalId", iX_DependentBasebyte_PrincipalId);
             relationalModel.Tables.Add(("DependentBase<byte?>", "TPC"), dependentBasebyteTable);
-            var dependentBasebyteTableMapping = new TableMapping(dependentBase, dependentBasebyteTable, true);
+            var dependentBasebyteTableMapping = new TableMapping(dependentBase, dependentBasebyteTable, null);
             dependentBasebyteTable.AddTypeMapping(dependentBasebyteTableMapping, false);
             tableMappings.Add(dependentBasebyteTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, dependentBase.FindProperty("Id")!, dependentBasebyteTableMapping);
@@ -641,7 +641,7 @@ namespace TestNamespace
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.Columns.Add("ValueTypeList", valueTypeListColumnBase0);
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelTestBase+DependentBase<byte?>>", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase);
-            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, false);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase, false);
             defaultTableMappings1.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase1, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseDependentBasebyteMappingBase);
@@ -751,7 +751,7 @@ namespace TestNamespace
             RelationalModel.GetOrCreateTableIndexes(pIX0Ix).Add(pIX0);
             principalDerivedTable.Indexes.Add("PIX", pIX0);
             relationalModel.Tables.Add(("PrincipalDerived", "TPC"), principalDerivedTable);
-            var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, false);
+            var principalDerivedTableMapping = new TableMapping(principalDerived, principalDerivedTable, null);
             principalDerivedTable.AddTypeMapping(principalDerivedTableMapping, false);
             tableMappings1.Add(principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(idColumn1, principalDerived.FindProperty("Id")!, principalDerivedTableMapping);
@@ -837,7 +837,7 @@ namespace TestNamespace
             };
             principalDerivedViewView.Columns.Add("ValueTypeList", valueTypeListViewColumn0);
             relationalModel.Views.Add(("PrincipalDerivedView", "TPC"), principalDerivedViewView);
-            var principalDerivedViewViewMapping = new ViewMapping(principalDerived, principalDerivedViewView, false);
+            var principalDerivedViewViewMapping = new ViewMapping(principalDerived, principalDerivedViewView, null);
             principalDerivedViewView.AddTypeMapping(principalDerivedViewViewMapping, false);
             viewMappings0.Add(principalDerivedViewViewMapping);
             RelationalModel.CreateViewColumnMapping(idViewColumn0, principalDerived.FindProperty("Id")!, principalDerivedViewViewMapping);
@@ -864,7 +864,7 @@ namespace TestNamespace
             derived_DeleteStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Delete", "TPC"), derived_DeleteStoreSproc);
             var derived_DeleteDSproc = (IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!;
-            var derived_DeleteSprocMapping = new StoredProcedureMapping(principalDerived, derived_DeleteStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!, principalDerivedTableMapping, false);
+            var derived_DeleteSprocMapping = new StoredProcedureMapping(principalDerived, derived_DeleteStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetDeleteStoredProcedure()!, principalDerivedTableMapping, null);
             derived_DeleteStoreSproc.AddTypeMapping(derived_DeleteSprocMapping, false);
             deleteSprocMappings0.Add(derived_DeleteSprocMapping);
             principalDerivedTableMapping.DeleteStoredProcedureMapping = derived_DeleteSprocMapping;
@@ -939,7 +939,7 @@ namespace TestNamespace
             derived_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Insert", "TPC"), derived_InsertStoreSproc);
             var derived_InsertISproc = (IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!;
-            var derived_InsertSprocMapping = new StoredProcedureMapping(principalDerived, derived_InsertStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!, principalDerivedTableMapping, false);
+            var derived_InsertSprocMapping = new StoredProcedureMapping(principalDerived, derived_InsertStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!, principalDerivedTableMapping, null);
             derived_InsertStoreSproc.AddTypeMapping(derived_InsertSprocMapping, false);
             insertSprocMappings0.Add(derived_InsertSprocMapping);
             principalDerivedTableMapping.InsertStoredProcedureMapping = derived_InsertSprocMapping;
@@ -1028,7 +1028,7 @@ namespace TestNamespace
             derived_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Update", "Derived"), derived_UpdateStoreSproc);
             var derived_UpdateUSproc = (IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!;
-            var derived_UpdateSprocMapping = new StoredProcedureMapping(principalDerived, derived_UpdateStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!, principalDerivedTableMapping, false);
+            var derived_UpdateSprocMapping = new StoredProcedureMapping(principalDerived, derived_UpdateStoreSproc, (IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!, principalDerivedTableMapping, null);
             derived_UpdateStoreSproc.AddTypeMapping(derived_UpdateSprocMapping, false);
             updateSprocMappings0.Add(derived_UpdateSprocMapping);
             principalDerivedTableMapping.UpdateStoredProcedureMapping = derived_UpdateSprocMapping;

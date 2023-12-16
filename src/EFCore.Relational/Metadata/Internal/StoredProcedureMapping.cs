@@ -22,7 +22,7 @@ public class StoredProcedureMapping : TableMappingBase<IStoredProcedureResultCol
         StoreStoredProcedure storeStoredProcedure,
         IStoredProcedure storedProcedure,
         ITableMapping? tableMapping,
-        bool includesDerivedTypes)
+        bool? includesDerivedTypes)
         : base(entityType, storeStoredProcedure, includesDerivedTypes)
     {
         StoredProcedure = storedProcedure;

@@ -519,7 +519,7 @@ public abstract class UpdateSqlGenerator : IUpdateSqlGenerator
                     commandStringBuilder.Append(", ");
                 }
 
-                commandStringBuilder.Append("1");
+                commandStringBuilder.Append('1');
             }
         }
     }

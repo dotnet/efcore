@@ -21,7 +21,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     public TableMappingBase(
         ITypeBase typeBase,
         TableBase table,
-        bool includesDerivedTypes)
+        bool? includesDerivedTypes)
     {
         TypeBase = typeBase;
         Table = table;
@@ -77,7 +77,7 @@ public class TableMappingBase<TColumnMapping> : Annotatable, ITableMappingBase
     }
 
     /// <inheritdoc />
-    public virtual bool IncludesDerivedTypes { get; }
+    public virtual bool? IncludesDerivedTypes { get; }
 
     /// <inheritdoc />
     public virtual bool? IsSharedTablePrincipal { get; set; }

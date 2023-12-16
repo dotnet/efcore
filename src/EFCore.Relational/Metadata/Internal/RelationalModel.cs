@@ -310,7 +310,10 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
 
             var tableMapping = new TableMappingBase<ColumnMappingBase>(
-                entityType, defaultTable, includesDerivedTypes: !isTpc && mappedType == entityType);
+                entityType, defaultTable,
+                includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any()
+                    ? !isTpc && mappedType == entityType
+                    : null);
             var containerColumnName = mappedType.GetContainerColumnName();
             if (!string.IsNullOrEmpty(containerColumnName))
             {
@@ -384,6 +387,9 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         var mappingStrategy = entityType.GetMappingStrategy();
         var isTpc = mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy;
+        var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
+                ? !isTpc && mappedType == entityType
+                : (bool?)null;
         while (mappedType != null)
         {
             var mappedTableName = mappedType.GetTableName();
@@ -409,7 +415,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     fragment.StoreObject,
                     databaseModel,
                     tableMappings,
-                    includesDerivedTypes: !isTpc && mappedType == entityType,
+                    includesDerivedTypes: includesDerivedTypes,
                     isSplitEntityTypePrincipal: false);
             }
 
@@ -420,7 +426,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 StoreObjectIdentifier.Table(mappedTableName, mappedSchema),
                 databaseModel,
                 tableMappings,
-                includesDerivedTypes: !isTpc && mappedType == entityType,
+                includesDerivedTypes: includesDerivedTypes,
                 isSplitEntityTypePrincipal: mappedType.GetMappingFragments(StoreObjectType.Table).Any() ? true : null);
 
             if (isTpc || mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
@@ -441,7 +447,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         StoreObjectIdentifier mappedTable,
         RelationalModel databaseModel,
         List<TableMapping> tableMappings,
-        bool includesDerivedTypes,
+        bool? includesDerivedTypes,
         bool? isSplitEntityTypePrincipal = null)
     {
         if (!databaseModel.Tables.TryGetValue((mappedTable.Name, mappedTable.Schema), out var table))
@@ -584,6 +590,9 @@ public class RelationalModel : Annotatable, IRelationalModel
                 continue;
             }
 
+            var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
+                    ? !isTpc && mappedType == entityType
+                    : (bool?)null;
             foreach (var fragment in mappedType.GetMappingFragments(StoreObjectType.View))
             {
                 CreateViewMapping(
@@ -593,7 +602,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     fragment.StoreObject,
                     databaseModel,
                     viewMappings,
-                    includesDerivedTypes: !isTpc && mappedType == entityType,
+                    includesDerivedTypes: includesDerivedTypes,
                     isSplitEntityTypePrincipal: false);
             }
 
@@ -604,7 +613,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 StoreObjectIdentifier.View(mappedViewName, mappedSchema),
                 databaseModel,
                 viewMappings,
-                includesDerivedTypes: !isTpc && mappedType == entityType,
+                includesDerivedTypes: includesDerivedTypes,
                 isSplitEntityTypePrincipal: mappedType.GetMappingFragments(StoreObjectType.View).Any() ? true : null);
 
             if (isTpc || mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
@@ -625,7 +634,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         StoreObjectIdentifier mappedView,
         RelationalModel databaseModel,
         List<ViewMapping> viewMappings,
-        bool includesDerivedTypes,
+        bool? includesDerivedTypes,
         bool? isSplitEntityTypePrincipal = null)
     {
         if (!databaseModel.Views.TryGetValue((mappedView.Name, mappedView.Schema), out var view))
@@ -727,7 +736,11 @@ public class RelationalModel : Annotatable, IRelationalModel
                 databaseModel.Queries.Add(mappedQuery.Name, sqlQuery);
             }
 
-            var queryMapping = new SqlQueryMapping(entityType, sqlQuery, includesDerivedTypes: true) { IsDefaultSqlQueryMapping = true };
+            var queryMapping = new SqlQueryMapping(entityType, sqlQuery,
+                includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null)
+            {
+                IsDefaultSqlQueryMapping = true
+            };
 
             foreach (var property in mappedType.GetProperties())
             {
@@ -862,7 +875,8 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeFunction = GetOrCreateStoreFunction(dbFunction, model);
 
         var mappedFunction = StoreObjectIdentifier.DbFunction(dbFunction.Name);
-        var functionMapping = new FunctionMapping(entityType, storeFunction, dbFunction, includesDerivedTypes: true)
+        var functionMapping = new FunctionMapping(entityType, storeFunction, dbFunction,
+            includesDerivedTypes: entityType.GetDirectlyDerivedTypes().Any() ? true : null)
         {
             IsDefaultFunctionMapping = @default
         };
@@ -942,7 +956,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var isTph = mappingStrategy == RelationalAnnotationNames.TphMappingStrategy;
         while (mappedType != null)
         {
-            var includesDerivedTypes = !isTpc && mappedType == entityType;
+            var includesDerivedTypes = entityType.GetDirectlyDerivedTypes().Any()
+                    ? !isTpc && mappedType == entityType
+                    : (bool?)null;
 
             var tableMappings = entityType.GetTableMappings().Where(
                 m => m.Table.Name == mappedType.GetTableName()
@@ -1068,7 +1084,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         ITableMapping? tableMapping,
         RelationalModel model,
         List<StoredProcedureMapping> storedProcedureMappings,
-        bool includesDerivedTypes,
+        bool? includesDerivedTypes,
         IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var storeStoredProcedure = GetOrCreateStoreStoredProcedure(storedProcedure, model, relationalTypeMappingSource);
@@ -1306,14 +1322,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
         {
-            if (!entityTypeMapping.IncludesDerivedTypes
-                && entityTypeMapping.TypeBase.GetTableMappings().Any(m => m.IncludesDerivedTypes))
-            {
-                continue;
-            }
-
+            var includeInherited = entityTypeMapping.TypeBase.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy;
             var entityType = (IEntityType)entityTypeMapping.TypeBase;
-            foreach (var key in entityType.GetKeys())
+            foreach (var key in includeInherited ? entityType.GetKeys() : entityType.GetDeclaredKeys())
             {
                 var name = key.GetName(storeObject);
                 if (name == null)
@@ -1356,7 +1367,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 constraint.MappedKeys.Add(key);
             }
 
-            foreach (var index in entityType.GetIndexes())
+            foreach (var index in includeInherited ? entityType.GetIndexes() : entityType.GetDeclaredIndexes())
             {
                 var name = index.GetDatabaseName(storeObject);
                 if (name == null)
@@ -1396,7 +1407,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (designTime)
             {
-                foreach (var checkConstraint in entityType.GetCheckConstraints())
+                foreach (var checkConstraint in includeInherited ? entityType.GetCheckConstraints() : entityType.GetDeclaredCheckConstraints())
                 {
                     var name = checkConstraint.GetName(storeObject);
                     if (name == null)
@@ -1528,9 +1539,9 @@ public class RelationalModel : Annotatable, IRelationalModel
                     }
                 }
 
-                if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes)
+                if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes == true)
                 {
-                    foreach (var directlyDerivedEntityType in entityType.GetDerivedTypes())
+                    foreach (var directlyDerivedEntityType in entityType.GetDirectlyDerivedTypes())
                     {
                         if (mappedEntityTypes.Contains(directlyDerivedEntityType)
                             && !optionalTypes.ContainsKey(directlyDerivedEntityType))
@@ -1550,14 +1561,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var storeObject = StoreObjectIdentifier.Table(table.Name, table.Schema);
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
         {
-            if (!entityTypeMapping.IncludesDerivedTypes
-                && entityTypeMapping.TypeBase.GetTableMappings().Any(m => m.IncludesDerivedTypes))
-            {
-                continue;
-            }
-
             var entityType = (IEntityType)entityTypeMapping.TypeBase;
-            foreach (var foreignKey in entityType.GetForeignKeys())
+            var includeInherited = entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy;
+            foreach (var foreignKey in includeInherited ? entityType.GetForeignKeys() : entityType.GetDeclaredForeignKeys())
             {
                 foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())
                 {
@@ -1619,7 +1625,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                         break;
                     }
 
-                    if (entityTypeMapping.IncludesDerivedTypes
+                    if (entityTypeMapping.IncludesDerivedTypes == true
                         && foreignKey.DeclaringEntityType != entityType
                         && entityType.FindPrimaryKey() is IKey primaryKey
                         && foreignKey.Properties.SequenceEqual(primaryKey.Properties))

@@ -20,7 +20,7 @@ public class ViewMapping : TableMappingBase<ViewColumnMapping>, IViewMapping
     public ViewMapping(
         IEntityType entityType,
         View view,
-        bool includesDerivedTypes)
+        bool? includesDerivedTypes)
         : base(entityType, view, includesDerivedTypes)
     {
     }

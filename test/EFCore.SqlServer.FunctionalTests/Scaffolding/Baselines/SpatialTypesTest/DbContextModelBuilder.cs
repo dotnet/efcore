@@ -46,7 +46,7 @@ namespace TestNamespace
             };
             microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesTableBase.Columns.Add("Point", pointColumnBase);
             relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+SpatialTypes", microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesTableBase);
-            var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesMappingBase = new TableMappingBase<ColumnMappingBase>(spatialTypes, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesTableBase, true);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesMappingBase = new TableMappingBase<ColumnMappingBase>(spatialTypes, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesMappingBase, false);
             defaultTableMappings.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, spatialTypes.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelRelationalTestBaseSpatialTypesMappingBase);
@@ -71,7 +71,7 @@ namespace TestNamespace
             RelationalModel.GetOrCreateUniqueConstraints(pK_SpatialTypesUc).Add(pK_SpatialTypes);
             spatialTypesTable.UniqueConstraints.Add("PK_SpatialTypes", pK_SpatialTypes);
             relationalModel.Tables.Add(("SpatialTypes", null), spatialTypesTable);
-            var spatialTypesTableMapping = new TableMapping(spatialTypes, spatialTypesTable, true);
+            var spatialTypesTableMapping = new TableMapping(spatialTypes, spatialTypesTable, null);
             spatialTypesTable.AddTypeMapping(spatialTypesTableMapping, false);
             tableMappings.Add(spatialTypesTableMapping);
             RelationalModel.CreateColumnMapping(idColumn, spatialTypes.FindProperty("Id")!, spatialTypesTableMapping);
