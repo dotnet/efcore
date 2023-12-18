@@ -73,7 +73,8 @@ public class ForeignKeyTest
         Assert.Same(entityType.FindPrimaryKey(), foreignKey.PrincipalKey);
         Assert.Equal(ConfigurationSource.Convention, foreignKey.GetConfigurationSource());
 
-        ((ForeignKey)foreignKey).UpdateConfigurationSource(ConfigurationSource.DataAnnotation);
+        ((ForeignKey)foreignKey).UpdateConfigurationSource(
+            ConfigurationSource.DataAnnotation, ConfigurationSource.DataAnnotation, ConfigurationSource.DataAnnotation);
 
         Assert.Equal(ConfigurationSource.DataAnnotation, foreignKey.GetConfigurationSource());
     }

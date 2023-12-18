@@ -182,11 +182,30 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        => UpdateConfigurationSource(configurationSource, configurationSource, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UpdateConfigurationSource(
+        ConfigurationSource configurationSource,
+        ConfigurationSource? principalConfigurationSource,
+        ConfigurationSource? dependentConfigurationSource)
     {
         _configurationSource = _configurationSource.Max(configurationSource);
 
-        DeclaringEntityType.UpdateConfigurationSource(configurationSource);
-        PrincipalEntityType.UpdateConfigurationSource(configurationSource);
+        if (dependentConfigurationSource.HasValue)
+        {
+            DeclaringEntityType.UpdateConfigurationSource(dependentConfigurationSource.Value);
+        }
+
+        if (principalConfigurationSource.HasValue)
+        {
+            PrincipalEntityType.UpdateConfigurationSource(principalConfigurationSource.Value);
+        }
     }
 
     /// <summary>

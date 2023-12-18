@@ -1344,12 +1344,13 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         EntityType principalEntityType,
         EntityType dependentEntityType,
         ConfigurationSource configurationSource)
-        => HasEntityTypes(principalEntityType, dependentEntityType, configurationSource, configurationSource);
+        => HasEntityTypes(principalEntityType, dependentEntityType, configurationSource, configurationSource, configurationSource);
 
     private InternalForeignKeyBuilder? HasEntityTypes(
         EntityType principalEntityType,
         EntityType dependentEntityType,
         ConfigurationSource? principalEndConfigurationSource,
+        ConfigurationSource? dependentEndConfigurationSource,
         ConfigurationSource configurationSource)
     {
         if ((Metadata.PrincipalEntityType == principalEntityType
@@ -1365,8 +1366,10 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
             Metadata.UpdatePrincipalEndConfigurationSource(principalEndConfigurationSource.Value);
 
-            principalEntityType.UpdateConfigurationSource(configurationSource);
-            dependentEntityType.UpdateConfigurationSource(configurationSource);
+            if (dependentEndConfigurationSource != null)
+            {
+                dependentEntityType.UpdateConfigurationSource(dependentEndConfigurationSource.Value);
+            }
 
             return (InternalForeignKeyBuilder?)ModelBuilder.Metadata.ConventionDispatcher.OnForeignKeyPrincipalEndChanged(this);
         }
@@ -1435,6 +1438,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             isUnique: shouldBeUnique,
             removeCurrent: true,
             principalEndConfigurationSource: principalEndConfigurationSource,
+            dependentEndConfigurationSource: dependentEndConfigurationSource,
             oldRelationshipInverted: shouldInvert);
     }
 
@@ -1684,7 +1688,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource)!;
         if (Metadata.Properties.SequenceEqual(properties))
         {
-            Metadata.UpdateConfigurationSource(configurationSource);
+            Metadata.UpdateConfigurationSource(configurationSource, configurationSource, null);
             Metadata.UpdatePropertiesConfigurationSource(configurationSource);
 
             var builder = this;
@@ -1712,6 +1716,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             dependentProperties: properties,
             principalProperties: resetPrincipalKey ? Array.Empty<Property>() : null,
             principalEndConfigurationSource: configurationSource,
+            dependentEndConfigurationSource: null,
             removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
     }
 
@@ -2029,6 +2034,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         DeleteBehavior? deleteBehavior = null,
         bool removeCurrent = false,
         ConfigurationSource? principalEndConfigurationSource = null,
+        ConfigurationSource? dependentEndConfigurationSource = null,
         bool oldRelationshipInverted = false)
     {
         if (oldRelationshipInverted
@@ -2150,6 +2156,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             removeCurrent,
             oldRelationshipInverted,
             principalEndConfigurationSource,
+            dependentEndConfigurationSource,
             configurationSource);
     }
 
@@ -2169,6 +2176,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         bool removeCurrent,
         bool oldRelationshipInverted,
         ConfigurationSource? principalEndConfigurationSource,
+        ConfigurationSource? dependentEndConfigurationSource,
         ConfigurationSource configurationSource)
     {
         Check.NotNull(principalEntityTypeBuilder, nameof(principalEntityTypeBuilder));
@@ -2288,7 +2296,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             newRelationshipConfigurationSource = newRelationshipConfigurationSource.Max(configurationSource);
         }
 
-        newRelationshipBuilder.Metadata.UpdateConfigurationSource(newRelationshipConfigurationSource);
+        newRelationshipBuilder.Metadata.UpdateConfigurationSource(
+            newRelationshipConfigurationSource, principalEndConfigurationSource, dependentEndConfigurationSource);
 
         var resetToPrincipal = newRelationshipBuilder.Metadata.DependentToPrincipal != null
             && ((existingRelationshipInverted == false
@@ -2324,6 +2333,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 principalEntityTypeBuilder.Metadata,
                 dependentEntityTypeBuilder.Metadata,
                 principalEndConfigurationSource,
+                dependentEndConfigurationSource,
                 configurationSource)
             ?? newRelationshipBuilder;
 

@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
 // ReSharper disable InconsistentNaming
@@ -708,7 +710,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOneToManyTestBase : OneToManyTestBase
     {
-        public RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture)
+        protected RelationalOneToManyTestBase(RelationalModelBuilderFixture fixture)
             : base(fixture)
         {
         }
@@ -716,7 +718,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalManyToOneTestBase : ManyToOneTestBase
     {
-        public RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture)
+        protected RelationalManyToOneTestBase(RelationalModelBuilderFixture fixture)
             : base(fixture)
         {
         }
@@ -724,7 +726,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOneToOneTestBase : OneToOneTestBase
     {
-        public RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture)
+        protected RelationalOneToOneTestBase(RelationalModelBuilderFixture fixture)
             : base(fixture)
         {
         }
@@ -732,15 +734,187 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalManyToManyTestBase : ManyToManyTestBase
     {
-        public RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture)
+        protected RelationalManyToManyTestBase(RelationalModelBuilderFixture fixture)
             : base(fixture)
         {
         }
+
+        [ConditionalFact] // Issue #27990
+        public virtual void Original_complex_model_from_issue()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MotorArt>(
+                entity =>
+                {
+                    entity.HasMany(d => d.MotorBauArt)
+                        .WithMany(p => p.MotorArt)
+                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauart");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Collection(model.GetEntityTypes(),
+                e =>
+                {
+                    Assert.Equal("FuelTypeMotorArt", e.ShortName());
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("FuelTypeId", p.Name), p => Assert.Equal("MotorArtId", p.Name));
+                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties,
+                        p => Assert.Equal("FuelTypeId", p.Name),
+                        p => Assert.Equal("MotorArtId", p.Name)));
+                    Assert.Collection(e.GetForeignKeys(), k =>
+                    {
+                        Assert.Equal("FuelType", k.PrincipalEntityType.ShortName());
+                        Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name));
+                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("FuelTypeId", p.Name));
+                    }, k =>
+                    {
+                        Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
+                        Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                    });
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                },
+                e =>
+                {
+                    Assert.Equal("FuelType", e.ShortName());
+                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("FuelTypeId", p.Name)));
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("FuelTypeId", p.Name), p => Assert.Equal("Bezeichnung", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArt", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArt", e.ShortName());
+                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name)));
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorArtId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(),
+                        n => Assert.Equal("FuelType", n.Name),
+                        n => Assert.Equal("MotorBauArt", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorBauart", e.ShortName());
+                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties, p => Assert.Equal("MotorBauartId", p.Name)));
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorBauartId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArt", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArtXMotorBauart", e.ShortName());
+                    Assert.Collection(e.GetProperties(),
+                        p => Assert.Equal("MotorArtId", p.Name),
+                        p => Assert.Equal("MotorBauArtId", p.Name));
+                    Assert.Collection(e.GetKeys(), k =>Assert.Collection(k.Properties,
+                        p => Assert.Equal("MotorArtId", p.Name),
+                        p => Assert.Equal("MotorBauArtId", p.Name)));
+                    Assert.Collection(e.GetForeignKeys(), k =>
+                    {
+                        Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
+                        Assert.Collection(k.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
+                    }, k =>
+                    {
+                        Assert.Equal("MotorBauart", k.PrincipalEntityType.ShortName());
+                        Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtId", p.Name));
+                        Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartId", p.Name));
+                    });
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                });
+
+            //
+            // Assert.Collection(model.GetEntityTypes(),
+            //     e =>
+            //     {
+            //         Assert.Equal("MotorArt", e.ShortName());
+            //         Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorArtId", p.Name));
+            //         Assert.Empty(e.GetForeignKeys());
+            //         Assert.Empty(e.GetNavigations());
+            //         Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArt", n.Name));
+            //     },
+            //     e =>
+            //     {
+            //         Assert.Equal("MotorBauart", e.ShortName());
+            //         Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorBauartId", p.Name));
+            //         Assert.Empty(e.GetForeignKeys());
+            //         Assert.Empty(e.GetNavigations());
+            //         Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArt", n.Name));
+            //     },
+            //     e =>
+            //     {
+            //         Assert.Equal("MotorArtXMotorBauart", e.ShortName());
+            //         Assert.Collection(e.GetForeignKeys(),
+            //             k =>
+            //             {
+            //                 Assert.Equal("MotorArt", k.PrincipalEntityType.ShortName());
+            //                 Assert.Collection(k.Properties, p => Assert.Equal("MotorArtKey", p.Name));
+            //                 Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtId", p.Name));
+            //             },
+            //             k =>
+            //             {
+            //                 Assert.Equal("MotorBauart", k.PrincipalEntityType.ShortName());
+            //                 Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtKey", p.Name));
+            //                 Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartId", p.Name));
+            //             });
+            //         Assert.Empty(e.GetNavigations());
+            //         Assert.Empty(e.GetSkipNavigations());
+            //     });
+        }
+
+        [Table("FuelType", Schema = "dbo")]
+        [Index("Bezeichnung", Name = "Key_Fueltype", IsUnique = true)]
+        public class FuelType
+        {
+            [Key]
+            public int FuelTypeId { get; set; }
+
+            [StringLength(255)]
+            public string Bezeichnung { get; set; } = null!;
+
+            [ForeignKey("FuelTypeId")]
+            [InverseProperty("FuelType")]
+            public virtual ICollection<MotorArt> MotorArt { get; set; } = new HashSet<MotorArt>();
+        }
+
+        [Table("MotorArt", Schema = "Bib")]
+        public class MotorArt
+        {
+            [Key]
+            public int MotorArtId { get; set; }
+
+            [StringLength(255)]
+            [ForeignKey("MotorArtId")]
+            [InverseProperty("MotorArt")]
+            public virtual ICollection<FuelType> FuelType { get; set; } = new HashSet<FuelType>();
+
+            [ForeignKey("MotorArtId")]
+            [InverseProperty("MotorArt")]
+            public virtual ICollection<MotorBauart> MotorBauArt { get; set; } = new HashSet<MotorBauart>();
+        }
+
+        [Table("MotorBauart", Schema = "Bib")]
+        public class MotorBauart
+        {
+            [Key]
+            public int MotorBauartId { get; set; }
+
+            [ForeignKey("MotorBauArtId")]
+            [InverseProperty("MotorBauArt")]
+            public virtual ICollection<MotorArt> MotorArt { get; set; } = new HashSet<MotorArt>();
+        }
+
     }
 
     public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
     {
-        public RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture)
+        protected RelationalOwnedTypesTestBase(RelationalModelBuilderFixture fixture)
             : base(fixture)
         {
         }

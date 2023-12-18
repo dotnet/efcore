@@ -13,7 +13,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class ManyToManyTestBase : ModelBuilderTestBase
     {
-        public ManyToManyTestBase(ModelBuilderFixtureBase fixture)
+        protected ManyToManyTestBase(ModelBuilderFixtureBase fixture)
             : base(fixture)
         {
         }
@@ -716,6 +716,148 @@ public abstract partial class ModelBuilderTest
         {
             public int ID { get; set; }
             public virtual ICollection<ProductWithAttribute>? Products { get; set; }
+        }
+
+        [ConditionalFact] // Issue #27990
+        public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_matching_key_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MotorArtMatching>(
+                entity =>
+                {
+                    entity.HasMany(d => d.MotorBauArtMatching)
+                        .WithMany(p => p.MotorArtMatching)
+                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            Assert.Collection(model.GetEntityTypes(),
+                e =>
+                {
+                    Assert.Equal("MotorArtMatching", e.ShortName());
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorArtMatchingId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorBauartMatching", e.ShortName());
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorBauartMatchingId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArtXMotorBauartMatching", e.ShortName());
+                    Assert.Collection(e.GetForeignKeys(),
+                        k =>
+                        {
+                            Assert.Equal("MotorArtMatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtMatchingId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtMatchingId", p.Name));
+                        },
+                        k =>
+                        {
+                            Assert.Equal("MotorBauartMatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorBauartMatchingId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartMatchingId", p.Name));
+                        });
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                });
+        }
+
+        protected class MotorArtMatching
+        {
+            public int MotorArtMatchingId { get; set; }
+
+            [ForeignKey("MotorArtMatchingId")]
+            public virtual ICollection<MotorBauartMatching> MotorBauArtMatching { get; set; } = null!;
+        }
+
+        protected class MotorBauartMatching
+        {
+            public int MotorBauartMatchingId { get; set; }
+
+            [ForeignKey("MotorBauartMatchingId")]
+            public virtual ICollection<MotorArtMatching> MotorArtMatching { get; set; } = null!;
+        }
+
+        [ConditionalFact] // Issue #27990
+        public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_mismatching_key_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MotorArtMismatching>(
+                entity =>
+                {
+                    entity.HasMany(d => d.MotorBauArtMismatching)
+                        .WithMany(p => p.MotorArtMismatching)
+                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            Assert.Collection(model.GetEntityTypes(),
+                e =>
+                {
+                    Assert.Equal("MotorArtMismatching", e.ShortName());
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorArtMismatchingId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMismatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorBauartMismatching", e.ShortName());
+                    Assert.Collection(e.GetProperties(), p => Assert.Equal("MotorBauartMismatchingId", p.Name));
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMismatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArtXMotorBauartMismatching", e.ShortName());
+                    Assert.Collection(e.GetForeignKeys(),
+                        k =>
+                        {
+                            Assert.Equal("MotorArtMismatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtMismatchingKey", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtMismatchingId", p.Name));
+                        },
+                        k =>
+                        {
+                            Assert.Equal("MotorBauartMismatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtMismatchingKey", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartMismatchingId", p.Name));
+                        });
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                });
+        }
+//Mismatching
+        protected class MotorArtMismatching
+        {
+            public int MotorArtMismatchingId { get; set; }
+
+            [ForeignKey("MotorArtMismatchingKey")]
+            public virtual ICollection<MotorBauartMismatching> MotorBauArtMismatching { get; set; } = null!;
+        }
+
+        protected class MotorBauartMismatching
+        {
+            public int MotorBauartMismatchingId { get; set; }
+
+            [ForeignKey("MotorBauArtMismatchingKey")]
+            public virtual ICollection<MotorArtMismatching> MotorArtMismatching { get; set; } = null!;
         }
 
         [ConditionalFact]
