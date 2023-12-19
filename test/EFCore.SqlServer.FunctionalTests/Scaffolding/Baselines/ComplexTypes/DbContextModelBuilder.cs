@@ -826,7 +826,7 @@ namespace TestNamespace
 
             var defaultTableMappings0 = new List<TableMappingBase<ColumnMappingBase>>();
             principalDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings0);
-            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, true);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseTableBase.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0, false);
             defaultTableMappings0.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)idColumnBase, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappingBase0);
@@ -847,7 +847,7 @@ namespace TestNamespace
 
             var tableMappings2 = new List<TableMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings2);
-            var principalBaseTableMapping2 = new TableMapping(principalDerived, principalBaseTable, true)
+            var principalBaseTableMapping2 = new TableMapping(principalDerived, principalBaseTable, null)
             {
                 IsSharedTablePrincipal = false,
             };
@@ -871,7 +871,7 @@ namespace TestNamespace
 
             var sqlQueryMappings0 = new List<SqlQueryMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:SqlQueryMappings", sqlQueryMappings0);
-            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQueryMapping0 = new SqlQueryMapping(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQuery, true);
+            var microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQueryMapping0 = new SqlQueryMapping(principalDerived, microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQuery, null);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQuery.AddTypeMapping(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQueryMapping0, false);
             sqlQueryMappings0.Add(microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQueryMapping0);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBasePrincipalBaseMappedSqlQuerySqlQueryMapping0.IsDefaultSqlQueryMapping = true;
@@ -894,7 +894,7 @@ namespace TestNamespace
             var deleteSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:DeleteStoredProcedureMappings", deleteSprocMappings0);
             var principalBase_DeleteDSproc0 = (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!;
-            var principalBase_DeleteSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_DeleteStoreSproc, (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!, principalBaseTableMapping2, true);
+            var principalBase_DeleteSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_DeleteStoreSproc, (IRuntimeStoredProcedure)principalBase.GetDeleteStoredProcedure()!, principalBaseTableMapping2, null);
             principalBase_DeleteStoreSproc.AddTypeMapping(principalBase_DeleteSprocMapping0, false);
             deleteSprocMappings0.Add(principalBase_DeleteSprocMapping0);
             principalBaseTableMapping2.DeleteStoredProcedureMapping = principalBase_DeleteSprocMapping0;
@@ -903,7 +903,7 @@ namespace TestNamespace
             var insertSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:InsertStoredProcedureMappings", insertSprocMappings0);
             var principalBase_InsertISproc0 = (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!;
-            var principalBase_InsertSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_InsertStoreSproc, (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!, principalBaseTableMapping2, true);
+            var principalBase_InsertSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_InsertStoreSproc, (IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!, principalBaseTableMapping2, null);
             principalBase_InsertStoreSproc.AddTypeMapping(principalBase_InsertSprocMapping0, false);
             insertSprocMappings0.Add(principalBase_InsertSprocMapping0);
             principalBaseTableMapping2.InsertStoredProcedureMapping = principalBase_InsertSprocMapping0;
@@ -926,7 +926,7 @@ namespace TestNamespace
             var updateSprocMappings0 = new List<StoredProcedureMapping>();
             principalDerived.SetRuntimeAnnotation("Relational:UpdateStoredProcedureMappings", updateSprocMappings0);
             var principalBase_UpdateUSproc0 = (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!;
-            var principalBase_UpdateSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_UpdateStoreSproc, (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!, principalBaseTableMapping2, true);
+            var principalBase_UpdateSprocMapping0 = new StoredProcedureMapping(principalDerived, principalBase_UpdateStoreSproc, (IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!, principalBaseTableMapping2, null);
             principalBase_UpdateStoreSproc.AddTypeMapping(principalBase_UpdateSprocMapping0, false);
             updateSprocMappings0.Add(principalBase_UpdateSprocMapping0);
             principalBaseTableMapping2.UpdateStoredProcedureMapping = principalBase_UpdateSprocMapping0;

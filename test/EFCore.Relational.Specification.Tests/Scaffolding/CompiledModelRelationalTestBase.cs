@@ -1020,7 +1020,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 var dataEntity = model.FindEntityType(typeof(Data))!;
                 Assert.Null(dataEntity.FindPrimaryKey());
                 var dataEntityFunctionMapping = dataEntity.GetFunctionMappings().Single(m => m.IsDefaultFunctionMapping);
-                Assert.True(dataEntityFunctionMapping.IncludesDerivedTypes);
+                Assert.Null(dataEntityFunctionMapping.IncludesDerivedTypes);
                 Assert.Null(dataEntityFunctionMapping.IsSharedTablePrincipal);
                 Assert.Null(dataEntityFunctionMapping.IsSplitEntityTypePrincipal);
                 Assert.Same(getDataParameterless, dataEntityFunctionMapping.DbFunction);
@@ -1030,7 +1030,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.False(getDataStoreFunction.IsOptional(dataEntity));
 
                 var dataEntityOtherFunctionMapping = dataEntity.GetFunctionMappings().Single(m => !m.IsDefaultFunctionMapping);
-                Assert.True(dataEntityOtherFunctionMapping.IncludesDerivedTypes);
+                Assert.Null(dataEntityOtherFunctionMapping.IncludesDerivedTypes);
                 Assert.Null(dataEntityOtherFunctionMapping.IsSharedTablePrincipal);
                 Assert.Null(dataEntityOtherFunctionMapping.IsSplitEntityTypePrincipal);
                 Assert.Same(getData, dataEntityOtherFunctionMapping.DbFunction);
@@ -1059,7 +1059,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 var objectEntity = model.FindEntityType(typeof(object))!;
                 Assert.Null(objectEntity.FindPrimaryKey());
                 var objectEntityFunctionMapping = objectEntity.GetFunctionMappings().Single(m => m.IsDefaultFunctionMapping);
-                Assert.True(objectEntityFunctionMapping.IncludesDerivedTypes);
+                Assert.Null(objectEntityFunctionMapping.IncludesDerivedTypes);
                 Assert.Null(objectEntityFunctionMapping.IsSharedTablePrincipal);
                 Assert.Null(objectEntityFunctionMapping.IsSplitEntityTypePrincipal);
                 Assert.Same(getBlobs, objectEntityFunctionMapping.DbFunction);

@@ -20,7 +20,7 @@ public class TableMapping : TableMappingBase<ColumnMapping>, ITableMapping
     public TableMapping(
         ITypeBase typeBase,
         Table table,
-        bool includesDerivedTypes)
+        bool? includesDerivedTypes)
         : base(typeBase, table, includesDerivedTypes)
     {
     }
