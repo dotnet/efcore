@@ -1055,8 +1055,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationName), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             Builder.Metadata,
@@ -1098,8 +1097,7 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationName), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             Builder.Metadata,
@@ -1145,6 +1143,17 @@ public class EntityTypeBuilder : IInfrastructure<IConventionEntityTypeBuilder>
         MemberIdentity navigationId,
         EntityType relatedEntityType)
     {
+        if (Metadata[CoreAnnotationNames.SkipNavigationBeingConfigured] is SkipNavigation skipNavigation
+            && skipNavigation.DeclaringEntityType == relatedEntityType
+            && skipNavigation.ForeignKey?.DeclaringEntityType == Builder.Metadata)
+        {
+            return navigationId.MemberInfo != null
+                ? skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.MemberInfo, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                    !.Metadata
+                : skipNavigation.ForeignKey.Builder.HasNavigation(navigationId.Name, pointsToPrincipal: true, ConfigurationSource.Explicit)
+                    !.Metadata;
+        }
+
         ForeignKey foreignKey;
         if (navigationId.MemberInfo != null)
         {

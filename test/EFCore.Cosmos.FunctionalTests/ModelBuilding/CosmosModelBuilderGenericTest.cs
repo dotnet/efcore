@@ -925,18 +925,25 @@ public class CosmosModelBuilderGenericTest : ModelBuilderTest
                 .WithMany(e => e.ManyToManyPrincipals)
                 .UsingEntity<Dictionary<string, object>>(
                     "JoinType",
+                    e => e.HasOne<NavDependent>().WithMany().HasAnnotation("Right", "Foo"),
+                    e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasAnnotation("Left", "Bar"));
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(e => e.Dependents)
+                .WithMany(e => e.ManyToManyPrincipals)
+                .UsingEntity<Dictionary<string, object>>(
+                    "JoinType",
                     e => e.HasOne<NavDependent>().WithMany().HasForeignKey("DependentId", "PartitionId"),
                     e => e.HasOne<ManyToManyNavPrincipal>().WithMany().HasForeignKey("PrincipalId", "PartitionId"),
-                    e =>
-                    {
-                        e.HasPartitionKey("PartitionId");
-                    });
+                    e => e.HasPartitionKey("PartitionId"));
 
             var model = modelBuilder.FinalizeModel();
 
             var joinType = model.FindEntityType("JoinType")!;
             Assert.NotNull(joinType);
-            Assert.Equal(2, joinType.GetForeignKeys().Count());
+            Assert.Collection(joinType.GetForeignKeys(),
+                fk => Assert.Equal("Foo", fk["Right"]),
+                fk => Assert.Equal("Bar", fk["Left"]));
             Assert.Equal(3, joinType.FindPrimaryKey()!.Properties.Count);
             Assert.Equal(6, joinType.GetProperties().Count());
             Assert.Equal("DbContext", joinType.GetContainer());
