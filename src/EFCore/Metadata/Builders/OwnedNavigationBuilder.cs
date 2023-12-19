@@ -861,14 +861,13 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedTypeName, navigationName);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
-            DependentEntityType.Builder.HasRelationship(
-                relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
+            foreignKey);
     }
 
     /// <summary>
@@ -936,14 +935,41 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
         Check.NullButNotEmpty(navigationName, nameof(navigationName));
 
         var relatedEntityType = FindRelatedEntityType(relatedType, navigationName);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder(
             DependentEntityType,
             relatedEntityType,
             navigationName,
-            DependentEntityType.Builder.HasRelationship(
-                relatedEntityType, navigationName, ConfigurationSource.Explicit,
-                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata);
+            foreignKey);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual ForeignKey HasOneBuilder(
+        MemberIdentity navigationId,
+        EntityType relatedEntityType)
+    {
+        ForeignKey foreignKey;
+        if (navigationId.MemberInfo != null)
+        {
+            foreignKey = DependentEntityType.Builder.HasRelationship(
+                relatedEntityType, navigationId.MemberInfo, ConfigurationSource.Explicit,
+                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
+        }
+        else
+        {
+            foreignKey = DependentEntityType.Builder.HasRelationship(
+                relatedEntityType, navigationId.Name, ConfigurationSource.Explicit,
+                targetIsPrincipal: DependentEntityType == relatedEntityType ? true : null)!.Metadata;
+        }
+
+        return foreignKey;
     }
 
     /// <summary>

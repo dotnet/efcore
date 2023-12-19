@@ -13,7 +13,7 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class ManyToManyTestBase : ModelBuilderTestBase
     {
-        public ManyToManyTestBase(ModelBuilderFixtureBase fixture)
+        protected ManyToManyTestBase(ModelBuilderFixtureBase fixture)
             : base(fixture)
         {
         }
@@ -718,6 +718,150 @@ public abstract partial class ModelBuilderTest
             public virtual ICollection<ProductWithAttribute>? Products { get; set; }
         }
 
+        [ConditionalFact] // Issue #27990
+        public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_matching_key_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MotorArtMatching>(
+                entity =>
+                {
+                    entity.HasMany(d => d.MotorBauArtMatching)
+                        .WithMany(p => p.MotorArtMatching)
+                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMatching");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            Assert.Collection(model.GetEntityTypes(),
+                e =>
+                {
+                    Assert.Equal("MotorArtMatching", e.ShortName());
+                    AssertEqual(new[] { e.FindProperty("MotorArtMatchingId")! }, e.GetProperties());
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorBauartMatching", e.ShortName());
+                    AssertEqual(new[] { e.FindProperty("MotorBauartMatchingId")! }, e.GetProperties());
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArtXMotorBauartMatching", e.ShortName());
+                    Assert.Collection(e.GetForeignKeys(),
+                        k =>
+                        {
+                            Assert.Equal("MotorArtMatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtMatchingId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtMatchingId", p.Name));
+                        },
+                        k =>
+                        {
+                            Assert.Equal("MotorBauartMatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorBauartMatchingId", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartMatchingId", p.Name));
+                        });
+                    AssertEqual(e.GetForeignKeys().SelectMany(fk => fk.Properties), e.GetProperties());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                });
+        }
+
+        protected class MotorArtMatching
+        {
+            public int MotorArtMatchingId { get; set; }
+
+            [ForeignKey("MotorArtMatchingId")]
+            public virtual ICollection<MotorBauartMatching> MotorBauArtMatching { get; set; } = null!;
+        }
+
+        protected class MotorBauartMatching
+        {
+            public int MotorBauartMatchingId { get; set; }
+
+            [ForeignKey("MotorBauartMatchingId")]
+            public virtual ICollection<MotorArtMatching> MotorArtMatching { get; set; } = null!;
+        }
+
+        [ConditionalFact] // Issue #27990
+        public virtual void ForeignKeyAttribute_does_not_force_convention_join_table_inclusion_mismatching_key_names()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<MotorArtMismatching>(
+                entity =>
+                {
+                    entity.HasMany(d => d.MotorBauArtMismatching)
+                        .WithMany(p => p.MotorArtMismatching)
+                        .UsingEntity<Dictionary<string, object>>("MotorArtXMotorBauartMismatching");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            Assert.Collection(model.GetEntityTypes(),
+                e =>
+                {
+                    Assert.Equal("MotorArtMismatching", e.ShortName());
+                    AssertEqual(new[] { e.FindProperty("MotorArtMismatchingId")! }, e.GetProperties());
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorBauArtMismatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorBauartMismatching", e.ShortName());
+                    AssertEqual(new[] { e.FindProperty("MotorBauartMismatchingId")! }, e.GetProperties());
+                    Assert.Empty(e.GetForeignKeys());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Collection(e.GetSkipNavigations(), n => Assert.Equal("MotorArtMismatching", n.Name));
+                },
+                e =>
+                {
+                    Assert.Equal("MotorArtXMotorBauartMismatching", e.ShortName());
+                    Assert.Collection(e.GetForeignKeys(),
+                        k =>
+                        {
+                            Assert.Equal("MotorArtMismatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorArtMismatchingKey", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorArtMismatchingId", p.Name));
+                        },
+                        k =>
+                        {
+                            Assert.Equal("MotorBauartMismatching", k.PrincipalEntityType.ShortName());
+                            Assert.Collection(k.Properties, p => Assert.Equal("MotorBauArtMismatchingKey", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("MotorBauartMismatchingId", p.Name));
+                        });
+                    AssertEqual(e.GetForeignKeys().SelectMany(fk => fk.Properties), e.GetProperties());
+                    Assert.Empty(e.GetNavigations());
+                    Assert.Empty(e.GetSkipNavigations());
+                });
+        }
+
+        protected class MotorArtMismatching
+        {
+            public int MotorArtMismatchingId { get; set; }
+
+            [ForeignKey("MotorArtMismatchingKey")]
+            public virtual ICollection<MotorBauartMismatching> MotorBauArtMismatching { get; set; } = null!;
+        }
+
+        protected class MotorBauartMismatching
+        {
+            public int MotorBauartMismatchingId { get; set; }
+
+            [ForeignKey("MotorBauArtMismatchingKey")]
+            public virtual ICollection<MotorArtMismatching> MotorArtMismatching { get; set; } = null!;
+        }
+
         [ConditionalFact]
         public virtual void Navigation_properties_can_set_access_mode()
         {
@@ -1042,6 +1186,13 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Ignore<OneToManyNavPrincipal>();
             modelBuilder.Ignore<OneToOneNavPrincipal>();
+            modelBuilder.Ignore<OneToManyPrincipalWithField>();
+            modelBuilder.Ignore<OneToOnePrincipalWithField>();
+
+            modelBuilder.Entity<ManyToManyNavPrincipal>()
+                .HasMany(e => e.Dependents)
+                .WithMany(e => e.ManyToManyPrincipals)
+                .UsingEntity<Dictionary<string, object>>("ManyToManyNavPrincipalNavDependentOld", j => j.HasAnnotation("Foo", "Bar"));
 
             modelBuilder.Entity<ManyToManyNavPrincipal>()
                 .HasMany(e => e.Dependents)
@@ -1054,11 +1205,9 @@ public abstract partial class ModelBuilderTest
                 .UsingEntity(e => e.IndexerProperty<int>("Payload"));
 
             modelBuilder.Entity<ManyToManyPrincipalWithField>().HasKey(d => d.Id);
-            modelBuilder.Entity<OneToManyPrincipalWithField>().HasKey(d => d.Id);
-            modelBuilder.Entity<OneToOnePrincipalWithField>().HasKey(d => d.Id);
             modelBuilder.Entity<DependentWithField>().HasKey(d => d.DependentWithFieldId);
 
-            var model = modelBuilder.Model;
+            IReadOnlyModel model = modelBuilder.Model;
 
             var shared1 = model.FindEntityType(typeof(ManyToManyNavPrincipal))!
                 .FindSkipNavigation(nameof(ManyToManyNavPrincipal.Dependents))!.JoinEntityType!;
@@ -1073,6 +1222,7 @@ public abstract partial class ModelBuilderTest
             Assert.True(shared1.HasSharedClrType);
             Assert.Equal(typeof(Dictionary<string, object>), shared1.ClrType);
             Assert.Equal("ManyToManyNavPrincipalNavDependent", shared1.Name);
+            Assert.Equal("Bar", shared1["Foo"]);
 
             var shared2 = model.FindEntityType(typeof(ManyToManyPrincipalWithField))!
                 .FindSkipNavigation(nameof(ManyToManyPrincipalWithField.Dependents))!.JoinEntityType!;
@@ -1093,7 +1243,10 @@ public abstract partial class ModelBuilderTest
                 CoreStrings.ClashingSharedType(typeof(Dictionary<string, object>).ShortDisplayName()),
                 Assert.Throws<InvalidOperationException>(modelBuilder.Entity<Dictionary<string, object>>).Message);
 
-            AssertEqual(modelBuilder.Model, modelBuilder.FinalizeModel());
+            model = modelBuilder.FinalizeModel();
+            AssertEqual(modelBuilder.Model, model);
+
+            Assert.Equal(6, model.GetEntityTypes().Count());
         }
 
         [ConditionalFact]

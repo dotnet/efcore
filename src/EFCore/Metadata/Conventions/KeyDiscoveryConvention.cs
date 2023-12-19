@@ -279,7 +279,8 @@ public class KeyDiscoveryConvention :
         IConventionContext<IReadOnlyList<IConventionProperty>> context)
     {
         var foreignKey = relationshipBuilder.Metadata;
-        if (foreignKey.IsOwnership
+        if ((foreignKey.IsOwnership
+            || foreignKey.GetReferencingSkipNavigations().Any(n => n.IsCollection))
             && !foreignKey.Properties.SequenceEqual(oldDependentProperties)
             && relationshipBuilder.Metadata.IsInModel)
         {

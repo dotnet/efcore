@@ -1336,8 +1336,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
         where TRelatedEntity : class
     {
         var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationName);
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationName), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationName), relatedEntityType);
 
         return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
             Builder.Metadata,
@@ -1381,8 +1380,7 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     {
         var navigationMember = navigationExpression?.GetMemberAccess();
         var relatedEntityType = FindRelatedEntityType(typeof(TRelatedEntity), navigationMember?.GetSimpleMemberName());
-        var foreignKey = HasOneBuilder(
-            MemberIdentity.Create(navigationMember), relatedEntityType);
+        var foreignKey = HasOneBuilder(MemberIdentity.Create(navigationMember), relatedEntityType);
 
         return new ReferenceNavigationBuilder<TEntity, TRelatedEntity>(
             Builder.Metadata,

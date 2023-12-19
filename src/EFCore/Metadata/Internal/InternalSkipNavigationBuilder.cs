@@ -68,7 +68,7 @@ public class InternalSkipNavigationBuilder :
             && oldForeignKey != foreignKey
             && oldForeignKey.ReferencingSkipNavigations?.Any() != true)
         {
-            oldForeignKey.DeclaringEntityType.Builder.HasNoRelationship(oldForeignKey, ConfigurationSource.Convention);
+            oldForeignKey.DeclaringEntityType.Builder.HasNoRelationship(oldForeignKey, ConfigurationSource.Explicit);
         }
 
         return this;
