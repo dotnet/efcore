@@ -65,5 +65,7 @@ public class CosmosKeyDiscoveryConvention :
                 keyProperties.Add(partitionKeyProperty);
             }
         }
+
+        base.ProcessKeyProperties(keyProperties, entityType);
     }
 }

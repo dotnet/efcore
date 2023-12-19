@@ -11,9 +11,6 @@ namespace Microsoft.EntityFrameworkCore;
 [SpatialiteRequired]
 public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => base.OnConfiguring(optionsBuilder.UseSqlite(b => b.UseNetTopologySuite()));
-
     public override void Can_read_write_binary_JSON_values(string value, string json)
         => base.Can_read_write_binary_JSON_values(
             value, value switch
@@ -338,4 +335,15 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
             },
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""",
             mappedCollection: true);
+
+    protected override ITestStoreFactory TestStoreFactory => SqliteTestStoreFactory.Instance;
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    {
+        builder = base.AddOptions(builder)
+            .ConfigureWarnings(w => w
+                .Ignore(SqliteEventId.SchemaConfiguredWarning)
+                .Ignore(SqliteEventId.CompositeKeyWithValueGeneration));
+        new SqliteDbContextOptionsBuilder(builder).UseNetTopologySuite();
+        return builder;
+    }
 }

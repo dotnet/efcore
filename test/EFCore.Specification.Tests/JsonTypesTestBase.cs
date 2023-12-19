@@ -19,7 +19,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class JsonTypesTestBase
+public abstract class JsonTypesTestBase : NonSharedModelTestBase
 {
     [ConditionalTheory]
     [InlineData(sbyte.MinValue, """{"Prop":-128}""")]
@@ -3562,7 +3562,12 @@ public abstract class JsonTypesTestBase
         Dictionary<string, object?>? facets = null)
         where TEntity : class
     {
-        using var context = new SingleTypeDbContext(OnConfiguring, buildModel, configureConventions);
+        var contextFactory = CreateContextFactory<DbContext>(
+            buildModel,
+            addServices: AddServices,
+            configureConventions: configureConventions);
+        using var context = contextFactory.CreateContext();
+
         var property = context.Model.FindEntityType(typeof(TEntity))!.GetProperty(propertyName);
 
         using var stream = new MemoryStream();
@@ -3634,6 +3639,11 @@ public abstract class JsonTypesTestBase
             Assert.Null(element);
         }
     }
+
+    protected override string StoreName => "JsonTypesTest";
+
+    protected virtual IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => serviceCollection;
 
     protected virtual void AssertElementFacets(IElementType element, Dictionary<string, object?>? facets)
     {
@@ -3874,47 +3884,6 @@ public abstract class JsonTypesTestBase
             writer.WriteRawValue(stringWriter.ToString());
         }
     }
-
-    protected class SingleTypeDbContext : DbContext
-    {
-        private readonly Action<DbContextOptionsBuilder> _buildOptions;
-        private readonly Action<ModelConfigurationBuilder>? _configureConventions;
-        private readonly Action<ModelBuilder> _buildModel;
-
-        public SingleTypeDbContext(
-            Action<DbContextOptionsBuilder> buildOptions,
-            Action<ModelBuilder> buildModel,
-            Action<ModelConfigurationBuilder>? configureConventions = null)
-        {
-            _buildOptions = buildOptions;
-            _configureConventions = configureConventions;
-            _buildModel = buildModel;
-        }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => _buildOptions(optionsBuilder.ReplaceService<IModelCacheKeyFactory, DegenerateCacheKeyFactory>());
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => _buildModel(modelBuilder);
-
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            => _configureConventions?.Invoke(configurationBuilder);
-
-        private class DegenerateCacheKeyFactory : IModelCacheKeyFactory
-        {
-            private static int _value;
-
-            public object Create(DbContext context, bool designTime)
-                => _value++;
-        }
-    }
-
-    protected virtual void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.ConfigureWarnings(
-            w => w.Ignore(
-                CoreEventId.MappedEntityTypeIgnoredWarning,
-                CoreEventId.MappedPropertyIgnoredWarning,
-                CoreEventId.MappedNavigationIgnoredWarning));
 
     private readonly NullabilityInfoContext _nullabilityInfoContext = new();
 }

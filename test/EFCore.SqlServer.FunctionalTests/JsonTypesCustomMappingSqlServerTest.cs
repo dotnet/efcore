@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class JsonTypesCustomMappingSqlServerTest : JsonTypesSqlServerTestBase
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => base.OnConfiguring(optionsBuilder.ReplaceService<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>());
+    protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
+        => serviceCollection.AddSingleton<IRelationalTypeMappingSource, TestSqlServerTypeMappingSource>();
 
     private class TestSqlServerTypeMappingSource(
             TypeMappingSourceDependencies dependencies,
