@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.IO;
 using Microsoft.Data.Sqlite.Properties;
@@ -2220,6 +2221,111 @@ public class SqliteDataReaderTest
             ((IDisposable)reader).Dispose();
 
             Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT count() FROM Test;"));
+        }
+    }
+
+    [Fact] // Issue #29744
+    public void DataTable_load_handles_nulls()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery(
+        """
+        CREATE TABLE Member (
+          ID INTEGER,
+          Lastname TEXT NOT NULL,
+          Firstname TEXT NOT NULL,
+          Type INTEGER,
+          Hidden INTEGER,
+          PRIMARY KEY (ID AUTOINCREMENT)
+        );
+
+        CREATE TABLE Types (
+          ID INTEGER,
+          Description TEXT NOT NULL,
+          Hidden INTEGER,
+          PRIMARY KEY (ID AUTOINCREMENT)
+        );
+
+        INSERT INTO Types (Description) VALUES ('Administrator');
+        INSERT INTO Types (Description) VALUES ('User');
+
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Mustermann', 'Max', 1, 0);
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Weber', 'Max', 2, 0);
+        INSERT INTO Member (Lastname, Firstname, Type, Hidden) VALUES ('Müller', 'Willhelm', NULL, 0);
+        """);
+
+            string sql =
+                """
+                SELECT
+                  Member.ID AS ID,
+                  Member.Lastname,
+                  Member.Firstname,
+                  Types.ID AS TypeID,
+                  Types.Description AS Type,
+                  Member.Hidden
+                FROM Member
+                LEFT OUTER JOIN Types ON Types.ID = Member.Type;
+                """;
+
+            var table = new DataTable();
+            using (var command = new SqliteCommand(sql, connection))
+            {
+                using (var dataReader = command.ExecuteReader())
+                {
+                    table.Load(dataReader);
+                }
+            }
+        }
+    }
+
+    [Fact] // Issue #30765
+    public void DataTable_load_handles_unique_columns()
+    {
+        using (var connection = new SqliteConnection("Data Source=:memory:"))
+        {
+            connection.Open();
+
+            connection.ExecuteNonQuery(
+        """
+        CREATE TABLE "characters" (
+        	"id"	INTEGER,
+        	"name"	TEXT UNIQUE,
+        	"guild"	INTEGER
+        );
+
+        CREATE TABLE "guilds" (
+        	"id"	INTEGER NOT NULL UNIQUE,
+        	"name"	TEXT UNIQUE,
+        	UNIQUE("name"),
+        	PRIMARY KEY("id" AUTOINCREMENT)
+        );
+        CREATE UNIQUE INDEX guildname
+        ON guilds(name);
+
+        INSERT INTO characters (id, name, guild) VALUES (1, 'John', 1);
+        INSERT INTO characters (id, name, guild) VALUES (2, 'Jeanette', 1);
+
+        INSERT INTO guilds (id, name) VALUES (1, 'Testers');
+        """);
+
+            string sql =
+                """
+                SELECT guilds.name as guildName, characters.name as charName FROM guilds
+                LEFT JOIN characters
+                ON guilds.id = characters.guild
+                """;
+
+            var table = new DataTable();
+            using (var command = new SqliteCommand(sql, connection))
+            {
+                using (var dataReader = command.ExecuteReader())
+                {
+                    table.Load(dataReader);
+                }
+            }
         }
     }
 
