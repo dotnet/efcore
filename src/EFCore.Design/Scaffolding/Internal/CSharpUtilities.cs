@@ -143,6 +143,11 @@ public class CSharpUtilities : ICSharpUtilities
             proposedIdentifier = "_";
         }
 
+        if (singularizePluralizer != null)
+        {
+            proposedIdentifier = singularizePluralizer(proposedIdentifier);
+        }
+
         var firstChar = proposedIdentifier[0];
         if (!char.IsLetter(firstChar)
             && firstChar != '_'
@@ -153,11 +158,6 @@ public class CSharpUtilities : ICSharpUtilities
         else if (IsCSharpKeyword(proposedIdentifier))
         {
             proposedIdentifier = "_" + proposedIdentifier;
-        }
-
-        if (singularizePluralizer != null)
-        {
-            proposedIdentifier = singularizePluralizer(proposedIdentifier);
         }
 
         return uniquifier(proposedIdentifier, existingIdentifiers);

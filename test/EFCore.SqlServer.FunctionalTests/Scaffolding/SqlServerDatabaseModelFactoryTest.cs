@@ -2126,6 +2126,61 @@ END;"
             },
             "DROP TABLE SomeTable;");
 
+    [ConditionalTheory] // Issue #31121
+    [InlineData("events", false, false, "Events", "Id", "Class", "Strings", "_", "_1")]
+    [InlineData("events", false, true, "Event", "Id", "Class", "Strings", "_", "_1")]
+    [InlineData("events", true, false, "events", "Id", "_class", "strings", "_", "_1")]
+    [InlineData("events", true, true, "_event", "Id", "_class", "strings", "_", "_1")]
+    [InlineData("event", false, false, "Event", "Id", "Class", "Strings", "_", "_1")]
+    [InlineData("event", false, true, "Event", "Id", "Class", "Strings", "_", "_1")]
+    [InlineData("event", true, false, "_event", "Id", "_class", "strings", "_", "_1")]
+    [InlineData("event", true, true, "_event", "Id", "_class", "strings", "_", "_1")]
+    public void Table_name_with_pluralized_keywords(
+        string tableName,
+        bool useDatabaseNames, bool singularize,
+        string entityTypeName, string idName, string className, string stringsName, string oneName, string plusName)
+        => Test(
+            @$"
+CREATE TABLE [{tableName}] (
+    Id int IDENTITY PRIMARY KEY,
+    [class] int,
+    [strings] int,
+    [1] int,
+    [+] int
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                Assert.Collection(dbModel.Tables,
+                    t =>
+                    {
+                        Assert.Equal(tableName, t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("Id", c.Name),
+                            c => Assert.Equal("class", c.Name),
+                            c => Assert.Equal("strings", c.Name),
+                            c => Assert.Equal("1", c.Name),
+                            c => Assert.Equal("+", c.Name));
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new() { UseDatabaseNames = useDatabaseNames, NoPluralize = !singularize });
+
+                Assert.Collection(model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal(entityTypeName, e.Name);
+                        var properties = e.GetProperties().Select(p => p.Name).ToList();
+                        Assert.Equal(5, properties.Count());
+                        Assert.Contains(idName, properties);
+                        Assert.Contains(className, properties);
+                        Assert.Contains(stringsName, properties);
+                        Assert.Contains(oneName, properties);
+                        Assert.Contains(plusName, properties);
+                    });
+            },
+            $"DROP TABLE [{tableName}];");
+
     #endregion
 
     #region ColumnFacets
