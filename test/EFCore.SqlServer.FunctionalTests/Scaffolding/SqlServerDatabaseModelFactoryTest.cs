@@ -789,6 +789,43 @@ CREATE TABLE [Blogs] (
             "DROP TABLE [Blogs]");
 
     [ConditionalFact]
+    public void Class_members_can_have_same_name_as_classes_when_casing_differs() // Issue #30237
+        => Test(
+            @"
+CREATE TABLE [dbo].[UIText]
+(
+	[UiKey] VARCHAR(100) NOT NULL PRIMARY KEY,
+	[UiText] NVARCHAR(1000) NOT NULL
+)",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                Assert.Collection(dbModel.Tables,
+                    t =>
+                    {
+                        Assert.Equal("UIText", t.Name);
+                        Assert.Collection(
+                            t.Columns,
+                            c => Assert.Equal("UiKey", c.Name),
+                            c => Assert.Equal("UiText", c.Name));
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("Uitext", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("UiKey", p.Name),
+                            p => Assert.Equal("UiText", p.Name));
+                    });
+            },
+            "DROP TABLE [UIText]");
+
+    [ConditionalFact]
     public void Create_columns()
         => Test(
             @"

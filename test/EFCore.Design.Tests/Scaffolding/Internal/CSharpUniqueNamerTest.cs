@@ -11,7 +11,7 @@ public class CSharpUniqueNamerTest
     [ConditionalFact]
     public void Returns_unique_name_for_type()
     {
-        var namer = new CSharpUniqueNamer<DatabaseColumn>(s => s.Name, new CSharpUtilities(), null);
+        var namer = new CSharpUniqueNamer<DatabaseColumn>(s => s.Name, new CSharpUtilities(), null, true);
         var table = new DatabaseTable { Database = new DatabaseModel(), Name = "foo" };
         var input1 = new DatabaseColumn
         {
@@ -35,7 +35,7 @@ public class CSharpUniqueNamerTest
     [ConditionalFact]
     public void Uses_comparer()
     {
-        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), null);
+        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), null, true);
         var database = new DatabaseModel();
         var table1 = new DatabaseTable { Database = database, Name = "A B C" };
         var table2 = new DatabaseTable { Database = database, Name = "A_B_C" };
@@ -49,7 +49,7 @@ public class CSharpUniqueNamerTest
     public void Singularizes_names(string input, string output)
     {
         var pluralizer = new HumanizerPluralizer();
-        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Singularize);
+        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Singularize, true);
         var table = new DatabaseTable { Database = new DatabaseModel(), Name = input };
         Assert.Equal(output, namer.GetName(table));
     }
@@ -60,7 +60,7 @@ public class CSharpUniqueNamerTest
     public void Pluralizes_names(string input, string output)
     {
         var pluralizer = new HumanizerPluralizer();
-        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Pluralize);
+        var namer = new CSharpUniqueNamer<DatabaseTable>(t => t.Name, new CSharpUtilities(), pluralizer.Pluralize, true);
         var table = new DatabaseTable { Database = new DatabaseModel(), Name = input };
         Assert.Equal(output, namer.GetName(table));
     }
