@@ -66,7 +66,8 @@ public class MigrationsOperations
         string name,
         string? outputDir,
         string? contextType,
-        string? @namespace)
+        string? @namespace,
+        bool dryRun)
     {
         var invalidPathChars = Path.GetInvalidFileNameChars();
         if (name.Any(c => invalidPathChars.Contains(c)))
@@ -99,9 +100,9 @@ public class MigrationsOperations
         var migration =
             string.IsNullOrEmpty(@namespace)
                 // TODO: Honor _nullable (issue #18950)
-                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language)
-                : scaffolder.ScaffoldMigration(name, null, @namespace, _language);
-        return scaffolder.Save(_projectDir, migration, outputDir);
+                ? scaffolder.ScaffoldMigration(name, _rootNamespace ?? string.Empty, subNamespace, _language, dryRun)
+                : scaffolder.ScaffoldMigration(name, null, @namespace, _language, dryRun);
+        return scaffolder.Save(_projectDir, migration, outputDir, dryRun);
     }
 
     // if outputDir is a subfolder of projectDir, then use each subfolder as a sub-namespace
@@ -109,12 +110,13 @@ public class MigrationsOperations
     // => "namespace $(rootnamespace).A.B.C"
     private string? SubnamespaceFromOutputPath(string? outputDir)
     {
-        if (outputDir?.StartsWith(_projectDir, StringComparison.Ordinal) != true)
+        var fullPath = Path.GetFullPath(_projectDir);
+        if (outputDir?.StartsWith(fullPath, StringComparison.Ordinal) != true)
         {
             return null;
         }
 
-        var subPath = outputDir[_projectDir.Length..];
+        var subPath = outputDir[fullPath.Length..];
 
         return !string.IsNullOrWhiteSpace(subPath)
             ? string.Join(
@@ -232,7 +234,8 @@ public class MigrationsOperations
     /// </summary>
     public virtual MigrationFiles RemoveMigration(
         string? contextType,
-        bool force)
+        bool force,
+        bool dryRun)
     {
         using var context = _contextOperations.CreateContext(contextType);
         var services = _servicesBuilder.Build(context);
@@ -242,7 +245,7 @@ public class MigrationsOperations
         using var scope = services.CreateScope();
         var scaffolder = scope.ServiceProvider.GetRequiredService<IMigrationsScaffolder>();
 
-        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language);
+        var files = scaffolder.RemoveMigration(_projectDir, _rootNamespace, force, _language, dryRun);
 
         _reporter.WriteInformation(DesignStrings.Done);
 

@@ -95,7 +95,11 @@ public class OperationExecutor : MarshalByRefObject
         => _startupAssembly
             ??= Assembly.Load(new AssemblyName(_startupTargetAssemblyName));
 
-    private MigrationsOperations MigrationsOperations
+    /// <summary>
+    ///     Exposes the underlying operations for testing.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual MigrationsOperations MigrationsOperations
         => _migrationsOperations
             ??= new MigrationsOperations(
                 _reporter,
@@ -107,7 +111,11 @@ public class OperationExecutor : MarshalByRefObject
                 _nullable,
                 _designArgs);
 
-    private DbContextOperations ContextOperations
+    /// <summary>
+    ///     Exposes the underlying operations for testing.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DbContextOperations ContextOperations
         => _contextOperations
             ??= new DbContextOperations(
                 _reporter,
@@ -119,7 +127,11 @@ public class OperationExecutor : MarshalByRefObject
                 _nullable,
                 _designArgs);
 
-    private DatabaseOperations DatabaseOperations
+    /// <summary>
+    ///     Exposes the underlying operations for testing.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DatabaseOperations DatabaseOperations
         => _databaseOperations
             ??= new DatabaseOperations(
                 _reporter,
@@ -164,8 +176,9 @@ public class OperationExecutor : MarshalByRefObject
             var outputDir = (string?)args["outputDir"];
             var contextType = (string?)args["contextType"];
             var @namespace = (string?)args["namespace"];
+            var dryRun = (bool?)args["dryRun"]!;
 
-            Execute(() => executor.AddMigrationImpl(name, outputDir, contextType, @namespace));
+            Execute(() => executor.AddMigrationImpl(name, outputDir, contextType, @namespace, dryRun == true));
         }
     }
 
@@ -173,16 +186,12 @@ public class OperationExecutor : MarshalByRefObject
         string name,
         string? outputDir,
         string? contextType,
-        string? @namespace)
+        string? @namespace,
+        bool dryRun)
     {
         Check.NotEmpty(name, nameof(name));
 
-        var files = MigrationsOperations.AddMigration(
-            name,
-            outputDir,
-            contextType,
-            @namespace);
-
+        var files = MigrationsOperations.AddMigration(name, outputDir, contextType, @namespace, dryRun);
         return new Hashtable
         {
             ["MigrationFile"] = files.MigrationFile,
@@ -370,14 +379,15 @@ public class OperationExecutor : MarshalByRefObject
 
             var contextType = (string?)args["contextType"];
             var force = (bool)args["force"]!;
+            var dryRun = (bool?)args["dryRun"]!;
 
-            Execute(() => executor.RemoveMigrationImpl(contextType, force));
+            Execute(() => executor.RemoveMigrationImpl(contextType, force, dryRun == true));
         }
     }
 
-    private IDictionary RemoveMigrationImpl(string? contextType, bool force)
+    private IDictionary RemoveMigrationImpl(string? contextType, bool force, bool dryRun)
     {
-        var files = MigrationsOperations.RemoveMigration(contextType, force);
+        var files = MigrationsOperations.RemoveMigration(contextType, force, dryRun);
 
         return new Hashtable
         {

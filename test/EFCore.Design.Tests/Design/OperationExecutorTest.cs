@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
-public class OperationExecutorTest
+public class OperationExecutorTest(ITestOutputHelper testOutputHelper)
 {
+    private static readonly char S = Path.DirectorySeparatorChar;
+
     [ConditionalFact]
     public void Ctor_validates_arguments()
     {
@@ -23,7 +25,9 @@ public class OperationExecutorTest
     }
 
     [ConditionalTheory]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("MgOne", "MgOne")]
     [InlineData("Name with Spaces", "NamewithSpaces")]
     [InlineData(" Space Space ", "SpaceSpace")]
@@ -34,7 +38,9 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory] // Issue #24024
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("to fix error: add column is_deleted")]
     [InlineData(@"A\B\C")]
     public void AddMigration_errors_for_bad_names(string migrationName)
@@ -46,7 +52,9 @@ public class OperationExecutorTest
             DesignStrings.BadMigrationName(migrationName, string.Join("','", Path.GetInvalidFileNameChars())));
 
     [ConditionalTheory]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("output", "output")]
     [InlineData("Name with Spaces", "Name with Spaces")]
     [InlineData(" Space Space", " Space Space")]
@@ -57,7 +65,9 @@ public class OperationExecutorTest
             ProductInfo.GetVersion());
 
     [ConditionalTheory]
-    [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Tested negative cases and baselines are Windows-specific")]
+    [PlatformSkipCondition(
+        TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac,
+        SkipReason = "Tested negative cases and baselines are Windows-specific")]
     [InlineData("Something:Else")]
     public void AddMigration_errors_for_bad_output_dirs(string outputDir)
         => TestAddMigrationNegative("MgTwo", outputDir, ProductInfo.GetVersion(), typeof(IOException), null);
@@ -69,12 +79,14 @@ public class OperationExecutorTest
             DesignStrings.ConflictingContextAndMigrationName("GnomeContext"));
 
     private void TestAddMigrationPositive(
-        string migrationName, string processedMigrationName,
-        string outputDir, string processedOutputDir,
+        string migrationName,
+        string processedMigrationName,
+        string outputDir,
+        string processedOutputDir,
         string productVersion)
     {
         using var tempPath = new TempDirectory();
-        var resultHandler = ExecuteAddMigration(tempPath, migrationName, outputDir, productVersion);
+        var resultHandler = ExecuteAddMigration(tempPath, migrationName, Path.Combine(tempPath, outputDir), productVersion);
 
         Assert.True(resultHandler.HasResult);
         var files = (Hashtable)resultHandler.Result!;
@@ -244,6 +256,881 @@ namespace My.Gnomespace.Data
             });
 
         return resultHandler;
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath")]
+    public void No_output_path(string projectDir, string expectedPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        var files = GenerateFilesDryRun(projectDir, null, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""null"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout/", @"putout/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/")]
+    public void Relative_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("putout", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("putout", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("putout", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("putout", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("putout", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/")]
+    public void Relative_multipart_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}output{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("putout.output", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("putout.output", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("putout.output", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("putout.output", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("putout.output", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/", @"", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout/", @"", @"SomePath/SomeSubpath/")]
+    public void Absolute_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output/", @"", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout/output/", @"", @"SomePath/SomeSubpath/")]
+    public void Absolute_multipart_output_path(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/")]
+    public void Output_path_is_empty_string(string projectDir, string outputDir, string expectedPrefix, string expectedSnapshotPrefix)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Acme")]
+    public void No_output_path_with_root_namespace(string projectDir, string expectedPrefix, string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        var files = GenerateFilesDryRun(projectDir, null, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""null"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedPrefix}{S}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout", @"putout/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"putout/", @"SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/", @"/putout/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    public void Relative_output_path_with_root_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("putout", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("putout", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".putout", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".putout", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".putout", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output/", @"putout/output/", @"SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    public void Relative_multipart_output_path_with_root_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}putout{S}output{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("putout.output", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("putout.output", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".putout.output", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".putout.output", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".putout.output", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout", @"/", @"SomePath/SomeSubpath/", "Acme")]
+    public void Absolute_output_path_with_root_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Acme")]
+    public void Absolute_multipart_output_path_with_root_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Acme.Parts")]
+    public void Output_path_is_empty_string_with_root_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, null);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+        Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(rootNamespace + ".Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc")]
+    public void No_output_path_with_sub_namespace(string projectDir, string expectedPrefix, string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        var files = GenerateFilesDryRun(projectDir, null, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""null"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        var namespacePath = subNamespace.Replace('.', S);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    public void Relative_output_path_with_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    public void Relative_multipart_output_path_with_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    public void Absolute_output_path_with_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    public void Absolute_multipart_output_path_with_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway")]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc")]
+    public void Output_path_is_empty_string_with_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, null, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath", "Subway.To.Kfc", "Acme.Parts")]
+    public void No_output_path_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string expectedPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        var files = GenerateFilesDryRun(projectDir, null, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""null"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        var namespacePath = subNamespace.Replace('.', S);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedPrefix}{S}{namespacePath}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout", @"putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout", @"/putout/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/putout/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    public void Relative_output_path_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"putout/output", @"putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath", @"putout/output", @"/putout/output/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"putout/output/", @"/putout/output/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    public void Relative_multipart_output_path_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    public void Absolute_output_path_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"/SomePath/SomeSubpath", @"/putout/output", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output", @"/", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath/", @"/putout/output/", @"", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    [InlineData(@"SomePath/SomeSubpath/", @"/putout/output/", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    public void Absolute_multipart_output_path_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(outputDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    [ConditionalTheory]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway", "Acme")]
+    [InlineData(@"/SomePath/SomeSubpath", @"", @"/", @"/SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme.Parts")]
+    [InlineData(@"SomePath/SomeSubpath/", @"", @"", @"SomePath/SomeSubpath/", "Subway.To.Kfc", "Acme")]
+    public void Output_path_is_empty_string_with_root_namespace_and_sub_namespace(
+        string projectDir,
+        string outputDir,
+        string expectedPrefix,
+        string expectedSnapshotPrefix,
+        string rootNamespace,
+        string subNamespace)
+    {
+        expectedPrefix = expectedPrefix.Replace('/', S);
+        expectedSnapshotPrefix = expectedSnapshotPrefix.Replace('/', S);
+        var basePath = Path.GetFullPath(projectDir);
+        var files = GenerateFilesDryRun(projectDir, outputDir, rootNamespace, subNamespace);
+
+        testOutputHelper.WriteLine(
+            $@"\""{projectDir}"", ""{outputDir}"", ""{files.MigrationFile}"", ""{files.MetadataFile}"", ""{files.SnapshotFile}""");
+
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+        Assert.Equal($@"{basePath}{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+        Assert.Equal($@"{expectedSnapshotPrefix}{subNamespace.Replace('.', S)}{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+
+        Assert.Equal(subNamespace, files.Migration!.SnapshotSubnamespace);
+        Assert.Equal(subNamespace, files.Migration!.MigrationSubNamespace);
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MigrationCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.MetadataCode));
+        Assert.Equal(subNamespace, ExtractNamespace(files.Migration.SnapshotCode));
+    }
+
+    private static string ExtractNamespace(string migrationMigrationCode)
+        => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10);
+
+    // [ConditionalTheory]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpat` h")]
+    // public void Migration_files_are_created_in_the_Migrations_folder(string projectDir, string expectedPrefix)
+    // {
+    //     expectedPrefix = expectedPrefix.Replace('/', Path.DirectorySeparatorChar);
+    //     var files = GenerateFilesDryRun(projectDir, null, null, null);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.cs", files.MigrationFile);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.Designer.cs", files.MetadataFile);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+    //
+    //     Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+    //     Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    // }
+    //
+    // private static string ExtractNamespace(string migrationMigrationCode)
+    //     => migrationMigrationCode.Split(Environment.NewLine).First(s => s.StartsWith("namespace ", StringComparison.Ordinal)).Substring(10);
+    //
+    // [ConditionalTheory]
+    // [InlineData(@"C:/SomePath/SomeSubpath", @"C:/SomePath/SomeSubpath")]
+    // [InlineData(@"K:/SomePath/SomeSubpath/", @"K:/SomePath/SomeSubpath")]
+    // [PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "Windows-specific paths")]
+    // public void Migration_files_are_created_in_the_Migrations_folder_with_drive_letter(string projectDir, string expectedPrefix)
+    // {
+    //     expectedPrefix = expectedPrefix.Replace('/', Path.DirectorySeparatorChar);
+    //     var files = GenerateFilesDryRun(projectDir, null, null, null);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.cs", files.MigrationFile);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}11112233445566_M.Designer.cs", files.MetadataFile);
+    //     Assert.Equal($@"{expectedPrefix}{S}Migrations{S}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+    //
+    //     Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+    //     Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    // }
+    //
+    // [ConditionalTheory]
+    // [InlineData(@"/SomePath/SomeSubpath", @"putout", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"putout/", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"putout/", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"putout/putout", @"/SomePath/SomeSubpath/putout/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"putout/putout/", @"/SomePath/SomeSubpath/putout/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"putout/putout/", @"/SomePath/SomeSubpath/putout/putout/")]
+    // public void Migration_files_are_created_in_the_output_path(string projectDir, string outputDir, string expectedPrefix)
+    // {
+    //     expectedPrefix = Path.GetFullPath(expectedPrefix.Replace('/', Path.DirectorySeparatorChar));
+    //     var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+    //     // Assert.Equal($@"{expectedPrefix}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+    //
+    //     Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+    //     Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    // }
+    //
+    // [ConditionalTheory]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/putout", @"/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/putout/", @"/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"/putout/", @"/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/putout/putout", @"/putout/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/putout/putout/", @"/putout/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"/putout/putout/", @"/putout/putout/")]
+    // public void Migration_files_are_created_in_the_absolute_output_path(string projectDir, string outputDir, string expectedPrefix)
+    // {
+    //     expectedPrefix = Path.GetFullPath(expectedPrefix.Replace('/', Path.DirectorySeparatorChar));
+    //     var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+    //     // Assert.Equal($@"{expectedPrefix}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+    //
+    //     Assert.Equal("Migrations", files.Migration!.SnapshotSubnamespace);
+    //     Assert.Equal("Migrations", files.Migration!.MigrationSubNamespace);
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MigrationCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.MetadataCode));
+    //     Assert.Equal("Migrations", ExtractNamespace(files.Migration.SnapshotCode));
+    // }
+    //
+    // [ConditionalTheory]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout/", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath/putout/", @"/SomePath/SomeSubpath/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout/putout", @"/SomePath/SomeSubpath/putout/putout/")]
+    // [InlineData(@"/SomePath/SomeSubpath", @"/SomePath/SomeSubpath/putout/putout/", @"/SomePath/SomeSubpath/putout/putout/")]
+    // [InlineData(@"SomePath/SomeSubpath/", @"SomePath/SomeSubpath/putout/putout/", @"/SomePath/SomeSubpath/putout/putout/")]
+    // public void Migration_files_are_created_in_the_output_path_when_subpath(string projectDir, string outputDir, string expectedPrefix)
+    // {
+    //     expectedPrefix = Path.GetFullPath(expectedPrefix.Replace('/', Path.DirectorySeparatorChar));
+    //     var files = GenerateFilesDryRun(projectDir, outputDir, null, null);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.cs", files.MigrationFile);
+    //     // Assert.Equal($@"{expectedPrefix}11112233445566_M.Designer.cs", files.MetadataFile);
+    //     // Assert.Equal($@"{expectedPrefix}GnomeContextModelSnapshot.cs", files.SnapshotFile);
+    //
+    //     Assert.Equal("putout", files.Migration!.SnapshotSubnamespace);
+    //     Assert.Equal("putout", files.Migration!.MigrationSubNamespace);
+    //     Assert.Equal("putout", ExtractNamespace(files.Migration.MigrationCode));
+    //     Assert.Equal("putout", ExtractNamespace(files.Migration.MetadataCode));
+    //     Assert.Equal("putout", ExtractNamespace(files.Migration.SnapshotCode));
+    // }
+
+    private MigrationFiles GenerateFilesDryRun(string projectDir, string? outputDir, string? rootNamespace, string? @namespace)
+    {
+        projectDir = projectDir.Replace('/', Path.DirectorySeparatorChar);
+        outputDir = outputDir?.Replace('/', Path.DirectorySeparatorChar);
+
+        var reportHandler = new OperationReportHandler();
+        var assembly = Assembly.GetExecutingAssembly();
+        var executor = new OperationExecutor(
+            reportHandler,
+            new Dictionary<string, object?>
+            {
+                { "targetName", assembly.FullName },
+                { "startupTargetName", assembly.FullName },
+                { "projectDir", projectDir },
+                { "rootNamespace", rootNamespace },
+                { "language", "C#" },
+                { "nullable", false },
+                { "toolsVersion", ProductInfo.GetVersion() },
+                { "remainingArguments", null }
+            });
+
+        return executor.MigrationsOperations.AddMigration("M", outputDir, nameof(GnomeContext), @namespace, dryRun: true);
     }
 
     public class OperationBaseTests
