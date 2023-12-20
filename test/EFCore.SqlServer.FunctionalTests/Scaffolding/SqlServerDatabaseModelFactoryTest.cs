@@ -33,7 +33,7 @@ CREATE SEQUENCE DefaultFacetsSequence;
 
 CREATE SEQUENCE db2.CustomFacetsSequence
     AS int
-    START WITH 1
+    START WITH 3
     INCREMENT BY 2
     MAXVALUE 8
     MINVALUE -3
@@ -58,9 +58,36 @@ CREATE SEQUENCE db2.CustomFacetsSequence
                 Assert.Equal("int", customSequence.StoreType);
                 Assert.True(customSequence.IsCyclic);
                 Assert.Equal(2, customSequence.IncrementBy);
-                Assert.Equal(1, customSequence.StartValue);
+                Assert.Equal(3, customSequence.StartValue);
                 Assert.Equal(-3, customSequence.MinValue);
                 Assert.Equal(8, customSequence.MaxValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("db2", s.Schema);
+                        Assert.Equal("CustomFacetsSequence", s.Name);
+                        Assert.Same(typeof(int), s.Type);
+                        Assert.True(s.IsCyclic);
+                        Assert.Equal(2, s.IncrementBy);
+                        Assert.Equal(3, s.StartValue);
+                        Assert.Equal(-3, s.MinValue);
+                        Assert.Equal(8, s.MaxValue);
+                    },
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("DefaultFacetsSequence", s.Name);
+                        Assert.Same(typeof(long), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    });
             },
             @"
 DROP SEQUENCE DefaultFacetsSequence;
@@ -87,6 +114,55 @@ CREATE SEQUENCE [BigIntSequence] AS bigint;",
                     s =>
                     {
                         Assert.Null(s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("BigIntSequence", s.Name);
+                        Assert.Same(typeof(long), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    },
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("IntSequence", s.Name);
+                        Assert.Same(typeof(int), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    },
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("SmallIntSequence", s.Name);
+                        Assert.Same(typeof(short), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    },
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("TinyIntSequence", s.Name);
+                        Assert.Same(typeof(byte), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
                         Assert.Null(s.MinValue);
                         Assert.Null(s.MaxValue);
                     });
@@ -118,6 +194,33 @@ CREATE SEQUENCE [NumericSequence] AS numeric;",
                         Assert.NotNull(s.StartValue);
                         Assert.NotNull(s.MinValue);
                         Assert.NotNull(s.MaxValue);
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("DecimalSequence", s.Name);
+                        Assert.Same(typeof(decimal), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(-999999999999999999, s.StartValue);
+                        Assert.Equal(-999999999999999999, s.MinValue);
+                        Assert.Equal(999999999999999999, s.MaxValue);
+                    },
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("NumericSequence", s.Name);
+                        Assert.Same(typeof(decimal), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(-999999999999999999, s.StartValue);
+                        Assert.Equal(-999999999999999999, s.MinValue);
+                        Assert.Equal(999999999999999999, s.MaxValue);
                     });
             },
             @"
@@ -151,6 +254,22 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
                         Assert.NotNull(s.MaxValue);
                         Assert.Equal(long.MaxValue, s.MaxValue);
                     });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("HighDecimalSequence", s.Name);
+                        Assert.Same(typeof(decimal), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(long.MinValue, s.StartValue);
+                        Assert.Equal(long.MinValue, s.MinValue);
+                        Assert.Equal(long.MaxValue, s.MaxValue);
+                    });
             },
             @"
 DROP SEQUENCE [HighDecimalSequence];");
@@ -179,6 +298,22 @@ CREATE SEQUENCE [TypeAliasSequence] AS [dbo].[TestTypeAlias];",
                 Assert.Null(sequence.StartValue);
                 Assert.Null(sequence.MinValue);
                 Assert.Null(sequence.MaxValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("TypeAliasSequence", s.Name);
+                        Assert.Same(typeof(int), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    });
             },
             @"
 DROP SEQUENCE [TypeAliasSequence];
@@ -201,6 +336,22 @@ CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
                 Assert.Equal("decimal(10, 0)", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("dbo", s.Schema);
+                        Assert.Equal("TypeFacetSequence", s.Name);
+                        Assert.Same(typeof(decimal), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(-9999999999, s.StartValue);
+                        Assert.Equal(-9999999999, s.MinValue);
+                        Assert.Equal(9999999999, s.MaxValue);
+                    });
             },
             @"
 DROP SEQUENCE [TypeFacetSequence];");
@@ -223,6 +374,22 @@ CREATE SEQUENCE [db2].[Sequence]",
                 Assert.Equal("bigint", sequence.StoreType);
                 Assert.False(sequence.IsCyclic);
                 Assert.Equal(1, sequence.IncrementBy);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Empty(model.GetEntityTypes());
+                Assert.Collection(model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("db2", s.Schema);
+                        Assert.Equal("Sequence", s.Name);
+                        Assert.Same(typeof(long), s.Type);
+                        Assert.False(s.IsCyclic);
+                        Assert.Equal(1, s.IncrementBy);
+                        Assert.Equal(1, s.StartValue);
+                        Assert.Null(s.MinValue);
+                        Assert.Null(s.MaxValue);
+                    });
             },
             @"
 DROP SEQUENCE [dbo].[Sequence];
@@ -243,6 +410,10 @@ DROP SEQUENCE [db2].[Sequence];");
             {
                 var defaultSchema = Fixture.TestStore.ExecuteScalar<string>("SELECT SCHEMA_NAME()");
                 Assert.Equal(defaultSchema, dbModel.DefaultSchema);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal("dbo", model.GetDefaultSchema());
             },
             null);
 
@@ -269,11 +440,434 @@ CREATE TABLE [dbo].[Denali] ( id int );",
                         Assert.Equal("dbo", e.Schema);
                         Assert.Equal("Everest", e.Name);
                     });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("Denali", e.Name);
+                        Assert.Null(e.FindPrimaryKey());
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    }, e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("Everest", e.Name);
+                        Assert.Null(e.FindPrimaryKey());
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             @"
 DROP TABLE [dbo].[Everest];
 
 DROP TABLE [dbo].[Denali];");
+
+    [ConditionalFact]
+    public void Scaffold_relationships_in_order()
+        => Test(
+            @"
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+CREATE TABLE [dbo].[TableC](
+	[IdC] [BIGINT] IDENTITY(1,1) NOT NULL,
+ CONSTRAINT [PK_IdC] PRIMARY KEY CLUSTERED
+(
+	[IdC] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY];
+
+CREATE TABLE [dbo].[TableB](
+	[IdB] [BIGINT] IDENTITY(1,1) NOT NULL,
+ CONSTRAINT [PK_IdB] PRIMARY KEY CLUSTERED
+(
+	[IdB] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+CREATE TABLE [dbo].[TableAB](
+	[IdA] [BIGINT] IDENTITY(1,1) NOT NULL,
+	[IdB] [BIGINT] NOT NULL,
+ CONSTRAINT [PK_IdA] PRIMARY KEY CLUSTERED
+(
+	[IdA] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UC_IdA_IdB] UNIQUE NONCLUSTERED
+(
+	[IdA] ASC,
+	[IdB] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+ALTER TABLE [dbo].[TableAB]  WITH CHECK ADD  CONSTRAINT [FK_Listings_Category] FOREIGN KEY([IdB])
+REFERENCES [dbo].[TableB] ([IdB])
+
+CREATE TABLE [dbo].[AttributesByCategory](
+	[IdB] [BIGINT] NOT NULL,
+	[IdC] [BIGINT] NOT NULL,
+ CONSTRAINT [PK_IdB_IdC] PRIMARY KEY CLUSTERED
+(
+	[IdB] ASC,
+	[IdC] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+ALTER TABLE [dbo].[AttributesByCategory]  WITH CHECK ADD  CONSTRAINT [FK_AttributesByCategory_Attributes] FOREIGN KEY([IdC])
+REFERENCES [dbo].[TableC] ([IdC])
+
+ALTER TABLE [dbo].[AttributesByCategory] CHECK CONSTRAINT [FK_AttributesByCategory_Attributes]
+
+ALTER TABLE [dbo].[AttributesByCategory]  WITH CHECK ADD  CONSTRAINT [FK_AttributesByCategory_Category] FOREIGN KEY([IdB])
+REFERENCES [dbo].[TableB] ([IdB])
+
+ALTER TABLE [dbo].[AttributesByCategory] CHECK CONSTRAINT [FK_AttributesByCategory_Category];
+
+CREATE TABLE [dbo].[Properties](
+	[IdA] [BIGINT] NOT NULL,
+	[IdB] [BIGINT] NOT NULL,
+	[IdC] [BIGINT] NOT NULL,
+ CONSTRAINT [PK_IdA_IdB_IdC] PRIMARY KEY CLUSTERED
+(
+	[IdA] ASC,
+	[IdB] ASC,
+	[IdC] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UC_IdA_IdC] UNIQUE NONCLUSTERED
+(
+	[IdA] ASC,
+	[IdC] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+ALTER TABLE [dbo].[Properties]  WITH CHECK ADD  CONSTRAINT [FK_Properties_AttributesByCategory] FOREIGN KEY([IdB], [IdC])
+REFERENCES [dbo].[AttributesByCategory] ([IdB], [IdC])
+
+ALTER TABLE [dbo].[Properties] CHECK CONSTRAINT [FK_Properties_AttributesByCategory]
+
+ALTER TABLE [dbo].[Properties]  WITH CHECK ADD  CONSTRAINT [FK_Properties_Listings] FOREIGN KEY([IdA], [IdB])
+REFERENCES [dbo].[TableAB] ([IdA], [IdB])
+
+ALTER TABLE [dbo].[Properties] CHECK CONSTRAINT [FK_Properties_Listings]
+",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                Assert.Collection(
+                    dbModel.Tables.OrderBy(t => t.Name),
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("AttributesByCategory", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("IdB", c.Name),
+                            c => Assert.Equal("IdC", c.Name));
+                        Assert.Collection(t.PrimaryKey!.Columns,
+                            c => Assert.Equal("IdB", c.Name),
+                            c => Assert.Equal("IdC", c.Name));
+                        Assert.Collection(
+                            t.ForeignKeys,
+                            k =>
+                            {
+                                Assert.Equal("TableC", k.PrincipalTable.Name);
+                                Assert.Collection(k.Columns, c => Assert.Equal("IdC", c.Name));
+                                Assert.Collection(k.PrincipalColumns, c => Assert.Equal("IdC", c.Name));
+                            },
+                            k =>
+                            {
+                                Assert.Equal("TableB", k.PrincipalTable.Name);
+                                Assert.Collection(k.Columns, c => Assert.Equal("IdB", c.Name));
+                                Assert.Collection(k.PrincipalColumns, c => Assert.Equal("IdB", c.Name));
+                            });
+                        Assert.Empty(t.UniqueConstraints);
+                        Assert.Empty(t.Indexes);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("Properties", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("IdA", c.Name),
+                            c => Assert.Equal("IdB", c.Name),
+                            c => Assert.Equal("IdC", c.Name));
+                        Assert.Collection(t.PrimaryKey!.Columns,
+                            c => Assert.Equal("IdA", c.Name),
+                            c => Assert.Equal("IdB", c.Name),
+                            c => Assert.Equal("IdC", c.Name));
+                        Assert.Collection(t.UniqueConstraints, u => Assert.Collection(u.Columns,
+                            c => Assert.Equal("IdA", c.Name),
+                            c => Assert.Equal("IdC", c.Name)));
+                        Assert.Collection(
+                            t.ForeignKeys,
+                            k =>
+                            {
+                                Assert.Equal("AttributesByCategory", k.PrincipalTable.Name);
+                                Assert.Collection(k.Columns, c => Assert.Equal("IdB", c.Name), c => Assert.Equal("IdC", c.Name));
+                                Assert.Collection(k.PrincipalColumns, c => Assert.Equal("IdB", c.Name), c => Assert.Equal("IdC", c.Name));
+                            },
+                            k =>
+                            {
+                                Assert.Equal("TableAB", k.PrincipalTable.Name);
+                                Assert.Collection(k.Columns, c => Assert.Equal("IdA", c.Name), c => Assert.Equal("IdB", c.Name));
+                                Assert.Collection(k.PrincipalColumns, c => Assert.Equal("IdA", c.Name), c => Assert.Equal("IdB", c.Name));
+                            });
+                        Assert.Empty(t.Indexes);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("TableAB", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("IdA", c.Name),
+                            c => Assert.Equal("IdB", c.Name));
+                        Assert.Collection(t.PrimaryKey!.Columns, c => Assert.Equal("IdA", c.Name));
+                        Assert.Collection(t.UniqueConstraints, u => Assert.Collection(u.Columns,
+                            c => Assert.Equal("IdA", c.Name),
+                            c => Assert.Equal("IdB", c.Name)));
+                        Assert.Collection(t.ForeignKeys, k =>
+                        {
+                            Assert.Equal("TableB", k.PrincipalTable.Name);
+                            Assert.Collection(k.Columns, c => Assert.Equal("IdB", c.Name));
+                            Assert.Collection(k.PrincipalColumns, c => Assert.Equal("IdB", c.Name));
+                        });
+                        Assert.Empty(t.Indexes);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("TableB", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("IdB", c.Name));
+                        Assert.Collection(t.PrimaryKey!.Columns, c => Assert.Equal("IdB", c.Name));
+                        Assert.Empty(t.ForeignKeys);
+                        Assert.Empty(t.UniqueConstraints);
+                        Assert.Empty(t.Indexes);
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("TableC", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("IdC", c.Name));
+                        Assert.Collection(t.PrimaryKey!.Columns, c => Assert.Equal("IdC", c.Name));
+                        Assert.Empty(t.ForeignKeys);
+                        Assert.Empty(t.UniqueConstraints);
+                        Assert.Empty(t.Indexes);
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("AttributesByCategory", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("IdB", p.Name),
+                            p => Assert.Equal("IdC", p.Name));
+                        Assert.Collection(e.GetKeys(),
+                            c => Assert.Collection(c.Properties,
+                                p => Assert.Equal("IdB", p.Name),
+                                p => Assert.Equal("IdC", p.Name)));
+                        Assert.Collection(
+                            e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("TableB", k.PrincipalEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("IdB", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("IdB", p.Name));
+                                Assert.False(k.IsUnique);
+                            },
+                            k =>
+                            {
+                                Assert.Equal("TableC", k.PrincipalEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("IdC", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("IdC", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("TableB", n.TargetEntityType.Name);
+                                Assert.Equal("IdBNavigation", n.Name);
+                                Assert.False(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("TableC", n.TargetEntityType.Name);
+                                Assert.Equal("IdCNavigation", n.Name);
+                                Assert.False(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("Property", n.TargetEntityType.Name);
+                                Assert.Equal("Properties", n.Name);
+                                Assert.True(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetIndexes());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("Property", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("IdA", p.Name),
+                            p => Assert.Equal("IdB", p.Name),
+                            p => Assert.Equal("IdC", p.Name));
+                        Assert.Collection(e.GetKeys(),
+                            k =>
+                            {
+                                Assert.Collection(
+                                    k.Properties,
+                                    p => Assert.Equal("IdA", p.Name),
+                                    p => Assert.Equal("IdB", p.Name),
+                                    p => Assert.Equal("IdC", p.Name));
+                                Assert.True(k.IsPrimaryKey());
+                            });
+                        Assert.Collection(
+                            e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("TableAb", k.PrincipalEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("IdA", p.Name),
+                                    p => Assert.Equal("IdB", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("IdA", p.Name),
+                                    p => Assert.Equal("IdB", p.Name));
+                                Assert.False(k.IsUnique);
+                            },
+                            k =>
+                            {
+                                Assert.Equal("AttributesByCategory", k.PrincipalEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("IdB", p.Name),
+                                    p => Assert.Equal("IdC", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("IdB", p.Name),
+                                    p => Assert.Equal("IdC", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Collection(e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(
+                                    i.Properties,
+                                    p => Assert.Equal("IdA", p.Name),
+                                    p => Assert.Equal("IdC", p.Name));
+                                Assert.True(i.IsUnique);
+                            });
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("AttributesByCategory", n.TargetEntityType.Name);
+                                Assert.Equal("AttributesByCategory", n.Name);
+                                Assert.False(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("TableAb", n.TargetEntityType.Name);
+                                Assert.Equal("TableAb", n.Name);
+                                Assert.False(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("TableAb", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("IdA", p.Name),
+                            p => Assert.Equal("IdB", p.Name));
+                        Assert.Collection(e.GetKeys(),
+                            k =>
+                            {
+                                Assert.Collection(k.Properties, p => Assert.Equal("IdA", p.Name));
+                                Assert.True(k.IsPrimaryKey());
+                            },
+                            k =>
+                            {
+                                Assert.Collection(k.Properties, p => Assert.Equal("IdA", p.Name), p => Assert.Equal("IdB", p.Name));
+                                Assert.False(k.IsPrimaryKey());
+                            });
+                        Assert.Collection(e.GetForeignKeys(), k =>
+                        {
+                            Assert.Equal("TableB", k.PrincipalEntityType.Name);
+                            Assert.Collection(k.Properties, p => Assert.Equal("IdB", p.Name));
+                            Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("IdB", p.Name));
+                            Assert.False(k.IsUnique);
+                        });
+                        Assert.Collection(e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("IdA", p.Name), p => Assert.Equal("IdB", p.Name));
+                                Assert.True(i.IsUnique);
+                            });
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("TableB", n.TargetEntityType.Name);
+                                Assert.Equal("IdBNavigation", n.Name);
+                                Assert.False(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("Property", n.TargetEntityType.Name);
+                                Assert.Equal("Properties", n.Name);
+                                Assert.True(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("TableB", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("IdB", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("IdB", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("AttributesByCategory", n.TargetEntityType.Name);
+                                Assert.Equal("AttributesByCategories", n.Name);
+                                Assert.True(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("TableAb", n.TargetEntityType.Name);
+                                Assert.Equal("TableAbs", n.Name);
+                                Assert.True(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("TableC", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("IdC", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("IdC", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("AttributesByCategory", n.TargetEntityType.Name);
+                                Assert.Equal("AttributesByCategories", n.Name);
+                                Assert.True(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
+            },
+            @"
+DROP TABLE [dbo].[Properties];
+DROP TABLE [dbo].[AttributesByCategory];
+DROP TABLE [dbo].[TableAB];
+DROP TABLE [dbo].[TableB];
+DROP TABLE [dbo].[TableC];");
 
     [ConditionalFact]
     public void Expose_join_table_when_interloper_reference()
@@ -375,12 +969,14 @@ CREATE TABLE LinkToBBlogPPosts (
                                 Assert.Equal("Bblog", k.PrincipalEntityType.Name);
                                 Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
                                 Assert.Collection(k.Properties, p => Assert.Equal("BblogId", p.Name));
+                                Assert.False(k.IsUnique);
                             },
                             k =>
                             {
                                 Assert.Equal("Ppost", k.PrincipalEntityType.Name);
                                 Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
                                 Assert.Collection(k.Properties, p => Assert.Equal("PpostId", p.Name));
+                                Assert.False(k.IsUnique);
                             });
                         Assert.Empty(e.GetSkipNavigations());
                         Assert.Collection(e.GetNavigations(),
@@ -405,6 +1001,7 @@ CREATE TABLE LinkToBBlogPPosts (
                                 Assert.Collection(k.PrincipalKey.Properties,
                                     p => Assert.Equal("BblogId", p.Name),
                                     p => Assert.Equal("PpostId", p.Name));
+                                Assert.True(k.IsUnique);
                             });
                         Assert.Empty(e.GetSkipNavigations());
                         Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPpost", p.Name));
@@ -430,7 +1027,7 @@ DROP TABLE [dbo].[BBlogs];");
             @"",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            (dbModel, scaffoldingFactory) => Assert.Null(dbModel.Collation),
+            (dbModel, _) => Assert.Null(dbModel.Collation),
             @"");
 
     #endregion
@@ -454,6 +1051,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B));",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -477,6 +1078,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -500,6 +1105,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -523,6 +1132,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -548,6 +1161,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -575,6 +1192,10 @@ CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [db.2].[Kilimanjaro];
@@ -602,6 +1223,10 @@ CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [dbo].[Kilimanjaro];
@@ -629,6 +1254,10 @@ CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
                 Assert.Equal(2, table.Columns.Count);
                 Assert.Equal(1, table.UniqueConstraints.Count);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE [db.2].[Kilimanjaro];
@@ -639,7 +1268,8 @@ DROP TABLE [db.2].[K2];");
 
     [ConditionalFact]
     public void Complex_filtering_validation()
-        => Test(
+    {
+        Test(
             @"
 CREATE SEQUENCE [dbo].[Sequence];
 CREATE SEQUENCE [db2].[Sequence];
@@ -708,6 +1338,157 @@ CREATE TABLE [db2].[DependentTable] (
                 var dependentTable = Assert.Single(dbModel.Tables.Where(t => t is { Schema: "db2", Name: "DependentTable" }));
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Single(dependentTable.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetSequences(),
+                    s =>
+                    {
+                        Assert.Equal("db2", s.Schema);
+                        Assert.Equal("Sequence", s.Name);
+                    });
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("DependentTable", e.Name);
+                        Assert.Equal("Id", e.FindPrimaryKey()!.Properties.Single().Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                            },
+                            p => Assert.Equal("ForeignKeyId1", p.Name),
+                            p => Assert.Equal("ForeignKeyId2", p.Name));
+                        Assert.Collection(
+                            e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("PrincipalTable", n.Name);
+                                Assert.False(n.IsCollection);
+                            });
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("ForeignKeyId1", p.Name),
+                                    p => Assert.Equal("ForeignKeyId2", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("Uc1", p.Name),
+                                    p => Assert.Equal("Uc2", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetSkipNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db.2", e.GetSchema());
+                        Assert.Equal("JustTableName", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("JustTableName1", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("JustTableName2", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Equal("Id", e.FindPrimaryKey()!.Properties.Single().Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                            },
+                            p => Assert.Equal("Index1", p.Name),
+                            p => Assert.Equal("Index2", p.Name),
+                            p => Assert.Equal("Uc1", p.Name),
+                            p => Assert.Equal("Uc2", p.Name));
+                        Assert.Collection(
+                            e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(i.Properties,
+                                    p => Assert.Equal("Index2", p.Name),
+                                    p => Assert.Equal("Index1", p.Name));
+                                Assert.False(i.IsUnique);
+                            },
+                            i =>
+                            {
+                                Assert.Collection(i.Properties,
+                                    p => Assert.Equal("Uc1", p.Name),
+                                    p => Assert.Equal("Uc2", p.Name));
+                                Assert.True(i.IsUnique);
+                            });
+                        Assert.Collection(
+                            e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("DependentTables", n.Name);
+                                Assert.True(n.IsCollection);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db.2", e.GetSchema());
+                        Assert.Equal("QuotedTableName", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("QuotedTableName1", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db.2", e.GetSchema());
+                        Assert.Equal("SimpleTableName", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("SimpleTableName1", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("SimpleTableName2", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("db2", e.GetSchema());
+                        Assert.Equal("TableWithDot", e.Name);
+                        AssertIdOnly(e);
+                    },
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("TableWithDot1", e.Name);
+                        AssertIdOnly(e);
+                    });
             },
             @"
 DROP SEQUENCE [dbo].[Sequence];
@@ -729,6 +1510,17 @@ DROP TABLE [db2].[SimpleTableName];
 DROP TABLE [db2].[JustTableName];
 DROP TABLE [db2].[DependentTable];
 DROP TABLE [db2].[PrincipalTable];");
+
+        void AssertIdOnly(IEntityType entityType)
+        {
+            Assert.Equal("Id", entityType.FindPrimaryKey()!.Properties.Single().Name);
+            Assert.Collection(entityType.GetProperties(), p => Assert.Equal(ValueGenerated.Never, p.ValueGenerated));
+            Assert.Empty(entityType.GetIndexes());
+            Assert.Empty(entityType.GetForeignKeys());
+            Assert.Empty(entityType.GetNavigations());
+            Assert.Empty(entityType.GetSkipNavigations());
+        }
+    }
 
     #endregion
 
@@ -785,6 +1577,9 @@ CREATE TABLE [Blogs] (
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.True((bool)table[SqlServerAnnotationNames.MemoryOptimized]!);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE [Blogs]");
 
@@ -863,6 +1658,24 @@ On multiple lines.", c.Table.Comment);
                 Assert.Single(table.Columns.Where(c => c.Name == "Name"));
                 Assert.Single(table.Columns.Where(c => c.Comment == "Blog.Id column comment."));
                 Assert.Single(table.Columns.Where(c => c.Comment != null));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("Blog", e.Name);
+                        Assert.Equal("Blogs", e.GetTableName());
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("Name", p.Name));
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE [dbo].[Blogs]");
 
@@ -892,6 +1705,24 @@ SELECT
 
                 Assert.Single(table.Columns.Where(c => c.Name == "Id"));
                 Assert.Single(table.Columns.Where(c => c.Name == "Name"));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetViewSchema());
+                        Assert.Equal("BlogsView", e.Name);
+                        Assert.Equal("BlogsView", e.GetViewName());
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("Name", p.Name));
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP VIEW [dbo].[BlogsView];");
 
@@ -914,6 +1745,25 @@ CREATE TABLE PrimaryKeyTable (
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
                 Assert.Equal(
                     new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("PrimaryKeyTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p =>
+                        {
+                            Assert.Equal("Id", p.Name);
+                            Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                        });
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE PrimaryKeyTable;");
 
@@ -941,6 +1791,35 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
                 Assert.Null(uniqueConstraint[SqlServerAnnotationNames.Clustered]);
                 Assert.Equal(
                     new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("UniqueConstraint", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("IndexProperty", p.Name),
+                            p => Assert.Equal("Name", p.Name));
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("IndexProperty", p.Name));
+                                Assert.False(i.IsUnique);
+                            },
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("Name", p.Name));
+                                Assert.True(i.IsUnique);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE UniqueConstraint;");
 
@@ -972,6 +1851,35 @@ CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
 
                 Assert.Single(table.Indexes.Where(c => c.Name == "IX_NAME"));
                 Assert.Single(table.Indexes.Where(c => c.Name == "IX_INDEX"));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("IndexTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("IndexProperty", p.Name),
+                            p => Assert.Equal("Name", p.Name));
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("IndexProperty", p.Name));
+                                Assert.False(i.IsUnique);
+                            },
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("Name", p.Name));
+                                Assert.False(i.IsUnique);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE IndexTable;");
 
@@ -1011,6 +1919,38 @@ CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
                     {
                         Assert.Equal("IX_Two", index.Name);
                         Assert.Equal(50, index[SqlServerAnnotationNames.FillFactor]);
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("IndexTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("IndexProperty", p.Name));
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetIndexes(),
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("IndexProperty", p.Name));
+                                Assert.False(i.IsUnique);
+                                Assert.Equal("IX_One", i.Name);
+                                Assert.Equal(100, i.GetFillFactor());
+                            },
+                            i =>
+                            {
+                                Assert.Collection(i.Properties, p => Assert.Equal("IndexProperty", p.Name));
+                                Assert.False(i.IsUnique);
+                                Assert.Equal("IX_Two", i.Name);
+                                Assert.Equal(50, i.GetFillFactor());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
                     });
             },
             "DROP TABLE IndexTable;");
@@ -1062,6 +2002,63 @@ CREATE TABLE SecondDependent (
                 Assert.Equal(
                     new List<string> { "Id" }, secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.NoAction, secondFk.OnDelete);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("FirstDependent", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("ForeignKeyId", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("FirstDependent", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("ForeignKeyId", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n => Assert.Equal("ForeignKey", n.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(),
+                            n =>
+                            {
+                                Assert.Equal("FirstDependents", n.Name);
+                                Assert.True(n.IsCollection);
+                            },
+                            n =>
+                            {
+                                Assert.Equal("SecondDependent", n.Name);
+                                Assert.False(n.IsCollection);
+                            });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("SecondDependent", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("SecondDependent", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.True(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n => Assert.Equal("IdNavigation", n.Name));
+                    });
             },
             @"
 DROP TABLE SecondDependent;
@@ -1106,6 +2103,26 @@ END;"
                     triggers.OrderBy(t => t.Name),
                     t => Assert.Equal("Trigger1", t.Name),
                     t => Assert.Equal("Trigger2", t.Name));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("SomeTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("Bar", p.Name),
+                            p => Assert.Equal("Baz", p.Name),
+                            p => Assert.Equal("Foo", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Collection(e.GetDeclaredTriggers(),
+                            t => Assert.Equal("Trigger1", t.ModelName),
+                            t => Assert.Equal("Trigger2", t.ModelName));
+                    });
             },
             "DROP TABLE SomeTable;");
 
@@ -1135,6 +2152,25 @@ CREATE TABLE TypeAlias (
 
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("nvarchar(max)", column.StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("TypeAlias", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("TypeAliasColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             @"
 DROP TABLE TypeAlias;
@@ -1159,6 +2195,25 @@ CREATE TABLE TypeAlias (
                 // ReSharper disable once PossibleNullReferenceException
                 Assert.Equal("nvarchar(128)", column.StoreType);
                 Assert.False(column.IsNullable);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("TypeAlias", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("TypeAliasColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             @"
 DROP TABLE TypeAlias;");
@@ -1190,6 +2245,70 @@ CREATE TABLE NumericColumns (
                 Assert.Equal("numeric(15, 2)", columns.Single(c => c.Name == "numeric152Column").StoreType);
                 Assert.Equal("numeric(18, 2)", columns.Single(c => c.Name == "numericDefaultColumn").StoreType);
                 Assert.Equal("numeric(38, 5)", columns.Single(c => c.Name == "numericDefaultPrecisionColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("NumericColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Decimal105Column", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(10, p.GetPrecision());
+                                // Assert.Equal(5, p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("DecimalColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(18, p.GetPrecision());
+                                // Assert.Equal(0, p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("DecimalDefaultColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(18, p.GetPrecision());
+                                // Assert.Equal(2, p.GetScale());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("Numeric152Column", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(15, p.GetPrecision());
+                                // Assert.Equal(2, p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NumericColumn1", p.Name); // Because property name clashes with class name
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(18, p.GetPrecision());
+                                // Assert.Equal(0, p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NumericDefaultColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(18, p.GetPrecision());
+                                // Assert.Equal(2, p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NumericDefaultPrecisionColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                                // Assert.Equal(38, p.GetPrecision());
+                                // Assert.Equal(5, p.GetScale());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE NumericColumns;");
 
@@ -1219,8 +2338,72 @@ CREATE TABLE MaxColumns (
                 Assert.Equal("varbinary(max)", columns.Single(c => c.Name == "varbinaryMaxColumn").StoreType);
                 Assert.Equal("varbinary(max)", columns.Single(c => c.Name == "binaryVaryingMaxColumn").StoreType);
                 Assert.Equal("varchar(max)", columns.Single(c => c.Name == "charVaryingMaxColumn").StoreType);
+                Assert.Equal("varchar(max)", columns.Single(c => c.Name == "characterVaryingMaxColumn").StoreType);
                 Assert.Equal("nvarchar(max)", columns.Single(c => c.Name == "nationalCharVaryingMaxColumn").StoreType);
                 Assert.Equal("nvarchar(max)", columns.Single(c => c.Name == "nationalCharacterVaryingMaxColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("MaxColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("BinaryVaryingMaxColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharVaryingMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharacterVaryingMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharVaryingMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterVaryingMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NvarcharMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("VarbinaryMaxColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("VarcharMaxColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Null(p.GetMaxLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE MaxColumns;");
 
@@ -1263,6 +2446,122 @@ CREATE TABLE LengthColumns (
                 Assert.Equal("nchar(171)", columns.Single(c => c.Name == "nationalCharacter171Column").StoreType);
                 Assert.Equal("nvarchar(177)", columns.Single(c => c.Name == "nationalCharVarying177Column").StoreType);
                 Assert.Equal("nvarchar(188)", columns.Single(c => c.Name == "nationalCharacterVarying188Column").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("LengthColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Binary111Column", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(111, p.GetMaxLength());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("BinaryVarying133Column", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(133, p.GetMaxLength());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Char10Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(10, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharVarying144Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(144, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Character155Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(155, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharacterVarying166Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(166, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharVarying177Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(177, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacter171Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(171, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterVarying188Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(188, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Nchar99Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(99, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Nvarchar100Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(100, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Varbinary123Column", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(123, p.GetMaxLength());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Varchar66Column", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(66, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE LengthColumns;");
 
@@ -1285,6 +2584,43 @@ CREATE TABLE DefaultRequiredLengthBinaryColumns (
                 Assert.Equal("binary(8000)", columns.Single(c => c.Name == "binaryColumn").StoreType);
                 Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "binaryVaryingColumn").StoreType);
                 Assert.Equal("varbinary(8000)", columns.Single(c => c.Name == "varbinaryColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthBinaryColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("BinaryColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("BinaryVaryingColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("VarbinaryColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthBinaryColumns;");
 
@@ -1303,6 +2639,29 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.Equal("char(8000)", columns.Single(c => c.Name == "charColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthCharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("CharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthCharColumns;");
 
@@ -1321,6 +2680,29 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.Equal("char(8000)", columns.Single(c => c.Name == "characterColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthCharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("CharacterColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            },
+                            p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthCharColumns;");
 
@@ -1343,6 +2725,45 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
                 Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "charVaryingColumn").StoreType);
                 Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "characterVaryingColumn").StoreType);
                 Assert.Equal("varchar(8000)", columns.Single(c => c.Name == "varcharColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthVarcharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("CharVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharacterVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("VarcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(8000, p.GetMaxLength());
+                                Assert.False(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthVarcharColumns;");
 
@@ -1361,6 +2782,29 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthNcharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
@@ -1379,6 +2823,29 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "nationalCharacterColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthNcharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
@@ -1397,6 +2864,29 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.Equal("nchar(4000)", columns.Single(c => c.Name == "ncharColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthNcharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.True(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthNcharColumns;");
 
@@ -1419,6 +2909,45 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
                 Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharVaryingColumn").StoreType);
                 Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nationalCharacterVaryingColumn").StoreType);
                 Assert.Equal("nvarchar(4000)", columns.Single(c => c.Name == "nvarcharColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultRequiredLengthNvarcharColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NvarcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(4000, p.GetMaxLength());
+                                Assert.Null(p.IsUnicode());
+                                Assert.Null(p.IsFixedLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultRequiredLengthNvarcharColumns;");
 
@@ -1441,6 +2970,42 @@ CREATE TABLE LengthColumns (
                 Assert.Equal("time(4)", columns.Single(c => c.Name == "time4Column").StoreType);
                 Assert.Equal("datetime2(4)", columns.Single(c => c.Name == "datetime24Column").StoreType);
                 Assert.Equal("datetimeoffset(5)", columns.Single(c => c.Name == "datetimeoffset5Column").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("LengthColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Datetime24Column", p.Name);
+                                Assert.Same(typeof(DateTime?), p.ClrType);
+                                Assert.Equal(4, p.GetPrecision());
+                                Assert.Null(p.GetScale());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Datetimeoffset5Column", p.Name);
+                                Assert.Same(typeof(DateTimeOffset?), p.ClrType);
+                                Assert.Equal(5, p.GetPrecision());
+                                Assert.Null(p.GetScale());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("Time4Column", p.Name);
+                                Assert.Same(typeof(TimeOnly?), p.ClrType);
+                                Assert.Equal(4, p.GetPrecision());
+                                Assert.Null(p.GetScale());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE LengthColumns;");
 
@@ -1485,6 +3050,105 @@ CREATE TABLE OneLengthColumns (
                 Assert.Equal("nvarchar(1)", columns.Single(c => c.Name == "nvarcharColumn").StoreType);
                 Assert.Equal("varbinary(1)", columns.Single(c => c.Name == "varbinaryColumn").StoreType);
                 Assert.Equal("varchar(1)", columns.Single(c => c.Name == "varcharColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("OneLengthColumn", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("BinaryColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("BinaryVaryingColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharacterColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("CharacterVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("NationalCharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NationalCharacterVaryingColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NvarcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("VarbinaryColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("VarcharColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                                Assert.Equal(1, p.GetMaxLength());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE OneLengthColumns;");
 
@@ -1559,6 +3223,148 @@ CREATE TABLE RowversionType (
                 Assert.Equal(
                     "rowversion",
                     dbModel.Tables.Single(t => t.Name == "RowversionType").Columns.Single(c => c.Name == "rowversionColumn").StoreType);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("NoFacetType", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("BigintColumn", p.Name);
+                                Assert.Same(typeof(long), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("BitColumn", p.Name);
+                                Assert.Same(typeof(bool), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("DateColumn", p.Name);
+                                Assert.Same(typeof(DateOnly), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Datetime2Column", p.Name);
+                                Assert.Same(typeof(DateTime?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("DatetimeColumn", p.Name);
+                                Assert.Same(typeof(DateTime?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("DatetimeoffsetColumn", p.Name);
+                                Assert.Same(typeof(DateTimeOffset?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("FloatColumn", p.Name);
+                                Assert.Same(typeof(double), p.ClrType);
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("ImageColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("IntColumn", p.Name);
+                                Assert.Same(typeof(int), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("MoneyColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NtextColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("RealColumn", p.Name);
+                                Assert.Same(typeof(float?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("SmalldatetimeColumn", p.Name);
+                                Assert.Same(typeof(DateTime?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("SmallintColumn", p.Name);
+                                Assert.Same(typeof(short), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("SmallmoneyColumn", p.Name);
+                                Assert.Same(typeof(decimal), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("SqlVariantColumn", p.Name);
+                                Assert.Same(typeof(object), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("TextColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("TimeColumn", p.Name);
+                                Assert.Same(typeof(TimeOnly?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("TimestampColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.True(p.IsConcurrencyToken);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("TinyintColumn", p.Name);
+                                Assert.Same(typeof(byte), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("UniqueidentifierColumn", p.Name);
+                                Assert.Same(typeof(Guid?), p.ClrType);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("XmlColumn", p.Name);
+                                Assert.Same(typeof(string), p.ClrType);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    },
+                    e =>
+                    {
+                        Assert.Equal("RowversionType", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("RowversionColumn", p.Name);
+                                Assert.Same(typeof(byte[]), p.ClrType);
+                                Assert.True(p.IsConcurrencyToken);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             @"
 DROP TABLE NoFacetTypes;
@@ -1600,6 +3406,63 @@ CREATE TABLE DefaultComputedValues (
                 Assert.Null(sumOfAAndBPersisted.DefaultValueSql);
                 Assert.Equal("([A]+[B])", sumOfAAndBPersisted.ComputedColumnSql);
                 Assert.True(sumOfAAndBPersisted.IsStored);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DefaultComputedValue", e.Name);
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("A", p.Name);
+                                Assert.Equal(0, p.GetDefaultValue());
+                                Assert.Null(p.GetDefaultValueSql());
+                                Assert.Null(p.GetComputedColumnSql());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("B", p.Name);
+                                Assert.Equal(0, p.GetDefaultValue());
+                                Assert.Null(p.GetDefaultValueSql());
+                                Assert.Null(p.GetComputedColumnSql());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("ComputedValue", p.Name);
+                                Assert.Equal(default(DateTime), p.GetDefaultValue());
+                                Assert.Null(p.GetDefaultValueSql());
+                                Assert.Equal("(getdate())", p.GetComputedColumnSql());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("FixedDefaultValue", p.Name);
+                                Assert.Equal(new DateTime(2015, 10, 20, 11, 0, 0), p.GetDefaultValue());
+                                Assert.Equal("('October 20, 2015 11am')", p.GetDefaultValueSql());
+                                Assert.Null(p.GetComputedColumnSql());
+                            },
+                            p => Assert.Equal("Id", p.Name),
+                            p =>
+                            {
+                                Assert.Equal("SumOfAandB", p.Name);
+                                Assert.Null(p.GetDefaultValue());
+                                Assert.Null(p.GetDefaultValueSql());
+                                Assert.Equal("([A]+[B])", p.GetComputedColumnSql());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("SumOfAandBpersisted", p.Name);
+                                Assert.Null(p.GetDefaultValue());
+                                Assert.Null(p.GetDefaultValueSql());
+                                Assert.Equal("([A]+[B])", p.GetComputedColumnSql());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Empty(e.GetNavigations());
+                    });
             },
             "DROP TABLE DefaultComputedValues;");
 
@@ -1625,6 +3488,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(CONVERT([bit],choose((1),(0),(1),(2))))", column.DefaultValueSql);
                 Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1690,6 +3556,10 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "J");
                 Assert.Equal("(CONVERT([int],(-8)))", column.DefaultValueSql);
                 Assert.Equal(-8, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+
             },
             "DROP TABLE MyTable;");
 
@@ -1720,6 +3590,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("(CONVERT([smallint],(-7)))", column.DefaultValueSql);
                 Assert.Equal((short)-7, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1750,6 +3623,10 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("(CONVERT([bigint],(-7)))", column.DefaultValueSql);
                 Assert.Equal((long)-7, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
+
             },
             "DROP TABLE MyTable;");
 
@@ -1780,6 +3657,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("(CONVERT([tinyint],(7)))", column.DefaultValueSql);
                 Assert.Equal((byte)7, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1805,6 +3685,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(CONVERT([int],choose((1),(0),(1),(2))))", column.DefaultValueSql);
                 Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1840,6 +3723,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([float],(1.1234)))", column.DefaultValueSql);
                 Assert.Equal(1.1234, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1875,6 +3761,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([real],(1.1234)))", column.DefaultValueSql);
                 Assert.Equal((float)1.1234, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1910,6 +3799,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "D");
                 Assert.Equal("(CONVERT([decimal],(1.1234)))", column.DefaultValueSql);
                 Assert.Equal((decimal)1.1234, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1960,6 +3852,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "G");
                 Assert.Equal("(CONVERT([bit],'tRUE'))", column.DefaultValueSql);
                 Assert.Equal(true, column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -1997,6 +3892,9 @@ CREATE TABLE MyTable (
                 Assert.Equal(12, ((DateTime)column.DefaultValue!).Hour);
                 Assert.Equal(12, ((DateTime)column.DefaultValue!).Minute);
                 Assert.Equal(12, ((DateTime)column.DefaultValue!).Second);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2027,6 +3925,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "C");
                 Assert.Equal("(CONVERT([datetime2],'12-01-16 12:32'))", column.DefaultValueSql);
                 Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2052,6 +3953,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(CONVERT([date],'1973-09-03T01:02:03'))", column.DefaultValueSql);
                 Assert.Equal(new DateOnly(1973, 9, 3), column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2077,6 +3981,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(CONVERT([time],'1973-09-03T01:02:03'))", column.DefaultValueSql);
                 Assert.Equal(new TimeOnly(1, 2, 3), column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2106,6 +4013,9 @@ CREATE TABLE MyTable (
                 Assert.Equal(
                     new DateTime(1973, 9, 3, 1, 2, 3, 0, DateTimeKind.Unspecified),
                     ((DateTimeOffset)column.DefaultValue!).DateTime);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2131,6 +4041,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(CONVERT([uniqueidentifier],'0E984725-C51C-4BF4-9960-E1C80E27ABA0'))", column.DefaultValueSql);
                 Assert.Equal(new Guid("0E984725-C51C-4BF4-9960-E1C80E27ABA0"), column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2156,6 +4069,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "B");
                 Assert.Equal("(newsequentialid())", column.DefaultValueSql);
                 Assert.Null(column.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2206,6 +4122,9 @@ CREATE TABLE MyTable (
                 column = columns.Single(c => c.Name == "G");
                 Assert.Equal("(CONVERT([varchar](max),'Toasted teacakes'))", column.DefaultValueSql);
                 Assert.Equal("Toasted teacakes", column.DefaultValue);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE MyTable;");
 
@@ -2231,6 +4150,48 @@ CREATE TABLE ValueGeneratedProperties (
                 Assert.Null(columns.Single(c => c.Name == "FixedDefaultValue").ValueGenerated);
                 Assert.Null(columns.Single(c => c.Name == "ComputedValue").ValueGenerated);
                 Assert.Equal(ValueGenerated.OnAddOrUpdate, columns.Single(c => c.Name == "rowversionColumn").ValueGenerated);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("ValueGeneratedProperty", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("ComputedValue", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("FixedDefaultValue", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Equal(ValueGenerated.OnAdd, p.ValueGenerated);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NoValueGenerationColumn", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("RowversionColumn", p.Name);
+                                Assert.Equal(ValueGenerated.OnAddOrUpdate, p.ValueGenerated);
+                                Assert.True(p.IsConcurrencyToken);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE ValueGeneratedProperties;");
 
@@ -2249,6 +4210,33 @@ CREATE TABLE RowVersionTable (
                 var columns = dbModel.Tables.Single().Columns;
 
                 Assert.True((bool)columns.Single(c => c.Name == "rowversionColumn")[ScaffoldingAnnotationNames.ConcurrencyToken]!);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("RowVersionTable", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.False(p.IsConcurrencyToken);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("RowversionColumn", p.Name);
+                                Assert.True(p.IsConcurrencyToken);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
+
             },
             "DROP TABLE RowVersionTable;");
 
@@ -2269,6 +4257,37 @@ CREATE TABLE NullableColumns (
 
                 Assert.True(columns.Single(c => c.Name == "NullableInt").IsNullable);
                 Assert.False(columns.Single(c => c.Name == "NonNullString").IsNullable);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("NullableColumn", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.True(p.IsNullable);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NonNullString", p.Name);
+                                Assert.False(p.IsNullable);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NullableInt", p.Name);
+                                Assert.True(p.IsNullable);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE NullableColumns;");
 
@@ -2289,6 +4308,37 @@ CREATE TABLE ColumnsWithCollation (
 
                 Assert.Null(columns.Single(c => c.Name == "DefaultCollation").Collation);
                 Assert.Equal("German_PhoneBook_CI_AS", columns.Single(c => c.Name == "NonDefaultCollation").Collation);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("ColumnsWithCollation", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("DefaultCollation", p.Name);
+                                Assert.Null(p.GetCollation());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Null(p.GetCollation());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NonDefaultCollation", p.Name);
+                                Assert.Equal("German_PhoneBook_CI_AS", p.GetCollation());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE ColumnsWithCollation;");
 
@@ -2309,6 +4359,37 @@ CREATE TABLE ColumnsWithSparseness (
 
                 Assert.True((bool)columns.Single(c => c.Name == "Sparse")[SqlServerAnnotationNames.Sparse]!);
                 Assert.Null(columns.Single(c => c.Name == "NonSparse")[SqlServerAnnotationNames.Sparse]);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("ColumnsWithSparseness", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Null(p.IsSparse());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("NonSparse", p.Name);
+                                Assert.Null(p.IsSparse());
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Sparse", p.Name);
+                                Assert.True(p.IsSparse());
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE ColumnsWithSparseness;");
 
@@ -2340,6 +4421,36 @@ CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
                 Assert.DoesNotContain(columns, c => c.Name == "SysStartTime");
                 Assert.DoesNotContain(columns, c => c.Name == "SysEndTime");
                 Assert.Equal("IX_HiddenColumnsTable_3", dbModel.Tables.Single().Indexes.Single().Name);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("HiddenColumnsTable", e.Name);
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Name", p.Name);
+                                Assert.Equal(50, p.GetMaxLength());
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Collection(e.GetIndexes(), i => Assert.Collection(i.Properties, p => Assert.Equal("Name", p.Name)));
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             @"
 ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
@@ -2375,6 +4486,36 @@ CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
                 Assert.DoesNotContain(columns, c => c.Name == "SysStartTime");
                 Assert.DoesNotContain(columns, c => c.Name == "SysEndTime");
                 Assert.Equal("IX_HiddenColumnsTable_3", dbModel.Tables.Single().Indexes.Single().Name);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("HiddenColumnsTable", e.Name);
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Name", p.Name);
+                                Assert.Equal(50, p.GetMaxLength());
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Collection(e.GetIndexes(), i => Assert.Collection(i.Properties, p => Assert.Equal("Name", p.Name)));
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             @"
 ALTER TABLE dbo.HiddenColumnsTable SET (SYSTEM_VERSIONING = OFF);
@@ -2406,6 +4547,37 @@ CREATE TABLE CompositePrimaryKeyTable (
                 Assert.StartsWith("PK__Composit", pk.Name);
                 Assert.Equal(
                     new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("CompositePrimaryKeyTable", e.Name);
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties,
+                            p => Assert.Equal("Id2", p.Name),
+                            p => Assert.Equal("Id1", p.Name)));
+                        Assert.Collection(
+                            e.GetProperties(),
+                            p =>
+                            {
+                                Assert.Equal("Id2", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            },
+                            p =>
+                            {
+                                Assert.Equal("Id1", p.Name);
+                                Assert.Equal(ValueGenerated.Never, p.ValueGenerated);
+                                Assert.False(p.IsNullable);
+                            });
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE CompositePrimaryKeyTable;");
 
@@ -2429,6 +4601,26 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("NonClusteredPrimaryKeyTable", e.Name);
+                        Assert.Collection(e.GetKeys(), k =>
+                        {
+                            Assert.False(k.IsClustered());
+                            Assert.Collection(k.Properties, p => Assert.Equal("Id1", p.Name));
+                        });
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id1", p.Name), p => Assert.Equal("Id2", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetIndexes());
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE NonClusteredPrimaryKeyTable;");
 
@@ -2454,6 +4646,9 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredIndex;");
 
@@ -2478,6 +4673,9 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint;");
 
@@ -2502,6 +4700,9 @@ CREATE TABLE PrimaryKeyName (
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
                 Assert.Equal(
                     new List<string> { "Id2" }, pk.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE PrimaryKeyName;");
 
@@ -2530,6 +4731,9 @@ CREATE TABLE CompositeUniqueConstraintTable (
                 Assert.Equal("UX", uniqueConstraint.Name);
                 Assert.Equal(
                     new List<string> { "Id2", "Id1" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE CompositeUniqueConstraintTable;");
 
@@ -2554,6 +4758,9 @@ CREATE TABLE ClusteredUniqueConstraintTable (
                 Assert.True((bool)uniqueConstraint[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE ClusteredUniqueConstraintTable;");
 
@@ -2578,6 +4785,9 @@ CREATE TABLE UniqueConstraintName (
                 Assert.Equal("MyUC", uniqueConstraint.Name);
                 Assert.Equal(
                     new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE UniqueConstraintName;");
 
@@ -2607,6 +4817,29 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
                 Assert.Equal("IX_COMPOSITE", index.Name);
                 Assert.Equal(
                     new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("dbo", e.GetSchema());
+                        Assert.Equal("CompositeIndexTable", e.Name);
+                        Assert.Empty(e.GetKeys());
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id1", p.Name), p => Assert.Equal("Id2", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Collection(e.GetIndexes(), k =>
+                        {
+                            Assert.Collection(
+                                k.Properties,
+                                p => Assert.Equal("Id2", p.Name),
+                                p => Assert.Equal("Id1", p.Name));
+                            Assert.False(k.IsUnique);
+                        });
+                        Assert.Empty(e.GetNavigations());
+                        Assert.Empty(e.GetSkipNavigations());
+                    });
             },
             "DROP TABLE CompositeIndexTable;");
 
@@ -2633,6 +4866,9 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
                 Assert.True((bool)index[SqlServerAnnotationNames.Clustered]!);
                 Assert.Equal(
                     new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE ClusteredIndexTable;");
 
@@ -2660,6 +4896,9 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
                 Assert.Null(index.Filter);
                 Assert.Equal(
                     new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE UniqueIndexTable;");
 
@@ -2686,6 +4925,9 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 Assert.Equal("([Id2]>(10))", index.Filter);
                 Assert.Equal(
                     new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE FilteredIndexTable;");
 
@@ -2704,6 +4946,9 @@ CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;
             (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables.Single().Indexes);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE HypotheticalIndexTable;");
 
@@ -2722,6 +4967,9 @@ CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( I
             (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables.Single().Indexes);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE ColumnStoreIndexTable;");
 
@@ -2743,6 +4991,9 @@ CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProp
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
                 Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
                 Assert.Null(index[SqlServerAnnotationNames.Include]);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE IncludeIndexTable;");
 
@@ -2768,6 +5019,9 @@ WITH (FILLFACTOR = 80) ON [PRIMARY]",
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
                 Assert.Equal(new[] { "Name" }, index.Columns.Select(ic => ic.Name).ToList());
                 Assert.Equal(80, index[SqlServerAnnotationNames.FillFactor]);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             "DROP TABLE IndexFillFactor;");
 
@@ -2807,6 +5061,56 @@ CREATE TABLE DependentTable (
                 Assert.Equal(
                     new List<string> { "Id1", "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DependentTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("ForeignKeyId1", p.Name),
+                            p => Assert.Equal("ForeignKeyId2", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("ForeignKeyId1", p.Name),
+                                    p => Assert.Equal("ForeignKeyId2", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("Id1", p.Name),
+                                    p => Assert.Equal("Id2", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("PrincipalTable", n.Name);
+                            Assert.False(n.IsCollection);
+                        });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id1", p.Name),
+                            p => Assert.Equal("Id2", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties,
+                            p => Assert.Equal("Id1", p.Name),
+                            p => Assert.Equal("Id2", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("DependentTables", n.Name);
+                            Assert.True(n.IsCollection);
+                        });
+                    });
             },
             @"
 DROP TABLE DependentTable;
@@ -2864,6 +5168,73 @@ CREATE TABLE DependentTable (
                 Assert.Equal(
                     new List<string> { "Id" }, anotherPrincipalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, anotherPrincipalFk.OnDelete);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("AnotherPrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("Id", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("DependentTables", n.Name);
+                            Assert.True(n.IsCollection);
+                        });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("DependentTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("ForeignKeyId1", p.Name),
+                            p => Assert.Equal("ForeignKeyId2", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("ForeignKeyId1", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.False(k.IsUnique);
+                            },
+                            k =>
+                            {
+                                Assert.Equal("AnotherPrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("ForeignKeyId2", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("ForeignKeyId1Navigation", n.Name);
+                            Assert.False(n.IsCollection);
+                        }, n =>
+                        {
+                            Assert.Equal("ForeignKeyId2Navigation", n.Name);
+                            Assert.False(n.IsCollection);
+                        });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("Id", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("DependentTables", n.Name);
+                            Assert.True(n.IsCollection);
+                        });
+                    });
             },
             @"
 DROP TABLE DependentTable;
@@ -2875,7 +5246,7 @@ DROP TABLE PrincipalTable;");
         => Test(
             @"
 CREATE TABLE PrincipalTable (
-    Id1 int,
+    Id1 int PRIMARY KEY,
     Id2 int UNIQUE,
 );
 
@@ -2900,6 +5271,57 @@ CREATE TABLE DependentTable (
                 Assert.Equal(
                     new List<string> { "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DependentTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("ForeignKeyId", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("ForeignKeyId", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id2", p.Name));
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("ForeignKey", n.Name);
+                            Assert.False(n.IsCollection);
+                        });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id1", p.Name), p => Assert.Equal("Id2", p.Name));
+                        Assert.Collection(e.GetKeys(),
+                            k => Assert.Collection(k.Properties, p =>
+                            {
+                                Assert.Equal("Id1", p.Name);
+                                Assert.True(p.IsPrimaryKey());
+                            }),
+                            k => Assert.Collection(k.Properties, p =>
+                            {
+                                Assert.Equal("Id2", p.Name);
+                                Assert.False(p.IsPrimaryKey());
+                            }));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("DependentTables", n.Name);
+                            Assert.True(n.IsCollection);
+                        });
+                    });
             },
             @"
 DROP TABLE DependentTable;
@@ -2935,6 +5357,9 @@ CREATE TABLE DependentTable (
                     new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
                 Assert.Equal("MYFK", fk.Name);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(2, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE DependentTable;
@@ -2969,6 +5394,48 @@ CREATE TABLE DependentTable (
                 Assert.Equal(
                     new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.SetNull, fk.OnDelete);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("DependentTable", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("Id", p.Name),
+                            p => Assert.Equal("ForeignKeyId", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Equal("Id", k.Properties.Single().Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("PrincipalTable", k.PrincipalEntityType.Name);
+                                Assert.Equal("DependentTable", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("ForeignKeyId", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties, p => Assert.Equal("Id", p.Name));
+                                Assert.Equal(DeleteBehavior.SetNull, k.DeleteBehavior);
+                                Assert.False(k.IsUnique);
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("ForeignKey", n.Name);
+                            Assert.False(n.IsCollection);
+                        });
+                    },
+                    e =>
+                    {
+                        Assert.Equal("PrincipalTable", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Collection(e.GetKeys(), k => Assert.Collection(k.Properties, p => Assert.Equal("Id", p.Name)));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), n =>
+                        {
+                            Assert.Equal("DependentTables", n.Name);
+                            Assert.True(n.IsCollection);
+                        });
+                    });
             },
             @"
 DROP TABLE DependentTable;
@@ -2996,6 +5463,9 @@ CREATE TABLE Blank (
                 Assert.Equal(
                     SqlServerResources.LogMissingSchema(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MySchema"),
                     message);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Empty(model.GetEntityTypes());
             },
             "DROP TABLE Blank;");
 
@@ -3017,6 +5487,9 @@ CREATE TABLE Blank (
                 Assert.Equal(
                     SqlServerResources.LogMissingTable(new TestLogger<SqlServerLoggingDefinitions>()).GenerateMessage("MyTable"),
                     message);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Empty(model.GetEntityTypes());
             },
             "DROP TABLE Blank;");
 
@@ -3043,6 +5516,9 @@ CREATE TABLE DependentTable (
                     SqlServerResources.LogPrincipalTableNotInSelectionSet(new TestLogger<SqlServerLoggingDefinitions>())
                         .GenerateMessage(
                             "MYFK", "dbo.DependentTable", "dbo.PrincipalTable"), message);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE DependentTable;
@@ -3070,6 +5546,9 @@ CREATE TABLE PrincipalTable (
 
                 var table = Assert.Single(dbModel.Tables);
                 Assert.Empty(table.ForeignKeys);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE PrincipalTable;");
@@ -3113,6 +5592,9 @@ CREATE TABLE DependentTable (
 
                 var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
                 Assert.Equal(4, table.ForeignKeys.Count);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(3, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE DependentTable;
@@ -3136,6 +5618,9 @@ Id int PRIMARY KEY,
                                 .GenerateMessage()).Message;
 
                 Assert.Null(message);
+
+                var model = scaffoldingFactory.Create(dbModel, new());
+                Assert.Equal(1, model.GetEntityTypes().Count());
             },
             @"
 DROP TABLE TestViewDefinition;");
