@@ -14,8 +14,7 @@ public class CosmosTestStoreFactory : ITestStoreFactory
     public IServiceCollection AddProviderServices(IServiceCollection serviceCollection)
         => serviceCollection
             .AddEntityFrameworkCosmos()
-            .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory())
-            .AddSingleton<TestStoreIndex>();
+            .AddSingleton<ILoggerFactory>(new TestSqlLoggerFactory());
 
     public TestStore Create(string storeName)
         => CosmosTestStore.Create(storeName);

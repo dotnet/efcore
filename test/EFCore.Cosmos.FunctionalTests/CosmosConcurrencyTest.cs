@@ -45,91 +45,21 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated",
             ctx => ctx.Customers.Single(c => c.Id == "3").Name = "Updated");
 
-    [ConditionalFact]
-    public async Task Etag_will_return_when_content_response_enabled_false()
-    {
-        await using var testDatabase = CosmosTestStore.CreateInitialized(
-            DatabaseName,
-            o => o.ContentResponseOnWriteEnabled(false));
-
-        var customer = new Customer
-        {
-            Id = "4", Name = "Theon",
-        };
-
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
-        {
-            await context.Database.EnsureCreatedAsync();
-
-            await context.AddAsync(customer);
-
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
-        {
-            var customerFromStore = await context.Set<Customer>().SingleAsync();
-
-            Assert.Equal(customer.Id, customerFromStore.Id);
-            Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(customer.ETag, customerFromStore.ETag);
-
-            context.Remove(customerFromStore);
-
-            await context.SaveChangesAsync();
-        }
-    }
-
-    [ConditionalFact]
-    public async Task Etag_will_return_when_content_response_enabled_true()
-    {
-        await using var testDatabase = CosmosTestStore.CreateInitialized(
-            DatabaseName,
-            o => o.ContentResponseOnWriteEnabled());
-
-        var customer = new Customer
-        {
-            Id = "3", Name = "Theon",
-        };
-
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
-        {
-            await context.Database.EnsureCreatedAsync();
-
-            await context.AddAsync(customer);
-
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
-        {
-            var customerFromStore = await context.Set<Customer>().SingleAsync();
-
-            Assert.Equal(customer.Id, customerFromStore.Id);
-            Assert.Equal("Theon", customerFromStore.Name);
-            Assert.Equal(customer.ETag, customerFromStore.ETag);
-
-            context.Remove(customerFromStore);
-
-            await context.SaveChangesAsync();
-        }
-    }
-
     [ConditionalTheory]
     [InlineData(null)]
     [InlineData(true)]
     [InlineData(false)]
     public async Task Etag_is_updated_in_entity_after_SaveChanges(bool? contentResponseOnWriteEnabled)
     {
-        await using var testDatabase = CosmosTestStore.CreateInitialized(
-            DatabaseName,
-            o =>
+        var options = new DbContextOptionsBuilder(Fixture.CreateOptions())
+            .UseCosmos(o =>
             {
-                if (contentResponseOnWriteEnabled.HasValue)
+                if (contentResponseOnWriteEnabled != null)
                 {
                     o.ContentResponseOnWriteEnabled(contentResponseOnWriteEnabled.Value);
                 }
-            });
+            })
+            .Options;
 
         var customer = new Customer
         {
@@ -139,10 +69,9 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         };
 
         string etag = null;
-
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
+        await using (var context = new ConcurrencyContext(options))
         {
-            await context.Database.EnsureCreatedAsync();
+            await Fixture.TestStore.CleanAsync(context);
 
             await context.AddAsync(customer);
 
@@ -151,7 +80,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             etag = customer.ETag;
         }
 
-        await using (var context = new ConcurrencyContext(CreateOptions(testDatabase)))
+        await using (var context = new ConcurrencyContext(options))
         {
             var customerFromStore = await context.Set<Customer>().SingleAsync();
 
@@ -208,7 +137,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         where TException : DbUpdateException
     {
         using var outerContext = CreateContext();
-        await outerContext.Database.EnsureCreatedAsync();
+        await Fixture.TestStore.CleanAsync(outerContext);
         seedAction?.Invoke(outerContext);
         await outerContext.SaveChangesAsync();
 
@@ -257,12 +186,6 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
                     b.OwnsMany(x => x.Children);
                 });
     }
-
-    private DbContextOptions CreateOptions(CosmosTestStore testDatabase)
-        => testDatabase.AddProviderOptions(new DbContextOptionsBuilder())
-            .ConfigureWarnings(w => w.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning))
-            .EnableDetailedErrors()
-            .Options;
 
     public class Customer
     {

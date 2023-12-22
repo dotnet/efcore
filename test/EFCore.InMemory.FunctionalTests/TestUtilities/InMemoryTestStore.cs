@@ -39,7 +39,7 @@ public class InMemoryTestStore : TestStore
     protected override TestStoreIndex GetTestStoreIndex(IServiceProvider serviceProvider)
         => serviceProvider == null
             ? base.GetTestStoreIndex(null)
-            : serviceProvider.GetRequiredService<TestStoreIndex>();
+            : serviceProvider.GetService<TestStoreIndex>() ?? base.GetTestStoreIndex(serviceProvider);
 
     public override DbContextOptionsBuilder AddProviderOptions(DbContextOptionsBuilder builder)
         => builder.UseInMemoryDatabase(Name);

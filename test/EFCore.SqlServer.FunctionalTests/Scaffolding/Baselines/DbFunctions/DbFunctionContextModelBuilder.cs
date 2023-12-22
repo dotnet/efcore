@@ -105,6 +105,8 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nchar(256)",
                     size: 256,
+                    unicode: true,
+                    fixedLength: true,
                     dbType: System.Data.DbType.StringFixedLength));
 
             getCount.TypeMapping = IntTypeMapping.Default.Clone(
@@ -208,6 +210,8 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nchar(256)",
                     size: 256,
+                    unicode: true,
+                    fixedLength: true,
                     dbType: System.Data.DbType.StringFixedLength));
 
             isDateStatic.TypeMapping = SqlServerBoolTypeMapping.Default.Clone(

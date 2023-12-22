@@ -4,15 +4,9 @@
 namespace Microsoft.EntityFrameworkCore;
 
 public class MaterializationInterceptionCosmosTest :
-    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>,
-    IClassFixture<MaterializationInterceptionCosmosTest.MaterializationInterceptionCosmosFixture>
+    MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>
 {
-    public MaterializationInterceptionCosmosTest(MaterializationInterceptionCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
-    public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async)
+    public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Task.CompletedTask;
 
     public class CosmosLibraryContext : LibraryContext
@@ -30,20 +24,6 @@ public class MaterializationInterceptionCosmosTest :
         }
     }
 
-    public override LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
-        => new CosmosLibraryContext(Fixture.CreateOptions(interceptors, inject));
-
-    public class MaterializationInterceptionCosmosFixture : SingletonInterceptorsFixtureBase
-    {
-        protected override string StoreName
-            => "MaterializationInterception";
-
-        protected override ITestStoreFactory TestStoreFactory
-            => CosmosTestStoreFactory.Instance;
-
-        protected override IServiceCollection InjectInterceptors(
-            IServiceCollection serviceCollection,
-            IEnumerable<ISingletonInterceptor> injectedInterceptors)
-            => base.InjectInterceptors(serviceCollection.AddEntityFrameworkCosmos(), injectedInterceptors);
-    }
+    protected override ITestStoreFactory TestStoreFactory
+        => CosmosTestStoreFactory.Instance;
 }

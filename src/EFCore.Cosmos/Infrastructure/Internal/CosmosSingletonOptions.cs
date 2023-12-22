@@ -169,7 +169,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
             Region = cosmosOptions.Region;
             PreferredRegions = cosmosOptions.PreferredRegions;
             LimitToEndpoint = cosmosOptions.LimitToEndpoint;
-            EnableContentResponseOnWrite = cosmosOptions.EnableContentResponseOnWrite;
             ConnectionMode = cosmosOptions.ConnectionMode;
             WebProxy = cosmosOptions.WebProxy;
             RequestTimeout = cosmosOptions.RequestTimeout;
@@ -208,7 +207,6 @@ public class CosmosSingletonOptions : ICosmosSingletonOptions
                 || GatewayModeMaxConnectionLimit != cosmosOptions.GatewayModeMaxConnectionLimit
                 || MaxTcpConnectionsPerEndpoint != cosmosOptions.MaxTcpConnectionsPerEndpoint
                 || MaxRequestsPerTcpConnection != cosmosOptions.MaxRequestsPerTcpConnection
-                || EnableContentResponseOnWrite != cosmosOptions.EnableContentResponseOnWrite
                 || HttpClientFactory != cosmosOptions.HttpClientFactory
             ))
         {

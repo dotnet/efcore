@@ -63,6 +63,13 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
                         }
                     });
             });
+
+        modelBuilder.Entity<ManyTypes>(
+            eb =>
+            {
+                eb.Property(m => m.CharToStringConverterProperty)
+                    .IsFixedLength(true);
+            });
     }
 
     protected override void AssertBigModel(IModel model, bool jsonColumns)
@@ -166,6 +173,13 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
         Assert.Equal(SqlServerValueGenerationStrategy.None, rowid.GetValueGenerationStrategy());
 
         var manyTypesType = model.FindEntityType(typeof(ManyTypes))!;
+        var stringProperty = manyTypesType.FindProperty(nameof(ManyTypes.String))!;
+        Assert.True(stringProperty.FindRelationalTypeMapping()!.IsUnicode);
+        Assert.False(stringProperty.FindRelationalTypeMapping()!.IsFixedLength);
+        var charToStringConverterProperty = manyTypesType.FindProperty(nameof(ManyTypes.CharToStringConverterProperty))!;
+        Assert.True(charToStringConverterProperty.FindRelationalTypeMapping()!.IsUnicode);
+        Assert.True(charToStringConverterProperty.FindRelationalTypeMapping()!.IsFixedLength);
+
         var dependentNavigation = principalDerived.GetDeclaredNavigations().First();
         var dependentBase = dependentNavigation.TargetEntityType;
         var dependentDerived = dependentBase.GetDerivedTypes().Single();

@@ -7,16 +7,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SingletonInterceptorsTestBase<TContext>
-    where TContext : DbContext
+public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTestBase
+    where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
-    protected SingletonInterceptorsTestBase(SingletonInterceptorsFixtureBase fixture)
-    {
-        Fixture = fixture;
-    }
-
-    protected SingletonInterceptorsFixtureBase Fixture { get; }
-
     protected class Book
     {
         public Guid Id { get; set; }
@@ -91,31 +84,26 @@ public abstract class SingletonInterceptorsTestBase<TContext>
         }
     }
 
-    public abstract LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject);
-
-    public abstract class SingletonInterceptorsFixtureBase : SharedStoreFixtureBase<TContext>
+    public TContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject, bool usePooling)
     {
-        public virtual DbContextOptions CreateOptions(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
-        {
-            var optionsBuilder = inject
-                ? new DbContextOptionsBuilder<DbContext>().UseInternalServiceProvider(
-                    InjectInterceptors(new ServiceCollection(), interceptors)
-                        .BuildServiceProvider(validateScopes: true))
-                : new DbContextOptionsBuilder<DbContext>().AddInterceptors(interceptors);
+        var contextFactory = base.Initialize<TContext>(
+            onConfiguring: inject ? null : o => o.AddInterceptors(interceptors),
+            addServices: inject ? s => InjectInterceptors(s, interceptors) : null,
+            usePooling: usePooling,
+            useServiceProvider: inject);
 
-            return AddOptions(TestStore.AddProviderOptions(optionsBuilder)).EnableDetailedErrors().Options;
+        return contextFactory.CreateContext();
+    }
+
+    protected virtual IServiceCollection InjectInterceptors(
+        IServiceCollection serviceCollection,
+        IEnumerable<ISingletonInterceptor> injectedInterceptors)
+    {
+        foreach (var interceptor in injectedInterceptors)
+        {
+            serviceCollection.AddSingleton(interceptor);
         }
 
-        protected virtual IServiceCollection InjectInterceptors(
-            IServiceCollection serviceCollection,
-            IEnumerable<ISingletonInterceptor> injectedInterceptors)
-        {
-            foreach (var interceptor in injectedInterceptors)
-            {
-                serviceCollection.AddSingleton(interceptor);
-            }
-
-            return serviceCollection;
-        }
+        return serviceCollection;
     }
 }

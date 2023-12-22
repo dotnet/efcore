@@ -98,6 +98,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -146,6 +147,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
@@ -176,6 +178,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
                         size: 45,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
                         (IPAddress v) => v.ToString(),
@@ -209,6 +212,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IEnumerable<string>, List<string>, string>(
                     JsonStringReaderWriter.Instance)),
@@ -230,6 +234,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             refTypeEnumerable.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -256,6 +261,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<IList<string>, List<string>, string>(
                     JsonStringReaderWriter.Instance)),
@@ -277,6 +283,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             refTypeIList.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -303,6 +310,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<List<IPAddress>, List<IPAddress>, IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
@@ -333,6 +341,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
                         size: 45,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
                         (IPAddress v) => v.ToString(),
@@ -366,6 +375,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
@@ -409,6 +419,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IEnumerable<byte>, List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
@@ -452,6 +463,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<byte>(new JsonCollectionReaderWriter<IList<byte>, List<byte>, byte>(
                     JsonByteReaderWriter.Instance)),
@@ -495,6 +507,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<List<short>, List<short>, short>(
                     JsonInt16ReaderWriter.Instance)),
