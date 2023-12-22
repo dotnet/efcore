@@ -2149,7 +2149,15 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             && relationalTypeMapping.Scale != defaultInstance.Scale;
         var dbTypeDifferent = relationalTypeMapping.DbType != null
             && relationalTypeMapping.DbType != defaultInstance.DbType;
-        if (storeTypeDifferent || sizeDifferent || precisionDifferent || scaleDifferent || dbTypeDifferent)
+        var isUnicodeDifferent = relationalTypeMapping.IsUnicode != defaultInstance.IsUnicode;
+        var isFixedLengthDifferent = relationalTypeMapping.IsFixedLength != defaultInstance.IsFixedLength;
+        if (storeTypeDifferent
+            || sizeDifferent
+            || precisionDifferent
+            || scaleDifferent
+            || dbTypeDifferent
+            || isUnicodeDifferent
+            || isFixedLengthDifferent)
         {
             AddNamespace(typeof(RelationalTypeMappingInfo), parameters.Namespaces);
             mainBuilder.AppendLine(",")
@@ -2167,6 +2175,18 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
             {
                 GenerateArgument(
                     "size", code.Literal(relationalTypeMapping.Size), mainBuilder, ref firstParameter);
+            }
+
+            if (isUnicodeDifferent)
+            {
+                GenerateArgument(
+                    "unicode", code.Literal(relationalTypeMapping.IsUnicode), mainBuilder, ref firstParameter);
+            }
+
+            if (isFixedLengthDifferent)
+            {
+                GenerateArgument(
+                    "fixedLength", code.Literal(relationalTypeMapping.IsFixedLength), mainBuilder, ref firstParameter);
             }
 
             if (precisionDifferent)
