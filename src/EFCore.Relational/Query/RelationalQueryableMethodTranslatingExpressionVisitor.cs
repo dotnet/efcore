@@ -210,19 +210,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return new ShapedQueryExpression(selectExpression, shaperExpression);
             }
 
-            case InlineQueryRootExpression inlineQueryRootExpression:
-                return VisitInlineQueryRoot(inlineQueryRootExpression) ?? base.VisitExtension(extensionExpression);
-
-            case ParameterQueryRootExpression parameterQueryRootExpression:
-                var sqlParameterExpression =
-                    _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
-                Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
-                return TranslatePrimitiveCollection(
-                        sqlParameterExpression,
-                        property: null,
-                        char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString())
-                    ?? base.VisitExtension(extensionExpression);
-
             case JsonQueryExpression jsonQueryExpression:
                 return TransformJsonQueryToTable(jsonQueryExpression) ?? base.VisitExtension(extensionExpression);
 
@@ -262,46 +249,64 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var translated = base.VisitMethodCall(methodCallExpression);
 
-        if (translated == QueryCompilationContext.NotTranslatedExpression)
+        // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
+        // Server), we need to fall back to the previous IN translation.
+        if (translated == QueryCompilationContext.NotTranslatedExpression
+            && method.IsGenericMethod
+            && method.GetGenericMethodDefinition() == QueryableMethods.Contains
+            && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
+            && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
+            && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
         {
-            // Attempt to translate access into a primitive collection property (i.e. array column)
-            if (_sqlTranslator.TryTranslatePropertyAccess(methodCallExpression, out var translatedExpression, out var property)
-                && property is IProperty { IsPrimitiveCollection: true } regularProperty
-                && translatedExpression is SqlExpression sqlExpression)
-            {
-                var tableAlias = sqlExpression switch
-                {
-                    ColumnExpression c => c.Name[..1].ToLowerInvariant(),
-                    JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName[..1].ToLowerInvariant(),
-                    _ => "j"
-                };
-
-                if (TranslatePrimitiveCollection(sqlExpression, regularProperty, tableAlias) is
-                    { } primitiveCollectionTranslation)
-                {
-                    return primitiveCollectionTranslation;
-                }
-            }
-
-            // For Contains over a collection parameter, if the provider hasn't implemented TranslateCollection (e.g. OPENJSON on SQL
-            // Server), we need to fall back to the previous IN translation.
-            if (method.IsGenericMethod
-                && method.GetGenericMethodDefinition() == QueryableMethods.Contains
-                && methodCallExpression.Arguments[0] is ParameterQueryRootExpression parameterSource
-                && TranslateExpression(methodCallExpression.Arguments[1]) is SqlExpression item
-                && _sqlTranslator.Visit(parameterSource.ParameterExpression) is SqlParameterExpression sqlParameterExpression)
-            {
-                var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
-                var selectExpression = new SelectExpression(inExpression);
-                var shaperExpression = Expression.Convert(
-                    new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool));
-                var shapedQueryExpression = new ShapedQueryExpression(selectExpression, shaperExpression)
-                    .UpdateResultCardinality(ResultCardinality.Single);
-                return shapedQueryExpression;
-            }
+            var inExpression = _sqlExpressionFactory.In(item, sqlParameterExpression);
+            var selectExpression = new SelectExpression(inExpression);
+            var shaperExpression = Expression.Convert(
+                new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool));
+            var shapedQueryExpression = new ShapedQueryExpression(selectExpression, shaperExpression)
+                .UpdateResultCardinality(ResultCardinality.Single);
+            return shapedQueryExpression;
         }
 
         return translated;
+    }
+
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateMemberAccess(Expression source, MemberIdentity member)
+    {
+        // Attempt to translate access into a primitive collection property (i.e. array column)
+        if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property)
+            && property is IProperty { IsPrimitiveCollection: true } regularProperty
+            && translatedExpression is SqlExpression sqlExpression)
+        {
+            var tableAlias = sqlExpression switch
+            {
+                ColumnExpression c => c.Name[..1].ToLowerInvariant(),
+                JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName[..1].ToLowerInvariant(),
+                _ => "j"
+            };
+
+            if (TranslatePrimitiveCollection(sqlExpression, regularProperty, tableAlias) is
+                { } primitiveCollectionTranslation)
+            {
+                return primitiveCollectionTranslation;
+            }
+        }
+
+        return null;
+    }
+
+    /// <inheritdoc />
+    protected override ShapedQueryExpression? TranslateParameterQueryRoot(ParameterQueryRootExpression parameterQueryRootExpression)
+    {
+        var sqlParameterExpression =
+            _sqlTranslator.Visit(parameterQueryRootExpression.ParameterExpression) as SqlParameterExpression;
+
+        Check.DebugAssert(sqlParameterExpression is not null, "sqlParameterExpression is not null");
+
+        return TranslatePrimitiveCollection(
+            sqlParameterExpression,
+            property: null,
+            char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString());
     }
 
     /// <summary>
@@ -310,7 +315,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     <see langword="null" /> (no translation).
     /// </summary>
     /// <remarks>
-    ///     Inline collections aren't passed to this method; see <see cref="VisitInlineQueryRoot" /> for the translation of inline
+    ///     Inline collections aren't passed to this method; see <see cref="TranslateInlineQueryRoot" /> for the translation of inline
     ///     collections.
     /// </remarks>
     /// <param name="sqlExpression">The expression to try to translate as a primitive collection expression.</param>
@@ -346,7 +351,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </summary>
     /// <param name="inlineQueryRootExpression">The inline collection to be translated.</param>
     /// <returns>A queryable SQL VALUES expression.</returns>
-    protected virtual ShapedQueryExpression? VisitInlineQueryRoot(InlineQueryRootExpression inlineQueryRootExpression)
+    protected override ShapedQueryExpression? TranslateInlineQueryRoot(InlineQueryRootExpression inlineQueryRootExpression)
     {
         var elementType = inlineQueryRootExpression.ElementType;
 

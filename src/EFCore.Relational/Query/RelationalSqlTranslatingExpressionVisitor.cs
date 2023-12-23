@@ -760,38 +760,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             ? sqlConstantExpression
             : QueryCompilationContext.NotTranslatedExpression;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual bool TryTranslatePropertyAccess(
-        Expression expression,
-        [NotNullWhen(true)] out Expression? translatedExpression,
-        [NotNullWhen(true)] out IPropertyBase? property)
-    {
-        if (expression is MethodCallExpression methodCallExpression)
-        {
-            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out translatedExpression, out property))
-            {
-                return true;
-            }
-
-            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
-                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName), out translatedExpression, out property))
-            {
-                return true;
-            }
-        }
-
-        translatedExpression = null;
-        property = null;
-        return false;
-    }
-
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
@@ -1258,7 +1226,14 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         [NotNullWhen(true)] out Expression? expression)
         => TryBindMember(source, member, out expression, out _);
 
-    private bool TryBindMember(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual bool TryBindMember(
         Expression? source,
         MemberIdentity member,
         [NotNullWhen(true)] out Expression? expression,

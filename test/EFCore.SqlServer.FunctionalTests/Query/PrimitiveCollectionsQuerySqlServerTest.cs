@@ -811,6 +811,18 @@ WHERE (
 """);
     }
 
+    public override async Task Column_collection_SelectMany(bool async)
+    {
+        await base.Column_collection_SelectMany(async);
+
+        AssertSql(
+            """
+SELECT [i].[value]
+FROM [PrimitiveCollectionsEntity] AS [p]
+CROSS APPLY OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+""");
+    }
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);

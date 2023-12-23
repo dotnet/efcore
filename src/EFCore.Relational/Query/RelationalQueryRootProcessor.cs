@@ -28,7 +28,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
 
     /// <summary>
     ///     Indicates that a <see cref="ConstantExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
-    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.VisitInlineQueryRoot" /> for
+    ///     the latter will end up in <see cref="RelationalQueryableMethodTranslatingExpressionVisitor.TranslateInlineQueryRoot" /> for
     ///     translation to a SQL <see cref="ValuesExpression" />.
     /// </summary>
     protected override bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
