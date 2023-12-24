@@ -86,7 +86,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
@@ -108,7 +108,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
@@ -130,7 +130,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         ORDER BY "o0"."OrderID"
@@ -152,7 +152,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         LIMIT -1 OFFSET @__p_0
@@ -173,7 +173,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         LIMIT @__p_0
@@ -194,7 +194,7 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10300
         LIMIT @__p_0 OFFSET @__p_0
@@ -275,9 +275,9 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "t"."OrderID", "t"."ProductID", "t"."Discount", "t"."Quantity", "t"."UnitPrice"
+        SELECT "t"."OrderID", "t"."ProductID"
         FROM (
-            SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+            SELECT "o0"."OrderID", "o0"."ProductID"
             FROM "Order Details" AS "o0"
             WHERE "o0"."OrderID" < 10300
             LIMIT @__p_0 OFFSET @__p_0
@@ -325,7 +325,7 @@ WHERE EXISTS (
     SELECT 1
     FROM "Orders" AS "o0"
     INNER JOIN (
-        SELECT "o1"."OrderID", "o1"."ProductID", "o1"."Discount", "o1"."Quantity", "o1"."UnitPrice"
+        SELECT "o1"."OrderID", "o1"."ProductID"
         FROM "Order Details" AS "o1"
         WHERE "o1"."ProductID" > 0
     ) AS "t" ON "o0"."OrderID" = "t"."OrderID"
@@ -396,11 +396,11 @@ DELETE FROM "Order Details" AS "o"
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT "o0"."OrderID", "o0"."ProductID", "o0"."Discount", "o0"."Quantity", "o0"."UnitPrice"
+        SELECT "o0"."OrderID", "o0"."ProductID"
         FROM "Order Details" AS "o0"
         WHERE "o0"."OrderID" < 10250
         UNION ALL
-        SELECT "o1"."OrderID", "o1"."ProductID", "o1"."Discount", "o1"."Quantity", "o1"."UnitPrice"
+        SELECT "o1"."OrderID", "o1"."ProductID"
         FROM "Order Details" AS "o1"
         WHERE "o1"."OrderID" > 11250
     ) AS "t"
@@ -521,7 +521,7 @@ WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
     INNER JOIN (
-        SELECT "o1"."OrderID", "o1"."CustomerID", "o1"."EmployeeID", "o1"."OrderDate"
+        SELECT "o1"."OrderID"
         FROM "Orders" AS "o1"
         WHERE "o1"."OrderID" < 10300
         ORDER BY "o1"."OrderID"
@@ -545,7 +545,7 @@ WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
     LEFT JOIN (
-        SELECT "o1"."OrderID", "o1"."CustomerID", "o1"."EmployeeID", "o1"."OrderDate"
+        SELECT "o1"."OrderID"
         FROM "Orders" AS "o1"
         WHERE "o1"."OrderID" < 10300
         ORDER BY "o1"."OrderID"
@@ -566,7 +566,7 @@ WHERE EXISTS (
     SELECT 1
     FROM "Order Details" AS "o0"
     CROSS JOIN (
-        SELECT "o1"."OrderID", "o1"."CustomerID", "o1"."EmployeeID", "o1"."OrderDate"
+        SELECT 1
         FROM "Orders" AS "o1"
         WHERE "o1"."OrderID" < 10300
         ORDER BY "o1"."OrderID"
@@ -711,7 +711,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT -1 OFFSET @__p_0
@@ -731,7 +731,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT @__p_0
@@ -752,7 +752,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     LIMIT @__p_1 OFFSET @__p_0
@@ -770,7 +770,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
 ) AS "t"
@@ -789,7 +789,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
@@ -810,7 +810,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
@@ -832,7 +832,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     ORDER BY "c0"."City"
@@ -854,9 +854,9 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "t"."CustomerID", "t"."Address", "t"."City", "t"."CompanyName", "t"."ContactName", "t"."ContactTitle", "t"."Country", "t"."Fax", "t"."Phone", "t"."PostalCode", "t"."Region"
+    SELECT "t"."CustomerID"
     FROM (
-        SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+        SELECT "c0"."CustomerID", "c0"."City"
         FROM "Customers" AS "c0"
         WHERE "c0"."CustomerID" LIKE 'F%'
         ORDER BY "c0"."City"
@@ -962,7 +962,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM (
-    SELECT "o0"."OrderID", "o0"."CustomerID", "o0"."EmployeeID", "o0"."OrderDate", "c"."CustomerID" AS "CustomerID0"
+    SELECT "o0"."OrderID"
     FROM "Orders" AS "o0"
     LEFT JOIN "Customers" AS "c" ON "o0"."CustomerID" = "c"."CustomerID"
     WHERE "c"."City" = 'Seattle'
@@ -1140,11 +1140,11 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" LIKE 'F%'
     UNION ALL
-    SELECT "c1"."CustomerID", "c1"."Address", "c1"."City", "c1"."CompanyName", "c1"."ContactName", "c1"."ContactTitle", "c1"."Country", "c1"."Fax", "c1"."Phone", "c1"."PostalCode", "c1"."Region"
+    SELECT "c1"."CustomerID"
     FROM "Customers" AS "c1"
     WHERE "c1"."CustomerID" LIKE 'A%'
 ) AS "t"
@@ -1203,7 +1203,7 @@ WHERE "c"."CustomerID" = "t"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+    SELECT "o"."CustomerID"
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "t"
@@ -1220,10 +1220,10 @@ WHERE "c"."CustomerID" = "t"."CustomerID" AND "c"."CustomerID" LIKE 'F%'
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region", "t"."OrderID", "t"."CustomerID" AS "CustomerID0", "t"."EmployeeID", "t"."OrderDate"
+    SELECT "c0"."CustomerID"
     FROM "Customers" AS "c0"
     LEFT JOIN (
-        SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+        SELECT "o"."CustomerID"
         FROM "Orders" AS "o"
         WHERE "o"."OrderID" < 10300
     ) AS "t" ON "c0"."CustomerID" = "t"."CustomerID"
@@ -1242,7 +1242,7 @@ WHERE "c"."CustomerID" = "t0"."CustomerID"
 UPDATE "Customers" AS "c"
 SET "ContactName" = 'Updated'
 FROM (
-    SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
+    SELECT 1
     FROM "Orders" AS "o"
     WHERE "o"."OrderID" < 10300
 ) AS "t"
@@ -1311,10 +1311,10 @@ WHERE "c"."CustomerID" LIKE 'F%'
 UPDATE "Orders" AS "o"
 SET "OrderDate" = NULL
 FROM (
-    SELECT "t"."OrderID", "t"."CustomerID", "t"."EmployeeID", "t"."OrderDate", "c"."CustomerID" AS "CustomerID0"
+    SELECT "t"."OrderID"
     FROM "Customers" AS "c"
     INNER JOIN (
-        SELECT "o0"."OrderID", "o0"."CustomerID", "o0"."EmployeeID", "o0"."OrderDate"
+        SELECT "o0"."OrderID", "o0"."CustomerID"
         FROM "Orders" AS "o0"
         WHERE CAST(strftime('%Y', "o0"."OrderDate") AS INTEGER) = 1997
     ) AS "t" ON "c"."CustomerID" = "t"."CustomerID"
@@ -1350,7 +1350,7 @@ WHERE "c"."CustomerID" LIKE 'F%'
 UPDATE "Customers" AS "c"
 SET "City" = "t"."City"
 FROM (
-    SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
+    SELECT "c0"."City"
     FROM "Customers" AS "c0"
     WHERE "c0"."CustomerID" = 'ALFKI'
 ) AS "t"

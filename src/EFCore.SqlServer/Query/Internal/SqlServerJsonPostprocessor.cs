@@ -167,12 +167,7 @@ public class SqlServerJsonPostprocessor : ExpressionVisitor
 
             case ColumnExpression columnExpression:
             {
-                var table = columnExpression.Table;
-                if (table is JoinExpressionBase join)
-                {
-                    table = join.Table;
-                }
-
+                var table = columnExpression.Table.UnwrapJoin();
                 return table is SqlServerOpenJsonExpression openJsonTable
                     && _columnsToRewrite.TryGetValue((openJsonTable, columnExpression.Name), out var columnRewriteInfo)
                         ? RewriteOpenJsonColumn(columnExpression, columnRewriteInfo.SelectExpression, columnRewriteInfo.ColumnInfo)

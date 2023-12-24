@@ -2358,7 +2358,7 @@ FROM [LevelOne] AS [l]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT TOP(10) [l0].[Id], [l1].[Id] AS [Id0]
+        SELECT TOP(10) 1 AS empty
         FROM [LevelOne] AS [l0]
         LEFT JOIN [LevelTwo] AS [l1] ON [l0].[Id] = [l1].[Level1_Optional_Id]
         WHERE (
@@ -2433,7 +2433,7 @@ INNER JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 OUTER APPLY (
-    SELECT TOP(10) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    SELECT TOP(10) 1 AS empty
     FROM [LevelTwo] AS [l0]
     WHERE [l].[Id] = [l0].[Level1_Optional_Id] AND [l0].[Id] > 0
     ORDER BY [l0].[Id]
@@ -2450,7 +2450,7 @@ OUTER APPLY (
 SELECT [l].[Id]
 FROM [LevelOne] AS [l]
 CROSS APPLY (
-    SELECT TOP(10) [l0].[Id], [l0].[Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Optional_Self_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Required_Self_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id], [l0].[OneToOne_Optional_Self2Id]
+    SELECT TOP(10) 1 AS empty
     FROM [LevelTwo] AS [l0]
     WHERE [l].[Id] = [l0].[Level1_Optional_Id] AND [l0].[Id] > 0
     ORDER BY [l0].[Id]
@@ -4008,7 +4008,7 @@ END IS NULL
 SELECT (
     SELECT TOP(1) [t0].[Name]
     FROM (
-        SELECT [t].[Id], [t].[Level2_Optional_Id], [t].[Level2_Required_Id], [t].[Name], [t].[OneToMany_Optional_Inverse3Id], [t].[OneToMany_Optional_Self_Inverse3Id], [t].[OneToMany_Required_Inverse3Id], [t].[OneToMany_Required_Self_Inverse3Id], [t].[OneToOne_Optional_PK_Inverse3Id], [t].[OneToOne_Optional_Self3Id]
+        SELECT [t].[Id], [t].[Name]
         FROM (
             SELECT DISTINCT [l0].[Id], [l0].[Level2_Optional_Id], [l0].[Level2_Required_Id], [l0].[Name], [l0].[OneToMany_Optional_Inverse3Id], [l0].[OneToMany_Optional_Self_Inverse3Id], [l0].[OneToMany_Required_Inverse3Id], [l0].[OneToMany_Required_Self_Inverse3Id], [l0].[OneToOne_Optional_PK_Inverse3Id], [l0].[OneToOne_Optional_Self3Id]
             FROM [LevelThree] AS [l0]
@@ -4293,7 +4293,7 @@ CROSS JOIN (
             """
 SELECT [t0].[Id], [t0].[Date], [t0].[Name], [t0].[OneToMany_Optional_Self_Inverse1Id], [t0].[OneToMany_Required_Self_Inverse1Id], [t0].[OneToOne_Optional_Self1Id]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [l].[Level1_Required_Id]

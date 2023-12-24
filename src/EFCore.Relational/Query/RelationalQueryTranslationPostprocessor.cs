@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class RelationalQueryTranslationPostprocessor : QueryTranslationPostprocessor
 {
+    private readonly SqlTreePruner _pruner = new();
     private readonly bool _useRelationalNulls;
 
     /// <summary>
@@ -39,7 +40,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         query = base.Process(query);
         query = new SelectExpressionProjectionApplyingExpressionVisitor(
             ((RelationalQueryCompilationContext)QueryCompilationContext).QuerySplittingBehavior).Visit(query);
-        query = new SelectExpressionPruningExpressionVisitor().Visit(query);
+        query = Prune(query);
 
 #if DEBUG
         // Verifies that all SelectExpression are marked as immutable after this point.
@@ -56,6 +57,13 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         return query;
     }
 
+    /// <summary>
+    /// Prunes unnecessarily objects from the SQL tree, e.g. tables which aren't referenced by any column.
+    /// Can be overridden by providers for provider-specific pruning.
+    /// </summary>
+    protected virtual Expression Prune(Expression query)
+        => _pruner.Prune(query);
+
 #if DEBUG
     private sealed class SelectExpressionMutableVerifyingExpressionVisitor : ExpressionVisitor
     {
@@ -64,7 +72,7 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
         {
             switch (expression)
             {
-                case SelectExpression selectExpression when selectExpression.IsMutable():
+                case SelectExpression { IsMutable: true } selectExpression:
                     throw new InvalidDataException(selectExpression.Print());
 
                 case ShapedQueryExpression shapedQueryExpression:
@@ -123,7 +131,8 @@ public class RelationalQueryTranslationPostprocessor : QueryTranslationPostproce
 
                 if (expression is SelectExpression selectExpression)
                 {
-                    foreach (var alias in selectExpression.RemovedAliases())
+                    Check.DebugAssert(selectExpression.RemovedAliases is not null, "RemovedAliases not set");
+                    foreach (var alias in selectExpression.RemovedAliases)
                     {
                         _usedAliases.Add(alias);
                     }

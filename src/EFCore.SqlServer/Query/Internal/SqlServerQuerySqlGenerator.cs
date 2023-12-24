@@ -21,6 +21,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
     private readonly int _sqlServerCompatibilityLevel;
 
+    private bool _withinTable;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -70,10 +72,12 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             Sql.Append("DELETE ");
             GenerateTop(selectExpression);
 
+            _withinTable = true;
             Sql.AppendLine($"FROM {Dependencies.SqlGenerationHelper.DelimitIdentifier(deleteExpression.Table.Alias)}");
 
             Sql.Append("FROM ");
             GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            _withinTable = false;
 
             if (selectExpression.Predicate != null)
             {
@@ -97,13 +101,15 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override void GenerateEmptyProjection(SelectExpression selectExpression)
+    protected override Expression VisitSelect(SelectExpression selectExpression)
     {
-        base.GenerateEmptyProjection(selectExpression);
-        if (selectExpression.Alias != null)
-        {
-            Sql.Append(" AS empty");
-        }
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        var parentWithinTable = _withinTable;
+        base.VisitSelect(selectExpression);
+        _withinTable = parentWithinTable;
+        return selectExpression;
     }
 
     /// <summary>
@@ -142,8 +148,10 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 }
             }
 
+            _withinTable = true;
             Sql.AppendLine().Append("FROM ");
             GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+            _withinTable = false;
 
             if (selectExpression.Predicate != null)
             {
@@ -227,6 +235,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateTop(SelectExpression selectExpression)
     {
+        var parentWithinTable = _withinTable;
+        _withinTable = false;
+
         if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
@@ -235,6 +246,48 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             Sql.Append(") ");
         }
+
+        _withinTable = parentWithinTable;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateProjection(SelectExpression selectExpression)
+    {
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        if (selectExpression.Projection.Count == 0)
+        {
+            Sql.Append(_withinTable ? "1 AS empty" : "1");
+        }
+        else
+        {
+            var parentWithinTable = _withinTable;
+            _withinTable = false;
+            GenerateList(selectExpression.Projection, e => Visit(e));
+            _withinTable = parentWithinTable;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateTables(SelectExpression selectExpression)
+    {
+        // SQL Server always requires column names to be specified in table subqueries, as opposed to e.g. scalar subqueries (this isn't
+        // a requirement in databases). So we must use visitor state to track whether we're (directly) within a table subquery, and
+        // generate "1 AS empty" instead of just "1".
+        _withinTable = true;
+        base.GenerateTables(selectExpression);
+        _withinTable = false;
     }
 
     /// <summary>

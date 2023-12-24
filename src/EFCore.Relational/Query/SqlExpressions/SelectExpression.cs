@@ -57,7 +57,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
 #if DEBUG
-    private List<string>? _removedAliases;
+    internal List<string>? RemovedAliases { get; set; }
 #endif
 
     private SelectExpression(
@@ -4347,89 +4347,126 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public SelectExpression Prune()
+    public SelectExpression PruneToplevel(
+        ExpressionVisitor pruningVisitor,
+        IReadOnlyDictionary<TableExpressionBase, HashSet<string>> referencedColumnMap,
+        List<string> removedAliases)
     {
-        var selectExpression = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_usedAliases).Visit(this);
-#if DEBUG
-        selectExpression._removedAliases = new List<string>();
-        selectExpression = selectExpression.Prune(referencedColumns: null, selectExpression._removedAliases);
-#else
-        selectExpression = selectExpression.Prune(referencedColumns: null);
-#endif
-        return selectExpression;
+        // TODO: This doesn't belong in pruning, take a deeper look at how we manage TPC etc.
+        var select = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_usedAliases).Visit(this);
+        select.Prune(pruningVisitor, pruneProjection: false, referencedColumnMap, removedAliases);
+        return select;
     }
 
-#if DEBUG
-    private SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns, List<string> removedAliases)
-#else
-    private SelectExpression Prune(IReadOnlyCollection<string>? referencedColumns)
-#endif
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void Prune(
+        ExpressionVisitor pruningVisitor,
+        bool pruneProjection,
+        IReadOnlyDictionary<TableExpressionBase, HashSet<string>> referencedColumnMap,
+        List<string> removedAliases)
     {
-        if (referencedColumns != null
-            && !IsDistinct)
+        Check.DebugAssert(!IsMutable, "Mutable SelectExpression found when pruning");
+
+        // Prune the projection; any projected alias that isn't referenced on us from the outside can be removed. We avoid doing that when:
+        // 1. The caller requests we don't (top-level select, scalar subquery, select within a set operation where the other is distinct -
+        //    projection must be preserved as-is)
+        // 2. The select has distinct (removing a projection changes which rows get projected out)
+        var prunedProjection = _projection;
+        if (pruneProjection && !IsDistinct)
         {
-            for (var i = _projection.Count - 1; i >= 0; i--)
+            if (referencedColumnMap.TryGetValue(this, out var referencedProjectionAliases))
             {
-                if (!referencedColumns.Contains(_projection[i].Alias))
+                for (var i = _projection.Count - 1; i >= 0; i--)
                 {
-                    _projection.RemoveAt(i);
+                    if (!referencedProjectionAliases.Contains(_projection[i].Alias))
+                    {
+                        _projection.RemoveAt(i);
+                    }
                 }
+            }
+            else
+            {
+                _projection.Clear();
             }
         }
 
+        // First visit all the non-table clauses of the SelectExpression - this will populate referencedColumnMap with all columns
+        // referenced on all tables.
+        if (pruningVisitor.VisitAndConvert(prunedProjection) is var newProjection && newProjection != _projection)
+        {
+            _projection.Clear();
+            _projection.AddRange(newProjection);
+        }
+
+        Predicate = (SqlExpression?)pruningVisitor.Visit(Predicate);
+
+        if (pruningVisitor.VisitAndConvert(_groupBy) is var newGroupBy && newGroupBy != _groupBy)
+        {
+            _groupBy.Clear();
+            _groupBy.AddRange(newGroupBy);
+        }
+
+        Having = (SqlExpression?)pruningVisitor.Visit(Having);
+
+        if (pruningVisitor.VisitAndConvert(_orderings) is var newOrderings && newOrderings != _orderings)
+        {
+            _orderings.Clear();
+            _orderings.AddRange(newOrderings);
+        }
+
+        Offset = (SqlExpression?)pruningVisitor.Visit(Offset);
+        Limit = (SqlExpression?)pruningVisitor.Visit(Limit);
+
+        // TODO: This should happen earlier, not as part of pruning.
         _identifier.Clear();
         _childIdentifiers.Clear();
-        var columnExpressionFindingExpressionVisitor = new ColumnExpressionFindingExpressionVisitor();
-        var columnsMap = columnExpressionFindingExpressionVisitor.FindColumns(this);
-        var removedTableCount = 0;
-        // Start at 1 because we don't drop main table.
-        // Dropping main table is more complex because other tables need to unwrap joins to be main
-        for (var i = 0; i < _tables.Count; i++)
+
+        foreach (var kvp in _tpcDiscriminatorValues)
+        {
+            var newColumn = pruningVisitor.Visit(kvp.Value.Item1);
+            Check.DebugAssert(newColumn == kvp.Value.Item1, "TPC discriminator column replaced during pruning");
+        }
+
+        // We've visited the entire select expression except for the table, and now have referencedColumnMap fully populated with column
+        // references to all its tables.
+        // Go over the tables, removing any which aren't referenced anywhere (and are prunable).
+        // We do this in backwards order, so that later joins referencing earlier tables in the predicate don't cause the earlier tables
+        // to be preserved.
+        for (var i = _tables.Count - 1; i >= 0; i--)
         {
             var table = _tables[i];
-            var tableAlias = GetAliasFromTableExpressionBase(table);
-            if (columnsMap[tableAlias] == null
-                // InnerJoin is only valid for removable join table which are from entity splitting
+            var wrappedTable = table.UnwrapJoin();
+
+            if (!referencedColumnMap.ContainsKey(wrappedTable)
+                // Note that we only prune joins; pruning the main is more complex because other tables need to unwrap joins to be main.
+                // TODO: why not CrossApplyExpression/CrossJoin (any join basically)?
                 && table is LeftJoinExpression or OuterApplyExpression or InnerJoinExpression
-                && _removableJoinTables?.Contains(i + removedTableCount) == true)
+                // Only prune InnerJoin if it's in the removable list; since inner joins filter out rows, it may be needed even if it's not
+                // referenced from anywhere in the query.
+                && _removableJoinTables.Contains(i))
             {
                 _tables.RemoveAt(i);
                 _tableReferences.RemoveAt(i);
-                removedTableCount++;
-                i--;
 #if DEBUG
-                removedAliases.Add(tableAlias);
+                removedAliases.Add(wrappedTable.Alias!);
 #endif
                 continue;
             }
 
-            if (UnwrapJoinExpression(table) is SelectExpression innerSelectExpression)
+            // The table wasn't pruned - visit it. This may add references to a previous table, causing it to be preserved (e.g. if it's
+            // referenced from the join predicate), or just prune something inside (e.g. a subquery table).
+            var newTable = (TableExpressionBase)pruningVisitor.Visit(table);
+            if (newTable != table)
             {
-#if DEBUG
-                innerSelectExpression.Prune(columnsMap[tableAlias], removedAliases);
-#else
-                innerSelectExpression.Prune(columnsMap[tableAlias]);
-#endif
-            }
-            else if (table is SetOperationBase { IsDistinct: false } setOperation)
-            {
-                if (setOperation.Source1.IsDistinct
-                    || setOperation.Source2.IsDistinct)
-                {
-                    continue;
-                }
-
-#if DEBUG
-                setOperation.Source1.Prune(columnsMap[tableAlias], removedAliases);
-                setOperation.Source2.Prune(columnsMap[tableAlias], removedAliases);
-#else
-                setOperation.Source1.Prune(columnsMap[tableAlias]);
-                setOperation.Source2.Prune(columnsMap[tableAlias]);
-#endif
+                _tables[i] = newTable;
             }
         }
-
-        return this;
     }
 
     private Dictionary<ProjectionMember, int> ConvertProjectionMappingToClientProjections(
@@ -4913,6 +4950,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             projectionMapping[projectionMember] = expression;
         }
 
+        // TODO: This assumes that no tables were added or removed (e.g. pruning). Update should be usable for that case.
+        // TODO: This always creates a new expression. It should check if anything changed instead (#31276), allowing us to remove "changed"
+        // tracking from calling code.
         var newTableReferences = _tableReferences.ToList();
         var newSelectExpression = new SelectExpression(
             Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList(), GetAnnotations())
@@ -5156,11 +5196,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         // Since equality above is reference equality, hash code can also be based on reference.
         => RuntimeHelpers.GetHashCode(this);
 
-#if DEBUG
-    internal bool IsMutable()
+    internal bool IsMutable
         => _mutable;
-
-    internal IReadOnlyList<string> RemovedAliases()
-        => _removedAliases!;
-#endif
 }

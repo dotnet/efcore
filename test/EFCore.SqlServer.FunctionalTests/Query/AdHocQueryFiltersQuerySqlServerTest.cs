@@ -303,7 +303,7 @@ SELECT (
     FROM (
         SELECT DISTINCT [c].[Value1]
         FROM (
-            SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
+            SELECT [p0].[Child1Id], 1 AS [Key]
             FROM [Parents] AS [p0]
         ) AS [t1]
         LEFT JOIN [Child1] AS [c] ON [t1].[Child1Id] = [c].[Id]
@@ -313,7 +313,7 @@ SELECT (
     FROM (
         SELECT DISTINCT [c0].[Value2]
         FROM (
-            SELECT [p1].[Id], [p1].[Child1Id], [p1].[Child2Id], [p1].[ChildFilter1Id], [p1].[ChildFilter2Id], 1 AS [Key]
+            SELECT [p1].[Child2Id], 1 AS [Key]
             FROM [Parents] AS [p1]
         ) AS [t3]
         LEFT JOIN [Child2] AS [c0] ON [t3].[Child2Id] = [c0].[Id]
@@ -338,11 +338,11 @@ SELECT (
     FROM (
         SELECT DISTINCT [t2].[Value1]
         FROM (
-            SELECT [p0].[Id], [p0].[Child1Id], [p0].[Child2Id], [p0].[ChildFilter1Id], [p0].[ChildFilter2Id], 1 AS [Key]
+            SELECT [p0].[ChildFilter1Id], 1 AS [Key]
             FROM [Parents] AS [p0]
         ) AS [t0]
         LEFT JOIN (
-            SELECT [c].[Id], [c].[Filter1], [c].[Value1]
+            SELECT [c].[Id], [c].[Value1]
             FROM [ChildFilter1] AS [c]
             WHERE [c].[Filter1] = N'Filter1'
         ) AS [t2] ON [t0].[ChildFilter1Id] = [t2].[Id]
@@ -352,11 +352,11 @@ SELECT (
     FROM (
         SELECT DISTINCT [t5].[Value2]
         FROM (
-            SELECT [p1].[Id], [p1].[Child1Id], [p1].[Child2Id], [p1].[ChildFilter1Id], [p1].[ChildFilter2Id], 1 AS [Key]
+            SELECT [p1].[ChildFilter2Id], 1 AS [Key]
             FROM [Parents] AS [p1]
         ) AS [t4]
         LEFT JOIN (
-            SELECT [c0].[Id], [c0].[Filter2], [c0].[Value2]
+            SELECT [c0].[Id], [c0].[Value2]
             FROM [ChildFilter2] AS [c0]
             WHERE [c0].[Filter2] = N'Filter2'
         ) AS [t5] ON [t4].[ChildFilter2Id] = [t5].[Id]

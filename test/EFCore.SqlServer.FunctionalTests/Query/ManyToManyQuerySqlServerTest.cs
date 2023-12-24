@@ -107,7 +107,7 @@ ORDER BY (
     SELECT COUNT(*)
     FROM [JoinOneToBranch] AS [j]
     INNER JOIN (
-        SELECT [e0].[Id], [e0].[Discriminator], [e0].[Name], [e0].[Number], [e0].[IsGreen]
+        SELECT [e0].[Id], [e0].[Name]
         FROM [EntityRoots] AS [e0]
         WHERE [e0].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]

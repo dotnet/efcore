@@ -1053,7 +1053,7 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [t].[c]
     FROM (
-        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], [o].[key], CAST([o].[key] AS int) AS [c0]
+        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], CAST([o].[key] AS int) AS [c0]
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
         ORDER BY CAST([o].[key] AS int)
         OFFSET 1 ROWS
@@ -1074,9 +1074,18 @@ FROM [JsonEntitiesBasic] AS [j]
 WHERE (
     SELECT [t].[c]
     FROM (
-        SELECT JSON_VALUE([o].[value], '$.OwnedReferenceLeaf.SomethingSomething') AS [c], [o].[key], CAST(JSON_VALUE([o].[value], '$.Date') AS datetime2) AS [c0]
-        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') AS [o]
-        ORDER BY CAST(JSON_VALUE([o].[value], '$.Date') AS datetime2) DESC
+        SELECT JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') AS [c], [o].[Date] AS [c0]
+        FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
+            [Date] datetime2 '$.Date',
+            [Enum] int '$.Enum',
+            [Enums] nvarchar(max) '$.Enums' AS JSON,
+            [Fraction] decimal(18,2) '$.Fraction',
+            [NullableEnum] int '$.NullableEnum',
+            [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
+            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
+            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
+        ) AS [o]
+        ORDER BY [o].[Date] DESC
         OFFSET 1 ROWS
     ) AS [t]
     ORDER BY [t].[c0] DESC
@@ -2012,7 +2021,7 @@ ORDER BY [t0].[Key], [t1].[Key], [t1].[Id]
 SELECT (
     SELECT TOP(1) CAST(JSON_VALUE([t0].[c0], '$.OwnedReferenceBranch.Enum') AS int)
     FROM (
-        SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot] AS [c], [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [Key]
+        SELECT [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j0]
     ) AS [t0]
     WHERE [t].[Key] = [t0].[Key] OR ([t].[Key] IS NULL AND [t0].[Key] IS NULL))

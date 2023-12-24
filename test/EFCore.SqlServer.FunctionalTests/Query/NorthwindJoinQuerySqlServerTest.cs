@@ -202,7 +202,7 @@ WHERE [c].[CustomerID] LIKE N'F%'
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10250
 ) AS [t]

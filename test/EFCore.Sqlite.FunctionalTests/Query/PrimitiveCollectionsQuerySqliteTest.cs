@@ -703,7 +703,7 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."key"
+        SELECT 1
         FROM json_each("p"."Ints") AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
@@ -856,10 +856,10 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."value"
+        SELECT 1
         FROM json_each(@__ints_0) AS "i"
         UNION ALL
-        SELECT "i0"."value"
+        SELECT 1
         FROM json_each("p"."Ints") AS "i0"
     ) AS "t") = 2
 """);
@@ -979,7 +979,7 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."value", "i"."key", "i"."value" AS "value0"
+        SELECT "i"."value" AS "value0"
         FROM json_each(@__ints) AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
@@ -1010,7 +1010,7 @@ WHERE (
     FROM (
         SELECT "t"."value"
         FROM (
-            SELECT "i"."value", "i"."key"
+            SELECT "i"."value"
             FROM json_each(@__ints) AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
@@ -1066,7 +1066,7 @@ WHERE (
             FROM (
                 SELECT DISTINCT "t2"."value"
                 FROM (
-                    SELECT "i"."value", "i"."key"
+                    SELECT "i"."value"
                     FROM json_each("p"."Ints") AS "i"
                     ORDER BY "i"."value"
                     LIMIT -1 OFFSET 1
@@ -1101,7 +1101,7 @@ WHERE (
     FROM (
         SELECT "t"."value"
         FROM (
-            SELECT "i"."value", "i"."key"
+            SELECT "i"."value"
             FROM json_each("p"."Ints") AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1

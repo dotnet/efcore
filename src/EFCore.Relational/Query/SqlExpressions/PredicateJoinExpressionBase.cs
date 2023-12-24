@@ -44,6 +44,15 @@ public abstract class PredicateJoinExpressionBase : JoinExpressionBase
     /// </summary>
     public virtual SqlExpression JoinPredicate { get; }
 
+    /// <inheritdoc />
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+    {
+        var table = (TableExpressionBase)visitor.Visit(Table);
+        var joinPredicate = (SqlExpression)visitor.Visit(JoinPredicate);
+
+        return Update(table, joinPredicate);
+    }
+
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.

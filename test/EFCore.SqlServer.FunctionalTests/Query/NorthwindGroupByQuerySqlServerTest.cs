@@ -1767,7 +1767,7 @@ INNER JOIN [Orders] AS [o0] ON [t].[LastOrderID] = [o0].[OrderID]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
@@ -1784,7 +1784,7 @@ INNER JOIN (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o].[CustomerID], MAX([o].[OrderID]) AS [LastOrderID]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 5
@@ -1895,7 +1895,7 @@ INNER JOIN (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
     INNER JOIN (
-        SELECT [o0].[CustomerID], MAX([o0].[OrderID]) AS [LastOrderID]
+        SELECT [o0].[CustomerID]
         FROM [Orders] AS [o0]
         GROUP BY [o0].[CustomerID]
         HAVING COUNT(*) > 5
@@ -2448,7 +2448,7 @@ ORDER BY [t].[City], [c0].[CustomerID]
             """
 SELECT COUNT(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
@@ -2463,7 +2463,7 @@ FROM (
             """
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
@@ -2590,7 +2590,7 @@ END
             """
 SELECT COUNT(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
@@ -2605,7 +2605,7 @@ FROM (
             """
 SELECT COUNT(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 1
@@ -2621,7 +2621,7 @@ FROM (
             """
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
@@ -2636,7 +2636,7 @@ FROM (
             """
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
     HAVING COUNT(*) > 1
@@ -2729,7 +2729,7 @@ END AS [HasOrderDetails], CASE
     WHEN (
         SELECT COUNT(*)
         FROM (
-            SELECT [p].[ProductName]
+            SELECT 1 AS empty
             FROM [Order Details] AS [o1]
             INNER JOIN [Products] AS [p] ON [o1].[ProductID] = [p].[ProductID]
             WHERE [o].[OrderID] = [o1].[OrderID] AND [o1].[ProductID] < 25
@@ -2750,7 +2750,7 @@ WHERE [o].[OrderDate] IS NOT NULL
             """
 SELECT COUNT(*)
 FROM (
-    SELECT [o].[CustomerID]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
@@ -3570,7 +3570,7 @@ OUTER APPLY (
     SELECT COALESCE(SUM([t].[OrderID]), 0) AS [Sum], (
         SELECT COUNT(*)
         FROM (
-            SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c1].[CustomerID] AS [CustomerID0], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region], COALESCE([c1].[City], N'') + COALESCE([o0].[CustomerID], N'') AS [Key]
+            SELECT [o0].[CustomerID], COALESCE([c1].[City], N'') + COALESCE([o0].[CustomerID], N'') AS [Key]
             FROM [Orders] AS [o0]
             LEFT JOIN [Customers] AS [c1] ON [o0].[CustomerID] = [c1].[CustomerID]
             WHERE [c].[CustomerID] = [o0].[CustomerID]

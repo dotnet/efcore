@@ -93,6 +93,8 @@ SET "CreationTimestamp" = '2020-01-01 00:00:00'
 UPDATE "BlogsPart1" AS "b0"
 SET "Rating" = length("b0"."Title"),
     "Title" = CAST("b0"."Rating" AS TEXT)
+FROM "Blogs" AS "b"
+WHERE "b"."Id" = "b0"."Id"
 """);
     }
 

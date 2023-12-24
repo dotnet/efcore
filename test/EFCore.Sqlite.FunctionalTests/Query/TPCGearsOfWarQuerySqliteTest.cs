@@ -373,10 +373,10 @@ FROM "Squads" AS "s"
 WHERE (
     SELECT "t"."Nickname"
     FROM (
-        SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", 'Gear' AS "Discriminator"
+        SELECT "g"."Nickname", "g"."SquadId"
         FROM "Gears" AS "g"
         UNION ALL
-        SELECT "o"."Nickname", "o"."SquadId", "o"."AssignedCityName", "o"."CityOfBirthName", "o"."FullName", "o"."HasSoulPatch", "o"."LeaderNickname", "o"."LeaderSquadId", "o"."Rank", 'Officer' AS "Discriminator"
+        SELECT "o"."Nickname", "o"."SquadId"
         FROM "Officers" AS "o"
     ) AS "t"
     WHERE "s"."Id" = "t"."SquadId"

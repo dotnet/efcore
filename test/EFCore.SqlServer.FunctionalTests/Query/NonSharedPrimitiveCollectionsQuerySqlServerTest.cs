@@ -331,7 +331,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [s].[value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT [s].[value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -352,7 +352,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS int) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS int) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -373,7 +373,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS bigint) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS bigint) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -394,7 +394,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS smallint) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS smallint) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -420,7 +420,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS float) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS float) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -441,7 +441,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS real) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS real) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -462,7 +462,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS decimal(18,2)) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS decimal(18,2)) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -483,7 +483,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS datetime2) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS datetime2) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -504,7 +504,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS date) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS date) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -525,7 +525,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS time) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS time) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -548,7 +548,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS datetimeoffset) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS datetimeoffset) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -569,7 +569,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS bit) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS bit) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -592,7 +592,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS uniqueidentifier) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS uniqueidentifier) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
@@ -622,7 +622,7 @@ FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([s].[value] AS int) AS [value], [s].[key], CAST([s].[key] AS int) AS [c]
+        SELECT CAST([s].[value] AS int) AS [value]
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS

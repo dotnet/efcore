@@ -191,7 +191,7 @@ WHERE [c].[CustomerID] = @__entity_equality_local_0_CustomerID AND @__entity_equ
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = @__entity_equality_local_0_CustomerID
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -387,7 +387,7 @@ ORDER BY (
             """
 SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e0]
 LEFT JOIN (
     SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -405,7 +405,7 @@ LEFT JOIN (
             """
 SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e0]
 LEFT JOIN (
     SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -413,12 +413,12 @@ LEFT JOIN (
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1
 INNER JOIN (
-    SELECT [t1].[EmployeeID], [t1].[City], [t1].[Country], [t1].[FirstName], [t1].[ReportsTo], [t1].[Title]
+    SELECT [t1].[EmployeeID]
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e1]
     LEFT JOIN (
-        SELECT [e2].[EmployeeID], [e2].[City], [e2].[Country], [e2].[FirstName], [e2].[ReportsTo], [e2].[Title]
+        SELECT [e2].[EmployeeID]
         FROM [Employees] AS [e2]
         WHERE [e2].[EmployeeID] = -1
     ) AS [t1] ON 1 = 1
@@ -434,10 +434,10 @@ INNER JOIN (
             """
 SELECT N'Foo'
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e0]
 LEFT JOIN (
-    SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+    SELECT 1 AS empty
     FROM [Employees] AS [e]
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1
@@ -452,7 +452,7 @@ LEFT JOIN (
             """
 SELECT [t].[EmployeeID], [t].[City], [t].[Country], [t].[FirstName], [t].[ReportsTo], [t].[Title]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e0]
 LEFT JOIN (
     SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
@@ -470,7 +470,7 @@ LEFT JOIN (
             """
 SELECT COALESCE([t].[EmployeeID], 0)
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e0]
 LEFT JOIN (
     SELECT [e].[EmployeeID]
@@ -865,7 +865,7 @@ FROM (
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT TOP(2) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT TOP(2) [o0].[OrderID]
         FROM [Order Details] AS [o0]
         ORDER BY [o0].[OrderID]
     ) AS [t0]
@@ -1441,7 +1441,7 @@ ORDER BY [c].[CustomerID]
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
 ) AS [t]
@@ -1458,7 +1458,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
 ) AS [t]
 """);
@@ -2240,7 +2240,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM (
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            SELECT [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
@@ -2263,7 +2263,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM (
-            SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            SELECT TOP(@__p_0) [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
@@ -2286,7 +2286,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            SELECT [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
@@ -2309,7 +2309,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+            SELECT TOP(@__p_0) [c].[CustomerID]
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
@@ -3674,7 +3674,7 @@ WHERE [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) < @__nextY
             """
 SELECT [t].[CustomerID]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [c].[CustomerID]
@@ -3709,7 +3709,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [t].[OrderID]
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e]
     LEFT JOIN (
         SELECT [o].[OrderID]
@@ -3731,7 +3731,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [t].[OrderID]
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e]
     LEFT JOIN (
         SELECT [o].[OrderID]
@@ -3756,7 +3756,7 @@ FROM [Customers] AS [c]
 CROSS JOIN (
     SELECT [t].[OrderID]
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e]
     LEFT JOIN (
         SELECT [o].[OrderID]
@@ -4110,7 +4110,7 @@ WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
         WHERE EXISTS (
             SELECT DISTINCT 1
             FROM (
-                SELECT TOP(10) [c2].[CustomerID], [c2].[Address], [c2].[City], [c2].[CompanyName], [c2].[ContactName], [c2].[ContactTitle], [c2].[Country], [c2].[Fax], [c2].[Phone], [c2].[PostalCode], [c2].[Region]
+                SELECT TOP(10) 1 AS empty
                 FROM [Customers] AS [c2]
                 ORDER BY [c2].[CustomerID]
             ) AS [t])))
@@ -4446,7 +4446,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Customers] AS [c]
 ) AS [t]
 """);
@@ -4462,7 +4462,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
 ) AS [t]
@@ -4479,7 +4479,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Customers] AS [c]
 ) AS [t]
 """);
@@ -4495,7 +4495,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT TOP(@__p_0) [c].[CustomerID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
 ) AS [t]
@@ -4581,7 +4581,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID]
+    SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -4599,7 +4599,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT [c].[CustomerID]
+    SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
@@ -4617,7 +4617,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID]
+    SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
@@ -4635,7 +4635,7 @@ FROM (
 
 SELECT COUNT_BIG(*)
 FROM (
-    SELECT [c].[CustomerID]
+    SELECT 1 AS empty
     FROM [Customers] AS [c]
     ORDER BY [c].[Country]
     OFFSET @__p_0 ROWS
@@ -5064,7 +5064,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID], [t].[CustomerID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
     INNER JOIN (
         SELECT [c].[CustomerID]
@@ -5315,10 +5315,10 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM (
-            SELECT NULL AS [empty]
+            SELECT 1 AS empty
         ) AS [e0]
         LEFT JOIN (
-            SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+            SELECT 1 AS empty
             FROM [Employees] AS [e]
             WHERE [e].[EmployeeID] = -1
         ) AS [t] ON 1 = 1) THEN CAST(1 AS bit)
@@ -5845,10 +5845,10 @@ END, [t].[City]
 SELECT [c].[CustomerID], (
     SELECT COALESCE(SUM(COALESCE([t].[OrderID], 0)), 0)
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e]
     LEFT JOIN (
-        SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+        SELECT [o].[OrderID]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
     ) AS [t] ON 1 = 1) AS [Sum]
@@ -5888,10 +5888,10 @@ FROM [Customers] AS [c]
             """
 SELECT TOP(1) N'520'
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
-    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    SELECT 1 AS empty
     FROM [Customers] AS [c]
     WHERE 0 = 1
 ) AS [t] ON 1 = 1
@@ -5958,7 +5958,7 @@ CROSS APPLY (
     WHERE [t0].[City] = [e].[City] OR ([t0].[City] IS NULL AND [e].[City] IS NULL)
 ) AS [t1]
 CROSS APPLY (
-    SELECT TOP(9) [t0].[City], [e0].[EmployeeID]
+    SELECT TOP(9) 1 AS empty
     FROM [Employees] AS [e0]
     WHERE [t1].[City] = [e0].[City] OR ([t1].[City] IS NULL AND [e0].[City] IS NULL)
 ) AS [t2]
@@ -6827,7 +6827,7 @@ ORDER BY [c].[CustomerID], [c].[Country]
             """
 SELECT [t].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [c].[CustomerID]

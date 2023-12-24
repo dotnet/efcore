@@ -616,13 +616,8 @@ LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(1) [a0].[Id], [a0].[CountryId], [a0].[Name], [a0].[Species], [b0].[EagleId], [b0].[IsFlightless], [e0].[Group], [k0].[FoundOn], CASE
-            WHEN [k0].[Id] IS NOT NULL THEN N'Kiwi'
-            WHEN [e0].[Id] IS NOT NULL THEN N'Eagle'
-        END AS [Discriminator], [k0].[Id] AS [Id0]
+        SELECT TOP(1) [k0].[Id] AS [Id0]
         FROM [Animals] AS [a0]
-        LEFT JOIN [Birds] AS [b0] ON [a0].[Id] = [b0].[Id]
-        LEFT JOIN [Eagle] AS [e0] ON [a0].[Id] = [e0].[Id]
         LEFT JOIN [Kiwi] AS [k0] ON [a0].[Id] = [k0].[Id]
         WHERE [a0].[Name] = N'Great spotted kiwi'
     ) AS [t]

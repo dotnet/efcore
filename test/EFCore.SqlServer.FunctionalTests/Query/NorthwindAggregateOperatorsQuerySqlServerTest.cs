@@ -157,7 +157,7 @@ WHERE [o].[OrderID] = 10248
             """
 SELECT AVG(CAST(COALESCE([t].[OrderID], 0) AS float))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
@@ -175,7 +175,7 @@ LEFT JOIN (
             """
 SELECT MAX(COALESCE([t].[OrderID], 0))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
@@ -193,7 +193,7 @@ LEFT JOIN (
             """
 SELECT MIN(COALESCE([t].[OrderID], 0))
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN (
     SELECT [o].[OrderID]
@@ -2780,7 +2780,7 @@ FROM [Customers] AS [c]
             """
 SELECT [p].[ProductName]
 FROM (
-    SELECT NULL AS [empty]
+    SELECT 1 AS empty
 ) AS [e]
 LEFT JOIN [Products] AS [p] ON 1 = 1
 """);
@@ -2875,7 +2875,7 @@ ORDER BY [c].[CustomerID]
 
 SELECT COUNT(*)
 FROM (
-    SELECT TOP(@__p_0) [o].[OrderID]
+    SELECT TOP(@__p_0) 1 AS empty
     FROM [Orders] AS [o]
 ) AS [t]
 """);

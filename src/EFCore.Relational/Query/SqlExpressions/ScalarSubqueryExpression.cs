@@ -32,17 +32,12 @@ public class ScalarSubqueryExpression : SqlExpression
 
     private static SelectExpression Verify(SelectExpression selectExpression)
     {
+        Check.DebugAssert(!selectExpression.IsMutable, "Mutable subquery provided to ExistsExpression");
+
         if (selectExpression.Projection.Count != 1)
         {
             throw new InvalidOperationException(CoreStrings.TranslationFailed(selectExpression.Print()));
         }
-
-#if DEBUG
-        if (selectExpression.IsMutable())
-        {
-            throw new InvalidOperationException();
-        }
-#endif
 
         return selectExpression;
     }

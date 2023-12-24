@@ -1337,7 +1337,7 @@ WHERE (
     SELECT COUNT(*)
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
     LEFT JOIN (
-        SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[PeriodEnd], [l1].[PeriodStart]
+        SELECT [l1].[Level3_Name], [l1].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l1]
         WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t] ON CASE

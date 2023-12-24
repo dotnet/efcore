@@ -138,7 +138,7 @@ ORDER BY (
     SELECT COUNT(*)
     FROM [JoinOneToBranch] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN (
-        SELECT [e0].[Id], [e0].[Discriminator], [e0].[Name], [e0].[PeriodEnd], [e0].[PeriodStart], [e0].[Number], [e0].[IsGreen]
+        SELECT [e0].[Id], [e0].[Name]
         FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0]
         WHERE [e0].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]

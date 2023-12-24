@@ -47,10 +47,10 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+        SELECT [e].[CountryId]
         FROM [Eagle] AS [e]
         UNION ALL
-        SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+        SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
     ) AS [t]
     WHERE [t].[CountryId] = 1 AND [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
@@ -68,7 +68,7 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+        SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
     ) AS [t]
     WHERE [t].[CountryId] = 1 AND [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
@@ -169,10 +169,10 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+        SELECT [e].[CountryId]
         FROM [Eagle] AS [e]
         UNION ALL
-        SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+        SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
     ) AS [t]
     WHERE [t].[CountryId] = 1 AND [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
@@ -205,7 +205,7 @@ FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
+        SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
     ) AS [t]
     WHERE [t].[CountryId] = 1 AND [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
