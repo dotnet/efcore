@@ -144,6 +144,27 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
             : this;
 
     /// <inheritdoc />
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    {
+        var newArguments = new SqlExpression[Arguments.Count];
+        for (var i = 0; i < newArguments.Length; i++)
+        {
+            newArguments[i] = (SqlExpression)cloningExpressionVisitor.Visit(Arguments[i]);
+        }
+
+        var newTableValuedFunctionExpression = StoreFunction is null
+            ? new TableValuedFunctionExpression(Alias, Name, newArguments)
+            : new TableValuedFunctionExpression(StoreFunction, newArguments) { Alias = Alias };
+
+        foreach (var annotation in GetAnnotations())
+        {
+            newTableValuedFunctionExpression.AddAnnotation(annotation.Name, annotation.Value);
+        }
+
+        return newTableValuedFunctionExpression;
+    }
+
+    /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
         => new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, Arguments, annotations);
 

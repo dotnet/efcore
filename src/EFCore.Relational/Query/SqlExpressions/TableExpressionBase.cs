@@ -56,6 +56,13 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
         => ExpressionType.Extension;
 
     /// <summary>
+    ///     Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <param name="cloningExpressionVisitor">The cloning expression for further visitation of nested nodes.</param>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public abstract TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor);
+
+    /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
     /// </summary>
     /// <param name="expressionPrinter">The expression printer to use.</param>

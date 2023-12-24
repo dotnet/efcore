@@ -1134,9 +1134,6 @@
   <data name="SubqueryOverComplexTypesNotSupported" xml:space="preserve">
     <value>The query requires a subquery over complex type '{complexType}'. Subqueries over complex types are currently unsupported.</value>
   </data>
-  <data name="TableExpressionBaseWithoutCloningLogic" xml:space="preserve">
-    <value>Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.</value>
-  </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>

@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBase
+public class ValuesExpression : TableExpressionBase
 {
     /// <summary>
     ///     The row values for this table.
@@ -78,10 +78,18 @@ public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBas
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
         => new ValuesExpression(Alias, RowValues, ColumnNames, annotations);
 
-    // TODO: Deep clone, see #30982
     /// <inheritdoc />
-    public virtual TableExpressionBase Clone()
-        => CreateWithAnnotations(GetAnnotations());
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    {
+        var newRowValues = new RowValueExpression[RowValues.Count];
+
+        for (var i = 0; i < newRowValues.Length; i++)
+        {
+            newRowValues[i] = (RowValueExpression)cloningExpressionVisitor.Visit(RowValues[i]);
+        }
+
+        return new ValuesExpression(Alias, newRowValues, ColumnNames, GetAnnotations());
+    }
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

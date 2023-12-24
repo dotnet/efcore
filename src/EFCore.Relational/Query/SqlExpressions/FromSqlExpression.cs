@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class FromSqlExpression : TableExpressionBase, ITableBasedExpression, IClonableTableExpressionBase
+public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
@@ -106,7 +106,7 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression, ICl
         => this;
 
     /// <inheritdoc />
-    public virtual TableExpressionBase Clone()
+    public override TableExpressionBase Clone(ExpressionVisitor cloningVisitor)
         => new FromSqlExpression(Alias, Table, Sql, Arguments, GetAnnotations());
 
     /// <inheritdoc />

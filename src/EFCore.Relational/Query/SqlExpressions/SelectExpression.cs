@@ -4342,6 +4342,80 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <summary>
+    ///     Creates a new object that is a copy of the current instance.
+    /// </summary>
+    /// <param name="cloningExpressionVisitor">The cloning expression for further visitation of nested nodes.</param>
+    /// <returns>A new object that is a copy of this instance.</returns>
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    {
+        var newProjectionMappings = new Dictionary<ProjectionMember, Expression>(_projectionMapping.Count);
+        foreach (var (projectionMember, value) in _projectionMapping)
+        {
+            newProjectionMappings[projectionMember] = cloningExpressionVisitor.Visit(value);
+        }
+
+        var newProjections = _projection.Select(cloningExpressionVisitor.Visit).ToList<ProjectionExpression>();
+
+        var newTables = _tables.Select(cloningExpressionVisitor.Visit).ToList<TableExpressionBase>();
+        var tpcTablesMap = _tables.Select(UnwrapJoinExpression).Zip(newTables.Select(UnwrapJoinExpression))
+            .Where(e => e.First is TpcTablesExpression)
+            .ToDictionary(e => (TpcTablesExpression)e.First, e => (TpcTablesExpression)e.Second);
+
+        // Since we are cloning we need to generate new table references
+        // In other cases (like VisitChildren), we just reuse the same table references and update the SelectExpression inside it.
+        // We initially assign old SelectExpression in table references and later update it once we construct clone
+        var newTableReferences = _tableReferences.Select(e => new TableReferenceExpression(this, e.Alias)).ToList();
+        Check.DebugAssert(
+            newTables.Select(GetAliasFromTableExpressionBase).SequenceEqual(newTableReferences.Select(e => e.Alias)),
+            "Alias of updated tables must match the old tables.");
+
+        var predicate = (SqlExpression?)cloningExpressionVisitor.Visit(Predicate);
+        var newGroupBy = _groupBy.Select(cloningExpressionVisitor.Visit)
+            .Where(e => e is not (SqlConstantExpression or SqlParameterExpression))
+            .ToList<SqlExpression>();
+        var havingExpression = (SqlExpression?)cloningExpressionVisitor.Visit(Having);
+        var newOrderings = _orderings.Select(cloningExpressionVisitor.Visit).ToList<OrderingExpression>();
+        var offset = (SqlExpression?)cloningExpressionVisitor.Visit(Offset);
+        var limit = (SqlExpression?)cloningExpressionVisitor.Visit(Limit);
+
+        var newSelectExpression = new SelectExpression(
+            Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings,
+            GetAnnotations())
+        {
+            Predicate = predicate,
+            Having = havingExpression,
+            Offset = offset,
+            Limit = limit,
+            IsDistinct = IsDistinct,
+            Tags = Tags,
+            _usedAliases = _usedAliases.ToHashSet(),
+            _projectionMapping = newProjectionMappings,
+            _mutable = _mutable
+        };
+
+        foreach (var kvp in _tpcDiscriminatorValues)
+        {
+            newSelectExpression._tpcDiscriminatorValues[tpcTablesMap[kvp.Key]] = kvp.Value;
+        }
+
+        // Since identifiers are ColumnExpression, they are not visited since they don't contain SelectExpression inside it.
+        newSelectExpression._identifier.AddRange(_identifier);
+        newSelectExpression._childIdentifiers.AddRange(_childIdentifiers);
+
+        // Remap tableReferences in new select expression
+        foreach (var tableReference in newTableReferences)
+        {
+            tableReference.UpdateTableReference(this, newSelectExpression);
+        }
+
+        // Now that we have SelectExpression, we visit all components and update table references inside columns
+        newSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
+            this, newSelectExpression._tableReferences).Visit(newSelectExpression);
+
+        return newSelectExpression;
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that

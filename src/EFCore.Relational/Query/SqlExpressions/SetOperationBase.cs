@@ -88,6 +88,12 @@ public abstract class SetOperationBase : TableExpressionBase
     public abstract SetOperationBase Update(SelectExpression source1, SelectExpression source2);
 
     /// <inheritdoc />
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+        // Set operations necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a
+        // new copy of this SetOperationBase by calling Update.
+        => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
+
+    /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
