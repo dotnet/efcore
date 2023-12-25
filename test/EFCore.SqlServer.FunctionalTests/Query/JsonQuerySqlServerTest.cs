@@ -1011,16 +1011,7 @@ SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
-        [Date] datetime2 '$.Date',
-        [Enum] int '$.Enum',
-        [Enums] nvarchar(max) '$.Enums' AS JSON,
-        [Fraction] decimal(18,2) '$.Fraction',
-        [NullableEnum] int '$.NullableEnum',
-        [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
-        [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
-        [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
-    ) AS [o]
+    FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH ([OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON) AS [o]
     WHERE JSON_VALUE([o].[OwnedReferenceLeaf], '$.SomethingSomething') = N'e1_r_c1_r')
 """);
     }
@@ -1078,11 +1069,7 @@ WHERE (
         FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch') WITH (
             [Date] datetime2 '$.Date',
             [Enum] int '$.Enum',
-            [Enums] nvarchar(max) '$.Enums' AS JSON,
             [Fraction] decimal(18,2) '$.Fraction',
-            [NullableEnum] int '$.NullableEnum',
-            [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
-            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
             [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
         ) AS [o]
         ORDER BY [o].[Date] DESC
@@ -1130,26 +1117,10 @@ SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
-        [Name] nvarchar(max) '$.Name',
-        [Names] nvarchar(max) '$.Names' AS JSON,
-        [Number] int '$.Number',
-        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
-        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
-        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
-    ) AS [o]
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH ([OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON) AS [o]
     WHERE (
         SELECT COUNT(*)
-        FROM OPENJSON([o].[OwnedCollectionBranch], '$') WITH (
-            [Date] datetime2 '$.Date',
-            [Enum] int '$.Enum',
-            [Enums] nvarchar(max) '$.Enums' AS JSON,
-            [Fraction] decimal(18,2) '$.Fraction',
-            [NullableEnum] int '$.NullableEnum',
-            [NullableEnums] nvarchar(max) '$.NullableEnums' AS JSON,
-            [OwnedCollectionLeaf] nvarchar(max) '$.OwnedCollectionLeaf' AS JSON,
-            [OwnedReferenceLeaf] nvarchar(max) '$.OwnedReferenceLeaf' AS JSON
-        ) AS [o0]) = 2)
+        FROM OPENJSON([o].[OwnedCollectionBranch], '$') AS [o0]) = 2)
 """);
     }
 
@@ -1161,14 +1132,7 @@ WHERE EXISTS (
             """
 SELECT (
     SELECT COUNT(*)
-    FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
-        [Name] nvarchar(max) '$.Name',
-        [Names] nvarchar(max) '$.Names' AS JSON,
-        [Number] int '$.Number',
-        [Numbers] nvarchar(max) '$.Numbers' AS JSON,
-        [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
-        [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
-    ) AS [o])
+    FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o])
 FROM [JsonEntitiesBasic] AS [j]
 ORDER BY [j].[Id]
 """);

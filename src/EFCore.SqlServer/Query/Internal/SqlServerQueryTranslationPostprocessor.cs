@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
@@ -17,6 +18,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 {
     private readonly SqlServerJsonPostprocessor _jsonPostprocessor;
     private readonly SkipWithoutOrderByInSplitQueryVerifier _skipWithoutOrderByInSplitQueryVerifier = new();
+    private readonly SqlServerSqlTreePruner _pruner = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -49,6 +51,15 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
 
         return query;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression Prune(Expression query)
+        => _pruner.Prune(query);
 
     private sealed class SkipWithoutOrderByInSplitQueryVerifier : ExpressionVisitor
     {

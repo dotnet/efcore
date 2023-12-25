@@ -60,6 +60,11 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
         IReadOnlyList<ColumnInfo>? columnInfos = null)
         : base(alias, "OPENJSON", schema: null, builtIn: true, new[] { jsonExpression })
     {
+        if (columnInfos?.Count == 0)
+        {
+            columnInfos = null;
+        }
+
         Path = path;
         ColumnInfos = columnInfos;
     }
@@ -130,12 +135,19 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClona
         SqlExpression jsonExpression,
         IReadOnlyList<PathSegment>? path,
         IReadOnlyList<ColumnInfo>? columnInfos = null)
-        => jsonExpression == JsonExpression
+    {
+        if (columnInfos?.Count == 0)
+        {
+            columnInfos = null;
+        }
+
+        return jsonExpression == JsonExpression
             && (ReferenceEquals(path, Path) || path is not null && Path is not null && path.SequenceEqual(Path))
             && (ReferenceEquals(columnInfos, ColumnInfos)
                 || columnInfos is not null && ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))
                 ? this
                 : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
