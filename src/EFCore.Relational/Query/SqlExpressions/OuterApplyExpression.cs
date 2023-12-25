@@ -24,7 +24,7 @@ public class OuterApplyExpression : JoinExpressionBase
     }
 
     private OuterApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
-        : base(table, annotations)
+        : base(table, prunable: false, annotations)
     {
     }
 

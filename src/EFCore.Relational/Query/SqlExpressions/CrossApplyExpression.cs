@@ -24,7 +24,7 @@ public class CrossApplyExpression : JoinExpressionBase
     }
 
     private CrossApplyExpression(TableExpressionBase table, IEnumerable<IAnnotation>? annotations)
-        : base(table, annotations)
+        : base(table, prunable: false, annotations)
     {
     }
 

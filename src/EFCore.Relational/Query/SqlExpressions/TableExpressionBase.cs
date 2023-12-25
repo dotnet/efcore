@@ -21,18 +21,8 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
     ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
     /// </summary>
     /// <param name="alias">A string alias for the table source.</param>
-    protected TableExpressionBase(string? alias)
-        : this(alias, annotations: null)
-    {
-        Alias = alias;
-    }
-
-    /// <summary>
-    ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
-    /// </summary>
-    /// <param name="alias">A string alias for the table source.</param>
     /// <param name="annotations">A collection of annotations associated with this expression.</param>
-    protected TableExpressionBase(string? alias, IEnumerable<IAnnotation>? annotations)
+    protected TableExpressionBase(string? alias, IEnumerable<IAnnotation>? annotations = null)
     {
         Alias = alias;
 
