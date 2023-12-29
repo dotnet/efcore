@@ -319,7 +319,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
                 }
 
                 model = migrations.Count > 1
-                    ? Dependencies.SnapshotModelProcessor.Process(migrations[^2].TargetModel)
+                    ? Dependencies.SnapshotModelProcessor.Process(migrations[^2].TargetModel, resetVersion: true)
                     : null;
             }
             else
@@ -351,6 +351,7 @@ public class MigrationsScaffolder : IMigrationsScaffolder
         {
             var modelSnapshotNamespace = modelSnapshot.GetType().Namespace;
             Check.DebugAssert(!string.IsNullOrEmpty(modelSnapshotNamespace), "modelSnapshotNamespace is null or empty");
+
             var modelSnapshotCode = codeGenerator.GenerateSnapshot(
                 modelSnapshotNamespace,
                 _contextType,

@@ -597,7 +597,18 @@ internal static class SharedTypeExtensions
             yield break;
         }
 
-        yield return type.Namespace!;
+        if (type.IsConstructedGenericType
+            && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            foreach (var ns in type.UnwrapNullableType().GetNamespaces())
+            {
+                yield return ns;
+            }
+        }
+        else
+        {
+            yield return type.Namespace!;
+        }
 
         if (type.IsGenericType)
         {

@@ -124,13 +124,18 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
         var ownership = entityType.FindOwnership();
         var ownerNavigation = ownership?.PrincipalToDependent!.Name;
-
         var entityTypeName = entityType.Name;
         if (ownerNavigation != null
-            && entityType.HasSharedClrType
-            && entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            && entityType.HasSharedClrType)
         {
-            entityTypeName = entityType.ClrType.DisplayName();
+            if (entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ClrType.ShortDisplayName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ClrType.DisplayName();
+            }
+            else if (entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(entityType.ShortName(), ownerNavigation))
+            {
+                entityTypeName = entityType.ShortName();
+            }
         }
 
         var entityTypeBuilderName = GenerateNestedBuilderName(builderName);
@@ -436,8 +441,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IProperty property,
         IndentedStringBuilder stringBuilder)
     {
-        var clrType = FindValueConverter(property)?.ProviderClrType.MakeNullable(property.IsNullable)
-            ?? property.ClrType;
+        var clrType = (FindValueConverter(property)?.ProviderClrType ?? property.ClrType)
+            .MakeNullable(property.IsNullable);
 
         var propertyBuilderName = $"{entityTypeBuilderName}.Property<{Code.Reference(clrType)}>({Code.Literal(property.Name)})";
 

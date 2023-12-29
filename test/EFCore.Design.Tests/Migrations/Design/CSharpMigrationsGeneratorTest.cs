@@ -905,7 +905,7 @@ namespace MyNamespace
         Assert.DoesNotContain("#pragma warning disable CA1814", migration);
     }
 
-    private static IMigrationsCodeGenerator CreateMigrationsCodeGenerator()
+    public static IMigrationsCodeGenerator CreateMigrationsCodeGenerator()
     {
         var testAssembly = typeof(CSharpMigrationsGeneratorTest).Assembly;
         var reporter = new TestOperationReporter();
