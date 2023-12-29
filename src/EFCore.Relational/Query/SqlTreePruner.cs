@@ -81,21 +81,7 @@ public class SqlTreePruner : ExpressionVisitor
 
             // For any column we encounter, register it in the referenced column map, which records the aliases referenced on each table.
             case ColumnExpression column:
-                RegisterTable(column.Table.UnwrapJoin());
-
-                void RegisterTable(TableExpressionBase table)
-                {
-                    _referencedColumnMap.GetOrAddNew(table).Add(column.Name);
-
-                    // If the table is a set operation, we need to recurse and register the contained tables as well.
-                    // This is because when we visit a select inside a set operation, we need to be able to know who's referencing our
-                    // projection from the outside (in order to prune unreferenced projections).
-                    if (table is SetOperationBase setOperation)
-                    {
-                        RegisterTable(setOperation.Source1);
-                        RegisterTable(setOperation.Source2);
-                    }
-                }
+                RegisterTable(column.Table.UnwrapJoin(), column);
 
                 return column;
 
@@ -139,6 +125,20 @@ public class SqlTreePruner : ExpressionVisitor
 
             default:
                 return base.VisitExtension(node);
+        }
+
+        void RegisterTable(TableExpressionBase table, ColumnExpression column)
+        {
+            _referencedColumnMap.GetOrAddNew(table).Add(column.Name);
+
+            // If the table is a set operation, we need to recurse and register the contained tables as well.
+            // This is because when we visit a select inside a set operation, we need to be able to know who's referencing our
+            // projection from the outside (in order to prune unreferenced projections).
+            if (table is SetOperationBase setOperation)
+            {
+                RegisterTable(setOperation.Source1, column);
+                RegisterTable(setOperation.Source2, column);
+            }
         }
     }
 
