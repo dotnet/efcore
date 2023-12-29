@@ -4347,14 +4347,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public SelectExpression PruneToplevel(
-        ExpressionVisitor pruningVisitor,
-        IReadOnlyDictionary<TableExpressionBase, HashSet<string>> referencedColumnMap,
-        List<string> removedAliases)
+    public SelectExpression PruneToplevel(SqlTreePruner pruningVisitor)
     {
         // TODO: This doesn't belong in pruning, take a deeper look at how we manage TPC etc.
         var select = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_usedAliases).Visit(this);
-        select.Prune(pruningVisitor, pruneProjection: false, referencedColumnMap, removedAliases);
+        select.Prune(pruningVisitor, pruneProjection: false);
         return select;
     }
 
@@ -4365,14 +4362,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public void Prune(
-        ExpressionVisitor pruningVisitor,
-        bool pruneProjection,
-        IReadOnlyDictionary<TableExpressionBase, HashSet<string>> referencedColumnMap,
-        List<string> removedAliases)
+    public void Prune(SqlTreePruner pruningVisitor, bool pruneProjection)
     {
         Check.DebugAssert(!IsMutable, "Mutable SelectExpression found when pruning");
 
+        var referencedColumnMap = pruningVisitor.ReferencedColumnMap;
         // Prune the projection; any projected alias that isn't referenced on us from the outside can be removed. We avoid doing that when:
         // 1. The caller requests we don't (top-level select, scalar subquery, select within a set operation where the other is distinct -
         //    projection must be preserved as-is)
@@ -4454,7 +4448,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _tables.RemoveAt(i);
                 _tableReferences.RemoveAt(i);
 #if DEBUG
-                removedAliases.Add(wrappedTable.Alias!);
+                pruningVisitor.RemovedAliases.Add(wrappedTable.Alias!);
 #endif
                 continue;
             }

@@ -21,10 +21,14 @@ public class SqlTreePruner : ExpressionVisitor
     /// <summary>
     /// Maps tables to the list of column aliases found referenced on them.
     /// </summary>
-    protected virtual IReadOnlyDictionary<TableExpressionBase, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
+    [EntityFrameworkInternal]
+    public virtual IReadOnlyDictionary<TableExpressionBase, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
 
-    // Used for extra verification for DEBUG only
-    private List<string> _removedAliases = null!;
+    /// <summary>
+    /// Used for extra verification for DEBUG only
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual List<string> RemovedAliases { get; private set; } = null!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -98,7 +102,7 @@ public class SqlTreePruner : ExpressionVisitor
             // Note that this only handles nested selects, and *not* the top-level select - that was already handled above in the first
             // cases.
             case SelectExpression select:
-                select.Prune(this, pruneProjection: true, ReferencedColumnMap, _removedAliases);
+                select.Prune(this, pruneProjection: true);
                 return select;
 
             // PredicateJoinExpressionBase.VisitChildren visits the table before the predicate, but we must visit the predicate first
@@ -111,13 +115,13 @@ public class SqlTreePruner : ExpressionVisitor
             // Never prune the projection of a scalar subquery. Note that there are never columns referencing scalar subqueries, since
             // they're not tables.
             case ScalarSubqueryExpression scalarSubquery:
-                scalarSubquery.Subquery.Prune(this, pruneProjection: false, ReferencedColumnMap, _removedAliases);
+                scalarSubquery.Subquery.Prune(this, pruneProjection: false);
                 return scalarSubquery;
 
             // Same for subqueries inside InExpression
             case InExpression { Subquery: SelectExpression subquery } inExpression:
                 var item = (SqlExpression)Visit(inExpression.Item);
-                subquery.Prune(this, pruneProjection: false, ReferencedColumnMap, _removedAliases);
+                subquery.Prune(this, pruneProjection: false);
                 return inExpression.Update(item, subquery);
 
             // If the set operation is distinct (union/intersect/except, but not concat), we cannot prune the projection since that would
@@ -128,8 +132,8 @@ public class SqlTreePruner : ExpressionVisitor
             case SetOperationBase { Source1: var source1, Source2: var source2 } setOperation
                 when setOperation.IsDistinct || source1.IsDistinct || source2.IsDistinct:
             {
-                source1.Prune(this, pruneProjection: false, ReferencedColumnMap, _removedAliases);
-                source2.Prune(this, pruneProjection: false, ReferencedColumnMap, _removedAliases);
+                source1.Prune(this, pruneProjection: false);
+                source2.Prune(this, pruneProjection: false);
                 return setOperation;
             }
 
@@ -141,11 +145,11 @@ public class SqlTreePruner : ExpressionVisitor
     private SelectExpression PruneTopLevelSelect(SelectExpression select)
     {
 #if DEBUG
-        _removedAliases = new();
+        RemovedAliases = new();
 #endif
-        select = select.PruneToplevel(this, ReferencedColumnMap, _removedAliases);
+        select = select.PruneToplevel(this);
 #if DEBUG
-        select.RemovedAliases = _removedAliases;
+        select.RemovedAliases = RemovedAliases;
 #endif
 
         return select;
