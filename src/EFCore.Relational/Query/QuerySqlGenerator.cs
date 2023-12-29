@@ -182,9 +182,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
             && selectExpression.Projection.Select(
                     (pe, index) => pe.Expression is ColumnExpression column
-                        && string.Equals(column.TableAlias, setOperation.Alias, StringComparison.Ordinal)
-                        && string.Equals(
-                            column.Name, setOperation.Source1.Projection[index].Alias, StringComparison.Ordinal))
+                        && column.TableAlias == setOperation.Alias
+                        && column.Name == setOperation.Source1.Projection[index].Alias)
                 .All(e => e);
 
     /// <inheritdoc />
@@ -237,26 +236,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             }
 
             GenerateTop(selectExpression);
-
-            if (selectExpression.Projection.Any())
-            {
-                GenerateList(selectExpression.Projection, e => Visit(e));
-            }
-            else
-            {
-                GenerateEmptyProjection(selectExpression);
-            }
-
-            if (selectExpression.Tables.Any())
-            {
-                _relationalCommandBuilder.AppendLine().Append("FROM ");
-
-                GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
-            }
-            else
-            {
-                GeneratePseudoFromClause();
-            }
+            GenerateProjection(selectExpression);
+            GenerateTables(selectExpression);
 
             if (selectExpression.Predicate != null)
             {
@@ -1058,6 +1039,40 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="selectExpression">A select expression to use.</param>
     protected virtual void GenerateTop(SelectExpression selectExpression)
     {
+    }
+
+    /// <summary>
+    ///     Generates the projection in the relational command
+    /// </summary>
+    /// <param name="selectExpression">A select expression to use.</param>
+    protected virtual void GenerateProjection(SelectExpression selectExpression)
+    {
+        if (selectExpression.Projection.Any())
+        {
+            GenerateList(selectExpression.Projection, e => Visit(e));
+        }
+        else
+        {
+            GenerateEmptyProjection(selectExpression);
+        }
+    }
+
+    /// <summary>
+    ///     Generates the tables in the relational command
+    /// </summary>
+    /// <param name="selectExpression">A select expression to use.</param>
+    protected virtual void GenerateTables(SelectExpression selectExpression)
+    {
+        if (selectExpression.Tables.Any())
+        {
+            _relationalCommandBuilder.AppendLine().Append("FROM ");
+
+            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+        }
+        else
+        {
+            GeneratePseudoFromClause();
+        }
     }
 
     /// <summary>

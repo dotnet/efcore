@@ -56,7 +56,7 @@ public class IntersectExpression : SetOperationBase
     /// <param name="source1">The <see cref="SetOperationBase.Source1" /> property of the result.</param>
     /// <param name="source2">The <see cref="SetOperationBase.Source2" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual IntersectExpression Update(SelectExpression source1, SelectExpression source2)
+    public override IntersectExpression Update(SelectExpression source1, SelectExpression source2)
         => source1 != Source1 || source2 != Source2
             ? new IntersectExpression(Alias, source1, source2, IsDistinct, GetAnnotations())
             : this;

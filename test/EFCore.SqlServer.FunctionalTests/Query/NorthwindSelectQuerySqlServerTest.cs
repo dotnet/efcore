@@ -861,7 +861,7 @@ FROM [Customers] AS [c]
 SELECT (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
-        SELECT TOP(2) [o].[CustomerID], [o].[OrderID], [o].[OrderDate]
+        SELECT TOP(2) [o].[CustomerID], [o].[OrderDate]
         FROM [Orders] AS [o]
         WHERE [c].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[CustomerID], [o].[OrderDate] DESC
@@ -880,7 +880,7 @@ FROM [Customers] AS [c]
 SELECT COALESCE((
     SELECT TOP(1) [t].[OrderID]
     FROM (
-        SELECT TOP(1) [o0].[OrderID], [o0].[ProductID], [p].[ProductID] AS [ProductID0], [p].[ProductName]
+        SELECT TOP(1) [o0].[OrderID], [p].[ProductName]
         FROM [Order Details] AS [o0]
         INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
         WHERE [o].[OrderID] = [o0].[OrderID]

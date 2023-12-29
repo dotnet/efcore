@@ -90,7 +90,7 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
@@ -113,7 +113,7 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(@__p_0) [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT TOP(@__p_0) [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
@@ -135,7 +135,7 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY [o0].[OrderID]
@@ -158,7 +158,7 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY (SELECT 1)
@@ -195,7 +195,7 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10300
         ORDER BY (SELECT 1)
@@ -274,9 +274,9 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [t].[OrderID], [t].[ProductID], [t].[Discount], [t].[Quantity], [t].[UnitPrice]
+        SELECT [t].[OrderID], [t].[ProductID]
         FROM (
-            SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+            SELECT [o0].[OrderID], [o0].[ProductID]
             FROM [Order Details] AS [o0]
             WHERE [o0].[OrderID] < 10300
             ORDER BY (SELECT 1)
@@ -326,7 +326,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
     INNER JOIN (
-        SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+        SELECT [o1].[OrderID], [o1].[ProductID]
         FROM [Order Details] AS [o1]
         WHERE [o1].[ProductID] > 0
     ) AS [t] ON [o0].[OrderID] = [t].[OrderID]
@@ -395,11 +395,11 @@ FROM [Order Details] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
+        SELECT [o0].[OrderID], [o0].[ProductID]
         FROM [Order Details] AS [o0]
         WHERE [o0].[OrderID] < 10250
         UNION ALL
-        SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice]
+        SELECT [o1].[OrderID], [o1].[ProductID]
         FROM [Order Details] AS [o1]
         WHERE [o1].[OrderID] > 11250
     ) AS [t]
@@ -519,7 +519,7 @@ WHERE [c].[City] LIKE N'Se%'
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 INNER JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o0].[OrderID]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
@@ -540,7 +540,7 @@ INNER JOIN (
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 LEFT JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT [o0].[OrderID]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
@@ -559,7 +559,7 @@ WHERE [o].[OrderID] < 10276
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 CROSS JOIN (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < 10300
     ORDER BY [o0].[OrderID]
@@ -578,7 +578,7 @@ WHERE [o].[OrderID] < 10276
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 CROSS APPLY (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < [o].[OrderID]
     ORDER BY [o0].[OrderID]
@@ -597,7 +597,7 @@ WHERE [o].[OrderID] < 10276
 DELETE FROM [o]
 FROM [Order Details] AS [o]
 OUTER APPLY (
-    SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] < [o].[OrderID]
     ORDER BY [o0].[OrderID]
@@ -741,7 +741,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
@@ -778,7 +778,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
@@ -797,7 +797,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -816,7 +816,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
@@ -837,7 +837,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT TOP(@__p_0) [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
@@ -858,7 +858,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     ORDER BY [c0].[City]
@@ -880,9 +880,9 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+    SELECT [t].[CustomerID]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+        SELECT [c0].[CustomerID], [c0].[City]
         FROM [Customers] AS [c0]
         WHERE [c0].[CustomerID] LIKE N'F%'
         ORDER BY [c0].[City]
@@ -1169,11 +1169,11 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] LIKE N'F%'
     UNION ALL
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
+    SELECT [c1].[CustomerID]
     FROM [Customers] AS [c1]
     WHERE [c1].[CustomerID] LIKE N'A%'
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -1232,7 +1232,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 INNER JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -1250,7 +1250,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -1268,7 +1268,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t]
@@ -1286,7 +1286,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS APPLY (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
 ) AS [t]
@@ -1304,7 +1304,7 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 OUTER APPLY (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
 ) AS [t]
@@ -1322,12 +1322,12 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT 1 AS empty
     FROM [Customers] AS [c0]
     WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 LEFT JOIN (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
@@ -1345,12 +1345,12 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT 1 AS empty
     FROM [Customers] AS [c0]
     WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 CROSS APPLY (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
 ) AS [t0]
@@ -1368,12 +1368,12 @@ UPDATE [c]
 SET [c].[ContactName] = N'Updated'
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT 1 AS empty
     FROM [Customers] AS [c0]
     WHERE [c0].[City] LIKE N'S%'
 ) AS [t]
 OUTER APPLY (
-    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    SELECT 1 AS empty
     FROM [Orders] AS [o]
     WHERE [o].[OrderID] < 10300 AND DATEPART(year, [o].[OrderDate]) < CAST(LEN([c].[ContactName]) AS int)
 ) AS [t0]
@@ -1398,10 +1398,10 @@ UPDATE [o]
 SET [o].[OrderDate] = NULL
 FROM [Orders] AS [o]
 INNER JOIN (
-    SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [c].[CustomerID] AS [CustomerID0]
+    SELECT [t].[OrderID]
     FROM [Customers] AS [c]
     INNER JOIN (
-        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+        SELECT [o0].[OrderID], [o0].[CustomerID]
         FROM [Orders] AS [o0]
         WHERE DATEPART(year, [o0].[OrderDate]) = 1997
     ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
@@ -1437,7 +1437,7 @@ UPDATE [c]
 SET [c].[City] = [t].[City]
 FROM [Customers] AS [c]
 CROSS JOIN (
-    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    SELECT [c0].[City]
     FROM [Customers] AS [c0]
     WHERE [c0].[CustomerID] = N'ALFKI'
 ) AS [t]

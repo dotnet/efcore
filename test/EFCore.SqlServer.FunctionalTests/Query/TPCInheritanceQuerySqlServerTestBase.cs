@@ -535,12 +535,12 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(1) [t1].[Id], [t1].[CountryId], [t1].[Name], [t1].[Species], [t1].[EagleId], [t1].[IsFlightless], [t1].[Group], [t1].[FoundOn], [t1].[Discriminator]
+        SELECT TOP(1) [t1].[Discriminator]
         FROM (
-            SELECT [e0].[Id], [e0].[CountryId], [e0].[Name], [e0].[Species], [e0].[EagleId], [e0].[IsFlightless], [e0].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+            SELECT [e0].[Name], N'Eagle' AS [Discriminator]
             FROM [Eagle] AS [e0]
             UNION ALL
-            SELECT [k0].[Id], [k0].[CountryId], [k0].[Name], [k0].[Species], [k0].[EagleId], [k0].[IsFlightless], NULL AS [Group], [k0].[FoundOn], N'Kiwi' AS [Discriminator]
+            SELECT [k0].[Name], N'Kiwi' AS [Discriminator]
             FROM [Kiwi] AS [k0]
         ) AS [t1]
         WHERE [t1].[Name] = N'Great spotted kiwi'

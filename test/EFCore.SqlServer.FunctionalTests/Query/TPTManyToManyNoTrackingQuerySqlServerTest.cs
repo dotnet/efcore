@@ -112,12 +112,9 @@ ORDER BY (
     SELECT COUNT(*)
     FROM [JoinOneToBranch] AS [j]
     INNER JOIN (
-        SELECT [r].[Id], [r].[Name], [b].[Number], [l].[IsGreen], CASE
-            WHEN [l].[Id] IS NOT NULL THEN N'EntityLeaf'
-        END AS [Discriminator]
+        SELECT [r].[Id], [r].[Name]
         FROM [Roots] AS [r]
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
-        LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
     WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] LIKE N'L%'), [e].[Id]
 """);
@@ -2151,12 +2148,9 @@ ORDER BY (
     SELECT COUNT(*)
     FROM [UnidirectionalJoinOneToBranch] AS [u0]
     INNER JOIN (
-        SELECT [u1].[Id], [u1].[Name], [u2].[Number], [u3].[IsGreen], CASE
-            WHEN [u3].[Id] IS NOT NULL THEN N'UnidirectionalEntityLeaf'
-        END AS [Discriminator]
+        SELECT [u1].[Id], [u1].[Name]
         FROM [UnidirectionalRoots] AS [u1]
         INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
-        LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
     ) AS [t] ON [u0].[UnidirectionalEntityBranchId] = [t].[Id]
     WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND [t].[Name] LIKE N'L%'), [u].[Id]
 """);

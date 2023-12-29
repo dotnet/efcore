@@ -723,7 +723,7 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [i].[key]
+        SELECT 1 AS empty
         FROM OPENJSON([p].[Ints]) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
@@ -880,10 +880,10 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [i].[value]
+        SELECT 1 AS empty
         FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
         UNION ALL
-        SELECT [i0].[value]
+        SELECT 1 AS empty
         FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i0]
     ) AS [t]) = 2
 """);
@@ -1007,7 +1007,7 @@ WHERE (
     FROM (
         SELECT [t].[value]
         FROM (
-            SELECT CAST([i].[value] AS int) AS [value], [i].[key]
+            SELECT CAST([i].[value] AS int) AS [value]
             FROM OPENJSON(@__ints) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS
@@ -1063,9 +1063,9 @@ WHERE (
             FROM (
                 SELECT DISTINCT [t2].[value]
                 FROM (
-                    SELECT CAST([i].[value] AS int) AS [value], [i].[key]
-                    FROM OPENJSON([p].[Ints]) AS [i]
-                    ORDER BY CAST([i].[value] AS int)
+                    SELECT [i].[value]
+                    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
+                    ORDER BY [i].[value]
                     OFFSET 1 ROWS
                 ) AS [t2]
             ) AS [t0]
@@ -1096,7 +1096,7 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT CAST([i].[value] AS int) AS [value], [i].[key], CAST([i].[key] AS int) AS [c], CAST([i].[value] AS int) AS [value0]
+        SELECT CAST([i].[value] AS int) AS [value0]
         FROM OPENJSON(@__ints) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
@@ -1127,7 +1127,7 @@ WHERE (
     FROM (
         SELECT [t].[value]
         FROM (
-            SELECT CAST([i].[value] AS int) AS [value], [i].[key]
+            SELECT CAST([i].[value] AS int) AS [value]
             FROM OPENJSON([p].[Ints]) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS

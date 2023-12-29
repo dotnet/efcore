@@ -78,6 +78,15 @@ public abstract class SetOperationBase : TableExpressionBase
     /// </summary>
     public virtual SelectExpression Source2 { get; }
 
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="source1">The <see cref="Source1" /> property of the result.</param>
+    /// <param name="source2">The <see cref="Source2" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public abstract SetOperationBase Update(SelectExpression source1, SelectExpression source2);
+
     /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj != null

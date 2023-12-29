@@ -653,7 +653,7 @@ GROUP BY [p].[Category]
             """
 SELECT COUNT(*)
 FROM (
-    SELECT [f].[Id], [f].[Size]
+    SELECT 1 AS empty
     FROM [Person] AS [p]
     LEFT JOIN [Feet] AS [f] ON [p].[Id] = [f].[Id]
     GROUP BY [f].[Id], [f].[Size]

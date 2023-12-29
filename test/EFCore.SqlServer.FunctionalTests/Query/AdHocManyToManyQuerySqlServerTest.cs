@@ -21,7 +21,7 @@ FROM [Users] AS [u]
 CROSS JOIN (
     SELECT [t].[Id]
     FROM (
-        SELECT NULL AS [empty]
+        SELECT 1 AS empty
     ) AS [e]
     LEFT JOIN (
         SELECT [o].[Id]
