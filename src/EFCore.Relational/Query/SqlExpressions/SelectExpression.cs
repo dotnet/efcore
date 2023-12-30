@@ -2080,16 +2080,18 @@ public sealed partial class SelectExpression : TableExpressionBase
             sqlExpression = PushdownIntoSubqueryInternal().Remap(sqlExpression);
         }
 
-        if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.Equal } or InExpression { Subquery: null }
-            && _groupBy.Count == 0)
+        if (_groupBy.Count == 0)
         {
-            // If the intersection is empty then we don't remove predicate so that the filter empty out all results.
-            if (sqlExpression is SqlBinaryExpression sqlBinaryExpression)
+            switch (sqlExpression)
             {
-                if (sqlBinaryExpression.Left is ColumnExpression { Table: TpcTablesExpression leftTpc } leftColumn
-                    && _tpcDiscriminatorValues.TryGetValue(leftTpc, out var leftTuple)
-                    && leftTuple.Item1.Equals(leftColumn)
-                    && sqlBinaryExpression.Right is SqlConstantExpression { Value: string s1 })
+                // If the intersection is empty then we don't remove predicate so that the filter empty out all results.
+                case SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Equal,
+                        Left: ColumnExpression { Table: TpcTablesExpression leftTpc } leftColumn,
+                        Right: SqlConstantExpression { Value: string s1 }
+                    }
+                    when _tpcDiscriminatorValues.TryGetValue(leftTpc, out var leftTuple) && leftTuple.Item1.Equals(leftColumn):
                 {
                     var newList = leftTuple.Item2.Intersect(new List<string> { s1 }).ToList();
                     if (newList.Count > 0)
@@ -2097,11 +2099,18 @@ public sealed partial class SelectExpression : TableExpressionBase
                         _tpcDiscriminatorValues[leftTpc] = (leftColumn, newList);
                         return;
                     }
+
+                    break;
                 }
-                else if (sqlBinaryExpression.Right is ColumnExpression { Table: TpcTablesExpression rightTpc } rightColumn
-                         && _tpcDiscriminatorValues.TryGetValue(rightTpc, out var rightTuple)
-                         && rightTuple.Item1.Equals(rightColumn)
-                         && sqlBinaryExpression.Left is SqlConstantExpression { Value: string s2 })
+
+                case SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.Equal,
+                        Left: SqlConstantExpression { Value: string s2 },
+                        Right: ColumnExpression { Table: TpcTablesExpression rightTpc } rightColumn
+                    }
+                    when _tpcDiscriminatorValues.TryGetValue(rightTpc, out var rightTuple)
+                    && rightTuple.Item1.Equals(rightColumn):
                 {
                     var newList = rightTuple.Item2.Intersect(new List<string> { s2 }).ToList();
                     if (newList.Count > 0)
@@ -2109,41 +2118,45 @@ public sealed partial class SelectExpression : TableExpressionBase
                         _tpcDiscriminatorValues[rightTpc] = (rightColumn, newList);
                         return;
                     }
-                }
-            }
-            // Identify application of a predicate which narrows the discriminator (e.g. OfType) for TPC, apply it to
-            // _tpcDiscriminatorValues (which will be handled later) instead of as a WHERE predicate.
-            else if (sqlExpression is InExpression
-                     {
-                         Item: ColumnExpression { Table: TpcTablesExpression itemTpc } itemColumn,
-                         Values: IReadOnlyList<SqlExpression> valueExpressions
-                     }
-                     && _tpcDiscriminatorValues.TryGetValue(itemTpc, out var itemTuple)
-                     && itemTuple.Item1.Equals(itemColumn))
-            {
-                var constantValues = new string[valueExpressions.Count];
-                for (var i = 0; i < constantValues.Length; i++)
-                {
-                    if (valueExpressions[i] is SqlConstantExpression { Value: string value })
-                    {
-                        constantValues[i] = value;
-                    }
-                    else
-                    {
-                        goto ApplyPredicate;
-                    }
+
+                    break;
                 }
 
-                var newList = itemTuple.Item2.Intersect(constantValues).ToList();
-                if (newList.Count > 0)
+                // Identify application of a predicate which narrows the discriminator (e.g. OfType) for TPC, apply it to
+                // _tpcDiscriminatorValues (which will be handled later) instead of as a WHERE predicate.
+                case InExpression
+                    {
+                        Item: ColumnExpression { Table: TpcTablesExpression itemTpc } itemColumn,
+                        Values: IReadOnlyList<SqlExpression> valueExpressions
+                    }
+                    when _tpcDiscriminatorValues.TryGetValue(itemTpc, out var itemTuple)
+                    && itemTuple.Item1.Equals(itemColumn):
                 {
-                    _tpcDiscriminatorValues[itemTpc] = (itemColumn, newList);
-                    return;
+                    var constantValues = new string[valueExpressions.Count];
+                    for (var i = 0; i < constantValues.Length; i++)
+                    {
+                        if (valueExpressions[i] is SqlConstantExpression { Value: string value })
+                        {
+                            constantValues[i] = value;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    var newList = itemTuple.Item2.Intersect(constantValues).ToList();
+                    if (newList.Count > 0)
+                    {
+                        _tpcDiscriminatorValues[itemTpc] = (itemColumn, newList);
+                        return;
+                    }
+
+                    break;
                 }
             }
         }
 
-        ApplyPredicate:
         sqlExpression = AssignUniqueAliases(sqlExpression);
 
         if (_groupBy.Count > 0)
@@ -2387,16 +2400,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             PushdownIntoSubquery();
         }
 
-        var existingOrdering = _orderings.ToArray();
+        var existingOrderings = _orderings.ToArray();
 
         _orderings.Clear();
 
-        for (var i = 0; i < existingOrdering.Length; i++)
+        foreach (var existingOrdering in existingOrderings)
         {
-            _orderings.Add(
-                new OrderingExpression(
-                    existingOrdering[i].Expression,
-                    !existingOrdering[i].IsAscending));
+            _orderings.Add(new OrderingExpression(existingOrdering.Expression, !existingOrdering.IsAscending));
         }
     }
 
@@ -4988,11 +4998,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <inheritdoc />
     public override IAnnotation? FindAnnotation(string name)
-        => _annotations == null
-            ? null
-            : _annotations.TryGetValue(name, out var annotation)
-                ? annotation
-                : null;
+        => _annotations?.GetValueOrDefault(name);
 
     /// <inheritdoc />
     public override IEnumerable<IAnnotation> GetAnnotations()
