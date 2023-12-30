@@ -804,8 +804,6 @@ public sealed partial class SelectExpression
                         _mutable = selectExpression._mutable
                     };
 
-                    newSelectExpression._removableJoinTables.AddRange(selectExpression._removableJoinTables);
-
                     foreach (var kvp in selectExpression._tpcDiscriminatorValues)
                     {
                         newSelectExpression._tpcDiscriminatorValues[tpcTablesMap[kvp.Key]] = kvp.Value;

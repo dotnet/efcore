@@ -19,16 +19,18 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to INNER JOIN with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
-    public InnerJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
-        : this(table, joinPredicate, annotations: null)
+    /// <param name="prunable">Whether this join expression may be pruned if nothing references a column on it.</param>
+    public InnerJoinExpression(TableExpressionBase table, SqlExpression joinPredicate, bool prunable = false)
+        : this(table, joinPredicate, prunable, annotations: null)
     {
     }
 
     private InnerJoinExpression(
         TableExpressionBase table,
         SqlExpression joinPredicate,
+        bool prunable,
         IEnumerable<IAnnotation>? annotations)
-        : base(table, joinPredicate, annotations)
+        : base(table, joinPredicate, prunable, annotations)
     {
     }
 
@@ -41,7 +43,7 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override InnerJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new InnerJoinExpression(table, joinPredicate, GetAnnotations())
+            ? new InnerJoinExpression(table, joinPredicate, IsPrunable, GetAnnotations())
             : this;
 
     /// <summary>
@@ -52,12 +54,12 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override InnerJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new InnerJoinExpression(table, JoinPredicate, GetAnnotations())
+            ? new InnerJoinExpression(table, JoinPredicate, IsPrunable, GetAnnotations())
             : this;
 
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new InnerJoinExpression(Table, JoinPredicate, annotations);
+        => new InnerJoinExpression(Table, JoinPredicate, IsPrunable, annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

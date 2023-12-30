@@ -35,7 +35,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
     private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = new();
-    private readonly List<int> _removableJoinTables = new();
 
     private readonly Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)> _tpcDiscriminatorValues
         = new(ReferenceEqualityComparer.Instance);
@@ -225,8 +224,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         .Zip(keyColumns, sqlExpressionFactory.Equal)
                         .Aggregate(sqlExpressionFactory.AndAlso);
 
-                    var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
-                    _removableJoinTables.Add(_tables.Count);
+                    var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate, prunable: true);
                     AddTable(joinExpression, tableReferenceExpression);
                 }
 
@@ -435,8 +433,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Zip(innerColumns, sqlExpressionFactory.Equal)
                                     .Aggregate(sqlExpressionFactory.AndAlso);
 
-                                var joinExpression = new InnerJoinExpression(tableExpression, joinPredicate);
-                                _removableJoinTables.Add(_tables.Count);
+                                var joinExpression = new InnerJoinExpression(tableExpression, joinPredicate, prunable: true);
                                 AddTable(joinExpression, tableReferenceExpression);
                             }
                         }
@@ -2496,8 +2493,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         _projectionMapping.Clear();
         select1._identifier.AddRange(_identifier);
         _identifier.Clear();
-        select1._removableJoinTables.AddRange(_removableJoinTables);
-        _removableJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
             select1._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
@@ -3045,8 +3040,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                     .Zip(innerColumns, sqlExpressionFactory.Equal)
                                     .Aggregate(sqlExpressionFactory.AndAlso);
 
-                                var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
-                                selectExpression._removableJoinTables.Add(selectExpression._tables.Count);
+                                var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate, prunable: true);
                                 selectExpression.AddTable(joinExpression, tableReferenceExpression);
                             }
                         }
@@ -3129,8 +3123,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         .Zip(innerColumns, sqlExpressionFactory.Equal)
                         .Aggregate(sqlExpressionFactory.AndAlso);
 
-                    var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
-                    selectExpression._removableJoinTables.Add(selectExpression._tables.Count);
+                    var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate, prunable: true);
                     selectExpression.AddTable(joinExpression, tableReferenceExpression);
                 }
             }
@@ -3974,8 +3967,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         Offset = null;
         Limit = null;
         _preGroupByIdentifier = null;
-        subquery._removableJoinTables.AddRange(_removableJoinTables);
-        _removableJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)
         {
             subquery._tpcDiscriminatorValues[kvp.Key] = kvp.Value;
@@ -4439,11 +4430,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             if (!referencedColumnMap.ContainsKey(wrappedTable)
                 // Note that we only prune joins; pruning the main is more complex because other tables need to unwrap joins to be main.
-                // TODO: why not CrossApplyExpression/CrossJoin (any join basically)?
-                && table is LeftJoinExpression or OuterApplyExpression or InnerJoinExpression
-                // Only prune InnerJoin if it's in the removable list; since inner joins filter out rows, it may be needed even if it's not
-                // referenced from anywhere in the query.
-                && _removableJoinTables.Contains(i))
+                // We also only prune joins explicitly marked as prunable; otherwise e.g. an inner join may be needed to filter out rows
+                // even if no column references it.
+                && table is JoinExpressionBase { IsPrunable: true })
             {
                 _tables.RemoveAt(i);
                 _tableReferences.RemoveAt(i);
@@ -4821,7 +4810,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     _usedAliases = _usedAliases,
                     _mutable = false
                 };
-                newSelectExpression._removableJoinTables.AddRange(_removableJoinTables);
                 foreach (var kvp in newTpcDiscriminatorValues)
                 {
                     newSelectExpression._tpcDiscriminatorValues[kvp.Key] = kvp.Value;

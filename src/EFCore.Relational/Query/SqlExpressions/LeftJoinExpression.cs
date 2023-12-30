@@ -19,16 +19,18 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// </summary>
     /// <param name="table">A table source to LEFT JOIN with.</param>
     /// <param name="joinPredicate">A predicate to use for the join.</param>
-    public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate)
-        : this(table, joinPredicate, annotations: null)
+    /// <param name="prunable">Whether this join expression may be pruned if nothing references a column on it.</param>
+    public LeftJoinExpression(TableExpressionBase table, SqlExpression joinPredicate, bool prunable = false)
+        : this(table, joinPredicate, prunable, annotations: null)
     {
     }
 
     private LeftJoinExpression(
         TableExpressionBase table,
         SqlExpression joinPredicate,
-        IEnumerable<IAnnotation>? annotations)
-        : base(table, joinPredicate, annotations)
+        bool prunable,
+        IEnumerable<IAnnotation>? annotations = null)
+        : base(table, joinPredicate, prunable, annotations)
     {
     }
 
@@ -41,7 +43,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new LeftJoinExpression(table, joinPredicate, GetAnnotations())
+            ? new LeftJoinExpression(table, joinPredicate, IsPrunable, GetAnnotations())
             : this;
 
     /// <summary>
@@ -52,12 +54,12 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override LeftJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new LeftJoinExpression(table, JoinPredicate, GetAnnotations())
+            ? new LeftJoinExpression(table, JoinPredicate, IsPrunable, GetAnnotations())
             : this;
 
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new LeftJoinExpression(Table, JoinPredicate, annotations);
+        => new LeftJoinExpression(Table, JoinPredicate, IsPrunable, annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
