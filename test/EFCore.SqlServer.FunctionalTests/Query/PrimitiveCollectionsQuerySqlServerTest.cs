@@ -562,7 +562,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]) = 2
+    FROM OPENJSON([p].[Ints]) AS [i]) = 2
 """);
     }
 
@@ -576,7 +576,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]) = 2
+    FROM OPENJSON([p].[Ints]) AS [i]) = 2
 """);
     }
 
@@ -650,7 +650,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([p].[Strings]) WITH ([value] nvarchar(max) '$') AS [s]) AND JSON_VALUE([p].[Strings], '$[1]') = [p].[NullableString]
+    FROM OPENJSON([p].[Strings]) AS [s]) AND JSON_VALUE([p].[Strings], '$[1]') = [p].[NullableString]
 """);
     }
 
@@ -790,7 +790,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i])
+    FROM OPENJSON([p].[Ints]) AS [i])
 """);
     }
 
@@ -881,10 +881,10 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT 1 AS empty
-        FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i]
+        FROM OPENJSON(@__ints_0) AS [i]
         UNION ALL
         SELECT 1 AS empty
-        FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i0]
+        FROM OPENJSON([p].[Ints]) AS [i0]
     ) AS [t]) = 2
 """);
     }
