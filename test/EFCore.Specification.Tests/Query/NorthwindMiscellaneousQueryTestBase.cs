@@ -2855,6 +2855,16 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         products = (IQueryable<Product>)products.Provider.CreateQuery(products.Expression);
     }
 
+    [ConditionalFact]
+    public virtual async Task IQueryable_captured_variable()
+    {
+        await using var context = CreateContext();
+
+        IQueryable<Order> nestedOrdersQuery = context.Orders;
+
+        _ = await context.Customers.CountAsync(c => nestedOrdersQuery.Count() == 2);
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Select_Subquery_Single(bool async)

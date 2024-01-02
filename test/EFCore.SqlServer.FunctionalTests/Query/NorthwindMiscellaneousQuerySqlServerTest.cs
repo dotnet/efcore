@@ -1174,11 +1174,7 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 
         AssertSql(
             """
-@__p_0='none' (Size = 4000)
-@__p_1='none' (Size = 4000)
-@__p_2='none' (Size = 4000)
-
-SELECT [c].[CustomerID], @__p_0 AS [Data1], @__p_1 AS [Data2], @__p_2 AS [Data3]
+SELECT [c].[CustomerID], N'none' AS [Data1]
 FROM [Customers] AS [c]
 """);
     }
@@ -2801,9 +2797,7 @@ END, [c].[CustomerID]
 
         AssertSql(
             """
-@__p_0='False'
-
-SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], @__p_0 AS [Test]
+SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], CAST(0 AS bit) AS [Test]
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
@@ -5626,11 +5620,11 @@ FROM [Order Details] AS [o]
 
         AssertSql(
             """
-@__entity_equality_p_0_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@__entity_equality_a_0_CustomerID='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__entity_equality_p_0_CustomerID
+WHERE [c].[CustomerID] = @__entity_equality_a_0_CustomerID
 """);
     }
 
@@ -7131,6 +7125,20 @@ FROM [Orders] AS [o]
         AssertSql();
     }
 
+    public override async Task IQueryable_captured_variable()
+    {
+        await base.IQueryable_captured_variable();
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE (
+    SELECT COUNT(*)
+    FROM [Orders] AS [o]) = 2
+""");
+    }
+
     public override async Task Multiple_context_instances(bool async)
     {
         await base.Multiple_context_instances(async);
@@ -7407,14 +7415,14 @@ WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
 
         AssertSql(
             """
-@__someVariable_1='SomeVariable' (Size = 4000)
-@__data_0='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
+@__someVariable_0='SomeVariable' (Size = 4000)
+@__data_1='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] + @__someVariable_1 IN (
+WHERE [c].[CustomerID] + @__someVariable_0 IN (
     SELECT [d].[value]
-    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+    FROM OPENJSON(@__data_1) WITH ([value] nvarchar(max) '$') AS [d]
 )
 """);
     }
