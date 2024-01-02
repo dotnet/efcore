@@ -108,6 +108,20 @@ public sealed class TpcTablesExpression : TableExpressionBase
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
         => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
 
+    /// <inheritdoc />
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    {
+        // Deep clone
+        var subSelectExpressions = SelectExpressions.Select(cloningExpressionVisitor.Visit).ToList<SelectExpression>();
+        var newTpcTable = new TpcTablesExpression(Alias, EntityType, subSelectExpressions);
+        foreach (var annotation in GetAnnotations())
+        {
+            newTpcTable.AddAnnotation(annotation.Name, annotation.Value);
+        }
+
+        return newTpcTable;
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

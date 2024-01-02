@@ -47,6 +47,12 @@ public abstract class JoinExpressionBase : TableExpressionBase
     public abstract JoinExpressionBase Update(TableExpressionBase table);
 
     /// <inheritdoc />
+    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+        // Joins necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a new
+        // copy of this JoinExpressionBase by calling Update.
+        => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
+
+    /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj != null
             && (ReferenceEquals(this, obj)
