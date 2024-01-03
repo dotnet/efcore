@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class NavigationFixer : INavigationFixer
 {
+    private static readonly bool UseOldBehavior32383 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32383", out var enabled32383) && enabled32383;
+
     private IList<(
         InternalEntityEntry Entry,
         InternalEntityEntry OtherEntry,
@@ -1412,14 +1415,51 @@ public class NavigationFixer : INavigationFixer
             }
         }
 
-        if (foreignKey.IsRequired
-            && hasOnlyKeyProperties
-            && dependentEntry.EntityState != EntityState.Detached
-            && dependentEntry.EntityState != EntityState.Deleted)
+        if (UseOldBehavior32383)
         {
-            if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
-                || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade
-                || foreignKey.IsOwnership)
+            if (foreignKey.IsRequired
+                && hasOnlyKeyProperties
+                && dependentEntry.EntityState != EntityState.Detached
+                && dependentEntry.EntityState != EntityState.Deleted)
+            {
+                if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
+                    || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade
+                    || foreignKey.IsOwnership)
+                {
+                    try
+                    {
+                        _inFixup = true;
+                        switch (dependentEntry.EntityState)
+                        {
+                            case EntityState.Added:
+                                dependentEntry.SetEntityState(EntityState.Detached);
+                                DeleteFixup(dependentEntry);
+                                break;
+                            case EntityState.Unchanged:
+                            case EntityState.Modified:
+                                dependentEntry.SetEntityState(
+                                    dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                                DeleteFixup(dependentEntry);
+                                break;
+                        }
+                    }
+                    finally
+                    {
+                        _inFixup = false;
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.KeyReadOnly(dependentProperties.First().Name, dependentEntry.EntityType.DisplayName()));
+                }
+            }
+        }
+        else
+        {
+            if (foreignKey.IsRequired
+                && hasOnlyKeyProperties
+                && dependentEntry.EntityState != EntityState.Detached)
             {
                 try
                 {
@@ -1443,11 +1483,7 @@ public class NavigationFixer : INavigationFixer
                     _inFixup = false;
                 }
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.KeyReadOnly(dependentProperties.First().Name, dependentEntry.EntityType.DisplayName()));
-            }
+
         }
     }
 

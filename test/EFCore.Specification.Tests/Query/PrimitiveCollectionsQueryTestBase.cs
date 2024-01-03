@@ -69,7 +69,8 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         => AssertQuery(
             async,
             // ReSharper disable once UseArrayEmptyMethod
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int[0].Contains(c.Id)));
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new int[0].Contains(c.Id)),
+            assertEmpty: true);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

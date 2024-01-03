@@ -1603,9 +1603,9 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                   where c.Location.Contains("Jacinto")
                   select c);
 
-    [ConditionalTheory]
+    [ConditionalTheory] // Issue #32325
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Non_unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool async)
+    public virtual Task Unicode_string_literals_is_used_for_non_unicode_column_with_concat(bool async)
         => AssertQuery(
             async,
             ss => from c in ss.Set<City>()

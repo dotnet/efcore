@@ -49,5 +49,5 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitorFactory : IQuer
     /// </summary>
     public virtual QueryableMethodTranslatingExpressionVisitor Create(QueryCompilationContext queryCompilationContext)
         => new SqlServerQueryableMethodTranslatingExpressionVisitor(
-            Dependencies, RelationalDependencies, queryCompilationContext, _sqlServerSingletonOptions);
+            Dependencies, RelationalDependencies, (SqlServerQueryCompilationContext)queryCompilationContext, _sqlServerSingletonOptions);
 }

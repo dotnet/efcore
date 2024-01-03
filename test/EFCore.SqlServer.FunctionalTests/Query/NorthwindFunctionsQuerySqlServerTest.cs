@@ -96,11 +96,11 @@ WHERE [c].[ContactName] LIKE N'M%'
 
         AssertSql(
             """
-@__pattern_0_rewritten='M%' (Size = 30)
+@__pattern_0_startswith='M%' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_startswith ESCAPE N'\'
 """);
     }
 
@@ -158,11 +158,11 @@ WHERE [c].[ContactName] LIKE N'%b'
 
         AssertSql(
             """
-@__pattern_0_rewritten='%b' (Size = 30)
+@__pattern_0_endswith='%b' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_endswith ESCAPE N'\'
 """);
     }
 
@@ -259,11 +259,11 @@ WHERE [c].[ContactName] LIKE N'%     %'
 
         AssertSql(
             """
-@__pattern_0_rewritten='%     %' (Size = 30)
+@__pattern_0_contains='%     %' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
+WHERE [c].[ContactName] LIKE @__pattern_0_contains ESCAPE N'\'
 """);
     }
 
@@ -378,7 +378,7 @@ GROUP BY [c].[City]
         await base.String_Compare_simple_zero(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'AROUT'
@@ -420,7 +420,7 @@ WHERE [c].[CustomerID] <= N'AROUT'
         await base.String_Compare_simple_one(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
@@ -462,7 +462,7 @@ WHERE [c].[CustomerID] >= N'AROUT'
         await base.String_compare_with_parameter(async);
 
         AssertSql(
-"""
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -612,7 +612,7 @@ WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country
         await base.String_Compare_to_simple_zero(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = N'AROUT'
@@ -654,7 +654,7 @@ WHERE [c].[CustomerID] <= N'AROUT'
         await base.String_Compare_to_simple_one(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] > N'AROUT'
@@ -696,7 +696,7 @@ WHERE [c].[CustomerID] >= N'AROUT'
         await base.String_compare_to_with_parameter(async);
 
         AssertSql(
-"""
+            """
 @__customer_CustomerID_0='AROUT' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -786,7 +786,7 @@ END
         await base.String_Compare_to_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] <> N'M' + [c].[CustomerID]

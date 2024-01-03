@@ -127,7 +127,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Add_entity_with_json();
 
         AssertSql(
-"""
+            """
 @p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":2,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 352)
 @p1='[]' (Nullable = false) (Size = 2)
 @p2='2'
@@ -151,7 +151,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Add_entity_with_json_null_navigations();
 
         AssertSql(
-"""
+            """
 @p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":null,"OwnedReferenceBranch":{"Date":"2010-10-10T00:00:00","Enum":2,"Enums":null,"Fraction":42.42,"NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":null}}' (Nullable = false) (Size = 330)
 @p1='2'
 @p2=NULL (DbType = Int32)
@@ -2462,7 +2462,7 @@ FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 7624
 """,
                 //
-                
+
 "@p0=" + updateParameter + @" (Nullable = false) (Size = 4000)
 @p1='7624'
 

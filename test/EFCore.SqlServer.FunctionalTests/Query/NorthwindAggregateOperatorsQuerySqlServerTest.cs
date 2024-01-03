@@ -1798,7 +1798,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_enumerable_closure(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1826,7 +1826,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_object_enumerable_closure(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1843,7 +1843,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_enumerable_closure_all_null(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='[]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1880,7 +1880,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_ordered_enumerable_closure(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1908,7 +1908,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_object_ordered_enumerable_closure(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='["ABCDE","ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1925,7 +1925,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_ordered_enumerable_closure_all_null(async);
 
         AssertSql(
-"""
+            """
 @__ids_0='[null,null]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1942,7 +1942,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_ordered_enumerable_inline(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
@@ -1954,7 +1954,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
         await base.Contains_with_local_ordered_enumerable_inline_closure_mix(async);
 
         AssertSql(
-"""
+            """
 @__Order_0='["ABCDE","ALFKI"]' (Size = 4000)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
@@ -1982,7 +1982,7 @@ WHERE [c].[CustomerID] IN (
         await base.Contains_with_local_read_only_collection_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
@@ -2000,7 +2000,7 @@ WHERE [c].[CustomerID] = N'ABCDE'
         await base.Contains_with_local_object_read_only_collection_closure(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
@@ -2012,7 +2012,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
         await base.Contains_with_local_ordered_read_only_collection_all_null(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE 0 = 1
@@ -2024,7 +2024,7 @@ WHERE 0 = 1
         await base.Contains_with_local_read_only_collection_inline(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
@@ -2036,7 +2036,7 @@ WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
         await base.Contains_with_local_read_only_collection_inline_closure_mix(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (N'ABCDE', N'ALFKI')
@@ -2898,6 +2898,100 @@ SELECT CAST(1 AS bit)
         AssertSql(
             """
 SELECT [c].[CustomerID]
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Contains_inside_aggregate_function_with_GroupBy(bool async)
+    {
+        await base.Contains_inside_aggregate_function_with_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COUNT(CASE
+    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
+END)
+FROM [Customers] AS [c]
+GROUP BY [c].[Country]
+""");
+    }
+
+    public override async Task Contains_inside_Average_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Average_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT AVG(CASE
+    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1.0E0
+    ELSE 0.0E0
+END)
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Contains_inside_Sum_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Sum_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COALESCE(SUM(CASE
+    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
+    ELSE 0
+END), 0)
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Contains_inside_Count_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Count_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COUNT(*)
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'London', N'Berlin')
+""");
+    }
+
+    public override async Task Contains_inside_LongCount_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_LongCount_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT COUNT_BIG(*)
+FROM [Customers] AS [c]
+WHERE [c].[City] IN (N'London', N'Berlin')
+""");
+    }
+
+    public override async Task Contains_inside_Max_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Max_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT MAX(CASE
+    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
+    ELSE 0
+END)
+FROM [Customers] AS [c]
+""");
+    }
+
+    public override async Task Contains_inside_Min_without_GroupBy(bool async)
+    {
+        await base.Contains_inside_Min_without_GroupBy(async);
+
+        AssertSql(
+            """
+SELECT MIN(CASE
+    WHEN [c].[City] IN (N'London', N'Berlin') THEN 1
+    ELSE 0
+END)
 FROM [Customers] AS [c]
 """);
     }

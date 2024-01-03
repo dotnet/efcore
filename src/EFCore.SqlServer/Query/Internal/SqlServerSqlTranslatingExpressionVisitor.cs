@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
@@ -16,8 +17,11 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExpressionVisitor
 {
-    private readonly QueryCompilationContext _queryCompilationContext;
+    private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+
+    private static readonly bool UseOldBehavior32432 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32432", out var enabled32432) && enabled32432;
 
     private static readonly HashSet<string> DateTimeDataTypes
         = new()
@@ -72,7 +76,7 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     /// </summary>
     public SqlServerSqlTranslatingExpressionVisitor(
         RelationalSqlTranslatingExpressionVisitorDependencies dependencies,
-        QueryCompilationContext queryCompilationContext,
+        SqlServerQueryCompilationContext queryCompilationContext,
         QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         : base(dependencies, queryCompilationContext, queryableMethodTranslatingExpressionVisitor)
     {
@@ -278,8 +282,10 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             Expression.Constant(methodType)),
                         QueryCompilationContext.QueryContextParameter);
 
-                    var escapedPatternParameter =
-                        _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda);
+                    var escapedPatternParameter = UseOldBehavior32432
+                        ? _queryCompilationContext.RegisterRuntimeParameter(patternParameter.Name + "_rewritten", lambda)
+                        : _queryCompilationContext.RegisterRuntimeParameter(
+                            $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda);
 
                     translation = _sqlExpressionFactory.Like(
                         translatedInstance,
@@ -428,6 +434,28 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
         }
 
         return builder.ToString();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool TryTranslateAggregateMethodCall(
+        MethodCallExpression methodCallExpression,
+        [NotNullWhen(true)] out SqlExpression? translation)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+        var result = base.TryTranslateAggregateMethodCall(methodCallExpression, out translation);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+
+        return result;
     }
 
     private Expression TranslateByteArrayElementAccess(Expression array, Expression index, Type resultType)

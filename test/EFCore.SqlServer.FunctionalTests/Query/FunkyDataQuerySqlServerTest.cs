@@ -78,19 +78,19 @@ FROM [FunkyCustomers] AS [f]
 
         AssertSql(
             """
-@__prm1_0_rewritten='%\%B%' (Size = 4000)
+@__prm1_0_contains='%\%B%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm1_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm1_0_contains ESCAPE N'\'
 """,
             //
             """
-@__prm2_0_rewritten='%a\_%' (Size = 4000)
+@__prm2_0_contains='%a\_%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm2_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm2_0_contains ESCAPE N'\'
 """,
             //
             """
@@ -100,35 +100,35 @@ WHERE 0 = 1
 """,
             //
             """
-@__prm4_0_rewritten='%' (Size = 4000)
+@__prm4_0_contains='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm4_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm4_0_contains ESCAPE N'\'
 """,
             //
             """
-@__prm5_0_rewritten='%\_Ba\_%' (Size = 4000)
+@__prm5_0_contains='%\_Ba\_%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm5_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm5_0_contains ESCAPE N'\'
 """,
             //
             """
-@__prm6_0_rewritten='%\%B\%a\%r%' (Size = 4000)
+@__prm6_0_contains='%\%B\%a\%r%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm6_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm6_0_contains ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
             //
             """
-@__prm7_0_rewritten='%' (Size = 4000)
+@__prm7_0_contains='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm7_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm7_0_contains ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
             //
             """
@@ -168,7 +168,7 @@ WHERE NOT ([f].[FirstName] IS NOT NULL AND [f0].[LastName] IS NOT NULL AND (CHAR
         await base.String_starts_with_on_argument_with_wildcard_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'\%B%' ESCAPE N'\'
@@ -221,61 +221,61 @@ FROM [FunkyCustomers] AS [f]
         await base.String_starts_with_on_argument_with_wildcard_parameter(async);
 
         AssertSql(
-"""
-@__prm1_0_rewritten='\%B%' (Size = 4000)
+            """
+@__prm1_0_startswith='\%B%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm1_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm1_0_startswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm2_0_rewritten='\_B%' (Size = 4000)
+            //
+            """
+@__prm2_0_startswith='\_B%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm2_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm2_0_startswith ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
-@__prm4_0_rewritten='%' (Size = 4000)
+            //
+            """
+@__prm4_0_startswith='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm4_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm4_0_startswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm5_0_rewritten='\_Ba\_%' (Size = 4000)
+            //
+            """
+@__prm5_0_startswith='\_Ba\_%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm5_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm5_0_startswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm6_0_rewritten='\%B\%a\%r%' (Size = 4000)
+            //
+            """
+@__prm6_0_startswith='\%B\%a\%r%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm6_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm6_0_startswith ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
-@__prm7_0_rewritten='%' (Size = 4000)
+            //
+            """
+@__prm7_0_startswith='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm7_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm7_0_startswith ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -305,27 +305,27 @@ WHERE [f].[FirstName] LIKE N'B\[\[a^%' ESCAPE N'\'
 """,
             //
             """
-@__prm1_0_rewritten='\[%' (Size = 4000)
+@__prm1_0_startswith='\[%' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm1_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm1_0_startswith ESCAPE N'\'
 """,
             //
             """
-@__prm2_0_rewritten='B\[%' (Size = 4000)
+@__prm2_0_startswith='B\[%' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm2_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm2_0_startswith ESCAPE N'\'
 """,
             //
             """
-@__prm3_0_rewritten='B\[\[a^%' (Size = 4000)
+@__prm3_0_startswith='B\[\[a^%' (Size = 4000)
 
 SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm3_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm3_0_startswith ESCAPE N'\'
 """,
             //
             """
@@ -366,7 +366,7 @@ WHERE [f].[FirstName] IS NULL OR [f0].[LastName] IS NULL OR LEFT([f].[FirstName]
         await base.String_ends_with_on_argument_with_wildcard_constant(async);
 
         AssertSql(
-"""
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE [f].[FirstName] LIKE N'%\%r' ESCAPE N'\'
@@ -419,61 +419,61 @@ FROM [FunkyCustomers] AS [f]
         await base.String_ends_with_on_argument_with_wildcard_parameter(async);
 
         AssertSql(
-"""
-@__prm1_0_rewritten='%\%r' (Size = 4000)
+            """
+@__prm1_0_endswith='%\%r' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm1_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm1_0_endswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm2_0_rewritten='%r\_' (Size = 4000)
+            //
+            """
+@__prm2_0_endswith='%r\_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm2_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm2_0_endswith ESCAPE N'\'
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 WHERE 0 = 1
 """,
-                //
-                """
-@__prm4_0_rewritten='%' (Size = 4000)
+            //
+            """
+@__prm4_0_endswith='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm4_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm4_0_endswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm5_0_rewritten='%\_r\_' (Size = 4000)
+            //
+            """
+@__prm5_0_endswith='%\_r\_' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] LIKE @__prm5_0_rewritten ESCAPE N'\'
+WHERE [f].[FirstName] LIKE @__prm5_0_endswith ESCAPE N'\'
 """,
-                //
-                """
-@__prm6_0_rewritten='%a\%r\%' (Size = 4000)
+            //
+            """
+@__prm6_0_endswith='%a\%r\%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm6_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm6_0_endswith ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
-@__prm7_0_rewritten='%' (Size = 4000)
+            //
+            """
+@__prm7_0_endswith='%' (Size = 4000)
 
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] NOT LIKE @__prm7_0_rewritten ESCAPE N'\' OR [f].[FirstName] IS NULL
+WHERE [f].[FirstName] NOT LIKE @__prm7_0_endswith ESCAPE N'\' OR [f].[FirstName] IS NULL
 """,
-                //
-                """
+            //
+            """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
 """);
@@ -578,6 +578,21 @@ END <> [f].[NullableBool] OR [f].[NullableBool] IS NULL
 SELECT SUBSTRING([f].[FirstName], 1, 1) AS [first], SUBSTRING([f].[FirstName], LEN([f].[FirstName]), 1) AS [last]
 FROM [FunkyCustomers] AS [f]
 ORDER BY [f].[Id]
+""");
+    }
+
+    public override async Task String_Contains_and_StartsWith_with_same_parameter(bool async)
+    {
+        await base.String_Contains_and_StartsWith_with_same_parameter(async);
+
+        AssertSql(
+            """
+@__s_0_contains='%B%' (Size = 4000)
+@__s_0_startswith='B%' (Size = 4000)
+
+SELECT [f].[Id], [f].[FirstName], [f].[LastName], [f].[NullableBool]
+FROM [FunkyCustomers] AS [f]
+WHERE [f].[FirstName] LIKE @__s_0_contains ESCAPE N'\' OR [f].[LastName] LIKE @__s_0_startswith ESCAPE N'\'
 """);
     }
 

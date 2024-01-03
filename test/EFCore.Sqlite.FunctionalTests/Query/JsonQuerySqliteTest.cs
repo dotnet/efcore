@@ -72,7 +72,7 @@ FROM "JsonEntitiesBasic" AS "j"
         await base.Json_collection_Any_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE EXISTS (

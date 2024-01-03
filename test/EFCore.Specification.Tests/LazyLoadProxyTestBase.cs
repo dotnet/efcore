@@ -24,6 +24,56 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     protected TFixture Fixture { get; }
 
+    [ConditionalTheory] // Issue #32390
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual void Can_use_proxies_from_multiple_threads_when_navigations_already_loaded(bool noTracking)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        IQueryable<Parent> query = context.Set<Parent>();
+
+        if (noTracking)
+        {
+            query = query.AsNoTracking();
+        }
+
+        var parent = query.Single();
+
+        var children = parent.Children!.ToList();
+        var singlePkToPk = parent.SinglePkToPk;
+        var single = parent.Single;
+        var childrenAk = parent.ChildrenAk!.ToList();
+        var singleAk = parent.SingleAk;
+        var childrenShadowFk = parent.ChildrenShadowFk!.ToList();
+        var singleShadowFk = parent.SingleShadowFk;
+        var childrenCompositeKey = parent.ChildrenCompositeKey!.ToList();
+        var singleCompositeKey = parent.SingleCompositeKey;
+        var withRecursiveProperty = parent.WithRecursiveProperty;
+        var manyChildren = parent.ManyChildren!.ToList();
+
+        var tests = new Action[20];
+        for (var i = 0; i < 20; i++)
+        {
+            tests[i] = () =>
+            {
+                Assert.Equal(children, parent.Children!);
+                Assert.Equal(singlePkToPk, parent.SinglePkToPk);
+                Assert.Equal(single, parent.Single);
+                Assert.Equal(childrenAk, parent.ChildrenAk!);
+                Assert.Equal(singleAk, parent.SingleAk);
+                Assert.Equal(childrenShadowFk, parent.ChildrenShadowFk!);
+                Assert.Equal(singleShadowFk, parent.SingleShadowFk);
+                Assert.Equal(childrenCompositeKey, parent.ChildrenCompositeKey!);
+                Assert.Equal(singleCompositeKey, parent.SingleCompositeKey);
+                Assert.Equal(withRecursiveProperty, parent.WithRecursiveProperty);
+                Assert.Equal(manyChildren, parent.ManyChildren!);
+            };
+        }
+
+        Task.WaitAll(tests.Select(Task.Run).ToArray());
+    }
+
     [ConditionalFact]
     public virtual void Detected_principal_reference_navigation_changes_are_detected_and_marked_loaded()
     {

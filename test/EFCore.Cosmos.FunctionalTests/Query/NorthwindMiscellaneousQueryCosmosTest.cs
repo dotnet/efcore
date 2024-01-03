@@ -4610,6 +4610,66 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
+    public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        await base.Contains_over_concatenated_columns_with_different_sizes(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || c["CompanyName"]) IN ("ALFKIAlfreds Futterkiste", "ANATRAna Trujillo Emparedados y helados"))
+""");
+    }
+
+    public override async Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        await base.Contains_over_concatenated_column_and_constant(async);
+
+        AssertSql(
+            """
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || "SomeConstant") IN ("ALFKISomeConstant", "ANATRSomeConstant", "ALFKIX"))
+""");
+    }
+
+    public override async Task Contains_over_concatenated_columns_both_fixed_length(bool async)
+    {
+        await AssertTranslationFailed(
+            () => base.Contains_over_concatenated_columns_both_fixed_length(async));
+
+        AssertSql();
+    }
+
+    public override async Task Contains_over_concatenated_column_and_parameter(bool async)
+    {
+        await base.Contains_over_concatenated_column_and_parameter(async);
+
+        AssertSql(
+            """
+@__someVariable_1='SomeVariable'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] || @__someVariable_1) IN ("ALFKISomeVariable", "ANATRSomeVariable", "ALFKIX"))
+""");
+    }
+
+    public override async Task Contains_over_concatenated_parameter_and_constant(bool async)
+    {
+        await base.Contains_over_concatenated_parameter_and_constant(async);
+
+        AssertSql(
+            """
+@__Contains_0='true'
+
+SELECT c
+FROM root c
+WHERE ((c["Discriminator"] = "Customer") AND @__Contains_0)
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

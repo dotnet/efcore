@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -15,11 +16,15 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 /// </summary>
 public class LazyLoader : ILazyLoader, IInjectableService
 {
+    private static readonly bool UseOldBehavior32390 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32390", out var enabled32390) && enabled32390;
+
     private QueryTrackingBehavior? _queryTrackingBehavior;
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
-    private List<(object Entity, string NavigationName)>? _isLoading;
+    private readonly ConcurrentDictionary<(object Entity, string NavigationName), bool> _isLoading = new(NavEntryEqualityComparer.Instance);
+    private List<(object Entity, string NavigationName)>? _legacyIsLoading;
     private IEntityType? _entityType;
 
     /// <summary>
@@ -104,11 +109,13 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!IsLoading(navEntry))
+
+        if (UseOldBehavior32390
+                ? (!IsLoading(navEntry))
+                : _isLoading.TryAdd(navEntry, true))
         {
             try
             {
-                _isLoading!.Add(navEntry);
                 // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
@@ -128,7 +135,14 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                DoneLoading(navEntry);
+                if (UseOldBehavior32390)
+                {
+                    DoneLoading(navEntry);
+                }
+                else
+                {
+                    _isLoading.TryRemove(navEntry, out _);
+                }
             }
         }
     }
@@ -148,11 +162,12 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!IsLoading(navEntry))
+        if (UseOldBehavior32390
+                ? (!IsLoading(navEntry))
+                : _isLoading.TryAdd(navEntry, true))
         {
             try
             {
-                _isLoading!.Add(navEntry);
                 // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
@@ -173,32 +188,39 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                DoneLoading(navEntry);
+                if (UseOldBehavior32390)
+                {
+                    DoneLoading(navEntry);
+                }
+                else
+                {
+                    _isLoading.TryRemove(navEntry, out _);
+                }
             }
         }
     }
 
     private bool IsLoading((object Entity, string NavigationName) navEntry)
-        => (_isLoading ??= new List<(object Entity, string NavigationName)>())
-            .Contains(navEntry, EntityNavigationEqualityComparer.Instance);
+        => (_legacyIsLoading ??= new List<(object Entity, string NavigationName)>())
+            .Contains(navEntry, NavEntryEqualityComparer.Instance);
 
     private void DoneLoading((object Entity, string NavigationName) navEntry)
     {
-        for (var i = 0; i < _isLoading!.Count; i++)
+        for (var i = 0; i < _legacyIsLoading!.Count; i++)
         {
-            if (EntityNavigationEqualityComparer.Instance.Equals(navEntry, _isLoading[i]))
+            if (NavEntryEqualityComparer.Instance.Equals(navEntry, _legacyIsLoading[i]))
             {
-                _isLoading.RemoveAt(i);
+                _legacyIsLoading.RemoveAt(i);
                 break;
             }
         }
     }
 
-    private sealed class EntityNavigationEqualityComparer : IEqualityComparer<(object Entity, string NavigationName)>
+    private sealed class NavEntryEqualityComparer : IEqualityComparer<(object Entity, string NavigationName)>
     {
-        public static readonly EntityNavigationEqualityComparer Instance = new();
+        public static readonly NavEntryEqualityComparer Instance = new();
 
-        private EntityNavigationEqualityComparer()
+        private NavEntryEqualityComparer()
         {
         }
 
@@ -207,7 +229,9 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 && string.Equals(x.NavigationName, y.NavigationName, StringComparison.Ordinal);
 
         public int GetHashCode((object Entity, string NavigationName) obj)
-            => HashCode.Combine(obj.Entity.GetHashCode(), obj.GetHashCode());
+            => UseOldBehavior32390
+                ? HashCode.Combine(obj.Entity.GetHashCode(), obj.GetHashCode())
+                : HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

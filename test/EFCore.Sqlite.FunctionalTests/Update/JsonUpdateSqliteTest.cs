@@ -122,7 +122,7 @@ LIMIT 2
         await base.Add_entity_with_json();
 
         AssertSql(
-"""
+            """
 @p0='{"Name":"RootName","Names":null,"Number":42,"Numbers":null,"OwnedCollectionBranch":[],"OwnedReferenceBranch":{"Date":"2010-10-10 00:00:00","Enum":2,"Enums":null,"Fraction":"42.42","NullableEnum":null,"NullableEnums":null,"OwnedCollectionLeaf":[{"SomethingSomething":"ss1"},{"SomethingSomething":"ss2"}],"OwnedReferenceLeaf":{"SomethingSomething":"ss3"}}}' (Nullable = false) (Size = 354)
 @p1='[]' (Nullable = false) (Size = 2)
 @p2='2'

@@ -905,6 +905,12 @@ public class ConventionSet
         {
             PropertyRemovedConventions.Add(propertyRemovedConvention);
         }
+
+        if (!ElementTypeChangedConvention.UseOldBehavior32411
+            && convention is IPropertyElementTypeChangedConvention elementTypeChangedConvention)
+        {
+            PropertyElementTypeChangedConventions.Add(elementTypeChangedConvention);
+        }
     }
 
     /// <summary>

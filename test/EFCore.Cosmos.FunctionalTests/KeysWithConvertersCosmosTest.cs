@@ -146,6 +146,10 @@ public class KeysWithConvertersCosmosTest : KeysWithConvertersTestBase<KeysWithC
     public override void Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK()
         => base.Can_insert_and_read_back_with_comparable_class_key_and_optional_dependents_with_shadow_FK();
 
+    [ConditionalFact(Skip = "Issue=#26239")]
+    public override void Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
+        => base.Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents();
+
     public class KeysWithConvertersCosmosFixture : KeysWithConvertersFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
@@ -537,6 +541,13 @@ public class KeysWithConvertersCosmosTest : KeysWithConvertersTestBase<KeysWithC
                     b.Property(e => e.Id).HasConversion(GenericComparableIntClassKey.Converter);
                     b.OwnsOne(e => e.Owned);
                 });
+
+            modelBuilder.Ignore<EnumerableClassKeyPrincipal>();
+            modelBuilder.Ignore<EnumerableClassKeyOptionalDependent>();
+            modelBuilder.Ignore<EnumerableClassKeyRequiredDependent>();
         }
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(w => w.Ignore(CoreEventId.MappedEntityTypeIgnoredWarning)));
     }
 }
