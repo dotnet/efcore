@@ -765,6 +765,105 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
     }
 
     [ConditionalFact]
+    public virtual void Can_insert_and_read_back_with_enumerable_class_key_and_optional_dependents()
+    {
+        InsertOptionalGraph<EnumerableClassKeyPrincipal, EnumerableClassKeyOptionalDependent>();
+
+        using (var context = CreateContext())
+        {
+            RunQueries(context, out var principals, out var dependents);
+
+            Validate(
+                principals,
+                dependents,
+                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
+                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+
+            foreach (var principal in principals)
+            {
+                principal.Foo = "Mutant!";
+            }
+
+            dependents[5].Principal = principals[0];
+            dependents[4].PrincipalId = null;
+            dependents[3].PrincipalId = principals[0].Id;
+            principals[1].OptionalDependents.Clear();
+
+            context.Remove(dependents[0]);
+            principals[0].OptionalDependents.Add(
+                new EnumerableClassKeyOptionalDependent { Id = new EnumerableClassKey(dependents[0].Id.Id), });
+
+            context.SaveChanges();
+        }
+
+        using (var context = CreateContext())
+        {
+            RunQueries(context, out var principals, out var dependents);
+
+            Validate(
+                principals,
+                dependents,
+                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
+                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+        }
+
+        void RunQueries(
+            DbContext context,
+            out EnumerableClassKeyPrincipal[] principals,
+            out EnumerableClassKeyOptionalDependent[] dependents)
+        {
+            var two = 2;
+            var three = new EnumerableClassKey(3);
+
+            principals = new[]
+            {
+                context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
+                    .Single(e => e.Id.Equals(new EnumerableClassKey(1))),
+                context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
+                    .Single(e => e.Id.Equals(new EnumerableClassKey(two))),
+                context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
+                context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
+                    .Single(e => e.Id.Equals(new EnumerableClassKey(4)))
+            };
+
+            var oneOhTwo = 102;
+            var oneOhThree = new EnumerableClassKey(103);
+            var oneOhFive = 105;
+            var oneOhSix = new EnumerableClassKey(106);
+
+            dependents = new[]
+            {
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(new EnumerableClassKey(101))),
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(new EnumerableClassKey(oneOhTwo))),
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == new EnumerableClassKey(104)),
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == new EnumerableClassKey(oneOhFive)),
+                context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
+            };
+
+            Assert.Same(dependents[0], context.Set<EnumerableClassKeyOptionalDependent>().Find(new EnumerableClassKey(101)));
+            Assert.Same(dependents[1], context.Set<EnumerableClassKeyOptionalDependent>().Find(new EnumerableClassKey(oneOhTwo)));
+            Assert.Same(dependents[2], context.Set<EnumerableClassKeyOptionalDependent>().Find(oneOhThree));
+            Assert.Same(dependents[3], context.Find<EnumerableClassKeyOptionalDependent>(new EnumerableClassKey(104)));
+            Assert.Same(dependents[4], context.Find<EnumerableClassKeyOptionalDependent>(new EnumerableClassKey(oneOhFive)));
+            Assert.Same(dependents[5], context.Find<EnumerableClassKeyOptionalDependent>(oneOhSix));
+        }
+
+        void Validate(
+            EnumerableClassKeyPrincipal[] principals,
+            EnumerableClassKeyOptionalDependent[] dependents,
+            (int, int[])[] expectedPrincipalToDependents,
+            (int, int?)[] expectedDependentToPrincipals)
+            => ValidateOptional(
+                principals,
+                dependents,
+                expectedPrincipalToDependents,
+                expectedDependentToPrincipals,
+                p => ((EnumerableClassKeyPrincipal)p).OptionalDependents.Select(d => (IIntOptionalDependent)d).ToList(),
+                d => ((EnumerableClassKeyOptionalDependent)d).Principal);
+    }
+
+    [ConditionalFact]
     public virtual void Can_insert_and_read_back_with_bare_class_key_and_optional_dependents()
     {
         InsertOptionalGraph<BareIntClassKeyPrincipal, BareIntClassKeyOptionalDependent>();
@@ -5581,6 +5680,36 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public int Id { get; set; }
     }
 
+    protected class EnumerableClassKey : IEnumerable<byte>
+    {
+        public static ValueConverter<EnumerableClassKey, int> Converter
+            = new(v => v.Id, v => new EnumerableClassKey(v));
+
+        public EnumerableClassKey(int id)
+        {
+            Id = id;
+        }
+
+        public IEnumerator<byte> GetEnumerator()
+            => throw new NotImplementedException();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+
+        protected bool Equals(EnumerableClassKey other)
+            => other != null && Id == other.Id;
+
+        public override bool Equals(object obj)
+            => obj == this
+                || obj?.GetType() == GetType()
+                && Equals((IntClassKey)obj);
+
+        public override int GetHashCode()
+            => Id;
+
+        public int Id { get; set; }
+    }
+
     protected class BareIntClassKey
     {
         public static ValueConverter<BareIntClassKey, int> Converter
@@ -6149,6 +6278,63 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             get => PrincipalId.Id;
             set => PrincipalId = new IntClassKey(value);
+        }
+    }
+
+    protected class EnumerableClassKeyPrincipal : IIntPrincipal
+    {
+        public EnumerableClassKey Id { get; set; }
+        public string Foo { get; set; }
+        public ICollection<EnumerableClassKeyOptionalDependent> OptionalDependents { get; set; }
+        public ICollection<EnumerableClassKeyRequiredDependent> RequiredDependents { get; set; }
+
+        [NotMapped]
+        public int BackingId
+        {
+            get => Id.Id;
+            set => Id = new EnumerableClassKey(value);
+        }
+    }
+
+    protected class EnumerableClassKeyOptionalDependent : IIntOptionalDependent
+    {
+        public EnumerableClassKey Id { get; set; }
+        public EnumerableClassKey PrincipalId { get; set; }
+        public EnumerableClassKeyPrincipal Principal { get; set; }
+
+        [NotMapped]
+        public int BackingId
+        {
+            get => Id.Id;
+            set => Id = new EnumerableClassKey(value);
+        }
+
+        [NotMapped]
+        public int? BackingPrincipalId
+        {
+            get => PrincipalId?.Id;
+            set => PrincipalId = value.HasValue ? new EnumerableClassKey(value.Value) : null;
+        }
+    }
+
+    protected class EnumerableClassKeyRequiredDependent : IIntRequiredDependent
+    {
+        public EnumerableClassKey Id { get; set; }
+        public EnumerableClassKey PrincipalId { get; set; }
+        public EnumerableClassKeyPrincipal Principal { get; set; }
+
+        [NotMapped]
+        public int BackingId
+        {
+            get => Id.Id;
+            set => Id = new EnumerableClassKey(value);
+        }
+
+        [NotMapped]
+        public int BackingPrincipalId
+        {
+            get => PrincipalId.Id;
+            set => PrincipalId = new EnumerableClassKey(value);
         }
     }
 
@@ -6887,14 +7073,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(IntStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<IntStructKeyRequiredDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(IntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(IntStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<IntClassKeyPrincipal>(
@@ -6912,6 +7098,23 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 {
                     b.Property(e => e.Id).HasConversion(IntClassKey.Converter);
                     b.Property(e => e.PrincipalId).HasConversion(IntClassKey.Converter);
+                });
+
+            modelBuilder.Entity<EnumerableClassKeyPrincipal>(
+                b => { b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter); });
+
+            modelBuilder.Entity<EnumerableClassKeyOptionalDependent>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
+                    b.Property(e => e.PrincipalId);
+                });
+
+            modelBuilder.Entity<EnumerableClassKeyRequiredDependent>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasConversion(EnumerableClassKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<BareIntClassKeyPrincipal>(
@@ -6938,14 +7141,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableIntStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<ComparableIntStructKeyRequiredDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableIntStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableIntStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<GenericComparableIntStructKeyPrincipal>(
@@ -6972,14 +7175,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(StructuralComparableBytesStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<StructuralComparableBytesStructKeyRequiredDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(StructuralComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(StructuralComparableBytesStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<BytesStructKeyPrincipal>(
@@ -7006,14 +7209,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableBytesStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<ComparableBytesStructKeyRequiredDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableBytesStructKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableBytesStructKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<GenericComparableBytesStructKeyPrincipal>(
@@ -7040,14 +7243,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableIntClassKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<ComparableIntClassKeyRequiredDependent>(
                 b =>
                 {
                     b.Property(e => e.Id).HasConversion(ComparableIntClassKey.Converter);
-                    b.Property(e => e.PrincipalId).HasConversion(ComparableIntClassKey.Converter);
+                    b.Property(e => e.PrincipalId);
                 });
 
             modelBuilder.Entity<GenericComparableIntClassKeyPrincipal>(

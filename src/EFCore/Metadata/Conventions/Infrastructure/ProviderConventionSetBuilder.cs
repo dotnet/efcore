@@ -102,6 +102,11 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new RuntimeModelConvention(Dependencies));
         conventionSet.Add(new ElementMappingConvention(Dependencies));
 
+        if (!ElementTypeChangedConvention.UseOldBehavior32411)
+        {
+            conventionSet.Add(new ElementTypeChangedConvention(Dependencies));
+        }
+
         return conventionSet;
     }
 
