@@ -3074,6 +3074,188 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Navigation_name_from_composite_FK() // Issue #32685
+    {
+        var itemCategoryTable = new DatabaseTable { Database = Database, Name = "ItemCategory" };
+
+        itemCategoryTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = itemCategoryTable,
+                Name = "Name",
+                StoreType = "VARCHAR (25)",
+                IsNullable = false
+            });
+
+        itemCategoryTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = itemCategoryTable,
+                Name = "Description",
+                StoreType = "NVARCHAR (512)",
+                IsNullable = true
+            });
+
+        itemCategoryTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = itemCategoryTable,
+            Name = "PK_ItemCategory",
+            Columns = { itemCategoryTable.Columns.Single(c => c.Name == "Name") }
+        };
+
+        var itemTable = new DatabaseTable { Database = Database, Name = "Item" };
+
+        itemTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = itemTable,
+                Name = "Name",
+                StoreType = "VARCHAR (40)",
+                IsNullable = false
+            });
+
+        itemTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = itemTable,
+                Name = "Description",
+                StoreType = "NVARCHAR (512)",
+                IsNullable = true
+            });
+
+        itemTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = itemTable,
+                Name = "CategoryName",
+                StoreType = "VARCHAR (25)",
+                IsNullable = false
+            });
+
+        itemTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = itemTable,
+            Name = "PK_Item",
+            Columns = { itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName") }
+        };
+
+        var someTable = new DatabaseTable { Database = Database, Name = "SomeTable" };
+
+        someTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = someTable,
+                Name = "Id",
+                StoreType = "int",
+                IsNullable = false
+            });
+
+        someTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = someTable,
+                Name = "DetailItemName",
+                StoreType = "VARCHAR (40)",
+                IsNullable = false
+            });
+
+        someTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = someTable,
+                Name = "DetailItemCategoryName",
+                StoreType = "VARCHAR (25)",
+                IsNullable = false
+            });
+
+        someTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = someTable,
+                Name = "CategoryName",
+                StoreType = "VARCHAR (25)",
+                IsNullable = false
+            });
+
+        someTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = someTable,
+            Name = "PK_SomeTable",
+            Columns = { someTable.Columns.Single(c => c.Name == "Id") }
+        };
+
+        someTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = itemTable,
+                Name = "FK_Item_ItemCategory",
+                Columns = { someTable.Columns.Single(c => c.Name == "CategoryName") },
+                PrincipalTable = itemCategoryTable,
+                PrincipalColumns = { itemTable.Columns.Single(c => c.Name == "Name") },
+            });
+
+        someTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = someTable,
+                Name = "FK_SomeTable_DetailItem",
+                Columns = { someTable.Columns.Single(c => c.Name == "DetailItemName"), someTable.Columns.Single(c => c.Name == "DetailItemCategoryName") },
+                PrincipalTable = itemTable,
+                PrincipalColumns = { itemTable.Columns.Single(c => c.Name == "Name"), itemTable.Columns.Single(c => c.Name == "CategoryName") },
+            });
+
+        var info = new DatabaseModel { Tables = { itemTable, someTable, itemCategoryTable } };
+
+        var model = _factory.Create(info, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("Item", entity.Name);
+                Assert.Equal("SomeTables", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("ItemCategory", entity.Name);
+                Assert.Equal("SomeTables", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("SomeTable", entity.Name);
+                Assert.Collection(
+                    entity.GetNavigations().OrderBy(t => t.Name),
+                    navigation => Assert.Equal("CategoryNameNavigation", navigation.Name),
+                    navigation => Assert.Equal("Item", navigation.Name));
+            }
+        );
+
+        model = _factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true });
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("Item", entity.Name);
+                Assert.Equal("SomeTables", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("ItemCategory", entity.Name);
+                Assert.Equal("SomeTables", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("SomeTable", entity.Name);
+                Assert.Collection(
+                    entity.GetNavigations().OrderBy(t => t.Name),
+                    navigation => Assert.Equal("CategoryNameNavigation", navigation.Name),
+                    navigation => Assert.Equal("Item", navigation.Name));
+            }
+        );
+    }
+
+    [ConditionalFact]
     public void Computed_column_when_sql_unknown()
     {
         var database = new DatabaseModel
