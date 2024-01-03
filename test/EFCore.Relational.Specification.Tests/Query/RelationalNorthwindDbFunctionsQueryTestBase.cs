@@ -92,6 +92,16 @@ public abstract class NorthwindDbFunctionsQueryRelationalTestBase<TFixture> : No
                     ss => ss.Set<OrderDetail>().Where(od => EF.Functions.Greatest(arr) == 10251)));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task NullIf(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<Customer>(),
+            ss => ss.Set<Customer>(),
+            c => EF.Functions.NullIf(c.ContactName, "maria anders") == null,
+            c => c.ContactName == null);
+
     protected abstract string CaseInsensitiveCollation { get; }
     protected abstract string CaseSensitiveCollation { get; }
 }
