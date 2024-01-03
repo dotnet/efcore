@@ -91,7 +91,7 @@ GROUP BY [d].[Id]
         Assert.True(result.All(x => x.Collection.Count > 0));
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Collection], [e].[Reference]
 FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
@@ -114,7 +114,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
         Assert.True(result.All(x => x.Collection.Count > 0));
 
         AssertSql(
-"""
+            """
 SELECT [e].[Id], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[Collection], [e].[Reference]
 FROM [Entities] FOR SYSTEM_TIME ALL AS [e]
 """);
@@ -136,7 +136,7 @@ FROM [Entities] FOR SYSTEM_TIME ALL AS [e]
         Assert.True(result.All(x => x != null));
 
         AssertSql(
-"""
+            """
 SELECT [e].[Reference], [e].[Id]
 FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
@@ -158,7 +158,7 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
         Assert.True(result.All(x => x.Count > 0));
 
         AssertSql(
-"""
+            """
 SELECT [e].[Collection], [e].[Id]
 FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
@@ -814,7 +814,7 @@ WHERE [t].[Species] LIKE N'F%'
         await base.Filter_on_nested_DTO_with_interface_gets_simplified_correctly(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[Id], [c].[CompanyId], CASE
     WHEN [c0].[Id] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)

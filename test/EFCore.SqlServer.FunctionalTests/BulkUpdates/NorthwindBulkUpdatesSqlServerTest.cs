@@ -1038,8 +1038,8 @@ WHERE [c].[CustomerID] LIKE N'F%'
         await base.Update_Where_set_property_plus_parameter(async);
 
         AssertExecuteUpdateSql(
-            """
-@__value_0='Abc' (Size = 30)
+"""
+@__value_0='Abc' (Size = 4000)
 
 UPDATE [c]
 SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0

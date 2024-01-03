@@ -666,7 +666,7 @@ WHERE (
         await base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(async);
 
         AssertSql(
-"""
+            """
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE (
@@ -1515,7 +1515,7 @@ WHERE NOT EXISTS (
         await base.Any_nested_negated2(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
@@ -1530,7 +1530,7 @@ WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
         await base.Any_nested_negated3(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE NOT EXISTS (
@@ -1883,7 +1883,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
         await base.Where_Join_Any(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%' AND EXISTS (
@@ -3057,7 +3057,7 @@ WHERE [c].[CustomerID] LIKE @__NewLine_0_rewritten ESCAPE N'\'
 
         AssertSql(
             """
-SELECT CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')
+SELECT CAST([o].[OrderID] AS nvarchar(max)) + COALESCE([o].[CustomerID], N'')
 FROM [Orders] AS [o]
 """);
     }
@@ -3068,7 +3068,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
             """
-SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nchar(5))
+SELECT COALESCE([o].[CustomerID], N'') + CAST([o].[OrderID] AS nvarchar(max))
 FROM [Orders] AS [o]
 """);
     }
@@ -3480,7 +3480,7 @@ ORDER BY (
         await base.Query_expression_with_to_string_and_contains(async);
 
         AssertSql(
-"""
+            """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
 WHERE [o].[OrderDate] IS NOT NULL AND CONVERT(varchar(10), [o].[EmployeeID]) LIKE N'%7%'
@@ -3725,7 +3725,7 @@ CROSS JOIN (
         await base.DefaultIfEmpty_in_subquery_nested(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [t0].[OrderID], [o0].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN (
@@ -3750,7 +3750,7 @@ ORDER BY [t0].[OrderID], [o0].[OrderDate]
         await base.DefaultIfEmpty_in_subquery_nested_filter_order_comparison(async);
 
         AssertSql(
-"""
+            """
 SELECT [c].[CustomerID], [t0].[OrderID], [t1].[OrderDate]
 FROM [Customers] AS [c]
 CROSS JOIN (
@@ -5733,7 +5733,7 @@ LEFT JOIN (
         await base.Select_distinct_Select_with_client_bindings(async);
 
         AssertSql(
-"""
+            """
 SELECT [t].[c]
 FROM (
     SELECT DISTINCT DATEPART(year, [o].[OrderDate]) AS [c]
@@ -7257,6 +7257,90 @@ WHERE NOT EXISTS (
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
     OFFSET @__prm_0 ROWS)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
+    {
+        await base.Contains_over_concatenated_columns_with_different_sizes (async);
+
+        AssertSql(
+            """
+@__data_0='["ALFKIAlfreds Futterkiste","ANATRAna Trujillo Emparedados y helados"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] + [c].[CompanyName] IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(45) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_column_and_constant(bool async)
+    {
+        await base.Contains_over_concatenated_column_and_constant (async);
+
+        AssertSql(
+            """
+@__data_0='["ALFKISomeConstant","ANATRSomeConstant","ALFKIX"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] + N'SomeConstant' IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_columns_both_fixed_length(bool async)
+    {
+        await base.Contains_over_concatenated_columns_both_fixed_length(async);
+
+        AssertSql(
+            """
+@__data_0='["ALFKIALFKI","ALFKI","ANATRAna Trujillo Emparedados y helados","ANATRANATR"]' (Size = 4000)
+
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE COALESCE([o].[CustomerID], N'') + COALESCE([c].[CustomerID], N'') IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nchar(10) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_column_and_parameter(bool async)
+    {
+        await base.Contains_over_concatenated_column_and_parameter(async);
+
+        AssertSql(
+            """
+@__someVariable_1='SomeVariable' (Size = 4000)
+@__data_0='["ALFKISomeVariable","ANATRSomeVariable","ALFKIX"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] + @__someVariable_1 IN (
+    SELECT [d].[value]
+    FROM OPENJSON(@__data_0) WITH ([value] nvarchar(max) '$') AS [d]
+)
+""");
+    }
+
+    public override async Task Contains_over_concatenated_parameter_and_constant(bool async)
+    {
+        await base.Contains_over_concatenated_parameter_and_constant(async);
+
+        AssertSql(
+            """
+@__Contains_0='True'
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE @__Contains_0 = CAST(1 AS bit)
 """);
     }
 

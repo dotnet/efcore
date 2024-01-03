@@ -167,14 +167,14 @@ FROM [CompositeOnes] AS [c]
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2]
 """,
             //
-            """
+"""
 SELECT [c0].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Optional_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Optional_Inverse2Id2]
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2]
 """,
             //
-            """
+"""
 SELECT [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Optional_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Optional_Inverse2Id2]
@@ -182,7 +182,7 @@ INNER JOIN [CompositeThrees] AS [c1] ON [c0].[Id1] = [c1].[OneToMany_Required_In
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id2] DESC, [c1].[Id1] DESC
 """,
             //
-            """
+"""
 SELECT [c1].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Optional_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Optional_Inverse2Id2]
@@ -190,7 +190,7 @@ INNER JOIN [CompositeThrees] AS [c1] ON [c0].[Id1] = [c1].[OneToMany_Optional_In
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Optional_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Optional_Inverse2Id2]
@@ -199,7 +199,7 @@ INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Required_Inv
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Optional_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Optional_Inverse2Id2]
@@ -208,14 +208,14 @@ INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Optional_Inv
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c0].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2]
 """,
             //
-            """
+"""
 SELECT [c1].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
@@ -223,7 +223,7 @@ INNER JOIN [CompositeThrees] AS [c1] ON [c0].[Id1] = [c1].[OneToMany_Optional_In
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
@@ -232,7 +232,7 @@ INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Required_Inv
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
@@ -241,7 +241,7 @@ INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Optional_Inv
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c1].[Name], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
@@ -249,7 +249,7 @@ INNER JOIN [CompositeThrees] AS [c1] ON [c0].[Id1] = [c1].[OneToMany_Optional_In
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
@@ -258,13 +258,13 @@ INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Optional_Inv
 ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 """,
             //
-            """
+"""
 SELECT [c2].[Id1], [c2].[Id2], [c2].[Level3_Optional_Id1], [c2].[Level3_Optional_Id2], [c2].[Level3_Required_Id1], [c2].[Level3_Required_Id2], [c2].[Name], [c2].[OneToMany_Optional_Inverse4Id1], [c2].[OneToMany_Optional_Inverse4Id2], [c2].[OneToMany_Optional_Self_Inverse4Id1], [c2].[OneToMany_Optional_Self_Inverse4Id2], [c2].[OneToMany_Required_Inverse4Id1], [c2].[OneToMany_Required_Inverse4Id2], [c2].[OneToMany_Required_Self_Inverse4Id1], [c2].[OneToMany_Required_Self_Inverse4Id2], [c2].[OneToOne_Optional_PK_Inverse4Id1], [c2].[OneToOne_Optional_PK_Inverse4Id2], [c2].[OneToOne_Optional_Self4Id1], [c2].[OneToOne_Optional_Self4Id2], [c].[Id1], [c].[Id2], [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2]
 FROM [CompositeOnes] AS [c]
 INNER JOIN [CompositeTwos] AS [c0] ON [c].[Id1] = [c0].[OneToMany_Required_Inverse2Id1] AND [c].[Id2] = [c0].[OneToMany_Required_Inverse2Id2]
 INNER JOIN [CompositeThrees] AS [c1] ON [c0].[Id1] = [c1].[OneToMany_Optional_Inverse3Id1] AND [c0].[Id2] = [c1].[OneToMany_Optional_Inverse3Id2]
 INNER JOIN [CompositeFours] AS [c2] ON [c1].[Id1] = [c2].[OneToMany_Required_Inverse4Id1] AND [c1].[Id2] = [c2].[OneToMany_Required_Inverse4Id2]
-ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2], [c2].[Id1] + CAST([c2].[Id2] AS nvarchar(450)) DESC
+ORDER BY [c].[Name], [c].[Id1], [c].[Id2], CAST(LEN([c0].[Name]) AS int), [c0].[Id1], [c0].[Id2], [c1].[Id1], [c1].[Id2], [c2].[Id1] + CAST([c2].[Id2] AS nvarchar(max)) DESC
 """);
     }
 

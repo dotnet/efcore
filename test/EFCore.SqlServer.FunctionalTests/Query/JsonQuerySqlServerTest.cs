@@ -1006,7 +1006,7 @@ FROM [JsonEntitiesBasic] AS [j]
         await base.Json_collection_Any_with_predicate(async);
 
         AssertSql(
-"""
+            """
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE EXISTS (
@@ -1870,7 +1870,7 @@ WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot], '$.Number') AS int) <> CAST(LEN(
         await base.Json_scalar_optional_null_semantics(async);
 
         AssertSql(
-"""
+            """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE (JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') <> JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') IS NULL OR JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL) AND (JSON_VALUE([j].[OwnedReferenceRoot], '$.Name') IS NOT NULL OR JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NOT NULL)
