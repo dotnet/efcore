@@ -28,6 +28,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     private IDictionary<Expression, bool> _evaluatableExpressions;
     private IQueryProvider? _currentQueryProvider;
 
+    private static readonly bool UseOldBehavior31552 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31552", out var enabled31552) && enabled31552;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -168,6 +171,33 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
             newTestExpression,
             Visit(conditionalExpression.IfTrue),
             Visit(conditionalExpression.IfFalse));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+    {
+        if (!UseOldBehavior31552
+            && methodCallExpression.Method.DeclaringType == typeof(EF)
+            && methodCallExpression.Method.Name == nameof(EF.Constant))
+        {
+            // If this is a call to EF.Constant(), then examine its operand. If the operand isn't evaluatable (i.e. contains a reference
+            // to a database table), throw immediately.
+            // Otherwise, evaluate the operand as a constant and return that.
+            var operand = methodCallExpression.Arguments[0];
+            if (!_evaluatableExpressions.TryGetValue(operand, out _))
+            {
+                throw new InvalidOperationException(CoreStrings.EFConstantWithNonEvaluableArgument);
+            }
+
+            return Evaluate(operand, generateParameter: false);
+        }
+
+        return base.VisitMethodCall(methodCallExpression);
     }
 
     /// <summary>
@@ -654,6 +684,16 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
                 case ExpressionType.Extension:
                     preferNoEvaluation = false;
                     return expression.CanReduce && IsEvaluatableNodeType(expression.ReduceAndCheck(), out preferNoEvaluation);
+
+                // Identify a call to EF.Constant(), and flag that as non-evaluable.
+                // This is important to prevent a larger subtree containing EF.Constant from being evaluated, i.e. to make sure that
+                // the EF.Function argument is present in the tree as its own, constant node.
+                case ExpressionType.Call
+                    when !UseOldBehavior31552 && expression is MethodCallExpression { Method: var method }
+                    && method.DeclaringType == typeof(EF)
+                    && method.Name == nameof(EF.Constant):
+                    preferNoEvaluation = true;
+                    return false;
 
                 default:
                     preferNoEvaluation = false;

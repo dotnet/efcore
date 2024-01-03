@@ -965,6 +965,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 trigger, entityType, conflictingEntityType);
 
         /// <summary>
+        ///     The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.
+        /// </summary>
+        public static string EFConstantInvoked
+            => GetString("EFConstantInvoked");
+
+        /// <summary>
+        ///     The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
+        /// </summary>
+        public static string EFConstantWithNonEvaluableArgument
+            => GetString("EFConstantWithNonEvaluableArgument");
+
+        /// <summary>
         ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
         /// </summary>
         public static string EmptyComplexType(object? complexType)
