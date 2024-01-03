@@ -3,9 +3,11 @@
 
 using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
+namespace Microsoft.EntityFrameworkCore.Query;
+
+// ReSharper disable ConvertToConstant.Local
 // ReSharper disable RedundantBoolCompare
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : NorthwindQueryFixtureBase<NoopModelCustomizer>, new()
@@ -2342,4 +2344,53 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(c => (c.Region == null ? "OR" : c.Region) == "OR"));
 #pragma warning restore IDE0029 // Use coalesce expression
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Constant(bool async)
+    {
+        var id = "ALFKI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(id)),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Constant_with_subtree(bool async)
+    {
+        var i = "ALF";
+        var j = "KI";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(i + j)),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALFKI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
+    {
+        var id = "ALF";
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(id) + "KI"),
+            ss => ss.Set<Customer>().Where(c => c.CustomerID == "ALF" + "KI"));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task EF_Constant_with_non_evaluatable_argument_throws(bool async)
+    {
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(c => c.CustomerID == EF.Constant(c.CustomerID))));
+
+        Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
+    }
 }
