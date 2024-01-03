@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -23,6 +24,9 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public abstract class CoreTypeMapping
 {
+    private static readonly bool UseOldBehavior32376 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32376", out var enabled32376) && enabled32376;
+
     /// <summary>
     ///     Parameter object for use in the <see cref="CoreTypeMapping" /> hierarchy.
     /// </summary>
@@ -130,15 +134,31 @@ public abstract class CoreTypeMapping
                 ProviderValueComparer,
                 ValueGeneratorFactory,
                 elementMapping ?? ElementTypeMapping,
-                jsonValueReaderWriter
-                ?? (converter == null || JsonValueReaderWriter == null
-                    ? JsonValueReaderWriter
-                    : RuntimeFeature.IsDynamicCodeSupported
-                        ? (JsonValueReaderWriter)Activator.CreateInstance(
-                            typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
-                                converter.ModelClrType, JsonValueReaderWriter.ValueType),
-                            JsonValueReaderWriter, converter)!
-                        : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel)));
+                jsonValueReaderWriter ?? CreateReaderWriter(converter, JsonValueReaderWriter));
+
+            static JsonValueReaderWriter? CreateReaderWriter(ValueConverter? converter, JsonValueReaderWriter? readerWriter)
+            {
+                if (converter == null || readerWriter == null)
+                {
+                    return readerWriter;
+                }
+
+                if (!RuntimeFeature.IsDynamicCodeSupported)
+                {
+                    throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel);
+                }
+
+                if (!UseOldBehavior32376
+                    && readerWriter is IJsonConvertedValueReaderWriter convertedValueReaderWriter)
+                {
+                    readerWriter = convertedValueReaderWriter.InnerReaderWriter;
+                }
+
+                return (JsonValueReaderWriter)Activator.CreateInstance(
+                    typeof(JsonConvertedValueReaderWriter<,>).MakeGenericType(
+                        converter.ModelClrType, readerWriter.ValueType),
+                    readerWriter, converter)!;
+            }
         }
     }
 
