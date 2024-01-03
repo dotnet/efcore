@@ -18,12 +18,15 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQueryableMethodTranslatingExpressionVisitor
 {
-    private readonly QueryCompilationContext _queryCompilationContext;
+    private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly int _sqlServerCompatibilityLevel;
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
+
+    private static readonly bool UseOldBehavior32374 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32374", out var enabled32374) && enabled32374;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +37,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     public SqlServerQueryableMethodTranslatingExpressionVisitor(
         QueryableMethodTranslatingExpressionVisitorDependencies dependencies,
         RelationalQueryableMethodTranslatingExpressionVisitorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext,
+        SqlServerQueryCompilationContext queryCompilationContext,
         ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {
@@ -120,6 +123,103 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
         return base.VisitExtension(extensionExpression);
     }
+
+    #region Aggregate functions
+
+    // We override these for SQL Server to add tracking whether we're inside an aggregate function context, since SQL Server doesn't
+    // support subqueries (or aggregates) within them.
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateAverage(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateAverage(source, selector, resultType);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateSum(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateSum(source, selector, resultType);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateCount(source, predicate);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateLongCount(source, predicate);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateMax(source, selector, resultType);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
+    {
+        var previousInAggregateFunction = _queryCompilationContext.InAggregateFunction;
+        _queryCompilationContext.InAggregateFunction = true;
+        var result = base.TranslateMin(source, selector, resultType);
+        _queryCompilationContext.InAggregateFunction = previousInAggregateFunction;
+        return result;
+    }
+
+    #endregion Aggregate functions
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -321,6 +421,48 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
+    {
+        var translatedSource = base.TranslateContains(source, item);
+
+        // SQL Server does not support subqueries inside aggregate functions (e.g. COUNT(SELECT * FROM OPENJSON(@p)...)).
+        // As a result, we track whether we're within an aggregate function; if we are, and we see the regular Contains translation
+        // (which uses IN with an OPENJSON subquery - incompatible), we transform it to the old-style IN+constants translation (as if a
+        // low SQL Server compatibility level were defined)
+        if (!UseOldBehavior32374
+            && _queryCompilationContext.InAggregateFunction
+            && translatedSource is not null
+            && TryGetProjection(translatedSource, out var projection)
+            && projection is InExpression
+            {
+                Item: var translatedItem,
+                Subquery:
+                {
+                    Tables: [SqlServerOpenJsonExpression { Arguments: [SqlParameterExpression parameter] } openJsonExpression],
+                    GroupBy: [],
+                    Having: null,
+                    IsDistinct: false,
+                    Limit: null,
+                    Offset: null,
+                    Orderings: [],
+                    Projection: [{ Expression: ColumnExpression { Name: "value", Table: var projectionColumnTable } }]
+                }
+            }
+            && projectionColumnTable == openJsonExpression)
+        {
+            var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
+            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(newInExpression));
+        }
+
+        return translatedSource;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateElementAtOrDefault(
         ShapedQueryExpression source,
         Expression index,
@@ -501,6 +643,29 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         }
 
         tableExpression = null;
+        return false;
+    }
+
+    private bool TryGetProjection(ShapedQueryExpression shapedQueryExpression, [NotNullWhen(true)] out SqlExpression? projection)
+    {
+        var shaperExpression = shapedQueryExpression.ShaperExpression;
+        // No need to check ConvertChecked since this is convert node which we may have added during projection
+        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+            && unaryExpression.Operand.Type.IsNullableType()
+            && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+        {
+            shaperExpression = unaryExpression.Operand;
+        }
+
+        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression
+            && shaperExpression is ProjectionBindingExpression projectionBindingExpression
+            && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression sqlExpression)
+        {
+            projection = sqlExpression;
+            return true;
+        }
+
+        projection = null;
         return false;
     }
 

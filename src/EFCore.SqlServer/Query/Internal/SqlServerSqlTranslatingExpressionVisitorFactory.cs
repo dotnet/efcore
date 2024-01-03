@@ -39,6 +39,6 @@ public class SqlServerSqlTranslatingExpressionVisitorFactory : IRelationalSqlTra
         QueryableMethodTranslatingExpressionVisitor queryableMethodTranslatingExpressionVisitor)
         => new SqlServerSqlTranslatingExpressionVisitor(
             Dependencies,
-            queryCompilationContext,
+            (SqlServerQueryCompilationContext)queryCompilationContext,
             queryableMethodTranslatingExpressionVisitor);
 }
