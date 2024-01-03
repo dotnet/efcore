@@ -1,6 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class AdHocMiscellaneousQuerySqliteTest : AdHocMiscellaneousQueryRelationalTestBase
@@ -16,4 +18,9 @@ CREATE TABLE ZeroKey (Id int);
 INSERT INTO ZeroKey VALUES (NULL)
 """);
     }
+
+    public override async Task Average_with_cast()
+        => Assert.Equal(
+            SqliteStrings.AggregateOperationNotSupported("Average", "decimal"),
+            (await Assert.ThrowsAsync<NotSupportedException>(base.Average_with_cast)).Message);
 }

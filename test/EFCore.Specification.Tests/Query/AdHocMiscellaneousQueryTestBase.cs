@@ -895,6 +895,110 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
 
     #endregion
 
+    #region 11885
+
+    [ConditionalFact]
+    public virtual async Task Average_with_cast()
+    {
+        var contextFactory = await InitializeAsync<Context11885>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+        var prices = context.Prices.ToList();
+
+        Assert.Equal(prices.Average(e => e.Price), context.Prices.Average(e => e.Price));
+        Assert.Equal(prices.Average(e => e.IntColumn), context.Prices.Average(e => e.IntColumn));
+        Assert.Equal(prices.Average(e => e.NullableIntColumn), context.Prices.Average(e => e.NullableIntColumn));
+        Assert.Equal(prices.Average(e => e.LongColumn), context.Prices.Average(e => e.LongColumn));
+        Assert.Equal(prices.Average(e => e.NullableLongColumn), context.Prices.Average(e => e.NullableLongColumn));
+        Assert.Equal(prices.Average(e => e.FloatColumn), context.Prices.Average(e => e.FloatColumn));
+        Assert.Equal(prices.Average(e => e.NullableFloatColumn), context.Prices.Average(e => e.NullableFloatColumn));
+        Assert.Equal(prices.Average(e => e.DoubleColumn), context.Prices.Average(e => e.DoubleColumn));
+        Assert.Equal(prices.Average(e => e.NullableDoubleColumn), context.Prices.Average(e => e.NullableDoubleColumn));
+        Assert.Equal(prices.Average(e => e.DecimalColumn), context.Prices.Average(e => e.DecimalColumn));
+        Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
+    }
+
+    private class Context11885 : DbContext
+    {
+        public DbSet<PriceEntity> Prices { get; set; }
+
+        public Context11885(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<PriceEntity>(
+                b =>
+                {
+                    b.Property(e => e.Price).HasPrecision(18, 8);
+                    b.Property(e => e.DecimalColumn).HasPrecision(18, 2);
+                    b.Property(e => e.NullableDecimalColumn).HasPrecision(18, 2);
+                });
+
+        public void Seed()
+        {
+            AddRange(
+                new PriceEntity
+                {
+                    IntColumn = 1,
+                    NullableIntColumn = 1,
+                    LongColumn = 1000,
+                    NullableLongColumn = 1000,
+                    FloatColumn = 0.1F,
+                    NullableFloatColumn = 0.1F,
+                    DoubleColumn = 0.000001,
+                    NullableDoubleColumn = 0.000001,
+                    DecimalColumn = 1.0m,
+                    NullableDecimalColumn = 1.0m,
+                    Price = 0.00112000m
+                },
+                new PriceEntity
+                {
+                    IntColumn = 2,
+                    NullableIntColumn = 2,
+                    LongColumn = 2000,
+                    NullableLongColumn = 2000,
+                    FloatColumn = 0.2F,
+                    NullableFloatColumn = 0.2F,
+                    DoubleColumn = 0.000002,
+                    NullableDoubleColumn = 0.000002,
+                    DecimalColumn = 2.0m,
+                    NullableDecimalColumn = 2.0m,
+                    Price = 0.00232111m
+                },
+                new PriceEntity
+                {
+                    IntColumn = 3,
+                    LongColumn = 3000,
+                    FloatColumn = 0.3F,
+                    DoubleColumn = 0.000003,
+                    DecimalColumn = 3.0m,
+                    Price = 0.00345223m
+                }
+            );
+
+            SaveChanges();
+        }
+
+        public class PriceEntity
+        {
+            public int Id { get; set; }
+            public int IntColumn { get; set; }
+            public int? NullableIntColumn { get; set; }
+            public long LongColumn { get; set; }
+            public long? NullableLongColumn { get; set; }
+            public float FloatColumn { get; set; }
+            public float? NullableFloatColumn { get; set; }
+            public double DoubleColumn { get; set; }
+            public double? NullableDoubleColumn { get; set; }
+            public decimal DecimalColumn { get; set; }
+            public decimal? NullableDecimalColumn { get; set; }
+            public decimal Price { get; set; }
+        }
+    }
+
+    #endregion
+
     #region 12274
 
     [ConditionalFact]
