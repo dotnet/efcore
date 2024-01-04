@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Editing;
+using Microsoft.EntityFrameworkCore.Internal;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using ConditionalExpression = System.Linq.Expressions.ConditionalExpression;
 using E = System.Linq.Expressions.Expression;
@@ -469,7 +470,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 }
                 else
                 {
-                    variables.Add(parameter, uniquifiedName);
+                    if (!variables.TryAdd(parameter, uniquifiedName))
+                    {
+                        throw new InvalidOperationException(
+                            DesignStrings.SameParameterExpressionDeclaredAsVariableInNestedBlocks(parameter.Name ?? "<null>"));
+                    }
+
                     variableNames.Add(uniquifiedName);
                 }
             }

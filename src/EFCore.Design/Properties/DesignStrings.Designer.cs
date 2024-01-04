@@ -662,6 +662,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 name);
 
         /// <summary>
+        ///     The same ParameterExpression instance with name '{parameter}' was used as a variable declaration in a block and a nested block inside it. This is not allowed - use different ParameterExpression instances.
+        /// </summary>
+        public static string SameParameterExpressionDeclaredAsVariableInNestedBlocks(object? parameter)
+            => string.Format(
+                GetString("SameParameterExpressionDeclaredAsVariableInNestedBlocks", nameof(parameter)),
+                parameter);
+
+        /// <summary>
         ///     To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         /// </summary>
         public static string SensitiveInformationWarning
