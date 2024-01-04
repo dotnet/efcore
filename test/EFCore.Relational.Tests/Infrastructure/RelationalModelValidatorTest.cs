@@ -726,7 +726,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
         modelBuilder.Entity<B>().ToTable("Table");
 
-        VerifyError(CoreStrings.RelationshipCycle("B", "AId", "ValueConverter"), modelBuilder);
+        VerifyError(CoreStrings.IdentifyingRelationshipCycle("A -> B"), modelBuilder);
     }
 
     [ConditionalFact]

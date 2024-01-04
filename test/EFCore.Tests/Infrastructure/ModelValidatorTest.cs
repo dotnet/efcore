@@ -593,28 +593,90 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
         modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
         modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
 
-        VerifyError(CoreStrings.RelationshipCycle("B", "AId", "ValueConverter"), modelBuilder);
+        VerifyError(CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"), modelBuilder);
     }
 
     [ConditionalFact]
-    public virtual void Detects_relationship_cycle_for_property_configuration()
+    public virtual void Passes_on_relationship_cycle_for_property_configuration()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
 
         modelBuilder.Entity<C>().HasBaseType((string)null);
-        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
-        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
         modelBuilder.Entity<D>().HasBaseType((string)null);
-        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
 
         var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
 
-        Assert.Equal(
-            CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ValueConverter"),
+        Assert.Null(dId.GetValueConverter());
+        Assert.Null(dId.GetProviderClrType());
+    }
+
+    [ConditionalFact]
+    public virtual void Passes_on_multiple_relationship_cycles_for_property_configuration()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<E>().WithOne().HasForeignKey<E>(e => e.Id).HasPrincipalKey<D>(d => d.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<E>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<E>(e => e.Id).IsRequired();
+
+        var aId = modelBuilder.Model.FindEntityType(typeof(A)).FindProperty(nameof(A.Id));
+
+        Assert.Null(aId.GetValueConverter());
+        Assert.Null(aId.GetProviderClrType());
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_conflicting_converter_and_provider_type_with_relationship_cycle()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().Property(b => b.Id).HasConversion<string>();
+        modelBuilder.Entity<B>().Property(b => b.Id).HasConversion<CastingConverter<int, int>>();
+
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<C>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+
+        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
             Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
-        Assert.Equal(
-            CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ProviderClrType"),
+        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "CastingConverter<int, int>"),
+            Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_conflicting_provider_types_with_relationship_cycle()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<C>().Property(c => c.Id).HasConversion<long>();
+        modelBuilder.Entity<A>().Property(a => a.Id).HasConversion<string>();
+
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<B>(b => b.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+        modelBuilder.Entity<B>().HasOne<C>().WithOne().HasForeignKey<C>(c => c.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<D>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<A>(a => a.Id).IsRequired();
+        modelBuilder.Entity<D>().HasOne<C>().WithOne().HasForeignKey<D>(d => d.Id).HasPrincipalKey<C>(c => c.Id).IsRequired();
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+
+        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
+            Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
+        Assert.Equal(CoreStrings.ConflictingRelationshipConversions("D", "Id", "string", "long"),
             Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
     }
 
