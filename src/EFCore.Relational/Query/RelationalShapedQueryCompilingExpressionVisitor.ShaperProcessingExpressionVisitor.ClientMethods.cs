@@ -11,7 +11,14 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
-    private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         private static readonly MethodInfo ThrowReadValueExceptionMethod =
             typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ThrowReadValueException))!;
@@ -160,7 +167,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void InitializeIncludeCollection<TParent, TNavigationEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void InitializeIncludeCollection<TParent, TNavigationEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -201,7 +215,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             resultCoordinator.SetSingleQueryCollectionContext(collectionId, collectionMaterializationContext);
         }
 
-        private static void PopulateIncludeCollection<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateIncludeCollection<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -209,9 +230,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             Func<QueryContext, DbDataReader, object[]> parentIdentifier,
             Func<QueryContext, DbDataReader, object[]> outerIdentifier,
             Func<QueryContext, DbDataReader, object[]> selfIdentifier,
-            IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
-            IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> parentIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> outerIdentifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> selfIdentifierValueComparers,
+            // IReadOnlyList<ValueComparer> parentIdentifierValueComparers,
+            // IReadOnlyList<ValueComparer> outerIdentifierValueComparers,
+            // IReadOnlyList<ValueComparer> selfIdentifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TIncludedEntity> innerShaper,
             INavigationBase? inverseNavigation,
             Action<TIncludingEntity, TIncludedEntity> fixup,
@@ -229,14 +253,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return;
                 }
 
-                if (!CompareIdentifiers(
+                if (!CompareIdentifiers2(
                         outerIdentifierValueComparers,
                         outerIdentifier(queryContext, dbDataReader), collectionMaterializationContext.OuterIdentifier))
                 {
                     // Outer changed so collection has ended. Materialize last element.
                     GenerateCurrentElementIfPending();
                     // If parent also changed then this row is now pointing to element of next collection
-                    if (!CompareIdentifiers(
+                    if (!CompareIdentifiers2(
                             parentIdentifierValueComparers,
                             parentIdentifier(queryContext, dbDataReader), collectionMaterializationContext.ParentIdentifier))
                     {
@@ -255,7 +279,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 if (collectionMaterializationContext.SelfIdentifier != null)
                 {
-                    if (CompareIdentifiers(selfIdentifierValueComparers, innerKey, collectionMaterializationContext.SelfIdentifier))
+                    if (CompareIdentifiers2(selfIdentifierValueComparers, innerKey, collectionMaterializationContext.SelfIdentifier))
                     {
                         // repeated row for current element
                         // If it is pending materialization then it may have nested elements
@@ -319,7 +343,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader parentDataReader,
@@ -358,7 +389,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             resultCoordinator.SetSplitQueryCollectionContext(collectionId, splitQueryCollectionContext);
         }
 
-        private static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -367,7 +405,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            // IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -414,7 +453,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 while (dataReaderContext.HasNext ?? dbDataReader.Read())
                 {
-                    if (!CompareIdentifiers(
+                    if (!CompareIdentifiers2(
                             identifierValueComparers,
                             splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
                     {
@@ -451,7 +490,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            // IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -506,7 +546,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
-                    if (!CompareIdentifiers(
+                    if (!CompareIdentifiers2(
                             identifierValueComparers,
                             splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
                     {
@@ -538,7 +578,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static TCollection InitializeCollection<TElement, TCollection>(
+        [EntityFrameworkInternal]
+        public static TCollection InitializeCollection<TElement, TCollection>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -560,7 +601,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return (TCollection)collection;
         }
 
-        private static void PopulateCollection<TCollection, TElement, TRelatedEntity>(
+        [EntityFrameworkInternal]
+        public static void PopulateCollection<TCollection, TElement, TRelatedEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader dbDataReader,
@@ -1064,6 +1106,20 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 await taskFactories[i]().ConfigureAwait(false);
             }
+        }
+
+        private static bool CompareIdentifiers2(IReadOnlyList<Func<object, object, bool>> valueComparers, object[] left, object[] right)
+        {
+            // Ignoring size check on all for perf as they should be same unless bug in code.
+            for (var i = 0; i < left.Length; i++)
+            {
+                if (!valueComparers[i](left[i], right[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
