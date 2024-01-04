@@ -826,6 +826,11 @@ namespace TestNamespace
 
         public override void ToJsonTyped(Utf8JsonWriter writer, Guid value)
             => writer.WriteStringValue(value);
+
+        private readonly Expression<Func<MyJsonGuidReaderWriter>> _ctorLambda = () => new();
+
+        /// <inheritdoc />
+        public override Expression ConstructorExpression => _ctorLambda.Body;
     }
 
     public class ManyTypes

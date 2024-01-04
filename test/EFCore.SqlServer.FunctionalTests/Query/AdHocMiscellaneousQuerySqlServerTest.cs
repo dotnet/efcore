@@ -1037,7 +1037,7 @@ CROSS JOIN (
 
     #region 23282
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "AOT: NTS is not supported")]
     [SqlServerCondition(SqlServerCondition.SupportsSqlClr)]
     public virtual async Task Can_query_point_with_buffered_data_reader()
     {

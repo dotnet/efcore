@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations.Builders;
+using static Microsoft.EntityFrameworkCore.Query.RelationalShapedQueryCompilingExpressionVisitor;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -552,13 +553,30 @@ public class RelationalApiConsistencyTest(RelationalApiConsistencyTest.Relationa
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
-                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync)),
+
+            // internal methods made public for AOT
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitIncludeCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.PopulateSplitCollectionAsync)),
+            typeof(ShaperProcessingExpressionVisitor).GetMethod(nameof(ShaperProcessingExpressionVisitor.TaskAwaiter)),
+            typeof(RelationalShapedQueryCompilingExpressionVisitor).GetMethod(nameof(RelationalShapedQueryCompilingExpressionVisitor.NonQueryResultAsync)),
         ];
 
         public override HashSet<MethodInfo> MetadataMethodExceptions { get; } =
         [
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddParameter)),
             typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddResultColumn))
+        ];
+
+        public override HashSet<MethodInfo> VirtualMethodExceptions { get; } =
+        [
+            // non-sealed record
+#pragma warning disable EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("get_RelationalDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("set_RelationalDependencies"),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
+            typeof(RelationalMaterializerLiftableConstantContext).GetMethod("Deconstruct", [typeof(ShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType(), typeof(RelationalShapedQueryCompilingExpressionVisitorDependencies).MakeByRefType()]),
+#pragma warning restore EF9100 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         ];
 
         public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = [];

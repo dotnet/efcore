@@ -49,4 +49,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     ///     A manager for SQL aliases, capable of generate uniquified table aliases.
     /// </summary>
     public virtual SqlAliasManager SqlAliasManager { get; }
+
+    /// <inheritdoc />
+    public override bool SupportsPrecompiledQuery => true;
 }

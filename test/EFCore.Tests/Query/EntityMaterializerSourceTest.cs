@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Proxies.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
 // ReSharper disable UnusedMember.Local
@@ -178,7 +179,8 @@ public class EntityMaterializerSourceTest
                 et.ConstructorBinding
                     = new FactoryMethodBinding(
                         TestProxyFactory.Instance,
-                        typeof(TestProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(TestProxyFactory.Create))!,
+                        Expression.Constant(TestProxyFactory.Instance),
+                        typeof(TestProxyFactory).GetMethod(nameof(TestProxyFactory.Create), [typeof(IEntityType)])!,
                         new List<ParameterBinding> { new EntityTypeParameterBinding() },
                         et.ClrType);
             });

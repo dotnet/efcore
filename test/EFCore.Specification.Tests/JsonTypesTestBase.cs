@@ -3807,6 +3807,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             serializer.Serialize(jsonWriter, value);
             writer.WriteRawValue(stringWriter.ToString());
         }
+
+        private readonly Expression<Func<JsonGeoJsonReaderWriter>> _instanceLambda = () => Instance;
+
+        /// <inheritdoc />
+        public override Expression ConstructorExpression => _instanceLambda.Body;
     }
 
     private readonly NullabilityInfoContext _nullabilityInfoContext = new();

@@ -26,4 +26,9 @@ public sealed class JsonUInt64ReaderWriter : JsonValueReaderWriter<ulong>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, ulong value)
         => writer.WriteNumberValue(value);
+
+    private readonly Expression<Func<JsonUInt64ReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

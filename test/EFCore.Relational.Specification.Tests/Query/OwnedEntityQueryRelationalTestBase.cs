@@ -518,13 +518,15 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             Add(
                 new Monarch
                 {
-                    Name = "His August Majesty Guslav the Fifth", RulerOf = "The Union",
+                    Name = "His August Majesty Guslav the Fifth",
+                    RulerOf = "The Union",
                 });
 
             Add(
                 new Monarch
                 {
-                    Name = "Emperor Uthman-ul-Dosht", RulerOf = "The Gurkish Empire",
+                    Name = "Emperor Uthman-ul-Dosht",
+                    RulerOf = "The Gurkish Empire",
                 });
 
             Add(

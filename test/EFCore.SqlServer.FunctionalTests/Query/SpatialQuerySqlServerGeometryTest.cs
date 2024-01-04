@@ -245,7 +245,7 @@ FROM [LineStringEntity] AS [l]
 """);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "AOT: NTS is not supported")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task CurveToLine(bool async)
     {

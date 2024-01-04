@@ -47,4 +47,9 @@ public sealed class SqliteJsonByteArrayReaderWriter : JsonValueReaderWriter<byte
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, byte[] value)
         => writer.WriteStringValue(Convert.ToHexString(value));
+
+    private readonly Expression<Func<SqliteJsonByteArrayReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

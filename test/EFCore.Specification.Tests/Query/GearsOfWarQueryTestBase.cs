@@ -653,7 +653,8 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 .Select(
                     b => new
                     {
-                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal), hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
+                        hasFlagTrue = b.Rank.HasFlag(MilitaryRank.Corporal),
+                        hasFlagFalse = b.Rank.HasFlag(MilitaryRank.Sergeant)
                     }));
 
     [ConditionalTheory]
@@ -1097,11 +1098,11 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => from g in ss.Set<Gear>()
                   from o in ss.Set<Gear>().OfType<Officer>()
                   where new
-                      {
-                          Name = g.LeaderNickname,
-                          Squad = g.LeaderSquadId,
-                          Five = 5
-                      }
+                  {
+                      Name = g.LeaderNickname,
+                      Squad = g.LeaderSquadId,
+                      Five = 5
+                  }
                       == new
                       {
                           Name = o.Nickname,
@@ -2807,7 +2808,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => from g1 in ss.Set<Gear>()
                   from g2 in ss.Set<Gear>()
-                  // ReSharper disable once PossibleUnintendedReferenceComparison
+                      // ReSharper disable once PossibleUnintendedReferenceComparison
                   where g1.Weapons == g2.Weapons
                   orderby g1.Nickname
                   select new { Nickname1 = g1.Nickname, Nickname2 = g2.Nickname },
@@ -6223,7 +6224,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Byte_array_filter_by_length_parameter(bool async)
     {
-        var someByteArr = new[] { (byte)42, (byte)24};
+        var someByteArr = new[] { (byte)42, (byte)24 };
         return AssertQuery(
             async,
             ss => ss.Set<Squad>().Where(w => w.Banner.Length == someByteArr.Length),

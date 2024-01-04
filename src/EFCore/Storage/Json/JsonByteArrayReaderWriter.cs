@@ -26,4 +26,9 @@ public sealed class JsonByteArrayReaderWriter : JsonValueReaderWriter<byte[]>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, byte[] value)
         => writer.WriteBase64StringValue(value);
+
+    private readonly Expression<Func<JsonByteArrayReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

@@ -50,4 +50,9 @@ public sealed class SqliteJsonDateTimeReaderWriter : JsonValueReaderWriter<DateT
     /// </summary>
     public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
         => writer.WriteStringValue(string.Format(CultureInfo.InvariantCulture, DateTimeFormatConst, value));
+
+    private readonly Expression<Func<SqliteJsonDateTimeReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

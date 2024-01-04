@@ -27,4 +27,9 @@ public sealed class SqlServerJsonHierarchyIdReaderWriter : JsonValueReaderWriter
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, HierarchyId value)
         => writer.WriteStringValue(value.ToString());
+
+    private readonly Expression<Func<SqlServerJsonHierarchyIdReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

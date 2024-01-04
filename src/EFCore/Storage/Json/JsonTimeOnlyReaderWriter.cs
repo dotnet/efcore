@@ -27,4 +27,9 @@ public sealed class JsonTimeOnlyReaderWriter : JsonValueReaderWriter<TimeOnly>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TimeOnly value)
         => writer.WriteStringValue(value.ToString("o", CultureInfo.InvariantCulture));
+
+    private readonly Expression<Func<JsonTimeOnlyReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

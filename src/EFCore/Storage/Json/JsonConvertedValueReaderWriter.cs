@@ -45,4 +45,13 @@ public class JsonConvertedValueReaderWriter<TModel, TProvider> :
 
     ValueConverter IJsonConvertedValueReaderWriter.Converter
         => _converter;
+
+    private readonly ConstructorInfo _constructorInfo = typeof(JsonConvertedValueReaderWriter<TModel, TProvider>).GetConstructor([typeof(JsonValueReaderWriter<TProvider>), typeof(ValueConverter)])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression =>
+        Expression.New(
+            _constructorInfo,
+            ((ICompositeJsonValueReaderWriter)this).InnerReaderWriter.ConstructorExpression,
+            ((IJsonConvertedValueReaderWriter)this).Converter.ConstructorExpression);
 }

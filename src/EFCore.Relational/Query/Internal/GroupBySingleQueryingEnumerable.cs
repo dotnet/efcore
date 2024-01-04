@@ -20,7 +20,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
     private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
     private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
     private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-    private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+    private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
     private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
     private readonly Type _contextType;
     private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -40,7 +40,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         IReadOnlyList<ReaderColumn?>? readerColumns,
         Func<QueryContext, DbDataReader, TKey> keySelector,
         Func<QueryContext, DbDataReader, object[]> keyIdentifier,
-        IReadOnlyList<ValueComparer> keyIdentifierValueComparers,
+        IReadOnlyList<Func<object, object, bool>> keyIdentifierValueComparers,
         Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> elementSelector,
         Type contextType,
         bool standAloneStateManager,
@@ -139,12 +139,12 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
             => GetEnumerator();
     }
 
-    private static bool CompareIdentifiers(IReadOnlyList<ValueComparer> valueComparers, object[] left, object[] right)
+    private static bool CompareIdentifiers(IReadOnlyList<Func<object, object, bool>> valueComparers, object[] left, object[] right)
     {
         // Ignoring size check on all for perf as they should be same unless bug in code.
         for (var i = 0; i < left.Length; i++)
         {
-            if (!valueComparers[i].Equals(left[i], right[i]))
+            if (!valueComparers[i](left[i], right[i]))
             {
                 return false;
             }
@@ -160,7 +160,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;
@@ -344,7 +344,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         private readonly IReadOnlyList<ReaderColumn?>? _readerColumns;
         private readonly Func<QueryContext, DbDataReader, TKey> _keySelector;
         private readonly Func<QueryContext, DbDataReader, object[]> _keyIdentifier;
-        private readonly IReadOnlyList<ValueComparer> _keyIdentifierValueComparers;
+        private readonly IReadOnlyList<Func<object, object, bool>> _keyIdentifierValueComparers;
         private readonly Func<QueryContext, DbDataReader, ResultContext, SingleQueryResultCoordinator, TElement> _elementSelector;
         private readonly Type _contextType;
         private readonly IDiagnosticsLogger<DbLoggerCategory.Query> _queryLogger;

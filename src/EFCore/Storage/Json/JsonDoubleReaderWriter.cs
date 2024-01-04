@@ -26,4 +26,9 @@ public sealed class JsonDoubleReaderWriter : JsonValueReaderWriter<double>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, double value)
         => writer.WriteNumberValue(value);
+
+    private readonly Expression<Func<JsonDoubleReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

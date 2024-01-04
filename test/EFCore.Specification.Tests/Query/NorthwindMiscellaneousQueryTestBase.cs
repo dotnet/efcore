@@ -723,7 +723,8 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
                 o => new
                 {
                     // ReSharper disable SimplifyConditionalTernaryExpression
-                    Data1 = param != null ? o.OrderDate == param.Value : true, Data2 = param == null ? true : o.OrderDate == param.Value
+                    Data1 = param != null ? o.OrderDate == param.Value : true,
+                    Data2 = param == null ? true : o.OrderDate == param.Value
                     // ReSharper restore SimplifyConditionalTernaryExpression
                 }));
     }

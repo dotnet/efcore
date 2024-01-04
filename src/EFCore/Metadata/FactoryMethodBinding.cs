@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class FactoryMethodBinding : InstantiationBinding
 {
     private readonly object? _factoryInstance;
+    private readonly Expression? _factoryInstanceExpression;
     private readonly MethodInfo _factoryMethod;
 
     /// <summary>
@@ -50,6 +51,29 @@ public class FactoryMethodBinding : InstantiationBinding
         Check.NotNull(factoryInstance, nameof(factoryInstance));
 
         _factoryInstance = factoryInstance;
+        _factoryInstanceExpression = Expression.Constant(_factoryInstance);
+    }
+
+    /// <summary>
+    ///     Creates a new <see cref="FactoryMethodBinding" /> instance for a non-static factory method.
+    /// </summary>
+    /// <param name="factoryInstance">The object on which the factory method should be called.</param>
+    /// <param name="factoryInstanceExpression">Expression representing the factory instance object.</param>
+    /// <param name="factoryMethod">The factory method to bind to.</param>
+    /// <param name="parameterBindings">The parameters to use.</param>
+    /// <param name="runtimeType">The CLR type of the instance created by the factory method.</param>
+    public FactoryMethodBinding(
+        object factoryInstance,
+        Expression factoryInstanceExpression,
+        MethodInfo factoryMethod,
+        IReadOnlyList<ParameterBinding> parameterBindings,
+        Type runtimeType)
+        : this(factoryMethod, parameterBindings, runtimeType)
+    {
+        Check.NotNull(factoryInstance, nameof(factoryInstance));
+
+        _factoryInstance = factoryInstance;
+        _factoryInstanceExpression = factoryInstanceExpression;
     }
 
     /// <summary>
@@ -67,7 +91,7 @@ public class FactoryMethodBinding : InstantiationBinding
                     _factoryMethod,
                     arguments)
                 : Expression.Call(
-                    Expression.Constant(_factoryInstance),
+                    _factoryInstanceExpression,
                     _factoryMethod,
                     arguments);
 
@@ -92,5 +116,5 @@ public class FactoryMethodBinding : InstantiationBinding
     public override InstantiationBinding With(IReadOnlyList<ParameterBinding> parameterBindings)
         => _factoryInstance == null
             ? new FactoryMethodBinding(_factoryMethod, parameterBindings, RuntimeType)
-            : new FactoryMethodBinding(_factoryInstance, _factoryMethod, parameterBindings, RuntimeType);
+            : new FactoryMethodBinding(_factoryInstance, _factoryInstanceExpression!, _factoryMethod, parameterBindings, RuntimeType);
 }

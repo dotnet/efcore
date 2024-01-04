@@ -172,4 +172,20 @@ public class ValueConverter<TModel, TProvider> : ValueConverter
     /// </remarks>
     public override Type ProviderClrType
         => typeof(TProvider);
+
+    private readonly ConstructorInfo _constructorInfo = typeof(ValueConverter<TModel, TProvider>).GetConstructor(
+        [
+            typeof(Expression<Func<TModel, TProvider>>),
+            typeof(Expression<Func<TProvider, TModel>>),
+            typeof(ConverterMappingHints)
+        ])!;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression =>
+        Expression.New(
+            _constructorInfo,
+            ConvertToProviderExpression,
+            ConvertFromProviderExpression,
+            // TODO: hints are not supported
+            Expression.Default(typeof(ConverterMappingHints)));
 }

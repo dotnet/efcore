@@ -18,6 +18,12 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private static readonly MethodInfo InjectableServiceInjectedMethod
         = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
 
+    private static readonly ConstructorInfo EntityMaterializerSourceParametersCtor
+        = typeof(EntityMaterializerSourceParameters).GetConstructor([typeof(ITypeBase), typeof(string), typeof(QueryTrackingBehavior?)])!;
+
+    private static readonly ConstructorInfo ParameterBindingInfoCtor
+        = typeof(ParameterBindingInfo).GetConstructor([typeof(EntityMaterializerSourceParameters), typeof(Expression)])!;
+
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _materializers;
     private ConcurrentDictionary<IEntityType, Func<MaterializationContext, object>>? _emptyMaterializers;
     private readonly List<IInstantiationBindingInterceptor> _bindingInterceptors;
@@ -86,7 +92,20 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         }
 
         var constructorBinding = ModifyBindings(structuralType, structuralType.ConstructorBinding!);
+
+        var entityMaterializerSourceParametersExpression = Expression.New(
+            EntityMaterializerSourceParametersCtor,
+            Expression.Constant(structuralType),
+            Expression.Constant(entityInstanceName),
+            Expression.Constant(parameters.QueryTrackingBehavior, typeof(QueryTrackingBehavior?)));
+
         var bindingInfo = new ParameterBindingInfo(parameters, materializationContextExpression);
+
+        var bindingInfoExpression = Expression.New(
+            ParameterBindingInfoCtor,
+            entityMaterializerSourceParametersExpression,
+            Expression.Constant(materializationContextExpression));
+
         var blockExpressions = new List<Expression>();
 
         var instanceVariable = Expression.Variable(constructorBinding.RuntimeType, entityInstanceName);
@@ -129,6 +148,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             properties,
             _materializationInterceptor,
             bindingInfo,
+            bindingInfoExpression,
             constructorExpression,
             instanceVariable,
             blockExpressions);
@@ -239,7 +259,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         InjectableServiceInjectedMethod,
                         getContext,
                         instanceVariable,
-                        Expression.Constant(bindingInfo, typeof(ParameterBindingInfo)))));
+                        Expression.Constant(bindingInfo.QueryTrackingBehavior, typeof(QueryTrackingBehavior?)),
+                        Expression.Constant(bindingInfo.StructuralType))));
         }
     }
 
@@ -308,6 +329,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         HashSet<IPropertyBase> properties,
         IMaterializationInterceptor materializationInterceptor,
         ParameterBindingInfo bindingInfo,
+        Expression bindingInfoExpression,
         Expression constructorExpression,
         ParameterExpression instanceVariable,
         List<Expression> blockExpressions)
@@ -337,7 +359,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         blockExpressions.Add(
             Expression.Assign(
                 accessorDictionaryVariable,
-                CreateAccessorDictionaryExpression()));
+                CreateAccessorDictionaryExpression(structuralType, bindingInfo)));
         blockExpressions.Add(
             Expression.Assign(
                 materializationDataVariable,
@@ -409,7 +431,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             bindingInfo.ServiceInstances.Concat(new[] { accessorDictionaryVariable, materializationDataVariable, creatingResultVariable }),
             blockExpressions);
 
-        BlockExpression CreateAccessorDictionaryExpression()
+        static BlockExpression CreateAccessorDictionaryExpression(ITypeBase structuralType, ParameterBindingInfo bindingInfo)
         {
             var dictionaryVariable = Expression.Variable(
                 typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>), "dictionary");
@@ -534,6 +556,15 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         var bindingInfo = new ParameterBindingInfo(
             new EntityMaterializerSourceParameters(entityType, "instance", null), materializationContextExpression);
 
+        var bindingInfoExpression = Expression.New(
+            ParameterBindingInfoCtor,
+            Expression.New(
+                EntityMaterializerSourceParametersCtor,
+                Expression.Constant(entityType),
+                Expression.Constant("instance"),
+                Expression.Constant(null, typeof(QueryTrackingBehavior?))),
+            Expression.Constant(materializationContextExpression));
+
         var blockExpressions = new List<Expression>();
         var instanceVariable = Expression.Variable(binding.RuntimeType, "instance");
         var serviceProperties = entityType.GetServiceProperties().ToList();
@@ -560,6 +591,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         [],
                         _materializationInterceptor,
                         bindingInfo,
+                        bindingInfoExpression,
                         constructorExpression,
                         instanceVariable,
                         blockExpressions),

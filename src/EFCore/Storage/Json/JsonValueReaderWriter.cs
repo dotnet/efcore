@@ -125,4 +125,9 @@ public abstract class JsonValueReaderWriter
 
         return null;
     }
+
+    /// <summary>
+    ///     The expression representing construction of this object.
+    /// </summary>
+    public abstract Expression ConstructorExpression { get; }
 }

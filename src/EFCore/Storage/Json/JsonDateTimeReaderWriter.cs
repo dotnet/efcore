@@ -26,4 +26,9 @@ public sealed class JsonDateTimeReaderWriter : JsonValueReaderWriter<DateTime>
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, DateTime value)
         => writer.WriteStringValue(value);
+
+    private readonly Expression<Func<JsonDateTimeReaderWriter>> _instanceLambda = () => Instance;
+
+    /// <inheritdoc />
+    public override Expression ConstructorExpression => _instanceLambda.Body;
 }

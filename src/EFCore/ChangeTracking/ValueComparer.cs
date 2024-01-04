@@ -156,6 +156,11 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     public virtual LambdaExpression EqualsExpression { get; }
 
     /// <summary>
+    ///     The object comparison expression.
+    /// </summary>
+    public abstract LambdaExpression ObjectEqualsExpression { get; }
+
+    /// <summary>
     ///     The hash code expression.
     /// </summary>
     public virtual LambdaExpression HashCodeExpression { get; }
