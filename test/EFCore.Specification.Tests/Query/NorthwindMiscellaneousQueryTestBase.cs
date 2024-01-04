@@ -5716,4 +5716,20 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().Where(c => new[] { 100, c.Orders.Count }.Sum() > 101));
+
+    [ConditionalTheory] // #32234
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
+    {
+        var ids = new[] { 10248, 10249 };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>()
+                .Where(e => ids.Contains(e.OrderID))
+                .GroupBy(e => e.Quantity)
+                .Select(g => new { g.Key, MaxTimestamp = g.Select(e => e.Order.OrderDate).Max() })
+                .OrderBy(x => x.MaxTimestamp)
+                .Select(x => x));
+    }
 }
