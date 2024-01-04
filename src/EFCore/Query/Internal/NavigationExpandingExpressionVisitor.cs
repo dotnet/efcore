@@ -15,23 +15,14 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 {
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior32217 =
+    private static readonly bool UseOldBehavior32217 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32217", out var enabled32217) && enabled32217;
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static readonly bool UseOldBehavior32312 =
+    private static readonly bool UseOldBehavior32312 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32312", out var enabled32312) && enabled32312;
+
+    private static readonly bool UseOldBehavior32331 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32331", out var enabled32331) && enabled32331;
 
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
@@ -249,11 +240,23 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
 
+            // Inline query roots can contain arbitrary expressions, including subqueries with navigations; visit inside to process those.
+            case InlineQueryRootExpression inlineQueryRootExpression when !UseOldBehavior32331:
+            {
+                var visited = inlineQueryRootExpression.Update(this.VisitAndConvert(inlineQueryRootExpression.Values));
+                var currentTree = new NavigationTreeExpression(Expression.Default(inlineQueryRootExpression.ElementType));
+                var parameterName = GetParameterName("e");
+
+                return new NavigationExpansionExpression(visited, currentTree, currentTree, parameterName);
+            }
+
             case QueryRootExpression queryRootExpression:
+            {
                 var currentTree = new NavigationTreeExpression(Expression.Default(queryRootExpression.ElementType));
                 var parameterName = GetParameterName("e");
 
                 return new NavigationExpansionExpression(queryRootExpression, currentTree, currentTree, parameterName);
+            }
 
             case NavigationExpansionExpression:
             case OwnedNavigationReference:

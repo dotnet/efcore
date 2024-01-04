@@ -5709,4 +5709,11 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(o => data.Contains(o.CustomerID + o.Customer.CustomerID)));
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Subquery_with_navigation_inside_inline_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => new[] { 100, c.Orders.Count }.Sum() > 101));
 }
