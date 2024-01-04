@@ -1172,21 +1172,14 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
     protected static string Format(MethodInfo method, Type type)
         => $"{method.ReturnType.ShortDisplayName()} {type.Name}.{method.Name}({Format(method.GetParameters())})";
 
-    protected class ParameterTypeEqualityComparer : IEqualityComparer<Type>
+    protected class ParameterTypeEqualityComparer(
+        MethodInfo sourceMethod,
+        MethodInfo targetMethod,
+        ApiConsistencyTestBase<TFixture> tests) : IEqualityComparer<Type>
     {
-        private readonly MethodInfo _sourceMethod;
-        private readonly MethodInfo _targetMethod;
-        private readonly ApiConsistencyTestBase<TFixture> _tests;
-
-        public ParameterTypeEqualityComparer(
-            MethodInfo sourceMethod,
-            MethodInfo targetMethod,
-            ApiConsistencyTestBase<TFixture> tests)
-        {
-            _sourceMethod = sourceMethod;
-            _targetMethod = targetMethod;
-            _tests = tests;
-        }
+        private readonly MethodInfo _sourceMethod = sourceMethod;
+        private readonly MethodInfo _targetMethod = targetMethod;
+        private readonly ApiConsistencyTestBase<TFixture> _tests = tests;
 
         public bool Equals(Type sourceParameterType, Type targetParameterType)
         {

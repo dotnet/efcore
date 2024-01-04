@@ -8,14 +8,10 @@ using System;
 namespace JetBrains.Annotations;
 
 [AttributeUsage(AttributeTargets.Parameter)]
-internal sealed class InvokerParameterNameAttribute : Attribute
-{
-}
+internal sealed class InvokerParameterNameAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Parameter)]
-internal sealed class NoEnumerationAttribute : Attribute
-{
-}
+internal sealed class NoEnumerationAttribute : Attribute;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 internal sealed class ContractAnnotationAttribute : Attribute

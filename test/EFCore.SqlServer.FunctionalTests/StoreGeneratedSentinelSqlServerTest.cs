@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSentinelSqlServerTest : StoreGeneratedSqlServerTestBase<
-    StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture>
+public class StoreGeneratedSentinelSqlServerTest(StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture fixture) : StoreGeneratedSqlServerTestBase<
+    StoreGeneratedSentinelSqlServerTest.StoreGeneratedSentinelSqlServerFixture>(fixture)
 {
-    public StoreGeneratedSentinelSqlServerTest(StoreGeneratedSentinelSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class StoreGeneratedSentinelSqlServerFixture : StoreGeneratedSqlServerFixtureBase
     {
         public override Guid GuidSentinel { get; } = new("91B22A0D-99F4-4AD4-930F-6590AFD30FDD");

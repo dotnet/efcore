@@ -5,22 +5,13 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
-public class SpatialData : ISetSource
+public class SpatialData(GeometryFactory factory) : ISetSource
 {
-    private readonly IReadOnlyList<PointEntity> _pointEntities;
-    private readonly IReadOnlyList<GeoPointEntity> _geoPointEntities;
-    private readonly IReadOnlyList<LineStringEntity> _lineStringEntities;
-    private readonly IReadOnlyList<PolygonEntity> _polygonEntities;
-    private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities;
-
-    public SpatialData(GeometryFactory factory)
-    {
-        _pointEntities = CreatePointEntities(factory);
-        _geoPointEntities = CreateGeoPointEntities();
-        _lineStringEntities = CreateLineStringEntities(factory);
-        _polygonEntities = CreatePolygonEntities(factory);
-        _multiLineStringEntities = CreateMultiLineStringEntities(factory);
-    }
+    private readonly IReadOnlyList<PointEntity> _pointEntities = CreatePointEntities(factory);
+    private readonly IReadOnlyList<GeoPointEntity> _geoPointEntities = CreateGeoPointEntities();
+    private readonly IReadOnlyList<LineStringEntity> _lineStringEntities = CreateLineStringEntities(factory);
+    private readonly IReadOnlyList<PolygonEntity> _polygonEntities = CreatePolygonEntities(factory);
+    private readonly IReadOnlyList<MultiLineStringEntity> _multiLineStringEntities = CreateMultiLineStringEntities(factory);
 
     public virtual IQueryable<TEntity> Set<TEntity>()
         where TEntity : class

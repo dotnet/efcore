@@ -76,13 +76,8 @@ public abstract class SeedingTestBase
         public string Species { get; set; }
     }
 
-    public class KeylessSeedingContext : DbContext
+    public class KeylessSeedingContext(DbContextOptions options) : DbContext(options)
     {
-        public KeylessSeedingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<KeylessSeed>()
                 .HasNoKey()

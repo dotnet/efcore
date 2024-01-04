@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DesignTimeSqlServerTest : DesignTimeTestBase<DesignTimeSqlServerTest.DesignTimeSqlServerFixture>
+public class DesignTimeSqlServerTest(DesignTimeSqlServerTest.DesignTimeSqlServerFixture fixture) : DesignTimeTestBase<DesignTimeSqlServerTest.DesignTimeSqlServerFixture>(fixture)
 {
-    public DesignTimeSqlServerTest(DesignTimeSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Assembly ProviderAssembly
         => typeof(SqlServerDesignTimeServices).Assembly;
 

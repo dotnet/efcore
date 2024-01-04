@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class TemporalPointInTimeQueryRewriter : ExpressionVisitor
+public class TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> temporalEntityTypes) : ExpressionVisitor
 {
     private static readonly MethodInfo _setMethodInfo
         = typeof(ISetSource).GetMethod(nameof(ISetSource.Set));
@@ -13,16 +13,10 @@ public class TemporalPointInTimeQueryRewriter : ExpressionVisitor
     private static readonly MethodInfo _asOfMethodInfo
         = typeof(SqlServerDbSetExtensions).GetMethod(nameof(SqlServerDbSetExtensions.TemporalAsOf));
 
-    private readonly DateTime _pointInTime;
+    private readonly DateTime _pointInTime = pointInTime;
 
     // TODO: need model instead
-    private readonly List<Type> _temporalEntityTypes;
-
-    public TemporalPointInTimeQueryRewriter(DateTime pointInTime, List<Type> temporalEntityTypes)
-    {
-        _pointInTime = pointInTime;
-        _temporalEntityTypes = temporalEntityTypes;
-    }
+    private readonly List<Type> _temporalEntityTypes = temporalEntityTypes;
 
     protected override Expression VisitExtension(Expression extensionExpression)
     {

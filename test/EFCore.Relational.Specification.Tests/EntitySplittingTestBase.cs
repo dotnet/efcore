@@ -124,13 +124,8 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         ContextFactory = null;
     }
 
-    protected class EntitySplittingContext : PoolableDbContext
+    protected class EntitySplittingContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public EntitySplittingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MeterReading> MeterReadings { get; set; }
     }
 

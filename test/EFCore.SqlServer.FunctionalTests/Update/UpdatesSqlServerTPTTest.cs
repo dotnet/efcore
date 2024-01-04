@@ -7,13 +7,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class UpdatesSqlServerTPTTest : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>
+public class UpdatesSqlServerTPTTest(UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper) : UpdatesSqlServerTestBase<UpdatesSqlServerTPTTest.UpdatesSqlServerTPTFixture>(fixture, testOutputHelper)
 {
-    public UpdatesSqlServerTPTTest(UpdatesSqlServerTPTFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     public override void Save_with_shared_foreign_key()
     {
         base.Save_with_shared_foreign_key();

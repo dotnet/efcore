@@ -3,10 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SerializationSqliteTest : SerializationTestBase<F1SqliteFixture>
-{
-    public SerializationSqliteTest(F1SqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class SerializationSqliteTest(F1SqliteFixture fixture) : SerializationTestBase<F1SqliteFixture>(fixture);

@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectStringFunctionExpressionMutator : ExpressionMutator
+public class InjectStringFunctionExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private readonly ExpressionFinder _expressionFinder = new();
-
-    public InjectStringFunctionExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
     {

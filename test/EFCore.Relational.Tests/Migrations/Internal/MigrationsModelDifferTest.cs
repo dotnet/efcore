@@ -8745,13 +8745,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         public string Name { get; set; }
     }
 
-    private class Eagle : Animal
-    {
-    }
+    private class Eagle : Animal;
 
-    private class Shark : Animal
-    {
-    }
+    private class Shark : Animal;
 
     [ConditionalFact]
     public void Add_column_to_renamed_table()
@@ -9804,19 +9800,13 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty,
             Assert.Empty);
 
-    protected class SomeEntity
+    protected class SomeEntity(long id, Guid guid)
     {
-        public SomeEntity(long id, Guid guid)
-        {
-            Id = id;
-            Guid = guid;
-        }
-
         public virtual SomeOwnedEntity OwnedEntity { get; } = new();
 
-        public Guid Guid { get; protected set; }
+        public Guid Guid { get; protected set; } = guid;
 
-        public long Id { get; protected set; }
+        public long Id { get; protected set; } = id;
     }
 
     protected class ApplicationUser
@@ -9836,9 +9826,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
         public Guid Guid { get; set; }
     }
 
-    protected class SomeOwnedEntity
-    {
-    }
+    protected class SomeOwnedEntity;
 
     [ConditionalFact]
     public void SeedData_and_PK_rename()

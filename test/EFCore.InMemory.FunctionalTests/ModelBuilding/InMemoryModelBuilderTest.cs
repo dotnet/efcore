@@ -8,69 +8,21 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class InMemoryModelBuilderTest : ModelBuilderTest
 {
-    public abstract class InMemoryNonRelationship : NonRelationshipTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryNonRelationship(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryNonRelationship(InMemoryModelBuilderFixture fixture) : NonRelationshipTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryComplexType : ComplexTypeTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryComplexType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryComplexType(InMemoryModelBuilderFixture fixture) : ComplexTypeTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryInheritance : InheritanceTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryInheritance(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryInheritance(InMemoryModelBuilderFixture fixture) : InheritanceTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryOneToMany : OneToManyTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryOneToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryOneToMany(InMemoryModelBuilderFixture fixture) : OneToManyTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryManyToMany : ManyToManyTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryManyToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryManyToMany(InMemoryModelBuilderFixture fixture) : ManyToManyTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryManyToOne : ManyToOneTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryManyToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryManyToOne(InMemoryModelBuilderFixture fixture) : ManyToOneTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryOneToOne : OneToOneTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryOneToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryOneToOne(InMemoryModelBuilderFixture fixture) : OneToOneTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
-    public abstract class InMemoryOwnedTypes : OwnedTypesTestBase, IClassFixture<InMemoryModelBuilderFixture>
-    {
-        public InMemoryOwnedTypes(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class InMemoryOwnedTypes(InMemoryModelBuilderFixture fixture) : OwnedTypesTestBase(fixture), IClassFixture<InMemoryModelBuilderFixture>;
 
     public class InMemoryModelBuilderFixture : ModelBuilderFixtureBase
     {

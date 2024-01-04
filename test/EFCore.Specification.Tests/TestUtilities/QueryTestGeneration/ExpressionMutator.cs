@@ -5,13 +5,13 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public abstract class ExpressionMutator
+public abstract class ExpressionMutator(DbContext context)
 {
     protected static MethodInfo IncludeMethodInfo;
     protected static MethodInfo ThenIncludeReferenceMethodInfo;
     protected static MethodInfo ThenIncludeCollectionMethodInfo;
 
-    protected DbContext Context { get; }
+    protected DbContext Context { get; } = context;
 
     static ExpressionMutator()
     {
@@ -28,11 +28,6 @@ public abstract class ExpressionMutator
         ThenIncludeReferenceMethodInfo = typeof(EntityFrameworkQueryableExtensions).GetMethods().Where(
             m => m.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude)
                 && m != ThenIncludeCollectionMethodInfo).Single();
-    }
-
-    public ExpressionMutator(DbContext context)
-    {
-        Context = context;
     }
 
     protected static bool IsQueryableType(Type type)
@@ -102,16 +97,10 @@ public abstract class ExpressionMutator
     public abstract bool IsValid(Expression expression);
     public abstract Expression Apply(Expression expression, Random random);
 
-    protected class ExpressionInjector : ExpressionVisitor
+    protected class ExpressionInjector(Expression expressionToInject, Func<Expression, Expression> injectionPattern) : ExpressionVisitor
     {
-        private readonly Expression _expressionToInject;
-        private readonly Func<Expression, Expression> _injectionPattern;
-
-        public ExpressionInjector(Expression expressionToInject, Func<Expression, Expression> injectionPattern)
-        {
-            _expressionToInject = expressionToInject;
-            _injectionPattern = injectionPattern;
-        }
+        private readonly Expression _expressionToInject = expressionToInject;
+        private readonly Func<Expression, Expression> _injectionPattern = injectionPattern;
 
         public override Expression Visit(Expression node)
         {

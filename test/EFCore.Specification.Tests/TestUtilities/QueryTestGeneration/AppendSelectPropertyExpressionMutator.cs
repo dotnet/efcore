@@ -3,15 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendSelectPropertyExpressionMutator : ExpressionMutator
+public class AppendSelectPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private bool HasValidPropertyToSelect(Expression expression)
         => expression.Type.GetGenericArguments()[0].GetProperties().Any(p => !p.GetMethod.IsStatic);
-
-    public AppendSelectPropertyExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
         => IsQueryableResult(expression)

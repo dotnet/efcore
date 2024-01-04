@@ -28,11 +28,5 @@ public class SqliteDatabaseFacadeExtensionsTest
         Assert.False(context.Database.IsSqlite());
     }
 
-    private class ProviderContext : DbContext
-    {
-        public ProviderContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class ProviderContext(DbContextOptions options) : DbContext(options);
 }

@@ -56,21 +56,13 @@ public class StoreGeneratedInMemoryTest
         public TKey? Id { get; set; }
     }
 
-    protected class IntToString : WithConverter<int>
-    {
-    }
+    protected class IntToString : WithConverter<int>;
 
-    protected class GuidToString : WithConverter<Guid>
-    {
-    }
+    protected class GuidToString : WithConverter<Guid>;
 
-    protected class GuidToBytes : WithConverter<Guid>
-    {
-    }
+    protected class GuidToBytes : WithConverter<Guid>;
 
-    protected class ShortToBytes : WithConverter<short>
-    {
-    }
+    protected class ShortToBytes : WithConverter<short>;
 
     protected class WrappedIntClass
     {
@@ -2861,14 +2853,9 @@ public class StoreGeneratedInMemoryTest
         }
     }
 
-    private class StoreContext : DbContext
+    private class StoreContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public StoreContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);

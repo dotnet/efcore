@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectJoinWithSelfExpressionMutator : ExpressionMutator
+public class InjectJoinWithSelfExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public InjectJoinWithSelfExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     private ExpressionFinder _expressionFinder;
 
     public override bool IsValid(Expression expression)
@@ -45,16 +40,11 @@ public class InjectJoinWithSelfExpressionMutator : ExpressionMutator
         return injector.Visit(expression);
     }
 
-    private class ExpressionFinder : ExpressionVisitor
+    private class ExpressionFinder(InjectJoinWithSelfExpressionMutator mutator) : ExpressionVisitor
     {
         private readonly bool _insideThenBy = false;
 
-        private readonly InjectJoinWithSelfExpressionMutator _mutator;
-
-        public ExpressionFinder(InjectJoinWithSelfExpressionMutator mutator)
-        {
-            _mutator = mutator;
-        }
+        private readonly InjectJoinWithSelfExpressionMutator _mutator = mutator;
 
         public List<Expression> FoundExpressions { get; } = new();
 

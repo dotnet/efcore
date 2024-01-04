@@ -435,13 +435,8 @@ public partial class CSharpMigrationsGeneratorTest
     }
 
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Local
-    private class TestCSharpSnapshotGenerator : CSharpSnapshotGenerator
+    private class TestCSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies) : CSharpSnapshotGenerator(dependencies)
     {
-        public TestCSharpSnapshotGenerator(CSharpSnapshotGeneratorDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         public virtual void TestGenerateEntityTypeAnnotations(
             string builderName,
             IEntityType entityType,
@@ -461,9 +456,7 @@ public partial class CSharpMigrationsGeneratorTest
         public int Id { get; set; }
     }
 
-    private class Derived : WithAnnotations
-    {
-    }
+    private class Derived : WithAnnotations;
 
     [ConditionalFact]
     public void Snapshot_with_enum_discriminator_uses_converted_values()
@@ -735,14 +728,9 @@ namespace MyNamespace
     private static int MyDbFunction()
         => throw new NotImplementedException();
 
-    private class EntityWithConstructorBinding
+    private class EntityWithConstructorBinding(int id)
     {
-        public EntityWithConstructorBinding(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; }
+        public int Id { get; } = id;
     }
 
     private ModelSnapshot CompileModelSnapshot(string code, string modelSnapshotTypeName)
@@ -765,9 +753,7 @@ namespace MyNamespace
         return (ModelSnapshot)Activator.CreateInstance(snapshotType);
     }
 
-    public class MyContext
-    {
-    }
+    public class MyContext;
 
     [ConditionalFact]
     public void Namespaces_imported_for_insert_data()

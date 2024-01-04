@@ -5,15 +5,10 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestOperationReporter : IOperationReporter
+public class TestOperationReporter(ITestOutputHelper output = null) : IOperationReporter
 {
-    private readonly ITestOutputHelper _output;
+    private readonly ITestOutputHelper _output = output;
     private readonly List<(LogLevel, string)> _messages = new();
-
-    public TestOperationReporter(ITestOutputHelper output = null)
-    {
-        _output = output;
-    }
 
     public IReadOnlyList<(LogLevel Level, string Message)> Messages
         => _messages;

@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class KeysWithConvertersCosmosTest : KeysWithConvertersTestBase<KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture>
+public class KeysWithConvertersCosmosTest(KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture fixture) : KeysWithConvertersTestBase<KeysWithConvertersCosmosTest.KeysWithConvertersCosmosFixture>(fixture)
 {
-    public KeysWithConvertersCosmosTest(KeysWithConvertersCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact(Skip = "Issue=#16920 (Include)")]
     public override void Can_insert_and_read_back_with_struct_key_and_optional_dependents()
         => base.Can_insert_and_read_back_with_struct_key_and_optional_dependents();

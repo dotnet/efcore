@@ -25,15 +25,10 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
         Assert.Equal(2, users.Count);
     }
 
-    private class MyContext7973 : DbContext
+    private class MyContext7973(DbContextOptions options) : DbContext(options)
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Organisation> Organisations { get; set; }
-
-        public MyContext7973(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -144,13 +139,8 @@ public abstract class AdHocManyToManyQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context20277 : DbContext
+    protected class Context20277(DbContextOptions options) : DbContext(options)
     {
-        public Context20277(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ManyM_DB>()
                 .HasMany(e => e.ManyN_DB)

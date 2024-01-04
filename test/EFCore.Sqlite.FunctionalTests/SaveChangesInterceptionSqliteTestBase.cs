@@ -24,14 +24,9 @@ public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterce
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
     }
 
-    public class SaveChangesInterceptionSqliteTest
-        : SaveChangesInterceptionSqliteTestBase, IClassFixture<SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture>
+    public class SaveChangesInterceptionSqliteTest(SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture fixture)
+        : SaveChangesInterceptionSqliteTestBase(fixture), IClassFixture<SaveChangesInterceptionSqliteTest.InterceptionSqliteFixture>
     {
-        public SaveChangesInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -39,15 +34,10 @@ public abstract class SaveChangesInterceptionSqliteTestBase : SaveChangesInterce
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqliteTest
-        : SaveChangesInterceptionSqliteTestBase,
+    public class SaveChangesInterceptionWithDiagnosticsSqliteTest(SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : SaveChangesInterceptionSqliteTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
-        public SaveChangesInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

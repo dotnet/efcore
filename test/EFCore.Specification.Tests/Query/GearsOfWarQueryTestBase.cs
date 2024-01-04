@@ -4546,9 +4546,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 AssertCollection(e.Weapons, a.Weapons);
             });
 
-    public class MyDTO
-    {
-    }
+    public class MyDTO;
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

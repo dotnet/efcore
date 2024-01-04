@@ -5,16 +5,11 @@ using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class TPTFiltersInheritanceBulkUpdatesSqliteTest : TPTFiltersInheritanceBulkUpdatesTestBase<
-    TPTFiltersInheritanceBulkUpdatesSqliteFixture>
+public class TPTFiltersInheritanceBulkUpdatesSqliteTest(
+    TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPTFiltersInheritanceBulkUpdatesTestBase<TPTFiltersInheritanceBulkUpdatesSqliteFixture>(fixture, testOutputHelper)
 {
-    public TPTFiltersInheritanceBulkUpdatesSqliteTest(
-        TPTFiltersInheritanceBulkUpdatesSqliteFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

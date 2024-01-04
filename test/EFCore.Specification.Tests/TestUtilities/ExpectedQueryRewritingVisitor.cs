@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class ExpectedQueryRewritingVisitor : ExpressionVisitor
+public class ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>> shadowPropertyMappings = null) : ExpressionVisitor
 {
     private static readonly MethodInfo _maybeDefaultIfEmpty
         = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty));
@@ -17,7 +17,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
     private static readonly MethodInfo _maybeScalarNullableMethod;
     private static readonly MethodInfo _maybeScalarNonNullableMethod;
 
-    private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings;
+    private readonly Dictionary<(Type, string), Func<object, object>> _shadowPropertyMappings = shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
 
     private bool _negated;
 
@@ -29,11 +29,6 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
 
         _maybeScalarNullableMethod = maybeScalarMethods.Single(x => x.argument.IsNullableValueType()).method;
         _maybeScalarNonNullableMethod = maybeScalarMethods.Single(x => !x.argument.IsNullableValueType()).method;
-    }
-
-    public ExpectedQueryRewritingVisitor(Dictionary<(Type, string), Func<object, object>> shadowPropertyMappings = null)
-    {
-        _shadowPropertyMappings = shadowPropertyMappings ?? new Dictionary<(Type, string), Func<object, object>>();
     }
 
     protected override Expression VisitMember(MemberExpression memberExpression)

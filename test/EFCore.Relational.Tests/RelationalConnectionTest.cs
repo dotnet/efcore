@@ -101,13 +101,7 @@ public class RelationalConnectionTest
             Assert.Throws<InvalidOperationException>(() => context.Database.GetDbConnection()).Message);
     }
 
-    private class ConstructorTestContext1A : DbContext
-    {
-        public ConstructorTestContext1A(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class ConstructorTestContext1A(DbContextOptions options) : DbContext(options);
 
     private class ConstructorTestContextNoConfiguration : DbContext
     {
@@ -961,13 +955,8 @@ public class RelationalConnectionTest
             return serviceCollection;
         }
 
-        private sealed class ExtensionInfo : RelationalExtensionInfo
+        private sealed class ExtensionInfo(IDbContextOptionsExtension extension) : RelationalExtensionInfo(extension)
         {
-            public ExtensionInfo(IDbContextOptionsExtension extension)
-                : base(extension)
-            {
-            }
-
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
             {
             }

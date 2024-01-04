@@ -756,9 +756,7 @@ RETURNING 1;
             => _fakeSqlGenerator ?? throw new InvalidOperationException("Not using FakeSqlGenerator");
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 
     private const string ConnectionString = "Fake Connection String";
 

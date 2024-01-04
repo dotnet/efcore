@@ -10,16 +10,11 @@ using Newtonsoft.Json.Linq;
 // ReSharper disable UnusedMember.Local
 namespace Microsoft.EntityFrameworkCore;
 
-public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture>
+public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : IClassFixture<EndToEndCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "CosmosEndToEndTest";
 
-    protected CosmosFixture Fixture { get; }
-
-    public EndToEndCosmosTest(CosmosFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Can_add_update_delete_end_to_end()
@@ -531,24 +526,14 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         public string Name { get; set; }
     }
 
-    private class CustomerContext : DbContext
+    private class CustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public CustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>();
     }
 
-    private class CustomerContextGuid : DbContext
+    private class CustomerContextGuid(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public CustomerContextGuid(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerGuid>(
                 cb =>
@@ -559,13 +544,8 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
                 });
     }
 
-    private class CustomerContextDateTime : DbContext
+    private class CustomerContextDateTime(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public CustomerContextDateTime(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerDateTime>(
                 cb =>
@@ -674,18 +654,11 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         Assert.Equal(EntityState.Deleted, entry.State);
     }
 
-    protected class IdentifierShadowValuePresenceTestContext : DbContext
+    protected class IdentifierShadowValuePresenceTestContext(CosmosTestStore testStore) : DbContext
     {
-        private readonly string _connectionUri;
-        private readonly string _authToken;
-        private readonly string _name;
-
-        public IdentifierShadowValuePresenceTestContext(CosmosTestStore testStore)
-        {
-            _connectionUri = testStore.ConnectionUri;
-            _authToken = testStore.AuthToken;
-            _name = testStore.Name;
-        }
+        private readonly string _connectionUri = testStore.ConnectionUri;
+        private readonly string _authToken = testStore.AuthToken;
+        private readonly string _name = testStore.Name;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -959,18 +932,12 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         public TCollection Collection { get; set; }
     }
 
-    private class CollectionCustomerContext<TCollection> : DbContext
+    private class CollectionCustomerContext<TCollection>(DbContextOptions dbContextOptions, Action<ModelBuilder> onModelBuilder = null) : DbContext(dbContextOptions)
     {
-        private readonly Action<ModelBuilder> _onModelBuilder;
+        private readonly Action<ModelBuilder> _onModelBuilder = onModelBuilder;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<CustomerWithCollection<TCollection>> Customers { get; set; }
-
-        public CollectionCustomerContext(DbContextOptions dbContextOptions, Action<ModelBuilder> onModelBuilder = null)
-            : base(dbContextOptions)
-        {
-            _onModelBuilder = onModelBuilder;
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => _onModelBuilder?.Invoke(modelBuilder);
@@ -1399,13 +1366,8 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    private class PartitionKeyContext : DbContext
+    private class PartitionKeyContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(
                 cb =>
@@ -1416,24 +1378,14 @@ OFFSET 0 LIMIT 1
                 });
     }
 
-    private class PartitionKeyContextEntityWithNoPartitionKey : DbContext
+    private class PartitionKeyContextEntityWithNoPartitionKey(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextEntityWithNoPartitionKey(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerNoPartitionKey>();
     }
 
-    private class PartitionKeyContextCustomValueGenerator : DbContext
+    private class PartitionKeyContextCustomValueGenerator(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextCustomValueGenerator(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(
                 cb =>
@@ -1448,13 +1400,8 @@ OFFSET 0 LIMIT 1
                 });
     }
 
-    private class PartitionKeyContextNoValueGenerator : DbContext
+    private class PartitionKeyContextNoValueGenerator(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextNoValueGenerator(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>(
                 cb =>
@@ -1468,24 +1415,14 @@ OFFSET 0 LIMIT 1
                 });
     }
 
-    private class PartitionKeyContextNonPrimaryKey : DbContext
+    private class PartitionKeyContextNonPrimaryKey(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextNonPrimaryKey(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>();
     }
 
-    private class PartitionKeyContextPrimaryKey : DbContext
+    private class PartitionKeyContextPrimaryKey(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextPrimaryKey(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerGuid>(
                 cb =>
@@ -1495,13 +1432,8 @@ OFFSET 0 LIMIT 1
                 });
     }
 
-    private class PartitionKeyContextWithPrimaryKeyResourceId : DbContext
+    private class PartitionKeyContextWithPrimaryKeyResourceId(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextWithPrimaryKeyResourceId(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
@@ -1513,13 +1445,8 @@ OFFSET 0 LIMIT 1
                 });
     }
 
-    private class PartitionKeyContextWithResourceId : DbContext
+    private class PartitionKeyContextWithResourceId(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public PartitionKeyContextWithResourceId(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<CustomerWithResourceId>(
                 cb =>
@@ -1573,13 +1500,8 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    private class NoDiscriminatorCustomerContext : CustomerContext
+    private class NoDiscriminatorCustomerContext(DbContextOptions dbContextOptions) : CustomerContext(dbContextOptions)
     {
-        public NoDiscriminatorCustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>().HasNoDiscriminator();
     }
@@ -1637,13 +1559,8 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    private class ExtraCustomerContext : CustomerContext
+    private class ExtraCustomerContext(DbContextOptions dbContextOptions) : CustomerContext(dbContextOptions)
     {
-        public ExtraCustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultContainer(nameof(CustomerContext));
@@ -1681,13 +1598,8 @@ OFFSET 0 LIMIT 1
         }
     }
 
-    private class UnmappedCustomerContext : CustomerContext
+    private class UnmappedCustomerContext(DbContextOptions dbContextOptions) : CustomerContext(dbContextOptions)
     {
-        public UnmappedCustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>().Property(c => c.Name).ToJsonProperty("");
     }
@@ -1758,13 +1670,8 @@ OFFSET 0 LIMIT 1
         public string Name { get; set; }
     }
 
-    public class ConflictingIncompatibleIdContext : DbContext
+    public class ConflictingIncompatibleIdContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public ConflictingIncompatibleIdContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ConflictingIncompatibleId>();
     }
@@ -1829,13 +1736,8 @@ OFFSET 0 LIMIT 1
         public string Name { get; set; }
     }
 
-    public class ConflictingIdContext : DbContext
+    public class ConflictingIdContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public ConflictingIdContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ConflictingId>();
     }
@@ -1980,15 +1882,9 @@ OFFSET 0 LIMIT 1
         Derived
     }
 
-    public class NonStringDiscriminatorContext : DbContext
+    public class NonStringDiscriminatorContext(DbContextOptions dbContextOptions, bool useDiscriminator) : DbContext(dbContextOptions)
     {
-        public NonStringDiscriminatorContext(DbContextOptions dbContextOptions, bool useDiscriminator)
-            : base(dbContextOptions)
-        {
-            UseDiscriminator = useDiscriminator;
-        }
-
-        public bool UseDiscriminator { get; }
+        public bool UseDiscriminator { get; } = useDiscriminator;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

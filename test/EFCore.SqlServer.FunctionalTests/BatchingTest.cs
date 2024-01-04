@@ -365,13 +365,8 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-    private class BloggingContext : PoolableDbContext
+    private class BloggingContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public BloggingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Owner>(

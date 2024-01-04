@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>
+public class GraphUpdatesSqlServerOwnedTest(GraphUpdatesSqlServerOwnedTest.SqlServerFixture fixture) : GraphUpdatesSqlServerTestBase<GraphUpdatesSqlServerOwnedTest.SqlServerFixture>(fixture)
 {
-    public GraphUpdatesSqlServerOwnedTest(SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     // No owned types
     public override Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
         => Task.CompletedTask;

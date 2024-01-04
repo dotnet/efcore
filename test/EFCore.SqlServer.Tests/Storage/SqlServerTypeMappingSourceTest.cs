@@ -1792,21 +1792,13 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMappingSourceTestBas
         return typeMappingSource;
     }
 
-    private enum LongEnum : long
-    {
-    }
+    private enum LongEnum : long;
 
-    private enum IntEnum
-    {
-    }
+    private enum IntEnum;
 
-    private enum ShortEnum : short
-    {
-    }
+    private enum ShortEnum : short;
 
-    private enum ByteEnum : byte
-    {
-    }
+    private enum ByteEnum : byte;
 
     protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
         => SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);

@@ -430,13 +430,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         Assert.Equal(expectedCode, csharpHelper.UnknownLiteral(value));
     }
 
-    private class FakeType : Type
+    private class FakeType(string fullName) : Type
     {
-        public FakeType(string fullName)
-        {
-            FullName = fullName;
-        }
-
         public override object[] GetCustomAttributes(bool inherit)
             => throw new NotImplementedException();
 
@@ -566,7 +561,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
             => throw new NotImplementedException();
 
-        public override string FullName { get; }
+        public override string FullName { get; } = fullName;
 
         public override int GetHashCode()
             => FullName.GetHashCode();

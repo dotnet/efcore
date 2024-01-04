@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingGeneratedKeysSqlServerTest
-    : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingGeneratedKeysSqlServerTest.ManyToManyTrackingGeneratedKeysSqlServerFixture>
+public class ManyToManyTrackingGeneratedKeysSqlServerTest(ManyToManyTrackingGeneratedKeysSqlServerTest.ManyToManyTrackingGeneratedKeysSqlServerFixture fixture)
+    : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingGeneratedKeysSqlServerTest.ManyToManyTrackingGeneratedKeysSqlServerFixture>(fixture)
 {
-    public ManyToManyTrackingGeneratedKeysSqlServerTest(ManyToManyTrackingGeneratedKeysSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class ManyToManyTrackingGeneratedKeysSqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
     {
         protected override string StoreName

@@ -63,8 +63,6 @@ namespace Microsoft.EntityFrameworkCore.Extensions
 
     namespace Namespace3
     {
-        internal class TestArgument
-        {
-        }
+        internal class TestArgument;
     }
 }

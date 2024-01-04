@@ -605,16 +605,10 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class MutatingNonQueryCommandInterceptor : CommandInterceptorBase
+    protected class MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase) : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
-        public readonly string MutatedSql;
-
-        public MutatingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-            : base(DbCommandMethod.ExecuteNonQuery)
-        {
-            MutatedSql =
+        public readonly string MutatedSql =
                 testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 78");
-        }
 
         public override InterceptionResult<int> NonQueryExecuting(
             DbCommand command,
@@ -814,15 +808,9 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class QueryReplacingNonQueryCommandInterceptor : CommandInterceptorBase
+    protected class QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase) : CommandInterceptorBase(DbCommandMethod.ExecuteNonQuery)
     {
-        private readonly string commandText;
-
-        public QueryReplacingNonQueryCommandInterceptor(CommandInterceptionTestBase testBase)
-            : base(DbCommandMethod.ExecuteNonQuery)
-        {
-            commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
-        }
+        private readonly string commandText = testBase.NormalizeDelimitersInRawString("DELETE FROM [Singularity] WHERE [Id] = 77");
 
         public override InterceptionResult<int> NonQueryExecuting(
             DbCommand command,
@@ -924,17 +912,11 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    private class CompositeFakeDbDataReader : FakeDbDataReader
+    private class CompositeFakeDbDataReader(DbDataReader firstReader, DbDataReader secondReader) : FakeDbDataReader
     {
-        private readonly DbDataReader _firstReader;
-        private readonly DbDataReader _secondReader;
+        private readonly DbDataReader _firstReader = firstReader;
+        private readonly DbDataReader _secondReader = secondReader;
         private bool _movedToSecond;
-
-        public CompositeFakeDbDataReader(DbDataReader firstReader, DbDataReader secondReader)
-        {
-            _firstReader = firstReader;
-            _secondReader = secondReader;
-        }
 
         public override int FieldCount
             => _firstReader.FieldCount;
@@ -1616,14 +1598,9 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    private class WrappingDbCommand : DbCommand
+    private class WrappingDbCommand(DbCommand command) : DbCommand
     {
-        private readonly DbCommand _command;
-
-        public WrappingDbCommand(DbCommand command)
-        {
-            _command = command;
-        }
+        private readonly DbCommand _command = command;
 
         public override void Cancel()
             => _command.Cancel();

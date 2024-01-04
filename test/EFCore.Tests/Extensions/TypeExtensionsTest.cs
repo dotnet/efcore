@@ -299,9 +299,7 @@ public class TypeExtensionsTest
         string Permissions { get; set; }
     }
 
-    private interface IRoleCollection2014 : ICollection<IRole2014>
-    {
-    }
+    private interface IRoleCollection2014 : ICollection<IRole2014>;
 
 #pragma warning disable CA1061 // Do not hide base class methods
     private class RoleCollection2014 : List<Role2014>, IRoleCollection2014
@@ -344,17 +342,11 @@ public class TypeExtensionsTest
     public void GetBaseTypes_return_empty_if_no_base_type_exists()
         => Assert.False(typeof(object).GetBaseTypes().Any());
 
-    private class MultipleHierarchy : Some
-    {
-    }
+    private class MultipleHierarchy : Some;
 
-    private class Some : Base
-    {
-    }
+    private class Some : Base;
 
-    private class Base
-    {
-    }
+    private class Base;
 
     // ReSharper restore InconsistentNaming
 
@@ -428,20 +420,13 @@ public class TypeExtensionsTest
         Assert.Contains(typeof(SomeTypeWithoutDefaultCtor), types);
     }
 
-    private abstract class SomeAbstractClass
-    {
-    }
+    private abstract class SomeAbstractClass;
 
-    private class SomeGenericClass<T>
-    {
-    }
+    private class SomeGenericClass<T>;
 
-    private class SomeTypeWithoutDefaultCtor
-    {
-        public SomeTypeWithoutDefaultCtor(int value)
-        {
-        }
-    }
+#pragma warning disable CS9113 // Parameter 'value' is unread
+    private class SomeTypeWithoutDefaultCtor(int value);
+#pragma warning restore CS9113
 
     [ConditionalFact]
     public void GetNamespaces_works()
@@ -625,35 +610,21 @@ public class TypeExtensionsTest
         }
     }
 
-    private class A
-    {
-    }
+    private class A;
 
-    private class B<T>
-    {
-    }
+    private class B<T>;
 
-    private class C<T1, T2>
-    {
-    }
+    private class C<T1, T2>;
 
-    private class PartiallyClosedGeneric<T> : C<T, int>
-    {
-    }
+    private class PartiallyClosedGeneric<T> : C<T, int>;
 
     private static class Outer<T>
     {
-        public class D
-        {
-        }
+        public class D;
 
-        public class E<T1>
-        {
-        }
+        public class E<T1>;
 
-        public class F<T1, T2>
-        {
-        }
+        public class F<T1, T2>;
     }
 
     private static class OuterGeneric<T1>
@@ -662,13 +633,9 @@ public class TypeExtensionsTest
         {
             public static class InnerGeneric<T2, T3>
             {
-                public class InnerGenericLeafNode<T4>
-                {
-                }
+                public class InnerGenericLeafNode<T4>;
 
-                public class InnerLeafNode
-                {
-                }
+                public class InnerLeafNode;
             }
         }
     }
@@ -677,9 +644,7 @@ public class TypeExtensionsTest
     {
         public static class Level2<T2>
         {
-            public class Level3<T3>
-            {
-            }
+            public class Level3<T3>;
         }
     }
 }

@@ -12,13 +12,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 
-public class GlobalNamespaceContext : DbContext
-{
-    public GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> options)
-        : base(options)
-    {
-    }
-}
+public class GlobalNamespaceContext(DbContextOptions<GlobalNamespaceContext> options) : DbContext(options);
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding
 {
@@ -63,15 +57,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                 }
             );
 
-        public class SelfReferentialPropertyValueConverter : ValueConverter<SelfReferentialProperty?, string?>
+        public class SelfReferentialPropertyValueConverter(ConverterMappingHints hints) : ValueConverter<SelfReferentialProperty?, string?>(v => null, v => null, hints)
         {
             public SelfReferentialPropertyValueConverter()
                 : this(new ConverterMappingHints())
-            {
-            }
-
-            public SelfReferentialPropertyValueConverter(ConverterMappingHints hints)
-                : base(v => null, v => null, hints)
             {
             }
         }
@@ -83,9 +72,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             public SelfReferentialProperty? Collection { get; set; }
         }
 
-        public class SelfReferentialProperty : List<SelfReferentialProperty>
-        {
-        }
+        public class SelfReferentialProperty : List<SelfReferentialProperty>;
 
         [ConditionalFact]
         public virtual void Throws_for_constructor_binding()
@@ -135,14 +122,9 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                     Assert.Contains(lazyPropertyDelegateEntity!.GetServiceProperties(), p => p.ClrType == typeof(Action<object, string>));
                 });
 
-        public class LazyConstructorEntity
+        public class LazyConstructorEntity(ILazyLoader loader)
         {
-            private readonly ILazyLoader _loader;
-
-            public LazyConstructorEntity(ILazyLoader loader)
-            {
-                _loader = loader;
-            }
+            private readonly ILazyLoader _loader = loader;
 
             public int Id { get; set; }
 
@@ -217,13 +199,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             => Test<DefiningQueryContext>(
                 expectedExceptionMessage: DesignStrings.CompiledModelDefiningQuery("object"));
 
-        public class DefiningQueryContext : DbContext
+        public class DefiningQueryContext(DbContextOptions<DefiningQueryContext> options) : DbContext(options)
         {
-            public DefiningQueryContext(DbContextOptions<DefiningQueryContext> options)
-                : base(options)
-            {
-            }
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 base.OnModelCreating(modelBuilder);
@@ -429,17 +406,10 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
             public Guid Id { get; set; }
         }
 
-        public class IdentityUser : TestModels.AspNetIdentity.IdentityUser
-        {
-        }
+        public class IdentityUser : TestModels.AspNetIdentity.IdentityUser;
 
-        private class FullyQualifiedCSharpHelper : CSharpHelper
+        private class FullyQualifiedCSharpHelper(ITypeMappingSource typeMappingSource) : CSharpHelper(typeMappingSource)
         {
-            public FullyQualifiedCSharpHelper(ITypeMappingSource typeMappingSource)
-                : base(typeMappingSource)
-            {
-            }
-
             protected override bool ShouldUseFullName(Type type)
                 => base.ShouldUseFullName(type);
 

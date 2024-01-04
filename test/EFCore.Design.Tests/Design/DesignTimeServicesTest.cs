@@ -286,13 +286,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
             => throw new NotImplementedException();
     }
 
-    public class MyContext : DbContext
-    {
-        public MyContext(DbContextOptions<MyContext> options)
-            : base(options)
-        {
-        }
-    }
+    public class MyContext(DbContextOptions<MyContext> options) : DbContext(options);
 
     private ServiceProvider CreateDesignServiceProvider(
         string assemblyCode,

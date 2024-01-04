@@ -7,14 +7,9 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
-public class SqlAzureFundamentalsTest : IClassFixture<SqlAzureFixture>
+public class SqlAzureFundamentalsTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
 {
-    public SqlAzureFundamentalsTest(SqlAzureFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    public SqlAzureFixture Fixture { get; }
+    public SqlAzureFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void CanExecuteQuery()

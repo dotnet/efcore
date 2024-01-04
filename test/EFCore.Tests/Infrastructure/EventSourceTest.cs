@@ -285,6 +285,4 @@ public class EventSourceTest
 }
 
 [CollectionDefinition("EventSourceTest", DisableParallelization = true)]
-public class EventSourceTestCollection
-{
-}
+public class EventSourceTestCollection;

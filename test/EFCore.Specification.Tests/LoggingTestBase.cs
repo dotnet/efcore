@@ -47,13 +47,8 @@ public abstract class LoggingTestBase
                 () => context.Set<Animal>().Include("Wheels").Load()).Message);
     }
 
-    protected class InvalidIncludePathErrorContext : DbContext
+    protected class InvalidIncludePathErrorContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public InvalidIncludePathErrorContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Animal>();
     }
@@ -103,11 +98,5 @@ public abstract class LoggingTestBase
         return loggerFactory.Log.Single(t => t.Id.Id == CoreEventId.ContextInitialized.Id).Message;
     }
 
-    protected class LoggingContext : DbContext
-    {
-        public LoggingContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-    }
+    protected class LoggingContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options);
 }

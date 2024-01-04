@@ -7,14 +7,9 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public sealed class SqlServerConditionAttribute : Attribute, ITestCondition
+public sealed class SqlServerConditionAttribute(SqlServerCondition conditions) : Attribute, ITestCondition
 {
-    public SqlServerCondition Conditions { get; set; }
-
-    public SqlServerConditionAttribute(SqlServerCondition conditions)
-    {
-        Conditions = conditions;
-    }
+    public SqlServerCondition Conditions { get; set; } = conditions;
 
     public ValueTask<bool> IsMetAsync()
     {

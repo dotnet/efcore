@@ -4782,14 +4782,9 @@ public class PropertyEntryTest
                 });
     }
 
-    private class PrimateContext : DbContext
+    private class PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications) : DbContext
     {
-        private readonly ChangeTrackingStrategy _fullNotificationStrategy;
-
-        public PrimateContext(ChangeTrackingStrategy fullNotificationStrategy = ChangeTrackingStrategy.ChangingAndChangedNotifications)
-        {
-            _fullNotificationStrategy = fullNotificationStrategy;
-        }
+        private readonly ChangeTrackingStrategy _fullNotificationStrategy = fullNotificationStrategy;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder

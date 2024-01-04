@@ -193,14 +193,9 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         Assert.Equal(1, result.Id);
     }
 
-    private class IntWrapper
+    private class IntWrapper(int value)
     {
-        public IntWrapper(int value)
-        {
-            Value = value;
-        }
-
-        public int Value { get; }
+        public int Value { get; } = value;
     }
 
     [ConditionalFact]
@@ -279,13 +274,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
         Assert.Equal(1, result.Id);
     }
 
-    protected class TestContext : DbContext
+    protected class TestContext(DbContextOptions options) : DbContext(options)
     {
-        public TestContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<TestEntity>().Property(e => e.Id).ValueGeneratedNever();
     }

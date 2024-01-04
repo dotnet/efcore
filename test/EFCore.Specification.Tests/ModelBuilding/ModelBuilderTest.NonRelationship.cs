@@ -15,13 +15,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class NonRelationshipTestBase : ModelBuilderTestBase
+    public abstract class NonRelationshipTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        public NonRelationshipTestBase(ModelBuilderFixtureBase fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public void Can_set_model_annotation()
         {
@@ -474,13 +469,8 @@ public abstract partial class ModelBuilderTest
                 => modelBuilder.HasAnnotation("foo", "bar");
         }
 
-        protected class TestDbSetFindingConvention : DbSetFindingConvention
+        protected class TestDbSetFindingConvention(ProviderConventionSetBuilderDependencies dependencies) : DbSetFindingConvention(dependencies)
         {
-            public TestDbSetFindingConvention(ProviderConventionSetBuilderDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-
             public override void ProcessModelInitialized(
                 IConventionModelBuilder modelBuilder,
                 IConventionContext<IConventionModelBuilder> context)
@@ -1692,16 +1682,13 @@ public abstract partial class ModelBuilderTest
                     () => entityType.FindProperty("Down")!.GetValueGeneratorFactory()!(null!, null!)).Message);
         }
 
-        private class BadCustomValueGenerator1 : CustomValueGenerator
+#pragma warning disable CS9113 // Parameter 'foo' is unread
+        private class BadCustomValueGenerator1(string foo) : CustomValueGenerator
+#pragma warning restore CS9113
         {
-            public BadCustomValueGenerator1(string foo)
-            {
-            }
         }
 
-        private abstract class BadCustomValueGenerator2 : CustomValueGenerator
-        {
-        }
+        private abstract class BadCustomValueGenerator2 : CustomValueGenerator;
 
         protected class StringCollectionEntity
         {

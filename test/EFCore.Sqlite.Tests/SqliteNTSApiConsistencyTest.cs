@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqliteNTSApiConsistencyTest : ApiConsistencyTestBase<SqliteNTSApiConsistencyTest.SqliteNTSApiConsistencyFixture>
+public class SqliteNTSApiConsistencyTest(SqliteNTSApiConsistencyTest.SqliteNTSApiConsistencyFixture fixture) : ApiConsistencyTestBase<SqliteNTSApiConsistencyTest.SqliteNTSApiConsistencyFixture>(fixture)
 {
-    public SqliteNTSApiConsistencyTest(SqliteNTSApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqliteNetTopologySuite();
 

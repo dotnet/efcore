@@ -8,13 +8,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>
+public class TransactionSqlServerTest(TransactionSqlServerTest.TransactionSqlServerFixture fixture) : TransactionTestBase<TransactionSqlServerTest.TransactionSqlServerFixture>(fixture)
 {
-    public TransactionSqlServerTest(TransactionSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     // Test relies on savepoints, which are disabled when MARS is enabled
     public override Task SaveChanges_implicitly_creates_savepoint(bool async)
         => new SqlConnectionStringBuilder(TestStore.ConnectionString).MultipleActiveResultSets

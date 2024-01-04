@@ -307,14 +307,9 @@ public class ConnectionSpecificationTest
         }
     }
 
-    private class ConnectionInOnConfiguringContext : NorthwindContextBase
+    private class ConnectionInOnConfiguringContext(SqlConnection connection) : NorthwindContextBase
     {
-        private readonly SqlConnection _connection;
-
-        public ConnectionInOnConfiguringContext(SqlConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly SqlConnection _connection = connection;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -328,14 +323,9 @@ public class ConnectionSpecificationTest
         }
     }
 
-    private class OwnedConnectionInOnConfiguringContext : NorthwindContextBase
+    private class OwnedConnectionInOnConfiguringContext(SqlConnection connection) : NorthwindContextBase
     {
-        private readonly SqlConnection _connection;
-
-        public OwnedConnectionInOnConfiguringContext(SqlConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly SqlConnection _connection = connection;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -409,17 +399,10 @@ public class ConnectionSpecificationTest
         }
     }
 
-    private class OptionsContext : NorthwindContextBase
+    private class OptionsContext(DbContextOptions<OptionsContext> options, SqlConnection connection) : NorthwindContextBase(options)
     {
-        private readonly SqlConnection _connection;
-        private readonly DbContextOptions<OptionsContext> _options;
-
-        public OptionsContext(DbContextOptions<OptionsContext> options, SqlConnection connection)
-            : base(options)
-        {
-            _options = options;
-            _connection = connection;
-        }
+        private readonly SqlConnection _connection = connection;
+        private readonly DbContextOptions<OptionsContext> _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -465,15 +448,9 @@ public class ConnectionSpecificationTest
         }
     }
 
-    private class NonGenericOptionsContext : NorthwindContextBase
+    private class NonGenericOptionsContext(DbContextOptions options) : NorthwindContextBase(options)
     {
-        private readonly DbContextOptions _options;
-
-        public NonGenericOptionsContext(DbContextOptions options)
-            : base(options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -512,13 +489,7 @@ public class ConnectionSpecificationTest
         }
     }
 
-    private class UseConfigurationContext : NorthwindContextBase
-    {
-        public UseConfigurationContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class UseConfigurationContext(DbContextOptions options) : NorthwindContextBase(options);
 
     private class NorthwindContextBase : DbContext
     {
@@ -610,16 +581,10 @@ public class ConnectionSpecificationTest
         Assert.Equal(0, disposeCount);
     }
 
-    private class NorthwindContext : DbContext
+    private class NorthwindContext(IServiceProvider serviceProvider, SqlConnection connection) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly SqlConnection _connection;
-
-        public NorthwindContext(IServiceProvider serviceProvider, SqlConnection connection)
-        {
-            _serviceProvider = serviceProvider;
-            _connection = connection;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly SqlConnection _connection = connection;
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<Customer> Customers { get; set; }

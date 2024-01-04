@@ -5,7 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
-public class UpdatesContext : PoolableDbContext
+public class UpdatesContext(DbContextOptions options) : PoolableDbContext(options)
 {
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
@@ -15,11 +15,6 @@ public class UpdatesContext : PoolableDbContext
     public DbSet<ProductTableWithView> ProductTable { get; set; } = null!;
     public DbSet<ProductTableView> ProductTableView { get; set; } = null!;
     public DbSet<Rodney> Trotters { get; set; } = null!;
-
-    public UpdatesContext(DbContextOptions options)
-        : base(options)
-    {
-    }
 
     public static void Seed(UpdatesContext context)
     {

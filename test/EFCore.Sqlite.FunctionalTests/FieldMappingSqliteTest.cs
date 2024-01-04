@@ -23,27 +23,15 @@ public abstract class FieldMappingSqliteTest
         }
     }
 
-    public class DefaultMappingTest
-        : FieldMappingSqliteTestBase<DefaultMappingTest.DefaultMappingFixture>
+    public class DefaultMappingTest(DefaultMappingTest.DefaultMappingFixture fixture)
+        : FieldMappingSqliteTestBase<DefaultMappingTest.DefaultMappingFixture>(fixture)
     {
-        public DefaultMappingTest(DefaultMappingFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        public class DefaultMappingFixture : FieldMappingSqliteFixtureBase
-        {
-        }
+        public class DefaultMappingFixture : FieldMappingSqliteFixtureBase;
     }
 
-    public class EnforceFieldTest
-        : FieldMappingSqliteTestBase<EnforceFieldTest.EnforceFieldFixture>
+    public class EnforceFieldTest(EnforceFieldTest.EnforceFieldFixture fixture)
+        : FieldMappingSqliteTestBase<EnforceFieldTest.EnforceFieldFixture>(fixture)
     {
-        public EnforceFieldTest(EnforceFieldFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class EnforceFieldFixture : FieldMappingSqliteFixtureBase
         {
             protected override string StoreName
@@ -57,14 +45,9 @@ public abstract class FieldMappingSqliteTest
         }
     }
 
-    public class EnforceFieldForQueryTest
-        : FieldMappingSqliteTestBase<EnforceFieldForQueryTest.EnforceFieldForQueryFixture>
+    public class EnforceFieldForQueryTest(EnforceFieldForQueryTest.EnforceFieldForQueryFixture fixture)
+        : FieldMappingSqliteTestBase<EnforceFieldForQueryTest.EnforceFieldForQueryFixture>(fixture)
     {
-        public EnforceFieldForQueryTest(EnforceFieldForQueryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class EnforceFieldForQueryFixture : FieldMappingSqliteFixtureBase
         {
             protected override string StoreName
@@ -78,13 +61,9 @@ public abstract class FieldMappingSqliteTest
         }
     }
 
-    public class EnforcePropertyTest
-        : FieldMappingSqliteTestBase<EnforcePropertyTest.EnforcePropertyFixture>
+    public class EnforcePropertyTest(EnforcePropertyTest.EnforcePropertyFixture fixture)
+        : FieldMappingSqliteTestBase<EnforcePropertyTest.EnforcePropertyFixture>(fixture)
     {
-        public EnforcePropertyTest(EnforcePropertyFixture fixture)
-            : base(fixture)
-        {
-        }
 
         // Cannot force property access when properties missing getter/setter
         public override void Simple_query_read_only_props(bool tracking)

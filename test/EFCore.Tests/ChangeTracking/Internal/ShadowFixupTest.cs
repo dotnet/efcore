@@ -226,24 +226,14 @@ public class ShadowFixupTest
             });
     }
 
-    private class Parent
+    private class Parent(int id)
     {
-        public Parent(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
-    private class Child
+    private class Child(int id)
     {
-        public Child(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
     private class Category

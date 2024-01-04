@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class KeysWithConvertersSqlServerTest : KeysWithConvertersTestBase<
-    KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture>
+public class KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture fixture) : KeysWithConvertersTestBase<
+    KeysWithConvertersSqlServerTest.KeysWithConvertersSqlServerFixture>(fixture)
 {
-    public KeysWithConvertersSqlServerTest(KeysWithConvertersSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class KeysWithConvertersSqlServerFixture : KeysWithConvertersFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

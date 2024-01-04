@@ -5,13 +5,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 #if !EXCLUDE_ON_MAC
 
-public class GrpcInMemoryTest : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>
+public class GrpcInMemoryTest(GrpcInMemoryTest.GrpcInMemoryFixture fixture) : GrpcTestBase<GrpcInMemoryTest.GrpcInMemoryFixture>(fixture)
 {
-    public GrpcInMemoryTest(GrpcInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class GrpcInMemoryFixture : GrpcFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

@@ -375,13 +375,8 @@ ORDER BY [t].[Id], [o].[MainEntityManyId]
         public string Name { get; set; }
     }
 
-    public class MyContext26451 : DbContext
+    public class MyContext26451(DbContextOptions options) : DbContext(options)
     {
-        public MyContext26451(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MainEntityDifferentTable> MainEntitiesDifferentTable { get; set; }
         public DbSet<MainEntitySameTable> MainEntitiesSameTable { get; set; }
         public DbSet<MainEntityMany> MainEntitiesMany { get; set; }

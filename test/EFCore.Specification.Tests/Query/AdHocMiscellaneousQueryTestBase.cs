@@ -39,13 +39,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context603 : DbContext
+    private class Context603(DbContextOptions options) : DbContext(options)
     {
-        public Context603(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -90,13 +85,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.True(results[3].CustomerName != results[4].CustomerName);
     }
 
-    private class Context6901 : DbContext
+    private class Context6901(DbContextOptions options) : DbContext(options)
     {
-        public Context6901(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Customer>(
@@ -226,13 +216,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context6986 : DbContext
+    private class Context6986(DbContextOptions options) : DbContext(options)
     {
-        public Context6986(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<EmployerContact> EmployerContacts { get; set; }
         public DbSet<Employer> Employers { get; set; }
@@ -320,14 +305,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7222 : DbContext
+    private class Context7222(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
-
-        public Context7222(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void RunQuery()
             => Blogs.Select(b => ClientMethod(b)).ToList();
@@ -365,13 +345,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7359 : DbContext
+    private class Context7359(DbContextOptions options) : DbContext(options)
     {
-        public Context7359(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -397,9 +372,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             public string Name { get; set; }
         }
 
-        public class SpecialProduct : Product
-        {
-        }
+        public class SpecialProduct : Product;
     }
 
     #endregion
@@ -417,15 +390,10 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(new[] { "First", "Second", "Third" }, list.Select(dto => dto.Title));
     }
 
-    private class Context7983 : DbContext
+    private class Context7983(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
-
-        public Context7983(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -512,13 +480,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context8538 : DbContext
+    private class Context8538(DbContextOptions options) : DbContext(options)
     {
-        public Context8538(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Entity> Entities { get; set; }
 
         public void Seed()
@@ -604,14 +567,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context8864 : DbContext
+    private class Context8864(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Customer> Customers { get; set; }
-
-        public Context8864(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -757,13 +715,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context8909 : DbContext
+    private class Context8909(DbContextOptions options) : DbContext(options)
     {
-        public Context8909(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Entity> Entities { get; set; }
 
         public MemoryCache Cache
@@ -802,13 +755,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(query.Where(t => t.Processing == false));
     }
 
-    private class Context9468 : DbContext
+    private class Context9468(DbContextOptions options) : DbContext(options)
     {
-        public Context9468(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Cart> Carts { get; set; }
 
         public void Seed()
@@ -851,14 +799,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(typeof(Context11104.Derived1), derived1.GetType());
     }
 
-    private class Context11104 : DbContext
+    private class Context11104(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Base> Bases { get; set; }
-
-        public Context11104(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Base>()
@@ -883,9 +826,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             public Stuff MoreStuff { get; set; }
         }
 
-        public class Derived2 : Base
-        {
-        }
+        public class Derived2 : Base;
 
         public class Stuff
         {
@@ -917,14 +858,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(prices.Average(e => e.NullableDecimalColumn), context.Prices.Average(e => e.NullableDecimalColumn));
     }
 
-    private class Context11885 : DbContext
+    private class Context11885(DbContextOptions options) : DbContext(options)
     {
         public DbSet<PriceEntity> Prices { get; set; }
-
-        public Context11885(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<PriceEntity>(
@@ -1020,14 +956,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.False(ReferenceEquals(results[2].Inner, results[3].Inner));
     }
 
-    private class Context12274 : DbContext
+    private class Context12274(DbContextOptions options) : DbContext(options)
     {
         public DbSet<MyEntity> Entities { get; set; }
-
-        public Context12274(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1053,9 +984,7 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             public InnerDTO Inner { get; set; }
         }
 
-        public class InnerDTO
-        {
-        }
+        public class InnerDTO;
     }
 
     #endregion
@@ -1091,15 +1020,10 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12549 : DbContext
+    private class Context12549(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Table1> Tables1 { get; set; }
         public DbSet<Table2> Tables2 { get; set; }
-
-        public Context12549(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public class Table1
         {
@@ -1133,13 +1057,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(equalQuery);
     }
 
-    private class Context15215 : DbContext
+    private class Context15215(DbContextOptions options) : DbContext(options)
     {
-        public Context15215(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Auto> Autos { get; set; }
         public DbSet<EqualAuto> EqualAutos { get; set; }
 
@@ -1211,14 +1130,9 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context15518 : DbContext
+    private class Context15518(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Repo> Repos { get; set; }
-
-        public Context15518(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1372,15 +1286,10 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context19253 : DbContext
+    private class Context19253(DbContextOptions options) : DbContext(options)
     {
         public DbSet<A> As { get; set; }
         public DbSet<B> Bs { get; set; }
-
-        public Context19253(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1514,13 +1423,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context21770 : DbContext
+    private class Context21770(DbContextOptions options) : DbContext(options)
     {
-        public Context21770(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<IceCream> IceCreams { get; set; }
         public DbSet<Food> Foods { get; set; }
 
@@ -1617,13 +1521,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.True(isMySyncContext);
     }
 
-    private class Context22841 : DbContext
+    private class Context22841(DbContextOptions options) : DbContext(options)
     {
-        public Context22841(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
                 .Entity<ObservableThing>()
@@ -1670,13 +1569,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Equal(2, authors.Count);
     }
 
-    private class Context24657 : DbContext
+    private class Context24657(DbContextOptions options) : DbContext(options)
     {
-        public Context24657(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Author> Authors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1804,13 +1698,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26593 : DbContext
+    private class Context26593(DbContextOptions options) : DbContext(options)
     {
-        public Context26593(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<Membership> Memberships { get; set; }
@@ -1881,13 +1770,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26587 : DbContext
+    private class Context26587(DbContextOptions options) : DbContext(options)
     {
-        public Context26587(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<OrderItem> OrderItems { get; set; }
 
         public class OrderItem
@@ -1927,13 +1811,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context26472 : DbContext
+    private class Context26472(DbContextOptions options) : DbContext(options)
     {
-        public Context26472(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Order> Orders { get; set; }
         public virtual DbSet<OrderItem> OrderItems { get; set; }
 
@@ -2037,13 +1916,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             });
     }
 
-    private class Context27083 : DbContext
+    private class Context27083(DbContextOptions options) : DbContext(options)
     {
-        public Context27083(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<TimeSheet> TimeSheets { get; set; }
         public DbSet<Customer> Customers { get; set; }
 
@@ -2175,13 +2049,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    private class Context27094 : DbContext
+    private class Context27094(DbContextOptions options) : DbContext(options)
     {
-        public Context27094(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Table> Tables { get; set; }
 
         public class Table
@@ -2244,13 +2113,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Single(result);
     }
 
-    private class Context26744 : DbContext
+    private class Context26744(DbContextOptions options) : DbContext(options)
     {
-        public Context26744(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Parent> Parents { get; set; }
 
         public void Seed()
@@ -2308,13 +2172,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         Assert.Empty(result);
     }
 
-    private class Context27343 : DbContext
+    private class Context27343(DbContextOptions options) : DbContext(options)
     {
-        public Context27343(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Parent> Parents { get; set; }
 
         public void Seed()
@@ -2370,13 +2229,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             : jsonLookup.ToList();
     }
 
-    private class Context28039 : DbContext
+    private class Context28039(DbContextOptions options) : DbContext(options)
     {
-        public Context28039(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<IndexData> IndexDatas { get; set; }
         public DbSet<TableData> TableDatas { get; set; }
 
@@ -2440,13 +2294,8 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
         .ToListAsync();
     }
 
-    private class Context31961 : DbContext
+    private class Context31961(DbContextOptions options) : DbContext(options)
     {
-        public Context31961(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers { get; set; }
 
         public DbSet<Company> Companies { get; set; }

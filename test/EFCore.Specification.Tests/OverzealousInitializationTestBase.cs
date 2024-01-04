@@ -72,13 +72,8 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
         public int AlbumId { get; set; }
     }
 
-    public class AlbumViewerContext : PoolableDbContext
+    public class AlbumViewerContext(DbContextOptions<AlbumViewerContext> options) : PoolableDbContext(options)
     {
-        public AlbumViewerContext(DbContextOptions<AlbumViewerContext> options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Album>();

@@ -118,13 +118,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Same(post, post.TagsInPostData.Skip(1).First().PostsInTagData.First());
     }
 
-    public class GrpcContext : PoolableDbContext
+    public class GrpcContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public GrpcContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var timeStampConverter = new ValueConverter<Timestamp, DateTime>(

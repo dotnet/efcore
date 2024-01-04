@@ -2893,14 +2893,9 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
     protected virtual ISetSource GetExpectedData()
         => EntitySplittingData.Instance;
 
-    private class DefaultSetSource : ISetSource
+    private class DefaultSetSource(DbContext context) : ISetSource
     {
-        private readonly DbContext _context;
-
-        public DefaultSetSource(DbContext context)
-        {
-            _context = context;
-        }
+        private readonly DbContext _context = context;
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class

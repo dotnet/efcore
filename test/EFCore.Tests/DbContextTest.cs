@@ -438,14 +438,9 @@ public partial class DbContextTest
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    private class UseModelInOnModelCreatingContext : DbContext
+    private class UseModelInOnModelCreatingContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public UseModelInOnModelCreatingContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public DbSet<Product> Products { get; set; }
 
@@ -472,14 +467,9 @@ public partial class DbContextTest
             Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
     }
 
-    private class UseInOnModelCreatingContext : DbContext
+    private class UseInOnModelCreatingContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public UseInOnModelCreatingContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public DbSet<Product> Products { get; set; }
 
@@ -506,14 +496,9 @@ public partial class DbContextTest
             Assert.Throws<InvalidOperationException>(() => context.Products.ToList()).Message);
     }
 
-    private class UseInOnConfiguringContext : DbContext
+    private class UseInOnConfiguringContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public UseInOnConfiguringContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public DbSet<Product> Products { get; set; }
 
@@ -623,14 +608,9 @@ public partial class DbContextTest
         }
     }
 
-    private class ButTheHedgehogContext : DbContext
+    private class ButTheHedgehogContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ButTheHedgehogContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public DbSet<Product> Products { get; set; }
 
@@ -1226,15 +1206,10 @@ public partial class DbContextTest
         Assert.True(changeDetector.DetectChangesCalled);
     }
 
-    private class ChangeDetectorProxy : ChangeDetector
+    private class ChangeDetectorProxy(
+        IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+        ILoggingOptions loggingOptions) : ChangeDetector(logger, loggingOptions)
     {
-        public ChangeDetectorProxy(
-            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            ILoggingOptions loggingOptions)
-            : base(logger, loggingOptions)
-        {
-        }
-
         public bool DetectChangesCalled { get; set; }
 
         public override void DetectChanges(InternalEntityEntry entry)

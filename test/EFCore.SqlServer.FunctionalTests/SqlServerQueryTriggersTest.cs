@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
+public class SqlServerQueryTriggersTest(SqlServerQueryTriggersTest.SqlServerTriggersFixture fixture) : IClassFixture<SqlServerQueryTriggersTest.SqlServerTriggersFixture>
 {
-    public SqlServerQueryTriggersTest(SqlServerTriggersFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    private SqlServerTriggersFixture Fixture { get; }
+    private SqlServerTriggersFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Triggers_with_subqueries_run_on_insert_update_and_delete()
@@ -80,13 +75,8 @@ public class SqlServerQueryTriggersTest : IClassFixture<SqlServerQueryTriggersTe
     protected QueryTriggersContext CreateContext()
         => (QueryTriggersContext)Fixture.CreateContext();
 
-    protected class QueryTriggersContext : PoolableDbContext
+    protected class QueryTriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public QueryTriggersContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Product> Products { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

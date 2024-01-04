@@ -3,21 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1ULongInMemoryFixture, ulong>
-{
-    public OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyULongInMemoryTest(F1ULongInMemoryFixture fixture) : OptimisticConcurrencyInMemoryTestBase<F1ULongInMemoryFixture, ulong>(fixture);
 
-public class OptimisticConcurrencyInMemoryTest : OptimisticConcurrencyInMemoryTestBase<F1InMemoryFixture, byte[]>
-{
-    public OptimisticConcurrencyInMemoryTest(F1InMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyInMemoryTest(F1InMemoryFixture fixture) : OptimisticConcurrencyInMemoryTestBase<F1InMemoryFixture, byte[]>(fixture);
 
 public abstract class OptimisticConcurrencyInMemoryTestBase<TFixture, TRowVersion>
     : OptimisticConcurrencyTestBase<TFixture, TRowVersion>

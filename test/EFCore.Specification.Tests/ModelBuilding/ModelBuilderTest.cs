@@ -382,9 +382,7 @@ public abstract partial class ModelBuilderTest
     }
 
     public abstract class TestOwnedEntityTypeBuilder<TEntity>
-        where TEntity : class
-    {
-    }
+        where TEntity : class;
 
     public abstract class TestKeyBuilder<TEntity>
     {

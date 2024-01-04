@@ -9,13 +9,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
+public class CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output) : ModelCodeGeneratorTestBase(fixture, output)
 {
-    public CSharpEntityTypeGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
-        : base(fixture, output)
-    {
-    }
-
     [ConditionalFact]
     public Task KeylessAttribute_is_generated_for_key_less_entity()
         => TestAsync(
@@ -2939,13 +2934,8 @@ public partial class TestDbContext : DbContext
     protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-    private class TestModelAnnotationProvider : SqlServerAnnotationProvider
+    private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies) : SqlServerAnnotationProvider(dependencies)
     {
-        public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         public override IEnumerable<IAnnotation> For(ITable table, bool designTime)
         {
             foreach (var annotation in base.For(table, designTime))
@@ -2978,13 +2968,8 @@ public partial class TestDbContext : DbContext
         }
     }
 
-    private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+    private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies) : SqlServerAnnotationCodeGenerator(dependencies)
     {
-        public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         protected override AttributeCodeFragment GenerateDataAnnotation(IEntityType entityType, IAnnotation annotation)
             => annotation.Name switch
             {
@@ -3003,24 +2988,14 @@ public partial class TestDbContext : DbContext
     }
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class CustomEntityDataAnnotationAttribute : Attribute
+    public class CustomEntityDataAnnotationAttribute(string argument) : Attribute
     {
-        public CustomEntityDataAnnotationAttribute(string argument)
-        {
-            Argument = argument;
-        }
-
-        public virtual string Argument { get; }
+        public virtual string Argument { get; } = argument;
     }
 
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class CustomPropertyDataAnnotationAttribute : Attribute
+    public class CustomPropertyDataAnnotationAttribute(string argument) : Attribute
     {
-        public CustomPropertyDataAnnotationAttribute(string argument)
-        {
-            Argument = argument;
-        }
-
-        public virtual string Argument { get; }
+        public virtual string Argument { get; } = argument;
     }
 }

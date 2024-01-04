@@ -766,13 +766,8 @@ public class ExecutionStrategyTest : IClassFixture<ExecutionStrategyTest.Executi
         }
     }
 
-    protected class ExecutionStrategyContext : DbContext
+    protected class ExecutionStrategyContext(DbContextOptions options) : DbContext(options)
     {
-        public ExecutionStrategyContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Product> Products { get; set; }
         public DbSet<Audit> Audits { get; set; }
     }

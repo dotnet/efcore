@@ -134,14 +134,9 @@ public class SqliteDatabaseCreatorTest
         }
     }
 
-    private class BathtubContext : DbContext
+    private class BathtubContext(string connectionString) : DbContext
     {
-        private readonly string _connectionString;
-
-        public BathtubContext(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+        private readonly string _connectionString = connectionString;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(_connectionString);
@@ -212,14 +207,9 @@ public class SqliteDatabaseCreatorTest
         public int Id { get; set; }
     }
 
-    private class ShowerContext : DbContext
+    private class ShowerContext(DbConnection connection) : DbContext
     {
-        private readonly DbConnection _connection;
-
-        public ShowerContext(DbConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly DbConnection _connection = connection;
 
         public DbSet<Soap> Soap
             => Set<Soap>();

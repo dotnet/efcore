@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedFixupSqlServerTest : StoreGeneratedFixupRelationalTestBase<
-    StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>
+public class StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture fixture) : StoreGeneratedFixupRelationalTestBase<
+    StoreGeneratedFixupSqlServerTest.StoreGeneratedFixupSqlServerFixture>(fixture)
 {
-    public StoreGeneratedFixupSqlServerTest(StoreGeneratedFixupSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public void Temp_values_are_replaced_on_save()
         => ExecuteWithStrategyInTransaction(

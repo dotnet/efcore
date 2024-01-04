@@ -26,14 +26,9 @@ SELECT o.Amount From Orders AS o -- RAW
         }
     }
 
-    protected class MyContext13346 : DbContext
+    protected class MyContext13346(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<Order13346> Orders { get; set; }
-
-        public MyContext13346(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -14,15 +14,9 @@ using static System.Linq.Expressions.Expression;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class LinqToCSharpTranslatorTest
+public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
 {
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
-    {
-        _testOutputHelper = testOutputHelper;
-        _outputExpressionTrees = true;
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
     [Theory]
     [InlineData("hello", "\"hello\"")]
@@ -2000,7 +1994,7 @@ catch
     // ReSharper restore MemberCanBePrivate.Local
 
     private readonly ExpressionPrinter _expressionPrinter = new();
-    private readonly bool _outputExpressionTrees;
+    private readonly bool _outputExpressionTrees = true;
 }
 
 internal class LinqExpressionToRoslynTranslatorExtensionType

@@ -5,18 +5,12 @@ using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestModificationCommandBatchFactory : IModificationCommandBatchFactory
+public class TestModificationCommandBatchFactory(
+    ModificationCommandBatchFactoryDependencies dependencies,
+    IDbContextOptions options) : IModificationCommandBatchFactory
 {
-    private readonly ModificationCommandBatchFactoryDependencies _dependencies;
-    private readonly IDbContextOptions _options;
-
-    public TestModificationCommandBatchFactory(
-        ModificationCommandBatchFactoryDependencies dependencies,
-        IDbContextOptions options)
-    {
-        _dependencies = dependencies;
-        _options = options;
-    }
+    private readonly ModificationCommandBatchFactoryDependencies _dependencies = dependencies;
+    private readonly IDbContextOptions _options = options;
 
     public int CreateCount { get; private set; }
 

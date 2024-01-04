@@ -28,16 +28,10 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         public string? InitializedBy { get; set; }
     }
 
-    protected class Pamphlet
+    protected class Pamphlet(Guid id, string? title)
     {
-        public Pamphlet(Guid id, string? title)
-        {
-            Id = id;
-            Title = title;
-        }
-
-        public Guid Id { get; set; }
-        public string? Title { get; set; }
+        public Guid Id { get; set; } = id;
+        public string? Title { get; set; } = title;
     }
 
     public class TestEntity30244
@@ -49,16 +43,10 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         public List<KeyValueSetting30244> Settings { get; } = new();
     }
 
-    public class KeyValueSetting30244
+    public class KeyValueSetting30244(string key, string value)
     {
-        public KeyValueSetting30244(string key, string value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public string Key { get; set; }
-        public string Value { get; set; }
+        public string Key { get; set; } = key;
+        public string Value { get; set; } = value;
     }
 
     public abstract class LibraryContext : PoolableDbContext

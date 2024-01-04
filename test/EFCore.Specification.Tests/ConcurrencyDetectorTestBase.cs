@@ -71,13 +71,8 @@ public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFix
     protected ConcurrencyDetectorDbContext CreateContext()
         => Fixture.CreateContext();
 
-    public class ConcurrencyDetectorDbContext : DbContext
+    public class ConcurrencyDetectorDbContext(DbContextOptions<ConcurrencyDetectorDbContext> options) : DbContext(options)
     {
-        public ConcurrencyDetectorDbContext(DbContextOptions<ConcurrencyDetectorDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<Product> Products { get; set; }
 
         public static void Seed(ConcurrencyDetectorDbContext context)

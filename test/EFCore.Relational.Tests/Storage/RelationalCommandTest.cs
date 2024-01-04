@@ -860,16 +860,11 @@ public class RelationalCommandTest
         Assert.Equal(1, fakeDbConnection.DbCommands[0].DisposeCount);
     }
 
-    private class ReaderThrowingRelationalCommand : RelationalCommand
+    private class ReaderThrowingRelationalCommand(
+        RelationalCommandBuilderDependencies dependencies,
+        string commandText,
+        IReadOnlyList<IRelationalParameter> parameters) : RelationalCommand(dependencies, commandText, parameters)
     {
-        public ReaderThrowingRelationalCommand(
-            RelationalCommandBuilderDependencies dependencies,
-            string commandText,
-            IReadOnlyList<IRelationalParameter> parameters)
-            : base(dependencies, commandText, parameters)
-        {
-        }
-
         protected override RelationalDataReader CreateRelationalDataReader()
             => new ThrowingRelationalReader();
 
@@ -1348,14 +1343,8 @@ public class RelationalCommandTest
         return optionsBuilder.Options;
     }
 
-    private class FakeLoggingOptions : ILoggingOptions
+    private class FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false) : ILoggingOptions
     {
-        public FakeLoggingOptions(bool sensitiveDataLoggingEnabled, bool detailedErrorsEnabled = false)
-        {
-            IsSensitiveDataLoggingEnabled = sensitiveDataLoggingEnabled;
-            DetailedErrorsEnabled = detailedErrorsEnabled;
-        }
-
         public void Initialize(IDbContextOptions options)
         {
         }
@@ -1364,10 +1353,10 @@ public class RelationalCommandTest
         {
         }
 
-        public bool IsSensitiveDataLoggingEnabled { get; }
+        public bool IsSensitiveDataLoggingEnabled { get; } = sensitiveDataLoggingEnabled;
         public bool IsSensitiveDataLoggingWarned { get; set; }
 
-        public bool DetailedErrorsEnabled { get; }
+        public bool DetailedErrorsEnabled { get; } = detailedErrorsEnabled;
 
         public WarningsConfiguration WarningsConfiguration
             => null;

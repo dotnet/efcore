@@ -106,7 +106,5 @@ public class SqlServerConnectionTest
         return optionsBuilder.Options;
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 }

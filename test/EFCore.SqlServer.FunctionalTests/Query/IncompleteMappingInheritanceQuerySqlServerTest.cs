@@ -6,16 +6,11 @@ using Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class IncompleteMappingInheritanceQuerySqlServerTest : TPHInheritanceQueryTestBase<
-    IncompleteMappingInheritanceQuerySqlServerFixture>
+public class IncompleteMappingInheritanceQuerySqlServerTest(
+    IncompleteMappingInheritanceQuerySqlServerFixture fixture,
+    ITestOutputHelper testOutputHelper)
+    : TPHInheritanceQueryTestBase<IncompleteMappingInheritanceQuerySqlServerFixture>(fixture, testOutputHelper)
 {
-    public IncompleteMappingInheritanceQuerySqlServerTest(
-        IncompleteMappingInheritanceQuerySqlServerFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());

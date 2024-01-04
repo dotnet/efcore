@@ -648,14 +648,9 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
         public int Id { get; set; }
     }
 
-    private class EntityDto8282
+    private class EntityDto8282(Entity8282 entity)
     {
-        public EntityDto8282(Entity8282 entity)
-        {
-            Id = entity.Id;
-        }
-
-        public int Id { get; }
+        public int Id { get; } = entity.Id;
     }
 
     #endregion

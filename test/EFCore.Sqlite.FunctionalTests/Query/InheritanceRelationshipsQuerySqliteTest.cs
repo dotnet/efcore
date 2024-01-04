@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class InheritanceRelationshipsQuerySqliteTest :
-    InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>
+public class InheritanceRelationshipsQuerySqliteTest(InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture fixture) :
+    InheritanceRelationshipsQueryRelationalTestBase<InheritanceRelationshipsQuerySqliteTest.InheritanceRelationshipsQuerySqliteFixture>(fixture)
 {
-    public InheritanceRelationshipsQuerySqliteTest(InheritanceRelationshipsQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class InheritanceRelationshipsQuerySqliteFixture : InheritanceRelationshipsQueryRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory

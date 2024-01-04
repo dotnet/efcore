@@ -5,13 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class UpdatesSqlServerTest : UpdatesSqlServerTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
+public class UpdatesSqlServerTest(UpdatesSqlServerTest.UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper) : UpdatesSqlServerTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>(fixture, testOutputHelper)
 {
-    public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     public override void Save_with_shared_foreign_key()
     {
         base.Save_with_shared_foreign_key();

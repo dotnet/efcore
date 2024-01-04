@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ComplexTypesTrackingInMemoryTest : ComplexTypesTrackingTestBase<ComplexTypesTrackingInMemoryTest.InMemoryFixture>
+public class ComplexTypesTrackingInMemoryTest(ComplexTypesTrackingInMemoryTest.InMemoryFixture fixture) : ComplexTypesTrackingTestBase<ComplexTypesTrackingInMemoryTest.InMemoryFixture>(fixture)
 {
-    public ComplexTypesTrackingInMemoryTest(InMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void ExecuteWithStrategyInTransaction(
         Action<DbContext> testOperation,
         Action<DbContext> nestedTestOperation1 = null,

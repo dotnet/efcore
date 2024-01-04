@@ -187,11 +187,5 @@ public class SqlServerDbContextOptionsExtensionsTest
         }
     }
 
-    private class ApplicationDbContext : DbContext
-    {
-        public ApplicationDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class ApplicationDbContext(DbContextOptions options) : DbContext(options);
 }

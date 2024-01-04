@@ -106,13 +106,8 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class LazyLoading : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>
+    public class LazyLoading(LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<LazyLoading.ProxyGraphUpdatesWithLazyLoadingInMemoryFixture>(fixture)
     {
-        public LazyLoading(ProxyGraphUpdatesWithLazyLoadingInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override bool DoesLazyLoading
             => true;
 
@@ -132,12 +127,8 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class ChangeTracking : ProxyGraphUpdatesInMemoryTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
+    public class ChangeTracking(ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<ChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
     {
-        public ChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
 
         // Needs lazy loading
         public override void Save_two_entity_cycle_with_lazy_loading()
@@ -163,14 +154,9 @@ public class ProxyGraphUpdatesInMemoryTest
         }
     }
 
-    public class LazyLoadingAndChangeTracking : ProxyGraphUpdatesInMemoryTestBase<
-        LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>
+    public class LazyLoadingAndChangeTracking(LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture) : ProxyGraphUpdatesInMemoryTestBase<
+        LazyLoadingAndChangeTracking.ProxyGraphUpdatesWithChangeTrackingInMemoryFixture>(fixture)
     {
-        public LazyLoadingAndChangeTracking(ProxyGraphUpdatesWithChangeTrackingInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override bool DoesLazyLoading
             => true;
 

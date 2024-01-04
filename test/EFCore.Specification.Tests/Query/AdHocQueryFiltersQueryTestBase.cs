@@ -19,16 +19,11 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         Assert.Single(result);
     }
 
-    protected class Context10295 : DbContext
+    protected class Context10295(DbContextOptions options) : DbContext(options)
     {
         private readonly List<int> _ids = new() { 1, 7 };
 
         public DbSet<MyEntity10295> Entities { get; set; }
-
-        public Context10295(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<MyEntity10295>().HasQueryFilter(x => !_ids.Contains(x.Id));
@@ -69,14 +64,9 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class FilterContextBase10301 : DbContext
+    protected class FilterContextBase10301(DbContextOptions options) : DbContext(options)
     {
         public int Tenant { get; set; }
-
-        public FilterContextBase10301(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public DbSet<Blog10301> Blogs { get; set; }
 
@@ -101,13 +91,7 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class FilterContext10301 : FilterContextBase10301
-    {
-        public FilterContext10301(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    protected class FilterContext10301(DbContextOptions options) : FilterContextBase10301(options);
 
     #endregion
 
@@ -123,15 +107,10 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         Assert.False(result);
     }
 
-    protected class Context12170 : DbContext
+    protected class Context12170(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<Definition12170> Definitions { get; set; }
         public virtual DbSet<DefinitionHistory12170> DefinitionHistories { get; set; }
-
-        public Context12170(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -196,18 +175,13 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
                 }).Single(p => p.Id == 1);
     }
 
-    protected class Context13517 : DbContext
+    protected class Context13517(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity13517> Entities { get; set; }
         public DbSet<RefEntity13517> RefEntities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<RefEntity13517>().HasQueryFilter(f => f.Public);
-
-        public Context13517(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -266,7 +240,7 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context17253 : DbContext
+    protected class Context17253(DbContextOptions options) : DbContext(options)
     {
         public DbSet<EntityWithQueryFilterSelfReference17253> EntitiesWithQueryFilterSelfReference { get; set; }
         public DbSet<EntityReferencingEntityWithQueryFilterSelfReference17253> EntitiesReferencingEntityWithQueryFilterSelfReference { get; set; }
@@ -274,11 +248,6 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         public DbSet<EntityWithQueryFilterCycle17253_1> EntitiesWithQueryFilterCycle1 { get; set; }
         public DbSet<EntityWithQueryFilterCycle17253_2> EntitiesWithQueryFilterCycle2 { get; set; }
         public DbSet<EntityWithQueryFilterCycle17253_3> EntitiesWithQueryFilterCycle3 { get; set; }
-
-        public Context17253(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -355,16 +324,11 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         Assert.True(query2.All(x => x.TenantId == 2));
     }
 
-    protected class Context18510 : DbContext
+    protected class Context18510(DbContextOptions options) : DbContext(options)
     {
         public DbSet<MyEntity18510> Entities { get; set; }
 
         public int TenantId { get; set; }
-
-        public Context18510(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -422,17 +386,12 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         var people = context.People.ToList();
     }
 
-    protected class Context18759 : DbContext
+    protected class Context18759(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Person18759> People { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Person18759>().HasQueryFilter(p => p.UserDelete != null);
-
-        public Context18759(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public class Person18759
         {
@@ -485,13 +444,8 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context19708 : DbContext
+    protected class Context19708(DbContextOptions options) : DbContext(options)
     {
-        public Context19708(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer19708> Customers { get; set; }
         public DbSet<CustomerMembership19708> CustomerMemberships { get; set; }
         public DbSet<CustomerFilter19708> CustomerFilters { get; set; }
@@ -600,13 +554,8 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
         Assert.Single(suppliers.Where(e => e.Location != null));
     }
 
-    protected class Context26428 : DbContext
+    protected class Context26428(DbContextOptions options) : DbContext(options)
     {
-        public Context26428(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Supplier> Suppliers
             => Set<Supplier>();
 
@@ -724,13 +673,8 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
             : query.ToList();
     }
 
-    protected class Context27163 : DbContext
+    protected class Context27163(DbContextOptions options) : DbContext(options)
     {
-        public Context27163(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Parent> Parents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

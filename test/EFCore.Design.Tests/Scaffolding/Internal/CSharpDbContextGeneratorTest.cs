@@ -11,13 +11,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
-    public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
+    public class CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output) : ModelCodeGeneratorTestBase(fixture, output)
     {
-        public CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
-            : base(fixture, output)
-        {
-        }
-
         [ConditionalFact]
         public Task Empty_model()
             => TestAsync(
@@ -1365,13 +1360,8 @@ public partial class TestDbContext : DbContext
         protected override IServiceCollection AddScaffoldingServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IAnnotationCodeGenerator, TestModelAnnotationCodeGenerator>());
 
-        private class TestModelAnnotationProvider : SqlServerAnnotationProvider
+        private class TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies) : SqlServerAnnotationProvider(dependencies)
         {
-            public TestModelAnnotationProvider(RelationalAnnotationProviderDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-
             public override IEnumerable<IAnnotation> For(IRelationalModel database, bool designTime)
             {
                 foreach (var annotation in base.For(database, designTime))
@@ -1386,16 +1376,11 @@ public partial class TestDbContext : DbContext
             }
         }
 
-        private class TestModelAnnotationCodeGenerator : SqlServerAnnotationCodeGenerator
+        private class TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies) : SqlServerAnnotationCodeGenerator(dependencies)
         {
             private static readonly MethodInfo _testFluentApiCallMethodInfo
                 = typeof(TestModelBuilderExtensions).GetRuntimeMethod(
                     nameof(TestModelBuilderExtensions.TestFluentApiCall), new[] { typeof(ModelBuilder) })!;
-
-            public TestModelAnnotationCodeGenerator(AnnotationCodeGeneratorDependencies dependencies)
-                : base(dependencies)
-            {
-            }
 
             protected override MethodCallCodeFragment GenerateFluentApi(IModel model, IAnnotation annotation)
                 => annotation.Name switch

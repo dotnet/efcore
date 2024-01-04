@@ -62,13 +62,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class IndexPropertiesBothMappedAndNotMappedToTableContext : DbContext
+    protected class IndexPropertiesBothMappedAndNotMappedToTableContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public IndexPropertiesBothMappedAndNotMappedToTableContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Animal>();
@@ -92,13 +87,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class UnnamedIndexPropertiesMappedToNonOverlappingTablesContext : DbContext
+    protected class UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public UnnamedIndexPropertiesMappedToNonOverlappingTablesContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Animal>().ToTable("Animals");
@@ -129,13 +119,8 @@ public abstract class LoggingRelationalTestBase<TBuilder, TExtension> : LoggingT
                 () => context.Model).Message);
     }
 
-    protected class ForeignKeyPropertiesMappedToUnrelatedTablesContext : DbContext
+    protected class ForeignKeyPropertiesMappedToUnrelatedTablesContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public ForeignKeyPropertiesMappedToUnrelatedTablesContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Animal>()

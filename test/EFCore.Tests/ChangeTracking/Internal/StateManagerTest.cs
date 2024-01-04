@@ -528,14 +528,9 @@ public class StateManagerTest
                 .UseInternalServiceProvider(InMemoryFixture.DefaultSensitiveServiceProvider);
     }
 
-    private class IdentityConflictContext : DbContext
+    private class IdentityConflictContext(params IInterceptor[] interceptors) : DbContext
     {
-        private readonly IInterceptor[] _interceptors;
-
-        public IdentityConflictContext(params IInterceptor[] interceptors)
-        {
-            _interceptors = interceptors;
-        }
+        private readonly IInterceptor[] _interceptors = interceptors;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -1031,9 +1026,7 @@ public class StateManagerTest
         public decimal Price { get; set; }
     }
 
-    private class SpecialProduct : Product
-    {
-    }
+    private class SpecialProduct : Product;
 
     private class Dogegory
     {

@@ -185,12 +185,10 @@ public class InMemoryModelBuilderAssemblyScanTest : ModelBuilderTest
         public int IndexedField { get; set; }
     }
 
-    private class ScannerCustomerEntityConfigurationNoConstructor : IEntityTypeConfiguration<ScannerCustomer>
+#pragma warning disable CS9113 // Parameter '_' is unread
+    private class ScannerCustomerEntityConfigurationNoConstructor(int _) : IEntityTypeConfiguration<ScannerCustomer>
+#pragma warning restore CS9113
     {
-        public ScannerCustomerEntityConfigurationNoConstructor(int _)
-        {
-        }
-
         public void Configure(EntityTypeBuilder<ScannerCustomer> builder)
             => builder.Property(c => c.FirstName).HasMaxLength(200);
     }

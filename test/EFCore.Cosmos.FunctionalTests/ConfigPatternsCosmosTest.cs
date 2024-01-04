@@ -6,16 +6,11 @@ using Microsoft.Azure.Cosmos;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore;
 
-public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
+public class ConfigPatternsCosmosTest(ConfigPatternsCosmosTest.CosmosFixture fixture) : IClassFixture<ConfigPatternsCosmosTest.CosmosFixture>
 {
     private const string DatabaseName = "ConfigPatternsCosmos";
 
-    protected CosmosFixture Fixture { get; }
-
-    public ConfigPatternsCosmosTest(CosmosFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public async Task Cosmos_client_instance_is_shared_between_contexts()
@@ -142,13 +137,8 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         public string Name { get; set; }
     }
 
-    private class CustomerContext : DbContext
+    private class CustomerContext(DbContextOptions dbContextOptions) : DbContext(dbContextOptions)
     {
-        public CustomerContext(DbContextOptions dbContextOptions)
-            : base(dbContextOptions)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Customer>();
     }

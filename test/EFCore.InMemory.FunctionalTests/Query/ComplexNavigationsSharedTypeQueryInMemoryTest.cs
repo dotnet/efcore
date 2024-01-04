@@ -3,18 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ComplexNavigationsSharedTypeQueryInMemoryTest :
-    ComplexNavigationsSharedTypeQueryTestBase<ComplexNavigationsSharedTypeQueryInMemoryFixture>
+public class ComplexNavigationsSharedTypeQueryInMemoryTest(ComplexNavigationsSharedTypeQueryInMemoryFixture fixture)
+    : ComplexNavigationsSharedTypeQueryTestBase<ComplexNavigationsSharedTypeQueryInMemoryFixture>(fixture)
 {
-    // ReSharper disable once UnusedParameter.Local
-    public ComplexNavigationsSharedTypeQueryInMemoryTest(
-        ComplexNavigationsSharedTypeQueryInMemoryFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task Join_with_result_selector_returning_queryable_throws_validation_error(bool async)
         // Expression cannot be used for return type. Issue #23302.
         => Assert.ThrowsAsync<ArgumentException>(

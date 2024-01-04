@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectOrderByPropertyExpressionMutator : ExpressionMutator
+public class InjectOrderByPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private ExpressionFinder _expressionFinder;
-
-    public InjectOrderByPropertyExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
     {
@@ -62,19 +57,14 @@ public class InjectOrderByPropertyExpressionMutator : ExpressionMutator
         return injector.Visit(expression);
     }
 
-    private class ExpressionFinder : ExpressionVisitor
+    private class ExpressionFinder(InjectOrderByPropertyExpressionMutator mutator) : ExpressionVisitor
     {
         private List<PropertyInfo> GetValidPropertiesForOrderBy(Expression expression)
             => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
                 .Where(p => IsOrderedableType(p.PropertyType)).ToList();
 
         private bool _insideThenInclude;
-        private readonly InjectOrderByPropertyExpressionMutator _mutator;
-
-        public ExpressionFinder(InjectOrderByPropertyExpressionMutator mutator)
-        {
-            _mutator = mutator;
-        }
+        private readonly InjectOrderByPropertyExpressionMutator _mutator = mutator;
 
         public Dictionary<Expression, List<PropertyInfo>> FoundExpressions { get; } = new();
 

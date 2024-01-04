@@ -3,18 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class BuildFileResult
+public class BuildFileResult(string targetPath)
 {
-    public BuildFileResult(string targetPath)
-    {
-        TargetPath = targetPath;
-        TargetDir = Path.GetDirectoryName(targetPath);
-        TargetName = Path.GetFileNameWithoutExtension(targetPath);
-    }
+    public string TargetPath { get; } = targetPath;
 
-    public string TargetPath { get; }
+    public string TargetDir { get; } = Path.GetDirectoryName(targetPath);
 
-    public string TargetDir { get; }
-
-    public string TargetName { get; }
+    public string TargetName { get; } = Path.GetFileNameWithoutExtension(targetPath);
 }

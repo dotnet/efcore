@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class InjectWhereExpressionMutator : ExpressionMutator
+public class InjectWhereExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private ExpressionFinder _expressionFinder;
-
-    public InjectWhereExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
     {
@@ -102,14 +97,9 @@ public class InjectWhereExpressionMutator : ExpressionMutator
         return injector.Visit(expression);
     }
 
-    private class ExpressionFinder : ExpressionVisitor
+    private class ExpressionFinder(InjectWhereExpressionMutator mutator) : ExpressionVisitor
     {
-        private readonly InjectWhereExpressionMutator _mutator;
-
-        public ExpressionFinder(InjectWhereExpressionMutator mutator)
-        {
-            _mutator = mutator;
-        }
+        private readonly InjectWhereExpressionMutator _mutator = mutator;
 
         public List<Expression> FoundExpressions { get; } = new();
 

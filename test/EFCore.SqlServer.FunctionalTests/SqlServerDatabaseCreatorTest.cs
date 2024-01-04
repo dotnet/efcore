@@ -678,13 +678,8 @@ public class SqlServerDatabaseCreatorTest
         => new BloggingContext(testStore).GetService<IExecutionStrategyFactory>().Create();
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestSqlServerExecutionStrategyFactory : SqlServerExecutionStrategyFactory
+    private class TestSqlServerExecutionStrategyFactory(ExecutionStrategyDependencies dependencies) : SqlServerExecutionStrategyFactory(dependencies)
     {
-        public TestSqlServerExecutionStrategyFactory(ExecutionStrategyDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-
         protected override IExecutionStrategy CreateDefaultStrategy(ExecutionStrategyDependencies dependencies)
             => new NonRetryingExecutionStrategy(dependencies);
     }
@@ -696,18 +691,13 @@ public class SqlServerDatabaseCreatorTest
             .AddScoped<IRelationalDatabaseCreator, TestDatabaseCreator>()
             .BuildServiceProvider(validateScopes: true);
 
-    protected class BloggingContext : DbContext
+    protected class BloggingContext(string connectionString) : DbContext
     {
-        private readonly string _connectionString;
+        private readonly string _connectionString = connectionString;
 
         public BloggingContext(SqlServerTestStore testStore)
             : this(testStore.ConnectionString)
         {
-        }
-
-        public BloggingContext(string connectionString)
-        {
-            _connectionString = connectionString;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -745,16 +735,11 @@ public class SqlServerDatabaseCreatorTest
         public byte[] AndRow { get; set; }
     }
 
-    public class TestDatabaseCreator : SqlServerDatabaseCreator
+    public class TestDatabaseCreator(
+        RelationalDatabaseCreatorDependencies dependencies,
+        ISqlServerConnection connection,
+        IRawSqlCommandBuilder rawSqlCommandBuilder) : SqlServerDatabaseCreator(dependencies, connection, rawSqlCommandBuilder)
     {
-        public TestDatabaseCreator(
-            RelationalDatabaseCreatorDependencies dependencies,
-            ISqlServerConnection connection,
-            IRawSqlCommandBuilder rawSqlCommandBuilder)
-            : base(dependencies, connection, rawSqlCommandBuilder)
-        {
-        }
-
         public bool HasTablesBase()
             => HasTables();
 

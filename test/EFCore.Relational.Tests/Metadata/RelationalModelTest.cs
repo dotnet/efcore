@@ -3203,9 +3203,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             public DateTime BirthDay { get; set; }
         }
 
-        private class ExtraSpecialCustomer : SpecialCustomer
-        {
-        }
+        private class ExtraSpecialCustomer : SpecialCustomer;
 
         private class Order
         {

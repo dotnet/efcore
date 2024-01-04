@@ -11,13 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonGenericTest
 {
-    public class NonGenericStringOwnedTypes : InMemoryOwnedTypes
+    public class NonGenericStringOwnedTypes(InMemoryModelBuilderFixture fixture) : InMemoryOwnedTypes(fixture)
     {
-        public NonGenericStringOwnedTypes(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
             => new NonGenericStringTestModelBuilder(Fixture, configure);
 
@@ -30,13 +25,8 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
                     base.OwnedType_can_derive_from_Collection).Message);
     }
 
-    public class NonGenericStringOneToManyType : InMemoryOneToMany
+    public class NonGenericStringOneToManyType(InMemoryModelBuilderFixture fixture) : InMemoryOneToMany(fixture)
     {
-        public NonGenericStringOneToManyType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
             => new NonGenericStringTestModelBuilder(Fixture, configure);
 
@@ -46,35 +36,20 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
                     base.WithMany_pointing_to_keyless_entity_throws);
     }
 
-    public class NonGenericStringManyToOneType : InMemoryManyToOne
+    public class NonGenericStringManyToOneType(InMemoryModelBuilderFixture fixture) : InMemoryManyToOne(fixture)
     {
-        public NonGenericStringManyToOneType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
             => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
-    public class NonGenericStringOneToOneType : InMemoryOneToOne
+    public class NonGenericStringOneToOneType(InMemoryModelBuilderFixture fixture) : InMemoryOneToOne(fixture)
     {
-        public NonGenericStringOneToOneType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure)
             => new NonGenericStringTestModelBuilder(Fixture, configure);
     }
 
-    private class NonGenericStringTestModelBuilder : TestModelBuilder
+    private class NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
     {
-        public NonGenericStringTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
-            : base(fixture, configure)
-        {
-        }
-
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new NonGenericStringTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity(typeof(TEntity)));
 
@@ -111,14 +86,9 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
             => entityType.FullName!;
     }
 
-    private class NonGenericStringTestEntityTypeBuilder<TEntity> : NonGenericTestEntityTypeBuilder<TEntity>
+    private class NonGenericStringTestEntityTypeBuilder<TEntity>(EntityTypeBuilder entityTypeBuilder) : NonGenericTestEntityTypeBuilder<TEntity>(entityTypeBuilder)
         where TEntity : class
     {
-        public NonGenericStringTestEntityTypeBuilder(EntityTypeBuilder entityTypeBuilder)
-            : base(entityTypeBuilder)
-        {
-        }
-
         protected override NonGenericTestEntityTypeBuilder<TEntity> Wrap(EntityTypeBuilder entityTypeBuilder)
             => new NonGenericStringTestEntityTypeBuilder<TEntity>(entityTypeBuilder);
 
@@ -174,16 +144,11 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
-        : NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+    private class NonGenericStringTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder referenceNavigationBuilder)
+        : NonGenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(referenceNavigationBuilder)
         where TEntity : class
         where TRelatedEntity : class
     {
-        public NonGenericStringTestReferenceNavigationBuilder(ReferenceNavigationBuilder referenceNavigationBuilder)
-            : base(referenceNavigationBuilder)
-        {
-        }
-
         public override TestReferenceReferenceBuilder<TEntity, TRelatedEntity> WithOne(
             Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression = null)
             => new NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(
@@ -191,16 +156,11 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
     }
 
-    private class NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
-        : NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>
+    private class NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder referenceReferenceBuilder)
+        : NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder)
         where TEntity : class
         where TRelatedEntity : class
     {
-        public NonGenericStringTestReferenceReferenceBuilder(ReferenceReferenceBuilder referenceReferenceBuilder)
-            : base(referenceReferenceBuilder)
-        {
-        }
-
         protected override NonGenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> Wrap(
             ReferenceReferenceBuilder referenceReferenceBuilder)
             => new NonGenericStringTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(referenceReferenceBuilder);
@@ -228,13 +188,8 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
             => Wrap(ReferenceReferenceBuilder.HasPrincipalKey(typeof(TPrincipalEntity).FullName!, keyPropertyNames));
     }
 
-    private class NonGenericStringTestReferenceReferenceBuilder
+    private class NonGenericStringTestReferenceReferenceBuilder(ReferenceReferenceBuilder referenceReferenceBuilder)
     {
-        public NonGenericStringTestReferenceReferenceBuilder(ReferenceReferenceBuilder referenceReferenceBuilder)
-        {
-            ReferenceReferenceBuilder = referenceReferenceBuilder;
-        }
-
         public NonGenericStringTestReferenceReferenceBuilder HasForeignKey(
             string dependentEntityTypeName,
             params string[] foreignKeyPropertyNames)
@@ -246,35 +201,25 @@ public class InMemoryModelBuilderNonGenericStringTest : InMemoryModelBuilderNonG
             params string[] keyPropertyNames)
             => new(ReferenceReferenceBuilder.HasPrincipalKey(principalEntityTypeName, keyPropertyNames));
 
-        private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; }
+        private ReferenceReferenceBuilder ReferenceReferenceBuilder { get; } = referenceReferenceBuilder;
 
         public IMutableForeignKey Metadata
             => ReferenceReferenceBuilder.Metadata;
     }
 
-    private class NonGenericStringTestReferenceCollectionBuilder
+    private class NonGenericStringTestReferenceCollectionBuilder(ReferenceCollectionBuilder referenceCollectionBuilder)
     {
-        public NonGenericStringTestReferenceCollectionBuilder(ReferenceCollectionBuilder referenceCollectionBuilder)
-        {
-            ReferenceCollectionBuilder = referenceCollectionBuilder;
-        }
-
-        private ReferenceCollectionBuilder ReferenceCollectionBuilder { get; }
+        private ReferenceCollectionBuilder ReferenceCollectionBuilder { get; } = referenceCollectionBuilder;
 
         public IMutableForeignKey Metadata
             => ReferenceCollectionBuilder.Metadata;
     }
 
-    private class NonGenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>
-        : NonGenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>
+    private class NonGenericStringTestOwnedNavigationBuilder<TEntity, TDependentEntity>(OwnedNavigationBuilder ownedNavigationBuilder)
+        : NonGenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>(ownedNavigationBuilder)
         where TEntity : class
         where TDependentEntity : class
     {
-        public NonGenericStringTestOwnedNavigationBuilder(OwnedNavigationBuilder ownedNavigationBuilder)
-            : base(ownedNavigationBuilder)
-        {
-        }
-
         protected override NonGenericTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity> Wrap<TNewEntity, TNewDependentEntity>(
             OwnedNavigationBuilder ownedNavigationBuilder)
             => new NonGenericStringTestOwnedNavigationBuilder<TNewEntity, TNewDependentEntity>(ownedNavigationBuilder);

@@ -71,36 +71,21 @@ public abstract class EndToEndTest : IDisposable
         => Fixture.CreateContext(TestStore);
 }
 
-public class InMemoryEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class InMemoryEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public InMemoryEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => InMemoryTestStoreFactory.Instance;
 }
 
 [SqlServerConfiguredCondition]
-public class SqlServerEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class SqlServerEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public SqlServerEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 }
 
-public class SqliteEndToEndTest : EndToEndTest, IClassFixture<CrossStoreFixture>
+public class SqliteEndToEndTest(CrossStoreFixture fixture) : EndToEndTest(fixture), IClassFixture<CrossStoreFixture>
 {
-    public SqliteEndToEndTest(CrossStoreFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 }

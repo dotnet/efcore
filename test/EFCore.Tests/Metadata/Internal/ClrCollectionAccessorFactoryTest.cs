@@ -497,9 +497,7 @@ public class ClrCollectionAccessorFactoryTest
             => _writeOnlyPropNoFieldNotFound;
     }
 
-    private class MyOtherEntity
-    {
-    }
+    private class MyOtherEntity;
 
     private class MyEntityWithCustomComparer
     {
@@ -512,9 +510,7 @@ public class ClrCollectionAccessorFactoryTest
             => Id.GetHashCode();
     }
 
-    private class MyCollection : List<MyOtherEntity>
-    {
-    }
+    private class MyCollection : List<MyOtherEntity>;
 
     private class MyPrivateCollection : List<MyOtherEntity>
     {
@@ -533,12 +529,9 @@ public class ClrCollectionAccessorFactoryTest
         }
     }
 
-    private class MyUnavailableCollection : List<MyOtherEntity>
-    {
-        public MyUnavailableCollection(bool _)
-        {
-        }
-    }
+#pragma warning disable CS9113 // Parameter '_' is unread
+    private class MyUnavailableCollection(bool _) : List<MyOtherEntity>;
+#pragma warning restore CS9113
 
     private class MyEnumerable : IEnumerable<MyOtherEntity>
     {

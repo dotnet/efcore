@@ -5,15 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest
+public class ManyToManyTrackingProxyGeneratedKeysSqlServerTest(ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture fixture)
     : ManyToManyTrackingSqlServerTestBase<
-        ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture>
+        ManyToManyTrackingProxyGeneratedKeysSqlServerTest.ManyToManyTrackingProxyGeneratedKeysSqlServerFixture>(fixture)
 {
-    public ManyToManyTrackingProxyGeneratedKeysSqlServerTest(ManyToManyTrackingProxyGeneratedKeysSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override Task Can_insert_many_to_many_shared_with_payload(bool async)
         // Mutable properties aren't proxyable on Dictionary
         => Task.CompletedTask;

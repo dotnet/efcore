@@ -3,15 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class PoolableDbContext : DbContext
+public class PoolableDbContext(DbContextOptions options) : DbContext(options)
 {
     protected PoolableDbContext()
         : this(new DbContextOptions<PoolableDbContext>())
-    {
-    }
-
-    public PoolableDbContext(DbContextOptions options)
-        : base(options)
     {
     }
 }

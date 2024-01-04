@@ -3,15 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class QueryExpressionInterceptionWithDiagnosticsCosmosTest
-    : QueryExpressionInterceptionTestBase,
+public class QueryExpressionInterceptionWithDiagnosticsCosmosTest(QueryExpressionInterceptionWithDiagnosticsCosmosTest.InterceptionCosmosFixture fixture)
+    : QueryExpressionInterceptionTestBase(fixture),
         IClassFixture<QueryExpressionInterceptionWithDiagnosticsCosmosTest.InterceptionCosmosFixture>
 {
-    public QueryExpressionInterceptionWithDiagnosticsCosmosTest(InterceptionCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class InterceptionCosmosFixture : InterceptionFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

@@ -178,39 +178,27 @@ public abstract class DbSetAsTableNameTest
         public int Id { get; set; }
     }
 
-    protected class Galaxy : Chocolate
-    {
-    }
+    protected class Galaxy : Chocolate;
 
-    protected class DairyMilk : Chocolate
-    {
-    }
+    protected class DairyMilk : Chocolate;
 
     protected class Fruit
     {
         public int Id { get; set; }
     }
 
-    protected class Apple : Fruit
-    {
-    }
+    protected class Apple : Fruit;
 
-    protected class Banana : Fruit
-    {
-    }
+    protected class Banana : Fruit;
 
     protected class Cracker
     {
         public int Id { get; set; }
     }
 
-    protected class Trisket : Cracker
-    {
-    }
+    protected class Trisket : Cracker;
 
-    protected class WheatThin : Cracker
-    {
-    }
+    protected class WheatThin : Cracker;
 
     protected class Marmite
     {

@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
+public class ShadowStateUpdateTest(InMemoryFixture fixture) : IClassFixture<InMemoryFixture>
 {
     [ConditionalFact]
     public async Task Can_add_update_delete_end_to_end_using_partial_shadow_state()
@@ -75,12 +75,7 @@ public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
         }
     }
 
-    private readonly InMemoryFixture _fixture;
-
-    public ShadowStateUpdateTest(InMemoryFixture fixture)
-    {
-        _fixture = fixture;
-    }
+    private readonly InMemoryFixture _fixture = fixture;
 
     private class Customer
     {

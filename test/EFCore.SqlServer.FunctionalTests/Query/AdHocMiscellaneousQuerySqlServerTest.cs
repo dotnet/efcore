@@ -100,13 +100,8 @@ INSERT ZeroKey VALUES (NULL)
             });
     }
 
-    private class Context5456 : DbContext
+    private class Context5456(DbContextOptions options) : DbContext(options)
     {
-        public Context5456(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
@@ -193,7 +188,7 @@ WHERE [w].[Val] = 1
         }
     }
 
-    protected class Context9214 : DbContext
+    protected class Context9214(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Widget9214> Widgets { get; set; }
 
@@ -206,12 +201,6 @@ WHERE [w].[Val] = 1
 
         public static int AddThree(int num)
             => throw new Exception();
-#pragma warning restore IDE0060 // Remove unused parameter
-
-        public Context9214(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -292,13 +281,8 @@ END
         }
     }
 
-    protected class Context9277 : DbContext
+    protected class Context9277(DbContextOptions options) : DbContext(options)
     {
-        public Context9277(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Blog9277> Blogs { get; set; }
 
         public void Seed()
@@ -378,14 +362,9 @@ OUTPUT INSERTED.[Id], i._Position;
         }
     }
 
-    private class Context12482 : DbContext
+    private class Context12482(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<BaseEntity> BaseEntities { get; set; }
-
-        public Context12482(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<BaseEntity>();
@@ -435,15 +414,10 @@ ORDER BY [p].[Id]
 """);
     }
 
-    protected class Context12518 : DbContext
+    protected class Context12518(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<Parent12518> Parents { get; set; }
         public virtual DbSet<Child12518> Children { get; set; }
-
-        public Context12518(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -511,14 +485,9 @@ WHERE [r].[MyTime] IN (
 """);
     }
 
-    private class Context13118 : DbContext
+    private class Context13118(DbContextOptions options) : DbContext(options)
     {
         public virtual DbSet<ReproEntity13118> ReproEntity { get; set; }
-
-        public Context13118(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ReproEntity13118>(e => e.Property("MyTime").HasColumnType("smalldatetime"));
@@ -730,13 +699,8 @@ WHERE [d].[SmallDateTime] IN (
 """);
     }
 
-    protected class Context14095 : DbContext
+    protected class Context14095(DbContextOptions options) : DbContext(options)
     {
-        public Context14095(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<DatesAndPrunes14095> Dates { get; set; }
 
         public void Seed()
@@ -837,14 +801,9 @@ CROSS JOIN (
         }
     }
 
-    private class Context19206 : DbContext
+    private class Context19206(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Test> Tests { get; set; }
-
-        public Context19206(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -894,14 +853,9 @@ CROSS JOIN (
             });
     }
 
-    private class Context21666 : DbContext
+    private class Context21666(DbContextOptions options) : DbContext(options)
     {
         public DbSet<List> Lists { get; set; }
-
-        public Context21666(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -940,14 +894,9 @@ WHERE [l].[Name] = N'My Location'
 """);
     }
 
-    private class Context23282 : DbContext
+    private class Context23282(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Location> Locations { get; set; }
-
-        public Context23282(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1079,13 +1028,8 @@ ORDER BY [t].[Id]
         public string StatusMessage { get; set; }
     }
 
-    private class Context24216 : DbContext
+    private class Context24216(DbContextOptions options) : DbContext(options)
     {
-        public Context24216(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Gender24216> Gender { get; set; }
 
         public DbSet<Message24216> Message { get; set; }
@@ -1148,13 +1092,8 @@ GROUP BY [d].[Id]
 """);
     }
 
-    protected class Context27427 : DbContext
+    protected class Context27427(DbContextOptions options) : DbContext(options)
     {
-        public Context27427(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<DemoEntity> DemoEntities { get; set; }
     }
 
@@ -1257,13 +1196,8 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 """);
     }
 
-    protected class Context30478 : DbContext
+    protected class Context30478(DbContextOptions options) : DbContext(options)
     {
-        public Context30478(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Entity30478> Entities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

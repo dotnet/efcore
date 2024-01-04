@@ -92,14 +92,8 @@ public class CoreEventIdTest : EventIdTestBase
             => null;
     }
 
-    private class FakeNavigationBase : PropertyBase, INavigationBase
+    private class FakeNavigationBase(string name, ConfigurationSource configurationSource, EntityType entityType) : PropertyBase(name, null, null, configurationSource), INavigationBase
     {
-        public FakeNavigationBase(string name, ConfigurationSource configurationSource, EntityType entityType)
-            : base(name, null, null, configurationSource)
-        {
-            DeclaringType = entityType;
-        }
-
         public IEntityType DeclaringEntityType
             => (IEntityType)DeclaringType;
 
@@ -112,7 +106,7 @@ public class CoreEventIdTest : EventIdTestBase
         public bool IsCollection
             => throw new NotImplementedException();
 
-        public override TypeBase DeclaringType { get; }
+        public override TypeBase DeclaringType { get; } = entityType;
 
         public override Type ClrType
             => throw new NotImplementedException();

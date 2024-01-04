@@ -43,14 +43,9 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
             => base.AddOptions(builder).ConfigureWarnings(c => c.Ignore(InMemoryEventId.TransactionIgnoredWarning));
     }
 
-    public class QueryExpressionInterceptionInMemoryTest
-        : QueryExpressionInterceptionInMemoryTestBase, IClassFixture<QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture>
+    public class QueryExpressionInterceptionInMemoryTest(QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture fixture)
+        : QueryExpressionInterceptionInMemoryTestBase(fixture), IClassFixture<QueryExpressionInterceptionInMemoryTest.InterceptionInMemoryFixture>
     {
-        public QueryExpressionInterceptionInMemoryTest(InterceptionInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionInMemoryFixture : InterceptionInMemoryFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -58,15 +53,10 @@ public abstract class QueryExpressionInterceptionInMemoryTestBase : QueryExpress
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsInMemoryTest
-        : QueryExpressionInterceptionInMemoryTestBase,
+    public class QueryExpressionInterceptionWithDiagnosticsInMemoryTest(QueryExpressionInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture fixture)
+        : QueryExpressionInterceptionInMemoryTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsInMemoryTest.InterceptionInMemoryFixture>
     {
-        public QueryExpressionInterceptionWithDiagnosticsInMemoryTest(InterceptionInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionInMemoryFixture : InterceptionInMemoryFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

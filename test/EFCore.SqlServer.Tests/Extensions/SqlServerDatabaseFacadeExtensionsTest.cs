@@ -255,13 +255,8 @@ public class SqlServerDatabaseFacadeExtensionsTest
         }
     }
 
-    private class ProviderOnModelContext : ProviderContext
+    private class ProviderOnModelContext(DbContextOptions options) : ProviderContext(options)
     {
-        public ProviderOnModelContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => IsSqlServerSet = Database.IsSqlServer();
     }
@@ -275,13 +270,8 @@ public class SqlServerDatabaseFacadeExtensionsTest
         }
     }
 
-    private class ProviderUseInOnConfiguringContext : ProviderContext
+    private class ProviderUseInOnConfiguringContext(DbContextOptions options) : ProviderContext(options)
     {
-        public ProviderUseInOnConfiguringContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => IsSqlServerSet = Database.IsSqlServer();
     }

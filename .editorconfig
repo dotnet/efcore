@@ -117,6 +117,9 @@ csharp_style_conditional_delegate_call = true:suggestion
 # Code block preferences
 csharp_prefer_braces = true:suggestion
 
+# Primary constructors
+csharp_style_prefer_primary_constructors = true:suggestion
+
 ## Formatting conventions
 # Dotnet formatting settings:
 [*.{cs,vb}]

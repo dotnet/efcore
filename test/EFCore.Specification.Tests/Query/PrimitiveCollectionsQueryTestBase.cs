@@ -947,13 +947,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
         }.ToDictionary(e => e.Key, e => (object)e.Value);
     }
 
-    public class PrimitiveCollectionsContext : PoolableDbContext
-    {
-        public PrimitiveCollectionsContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    public class PrimitiveCollectionsContext(DbContextOptions options) : PoolableDbContext(options);
 
     public class PrimitiveCollectionsEntity
     {

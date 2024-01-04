@@ -311,12 +311,10 @@ public class PropertyTest
             => null;
     }
 
-    private class NonParameterlessValueGeneratorFactory : ValueGeneratorFactory
+#pragma warning disable CS9113 // Parameter '_' is unread
+    private class NonParameterlessValueGeneratorFactory(object _) : ValueGeneratorFactory
+#pragma warning restore CS9113
     {
-        public NonParameterlessValueGeneratorFactory(object _)
-        {
-        }
-
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
@@ -360,13 +358,9 @@ public class PropertyTest
                     property.SetValueConverter(typeof(NonParameterlessValueConverter))).Message);
     }
 
-    private class NonDerivedValueConverter
-    {
-    }
+    private class NonDerivedValueConverter;
 
-    private abstract class AbstractValueConverter : StringToBoolConverter
-    {
-    }
+    private abstract class AbstractValueConverter : StringToBoolConverter;
 
     private class StaticValueConverter : StringToBoolConverter
     {
@@ -382,13 +376,7 @@ public class PropertyTest
         }
     }
 
-    private class NonParameterlessValueConverter : StringToBoolConverter
-    {
-        public NonParameterlessValueConverter(ConverterMappingHints mappingHints = null)
-            : base(mappingHints)
-        {
-        }
-    }
+    private class NonParameterlessValueConverter(ConverterMappingHints mappingHints = null) : StringToBoolConverter(mappingHints);
 
     [ConditionalFact]
     public void Throws_when_ValueComparer_type_is_invalid()
@@ -429,9 +417,7 @@ public class PropertyTest
                     property.SetValueComparer(typeof(NonParameterlessValueComparer))).Message);
     }
 
-    private class NonDerivedValueComparer
-    {
-    }
+    private class NonDerivedValueComparer;
 
     private abstract class AbstractValueComparer : ValueComparer<string>
     {
@@ -457,13 +443,7 @@ public class PropertyTest
         }
     }
 
-    private class NonParameterlessValueComparer : ValueComparer<string>
-    {
-        public NonParameterlessValueComparer(bool favorStructuralComparison)
-            : base(favorStructuralComparison)
-        {
-        }
-    }
+    private class NonParameterlessValueComparer(bool favorStructuralComparison) : ValueComparer<string>(favorStructuralComparison);
 
     [ConditionalTheory]
     [InlineData(typeof(SimpleJasonValueReaderWriter))]
@@ -624,9 +604,7 @@ public class PropertyTest
             => writer.WriteStringValue(value);
     }
 
-    private class NonDerivedJsonValueReaderWriter
-    {
-    }
+    private class NonDerivedJsonValueReaderWriter;
 
     private class NonGenericJsonValueReaderWriter : JsonValueReaderWriter
     {
@@ -640,9 +618,7 @@ public class PropertyTest
             => typeof(string);
     }
 
-    private abstract class AbstractJasonValueReaderWriter : JsonValueReaderWriter<string>
-    {
-    }
+    private abstract class AbstractJasonValueReaderWriter : JsonValueReaderWriter<string>;
 
     private class PrivateJasonValueReaderWriter : JsonValueReaderWriter<string>
     {
@@ -657,12 +633,10 @@ public class PropertyTest
             => writer.WriteStringValue(value);
     }
 
-    private class NonParameterlessJsonValueReaderWriter : JsonValueReaderWriter<string>
+#pragma warning disable CS9113 // Parameter '_' is unread
+    private class NonParameterlessJsonValueReaderWriter(bool _) : JsonValueReaderWriter<string>
+#pragma warning restore CS9113
     {
-        public NonParameterlessJsonValueReaderWriter(bool _)
-        {
-        }
-
         public override string FromJsonTyped(ref Utf8JsonReaderManager manager, object existingObject = null)
             => manager.CurrentReader.GetString()!;
 

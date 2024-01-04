@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TableSplittingSqlServerTest : TableSplittingTestBase
+public class TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
 {
-    public TableSplittingSqlServerTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 

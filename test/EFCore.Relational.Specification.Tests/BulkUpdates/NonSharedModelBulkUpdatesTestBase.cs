@@ -46,13 +46,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             RelationalStrings.ExecuteDeleteOnTableSplitting(nameof(Owner)));
     }
 
-    protected class Context28671 : DbContext
+    protected class Context28671(DbContextOptions options) : DbContext(options)
     {
-        public Context28671(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Owner>(
                 b =>
@@ -211,13 +206,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
         await AssertDelete(async, contextFactory.CreateContext, ss => ss.Set<Context30572_Principal>(), rowsAffectedCount: 0);
     }
 
-    protected class Context30572 : DbContext
+    protected class Context30572(DbContextOptions options) : DbContext(options)
     {
-        public Context30572(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Context30572_Principal>().Navigation(o => o.Dependent).AutoInclude();
     }
@@ -247,13 +237,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             context => context.Posts.Where(p => p.Blog!.Title!.StartsWith("Arthur")), rowsAffectedCount: 1);
     }
 
-    protected class Context28745 : DbContext
+    protected class Context28745(DbContextOptions options) : DbContext(options)
     {
-        public Context28745(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Blog> Blogs
             => Set<Blog>();
 
@@ -287,13 +272,8 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             rowsAffectedCount: 1);
     }
 
-    protected class Context31078 : DbContext
+    protected class Context31078(DbContextOptions options) : DbContext(options)
     {
-        public Context31078(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Order> Orders
             => Set<Order>();
 

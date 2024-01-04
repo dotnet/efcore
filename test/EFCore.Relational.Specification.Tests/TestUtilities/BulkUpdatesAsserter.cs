@@ -5,22 +5,13 @@ using Microsoft.EntityFrameworkCore.BulkUpdates;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class BulkUpdatesAsserter
+public class BulkUpdatesAsserter(IBulkUpdatesFixtureBase queryFixture, Func<Expression, Expression> rewriteServerQueryExpression)
 {
-    private readonly Func<DbContext> _contextCreator;
-    private readonly Action<DatabaseFacade, IDbContextTransaction> _useTransaction;
-    private readonly Func<DbContext, ISetSource> _setSourceCreator;
-    private readonly Func<Expression, Expression> _rewriteServerQueryExpression;
-    private readonly IReadOnlyDictionary<Type, object> _entitySorters;
-
-    public BulkUpdatesAsserter(IBulkUpdatesFixtureBase queryFixture, Func<Expression, Expression> rewriteServerQueryExpression)
-    {
-        _contextCreator = queryFixture.GetContextCreator();
-        _useTransaction = queryFixture.GetUseTransaction();
-        _setSourceCreator = queryFixture.GetSetSourceCreator();
-        _rewriteServerQueryExpression = rewriteServerQueryExpression;
-        _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
-    }
+    private readonly Func<DbContext> _contextCreator = queryFixture.GetContextCreator();
+    private readonly Action<DatabaseFacade, IDbContextTransaction> _useTransaction = queryFixture.GetUseTransaction();
+    private readonly Func<DbContext, ISetSource> _setSourceCreator = queryFixture.GetSetSourceCreator();
+    private readonly Func<Expression, Expression> _rewriteServerQueryExpression = rewriteServerQueryExpression;
+    private readonly IReadOnlyDictionary<Type, object> _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
 
     public async Task AssertDelete<TResult>(
         bool async,

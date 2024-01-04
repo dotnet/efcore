@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
-public class F1Context : PoolableDbContext
+public class F1Context(DbContextOptions options) : PoolableDbContext(options)
 {
-    public F1Context(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<Team> Teams { get; set; }
     public DbSet<Driver> Drivers { get; set; }
     public DbSet<Sponsor> Sponsors { get; set; }

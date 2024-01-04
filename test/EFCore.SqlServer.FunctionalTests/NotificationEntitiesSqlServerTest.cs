@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NotificationEntitiesSqlServerTest
-    : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>
+public class NotificationEntitiesSqlServerTest(NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture fixture)
+    : NotificationEntitiesTestBase<NotificationEntitiesSqlServerTest.NotificationEntitiesSqlServerFixture>(fixture)
 {
-    public NotificationEntitiesSqlServerTest(NotificationEntitiesSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class NotificationEntitiesSqlServerFixture : NotificationEntitiesFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

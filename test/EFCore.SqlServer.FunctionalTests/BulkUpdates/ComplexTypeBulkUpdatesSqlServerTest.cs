@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
-public class ComplexTypeBulkUpdatesSqlServerTest : ComplexTypeBulkUpdatesTestBase<
-    ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture>
+public class ComplexTypeBulkUpdatesSqlServerTest(ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper) : ComplexTypeBulkUpdatesTestBase<
+    ComplexTypeBulkUpdatesSqlServerTest.ComplexTypeBulkUpdatesSqlServerFixture>(fixture, testOutputHelper)
 {
-    public ComplexTypeBulkUpdatesSqlServerTest(ComplexTypeBulkUpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture, testOutputHelper)
-    {
-    }
-
     public override async Task Delete_entity_type_with_complex_type(bool async)
     {
         await base.Delete_entity_type_with_complex_type(async);

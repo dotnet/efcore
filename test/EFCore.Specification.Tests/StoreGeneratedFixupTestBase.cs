@@ -4310,13 +4310,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         public Level Level { get; set; }
     }
 
-    protected class Item : GameEntity
-    {
-    }
+    protected class Item : GameEntity;
 
-    protected class Actor : GameEntity
-    {
-    }
+    protected class Actor : GameEntity;
 
     protected class Game
     {

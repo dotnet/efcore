@@ -3,15 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestModificationCommandBatch : SingularModificationCommandBatch
+public class TestModificationCommandBatch(
+    ModificationCommandBatchFactoryDependencies dependencies,
+    int? maxBatchSize) : SingularModificationCommandBatch(dependencies)
 {
-    public TestModificationCommandBatch(
-        ModificationCommandBatchFactoryDependencies dependencies,
-        int? maxBatchSize)
-        : base(dependencies)
-    {
-        MaxBatchSize = maxBatchSize ?? 42;
-    }
-
-    protected override int MaxBatchSize { get; }
+    protected override int MaxBatchSize { get; } = maxBatchSize ?? 42;
 }

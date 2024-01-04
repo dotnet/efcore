@@ -284,12 +284,8 @@ N'{{""ByteEnum"":""Redmond"",""IntEnum"":""Foo"",""LongEnum"":""Three"",""ULongE
 1,
 N'e1')");
 
-    private class MyContextEnumLegacyValues : DbContext
+    private class MyContextEnumLegacyValues(DbContextOptions options) : DbContext((new DbContextOptionsBuilder(options)).ConfigureWarnings(b => b.Log(CoreEventId.StringEnumValueInJson)).Options)
     {
-        public MyContextEnumLegacyValues(DbContextOptions options)
-            : base((new DbContextOptionsBuilder(options)).ConfigureWarnings(b => b.Log(CoreEventId.StringEnumValueInJson)).Options)
-        {
-        }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public DbSet<MyEntityEnumLegacyValues> Entities { get; set; }

@@ -3,16 +3,11 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
+public class CosmosConcurrencyTest(CosmosConcurrencyTest.CosmosFixture fixture) : IClassFixture<CosmosConcurrencyTest.CosmosFixture>
 {
     private const string DatabaseName = "CosmosConcurrencyTest";
 
-    protected CosmosFixture Fixture { get; }
-
-    public CosmosConcurrencyTest(CosmosFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected CosmosFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public virtual Task Adding_the_same_entity_twice_results_in_DbUpdateException()
@@ -168,13 +163,8 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
             => CosmosTestStoreFactory.Instance;
     }
 
-    public class ConcurrencyContext : PoolableDbContext
+    public class ConcurrencyContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public ConcurrencyContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)

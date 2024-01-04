@@ -168,14 +168,9 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         }
     }
 
-    public class SaveChangesInterceptionSqlServerTest
-        : SaveChangesInterceptionSqlServerTestBase, IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
+    public class SaveChangesInterceptionSqlServerTest(SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
+        : SaveChangesInterceptionSqlServerTestBase(fixture), IClassFixture<SaveChangesInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
-        public SaveChangesInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override string StoreName
@@ -186,15 +181,10 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         }
     }
 
-    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest
-        : SaveChangesInterceptionSqlServerTestBase,
+    public class SaveChangesInterceptionWithDiagnosticsSqlServerTest(SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+        : SaveChangesInterceptionSqlServerTestBase(fixture),
             IClassFixture<SaveChangesInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
-        public SaveChangesInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override string StoreName

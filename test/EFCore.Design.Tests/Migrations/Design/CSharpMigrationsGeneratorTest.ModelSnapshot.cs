@@ -517,9 +517,7 @@ namespace MyNamespace
         public EntityWithOneProperty Navigation { get; set; }
     }
 
-    private class DerivedType : BaseType
-    {
-    }
+    private class DerivedType : BaseType;
 
     private enum Days : long
     {
@@ -600,9 +598,7 @@ namespace MyNamespace
         public int Id { get; set; }
     }
 
-    public class BarA : BarBase
-    {
-    }
+    public class BarA : BarBase;
 
     public class FooExtension<T>
         where T : BarBase

@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 // ReSharper disable ConvertToAutoProperty
 namespace Microsoft.EntityFrameworkCore.TestModels;
 
-public class ChangedChangingMonsterContext : MonsterContext<
+public class ChangedChangingMonsterContext(DbContextOptions options) : MonsterContext<
     ChangedChangingMonsterContext.Customer, ChangedChangingMonsterContext.Barcode, ChangedChangingMonsterContext.IncorrectScan,
     ChangedChangingMonsterContext.BarcodeDetail, ChangedChangingMonsterContext.Complaint, ChangedChangingMonsterContext.Resolution,
     ChangedChangingMonsterContext.Login, ChangedChangingMonsterContext.SuspiciousActivity, ChangedChangingMonsterContext.SmartCard,
@@ -25,13 +25,8 @@ public class ChangedChangingMonsterContext : MonsterContext<
     ChangedChangingMonsterContext.License, ChangedChangingMonsterContext.ConcurrencyInfo, ChangedChangingMonsterContext.AuditInfo,
     ChangedChangingMonsterContext.ContactDetails, ChangedChangingMonsterContext.Dimensions, ChangedChangingMonsterContext.Phone,
     ChangedChangingMonsterContext.BackOrderLine, ChangedChangingMonsterContext.DiscontinuedProduct,
-    ChangedChangingMonsterContext.ProductPageView>
+    ChangedChangingMonsterContext.ProductPageView>(options)
 {
-    public ChangedChangingMonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public class NotificationEntity : INotifyPropertyChanged, INotifyPropertyChanging
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -54,9 +49,7 @@ public class ChangedChangingMonsterContext : MonsterContext<
         }
     }
 
-    public class BackOrderLine2 : BackOrderLine
-    {
-    }
+    public class BackOrderLine2 : BackOrderLine;
 
     public class BackOrderLine : OrderLine, IBackOrderLine
     {

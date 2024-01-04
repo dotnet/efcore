@@ -3,6 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public interface IExpectedInclude
-{
-}
+public interface IExpectedInclude;

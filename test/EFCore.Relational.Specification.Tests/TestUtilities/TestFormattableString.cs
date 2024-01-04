@@ -3,15 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class TestFormattableString : FormattableString
+public class TestFormattableString(string format, object[] arguments) : FormattableString
 {
-    private readonly object[] _arguments;
-
-    public TestFormattableString(string format, object[] arguments)
-    {
-        Format = format;
-        _arguments = arguments;
-    }
+    private readonly object[] _arguments = arguments;
 
     public override object GetArgument(int index)
         => throw new NotImplementedException();
@@ -23,5 +17,5 @@ public class TestFormattableString : FormattableString
         => throw new NotImplementedException();
 
     public override int ArgumentCount { get; }
-    public override string Format { get; }
+    public override string Format { get; } = format;
 }

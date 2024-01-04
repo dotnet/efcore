@@ -12,13 +12,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class RelationalModelBuilderTest : ModelBuilderTest
 {
-    public abstract class RelationalNonRelationshipTestBase : NonRelationshipTestBase
+    public abstract class RelationalNonRelationshipTestBase(RelationalModelBuilderFixture fixture) : NonRelationshipTestBase(fixture)
     {
-        public RelationalNonRelationshipTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_table_splitting()
         {
@@ -346,13 +341,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalComplexTypeTestBase : ComplexTypeTestBase
+    public abstract class RelationalComplexTypeTestBase(RelationalModelBuilderFixture fixture) : ComplexTypeTestBase(fixture)
     {
-        public RelationalComplexTypeTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_TPH()
         {
@@ -659,13 +649,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalInheritanceTestBase : InheritanceTestBase
+    public abstract class RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture) : InheritanceTestBase(fixture)
     {
-        public RelationalInheritanceTestBase(RelationalModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_table_splitting()
         {
@@ -743,7 +728,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public virtual void Can_use_ForeignKeyAttribute_with_InversePropertyAttribute()
         {
             var modelBuilder = CreateModelBuilder();
-                    
+
             modelBuilder.Entity<MotorArt>(
                 entity =>
                 {
@@ -1268,9 +1253,7 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
-    public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase
-    {
-    }
+    public abstract class RelationalModelBuilderFixture : ModelBuilderFixtureBase;
 
     public abstract class TestTableBuilder<TEntity>
         where TEntity : class
@@ -1292,15 +1275,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestTableBuilder<TEntity> : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder<TEntity>>
+    public class GenericTestTableBuilder<TEntity>(TableBuilder<TEntity> tableBuilder) : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestTableBuilder(TableBuilder<TEntity> tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private TableBuilder<TEntity> TableBuilder { get; }
+        private TableBuilder<TEntity> TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1330,15 +1308,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyExpression));
     }
 
-    public class NonGenericTestTableBuilder<TEntity> : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder>
+    public class NonGenericTestTableBuilder<TEntity>(TableBuilder tableBuilder) : TestTableBuilder<TEntity>, IInfrastructure<TableBuilder>
         where TEntity : class
     {
-        public NonGenericTestTableBuilder(TableBuilder tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private TableBuilder TableBuilder { get; }
+        private TableBuilder TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1387,18 +1360,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class GenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationTableBuilder(OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> TableBuilder { get; }
+        private OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1427,18 +1395,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyExpression));
     }
 
-    public class NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationTableBuilder tableBuilder) :
         TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTableBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationTableBuilder(OwnedNavigationTableBuilder tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationTableBuilder TableBuilder { get; }
+        private OwnedNavigationTableBuilder TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1485,15 +1448,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestSplitTableBuilder<TEntity> : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder<TEntity>>
+    public class GenericTestSplitTableBuilder<TEntity>(SplitTableBuilder<TEntity> tableBuilder) : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestSplitTableBuilder(SplitTableBuilder<TEntity> tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private SplitTableBuilder<TEntity> TableBuilder { get; }
+        private SplitTableBuilder<TEntity> TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1523,15 +1481,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestSplitTableBuilder<TEntity> : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder>
+    public class NonGenericTestSplitTableBuilder<TEntity>(SplitTableBuilder tableBuilder) : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder>
         where TEntity : class
     {
-        public NonGenericTestSplitTableBuilder(SplitTableBuilder tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private SplitTableBuilder TableBuilder { get; }
+        private SplitTableBuilder TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1580,18 +1533,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationSplitTableBuilder(OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> TableBuilder { get; }
+        private OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1620,18 +1568,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitTableBuilder tableBuilder) :
         TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitTableBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationSplitTableBuilder(OwnedNavigationSplitTableBuilder tableBuilder)
-        {
-            TableBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationSplitTableBuilder TableBuilder { get; }
+        private OwnedNavigationSplitTableBuilder TableBuilder { get; } = tableBuilder;
 
         public override string? Name
             => TableBuilder.Name;
@@ -1668,14 +1611,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestColumnBuilder<TProperty> : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder<TProperty>>
+    public class GenericTestColumnBuilder<TProperty>(ColumnBuilder<TProperty> columnBuilder) : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder<TProperty>>
     {
-        public GenericTestColumnBuilder(ColumnBuilder<TProperty> columnBuilder)
-        {
-            ColumnBuilder = columnBuilder;
-        }
-
-        private ColumnBuilder<TProperty> ColumnBuilder { get; }
+        private ColumnBuilder<TProperty> ColumnBuilder { get; } = columnBuilder;
 
         ColumnBuilder<TProperty> IInfrastructure<ColumnBuilder<TProperty>>.Instance
             => ColumnBuilder;
@@ -1692,14 +1630,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestColumnBuilder<TProperty> : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder>
+    public class NonGenericTestColumnBuilder<TProperty>(ColumnBuilder tableBuilder) : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder>
     {
-        public NonGenericTestColumnBuilder(ColumnBuilder tableBuilder)
-        {
-            ColumnBuilder = tableBuilder;
-        }
-
-        private ColumnBuilder ColumnBuilder { get; }
+        private ColumnBuilder ColumnBuilder { get; } = tableBuilder;
 
         ColumnBuilder IInfrastructure<ColumnBuilder>.Instance
             => ColumnBuilder;
@@ -1728,15 +1661,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestViewBuilder<TEntity> : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder<TEntity>>
+    public class GenericTestViewBuilder<TEntity>(ViewBuilder<TEntity> tableBuilder) : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestViewBuilder(ViewBuilder<TEntity> tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private ViewBuilder<TEntity> ViewBuilder { get; }
+        private ViewBuilder<TEntity> ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1757,15 +1685,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyExpression));
     }
 
-    public class NonGenericTestViewBuilder<TEntity> : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder>
+    public class NonGenericTestViewBuilder<TEntity>(ViewBuilder tableBuilder) : TestViewBuilder<TEntity>, IInfrastructure<ViewBuilder>
         where TEntity : class
     {
-        public NonGenericTestViewBuilder(ViewBuilder tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private ViewBuilder ViewBuilder { get; }
+        private ViewBuilder ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1800,18 +1723,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Expression<Func<TDependentEntity, TProperty>> propertyExpression);
     }
 
-    public class GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> :
+    public class GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationViewBuilder(OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> ViewBuilder { get; }
+        private OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1835,18 +1753,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
     }
 
-    public class NonGenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> :
+    public class NonGenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationViewBuilder tableBuilder) :
         TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationViewBuilder(OwnedNavigationViewBuilder tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationViewBuilder ViewBuilder { get; }
+        private OwnedNavigationViewBuilder ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1884,15 +1797,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestSplitViewBuilder<TEntity> : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder<TEntity>>
+    public class GenericTestSplitViewBuilder<TEntity>(SplitViewBuilder<TEntity> tableBuilder) : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestSplitViewBuilder(SplitViewBuilder<TEntity> tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private SplitViewBuilder<TEntity> ViewBuilder { get; }
+        private SplitViewBuilder<TEntity> ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1916,15 +1824,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestSplitViewBuilder<TEntity> : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder>
+    public class NonGenericTestSplitViewBuilder<TEntity>(SplitViewBuilder tableBuilder) : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder>
         where TEntity : class
     {
-        public NonGenericTestSplitViewBuilder(SplitViewBuilder tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private SplitViewBuilder ViewBuilder { get; }
+        private SplitViewBuilder ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -1966,18 +1869,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
+    public class GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder) :
         TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationSplitViewBuilder(OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> ViewBuilder { get; }
+        private OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -2004,18 +1902,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
+    public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationSplitViewBuilder tableBuilder) :
         TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationSplitViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationSplitViewBuilder(OwnedNavigationSplitViewBuilder tableBuilder)
-        {
-            ViewBuilder = tableBuilder;
-        }
-
-        private OwnedNavigationSplitViewBuilder ViewBuilder { get; }
+        private OwnedNavigationSplitViewBuilder ViewBuilder { get; } = tableBuilder;
 
         public override string? Name
             => ViewBuilder.Name;
@@ -2050,14 +1943,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestViewColumnBuilder<TProperty> : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder<TProperty>>
+    public class GenericTestViewColumnBuilder<TProperty>(ViewColumnBuilder<TProperty> columnBuilder) : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder<TProperty>>
     {
-        public GenericTestViewColumnBuilder(ViewColumnBuilder<TProperty> columnBuilder)
-        {
-            ViewColumnBuilder = columnBuilder;
-        }
-
-        private ViewColumnBuilder<TProperty> ViewColumnBuilder { get; }
+        private ViewColumnBuilder<TProperty> ViewColumnBuilder { get; } = columnBuilder;
 
         ViewColumnBuilder<TProperty> IInfrastructure<ViewColumnBuilder<TProperty>>.Instance
             => ViewColumnBuilder;
@@ -2074,15 +1962,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(ViewColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestViewColumnBuilder<TProperty>
+    public class NonGenericTestViewColumnBuilder<TProperty>(ViewColumnBuilder tableBuilder)
         : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder>
     {
-        public NonGenericTestViewColumnBuilder(ViewColumnBuilder tableBuilder)
-        {
-            ViewColumnBuilder = tableBuilder;
-        }
-
-        private ViewColumnBuilder ViewColumnBuilder { get; }
+        private ViewColumnBuilder ViewColumnBuilder { get; } = tableBuilder;
 
         ViewColumnBuilder IInfrastructure<ViewColumnBuilder>.Instance
             => ViewColumnBuilder;
@@ -2186,16 +2069,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value);
     }
 
-    public class GenericTestStoredProcedureBuilder<TEntity>
+    public class GenericTestStoredProcedureBuilder<TEntity>(StoredProcedureBuilder<TEntity> storedProcedureBuilder)
         : TestStoredProcedureBuilder<TEntity>, IInfrastructure<StoredProcedureBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestStoredProcedureBuilder(StoredProcedureBuilder<TEntity> storedProcedureBuilder)
-        {
-            StoredProcedureBuilder = storedProcedureBuilder;
-        }
-
-        private StoredProcedureBuilder<TEntity> StoredProcedureBuilder { get; }
+        private StoredProcedureBuilder<TEntity> StoredProcedureBuilder { get; } = storedProcedureBuilder;
 
         StoredProcedureBuilder<TEntity> IInfrastructure<StoredProcedureBuilder<TEntity>>.Instance
             => StoredProcedureBuilder;
@@ -2317,16 +2195,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestStoredProcedureBuilder<TEntity>
+    public class NonGenericTestStoredProcedureBuilder<TEntity>(StoredProcedureBuilder storedProcedureBuilder)
         : TestStoredProcedureBuilder<TEntity>, IInfrastructure<StoredProcedureBuilder>
         where TEntity : class
     {
-        public NonGenericTestStoredProcedureBuilder(StoredProcedureBuilder storedProcedureBuilder)
-        {
-            StoredProcedureBuilder = storedProcedureBuilder;
-        }
-
-        private StoredProcedureBuilder StoredProcedureBuilder { get; }
+        private StoredProcedureBuilder StoredProcedureBuilder { get; } = storedProcedureBuilder;
 
         StoredProcedureBuilder IInfrastructure<StoredProcedureBuilder>.Instance
             => StoredProcedureBuilder;
@@ -2514,19 +2387,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             object? value);
     }
 
-    public class GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+    public class GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> storedProcedureBuilder)
         : TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>,
             IInfrastructure<OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationStoredProcedureBuilder(
-            OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> storedProcedureBuilder)
-        {
-            StoredProcedureBuilder = storedProcedureBuilder;
-        }
-
-        private OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> StoredProcedureBuilder { get; }
+        private OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> StoredProcedureBuilder { get; } = storedProcedureBuilder;
 
         OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
             IInfrastructure<OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>>.Instance
@@ -2620,18 +2488,13 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+    public class NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
         : TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>,
             IInfrastructure<OwnedNavigationStoredProcedureBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationStoredProcedureBuilder(OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
-        {
-            StoredProcedureBuilder = storedProcedureBuilder;
-        }
-
-        private OwnedNavigationStoredProcedureBuilder StoredProcedureBuilder { get; }
+        private OwnedNavigationStoredProcedureBuilder StoredProcedureBuilder { get; } = storedProcedureBuilder;
 
         OwnedNavigationStoredProcedureBuilder IInfrastructure<OwnedNavigationStoredProcedureBuilder>.Instance
             => StoredProcedureBuilder;
@@ -2726,14 +2589,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
     }
 
-    public class TestStoredProcedureParameterBuilder : IInfrastructure<StoredProcedureParameterBuilder>
+    public class TestStoredProcedureParameterBuilder(StoredProcedureParameterBuilder storedProcedureParameterBuilder) : IInfrastructure<StoredProcedureParameterBuilder>
     {
-        public TestStoredProcedureParameterBuilder(StoredProcedureParameterBuilder storedProcedureParameterBuilder)
-        {
-            StoredProcedureParameterBuilder = storedProcedureParameterBuilder;
-        }
-
-        private StoredProcedureParameterBuilder StoredProcedureParameterBuilder { get; }
+        private StoredProcedureParameterBuilder StoredProcedureParameterBuilder { get; } = storedProcedureParameterBuilder;
 
         StoredProcedureParameterBuilder IInfrastructure<StoredProcedureParameterBuilder>.Instance
             => StoredProcedureParameterBuilder;
@@ -2756,14 +2614,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(StoredProcedureParameterBuilder.HasAnnotation(annotation, value));
     }
 
-    public class TestStoredProcedureResultColumnBuilder : IInfrastructure<StoredProcedureResultColumnBuilder>
+    public class TestStoredProcedureResultColumnBuilder(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder) : IInfrastructure<StoredProcedureResultColumnBuilder>
     {
-        public TestStoredProcedureResultColumnBuilder(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder)
-        {
-            StoredProcedureResultColumnBuilder = storedProcedureResultColumnBuilder;
-        }
-
-        private StoredProcedureResultColumnBuilder StoredProcedureResultColumnBuilder { get; }
+        private StoredProcedureResultColumnBuilder StoredProcedureResultColumnBuilder { get; } = storedProcedureResultColumnBuilder;
 
         StoredProcedureResultColumnBuilder IInfrastructure<StoredProcedureResultColumnBuilder>.Instance
             => StoredProcedureResultColumnBuilder;
@@ -2806,14 +2659,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestTriggerBuilder HasAnnotation(string annotation, object? value);
     }
 
-    public class NonGenericTestTriggerBuilder : TestTriggerBuilder, IInfrastructure<TableTriggerBuilder>
+    public class NonGenericTestTriggerBuilder(TableTriggerBuilder triggerBuilder) : TestTriggerBuilder, IInfrastructure<TableTriggerBuilder>
     {
-        public NonGenericTestTriggerBuilder(TableTriggerBuilder triggerBuilder)
-        {
-            TriggerBuilder = triggerBuilder;
-        }
-
-        private TableTriggerBuilder TriggerBuilder { get; }
+        private TableTriggerBuilder TriggerBuilder { get; } = triggerBuilder;
 
         TableTriggerBuilder IInfrastructure<TableTriggerBuilder>.Instance
             => TriggerBuilder;
@@ -2828,14 +2676,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => Wrap(TriggerBuilder.HasAnnotation(annotation, value));
     }
 
-    public class TestCheckConstraintBuilder : IInfrastructure<CheckConstraintBuilder>
+    public class TestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder) : IInfrastructure<CheckConstraintBuilder>
     {
-        public TestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
-        {
-            CheckConstraintBuilder = checkConstraintBuilder;
-        }
-
-        private CheckConstraintBuilder CheckConstraintBuilder { get; }
+        private CheckConstraintBuilder CheckConstraintBuilder { get; } = checkConstraintBuilder;
 
         CheckConstraintBuilder IInfrastructure<CheckConstraintBuilder>.Instance
             => CheckConstraintBuilder;

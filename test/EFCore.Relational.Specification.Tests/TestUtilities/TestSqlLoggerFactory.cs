@@ -286,14 +286,9 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         }
     }
 
-    protected class TestSqlLogger : ListLogger
+    protected class TestSqlLogger(bool shouldLogCommands) : ListLogger
     {
-        private readonly bool _shouldLogCommands;
-
-        public TestSqlLogger(bool shouldLogCommands)
-        {
-            _shouldLogCommands = shouldLogCommands;
-        }
+        private readonly bool _shouldLogCommands = shouldLogCommands;
 
         public List<string> SqlStatements { get; } = new();
         public List<string> Parameters { get; } = new();

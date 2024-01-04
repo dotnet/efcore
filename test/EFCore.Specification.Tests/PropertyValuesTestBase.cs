@@ -2213,9 +2213,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         public string LastName { get; set; }
     }
 
-    protected class UnMappedOffice : Office
-    {
-    }
+    protected class UnMappedOffice : Office;
 
     protected class CurrentEmployee : Employee
     {

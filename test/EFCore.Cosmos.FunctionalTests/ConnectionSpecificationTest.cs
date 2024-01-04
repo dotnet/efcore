@@ -17,16 +17,10 @@ public class ConnectionSpecificationTest
         Assert.False(await creator.EnsureDeletedAsync());
     }
 
-    public class BloggingContext : DbContext
+    public class BloggingContext(CosmosTestStore testStore) : DbContext
     {
-        private readonly string _connectionString;
-        private readonly string _name;
-
-        public BloggingContext(CosmosTestStore testStore)
-        {
-            _connectionString = testStore.ConnectionString;
-            _name = testStore.Name;
-        }
+        private readonly string _connectionString = testStore.ConnectionString;
+        private readonly string _name = testStore.Name;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())

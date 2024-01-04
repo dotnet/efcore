@@ -8,97 +8,57 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqliteModelBuilderGenericTest : SqliteModelBuilderTestBase
 {
-    public class SqlServerGenericNonRelationship : SqliteNonRelationship
+    public class SqlServerGenericNonRelationship(SqliteModelBuilderFixture fixture) : SqliteNonRelationship(fixture)
     {
-        public SqlServerGenericNonRelationship(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericComplexType : SqliteComplexType
+    public class SqlServerGenericComplexType(SqliteModelBuilderFixture fixture) : SqliteComplexType(fixture)
     {
-        public SqlServerGenericComplexType(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericInheritance : SqliteInheritance
+    public class SqlServerGenericInheritance(SqliteModelBuilderFixture fixture) : SqliteInheritance(fixture)
     {
-        public SqlServerGenericInheritance(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericOneToMany : SqliteOneToMany
+    public class SqlServerGenericOneToMany(SqliteModelBuilderFixture fixture) : SqliteOneToMany(fixture)
     {
-        public SqlServerGenericOneToMany(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericManyToOne : SqliteManyToOne
+    public class SqlServerGenericManyToOne(SqliteModelBuilderFixture fixture) : SqliteManyToOne(fixture)
     {
-        public SqlServerGenericManyToOne(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericOneToOne : SqliteOneToOne
+    public class SqlServerGenericOneToOne(SqliteModelBuilderFixture fixture) : SqliteOneToOne(fixture)
     {
-        public SqlServerGenericOneToOne(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericManyToMany : SqliteManyToMany
+    public class SqlServerGenericManyToMany(SqliteModelBuilderFixture fixture) : SqliteManyToMany(fixture)
     {
-        public SqlServerGenericManyToMany(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class SqlServerGenericOwnedTypes : SqliteOwnedTypes
+    public class SqlServerGenericOwnedTypes(SqliteModelBuilderFixture fixture) : SqliteOwnedTypes(fixture)
     {
-        public SqlServerGenericOwnedTypes(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTestModelBuilder(Fixture, configure);

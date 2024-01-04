@@ -10,72 +10,25 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqliteModelBuilderTestBase : RelationalModelBuilderTest
 {
-    public abstract class SqliteNonRelationship : RelationalNonRelationshipTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteNonRelationship(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteNonRelationship(SqliteModelBuilderFixture fixture) : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteComplexType : RelationalComplexTypeTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteComplexType(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteComplexType(SqliteModelBuilderFixture fixture) : RelationalComplexTypeTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteInheritance : RelationalInheritanceTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteInheritance(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteInheritance(SqliteModelBuilderFixture fixture) : RelationalInheritanceTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteOneToMany : RelationalOneToManyTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteOneToMany(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteOneToMany(SqliteModelBuilderFixture fixture) : RelationalOneToManyTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteManyToOne : RelationalManyToOneTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteManyToOne(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteManyToOne(SqliteModelBuilderFixture fixture) : RelationalManyToOneTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteOneToOne : RelationalOneToOneTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteOneToOne(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteOneToOne(SqliteModelBuilderFixture fixture) : RelationalOneToOneTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteManyToMany : RelationalManyToManyTestBase, IClassFixture<SqliteModelBuilderFixture>
-    {
-        public SqliteManyToMany(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqliteManyToMany(SqliteModelBuilderFixture fixture) : RelationalManyToManyTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>;
 
-    public abstract class SqliteOwnedTypes : RelationalOwnedTypesTestBase, IClassFixture<SqliteModelBuilderFixture>
+    public abstract class SqliteOwnedTypes(SqliteModelBuilderFixture fixture) : RelationalOwnedTypesTestBase(fixture), IClassFixture<SqliteModelBuilderFixture>
     {
         public override void Can_use_sproc_mapping_with_owned_reference()
-            => Assert.Equal(SqliteStrings.StoredProceduresNotSupported("Book.Label#BookLabel"), 
+            => Assert.Equal(SqliteStrings.StoredProceduresNotSupported("Book.Label#BookLabel"),
                 Assert.Throws<InvalidOperationException>(base.Can_use_sproc_mapping_with_owned_reference).Message);
-
-        public SqliteOwnedTypes(SqliteModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
     }
 
     public class SqliteModelBuilderFixture : RelationalModelBuilderFixture

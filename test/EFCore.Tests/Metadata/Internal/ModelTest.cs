@@ -298,9 +298,7 @@ public class ModelTest
         public ICollection<Order> Orders { get; set; }
     }
 
-    private class SpecialCustomer : Customer
-    {
-    }
+    private class SpecialCustomer : Customer;
 
     private class Order
     {

@@ -1886,21 +1886,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
         public TKey? Id { get; set; }
     }
 
-    protected class IntToString : WithConverter<int>
-    {
-    }
+    protected class IntToString : WithConverter<int>;
 
-    protected class GuidToString : WithConverter<Guid>
-    {
-    }
+    protected class GuidToString : WithConverter<Guid>;
 
-    protected class GuidToBytes : WithConverter<Guid>
-    {
-    }
+    protected class GuidToBytes : WithConverter<Guid>;
 
-    protected class ShortToBytes : WithConverter<short>
-    {
-    }
+    protected class ShortToBytes : WithConverter<short>;
 
     public class WrappedIntClass
     {

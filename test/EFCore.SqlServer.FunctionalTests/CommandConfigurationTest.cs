@@ -65,13 +65,8 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
         return matchQuery.Count();
     }
 
-    private class ChipsContext : PoolableDbContext
+    private class ChipsContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public ChipsContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<KettleChips> Chips { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

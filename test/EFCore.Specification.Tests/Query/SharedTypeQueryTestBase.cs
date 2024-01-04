@@ -24,13 +24,8 @@ public abstract class SharedTypeQueryTestBase : NonSharedModelTestBase
         Assert.Empty(result);
     }
 
-    protected class MyContext24601 : DbContext
+    protected class MyContext24601(DbContextOptions options) : DbContext(options)
     {
-        public MyContext24601(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public void Seed()
         {
             Set<Dictionary<string, object>>("STET").Add(new Dictionary<string, object> { ["Value"] = "Maumar" });

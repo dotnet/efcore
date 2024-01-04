@@ -144,19 +144,13 @@ public class ValueComparerTest
                 newSnapshotParam))!;
     }
 
-    private sealed class NonNullNullableValueComparer<T> : ValueComparer<T>
-    {
-        public NonNullNullableValueComparer(
-            LambdaExpression equalsExpression,
-            LambdaExpression hashCodeExpression,
-            LambdaExpression snapshotExpression)
-            : base(
-                (Expression<Func<T, T, bool>>)equalsExpression,
-                (Expression<Func<T, int>>)hashCodeExpression,
-                (Expression<Func<T, T>>)snapshotExpression)
-        {
-        }
-    }
+    private sealed class NonNullNullableValueComparer<T>(
+        LambdaExpression equalsExpression,
+        LambdaExpression hashCodeExpression,
+        LambdaExpression snapshotExpression) : ValueComparer<T>(
+            (Expression<Func<T, T, bool>>)equalsExpression,
+            (Expression<Func<T, int>>)hashCodeExpression,
+            (Expression<Func<T, T>>)snapshotExpression);
 
     private enum JustAnEnum : ushort
     {
@@ -536,16 +530,10 @@ public class ValueComparerTest
         Assert.Equal(value2, keyCopy);
     }
 
-    private class Binary
+    private class Binary(byte value0, byte value1)
     {
-        public Binary(byte value0, byte value1)
-        {
-            Value0 = value0;
-            Value1 = value1;
-        }
-
-        public byte Value0 { get; }
-        public byte Value1 { get; }
+        public byte Value0 { get; } = value0;
+        public byte Value1 { get; } = value1;
     }
 
     [ConditionalFact]
@@ -580,16 +568,10 @@ public class ValueComparerTest
         Assert.Equal(258, getKeyHashCode(value1a));
     }
 
-    private class DeepBinary
+    private class DeepBinary(byte[] value0, byte[] value1)
     {
-        public DeepBinary(byte[] value0, byte[] value1)
-        {
-            Value0 = value0;
-            Value1 = value1;
-        }
-
-        public byte[] Value0 { get; }
-        public byte[] Value1 { get; }
+        public byte[] Value0 { get; } = value0;
+        public byte[] Value1 { get; } = value1;
     }
 
     private static readonly MethodInfo _getValue0Method

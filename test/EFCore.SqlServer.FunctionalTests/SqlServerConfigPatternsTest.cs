@@ -55,13 +55,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -85,13 +80,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -121,13 +111,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -157,13 +142,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -225,13 +205,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -361,13 +336,8 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(DbContextOptions options) : DbContext(options)
         {
-            public NorthwindContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Customer> Customers { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -387,14 +357,9 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(string connectionString) : DbContext
         {
-            private readonly string _connectionString;
-
-            public NorthwindContext(string connectionString)
-            {
-                _connectionString = connectionString;
-            }
+            private readonly string _connectionString = connectionString;
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -436,14 +401,9 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(IServiceProvider serviceProvider) : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-
-            public NorthwindContext(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-            }
+            private readonly IServiceProvider _serviceProvider = serviceProvider;
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -469,14 +429,9 @@ public class SqlServerConfigPatternsTest
             Assert.IsType<SqlServerExecutionStrategy>(context.Database.CreateExecutionStrategy());
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(bool configured) : DbContext
         {
-            private readonly bool _azureConfigured;
-
-            public NorthwindContext(bool configured)
-            {
-                _azureConfigured = configured;
-            }
+            private readonly bool _azureConfigured = configured;
 
             public DbSet<Customer> Customers { get; set; }
 
@@ -516,14 +471,9 @@ public class SqlServerConfigPatternsTest
             }
         }
 
-        private class NorthwindContext : DbContext
+        private class NorthwindContext(bool azure) : DbContext
         {
-            private readonly bool _isAzure;
-
-            public NorthwindContext(bool azure)
-            {
-                _isAzure = azure;
-            }
+            private readonly bool _isAzure = azure;
 
             public DbSet<Customer> Customers { get; set; }
 

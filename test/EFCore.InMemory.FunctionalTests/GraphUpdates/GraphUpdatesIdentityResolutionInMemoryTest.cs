@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesIdentityResolutionInMemoryTest
-    : GraphUpdatesInMemoryTestBase<GraphUpdatesIdentityResolutionInMemoryTest.InMemoryIdentityResolutionFixture>
+public class GraphUpdatesIdentityResolutionInMemoryTest(GraphUpdatesIdentityResolutionInMemoryTest.InMemoryIdentityResolutionFixture fixture)
+    : GraphUpdatesInMemoryTestBase<GraphUpdatesIdentityResolutionInMemoryTest.InMemoryIdentityResolutionFixture>(fixture)
 {
-    public GraphUpdatesIdentityResolutionInMemoryTest(InMemoryIdentityResolutionFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public void Can_attach_full_required_graph_of_duplicates()
         => ExecuteWithStrategyInTransaction(

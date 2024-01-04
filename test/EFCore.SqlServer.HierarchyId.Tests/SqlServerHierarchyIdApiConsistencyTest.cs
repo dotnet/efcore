@@ -6,14 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerHierarchyIdApiConsistencyTest : ApiConsistencyTestBase<
-    SqlServerHierarchyIdApiConsistencyTest.SqlServerHierarchyIdApiConsistencyFixture>
+public class SqlServerHierarchyIdApiConsistencyTest(SqlServerHierarchyIdApiConsistencyTest.SqlServerHierarchyIdApiConsistencyFixture fixture) : ApiConsistencyTestBase<
+    SqlServerHierarchyIdApiConsistencyTest.SqlServerHierarchyIdApiConsistencyFixture>(fixture)
 {
-    public SqlServerHierarchyIdApiConsistencyTest(SqlServerHierarchyIdApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlServerHierarchyId();
 

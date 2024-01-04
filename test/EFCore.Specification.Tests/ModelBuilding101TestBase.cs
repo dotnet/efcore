@@ -32,16 +32,10 @@ public abstract partial class ModelBuilding101TestBase
     protected virtual ModelMetadata GetModelMetadata(Context101 context)
         => new(context.Model);
 
-    protected class ModelMetadata
+    protected class ModelMetadata(IModel model)
     {
-        public ModelMetadata(IModel model)
-        {
-            Model = model;
-            ModelDebugView = model.ToDebugString();
-        }
-
-        public virtual IModel Model { get; }
-        public virtual string ModelDebugView { get; }
+        public virtual IModel Model { get; } = model;
+        public virtual string ModelDebugView { get; } = model.ToDebugString();
 
         protected bool Equals(ModelMetadata other)
             => ModelDebugView == other.ModelDebugView;

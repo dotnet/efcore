@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class BuiltInDataTypesCosmosTest : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>
+public class BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture fixture) : BuiltInDataTypesTestBase<BuiltInDataTypesCosmosTest.BuiltInDataTypesCosmosFixture>(fixture)
 {
-    public BuiltInDataTypesCosmosTest(BuiltInDataTypesCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         => base.Can_filter_projection_with_inline_enum_variable(async);

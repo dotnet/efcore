@@ -37,17 +37,12 @@ public class SqlServerOptionsExtensionTest
     }
 
     [DbContext(typeof(EmptyContext))]
-    private class EmptyContextModel : RuntimeModel
+    private class EmptyContextModel(bool skipDetectChanges, Guid modelId, int entityTypeCount, int typeConfigurationCount) : RuntimeModel(skipDetectChanges, modelId, entityTypeCount, typeConfigurationCount)
     {
         static EmptyContextModel()
         {
             var model = new EmptyContextModel(false, Guid.NewGuid(), 0, 0);
             _instance = model;
-        }
-
-        public EmptyContextModel(bool skipDetectChanges, Guid modelId, int entityTypeCount, int typeConfigurationCount)
-            : base(skipDetectChanges, modelId, entityTypeCount, typeConfigurationCount)
-        {
         }
 
         private static readonly EmptyContextModel _instance;
@@ -66,19 +61,14 @@ public class SqlServerOptionsExtensionTest
         Assert.Contains(services, sd => sd.ServiceType == typeof(ISqlServerConnection));
     }
 
-    private class ChangedRowNumberContext : DbContext
+    private class ChangedRowNumberContext(bool setInternalServiceProvider) : DbContext
     {
         private static readonly IServiceProvider _serviceProvider
             = new ServiceCollection()
                 .AddEntityFrameworkSqlServer()
                 .BuildServiceProvider(validateScopes: true);
 
-        private readonly bool _setInternalServiceProvider;
-
-        public ChangedRowNumberContext(bool setInternalServiceProvider)
-        {
-            _setInternalServiceProvider = setInternalServiceProvider;
-        }
+        private readonly bool _setInternalServiceProvider = setInternalServiceProvider;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

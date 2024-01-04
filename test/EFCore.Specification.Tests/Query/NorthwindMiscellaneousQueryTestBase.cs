@@ -147,15 +147,10 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
         context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.TrackAll;
     }
 
-    protected class Repository<T>
+    protected class Repository<T>(NorthwindContext bloggingContext)
         where T : class
     {
-        private readonly NorthwindContext _context;
-
-        public Repository(NorthwindContext bloggingContext)
-        {
-            _context = bloggingContext;
-        }
+        private readonly NorthwindContext _context = bloggingContext;
 
         public IQueryable<T> Find()
             => _context.Set<T>();
@@ -5085,14 +5080,9 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             elementAsserter: (e, a) => Assert.Equal(e.CustomerID, a.CustomerID));
     }
 
-    private class Dto
+    private class Dto(string value)
     {
-        public Dto(string value)
-        {
-            Value = value;
-        }
-
-        public string Value { get; }
+        public string Value { get; } = value;
         public string CustomerID { get; set; }
         public Dto NestedDto { get; set; }
     }

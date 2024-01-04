@@ -320,14 +320,10 @@ public class CSharpHelperTest
 
     private static class Nested
     {
-        public class DoubleNested
-        {
-        }
+        public class DoubleNested;
     }
 
-    internal class NestedGeneric<T>
-    {
-    }
+    internal class NestedGeneric<T>;
 
     private enum SomeEnum
     {
@@ -828,14 +824,9 @@ public class CSharpHelperTest
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             new RelationalTypeMappingSourceDependencies(plugins));
 
-    private class TestTypeMappingPlugin<T> : IRelationalTypeMappingSourcePlugin
+    private class TestTypeMappingPlugin<T>(Func<T, Expression>? literalExpressionFunc) : IRelationalTypeMappingSourcePlugin
     {
-        private readonly Func<T, Expression>? _literalExpressionFunc;
-
-        public TestTypeMappingPlugin(Func<T, Expression>? literalExpressionFunc)
-        {
-            _literalExpressionFunc = literalExpressionFunc;
-        }
+        private readonly Func<T, Expression>? _literalExpressionFunc = literalExpressionFunc;
 
         public RelationalTypeMapping FindMapping(in RelationalTypeMappingInfo mappingInfo)
             => _literalExpressionFunc == null
@@ -843,16 +834,10 @@ public class CSharpHelperTest
                 : new SimpleTestTypeMapping<T>(_literalExpressionFunc);
     }
 
-    private class SimpleTestTypeMapping<T> : RelationalTypeMapping
+    private class SimpleTestTypeMapping<T>(
+        Func<T, Expression> literalExpressionFunc) : RelationalTypeMapping("storeType", typeof(SimpleTestType))
     {
-        private readonly Func<T, Expression> _literalExpressionFunc;
-
-        public SimpleTestTypeMapping(
-            Func<T, Expression> literalExpressionFunc)
-            : base("storeType", typeof(SimpleTestType))
-        {
-            _literalExpressionFunc = literalExpressionFunc;
-        }
+        private readonly Func<T, Expression> _literalExpressionFunc = literalExpressionFunc;
 
         public override Expression GenerateCodeLiteral(object value)
             => _literalExpressionFunc((T)value);
@@ -939,10 +924,6 @@ internal class SimpleTestTypeFactory
         => new SimpleTestType(arg1, arg2);
 }
 
-internal class Generic<T>
-{
-}
+internal class Generic<T>;
 
-internal class MultiGeneric<T1, T2>
-{
-}
+internal class MultiGeneric<T1, T2>;

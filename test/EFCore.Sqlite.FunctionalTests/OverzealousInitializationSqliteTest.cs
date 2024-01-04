@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OverzealousInitializationSqliteTest
-    : OverzealousInitializationTestBase<OverzealousInitializationSqliteTest.OverzealousInitializationSqliteFixture>
+public class OverzealousInitializationSqliteTest(OverzealousInitializationSqliteTest.OverzealousInitializationSqliteFixture fixture)
+    : OverzealousInitializationTestBase<OverzealousInitializationSqliteTest.OverzealousInitializationSqliteFixture>(fixture)
 {
-    public OverzealousInitializationSqliteTest(OverzealousInitializationSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class OverzealousInitializationSqliteFixture : OverzealousInitializationFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

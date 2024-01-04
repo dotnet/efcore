@@ -21,14 +21,9 @@ public abstract class QueryExpressionInterceptionSqliteTestBase : QueryExpressio
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
     }
 
-    public class QueryExpressionInterceptionSqliteTest
-        : QueryExpressionInterceptionSqliteTestBase, IClassFixture<QueryExpressionInterceptionSqliteTest.InterceptionSqliteFixture>
+    public class QueryExpressionInterceptionSqliteTest(QueryExpressionInterceptionSqliteTest.InterceptionSqliteFixture fixture)
+        : QueryExpressionInterceptionSqliteTestBase(fixture), IClassFixture<QueryExpressionInterceptionSqliteTest.InterceptionSqliteFixture>
     {
-        public QueryExpressionInterceptionSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override string StoreName
@@ -39,15 +34,10 @@ public abstract class QueryExpressionInterceptionSqliteTestBase : QueryExpressio
         }
     }
 
-    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest
-        : QueryExpressionInterceptionSqliteTestBase,
+    public class QueryExpressionInterceptionWithDiagnosticsSqliteTest(QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture fixture)
+        : QueryExpressionInterceptionSqliteTestBase(fixture),
             IClassFixture<QueryExpressionInterceptionWithDiagnosticsSqliteTest.InterceptionSqliteFixture>
     {
-        public QueryExpressionInterceptionWithDiagnosticsSqliteTest(InterceptionSqliteFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqliteFixture : InterceptionSqliteFixtureBase
         {
             protected override string StoreName

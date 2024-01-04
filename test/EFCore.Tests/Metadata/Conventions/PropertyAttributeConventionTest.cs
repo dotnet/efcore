@@ -904,9 +904,7 @@ public class PropertyAttributeConventionTest
         public int Number { get; set; }
     }
 
-    private class CompositeKeyDerivedEntity : BaseEntity
-    {
-    }
+    private class CompositeKeyDerivedEntity : BaseEntity;
 
     [PrimaryKey(nameof(Name))]
     private class BaseEntity2

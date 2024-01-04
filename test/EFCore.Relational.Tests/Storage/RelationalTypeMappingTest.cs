@@ -597,13 +597,8 @@ public abstract class RelationalTypeMappingTest
             context.Model.FindEntityType(typeof(Kiwi)).FindProperty("BananaId").GetTypeMapping());
     }
 
-    private class FruityContext : DbContext
+    private class FruityContext(DbContextOptions options) : DbContext(options)
     {
-        public FruityContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Banana> Bananas { get; set; }
         public DbSet<Kiwi> Kiwi { get; set; }
     }
@@ -618,13 +613,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Null(context.Model.FindEntityType(typeof(Kiwi)).FindProperty("Id").GetTypeMapping().Converter);
     }
 
-    private class MismatchedFruityContext : FruityContext
+    private class MismatchedFruityContext(DbContextOptions options) : FruityContext(options)
     {
-        public MismatchedFruityContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

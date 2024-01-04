@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingProxySqlServerTest
-    : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingProxySqlServerTest.ManyToManyTrackingProxySqlServerFixture>
+public class ManyToManyTrackingProxySqlServerTest(ManyToManyTrackingProxySqlServerTest.ManyToManyTrackingProxySqlServerFixture fixture)
+    : ManyToManyTrackingSqlServerTestBase<ManyToManyTrackingProxySqlServerTest.ManyToManyTrackingProxySqlServerFixture>(fixture)
 {
-    public ManyToManyTrackingProxySqlServerTest(ManyToManyTrackingProxySqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Dictionary<string, DeleteBehavior> CustomDeleteBehaviors { get; } = new()
     {
         { "EntityBranch.RootSkipShared", DeleteBehavior.ClientCascade },

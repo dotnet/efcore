@@ -38,13 +38,8 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
         Assert.Equal(10, authors[0].PostCount);
     }
 
-    protected class Context27629 : DbContext
+    protected class Context27629(DbContextOptions options) : DbContext(options)
     {
-        public Context27629(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Author> Authors
             => Set<Author>();
 

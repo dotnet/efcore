@@ -1989,14 +1989,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             => _id;
     }
 
-    protected class MyDiscriminator
+    protected class MyDiscriminator(int value)
     {
-        public MyDiscriminator(int value)
-        {
-            Value = value;
-        }
-
-        public int Value { get; }
+        public int Value { get; } = value;
 
         public override bool Equals(object obj)
             => throw new InvalidOperationException();
@@ -3186,9 +3181,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class HiddenAreaTask : TaskWithChoices
-    {
-    }
+    protected class HiddenAreaTask : TaskWithChoices;
 
     protected abstract class QuestTask : NotifyingEntity
     {
@@ -3201,9 +3194,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class QuizTask : TaskWithChoices
-    {
-    }
+    protected class QuizTask : TaskWithChoices;
 
     protected class TaskChoice : NotifyingEntity
     {
@@ -4379,9 +4370,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
-    protected class Beetroot2 : Parsnip2
-    {
-    }
+    protected class Beetroot2 : Parsnip2;
 
     protected class ParentEntity32084 : NotifyingEntity
     {

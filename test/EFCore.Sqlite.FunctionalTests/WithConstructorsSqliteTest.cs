@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class WithConstructorsSqliteTest : WithConstructorsTestBase<WithConstructorsSqliteTest.WithConstructorsSqliteFixture>
+public class WithConstructorsSqliteTest(WithConstructorsSqliteTest.WithConstructorsSqliteFixture fixture) : WithConstructorsTestBase<WithConstructorsSqliteTest.WithConstructorsSqliteFixture>(fixture)
 {
-    public WithConstructorsSqliteTest(WithConstructorsSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

@@ -7,14 +7,9 @@ using System.Transactions;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
+public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture fixture) : IClassFixture<MismatchedKeyTypesSqlServerTest.MismatchedKeyTypesSqlServerFixture>
 {
-    public MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    public MismatchedKeyTypesSqlServerFixture Fixture { get; }
+    public MismatchedKeyTypesSqlServerFixture Fixture { get; } = fixture;
 
     [ConditionalFact] // Issue #28392
     public virtual void Can_update_and_delete_with_bigint_FK_and_int_PK()
@@ -364,13 +359,8 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
             Assert.Throws<TargetInvocationException>(() => context.SaveChanges()).InnerException!.InnerException!.Message);
     }
 
-    protected class MismatchedKeyTypesContextNoFks : MismatchedKeyTypesContext
+    protected class MismatchedKeyTypesContextNoFks(MismatchedKeyTypesSqlServerFixture fixture) : MismatchedKeyTypesContext(fixture)
     {
-        public MismatchedKeyTypesContextNoFks(MismatchedKeyTypesSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PrincipalIntLong>(
@@ -449,14 +439,9 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
         }
     }
 
-    protected class MismatchedKeyTypesContext : DbContext
+    protected class MismatchedKeyTypesContext(MismatchedKeyTypesSqlServerFixture fixture) : DbContext
     {
-        public MismatchedKeyTypesContext(MismatchedKeyTypesSqlServerFixture fixture)
-        {
-            Fixture = fixture;
-        }
-
-        public MismatchedKeyTypesSqlServerFixture Fixture { get; }
+        public MismatchedKeyTypesSqlServerFixture Fixture { get; } = fixture;
 
         public DbSet<PrincipalIntLong> IntLongs
             => Set<PrincipalIntLong>();

@@ -11,13 +11,8 @@ public class SeedingSqlServerTest : SeedingTestBase
     protected override SeedingContext CreateContextWithEmptyDatabase(string testId)
         => new SeedingSqlServerContext(testId);
 
-    protected class SeedingSqlServerContext : SeedingContext
+    protected class SeedingSqlServerContext(string testId) : SeedingContext(testId)
     {
-        public SeedingSqlServerContext(string testId)
-            : base(testId)
-        {
-        }
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlServer(SqlServerTestStore.CreateConnectionString($"Seeds{TestId}"));
     }
