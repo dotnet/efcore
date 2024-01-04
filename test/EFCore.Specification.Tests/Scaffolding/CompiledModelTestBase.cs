@@ -1278,7 +1278,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             },
             onConfiguring,
             addServices);
-        var context = contextFactory.CreateContext();
+        using var context = contextFactory.CreateContext();
         var model = context.GetService<IDesignTimeModel>().Model;
 
         options ??= new CompiledModelCodeGenerationOptions();

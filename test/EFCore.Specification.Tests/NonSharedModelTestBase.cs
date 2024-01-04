@@ -39,6 +39,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
         Func<IServiceCollection, IServiceCollection> addServices = null,
+        Action<ModelConfigurationBuilder> configureConventions = null,
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
@@ -47,7 +48,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         where TContext : DbContext
     {
         var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
+            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
 
         TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
 
@@ -60,6 +61,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
         Func<IServiceCollection, IServiceCollection> addServices = null,
+        Action<ModelConfigurationBuilder> configureConventions = null,
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
@@ -68,7 +70,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         where TContext : DbContext
     {
         var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
+            onModelCreating, onConfiguring, addServices, configureConventions, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
 
         TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
 
@@ -81,6 +83,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Action<ModelBuilder> onModelCreating = null,
         Action<DbContextOptionsBuilder> onConfiguring = null,
         Func<IServiceCollection, IServiceCollection> addServices = null,
+        Action<ModelConfigurationBuilder> configureConventions = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
         bool usePooling = true,
@@ -97,7 +100,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
 
         if (onModelCreating != null)
         {
-            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating));
+            services = services.AddSingleton(TestModelSource.GetFactory(onModelCreating, configureConventions));
         }
 
         addServices?.Invoke(services);

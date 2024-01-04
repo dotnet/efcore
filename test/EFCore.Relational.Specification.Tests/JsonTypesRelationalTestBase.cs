@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class JsonTypesRelationalTestBase : JsonTypesTestBase
+public abstract class JsonTypesRelationalTestBase : JsonTypesTestBase
 {
     [ConditionalTheory]
     [InlineData(null)]

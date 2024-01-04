@@ -62,6 +62,14 @@ public abstract class JsonTypesSqlServerTestBase : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_ASCII_string_JSON_values(object? storeType)
         => base.Can_read_write_collection_of_ASCII_string_JSON_values("varchar(max)");
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => base.OnConfiguring(optionsBuilder.UseSqlServer(b => b.UseNetTopologySuite()));
+
+    protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+
+    protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+    {
+        builder = base.AddOptions(builder)
+            .ConfigureWarnings(w => w.Ignore(SqlServerEventId.DecimalTypeDefaultWarning));
+        new SqlServerDbContextOptionsBuilder(builder).UseNetTopologySuite();
+        return builder;
+    }
 }
