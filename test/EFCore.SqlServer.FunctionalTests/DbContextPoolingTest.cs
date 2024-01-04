@@ -2082,7 +2082,11 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         await results;
 
         Assert.Equal(_requests, PooledContext.DisposedCount);
-        Assert.InRange(PooledContext.InstanceCount, low: 32, high: 64);
+
+        // If all 32 tasks above run fully sequentially (very unlikely) then the pool count will be 1.
+        // The upper limit is unbounded because multiple tests use the same pool.
+        // This means this check could fail even if pooling is being used, but that's very unlikely.
+        Assert.True(PooledContext.InstanceCount > 4);
     }
 
     private readonly TimeSpan _duration = TimeSpan.FromSeconds(value: 10);
