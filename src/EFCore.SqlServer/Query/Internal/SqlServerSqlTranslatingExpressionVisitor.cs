@@ -20,9 +20,6 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     private readonly SqlServerQueryCompilationContext _queryCompilationContext;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
-    private static readonly bool UseOldBehavior32432 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32432", out var enabled32432) && enabled32432;
-
     private static readonly HashSet<string> DateTimeDataTypes
         = new()
         {
@@ -282,10 +279,8 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
                             Expression.Constant(methodType)),
                         QueryCompilationContext.QueryContextParameter);
 
-                    var escapedPatternParameter = UseOldBehavior32432
-                        ? _queryCompilationContext.RegisterRuntimeParameter(
-                            $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda)
-                        : _queryCompilationContext.RegisterRuntimeParameter(
+                    var escapedPatternParameter =
+                        _queryCompilationContext.RegisterRuntimeParameter(
                             $"{patternParameter.Name}_{methodType.ToString().ToLower(CultureInfo.InvariantCulture)}", lambda);
 
                     translation = _sqlExpressionFactory.Like(

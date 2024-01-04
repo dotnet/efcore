@@ -10,9 +10,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class SqlExpressionFactory : ISqlExpressionFactory
 {
-    private static readonly bool UseOldBehavior32325 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32325", out var enabled32325) && enabled32325;
-
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly RelationalTypeMapping _boolTypeMapping;
 

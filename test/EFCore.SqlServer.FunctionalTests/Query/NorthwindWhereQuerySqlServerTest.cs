@@ -3286,49 +3286,6 @@ WHERE [c].[CustomerID] = N'ALF' + N'KI'
         AssertSql();
     }
 
-    public override async Task EF_Constant(bool async)
-    {
-        await base.EF_Constant(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
-""");
-    }
-
-    public override async Task EF_Constant_with_subtree(bool async)
-    {
-        await base.EF_Constant_with_subtree(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
-""");
-    }
-
-    public override async Task EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(bool async)
-    {
-        await base.EF_Constant_does_not_parameterized_as_part_of_bigger_subtree(async);
-
-        AssertSql(
-            """
-SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALF' + N'KI'
-""");
-    }
-
-    public override async Task EF_Constant_with_non_evaluatable_argument_throws(bool async)
-    {
-        await base.EF_Constant_with_non_evaluatable_argument_throws(async);
-
-        AssertSql();
-    }
-
     public override async Task EF_Parameter(bool async)
     {
         await base.EF_Parameter(async);

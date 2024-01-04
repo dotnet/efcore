@@ -15,15 +15,6 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 {
-    private static readonly bool UseOldBehavior32217 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32217", out var enabled32217) && enabled32217;
-
-    private static readonly bool UseOldBehavior32312 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32312", out var enabled32312) && enabled32312;
-
-    private static readonly bool UseOldBehavior32331 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32331", out var enabled32331) && enabled32331;
-
     private static readonly PropertyInfo QueryContextContextPropertyInfo
         = typeof(QueryContext).GetTypeInfo().GetDeclaredProperty(nameof(QueryContext.Context))!;
 
@@ -942,10 +933,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         source = (NavigationExpansionExpression)_pendingSelectorExpandingExpressionVisitor.Visit(source);
         var queryable = Reduce(source);
 
-        if (!UseOldBehavior32217)
-        {
-            item = Visit(item);
-        }
+        item = Visit(item);
 
         return Expression.Call(QueryableMethods.Contains.MakeGenericMethod(queryable.Type.GetSequenceType()), queryable, item);
     }
@@ -990,10 +978,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo genericMethod,
         Expression count)
     {
-        if (!UseOldBehavior32312)
-        {
-            count = Visit(count);
-        }
+        count = Visit(count);
 
         source.UpdateSource(Expression.Call(genericMethod.MakeGenericMethod(source.SourceElementType), source.Source, count));
 
@@ -1033,10 +1018,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             source.ApplySelector(Expression.Convert(source.PendingSelector, returnType));
         }
 
-        if (!UseOldBehavior32312)
-        {
-            index = Visit(index);
-        }
+        index = Visit(index);
 
         source.ConvertToSingleResult(genericMethod, index);
 
@@ -1601,10 +1583,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         MethodInfo genericMethod,
         Expression count)
     {
-        if (!UseOldBehavior32312)
-        {
-            count = Visit(count);
-        }
+        count = Visit(count);
 
         groupBySource.UpdateSource(
             Expression.Call(genericMethod.MakeGenericMethod(groupBySource.SourceElementType), groupBySource.Source, count));

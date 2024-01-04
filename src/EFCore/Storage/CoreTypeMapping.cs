@@ -24,9 +24,6 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// </remarks>
 public abstract class CoreTypeMapping
 {
-    private static readonly bool UseOldBehavior32376 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32376", out var enabled32376) && enabled32376;
-
     /// <summary>
     ///     Parameter object for use in the <see cref="CoreTypeMapping" /> hierarchy.
     /// </summary>

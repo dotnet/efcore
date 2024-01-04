@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class InternalPropertyBuilder
     : InternalPropertyBaseBuilder<IConventionPropertyBuilder, Property>, IConventionPropertyBuilder
 {
-    internal static readonly bool UseOldBehavior32430 =
-    AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32430", out var enabled32430) && enabled32430;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

@@ -16,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 /// </summary>
 public class LazyLoader : ILazyLoader, IInjectableService
 {
-    private static readonly bool UseOldBehavior32390 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32390", out var enabled32390) && enabled32390;
-
     private QueryTrackingBehavior? _queryTrackingBehavior;
     private bool _disposed;
     private bool _detached;
@@ -194,9 +191,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 && string.Equals(x.NavigationName, y.NavigationName, StringComparison.Ordinal);
 
         public int GetHashCode((object Entity, string NavigationName) obj)
-            => UseOldBehavior32390
-                ? HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode())
-                : HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
+            => HashCode.Combine(RuntimeHelpers.GetHashCode(obj.Entity), obj.NavigationName.GetHashCode());
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

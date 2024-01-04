@@ -25,9 +25,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
     private RelationalTypeMapping? _nvarcharMaxTypeMapping;
 
-    private static readonly bool UseOldBehavior32374 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32374", out var enabled32374) && enabled32374;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

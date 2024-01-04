@@ -486,12 +486,6 @@
   <data name="EFParameterInvoked" xml:space="preserve">
     <value>The EF.Parameter&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
   </data>
-  <data name="EFConstantInvoked" xml:space="preserve">
-    <value>The EF.Constant&lt;T&gt; method may only be used within Entity Framework LINQ queries.</value>
-  </data>
-  <data name="EFConstantWithNonEvaluableArgument" xml:space="preserve">
-    <value>The EF.Constant&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.</value>
-  </data>
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.</value>
   </data>
