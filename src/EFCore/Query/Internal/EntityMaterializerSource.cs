@@ -295,7 +295,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         if (bindingInfo.StructuralType is IEntityType)
         {
-            AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
+            // TODO: bindingInfo is used as a constant, needs to be liftable
+            //AddAttachServiceExpressions(bindingInfo, instanceVariable, blockExpressions);
         }
 
         blockExpressions.Add(instanceVariable);
