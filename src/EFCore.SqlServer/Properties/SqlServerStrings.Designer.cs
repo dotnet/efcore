@@ -148,12 +148,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 key1, entityType1, key2, entityType2, table, keyName);
 
         /// <summary>
-        ///     This usage of Math.Min or Math.Max requires SQL Server functions LEAST and GREATEST, which require compatibility level 160.
-        /// </summary>
-        public static string LeastGreatestCompatibilityLevelTooLow
-            => GetString("LeastGreatestCompatibilityLevelTooLow");
-
-        /// <summary>
         ///     Identity value generation cannot be used for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Identity value generation can only be used with signed integer properties.
         /// </summary>
         public static string IdentityBadType(object? property, object? entityType, object? propertyType)
@@ -228,6 +222,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("JsonValuePathExpressionsNotSupported", nameof(compatibilityLevel)),
                 compatibilityLevel);
+
+        /// <summary>
+        ///     This usage of Math.Min or Math.Max requires SQL Server functions LEAST and GREATEST, which require compatibility level 160.
+        /// </summary>
+        public static string LeastGreatestCompatibilityLevelTooLow
+            => GetString("LeastGreatestCompatibilityLevelTooLow");
 
         /// <summary>
         ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.

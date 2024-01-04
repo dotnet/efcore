@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Resources;
 using System.Threading;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -627,8 +626,8 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         ///     The property '{entityType}.{property}' participates in several relationship chains that have conflicting conversions: '{valueConversion}' and '{conflictingValueConversion}'.
         /// </summary>
         public static string ConflictingRelationshipConversions(object? entityType, object? property, object? valueConversion, object? conflictingValueConversion)
-        => string.Format(
-            GetString("ConflictingRelationshipConversions", nameof(entityType), nameof(property), nameof(valueConversion), nameof(conflictingValueConversion)),
+            => string.Format(
+                GetString("ConflictingRelationshipConversions", nameof(entityType), nameof(property), nameof(valueConversion), nameof(conflictingValueConversion)),
                 entityType, property, valueConversion, conflictingValueConversion);
 
         /// <summary>
@@ -990,12 +989,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string EFParameterInvoked
             => GetString("EFParameterInvoked");
-
-        /// <summary>
-        ///     The EF.Parameter&lt;T&gt; method may only be used with an argument that can be evaluated client-side and does not contain any reference to database-side entities.
-        /// </summary>
-        public static string EFParameterWithNonEvaluableArgument
-            => GetString("EFParameterWithNonEvaluableArgument");
 
         /// <summary>
         ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
@@ -4205,11 +4198,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition<string> LogNoEntityTypeConfigurationsWarning(IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).NoEntityTypeConfigurationsWarning;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogNoEntityTypeConfigurationsWarning;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).NoEntityTypeConfigurationsWarning,
+                    ref ((LoggingDefinitions)logger.Definitions).LogNoEntityTypeConfigurationsWarning,
                     logger,
                     static logger => new EventDefinition<string>(
                         logger.Options,
@@ -4955,11 +4948,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         /// </summary>
         public static EventDefinition<string> LogSkippedEntityTypeConfigurationWarning(IDiagnosticsLogger logger)
         {
-            var definition = ((LoggingDefinitions)logger.Definitions).SkippedEntityTypeConfigurationWarning;
+            var definition = ((LoggingDefinitions)logger.Definitions).LogSkippedEntityTypeConfigurationWarning;
             if (definition == null)
             {
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
-                    ref ((LoggingDefinitions)logger.Definitions).SkippedEntityTypeConfigurationWarning,
+                    ref ((LoggingDefinitions)logger.Definitions).LogSkippedEntityTypeConfigurationWarning,
                     logger,
                     static logger => new EventDefinition<string>(
                         logger.Options,
