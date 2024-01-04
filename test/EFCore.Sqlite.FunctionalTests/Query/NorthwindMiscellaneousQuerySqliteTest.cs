@@ -438,6 +438,19 @@ FROM "Orders" AS "o"
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
 
+    public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
+    {
+#if DEBUG
+        // GroupBy debug assert. Issue #26104.
+        Assert.StartsWith(
+            "Missing alias in the list",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_Contains_with_projection_and_ordering(async))).Message);
+#else
+        await base.Parameter_collection_Contains_with_projection_and_ordering(async);
+#endif
+    }
+
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(

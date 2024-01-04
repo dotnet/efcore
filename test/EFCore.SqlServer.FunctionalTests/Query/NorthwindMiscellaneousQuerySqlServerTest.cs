@@ -7361,6 +7361,47 @@ WHERE (
 """);
     }
 
+    public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
+    {
+#if DEBUG
+        // GroupBy debug assert. Issue #26104.
+        Assert.StartsWith(
+            "Missing alias in the list",
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Parameter_collection_Contains_with_projection_and_ordering(async))).Message);
+#else
+        await base.Parameter_collection_Contains_with_projection_and_ordering(async);
+
+        AssertSql(
+            """
+@__ids_0='[10248,10249]' (Size = 4000)
+
+SELECT [o].[Quantity] AS [Key], (
+    SELECT MAX([o3].[OrderDate])
+    FROM [Order Details] AS [o2]
+    INNER JOIN [Orders] AS [o3] ON [o2].[OrderID] = [o3].[OrderID]
+    WHERE [o2].[OrderID] IN (
+        SELECT [i1].[value]
+        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i1]
+    ) AND [o].[Quantity] = [o2].[Quantity]) AS [MaxTimestamp]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] IN (
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
+)
+GROUP BY [o].[Quantity]
+ORDER BY (
+    SELECT MAX([o3].[OrderDate])
+    FROM [Order Details] AS [o2]
+    INNER JOIN [Orders] AS [o3] ON [o2].[OrderID] = [o3].[OrderID]
+    WHERE [o2].[OrderID] IN (
+        SELECT [i0].[value]
+        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i0]
+    ) AND [o].[Quantity] = [o2].[Quantity])
+""");
+#endif
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
