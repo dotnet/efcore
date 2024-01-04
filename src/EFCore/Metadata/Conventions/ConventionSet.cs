@@ -950,6 +950,12 @@ public class ConventionSet
         {
             ElementTypeAnnotationChangedConventions.Add(elementTypeAnnotationChangedConvention);
         }
+
+        if (!ElementTypeChangedConvention.UseOldBehavior32411
+            && convention is IPropertyElementTypeChangedConvention elementTypeChangedConvention)
+        {
+            PropertyElementTypeChangedConventions.Add(elementTypeChangedConvention);
+        }
     }
 
     /// <summary>

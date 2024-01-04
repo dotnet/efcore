@@ -28,6 +28,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     private IDictionary<Expression, bool> _evaluatableExpressions;
     private IQueryProvider? _currentQueryProvider;
 
+    private static readonly bool UseOldBehavior31552 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31552", out var enabled31552) && enabled31552;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
