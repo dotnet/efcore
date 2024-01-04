@@ -225,8 +225,39 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         // Handle some special cases
         switch (binary.NodeType)
         {
+            // TODO: Confirm what to do with the checked expression types
+
             case ExpressionType.Assign:
-                return VisitAssignment(binary);
+                return VisitAssignment(binary, SyntaxKind.SimpleAssignmentExpression);
+
+            case ExpressionType.AddAssign:
+                return VisitAssignment(binary, SyntaxKind.AddAssignmentExpression);
+            case ExpressionType.AddAssignChecked:
+                return VisitAssignment(binary, SyntaxKind.AddAssignmentExpression);
+            case ExpressionType.MultiplyAssign:
+                return VisitAssignment(binary, SyntaxKind.MultiplyAssignmentExpression);
+            case ExpressionType.MultiplyAssignChecked:
+                return VisitAssignment(binary, SyntaxKind.MultiplyAssignmentExpression);
+            case ExpressionType.DivideAssign:
+                return VisitAssignment(binary, SyntaxKind.DivideAssignmentExpression);
+            case ExpressionType.ModuloAssign:
+                return VisitAssignment(binary, SyntaxKind.ModuloAssignmentExpression);
+            case ExpressionType.SubtractAssign:
+                return VisitAssignment(binary, SyntaxKind.SubtractAssignmentExpression);
+            case ExpressionType.SubtractAssignChecked:
+                return VisitAssignment(binary, SyntaxKind.SubtractAssignmentExpression);
+
+            // Bitwise assignment operators
+            case ExpressionType.AndAssign:
+                return VisitAssignment(binary, SyntaxKind.AndAssignmentExpression);
+            case ExpressionType.OrAssign:
+                return VisitAssignment(binary, SyntaxKind.OrAssignmentExpression);
+            case ExpressionType.LeftShiftAssign:
+                return VisitAssignment(binary, SyntaxKind.LeftShiftAssignmentExpression);
+            case ExpressionType.RightShiftAssign:
+                return VisitAssignment(binary, SyntaxKind.RightShiftAssignmentExpression);
+            case ExpressionType.ExclusiveOrAssign:
+                return VisitAssignment(binary, SyntaxKind.ExclusiveOrAssignmentExpression);
 
             case ExpressionType.Power when binary.Left.Type == typeof(double) && binary.Right.Type == typeof(double):
                 return Visit(
@@ -290,14 +321,6 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             ExpressionType.MultiplyChecked => SyntaxKind.MultiplyExpression,
             ExpressionType.Divide => SyntaxKind.DivideExpression,
             ExpressionType.Modulo => SyntaxKind.ModuloExpression,
-            ExpressionType.AddAssign => SyntaxKind.AddAssignmentExpression,
-            ExpressionType.AddAssignChecked => SyntaxKind.AddAssignmentExpression,
-            ExpressionType.SubtractAssign => SyntaxKind.SubtractAssignmentExpression,
-            ExpressionType.SubtractAssignChecked => SyntaxKind.SubtractAssignmentExpression,
-            ExpressionType.MultiplyAssign => SyntaxKind.MultiplyAssignmentExpression,
-            ExpressionType.MultiplyAssignChecked => SyntaxKind.MultiplyAssignmentExpression,
-            ExpressionType.DivideAssign => SyntaxKind.DivideAssignmentExpression,
-            ExpressionType.ModuloAssign => SyntaxKind.ModuloAssignmentExpression,
 
             ExpressionType.GreaterThan => SyntaxKind.GreaterThanExpression,
             ExpressionType.GreaterThanOrEqual => SyntaxKind.GreaterThanOrEqualExpression,
@@ -315,9 +338,6 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             ExpressionType.LeftShift => SyntaxKind.LeftShiftExpression,
             ExpressionType.RightShift => SyntaxKind.RightShiftExpression,
             // TODO UnsignedRightShiftExpression
-            ExpressionType.ExclusiveOrAssign => SyntaxKind.ExclusiveOrAssignmentExpression,
-            ExpressionType.LeftShiftAssign => SyntaxKind.LeftShiftAssignmentExpression,
-            ExpressionType.RightShiftAssign => SyntaxKind.RightShiftAssignmentExpression,
 
             ExpressionType.TypeIs => SyntaxKind.IsExpression,
             ExpressionType.TypeAs => SyntaxKind.AsExpression,
@@ -330,7 +350,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
         return binary;
 
-        Expression VisitAssignment(BinaryExpression assignment)
+        Expression VisitAssignment(BinaryExpression assignment, SyntaxKind kind)
         {
             var translatedLeft = Translate<ExpressionSyntax>(assignment.Left);
 
@@ -351,7 +371,30 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     ArgumentList.Arguments: [var lValue]
                 })
             {
+                // If we have a simple assignment, use the RHS directly (fieldInfo.SetValue(lValue, rValue)).
+                // For compound assignment operators, apply the appropriate operator (fieldInfo.setValue(lValue, rValue + lValue)
                 translatedRight = Translate<ExpressionSyntax>(assignment.Right);
+
+                if (kind != SyntaxKind.SimpleAssignmentExpression)
+                {
+                    var nonAssignmentOperator = kind switch
+                    {
+                        SyntaxKind.AddAssignmentExpression => SyntaxKind.AddExpression,
+                        SyntaxKind.MultiplyAssignmentExpression => SyntaxKind.MultiplyExpression,
+                        SyntaxKind.DivideAssignmentExpression => SyntaxKind.DivideExpression,
+                        SyntaxKind.ModuloAssignmentExpression => SyntaxKind.ModuloExpression,
+                        SyntaxKind.SubtractAssignmentExpression => SyntaxKind.SubtractExpression,
+                        SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
+                        SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
+                        SyntaxKind.LeftShiftAssignmentExpression => SyntaxKind.LeftShiftExpression,
+                        SyntaxKind.RightShiftAssignmentExpression => SyntaxKind.RightShiftExpression,
+                        SyntaxKind.ExclusiveOrAssignmentExpression => SyntaxKind.ExclusiveOrExpression,
+
+                        _ => throw new UnreachableException()
+                    };
+
+                    translatedRight = BinaryExpression(nonAssignmentOperator, translatedLeft, translatedRight);
+                }
 
                 Result = InvocationExpression(
                     MemberAccessExpression(
@@ -378,7 +421,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 }
                 else
                 {
-                    Result = AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, translatedLeft, translatedRight);
+                    Result = AssignmentExpression(kind, translatedLeft, translatedRight);
                 }
             }
 
