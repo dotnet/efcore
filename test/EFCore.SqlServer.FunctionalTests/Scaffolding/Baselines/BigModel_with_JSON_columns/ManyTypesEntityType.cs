@@ -106,6 +106,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<bool>(new JsonCollectionReaderWriter<bool[], bool[], bool>(
                     JsonBoolReaderWriter.Instance)),
@@ -148,6 +149,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(1)",
                     size: 1,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<bool, string>(
                     (bool v) => (string)(v ? "B" : "A"),
@@ -262,6 +264,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionReaderWriter<byte[][], byte[][], byte[]>(
                     JsonByteArrayReaderWriter.Instance)),
@@ -308,6 +311,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<byte[], string>(
                     (Byte[] v) => Convert.ToBase64String(v),
@@ -371,6 +375,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(1)",
                     size: 1,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<char, string>(
                     (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -403,6 +408,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<char>(new JsonCollectionReaderWriter<char[], char[], char>(
                     new JsonConvertedValueReaderWriter<char, string>(
@@ -433,6 +439,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(1)",
                         size: 1,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<char, string>(
                         (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -464,9 +471,11 @@ namespace TestNamespace
                     (string v) => v.GetHashCode(),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "nvarchar(1)",
+                    storeTypeName: "nchar(1)",
                     size: 1,
-                    dbType: System.Data.DbType.String),
+                    unicode: true,
+                    fixedLength: true,
+                    dbType: System.Data.DbType.StringFixedLength),
                 converter: new ValueConverter<char, string>(
                     (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
                     (string v) => v.Length < 1 ? '\0' : v[0]),
@@ -476,6 +485,7 @@ namespace TestNamespace
                         (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
                         (string v) => v.Length < 1 ? '\0' : v[0])));
             charToStringConverterProperty.SetSentinelFromProviderValue("\0");
+            charToStringConverterProperty.AddAnnotation("Relational:IsFixedLength", true);
             charToStringConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var dateOnly = runtimeEntityType.AddProperty(
@@ -519,6 +529,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<DateOnly>(new JsonCollectionReaderWriter<DateOnly[], DateOnly[], DateOnly>(
                     JsonDateOnlyReaderWriter.Instance)),
@@ -562,6 +573,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(10)",
                     size: 10,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<DateOnly, string>(
                     (DateOnly v) => v.ToString("yyyy\\-MM\\-dd"),
@@ -615,6 +627,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<DateTime>(new JsonCollectionReaderWriter<DateTime[], DateTime[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
@@ -721,6 +734,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(48)",
                     size: 48,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<DateTimeOffset, string>(
                     (DateTimeOffset v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFFzzz"),
@@ -785,6 +799,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(48)",
                     size: 48,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<DateTime, string>(
                     (DateTime v) => v.ToString("yyyy\\-MM\\-dd HH\\:mm\\:ss.FFFFFFF"),
@@ -859,6 +874,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<decimal>(new JsonCollectionReaderWriter<decimal[], decimal[], decimal>(
                     JsonDecimalReaderWriter.Instance)),
@@ -935,6 +951,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(64)",
                     size: 64,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<decimal, string>(
                     (decimal v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -988,6 +1005,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<double>(new JsonCollectionReaderWriter<double[], double[], double>(
                     JsonDoubleReaderWriter.Instance)),
@@ -1064,6 +1082,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(64)",
                     size: 64,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<double, string>(
                     (double v) => string.Format(CultureInfo.InvariantCulture, "{0:R}", (object)v),
@@ -1125,6 +1144,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -1183,6 +1203,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
                     (CompiledModelTestBase.Enum16 v) => v.ToString(),
@@ -1216,6 +1237,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16[], CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
@@ -1245,6 +1267,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
                         (CompiledModelTestBase.Enum16 v) => v.ToString(),
@@ -1277,6 +1300,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum16>, List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, string>(
@@ -1306,6 +1330,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum16, string>(
                         (CompiledModelTestBase.Enum16 v) => v.ToString(),
@@ -1338,6 +1363,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum16>, List<CompiledModelTestBase.Enum16>, CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -1424,6 +1450,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -1482,6 +1509,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
                     (CompiledModelTestBase.Enum32 v) => v.ToString(),
@@ -1515,6 +1543,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32[], CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
@@ -1544,6 +1573,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
                         (CompiledModelTestBase.Enum32 v) => v.ToString(),
@@ -1576,6 +1606,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum32>, List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, string>(
@@ -1605,6 +1636,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
                         (CompiledModelTestBase.Enum32 v) => v.ToString(),
@@ -1637,6 +1669,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum32>, List<CompiledModelTestBase.Enum32>, CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -1723,6 +1756,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -1781,6 +1815,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
                     (CompiledModelTestBase.Enum64 v) => v.ToString(),
@@ -1814,6 +1849,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64[], CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
@@ -1843,6 +1879,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
                         (CompiledModelTestBase.Enum64 v) => v.ToString(),
@@ -1875,6 +1912,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum64>, List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, string>(
@@ -1904,6 +1942,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum64, string>(
                         (CompiledModelTestBase.Enum64 v) => v.ToString(),
@@ -1936,6 +1975,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum64>, List<CompiledModelTestBase.Enum64>, CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -2022,6 +2062,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -2080,6 +2121,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
                     (CompiledModelTestBase.Enum8 v) => v.ToString(),
@@ -2113,6 +2155,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionReaderWriter<CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8[], CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
@@ -2142,6 +2185,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
                         (CompiledModelTestBase.Enum8 v) => v.ToString(),
@@ -2174,6 +2218,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum8>, List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, string>(
@@ -2203,6 +2248,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.Enum8, string>(
                         (CompiledModelTestBase.Enum8 v) => v.ToString(),
@@ -2235,6 +2281,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.Enum8>, List<CompiledModelTestBase.Enum8>, CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -2323,6 +2370,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.Enum32, string>(
                     (CompiledModelTestBase.Enum32 v) => v.ToString(),
@@ -2385,6 +2433,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -2443,6 +2492,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
                     (CompiledModelTestBase.EnumU16 v) => v.ToString(),
@@ -2476,6 +2526,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16[], CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
@@ -2505,6 +2556,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
                         (CompiledModelTestBase.EnumU16 v) => v.ToString(),
@@ -2537,6 +2589,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU16>, List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, string>(
@@ -2566,6 +2619,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU16, string>(
                         (CompiledModelTestBase.EnumU16 v) => v.ToString(),
@@ -2598,6 +2652,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU16>, List<CompiledModelTestBase.EnumU16>, CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -2684,6 +2739,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -2742,6 +2798,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
                     (CompiledModelTestBase.EnumU32 v) => v.ToString(),
@@ -2775,6 +2832,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32[], CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
@@ -2804,6 +2862,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
                         (CompiledModelTestBase.EnumU32 v) => v.ToString(),
@@ -2836,6 +2895,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU32>, List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, string>(
@@ -2865,6 +2925,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU32, string>(
                         (CompiledModelTestBase.EnumU32 v) => v.ToString(),
@@ -2897,6 +2958,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU32>, List<CompiledModelTestBase.EnumU32>, CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -2987,6 +3049,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -3049,6 +3112,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
                     (CompiledModelTestBase.EnumU64 v) => v.ToString(),
@@ -3082,6 +3146,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64[], CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
@@ -3111,6 +3176,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
                         (CompiledModelTestBase.EnumU64 v) => v.ToString(),
@@ -3143,6 +3209,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU64>, List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, string>(
@@ -3172,6 +3239,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU64, string>(
                         (CompiledModelTestBase.EnumU64 v) => v.ToString(),
@@ -3204,6 +3272,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU64>, List<CompiledModelTestBase.EnumU64>, CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -3294,6 +3363,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -3352,6 +3422,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
                     (CompiledModelTestBase.EnumU8 v) => v.ToString(),
@@ -3385,6 +3456,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionReaderWriter<CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8[], CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
@@ -3414,6 +3486,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
                         (CompiledModelTestBase.EnumU8 v) => v.ToString(),
@@ -3446,6 +3519,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU8>, List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, string>(
@@ -3475,6 +3549,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<CompiledModelTestBase.EnumU8, string>(
                         (CompiledModelTestBase.EnumU8 v) => v.ToString(),
@@ -3507,6 +3582,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8>(new JsonCollectionReaderWriter<List<CompiledModelTestBase.EnumU8>, List<CompiledModelTestBase.EnumU8>, CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -3585,6 +3661,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<float>(new JsonCollectionReaderWriter<float[], float[], float>(
                     JsonFloatReaderWriter.Instance)),
@@ -3649,6 +3726,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<Guid>(new JsonCollectionReaderWriter<Guid[], Guid[], Guid>(
                     JsonGuidReaderWriter.Instance)),
@@ -3727,6 +3805,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(36)",
                     size: 36,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<Guid, string>(
                     (Guid v) => v.ToString("D"),
@@ -3760,6 +3839,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(45)",
                     size: 45,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<IPAddress, string>(
                     (IPAddress v) => v.ToString(),
@@ -3791,6 +3871,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
@@ -3821,6 +3902,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
                         size: 45,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
                         (IPAddress v) => v.ToString(),
@@ -3886,6 +3968,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(45)",
                     size: 45,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<IPAddress, string>(
                     (IPAddress v) => v.ToString(),
@@ -3938,6 +4021,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<short>(new JsonCollectionReaderWriter<short[], short[], short>(
                     JsonInt16ReaderWriter.Instance)),
@@ -4000,6 +4084,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<int>(new JsonCollectionReaderWriter<int[], int[], int>(
                     JsonInt32ReaderWriter.Instance)),
@@ -4062,6 +4147,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<long>(new JsonCollectionReaderWriter<long[], long[], long>(
                     JsonInt64ReaderWriter.Instance)),
@@ -4132,6 +4218,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<sbyte>(new JsonCollectionReaderWriter<sbyte[], sbyte[], sbyte>(
                     new JsonConvertedValueReaderWriter<sbyte, short>(
@@ -4224,6 +4311,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(64)",
                     size: 64,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<int, string>(
                     (int v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -4258,6 +4346,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<int?, string>(
                     (Nullable<int> v) => v == null ? null : v.ToString(),
@@ -4313,6 +4402,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<bool?>(new JsonNullableStructCollectionReaderWriter<bool?[], bool?[], bool>(
                     JsonBoolReaderWriter.Instance)),
@@ -4378,6 +4468,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<byte[]>(new JsonCollectionReaderWriter<byte[][], byte[][], byte[]>(
                     JsonByteArrayReaderWriter.Instance)),
@@ -4424,6 +4515,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(1)",
                     size: 1,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<char, string>(
                     (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -4455,6 +4547,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<char?>(new JsonNullableStructCollectionReaderWriter<char?[], char?[], char>(
                     new JsonConvertedValueReaderWriter<char, string>(
@@ -4485,6 +4578,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(1)",
                         size: 1,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<char, string>(
                         (char v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)v),
@@ -4537,6 +4631,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<DateOnly?>(new JsonNullableStructCollectionReaderWriter<DateOnly?[], DateOnly?[], DateOnly>(
                     JsonDateOnlyReaderWriter.Instance)),
@@ -4599,6 +4694,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<DateTime?>(new JsonNullableStructCollectionReaderWriter<DateTime?[], DateTime?[], DateTime>(
                     JsonDateTimeReaderWriter.Instance)),
@@ -4661,6 +4757,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<decimal?>(new JsonNullableStructCollectionReaderWriter<decimal?[], decimal?[], decimal>(
                     JsonDecimalReaderWriter.Instance)),
@@ -4723,6 +4820,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<double?>(new JsonNullableStructCollectionReaderWriter<double?[], double?[], double>(
                     JsonDoubleReaderWriter.Instance)),
@@ -4793,6 +4891,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -4879,6 +4978,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16?[], CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -4936,6 +5036,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum16?>, List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -4993,6 +5094,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum16?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum16?>, List<CompiledModelTestBase.Enum16?>, CompiledModelTestBase.Enum16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum16, short>(
@@ -5079,6 +5181,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -5165,6 +5268,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32?[], CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -5222,6 +5326,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum32?>, List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -5279,6 +5384,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum32?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum32?>, List<CompiledModelTestBase.Enum32?>, CompiledModelTestBase.Enum32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum32, int>(
@@ -5365,6 +5471,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -5451,6 +5558,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64?[], CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -5508,6 +5616,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum64?>, List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -5565,6 +5674,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum64?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum64?>, List<CompiledModelTestBase.Enum64?>, CompiledModelTestBase.Enum64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum64, long>(
@@ -5651,6 +5761,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -5737,6 +5848,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8?[], CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -5794,6 +5906,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum8?>, List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -5851,6 +5964,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.Enum8?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.Enum8?>, List<CompiledModelTestBase.Enum8?>, CompiledModelTestBase.Enum8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.Enum8, short>(
@@ -5937,6 +6051,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -6023,6 +6138,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16?[], CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -6080,6 +6196,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU16?>, List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -6137,6 +6254,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU16?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU16?>, List<CompiledModelTestBase.EnumU16?>, CompiledModelTestBase.EnumU16>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU16, int>(
@@ -6223,6 +6341,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -6309,6 +6428,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32?[], CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -6366,6 +6486,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU32?>, List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -6423,6 +6544,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU32?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU32?>, List<CompiledModelTestBase.EnumU32?>, CompiledModelTestBase.EnumU32>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU32, long>(
@@ -6513,6 +6635,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -6607,6 +6730,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64?[], CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -6668,6 +6792,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU64?>, List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -6729,6 +6854,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU64?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU64?>, List<CompiledModelTestBase.EnumU64?>, CompiledModelTestBase.EnumU64>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU64, decimal>(
@@ -6819,6 +6945,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -6905,6 +7032,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonNullableStructCollectionReaderWriter<CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8?[], CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -6962,6 +7090,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU8?>, List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -7019,6 +7148,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<CompiledModelTestBase.EnumU8?>(new JsonNullableStructCollectionReaderWriter<List<CompiledModelTestBase.EnumU8?>, List<CompiledModelTestBase.EnumU8?>, CompiledModelTestBase.EnumU8>(
                     new JsonConvertedValueReaderWriter<CompiledModelTestBase.EnumU8, byte>(
@@ -7097,6 +7227,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<float?>(new JsonNullableStructCollectionReaderWriter<float?[], float?[], float>(
                     JsonFloatReaderWriter.Instance)),
@@ -7161,6 +7292,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<Guid?>(new JsonNullableStructCollectionReaderWriter<Guid?[], Guid?[], Guid>(
                     JsonGuidReaderWriter.Instance)),
@@ -7206,6 +7338,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(45)",
                     size: 45,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<IPAddress, string>(
                     (IPAddress v) => v.ToString(),
@@ -7237,6 +7370,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<IPAddress>(new JsonCollectionReaderWriter<IPAddress[], IPAddress[], IPAddress>(
                     new JsonConvertedValueReaderWriter<IPAddress, string>(
@@ -7267,6 +7401,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(45)",
                         size: 45,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<IPAddress, string>(
                         (IPAddress v) => v.ToString(),
@@ -7319,6 +7454,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<short?>(new JsonNullableStructCollectionReaderWriter<short?[], short?[], short>(
                     JsonInt16ReaderWriter.Instance)),
@@ -7381,6 +7517,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<int?>(new JsonNullableStructCollectionReaderWriter<int?[], int?[], int>(
                     JsonInt32ReaderWriter.Instance)),
@@ -7443,6 +7580,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<long?>(new JsonNullableStructCollectionReaderWriter<long?[], long?[], long>(
                     JsonInt64ReaderWriter.Instance)),
@@ -7513,6 +7651,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<sbyte?>(new JsonNullableStructCollectionReaderWriter<sbyte?[], sbyte?[], sbyte>(
                     new JsonConvertedValueReaderWriter<sbyte, short>(
@@ -7572,6 +7711,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(20)",
                     size: 20,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<PhysicalAddress, string>(
                     (PhysicalAddress v) => v.ToString(),
@@ -7603,6 +7743,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionReaderWriter<PhysicalAddress[], PhysicalAddress[], PhysicalAddress>(
                     new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
@@ -7633,6 +7774,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(20)",
                         size: 20,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<PhysicalAddress, string>(
                         (PhysicalAddress v) => v.ToString(),
@@ -7665,6 +7807,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             nullableString.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -7689,6 +7832,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<string[], string[], string>(
                     JsonStringReaderWriter.Instance)),
@@ -7710,6 +7854,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             nullableStringArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -7755,6 +7900,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<TimeOnly?>(new JsonNullableStructCollectionReaderWriter<TimeOnly?[], TimeOnly?[], TimeOnly>(
                     JsonTimeOnlyReaderWriter.Instance)),
@@ -7817,6 +7963,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<TimeSpan?>(new JsonNullableStructCollectionReaderWriter<TimeSpan?[], TimeSpan?[], TimeSpan>(
                     JsonTimeSpanReaderWriter.Instance)),
@@ -7887,6 +8034,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<ushort?>(new JsonNullableStructCollectionReaderWriter<ushort?[], ushort?[], ushort>(
                     new JsonConvertedValueReaderWriter<ushort, int>(
@@ -7973,6 +8121,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<uint?>(new JsonNullableStructCollectionReaderWriter<uint?[], uint?[], uint>(
                     new JsonConvertedValueReaderWriter<uint, long>(
@@ -8063,6 +8212,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<ulong?>(new JsonNullableStructCollectionReaderWriter<ulong?[], ulong?[], ulong>(
                     new JsonConvertedValueReaderWriter<ulong, decimal>(
@@ -8145,6 +8295,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<byte?>(new JsonNullableStructCollectionReaderWriter<byte?[], byte?[], byte>(
                     JsonByteReaderWriter.Instance)),
@@ -8187,6 +8338,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<Uri, string>(
                     (Uri v) => v.ToString(),
@@ -8219,6 +8371,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionReaderWriter<Uri[], Uri[], Uri>(
                     new JsonConvertedValueReaderWriter<Uri, string>(
@@ -8248,6 +8401,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<Uri, string>(
                         (Uri v) => v.ToString(),
@@ -8281,6 +8435,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(20)",
                     size: 20,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<PhysicalAddress, string>(
                     (PhysicalAddress v) => v.ToString(),
@@ -8312,6 +8467,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<PhysicalAddress>(new JsonCollectionReaderWriter<PhysicalAddress[], PhysicalAddress[], PhysicalAddress>(
                     new JsonConvertedValueReaderWriter<PhysicalAddress, string>(
@@ -8342,6 +8498,7 @@ namespace TestNamespace
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(20)",
                         size: 20,
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<PhysicalAddress, string>(
                         (PhysicalAddress v) => v.ToString(),
@@ -8407,6 +8564,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(20)",
                     size: 20,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<PhysicalAddress, string>(
                     (PhysicalAddress v) => v.ToString(),
@@ -8438,6 +8596,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             @string.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -8462,6 +8621,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<string>(new JsonCollectionReaderWriter<string[], string[], string>(
                     JsonStringReaderWriter.Instance)),
@@ -8483,6 +8643,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     storeTypePostfix: StoreTypePostfix.None));
             stringArray.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -8570,6 +8731,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(1)",
                     size: 1,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<string, string>(
                     (string v) => string.Format(CultureInfo.InvariantCulture, "{0}", (object)(v.Length < 1 ? '\0' : v[0])),
@@ -8785,6 +8947,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             stringToGuidConverterProperty.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -8903,6 +9066,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<string, string>(
                     (string v) => new Uri(v, UriKind.RelativeOrAbsolute).ToString(),
@@ -8956,6 +9120,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<TimeOnly>(new JsonCollectionReaderWriter<TimeOnly[], TimeOnly[], TimeOnly>(
                     JsonTimeOnlyReaderWriter.Instance)),
@@ -8999,6 +9164,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(48)",
                     size: 48,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<TimeOnly, string>(
                     (TimeOnly v) => v.Ticks % 10000000L == 0L ? string.Format(CultureInfo.InvariantCulture, "{0:HH\\:mm\\:ss}", (object)v) : v.ToString("o"),
@@ -9082,6 +9248,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<TimeSpan>(new JsonCollectionReaderWriter<TimeSpan[], TimeSpan[], TimeSpan>(
                     JsonTimeSpanReaderWriter.Instance)),
@@ -9125,6 +9292,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(48)",
                     size: 48,
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<TimeSpan, string>(
                     (TimeSpan v) => v.ToString("c"),
@@ -9216,6 +9384,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<ushort>(new JsonCollectionReaderWriter<ushort[], ushort[], ushort>(
                     new JsonConvertedValueReaderWriter<ushort, int>(
@@ -9302,6 +9471,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<uint>(new JsonCollectionReaderWriter<uint[], uint[], uint>(
                     new JsonConvertedValueReaderWriter<uint, long>(
@@ -9392,6 +9562,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<ulong>(new JsonCollectionReaderWriter<ulong[], ulong[], ulong>(
                     new JsonConvertedValueReaderWriter<ulong, decimal>(
@@ -9497,6 +9668,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<Uri, string>(
                     (Uri v) => v.ToString(),
@@ -9529,6 +9701,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new CollectionToJsonStringConverter<Uri>(new JsonCollectionReaderWriter<Uri[], Uri[], Uri>(
                     new JsonConvertedValueReaderWriter<Uri, string>(
@@ -9558,6 +9731,7 @@ namespace TestNamespace
                         (string v) => v),
                     mappingInfo: new RelationalTypeMappingInfo(
                         storeTypeName: "nvarchar(max)",
+                        unicode: true,
                         dbType: System.Data.DbType.String),
                     converter: new ValueConverter<Uri, string>(
                         (Uri v) => v.ToString(),
@@ -9591,6 +9765,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 converter: new ValueConverter<Uri, string>(
                     (Uri v) => v.ToString(),

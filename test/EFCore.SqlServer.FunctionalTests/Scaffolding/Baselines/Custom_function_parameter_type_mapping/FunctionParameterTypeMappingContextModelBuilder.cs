@@ -79,6 +79,7 @@ namespace TestNamespace
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "nvarchar(max)",
+                    unicode: true,
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
             functions["Microsoft.EntityFrameworkCore.Scaffolding.CompiledModelRelationalTestBase+FunctionParameterTypeMappingContext.GetSqlFragmentStatic(string)"] = getSqlFragmentStatic;

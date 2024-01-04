@@ -23,7 +23,6 @@ public abstract class ServiceProviderFixtureBase : FixtureBase
         => AddOptions(testStore.AddProviderOptions(new DbContextOptionsBuilder()))
             .EnableDetailedErrors()
             .UseInternalServiceProvider(ServiceProvider)
-            .EnableServiceProviderCaching(false)
             .Options;
 
     protected override IServiceCollection AddServices(IServiceCollection serviceCollection)

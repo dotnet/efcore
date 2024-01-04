@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
 {
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
@@ -42,11 +42,12 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
-        bool usePooling = true)
+        bool usePooling = true,
+        bool useServiceProvider = true)
         where TContext : DbContext
     {
         var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling);
+            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
 
         TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
 
@@ -62,11 +63,12 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Action<TContext> seed = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
-        bool usePooling = true)
+        bool usePooling = true,
+        bool useServiceProvider = true)
         where TContext : DbContext
     {
         var contextFactory = CreateContextFactory<TContext>(
-            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling);
+            onModelCreating, onConfiguring, addServices, shouldLogCategory, createTestStore, usePooling, useServiceProvider);
 
         TestStore.Initialize(_serviceProvider, contextFactory.CreateContext, seed == null ? null : c => seed((TContext)c));
 
@@ -81,14 +83,17 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         Func<IServiceCollection, IServiceCollection> addServices = null,
         Func<string, bool> shouldLogCategory = null,
         Func<TestStore> createTestStore = null,
-        bool usePooling = true)
+        bool usePooling = true,
+        bool useServiceProvider = true)
         where TContext : DbContext
     {
         _testStore = createTestStore?.Invoke() ?? CreateTestStore();
 
         shouldLogCategory ??= _ => false;
-        var services = TestStoreFactory.AddProviderServices(new ServiceCollection())
-            .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory));
+        var services = (useServiceProvider
+            ? TestStoreFactory.AddProviderServices(new ServiceCollection())
+            : new ServiceCollection())
+                .AddSingleton<ILoggerFactory>(TestStoreFactory.CreateListLoggerFactory(shouldLogCategory));
 
         if (onModelCreating != null)
         {
@@ -98,10 +103,10 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         addServices?.Invoke(services);
 
         services = usePooling
-            ? services.AddDbContextPool(typeof(TContext), (s, b) => ConfigureOptions(s, b, onConfiguring))
+            ? services.AddDbContextPool(typeof(TContext), (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring))
             : services.AddDbContext(
                 typeof(TContext),
-                (s, b) => ConfigureOptions(s, b, onConfiguring),
+                (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring),
                 ServiceLifetime.Transient,
                 ServiceLifetime.Singleton);
 
@@ -115,8 +120,16 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         DbContextOptionsBuilder optionsBuilder,
         Action<DbContextOptionsBuilder> onConfiguring)
     {
-        optionsBuilder = AddOptions(TestStore.AddProviderOptions(optionsBuilder))
-            .UseInternalServiceProvider(serviceProvider);
+        optionsBuilder = AddOptions(TestStore.AddProviderOptions(optionsBuilder));
+        if (serviceProvider == null)
+        {
+            optionsBuilder.EnableServiceProviderCaching(false);
+        }
+        else
+        {
+            optionsBuilder.UseInternalServiceProvider(serviceProvider);
+        }
+
         onConfiguring?.Invoke(optionsBuilder);
         return optionsBuilder;
     }

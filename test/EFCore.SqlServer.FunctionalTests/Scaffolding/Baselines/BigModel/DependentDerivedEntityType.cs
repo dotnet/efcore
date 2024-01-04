@@ -48,6 +48,7 @@ namespace TestNamespace
                 mappingInfo: new RelationalTypeMappingInfo(
                     storeTypeName: "char(20)",
                     size: 20,
+                    fixedLength: true,
                     dbType: System.Data.DbType.AnsiStringFixedLength));
             data.AddAnnotation("Relational:IsFixedLength", true);
             data.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);

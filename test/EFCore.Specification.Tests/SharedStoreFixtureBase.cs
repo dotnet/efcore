@@ -62,7 +62,7 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
 
         _serviceProvider = services.BuildServiceProvider(validateScopes: true);
 
-        TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), c => Clean(c));
+        TestStore.Initialize(ServiceProvider, CreateContext, c => Seed((TContext)c), Clean);
 
         return Task.CompletedTask;
     }

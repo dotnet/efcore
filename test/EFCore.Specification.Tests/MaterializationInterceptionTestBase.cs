@@ -6,17 +6,14 @@
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
-    where TContext : DbContext
+    where TContext : SingletonInterceptorsTestBase<TContext>.LibraryContext
 {
-    protected MaterializationInterceptionTestBase(SingletonInterceptorsFixtureBase fixture)
-        : base(fixture)
-    {
-    }
+    protected override string StoreName
+        => "MaterializationInterception";
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Binding_interceptors_are_used_by_queries(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual void Binding_interceptors_are_used_by_queries(bool inject, bool usePooling)
     {
         var interceptors = new[]
         {
@@ -26,7 +23,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new TestBindingInterceptor("4")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = CreateContext(interceptors, inject, usePooling);
 
         context.AddRange(
             new Book { Title = "Amiga ROM Kernel Reference Manual" },
@@ -41,9 +38,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Binding_interceptors_are_used_when_creating_instances(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual void Binding_interceptors_are_used_when_creating_instances(bool inject, bool usePooling)
     {
         var interceptors = new[]
         {
@@ -53,7 +49,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new TestBindingInterceptor("4")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = CreateContext(interceptors, inject, usePooling);
 
         var materializer = context.GetService<IEntityMaterializerSource>();
         var book = (Book)materializer.GetEmptyMaterializer(context.Model.FindEntityType(typeof(Book))!)(
@@ -64,9 +60,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Intercept_query_materialization_for_empty_constructor(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual void Intercept_query_materialization_for_empty_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
         var createdInstanceCount = 0;
@@ -135,7 +130,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject))
+        using (context = CreateContext(interceptors, inject, usePooling))
         {
             var books = new[]
             {
@@ -173,9 +168,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     private static int _id;
 
     [ConditionalTheory] // Issue #30244
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Intercept_query_materialization_with_owned_types(bool async)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_with_owned_types(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
         var createdInstanceCounts = new Dictionary<Type, int>();
@@ -219,7 +213,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject: true))
+        using (context = CreateContext(interceptors, inject: true, usePooling))
         {
             context.Add(
                 new TestEntity30244
@@ -262,9 +256,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory] // Issue #31365
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual async Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
     {
         var creatingInstanceCounts = new Dictionary<Type, int>();
         var createdInstanceCounts = new Dictionary<Type, int>();
@@ -308,7 +301,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject: true))
+        using (context = CreateContext(interceptors, inject: true, usePooling))
         {
             context.Add(
                 new TestEntity30244
@@ -353,9 +346,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Intercept_query_materialization_for_full_constructor(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual void Intercept_query_materialization_for_full_constructor(bool inject, bool usePooling)
     {
         var creatingInstanceCount = 0;
         var createdInstanceCount = 0;
@@ -424,7 +416,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
                 })
         };
 
-        using (context = CreateContext(interceptors, inject))
+        using (context = CreateContext(interceptors, inject, usePooling))
         {
             var pamphlets = new[] { new Pamphlet(Guid.Empty, "Rights of Man"), new Pamphlet(Guid.Empty, "Pamphlet des pamphlets") };
 
@@ -457,9 +449,8 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public virtual void Multiple_materialization_interceptors_can_be_used(bool inject)
+    [ClassData(typeof(DataGenerator<bool, bool>))]
+    public virtual void Multiple_materialization_interceptors_can_be_used(bool inject, bool usePooling)
     {
         var interceptors = new ISingletonInterceptor[]
         {
@@ -472,7 +463,7 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
             new CountingMaterializationInterceptor("C")
         };
 
-        using var context = CreateContext(interceptors, inject);
+        using var context = CreateContext(interceptors, inject, usePooling);
 
         context.AddRange(
             new Book { Title = "Amiga ROM Kernel Reference Manual" },

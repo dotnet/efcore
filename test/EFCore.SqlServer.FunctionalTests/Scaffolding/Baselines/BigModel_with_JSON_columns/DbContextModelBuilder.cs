@@ -201,7 +201,7 @@ namespace TestNamespace
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("Char", charColumnBase);
             var charArrayColumnBase = new ColumnBase<ColumnMappingBase>("CharArray", "nvarchar(max)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("CharArray", charArrayColumnBase);
-            var charToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("CharToStringConverterProperty", "nvarchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
+            var charToStringConverterPropertyColumnBase = new ColumnBase<ColumnMappingBase>("CharToStringConverterProperty", "nchar(1)", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("CharToStringConverterProperty", charToStringConverterPropertyColumnBase);
             var dateOnlyColumnBase = new ColumnBase<ColumnMappingBase>("DateOnly", "date", microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase);
             microsoftEntityFrameworkCoreScaffoldingCompiledModelTestBaseManyTypesTableBase.Columns.Add("DateOnly", dateOnlyColumnBase);
@@ -1042,7 +1042,7 @@ namespace TestNamespace
             manyTypesTable.Columns.Add("Char", charColumn);
             var charArrayColumn = new Column("CharArray", "nvarchar(max)", manyTypesTable);
             manyTypesTable.Columns.Add("CharArray", charArrayColumn);
-            var charToStringConverterPropertyColumn = new Column("CharToStringConverterProperty", "nvarchar(1)", manyTypesTable);
+            var charToStringConverterPropertyColumn = new Column("CharToStringConverterProperty", "nchar(1)", manyTypesTable);
             manyTypesTable.Columns.Add("CharToStringConverterProperty", charToStringConverterPropertyColumn);
             var dateOnlyColumn = new Column("DateOnly", "date", manyTypesTable);
             manyTypesTable.Columns.Add("DateOnly", dateOnlyColumn);
