@@ -97,6 +97,7 @@ Tests can be run on the command line (after build) by running `test`:
 ```console
 test
 ```
+> Warning: Some tests may fail when the development machine is not configured for United States English by default. (That is, the current culture is not "en-US".) These failures can usually be ignored; the tests will run on the C.I. machine when the PR is submitted. See [Issue #22901: Fix tests using current culture](https://github.com/dotnet/efcore/issues/22901) for more information.
 
 ### Solving common build errors
 
@@ -104,6 +105,3 @@ test
 2. Clean the source directory. `git clean -xid` will clean files in the EF source directory.
 3. Clear nuget packages and caches. `nuget.exe locals all -clear` will delete the NuGet caches. (You can get nuget.exe from <https://dist.nuget.org/index.html> or use `dotnet nuget`).
 
-### ReSharper
-
-Some people on the team use [ReSharper](https://www.jetbrains.com/resharper/download/) to increase productivity. Currently the EAP builds of the latest release seem to be working well. Some people see better performance if ReSharper testing support is disabled.
