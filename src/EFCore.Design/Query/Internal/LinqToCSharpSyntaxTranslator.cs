@@ -37,13 +37,15 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
     private int _unnamedParameterCounter;
 
-    private sealed record LiftedState(
-        List<StatementSyntax> Statements,
-        Dictionary<ParameterExpression, string> Variables,
-        HashSet<string> VariableNames,
-        List<LocalDeclarationStatementSyntax> UnassignedVariableDeclarations);
+    private sealed record LiftedState
+    {
+        internal readonly List<StatementSyntax> Statements = [];
+        internal readonly Dictionary<ParameterExpression, string> Variables = new();
+        internal readonly HashSet<string> VariableNames = [];
+        internal readonly List<LocalDeclarationStatementSyntax> UnassignedVariableDeclarations = [];
+    }
 
-    private LiftedState _liftedState = new([], new Dictionary<ParameterExpression, string>(), [], []);
+    private LiftedState _liftedState = new();
 
     private ExpressionContext _context;
     private Dictionary<object, ExpressionSyntax>? _constantReplacements;
@@ -424,7 +426,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         if (blockContext != ExpressionContext.Expression)
         {
             ownStackFrame = PushNewStackFrame();
-            _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+            _liftedState = new LiftedState();
         }
 
         var stackFrame = _stack.Peek();
@@ -789,7 +791,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 }
 
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+                _liftedState = new LiftedState();
 
                 // If we're in a lambda body, we try to translate as an expression if possible (i.e. no blocks in the true/false arms).
                 using (ChangeContext(ExpressionContext.Expression))
@@ -827,7 +829,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
                 // We're in regular expression context, and there are lifted expressions inside one of the arms; we translate to an if/else
                 // statement but lowering an assignment into both sides of the condition
-                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+                _liftedState = new LiftedState();
 
                 IdentifierNameSyntax assignmentVariable;
                 TypeSyntax? loweredAssignmentVariableType = null;
@@ -1896,7 +1898,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
             case ExpressionContext.Statement:
             {
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+                _liftedState = new LiftedState();
 
                 var cases = List(
                     switchNode.Cases.Select(
@@ -1949,7 +1951,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 }
 
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+                _liftedState = new LiftedState();
 
                 // Translate all arms
                 var arms = SeparatedList(
@@ -1976,7 +1978,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
                 // There are lifted expressions inside some of the arms, we must lift the entire switch expression, rewriting it to
                 // a switch statement.
-                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
+                _liftedState = new LiftedState();
 
                 IdentifierNameSyntax assignmentVariable;
                 TypeSyntax? loweredAssignmentVariableType = null;
