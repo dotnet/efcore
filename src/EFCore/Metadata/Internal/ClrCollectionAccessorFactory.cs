@@ -87,8 +87,7 @@ public class ClrCollectionAccessorFactory
 
         try
         {
-            return (IClrCollectionAccessor?)boundMethod.Invoke(
-                null, new object[] { navigation });
+            return (IClrCollectionAccessor?)boundMethod.Invoke(null, [navigation]);
         }
         catch (TargetInvocationException invocationException)
         {

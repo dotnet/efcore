@@ -101,8 +101,7 @@ public class SpatialData(GeometryFactory factory) : ISetSource
             new LineStringEntity
             {
                 Id = 1,
-                LineString = factory.CreateLineString(
-                    new[] { new Coordinate(0, 0), new Coordinate(1, 0) })
+                LineString = factory.CreateLineString([new(0, 0), new(1, 0)])
             },
             new LineStringEntity { Id = 2, LineString = null }
         };
@@ -114,7 +113,7 @@ public class SpatialData(GeometryFactory factory) : ISetSource
             {
                 Id = Guid.Parse("2F39AADE-4D8D-42D2-88CE-775C84AB83B1"),
                 Polygon = factory.CreatePolygon(
-                    new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) })
+                    [new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)])
             },
             new PolygonEntity { Id = Guid.Parse("F1B00CB9-862B-417B-955A-F1F7688B2AB5"), Polygon = null }
         };
@@ -126,13 +125,10 @@ public class SpatialData(GeometryFactory factory) : ISetSource
             {
                 Id = 1,
                 MultiLineString = factory.CreateMultiLineString(
-                    new[]
-                    {
-                        factory.CreateLineString(
-                            new[] { new Coordinate(0, 0), new Coordinate(0, 1) }),
-                        factory.CreateLineString(
-                            new[] { new Coordinate(1, 0), new Coordinate(1, 1) })
-                    })
+                [
+                    factory.CreateLineString([new(0, 0), new(0, 1)]),
+                        factory.CreateLineString([new(1, 0), new(1, 1)])
+                ])
             },
             new MultiLineStringEntity { Id = 2, MultiLineString = null }
         };

@@ -232,8 +232,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             {
                 Name = "C1",
                 Orders1 = new List<Order> { o111, o112 },
-                Orders2 = new MyGenericCollection<Order>(),
-                Orders3 = new MyNonGenericCollection(),
+                Orders2 = [],
+                Orders3 = [],
                 Orders4 = new MyInvalidCollection<Order>(42)
             };
 
@@ -245,8 +245,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             {
                 Name = "C2",
                 Orders1 = new List<Order> { o211, o212 },
-                Orders2 = new MyGenericCollection<Order>(),
-                Orders3 = new MyNonGenericCollection(),
+                Orders2 = [],
+                Orders3 = [],
                 Orders4 = new MyInvalidCollection<Order>(42)
             };
 
@@ -508,15 +508,15 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             AddRange(
                 new Blog
                 {
-                    Posts = new List<Post>
-                    {
+                    Posts =
+                    [
                         new(),
                         new(),
                         new()
-                    }
+                    ]
                 },
-                new Blog { Posts = new List<Post> { new(), new() } },
-                new Blog { Posts = new List<Post> { new() } });
+                new Blog { Posts = [new(), new()] },
+                new Blog { Posts = [new()] });
 
             SaveChanges();
         }
@@ -686,9 +686,9 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         {
             public Blog()
             {
-                Posts1 = new List<Post>();
-                Posts2 = new CustomCollection();
-                Posts3 = new HashSet<Post>();
+                Posts1 = [];
+                Posts2 = [];
+                Posts3 = [];
             }
 
             public Blog(List<Post> posts1, CustomCollection posts2, HashSet<Post> posts3)
@@ -764,7 +764,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             var student1 = new Student();
             var student2 = new Student();
             var school = new School();
-            var elementarySchool = new ElementarySchool { Students = new List<Student> { student1, student2 } };
+            var elementarySchool = new ElementarySchool { Students = [student1, student2] };
 
             Students.AddRange(student1, student2);
             Schools.AddRange(school);
@@ -1346,10 +1346,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             Add(
                 new PrincipalOneToMany
                 {
-                    Dependents = new List<DependentOneToMany>
-                    {
-                        new(), new(),
-                    }
+                    Dependents = [new(), new()]
                 });
 
             SaveChanges();

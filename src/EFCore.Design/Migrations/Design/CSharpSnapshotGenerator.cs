@@ -18,17 +18,17 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     private static readonly MethodInfo HasAnnotationMethodInfo
         = typeof(ModelBuilder).GetRuntimeMethod(
             nameof(ModelBuilder.HasAnnotation),
-            new[] { typeof(string), typeof(string) })!;
+            [typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo HasPropertyAnnotationMethodInfo
         = typeof(ComplexPropertyBuilder).GetRuntimeMethod(
             nameof(ComplexPropertyBuilder.HasPropertyAnnotation),
-            new[] { typeof(string), typeof(string) })!;
+            [typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo HasTypeAnnotationMethodInfo
         = typeof(ComplexPropertyBuilder).GetRuntimeMethod(
             nameof(ComplexPropertyBuilder.HasTypeAnnotation),
-            new[] { typeof(string), typeof(string) })!;
+            [typeof(string), typeof(string)])!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="CSharpSnapshotGenerator" /> class.

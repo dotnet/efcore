@@ -694,29 +694,29 @@ public class ForeignKeyTest
         Assert.Same(fk.DeclaringEntityType, fk.GetRelatedEntityType(fk.PrincipalEntityType));
 
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFrom(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFrom(fk.DeclaringEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsTo(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsTo(fk.DeclaringEntityType).ToArray());
 
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFromInHierarchy(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsFromInHierarchy(fk.DeclaringEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsToInHierarchy(fk.PrincipalEntityType).ToArray());
         Assert.Equal(
-            new[] { fk.PrincipalToDependent, fk.DependentToPrincipal },
+            [fk.PrincipalToDependent, fk.DependentToPrincipal],
             fk.FindNavigationsToInHierarchy(fk.DeclaringEntityType).ToArray());
     }
 

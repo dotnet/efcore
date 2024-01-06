@@ -1001,7 +1001,7 @@ FROM (
 
         var orders = context.Set<OrderQuery>()
                 .FromSqlRaw(@"SET @returnValue = 3
-SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", new[] { output } )
+SELECT * FROM [Customers] WHERE [CustomerID] = 'ALFKI'", [output])
                 .ToList();
 
         Assert.Equal(1, orders.Count);

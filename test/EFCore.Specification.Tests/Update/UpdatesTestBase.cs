@@ -19,7 +19,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
     protected TFixture Fixture { get; }
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { true }, new object[] { false } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     [ConditionalTheory] // Issue #25905
     [InlineData(false)]
@@ -238,7 +238,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 context.SaveChanges();
@@ -250,7 +250,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        Bytes = [8, 7, 6, 5, 4, 3, 2, 1]
                     });
 
                 entry.Entity.Name = "GigaChips";
@@ -274,7 +274,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 context.SaveChanges();
@@ -286,7 +286,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 entry.Entity.Name = "GigaChips";
@@ -309,7 +309,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 context.SaveChanges();
@@ -321,7 +321,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 8, 7, 6, 5, 4, 3, 2, 1 }
+                        Bytes = [8, 7, 6, 5, 4, 3, 2, 1]
                     });
 
                 entry.State = EntityState.Deleted;
@@ -345,7 +345,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 context.SaveChanges();
@@ -357,7 +357,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                     {
                         Id = productId,
                         Name = "MegaChips",
-                        Bytes = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 }
+                        Bytes = [1, 2, 3, 4, 5, 6, 7, 8]
                     });
 
                 entry.State = EntityState.Deleted;
@@ -853,7 +853,7 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
         public long Id { get; set; }
         public required string Name { get; set; }
         public Tin? Tin { get; set; }
-        public List<Ingredient> Ingredients { get; } = new();
+        public List<Ingredient> Ingredients { get; } = [];
     }
 
     protected class Cake : Baked

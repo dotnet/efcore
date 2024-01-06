@@ -541,7 +541,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
                     if (hasConstructor)
                     {
                         var target = applyEntityConfigurationMethod.MakeGenericMethod(@interface.GenericTypeArguments[0]);
-                        target.Invoke(this, new[] { Activator.CreateInstance(type, nonPublic: true) });
+                        target.Invoke(this, [Activator.CreateInstance(type, nonPublic: true)]);
                         foundOne = true;
                     }
                     else

@@ -41,7 +41,7 @@ public class SqlServerSqlTreePruner : SqlTreePruner
                         }
                         else if (newColumnInfos is null)
                         {
-                            newColumnInfos = new();
+                            newColumnInfos = [];
                             for (var j = 0; j < i; j++)
                             {
                                 newColumnInfos.Add(columnInfos[j]);

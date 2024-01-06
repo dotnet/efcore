@@ -1484,14 +1484,14 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
         using (var context = CreateContext())
         {
             context.Set<BinaryKeyDataType>().AddRange(
-                new BinaryKeyDataType { Id = new byte[] { 1, 2, 3 }, Ex = "X1" },
-                new BinaryKeyDataType { Id = new byte[] { 1, 2, 3, 4 }, Ex = "X3" },
-                new BinaryKeyDataType { Id = new byte[] { 1, 2, 3, 4, 5 }, Ex = "X2" });
+                new BinaryKeyDataType { Id = [1, 2, 3], Ex = "X1" },
+                new BinaryKeyDataType { Id = [1, 2, 3, 4], Ex = "X3" },
+                new BinaryKeyDataType { Id = [1, 2, 3, 4, 5], Ex = "X2" });
 
             context.Set<BinaryForeignKeyDataType>().AddRange(
-                new BinaryForeignKeyDataType { Id = 77, BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4 } },
-                new BinaryForeignKeyDataType { Id = 777, BinaryKeyDataTypeId = new byte[] { 1, 2, 3 } },
-                new BinaryForeignKeyDataType { Id = 7777, BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 } });
+                new BinaryForeignKeyDataType { Id = 77, BinaryKeyDataTypeId = [1, 2, 3, 4] },
+                new BinaryForeignKeyDataType { Id = 777, BinaryKeyDataTypeId = [1, 2, 3] },
+                new BinaryForeignKeyDataType { Id = 7777, BinaryKeyDataTypeId = [1, 2, 3, 4, 5] });
 
             Assert.Equal(6, context.SaveChanges());
         }
@@ -1505,15 +1505,15 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
 
         using (var context = CreateContext())
         {
-            var entity1 = QueryByBinaryKey(context, new byte[] { 1, 2, 3 });
+            var entity1 = QueryByBinaryKey(context, [1, 2, 3]);
             Assert.Equal(new byte[] { 1, 2, 3 }, entity1.Id);
             Assert.Equal(1, entity1.Dependents.Count);
 
-            var entity2 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4 });
+            var entity2 = QueryByBinaryKey(context, [1, 2, 3, 4]);
             Assert.Equal(new byte[] { 1, 2, 3, 4 }, entity2.Id);
             Assert.Equal(1, entity2.Dependents.Count);
 
-            var entity3 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4, 5 });
+            var entity3 = QueryByBinaryKey(context, [1, 2, 3, 4, 5]);
             Assert.Equal(new byte[] { 1, 2, 3, 4, 5 }, entity3.Id);
             Assert.Equal(1, entity3.Dependents.Count);
 
@@ -1521,24 +1521,24 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             entity2.Ex = "Xx3";
             entity1.Ex = "Xx7";
 
-            entity1.Dependents.Single().BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 };
+            entity1.Dependents.Single().BinaryKeyDataTypeId = [1, 2, 3, 4, 5];
 
-            entity2.Dependents.Single().BinaryKeyDataTypeId = new byte[] { 1, 2, 3, 4, 5 };
+            entity2.Dependents.Single().BinaryKeyDataTypeId = [1, 2, 3, 4, 5];
 
             context.SaveChanges();
         }
 
         using (var context = CreateContext())
         {
-            var entity1 = QueryByBinaryKey(context, new byte[] { 1, 2, 3 });
+            var entity1 = QueryByBinaryKey(context, [1, 2, 3]);
             Assert.Equal("Xx7", entity1.Ex);
             Assert.Equal(0, entity1.Dependents.Count);
 
-            var entity2 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4 });
+            var entity2 = QueryByBinaryKey(context, [1, 2, 3, 4]);
             Assert.Equal("Xx3", entity2.Ex);
             Assert.Equal(0, entity2.Dependents.Count);
 
-            var entity3 = QueryByBinaryKey(context, new byte[] { 1, 2, 3, 4, 5 });
+            var entity3 = QueryByBinaryKey(context, [1, 2, 3, 4, 5]);
             Assert.Equal("Xx1", entity3.Ex);
             Assert.Equal(3, entity3.Dependents.Count);
         }
@@ -1765,7 +1765,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     Id = 101,
                     PartitionId = 101,
                     TestString = "TestString",
-                    TestByteArray = new byte[] { 10, 9, 8, 7, 6 },
+                    TestByteArray = [10, 9, 8, 7, 6],
                     TestNullableInt16 = -1234,
                     TestNullableInt32 = -123456789,
                     TestNullableInt64 = -1234567890123456789L,
@@ -1803,7 +1803,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
 
             var entityType = context.Model.FindEntityType(typeof(BuiltInNullableDataTypes));
             AssertEqualIfMapped(entityType, "TestString", () => dt.TestString);
-            AssertEqualIfMapped(entityType, new byte[] { 10, 9, 8, 7, 6 }, () => dt.TestByteArray);
+            AssertEqualIfMapped(entityType, [10, 9, 8, 7, 6], () => dt.TestByteArray);
             AssertEqualIfMapped(entityType, (short)-1234, () => dt.TestNullableInt16);
             AssertEqualIfMapped(entityType, -123456789, () => dt.TestNullableInt32);
             AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.TestNullableInt64);
@@ -1846,7 +1846,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     Id = 101,
                     PartitionId = 101,
                     String = "TestString",
-                    Bytes = new byte[] { 10, 9, 8, 7, 6 },
+                    Bytes = [10, 9, 8, 7, 6],
                     Int16 = -1234,
                     Int32 = -123456789,
                     Int64 = -1234567890123456789L,
@@ -1884,7 +1884,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
 
             var entityType = context.Model.FindEntityType(typeof(ObjectBackedDataTypes));
             AssertEqualIfMapped(entityType, "TestString", () => dt.String);
-            AssertEqualIfMapped(entityType, new byte[] { 10, 9, 8, 7, 6 }, () => dt.Bytes);
+            AssertEqualIfMapped(entityType, [10, 9, 8, 7, 6], () => dt.Bytes);
             AssertEqualIfMapped(entityType, (short)-1234, () => dt.Int16);
             AssertEqualIfMapped(entityType, -123456789, () => dt.Int32);
             AssertEqualIfMapped(entityType, -1234567890123456789L, () => dt.Int64);
@@ -2368,7 +2368,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                         Id = 13,
                         PartitionId = 1,
                         String = "string",
-                        Bytes = new byte[] { 4, 20 },
+                        Bytes = [4, 20],
                         Int16 = -1234,
                         Int32 = -123456789,
                         Int64 = -1234567890123456789L,

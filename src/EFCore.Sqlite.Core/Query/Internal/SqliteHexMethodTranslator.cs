@@ -14,13 +14,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteHexMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo HexMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Hex), new[] { typeof(DbFunctions), typeof(byte[]) })!;
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Hex), [typeof(DbFunctions), typeof(byte[])])!;
 
     private static readonly MethodInfo UnhexMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string) })!;
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), [typeof(DbFunctions), typeof(string)])!;
 
     private static readonly MethodInfo UnhexWithIgnoreCharsMethodInfo = typeof(SqliteDbFunctionsExtensions)
-        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
+        .GetMethod(nameof(SqliteDbFunctionsExtensions.Unhex), [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

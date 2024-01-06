@@ -77,7 +77,7 @@ public class DbContextOperations
         _rootNamespace = rootNamespace;
         _language = language;
         _nullable = nullable;
-        _args = args ?? Array.Empty<string>();
+        _args = args ?? [];
         _appServicesFactory = appServicesFactory;
         _servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, _args);
     }
@@ -392,8 +392,8 @@ public class DbContextOperations
         _reporter.WriteVerbose(DesignStrings.UsingDbContextFactory(factory.ShortDisplayName()));
 
         return (DbContext)typeof(IDesignTimeDbContextFactory<>).MakeGenericType(contextType)
-            .GetMethod(nameof(IDesignTimeDbContextFactory<DbContext>.CreateDbContext), new[] { typeof(string[]) })!
-            .Invoke(Activator.CreateInstance(factory), new object[] { _args })!;
+            .GetMethod(nameof(IDesignTimeDbContextFactory<DbContext>.CreateDbContext), [typeof(string[])])!
+            .Invoke(Activator.CreateInstance(factory), [_args])!;
     }
 
     private KeyValuePair<Type, Func<DbContext>> FindContextType(string? name)

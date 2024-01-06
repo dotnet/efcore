@@ -67,7 +67,7 @@ public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFa
         public ITestOutputHelper TestOutputHelper { get; set; }
 
         public List<(LogLevel, EventId, string, object, Exception)> LoggedEvents { get; }
-            = new();
+            = [];
 
         public CancellationToken CancelOnNextLogEntry()
         {

@@ -107,7 +107,7 @@ public class IndexAttributeConvention :
                 {
                     if (indexAttribute.AllDescending)
                     {
-                        indexBuilder.IsDescending(Array.Empty<bool>(), fromDataAnnotation: true);
+                        indexBuilder.IsDescending([], fromDataAnnotation: true);
                     }
                     else if (indexAttribute.IsDescending is not null)
                     {

@@ -765,7 +765,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
     {
         public Dashboard()
         {
-            Layouts = new List<Layout>();
+            Layouts = [];
         }
 
         public int Id { get; set; }
@@ -1303,12 +1303,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         new CollectionScalar
                         {
                             Id = 1,
-                            Tags = new List<string>
-                            {
+                            Tags =
+                            [
                                 "A",
                                 "B",
                                 "C"
-                            }
+                            ]
                         });
                 });
 
@@ -1362,13 +1362,13 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         {
                             Id = 1,
                             IsSoftDeleted = true,
-                            MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup }
+                            MessageGroups = [MessageGroup.SomeGroup]
                         },
                         new User23059
                         {
                             Id = 2,
                             IsSoftDeleted = false,
-                            MessageGroups = new List<MessageGroup> { MessageGroup.SomeGroup }
+                            MessageGroups = [MessageGroup.SomeGroup]
                         });
                 });
 

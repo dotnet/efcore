@@ -31,7 +31,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
     private readonly IComparer<IUpdateEntry>? _comparer;
-    private readonly List<IUpdateEntry> _entries = new();
+    private readonly List<IUpdateEntry> _entries = [];
     private List<IColumnModification>? _columnModifications;
     private bool _mainEntryAdded;
     private EntityState _entityState;
@@ -221,7 +221,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     {
         var modification = CreateColumnModification(columnModificationParameters);
 
-        _columnModifications ??= new List<IColumnModification>();
+        _columnModifications ??= [];
 
         _columnModifications.Add(modification);
 
@@ -238,7 +238,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
     private sealed class JsonPartialUpdateInfo
     {
-        public List<JsonPartialUpdatePathEntry> Path { get; } = new();
+        public List<JsonPartialUpdatePathEntry> Path { get; } = [];
         public IProperty? Property { get; set; }
         public object? PropertyValue { get; set; }
     }

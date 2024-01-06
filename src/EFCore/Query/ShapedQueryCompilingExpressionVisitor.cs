@@ -286,7 +286,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         private static readonly MethodInfo StartTrackingMethodInfo
             = typeof(QueryContext).GetMethod(
-                nameof(QueryContext.StartTracking), new[] { typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType() })!;
+                nameof(QueryContext.StartTracking), [typeof(IEntityType), typeof(object), typeof(ISnapshot).MakeByRefType()])!;
 
         private static readonly MethodInfo CreateNullKeyValueInNoTrackingQueryMethod
             = typeof(EntityMaterializerInjectingExpressionVisitor)
@@ -506,7 +506,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var (primaryKey, concreteEntityTypes) = typeBase is IEntityType entityType
                 ? (entityType.FindPrimaryKey(), entityType.GetConcreteDerivedTypesInclusive().Cast<ITypeBase>().ToArray())
-                : (null, new[] { typeBase });
+                : (null, [typeBase]);
 
             var switchCases = new SwitchCase[concreteEntityTypes.Length];
             for (var i = 0; i < concreteEntityTypes.Length; i++)

@@ -59,7 +59,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
             _indexBasedBinding = true;
             _projectionMapping.Clear();
             _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
-            _clientProjections = new List<Expression>();
+            _clientProjections = [];
 
             result = Visit(expression);
 

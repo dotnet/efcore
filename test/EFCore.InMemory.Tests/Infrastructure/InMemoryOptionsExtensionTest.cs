@@ -16,7 +16,7 @@ public class InMemoryOptionsExtensionTest
     {
         var services = new ServiceCollection();
 
-        _applyServices.Invoke(new InMemoryOptionsExtension(), new object[] { services });
+        _applyServices.Invoke(new InMemoryOptionsExtension(), [services]);
 
         Assert.Contains(services, sd => sd.ServiceType == typeof(IInMemoryDatabase));
     }

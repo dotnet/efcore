@@ -2050,8 +2050,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("Id");
                     e.Property<string>("FirstName");
                 }),
-            builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "Foo"),
-            builder => builder.Entity("People").HasIndex(new[] { "FirstName" }, "foo"),
+            builder => builder.Entity("People").HasIndex(["FirstName"], "Foo"),
+            builder => builder.Entity("People").HasIndex(["FirstName"], "foo"),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -2890,7 +2890,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             "BuildModel",
             BindingFlags.Instance | BindingFlags.NonPublic,
             null,
-            new[] { typeof(ModelBuilder) },
+            [typeof(ModelBuilder)],
             null);
 
         var builder = new ModelBuilder();
@@ -2898,7 +2898,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
         buildModelMethod.Invoke(
             Activator.CreateInstance(factoryType),
-            new object[] { builder });
+            [builder]);
 
         var services = Fixture.TestHelpers.CreateContextServices();
         var processor = new SnapshotModelProcessor(new TestOperationReporter(), services.GetService<IModelRuntimeInitializer>());
@@ -2906,5 +2906,5 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     protected virtual ICollection<BuildReference> GetAdditionalReferences()
-        => Array.Empty<BuildReference>();
+        => [];
 }

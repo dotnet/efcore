@@ -19,7 +19,7 @@ public class DbSetFinderTest
             sets.Select(s => s.Name).ToArray());
 
         Assert.Equal(
-            new[] { typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You) },
+            [typeof(Better), typeof(Brandy), typeof(Drinking), typeof(Stop), typeof(You)],
             sets.Select(s => s.Type).ToArray());
 
         Assert.Equal(

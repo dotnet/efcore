@@ -82,7 +82,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual List<IStoreStoredProcedureParameter> Parameters { get; protected set; }
-        = new();
+        = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -127,7 +127,7 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual List<IStoreStoredProcedureResultColumn> ResultColumns { get; protected set; }
-        = new();
+        = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -1838,15 +1838,14 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
         var buildingValues = await getPropertyValues(context.Entry(building));
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "BuildingId",
                 "Name",
                 "PrincipalMailRoomId",
                 "Shadow1",
                 "Shadow2",
                 "Value"
-            },
+            ],
             buildingValues.Properties.Select(p => p.Name).ToList());
     }
 
@@ -2394,19 +2393,19 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                 new()
                 {
                     AssetTag = "WB1973",
-                    iD = new byte[] { 1, 9, 7, 3 },
+                    iD = [1, 9, 7, 3],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1977",
-                    iD = new byte[] { 1, 9, 7, 7 },
+                    iD = [1, 9, 7, 7],
                     Office = offices[0]
                 },
                 new()
                 {
                     AssetTag = "WB1970",
-                    iD = new byte[] { 1, 9, 7, 0 },
+                    iD = [1, 9, 7, 0],
                     Office = offices[2]
                 }
             };

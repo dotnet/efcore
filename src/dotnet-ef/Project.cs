@@ -102,7 +102,7 @@ internal class Project
                 throw new CommandException(Resources.GetMetadataFailed);
             }
 
-            metadata = File.ReadLines(metadataFile).Select(l => l.Split(new[] { ':' }, 2))
+            metadata = File.ReadLines(metadataFile).Select(l => l.Split([':'], 2))
                 .ToDictionary(s => s[0], s => s[1].TrimStart());
         }
         finally

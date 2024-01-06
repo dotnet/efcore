@@ -605,7 +605,7 @@ WHERE (
     public virtual async Task Ordered_array_of_byte_array()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => TestOrderedArray(new byte[] { 1, 2 }, new byte[] { 3, 4 }));
+            () => TestOrderedArray([1, 2], new byte[] { 3, 4 }));
 
         Assert.Equal(SqlServerStrings.QueryingOrderedBinaryJsonCollectionsNotSupported, exception.Message);
     }

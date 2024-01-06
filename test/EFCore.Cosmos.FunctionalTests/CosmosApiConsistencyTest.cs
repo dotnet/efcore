@@ -15,15 +15,15 @@ public class CosmosApiConsistencyTest(CosmosApiConsistencyTest.CosmosApiConsiste
 
     public class CosmosApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(CosmosPrimitiveCollectionBuilderExtensions),
             typeof(CosmosModelBuilderExtensions),
             typeof(CosmosPropertyBuilderExtensions),
             typeof(CosmosServiceCollectionExtensions),
             typeof(CosmosDbContextOptionsExtensions),
             typeof(CosmosDbContextOptionsBuilder)
-        };
+        ];
 
         public override
             Dictionary<Type, (Type ReadonlyExtensions,

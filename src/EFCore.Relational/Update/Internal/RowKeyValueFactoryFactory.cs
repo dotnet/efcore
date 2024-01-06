@@ -23,7 +23,7 @@ public class RowKeyValueFactoryFactory : IRowKeyValueFactoryFactory
         => key.Columns.Count == 1
             ? (IRowKeyValueFactory)_createMethod
                 .MakeGenericMethod(key.Columns.First().ProviderClrType)
-                .Invoke(null, new object[] { key })!
+                .Invoke(null, [key])!
             : new CompositeRowKeyValueFactory(key);
 
     private static readonly MethodInfo _createMethod = typeof(RowKeyValueFactoryFactory).GetTypeInfo()

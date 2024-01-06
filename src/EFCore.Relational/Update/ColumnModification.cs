@@ -254,7 +254,7 @@ public class ColumnModification : IColumnModification
         Check.DebugAssert(modification.Entry is not null, "modification.Entry is not null");
         Check.DebugAssert(modification.Property is not null, "modification.Property is not null");
 
-        _sharedColumnModifications ??= new List<IColumnModification>();
+        _sharedColumnModifications ??= [];
 
         if (UseCurrentValueParameter
             && !Property.GetProviderValueComparer().Equals(

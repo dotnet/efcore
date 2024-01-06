@@ -35,9 +35,9 @@ public abstract class OverzealousInitializationTestBase<TFixture> : IClassFixtur
     }
 
     private static readonly Artist[] _artists =
-    {
+    [
         new() { Id = 1, Name = "Freddie" }, new() { Id = 2, Name = "Kendrick" }, new() { Id = 3, Name = "Jarvis" }
-    };
+    ];
 
     protected class Album
     {

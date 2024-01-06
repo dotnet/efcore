@@ -19,21 +19,21 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
 
     private static readonly MethodInfo FreeTextMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.FreeText), new[] { typeof(DbFunctions), typeof(object), typeof(string) })!;
+            nameof(SqlServerDbFunctionsExtensions.FreeText), [typeof(DbFunctions), typeof(object), typeof(string)])!;
 
     private static readonly MethodInfo FreeTextMethodInfoWithLanguage
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.FreeText),
-            new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) })!;
+            [typeof(DbFunctions), typeof(object), typeof(string), typeof(int)])!;
 
     private static readonly MethodInfo ContainsMethodInfo
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
-            nameof(SqlServerDbFunctionsExtensions.Contains), new[] { typeof(DbFunctions), typeof(object), typeof(string) })!;
+            nameof(SqlServerDbFunctionsExtensions.Contains), [typeof(DbFunctions), typeof(object), typeof(string)])!;
 
     private static readonly MethodInfo ContainsMethodInfoWithLanguage
         = typeof(SqlServerDbFunctionsExtensions).GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.Contains),
-            new[] { typeof(DbFunctions), typeof(object), typeof(string), typeof(int) })!;
+            [typeof(DbFunctions), typeof(object), typeof(string), typeof(int)])!;
 
     private static readonly IDictionary<MethodInfo, string> FunctionMapping
         = new Dictionary<MethodInfo, string>

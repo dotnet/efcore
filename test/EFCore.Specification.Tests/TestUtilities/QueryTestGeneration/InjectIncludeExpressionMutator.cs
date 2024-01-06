@@ -56,8 +56,8 @@ public class InjectIncludeExpressionMutator(DbContext context) : ExpressionMutat
     {
         private readonly InjectIncludeExpressionMutator _mutator = mutator;
 
-        private readonly List<IEntityType> _topLevelEntityTypes = new();
-        public readonly List<Expression> FoundExpressions = new();
+        private readonly List<IEntityType> _topLevelEntityTypes = [];
+        public readonly List<Expression> FoundExpressions = [];
 
         private int _depth;
 

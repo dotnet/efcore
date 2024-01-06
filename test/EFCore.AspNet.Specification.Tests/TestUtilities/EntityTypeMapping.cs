@@ -35,11 +35,11 @@ public class EntityTypeMapping
     public string Name { get; set; }
     public string TableName { get; set; }
     public string PrimaryKey { get; set; }
-    public List<string> Properties { get; } = new();
-    public List<string> Indexes { get; } = new();
-    public List<string> FKs { get; } = new();
-    public List<string> Navigations { get; } = new();
-    public List<string> SkipNavigations { get; } = new();
+    public List<string> Properties { get; } = [];
+    public List<string> Indexes { get; } = [];
+    public List<string> FKs { get; } = [];
+    public List<string> Navigations { get; } = [];
+    public List<string> SkipNavigations { get; } = [];
 
     public override string ToString()
     {

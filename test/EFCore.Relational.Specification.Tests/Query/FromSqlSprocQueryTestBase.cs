@@ -514,10 +514,10 @@ public abstract class FromSqlSprocQueryTestBase<TFixture> : IClassFixture<TFixtu
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 
     protected virtual object[] GetTenMostExpensiveProductsParameters()
-        => Array.Empty<object>();
+        => [];
 
     protected virtual object[] GetCustomerOrderHistorySprocParameters()
-        => new[] { "ALFKI" };
+        => ["ALFKI"];
 
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();

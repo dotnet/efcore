@@ -276,17 +276,17 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             var isDateMethodInfo = typeof(UDFSqlContext).GetMethod(nameof(IsDateStatic));
             modelBuilder.HasDbFunction(isDateMethodInfo).HasName("IsDate").IsBuiltIn();
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), new[] { typeof(int), typeof(int) }));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(AddValues), [typeof(int), typeof(int)]));
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), new[] { typeof(string) }))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IdentityStringPropagateNull), [typeof(string)]))
                 .HasParameter("s").PropagatesNullability();
 
             modelBuilder.HasDbFunction(
-                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), new[] { typeof(string) }))
+                    typeof(UDFSqlContext).GetMethod(nameof(IdentityStringNonNullableFluent), [typeof(string)]))
                 .IsNullable(false);
 
             var abc = new[] { "A", "B", "C" };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), new[] { typeof(string) }))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsABC), [typeof(string)]))
                 .HasTranslation(
                     args => new InExpression(
                         args.First(),
@@ -299,7 +299,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                         typeMapping: null));
 
             var trueFalse = new[] { true, false };
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), new[] { typeof(string) }))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(IsOrIsNotABC), [typeof(string)]))
                 .HasTranslation(
                     args => new InExpression(
                         new InExpression(
@@ -318,7 +318,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                         },
                         typeMapping: null));
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), Array.Empty<Type>()))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), []))
                 .HasTranslation(
                     _ => new SqlFunctionExpression(
                         "foo",
@@ -348,13 +348,13 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
 
             modelBuilder.Entity<MultProductOrders>().ToTable("MultProductOrders").HasKey(mpo => mpo.OrderId);
 
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), new[] { typeof(string) }))
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(StringLength), [typeof(string)]))
                 .HasParameter("s").PropagatesNullability();
 
             //Table
-            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), new[] { typeof(int) }));
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYear), [typeof(int)]));
             modelBuilder.HasDbFunction(
-                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), new[] { typeof(int), typeof(bool) }));
+                typeof(UDFSqlContext).GetMethod(nameof(GetCustomerOrderCountByYearOnlyFrom2000), [typeof(int), typeof(bool)]));
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopTwoSellingProducts)));
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetTopSellingProductsForCustomer)));
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(GetOrdersWithMultipleProducts)));
@@ -390,52 +390,52 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             {
                 Name = "Order11",
                 OrderDate = new DateTime(2000, 1, 20),
-                Items = new List<LineItem> { new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 } }
+                Items = [new() { Quantity = 5, Product = product1 }, new() { Quantity = 15, Product = product3 }]
             };
 
             var order12 = new Order
             {
                 Name = "Order12",
                 OrderDate = new DateTime(2000, 2, 21),
-                Items = new List<LineItem>
-                {
+                Items =
+                [
                     new() { Quantity = 1, Product = product1 },
                     new() { Quantity = 6, Product = product2 },
                     new() { Quantity = 200, Product = product3 }
-                }
+                ]
             };
 
             var order13 = new Order
             {
                 Name = "Order13",
                 OrderDate = new DateTime(2001, 3, 20),
-                Items = new List<LineItem> { new() { Quantity = 50, Product = product4 }, }
+                Items = [new() { Quantity = 50, Product = product4 }]
             };
 
             var order21 = new Order
             {
                 Name = "Order21",
                 OrderDate = new DateTime(2000, 4, 21),
-                Items = new List<LineItem>
-                {
+                Items =
+                [
                     new() { Quantity = 1, Product = product1 },
                     new() { Quantity = 34, Product = product4 },
                     new() { Quantity = 100, Product = product5 }
-                }
+                ]
             };
 
             var order22 = new Order
             {
                 Name = "Order22",
                 OrderDate = new DateTime(2000, 5, 20),
-                Items = new List<LineItem> { new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 } }
+                Items = [new() { Quantity = 34, Product = product3 }, new() { Quantity = 100, Product = product4 }]
             };
 
             var order31 = new Order
             {
                 Name = "Order31",
                 OrderDate = new DateTime(2001, 6, 21),
-                Items = new List<LineItem> { new() { Quantity = 5, Product = product5 } }
+                Items = [new() { Quantity = 5, Product = product5 }]
             };
 
             var address11 = new Address
@@ -491,41 +491,41 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             {
                 FirstName = "Customer",
                 LastName = "One",
-                Orders = new List<Order>
-                {
+                Orders =
+                [
                     order11,
                     order12,
                     order13
-                },
-                Addresses = new List<Address> { address11, address12 }
+                ],
+                Addresses = [address11, address12]
             };
 
             var customer2 = new Customer
             {
                 FirstName = "Customer",
                 LastName = "Two",
-                Orders = new List<Order> { order21, order22 },
-                Addresses = new List<Address> { address21 }
+                Orders = [order21, order22],
+                Addresses = [address21]
             };
 
             var customer3 = new Customer
             {
                 FirstName = "Customer",
                 LastName = "Three",
-                Orders = new List<Order> { order31 },
-                Addresses = new List<Address> { address31, address32 }
+                Orders = [order31],
+                Addresses = [address31, address32]
             };
 
             var customer4 = new Customer
             {
                 FirstName = "Customer",
                 LastName = "Four",
-                Addresses = new List<Address>
-                {
+                Addresses =
+                [
                     address41,
                     address42,
                     address43
-                }
+                ]
             };
 
             ((UDFSqlContext)context).Products.AddRange(product1, product2, product3, product4, product5);

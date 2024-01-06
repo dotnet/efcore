@@ -27,23 +27,23 @@ public sealed partial class SelectExpression : TableExpressionBase
     private const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
-    private readonly List<ProjectionExpression> _projection = new();
-    private readonly List<TableExpressionBase> _tables = new();
-    private readonly List<TableReferenceExpression> _tableReferences = new();
-    private readonly List<SqlExpression> _groupBy = new();
-    private readonly List<OrderingExpression> _orderings = new();
+    private readonly List<ProjectionExpression> _projection = [];
+    private readonly List<TableExpressionBase> _tables = [];
+    private readonly List<TableReferenceExpression> _tableReferences = [];
+    private readonly List<SqlExpression> _groupBy = [];
+    private readonly List<OrderingExpression> _orderings = [];
 
-    private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = new();
-    private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = new();
+    private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _identifier = [];
+    private readonly List<(ColumnExpression Column, ValueComparer Comparer)> _childIdentifiers = [];
 
     private readonly Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)> _tpcDiscriminatorValues
         = new(ReferenceEqualityComparer.Instance);
 
     private bool _mutable = true;
-    private HashSet<string> _usedAliases = new();
+    private HashSet<string> _usedAliases = [];
     private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
-    private List<Expression> _clientProjections = new();
-    private readonly List<string?> _aliasForClientProjections = new();
+    private List<Expression> _clientProjections = [];
+    private readonly List<string?> _aliasForClientProjections = [];
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
     private SortedDictionary<string, IAnnotation>? _annotations;
@@ -174,7 +174,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     if (_tables.Count == 0)
                     {
                         AddTable(tableExpression, tableReferenceExpression);
-                        joinColumns = new List<ColumnExpression>();
+                        joinColumns = [];
                         foreach (var property in keyProperties)
                         {
                             var columnExpression = columns[property];
@@ -386,7 +386,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     var storeFunction = functionMapping.Table;
 
                     GenerateNonHierarchyNonSplittingEntityType(
-                        storeFunction, new TableValuedFunctionExpression((IStoreFunction)storeFunction, Array.Empty<SqlExpression>()));
+                        storeFunction, new TableValuedFunctionExpression((IStoreFunction)storeFunction, []));
                 }
                 else
                 {
@@ -414,7 +414,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                             if (_tables.Count == 0)
                             {
                                 AddTable(tableExpression, tableReferenceExpression);
-                                joinColumns = new List<ColumnExpression>();
+                                joinColumns = [];
                                 foreach (var property in keyProperties)
                                 {
                                     var columnExpression = CreateColumnExpression(
@@ -2481,7 +2481,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
-            null, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(),
+            null, [], _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(),
             GetAnnotations())
         {
             IsDistinct = IsDistinct,
@@ -2626,7 +2626,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         // If select1 matched but select2 did not then we erase all identifiers
                         // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
                         // i.e. Identifier ordering being different.
-                        outerIdentifiers = Array.Empty<ColumnExpression>();
+                        outerIdentifiers = [];
                     }
                 }
 
@@ -2749,7 +2749,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 // If select1 matched but select2 did not then we erase all identifiers
                                 // TODO: We could make this little more robust by allow the indexes to be different. See issue#24475
                                 // i.e. Identifier ordering being different.
-                                outerIdentifiers = Array.Empty<ColumnExpression>();
+                                outerIdentifiers = [];
                             }
                         }
                         // If the top-level projection - not the current nested one - is a complex type and not an entity type, then add
@@ -3956,7 +3956,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
         var subquery = new SelectExpression(
-            subqueryAlias, new List<ProjectionExpression>(), _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
+            subqueryAlias, [], _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
             _orderings.ToList(), GetAnnotations())
         {
             IsDistinct = IsDistinct,

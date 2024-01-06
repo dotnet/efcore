@@ -23,7 +23,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         using var context = new OptimisticContext();
         var token = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var newToken = changeValue ? new byte[] { 1, 2, 3, 4, 0, 6, 7, 8 } : token;
+        var newToken = changeValue ? [1, 2, 3, 4, 0, 6, 7, 8] : token;
 
         var entity = context.Attach(
             new WithRowVersion { Id = 789, Version = token.ToArray() }).Entity;
@@ -92,7 +92,7 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
             typeof(SqlServerDateTimeTypeMapping),
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
             null,
-            new[] { FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime },
+            [FakeTypeMapping.CreateParameters(typeof(SqlServerDateTimeTypeMapping)), SqlDbType.SmallDateTime],
             null,
             null);
 

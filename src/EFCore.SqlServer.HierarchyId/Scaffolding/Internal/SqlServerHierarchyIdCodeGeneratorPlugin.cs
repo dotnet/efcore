@@ -25,5 +25,5 @@ public class SqlServerHierarchyIdCodeGeneratorPlugin : ProviderCodeGeneratorPlug
         => new(
             typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions).GetRuntimeMethod(
                 nameof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions.UseHierarchyId),
-                new[] { typeof(SqlServerDbContextOptionsBuilder) })!);
+                [typeof(SqlServerDbContextOptionsBuilder)])!);
 }

@@ -2720,7 +2720,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
 
         modelBuilder.HasDbFunction(methodInfo);
 
@@ -2754,7 +2754,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var methodInfo
             = typeof(TestMethods)
-                .GetRuntimeMethod(nameof(TestMethods.MethodA), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(TestMethods.MethodA), []);
 
         var function = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
@@ -3561,7 +3561,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().ToTable((string)null);
         modelBuilder.Entity<Animal>()
             .HasIndex(
-                new[] { nameof(Animal.Id), nameof(Animal.Name) },
+                [nameof(Animal.Id), nameof(Animal.Name)],
                 "IX_AllPropertiesNotMapped");
 
         var definition = RelationalResources
@@ -3583,7 +3583,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>().ToTable((string)null);
         modelBuilder.Entity<Cat>().ToTable("Cats")
             .HasIndex(
-                new[] { nameof(Cat.Identity), nameof(Animal.Name) },
+                [nameof(Cat.Identity), nameof(Animal.Name)],
                 "IX_MixOfMappedAndUnmappedProperties");
 
         Validate(modelBuilder);
@@ -3618,7 +3618,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Animal>();
         modelBuilder.Entity<Cat>().ToTable((string)null)
             .HasIndex(
-                new[] { nameof(Cat.Identity), nameof(Animal.Name) },
+                [nameof(Cat.Identity), nameof(Animal.Name)],
                 "IX_MixOfMappedAndUnmappedProperties");
 
         var definition = RelationalResources
@@ -3683,7 +3683,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<Cat>().ToTable("Cats");
         modelBuilder.Entity<Cat>()
             .HasIndex(
-                new[] { nameof(Animal.Name), nameof(Cat.Identity) },
+                [nameof(Animal.Name), nameof(Cat.Identity)],
                 "IX_MappedToDifferentTables");
 
         var definition = RelationalResources

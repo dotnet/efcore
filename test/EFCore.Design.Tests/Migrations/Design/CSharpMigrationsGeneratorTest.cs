@@ -565,11 +565,11 @@ public partial class CSharpMigrationsGeneratorTest
                 new InsertDataOperation
                 {
                     Table = "T1",
-                    Columns = new[] { "Id", "C2", "C3" },
+                    Columns = ["Id", "C2", "C3"],
                     Values = new object[,] { { 1, null, -1 } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
         Assert.Equal(
             """
 using System.Text.RegularExpressions;
@@ -768,11 +768,11 @@ namespace MyNamespace
                 new InsertDataOperation
                 {
                     Table = "MyTable",
-                    Columns = new[] { "Id", "MyColumn" },
+                    Columns = ["Id", "MyColumn"],
                     Values = new object[,] { { 1, null }, { 2, RegexOptions.Multiline } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
@@ -790,13 +790,13 @@ namespace MyNamespace
                 new UpdateDataOperation
                 {
                     Table = "MyTable",
-                    KeyColumns = new[] { "Id" },
+                    KeyColumns = ["Id"],
                     KeyValues = new object[,] { { 1 } },
-                    Columns = new[] { "MyColumn" },
+                    Columns = ["MyColumn"],
                     Values = new object[,] { { RegexOptions.Multiline } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
@@ -814,13 +814,13 @@ namespace MyNamespace
                 new UpdateDataOperation
                 {
                     Table = "MyTable",
-                    KeyColumns = new[] { "Id" },
+                    KeyColumns = ["Id"],
                     KeyValues = new object[,] { { RegexOptions.Multiline } },
-                    Columns = new[] { "MyColumn" },
+                    Columns = ["MyColumn"],
                     Values = new object[,] { { 1 } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
@@ -838,11 +838,11 @@ namespace MyNamespace
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
-                    KeyColumns = new[] { "Id" },
+                    KeyColumns = ["Id"],
                     KeyValues = new object[,] { { RegexOptions.Multiline } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.Contains("using System.Text.RegularExpressions;", migration);
     }
@@ -860,11 +860,11 @@ namespace MyNamespace
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
-                    KeyColumns = new[] { "Id" },
+                    KeyColumns = ["Id"],
                     KeyValues = new object[,] { { 1, 2 }, { 3, 4 } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.Contains("#pragma warning disable CA1814", migration);
     }
@@ -882,11 +882,11 @@ namespace MyNamespace
                 new DeleteDataOperation
                 {
                     Table = "MyTable",
-                    KeyColumns = new[] { "Id" },
+                    KeyColumns = ["Id"],
                     KeyValues = new object[,] { { 1, 2 } }
                 }
             },
-            Array.Empty<MigrationOperation>());
+            []);
 
         Assert.DoesNotContain("#pragma warning disable CA1814", migration);
     }
@@ -895,7 +895,7 @@ namespace MyNamespace
     {
         var testAssembly = typeof(CSharpMigrationsGeneratorTest).Assembly;
         var reporter = new TestOperationReporter();
-        return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+        return new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, [])
             .CreateServiceCollection(SqlServerTestHelpers.Instance.CreateContext())
             .BuildServiceProvider(validateScopes: true)
             .GetRequiredService<IMigrationsCodeGenerator>();

@@ -56,7 +56,7 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     public int CountLinesContaining(string source, string searchTerm)
     {
-        var text = source.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+        var text = source.Split([Environment.NewLine], StringSplitOptions.RemoveEmptyEntries);
 
         var matchQuery = from word in text
                          where word.Contains(searchTerm)

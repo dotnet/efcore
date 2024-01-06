@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class QueryTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

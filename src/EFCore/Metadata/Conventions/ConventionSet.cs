@@ -14,278 +14,278 @@ public class ConventionSet
     /// <summary>
     ///     Conventions to run to setup the initial model.
     /// </summary>
-    public virtual List<IModelInitializedConvention> ModelInitializedConventions { get; } = new();
+    public virtual List<IModelInitializedConvention> ModelInitializedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when model building is completed.
     /// </summary>
-    public virtual List<IModelFinalizingConvention> ModelFinalizingConventions { get; } = new();
+    public virtual List<IModelFinalizingConvention> ModelFinalizingConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when model validation is completed.
     /// </summary>
-    public virtual List<IModelFinalizedConvention> ModelFinalizedConventions { get; } = new();
+    public virtual List<IModelFinalizedConvention> ModelFinalizedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is set or removed on a model.
     /// </summary>
-    public virtual List<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; } = new();
+    public virtual List<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a type is ignored.
     /// </summary>
-    public virtual List<ITypeIgnoredConvention> TypeIgnoredConventions { get; } = new();
+    public virtual List<ITypeIgnoredConvention> TypeIgnoredConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an entity type is added to the model.
     /// </summary>
-    public virtual List<IEntityTypeAddedConvention> EntityTypeAddedConventions { get; } = new();
+    public virtual List<IEntityTypeAddedConvention> EntityTypeAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an entity type is removed.
     /// </summary>
-    public virtual List<IEntityTypeRemovedConvention> EntityTypeRemovedConventions { get; } = new();
+    public virtual List<IEntityTypeRemovedConvention> EntityTypeRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a property is ignored.
     /// </summary>
-    public virtual List<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = new();
+    public virtual List<IEntityTypeMemberIgnoredConvention> EntityTypeMemberIgnoredConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a discriminator property is set.
     /// </summary>
-    public virtual List<IDiscriminatorPropertySetConvention> DiscriminatorPropertySetConventions { get; } = new();
+    public virtual List<IDiscriminatorPropertySetConvention> DiscriminatorPropertySetConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the base entity type is changed.
     /// </summary>
-    public virtual List<IEntityTypeBaseTypeChangedConvention> EntityTypeBaseTypeChangedConventions { get; } = new();
+    public virtual List<IEntityTypeBaseTypeChangedConvention> EntityTypeBaseTypeChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a primary key is changed.
     /// </summary>
-    public virtual List<IEntityTypePrimaryKeyChangedConvention> EntityTypePrimaryKeyChangedConventions { get; } = new();
+    public virtual List<IEntityTypePrimaryKeyChangedConvention> EntityTypePrimaryKeyChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is set or removed on an entity type.
     /// </summary>
-    public virtual List<IEntityTypeAnnotationChangedConvention> EntityTypeAnnotationChangedConventions { get; } = new();
+    public virtual List<IEntityTypeAnnotationChangedConvention> EntityTypeAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a property is ignored.
     /// </summary>
-    public virtual List<IComplexTypeMemberIgnoredConvention> ComplexTypeMemberIgnoredConventions { get; } = new();
+    public virtual List<IComplexTypeMemberIgnoredConvention> ComplexTypeMemberIgnoredConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is set or removed on a complex type.
     /// </summary>
-    public virtual List<IComplexTypeAnnotationChangedConvention> ComplexTypeAnnotationChangedConventions { get; } = new();
+    public virtual List<IComplexTypeAnnotationChangedConvention> ComplexTypeAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an entity type is added to the model.
     /// </summary>
-    public virtual List<IComplexPropertyAddedConvention> ComplexPropertyAddedConventions { get; } = new();
+    public virtual List<IComplexPropertyAddedConvention> ComplexPropertyAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an entity type is removed.
     /// </summary>
-    public virtual List<IComplexPropertyRemovedConvention> ComplexPropertyRemovedConventions { get; } = new();
+    public virtual List<IComplexPropertyRemovedConvention> ComplexPropertyRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the nullability of a property is changed.
     /// </summary>
-    public virtual List<IComplexPropertyNullabilityChangedConvention> ComplexPropertyNullabilityChangedConventions { get; } = new();
+    public virtual List<IComplexPropertyNullabilityChangedConvention> ComplexPropertyNullabilityChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the field of a property is changed.
     /// </summary>
-    public virtual List<IComplexPropertyFieldChangedConvention> ComplexPropertyFieldChangedConventions { get; } = new();
+    public virtual List<IComplexPropertyFieldChangedConvention> ComplexPropertyFieldChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is set or removed on a complex property.
     /// </summary>
-    public virtual List<IComplexPropertyAnnotationChangedConvention> ComplexPropertyAnnotationChangedConventions { get; } = new();
+    public virtual List<IComplexPropertyAnnotationChangedConvention> ComplexPropertyAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a foreign key is added.
     /// </summary>
-    public virtual List<IForeignKeyAddedConvention> ForeignKeyAddedConventions { get; } = new();
+    public virtual List<IForeignKeyAddedConvention> ForeignKeyAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a foreign key is removed.
     /// </summary>
-    public virtual List<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = new();
+    public virtual List<IForeignKeyRemovedConvention> ForeignKeyRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the principal end of a relationship is configured.
     /// </summary>
-    public virtual List<IForeignKeyPrincipalEndChangedConvention> ForeignKeyPrincipalEndChangedConventions { get; } = new();
+    public virtual List<IForeignKeyPrincipalEndChangedConvention> ForeignKeyPrincipalEndChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the properties or the principal key of a foreign key are changed.
     /// </summary>
-    public virtual List<IForeignKeyPropertiesChangedConvention> ForeignKeyPropertiesChangedConventions { get; } = new();
+    public virtual List<IForeignKeyPropertiesChangedConvention> ForeignKeyPropertiesChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the uniqueness of a foreign key is changed.
     /// </summary>
-    public virtual List<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = new();
+    public virtual List<IForeignKeyUniquenessChangedConvention> ForeignKeyUniquenessChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the requiredness of a foreign key is changed.
     /// </summary>
-    public virtual List<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = new();
+    public virtual List<IForeignKeyRequirednessChangedConvention> ForeignKeyRequirednessChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the requiredness of a foreign key is changed.
     /// </summary>
     public virtual List<IForeignKeyDependentRequirednessChangedConvention> ForeignKeyDependentRequirednessChangedConventions { get; }
-        = new();
+        = [];
 
     /// <summary>
     ///     Conventions to run when the ownership of a foreign key is changed.
     /// </summary>
-    public virtual List<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = new();
+    public virtual List<IForeignKeyOwnershipChangedConvention> ForeignKeyOwnershipChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on a foreign key.
     /// </summary>
-    public virtual List<IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; } = new();
+    public virtual List<IForeignKeyAnnotationChangedConvention> ForeignKeyAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a navigation is set to <see langword="null" /> on a foreign key.
     /// </summary>
-    public virtual List<IForeignKeyNullNavigationSetConvention> ForeignKeyNullNavigationSetConventions { get; } = new();
+    public virtual List<IForeignKeyNullNavigationSetConvention> ForeignKeyNullNavigationSetConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a navigation property is added.
     /// </summary>
-    public virtual List<INavigationAddedConvention> NavigationAddedConventions { get; } = new();
+    public virtual List<INavigationAddedConvention> NavigationAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on a navigation property.
     /// </summary>
-    public virtual List<INavigationAnnotationChangedConvention> NavigationAnnotationChangedConventions { get; } = new();
+    public virtual List<INavigationAnnotationChangedConvention> NavigationAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a navigation property is removed.
     /// </summary>
-    public virtual List<INavigationRemovedConvention> NavigationRemovedConventions { get; } = new();
+    public virtual List<INavigationRemovedConvention> NavigationRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a skip navigation property is added.
     /// </summary>
-    public virtual List<ISkipNavigationAddedConvention> SkipNavigationAddedConventions { get; } = new();
+    public virtual List<ISkipNavigationAddedConvention> SkipNavigationAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on a skip navigation property.
     /// </summary>
-    public virtual List<ISkipNavigationAnnotationChangedConvention> SkipNavigationAnnotationChangedConventions { get; } = new();
+    public virtual List<ISkipNavigationAnnotationChangedConvention> SkipNavigationAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a skip navigation foreign key is changed.
     /// </summary>
-    public virtual List<ISkipNavigationForeignKeyChangedConvention> SkipNavigationForeignKeyChangedConventions { get; } = new();
+    public virtual List<ISkipNavigationForeignKeyChangedConvention> SkipNavigationForeignKeyChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a skip navigation inverse is changed.
     /// </summary>
-    public virtual List<ISkipNavigationInverseChangedConvention> SkipNavigationInverseChangedConventions { get; } = new();
+    public virtual List<ISkipNavigationInverseChangedConvention> SkipNavigationInverseChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a skip navigation property is removed.
     /// </summary>
-    public virtual List<ISkipNavigationRemovedConvention> SkipNavigationRemovedConventions { get; } = new();
+    public virtual List<ISkipNavigationRemovedConvention> SkipNavigationRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a trigger property is added.
     /// </summary>
-    public virtual List<ITriggerAddedConvention> TriggerAddedConventions { get; } = new();
+    public virtual List<ITriggerAddedConvention> TriggerAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a trigger property is removed.
     /// </summary>
-    public virtual List<ITriggerRemovedConvention> TriggerRemovedConventions { get; } = new();
+    public virtual List<ITriggerRemovedConvention> TriggerRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a key is added.
     /// </summary>
-    public virtual List<IKeyAddedConvention> KeyAddedConventions { get; } = new();
+    public virtual List<IKeyAddedConvention> KeyAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a key is removed.
     /// </summary>
-    public virtual List<IKeyRemovedConvention> KeyRemovedConventions { get; } = new();
+    public virtual List<IKeyRemovedConvention> KeyRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on a key.
     /// </summary>
-    public virtual List<IKeyAnnotationChangedConvention> KeyAnnotationChangedConventions { get; } = new();
+    public virtual List<IKeyAnnotationChangedConvention> KeyAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an index is added.
     /// </summary>
-    public virtual List<IIndexAddedConvention> IndexAddedConventions { get; } = new();
+    public virtual List<IIndexAddedConvention> IndexAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an index is removed.
     /// </summary>
-    public virtual List<IIndexRemovedConvention> IndexRemovedConventions { get; } = new();
+    public virtual List<IIndexRemovedConvention> IndexRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the uniqueness of an index is changed.
     /// </summary>
-    public virtual List<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } = new();
+    public virtual List<IIndexUniquenessChangedConvention> IndexUniquenessChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the sort order of an index is changed.
     /// </summary>
-    public virtual List<IIndexSortOrderChangedConvention> IndexSortOrderChangedConventions { get; } = new();
+    public virtual List<IIndexSortOrderChangedConvention> IndexSortOrderChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on an index.
     /// </summary>
-    public virtual List<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } = new();
+    public virtual List<IIndexAnnotationChangedConvention> IndexAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a property is added.
     /// </summary>
-    public virtual List<IPropertyAddedConvention> PropertyAddedConventions { get; } = new();
+    public virtual List<IPropertyAddedConvention> PropertyAddedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the nullability of a property is changed.
     /// </summary>
-    public virtual List<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = new();
+    public virtual List<IPropertyNullabilityChangedConvention> PropertyNullabilityChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the field of a property is changed.
     /// </summary>
-    public virtual List<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } = new();
+    public virtual List<IPropertyFieldChangedConvention> PropertyFieldChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the field of a property is changed.
     /// </summary>
-    public virtual List<IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; } = new();
+    public virtual List<IPropertyElementTypeChangedConvention> PropertyElementTypeChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on a property.
     /// </summary>
-    public virtual List<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = new();
+    public virtual List<IPropertyAnnotationChangedConvention> PropertyAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when a property is removed.
     /// </summary>
-    public virtual List<IPropertyRemovedConvention> PropertyRemovedConventions { get; } = new();
+    public virtual List<IPropertyRemovedConvention> PropertyRemovedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when the nullability of the element of a collection is changed.
     /// </summary>
-    public virtual List<IElementTypeNullabilityChangedConvention> ElementTypeNullabilityChangedConventions { get; } = new();
+    public virtual List<IElementTypeNullabilityChangedConvention> ElementTypeNullabilityChangedConventions { get; } = [];
 
     /// <summary>
     ///     Conventions to run when an annotation is changed on the element of a collection.
     /// </summary>
-    public virtual List<IElementTypeAnnotationChangedConvention> ElementTypeAnnotationChangedConventions { get; } = new();
+    public virtual List<IElementTypeAnnotationChangedConvention> ElementTypeAnnotationChangedConventions { get; } = [];
 
     /// <summary>
     ///     Replaces an existing convention with a derived convention. Also registers the new convention for any

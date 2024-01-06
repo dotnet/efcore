@@ -123,20 +123,14 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         return _relationalQueryContext.RelationalQueryStringFactory.Create(dbCommand);
     }
 
-    private sealed class InternalGrouping : IGrouping<TKey, TElement>
+    private sealed class InternalGrouping(TKey key) : IGrouping<TKey, TElement>
     {
-        private readonly List<TElement> _elements;
-
-        public InternalGrouping(TKey key)
-        {
-            Key = key;
-            _elements = new List<TElement>();
-        }
+        private readonly List<TElement> _elements = [];
 
         internal void Add(TElement element)
             => _elements.Add(element);
 
-        public TKey Key { get; }
+        public TKey Key { get; } = key;
 
         public IEnumerator<TElement> GetEnumerator()
             => _elements.GetEnumerator();

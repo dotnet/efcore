@@ -13,8 +13,8 @@ public class FakeDbConnection(
     private readonly FakeCommandExecutor _commandExecutor = commandExecutor ?? new FakeCommandExecutor();
 
     private ConnectionState _state = state;
-    private readonly List<FakeDbCommand> _dbCommands = new();
-    private readonly List<FakeDbTransaction> _dbTransactions = new();
+    private readonly List<FakeDbCommand> _dbCommands = [];
+    private readonly List<FakeDbTransaction> _dbTransactions = [];
 
     public void SetState(ConnectionState state)
         => _state = state;

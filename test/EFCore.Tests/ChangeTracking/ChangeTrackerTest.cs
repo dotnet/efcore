@@ -2977,7 +2977,7 @@ public class ChangeTrackerTest
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        public List<KontainerRoom> Rooms { get; } = new();
+        public List<KontainerRoom> Rooms { get; } = [];
     }
 
     private class KontainerRoom
@@ -2994,7 +2994,7 @@ public class ChangeTrackerTest
     {
         public int Id { get; set; }
         public string? Description { get; set; }
-        public List<KontainerRoom> Rooms { get; } = new();
+        public List<KontainerRoom> Rooms { get; } = [];
     }
 
     private class KontainerContext : DbContext
@@ -3645,7 +3645,7 @@ public class ChangeTrackerTest
     {
         public int Id { get; set; }
 
-        public List<Product> Products { get; } = new();
+        public List<Product> Products { get; } = [];
     }
 
     private class Product
@@ -3659,14 +3659,14 @@ public class ChangeTrackerTest
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; } = new();
+        public List<OrderDetails> OrderDetails { get; } = [];
     }
 
     private class OptionalCategory
     {
         public int Id { get; set; }
 
-        public List<OptionalProduct> Products { get; } = new();
+        public List<OptionalProduct> Products { get; } = [];
     }
 
     private class OptionalProduct
@@ -3710,7 +3710,7 @@ public class ChangeTrackerTest
 
         // ReSharper disable once CollectionNeverUpdated.Local
         // ReSharper disable once MemberHidesStaticFromOuterClass
-        public List<OrderDetails> OrderDetails { get; } = new();
+        public List<OrderDetails> OrderDetails { get; } = [];
     }
 
     private class OrderDetails

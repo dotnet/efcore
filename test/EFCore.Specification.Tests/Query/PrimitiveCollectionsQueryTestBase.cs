@@ -701,7 +701,7 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         using var context = Fixture.CreateContext();
 
-        _ = query(context, new[] { "foo" }).ToList();
+        _ = query(context, ["foo"]).ToList();
     }
 
     [ConditionalTheory]
@@ -1011,16 +1011,16 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = 10,
                     NullableString = "10",
-                    Ints = new[] { 1, 10 },
-                    Strings = new[] { "1", "10" },
-                    DateTimes = new DateTime[]
-                        {
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc), new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
-                        },
-                    Bools = new[] { true, false },
-                    Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
-                    NullableInts = new int?[] { 1, 10 },
-                    NullableStrings = new[] { "1", "10" }
+                    Ints = [1, 10],
+                    Strings = ["1", "10"],
+                    DateTimes =
+                    [
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc), new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
+                    ],
+                    Bools = [true, false],
+                    Enums = [MyEnum.Value1, MyEnum.Value2],
+                    NullableInts = [1, 10],
+                    NullableStrings = ["1", "10"]
                 },
                 new()
                 {
@@ -1032,19 +1032,18 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value2,
                     NullableInt = null,
                     NullableString = null,
-                    Ints = new[] { 1, 11, 111 },
-                    Strings = new[] { "1", "11", "111" },
+                    Ints = [1, 11, 111],
+                    Strings = ["1", "11", "111"],
                     DateTimes =
-                        new DateTime[]
-                        {
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                    [
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
-                        },
-                    Bools = new[] { false },
-                    Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
-                    NullableInts = new int?[] { 1, 11, null },
-                    NullableStrings = new[] { "1", "11", null }
+                    ],
+                    Bools = [false],
+                    Enums = [MyEnum.Value2, MyEnum.Value3],
+                    NullableInts = [1, 11, null],
+                    NullableStrings = ["1", "11", null]
                 },
                 new()
                 {
@@ -1056,21 +1055,20 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = 20,
                     NullableString = "20",
-                    Ints = new[] { 1, 1, 10, 10, 10, 1, 10 },
-                    Strings = new[] { "1", "10", "10", "1", "1" },
+                    Ints = [1, 1, 10, 10, 10, 1, 10],
+                    Strings = ["1", "10", "10", "1", "1"],
                     DateTimes =
-                        new DateTime[]
-                        {
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                    [
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc),
-                        },
-                    Bools = new[] { true, false },
-                    Enums = new[] { MyEnum.Value1, MyEnum.Value2 },
-                    NullableInts = new int?[] { 1, 1, 10, 10, null, 1 },
-                    NullableStrings = new[] { "1", "1", "10", "10", null, "1" }
+                            new(2020, 1, 10, 12, 30, 0, DateTimeKind.Utc)
+                    ],
+                    Bools = [true, false],
+                    Enums = [MyEnum.Value1, MyEnum.Value2],
+                    NullableInts = [1, 1, 10, 10, null, 1],
+                    NullableStrings = ["1", "1", "10", "10", null, "1"]
                 },
                 new()
                 {
@@ -1082,24 +1080,23 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value2,
                     NullableInt = null,
                     NullableString = null,
-                    Ints = new[] { 1, 1, 111, 11, 1, 111 },
-                    Strings = new[] { "1", "11", "111", "11" },
+                    Ints = [1, 1, 111, 11, 1, 111],
+                    Strings = ["1", "11", "111", "11"],
                     DateTimes =
-                        new DateTime[]
-                        {
-                            new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
+                    [
+                        new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 11, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 1, 12, 30, 0, DateTimeKind.Utc),
                             new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc),
-                        },
-                    Bools = new[] { false },
-                    Enums = new[] { MyEnum.Value2, MyEnum.Value3 },
-                    NullableInts = new int?[] { null, null },
-                    NullableStrings = new string?[] { null, null }
+                            new(2020, 1, 31, 12, 30, 0, DateTimeKind.Utc)
+                    ],
+                    Bools = [false],
+                    Enums = [MyEnum.Value2, MyEnum.Value3],
+                    NullableInts = [null, null],
+                    NullableStrings = [null, null]
                 },
                 new()
                 {
@@ -1111,11 +1108,11 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
                     Enum = MyEnum.Value1,
                     NullableInt = null,
                     NullableString = null,
-                    Ints = Array.Empty<int>(),
-                    Strings = Array.Empty<string>(),
-                    DateTimes = Array.Empty<DateTime>(),
-                    Bools = Array.Empty<bool>(),
-                    Enums = Array.Empty<MyEnum>(),
+                    Ints = [],
+                    Strings = [],
+                    DateTimes = [],
+                    Bools = [],
+                    Enums = [],
                     NullableInts = Array.Empty<int?>(),
                     NullableStrings = Array.Empty<string?>()
                 }

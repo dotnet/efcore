@@ -17,7 +17,7 @@ public class ModelConfiguration
     private readonly Dictionary<Type, PropertyConfiguration> _properties = new();
     private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = new();
     private readonly Dictionary<Type, ComplexPropertyConfiguration> _complexProperties = new();
-    private readonly HashSet<Type> _ignoredTypes = new();
+    private readonly HashSet<Type> _ignoredTypes = [];
     private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = new();
 
     /// <summary>

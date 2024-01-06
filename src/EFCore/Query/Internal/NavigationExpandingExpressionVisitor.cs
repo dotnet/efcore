@@ -28,8 +28,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         { QueryableMethods.LastOrDefaultWithPredicate, QueryableMethods.LastOrDefaultWithoutPredicate }
     };
 
-    private static readonly List<MethodInfo> SupportedFilteredIncludeOperations = new()
-    {
+    private static readonly List<MethodInfo> SupportedFilteredIncludeOperations =
+    [
         QueryableMethods.Where,
         QueryableMethods.OrderBy,
         QueryableMethods.OrderByDescending,
@@ -38,7 +38,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         QueryableMethods.Skip,
         QueryableMethods.Take,
         QueryableMethods.AsQueryable
-    };
+    ];
 
     private readonly QueryTranslationPreprocessor _queryTranslationPreprocessor;
     private readonly QueryCompilationContext _queryCompilationContext;
@@ -48,7 +48,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     private readonly ReducingExpressionVisitor _reducingExpressionVisitor;
     private readonly EntityReferenceOptionalMarkingExpressionVisitor _entityReferenceOptionalMarkingExpressionVisitor;
     private readonly RemoveRedundantNavigationComparisonExpressionVisitor _removeRedundantNavigationComparisonExpressionVisitor;
-    private readonly HashSet<string> _parameterNames = new();
+    private readonly HashSet<string> _parameterNames = [];
     private readonly ParameterExtractingExpressionVisitor _parameterExtractingExpressionVisitor;
     private readonly INavigationExpansionExtensibilityHelper _extensibilityHelper;
     private readonly HashSet<IEntityType> _nonCyclicAutoIncludeEntityTypes;
@@ -89,7 +89,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             parameterize: false,
             generateContextAccessors: true);
 
-        _nonCyclicAutoIncludeEntityTypes = !_queryCompilationContext.IgnoreAutoIncludes ? new HashSet<IEntityType>() : null!;
+        _nonCyclicAutoIncludeEntityTypes = !_queryCompilationContext.IgnoreAutoIncludes ? [] : null!;
     }
 
     /// <summary>
@@ -1105,7 +1105,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
 
             if (expression is ConstantExpression { Value: string navigationChain })
             {
-                var navigationPaths = navigationChain.Split(new[] { "." }, StringSplitOptions.None);
+                var navigationPaths = navigationChain.Split(["."], StringSplitOptions.None);
                 var includeTreeNodes = new Queue<IncludeTreeNode>();
                 includeTreeNodes.Enqueue(entityReference.IncludePaths);
                 foreach (var navigationName in navigationPaths)
@@ -1838,7 +1838,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
     {
         var genericTypeArguments = queryableMethod.IsGenericMethod
             ? queryableMethod.GetGenericArguments()
-            : Array.Empty<Type>();
+            : [];
 
         var enumerableArguments = arguments.Select(
             arg => arg is UnaryExpression { NodeType: ExpressionType.Quote, Operand: LambdaExpression } unaryExpression
@@ -2103,7 +2103,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         if (!_queryCompilationContext.IgnoreAutoIncludes
             && !_nonCyclicAutoIncludeEntityTypes.Contains(entityType))
         {
-            VerifyNoAutoIncludeCycles(entityType, new HashSet<IEntityType>(), new List<INavigationBase>());
+            VerifyNoAutoIncludeCycles(entityType, [], []);
         }
 
         var outboundNavigations = GetOutgoingEagerLoadedNavigations(entityType);

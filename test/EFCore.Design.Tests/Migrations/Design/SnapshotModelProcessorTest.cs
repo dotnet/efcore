@@ -61,7 +61,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         public void Can_resolve_ISnapshotModelProcessor_from_DI()
         {
             var assembly = typeof(SnapshotModelProcessorTest).Assembly;
-            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), new string[0])
+            var snapshotModelProcessor = new DesignTimeServicesBuilder(assembly, assembly, new TestOperationReporter(), [])
                 .Build(SqlServerTestHelpers.Instance.CreateContext())
                 .CreateScope()
                 .ServiceProvider

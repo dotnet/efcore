@@ -16,7 +16,7 @@ public class OwnedFixupTest
     private class Thing
     {
         public Guid ThingId { get; set; }
-        public List<OwnedByThing> OwnedByThings { get; set; } = new();
+        public List<OwnedByThing> OwnedByThings { get; set; } = [];
     }
 
     private class OwnedByThing
@@ -36,10 +36,7 @@ public class OwnedFixupTest
         var thing = new Thing
         {
             ThingId = Guid.NewGuid(),
-            OwnedByThings = new List<OwnedByThing>
-            {
-                new() { OwnedByThingId = Guid.NewGuid() }, new() { OwnedByThingId = Guid.NewGuid() }
-            }
+            OwnedByThings = [new() { OwnedByThingId = Guid.NewGuid() }, new() { OwnedByThingId = Guid.NewGuid() }]
         };
 
         context.Attach(thing);
@@ -5054,7 +5051,7 @@ public class OwnedFixupTest
         public IReadOnlyList<Role> Roles
             => _roles.AsReadOnly();
 
-        private readonly List<Role> _roles = new();
+        private readonly List<Role> _roles = [];
 
         public void SetRoles(IList<Role> roles)
         {

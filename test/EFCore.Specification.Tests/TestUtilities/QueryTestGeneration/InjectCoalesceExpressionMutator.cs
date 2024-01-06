@@ -33,7 +33,7 @@ public class InjectCoalesceExpressionMutator(DbContext context) : ExpressionMuta
     {
         private bool _insideLambda;
 
-        public List<Expression> FoundExpressions { get; } = new();
+        public List<Expression> FoundExpressions { get; } = [];
 
         public override Expression Visit(Expression node)
         {

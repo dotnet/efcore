@@ -1459,7 +1459,7 @@ public abstract partial class ModelBuilderTest
                 b =>
                 {
                     Assert.Equal(CoreStrings.IncompatibleSentinelValue("System.Byte[]", nameof(Quarks), nameof(Quarks.Up), "int"),
-                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Metadata.Sentinel = new byte[0]).Message);
+                        Assert.Throws<InvalidOperationException>(() => b.Property(e => e.Up).Metadata.Sentinel = Array.Empty<byte>()).Message);
                 });
         }
 
@@ -1948,7 +1948,7 @@ public abstract partial class ModelBuilderTest
             var namedIndex = entityType.FindIndex("Named")!;
             Assert.False(namedIndex.IsUnique);
             var descendingIndex = entityType.FindIndex("Descending")!;
-            Assert.Equal(Array.Empty<bool>(), descendingIndex.IsDescending);
+            Assert.Equal([], descendingIndex.IsDescending);
         }
 
         [ConditionalFact]
@@ -2772,7 +2772,7 @@ public abstract partial class ModelBuilderTest
                 {
                     b.PrimitiveCollection(e => e.Up).HasSentinel(null);
                     b.PrimitiveCollection(e => e.Down).HasSentinel(new ObservableCollection<string>());
-                    b.PrimitiveCollection<int[]>("Charm").HasSentinel(new int[0]);
+                    b.PrimitiveCollection<int[]>("Charm").HasSentinel([]);
                     b.PrimitiveCollection<List<string>>("Strange").HasSentinel(new List<string> { });
                     b.PrimitiveCollection<int[]>("Top").HasSentinel([77]);
                     b.PrimitiveCollection<List<string>>("Bottom").HasSentinel(new List<string> { "" });
@@ -2784,7 +2784,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(0, entityType.FindProperty(nameof(CollectionQuarks.Id))!.Sentinel);
             Assert.Null(entityType.FindProperty("Up")!.Sentinel);
             Assert.Equal(new ObservableCollection<string>(), entityType.FindProperty("Down")!.Sentinel);
-            Assert.Equal(new int[0], entityType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal(Array.Empty<int>(), entityType.FindProperty("Charm")!.Sentinel);
             Assert.Equal(new List<string> { }, entityType.FindProperty("Strange")!.Sentinel);
             Assert.Equal(new int[] { 77 }, entityType.FindProperty("Top")!.Sentinel);
             Assert.Equal(new List<string> { "" }, entityType.FindProperty("Bottom")!.Sentinel);

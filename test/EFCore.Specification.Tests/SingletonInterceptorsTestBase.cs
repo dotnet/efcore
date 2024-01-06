@@ -40,7 +40,7 @@ public abstract class SingletonInterceptorsTestBase<TContext> : NonSharedModelTe
         public int Id { get; set; }
 
         public string? Name { get; set; }
-        public List<KeyValueSetting30244> Settings { get; } = new();
+        public List<KeyValueSetting30244> Settings { get; } = [];
     }
 
     public class KeyValueSetting30244(string key, string value)

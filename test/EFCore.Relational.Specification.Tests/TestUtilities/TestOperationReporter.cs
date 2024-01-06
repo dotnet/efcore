@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class TestOperationReporter(ITestOutputHelper output = null) : IOperationReporter
 {
     private readonly ITestOutputHelper _output = output;
-    private readonly List<(LogLevel, string)> _messages = new();
+    private readonly List<(LogLevel, string)> _messages = [];
 
     public IReadOnlyList<(LogLevel Level, string Message)> Messages
         => _messages;

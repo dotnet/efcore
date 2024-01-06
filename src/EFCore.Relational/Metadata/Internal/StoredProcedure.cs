@@ -15,11 +15,11 @@ public class StoredProcedure :
     IMutableStoredProcedure,
     IConventionStoredProcedure
 {
-    private readonly List<StoredProcedureParameter> _parameters = new();
+    private readonly List<StoredProcedureParameter> _parameters = [];
     private readonly Dictionary<string, StoredProcedureParameter> _currentValueParameters = new();
     private readonly Dictionary<string, StoredProcedureParameter> _originalValueParameters = new();
     private StoredProcedureParameter? _rowsAffectedParameter;
-    private readonly List<StoredProcedureResultColumn> _resultColumns = new();
+    private readonly List<StoredProcedureResultColumn> _resultColumns = [];
     private StoredProcedureResultColumn? _rowsAffectedResultColumn;
     private readonly Dictionary<string, StoredProcedureResultColumn> _propertyResultColumns = new();
     private string? _schema;

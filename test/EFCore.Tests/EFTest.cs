@@ -53,7 +53,7 @@ public class EFTest
     private class Foo
     {
         public int Id { get; set; }
-        public List<Bar> Bars { get; } = new();
+        public List<Bar> Bars { get; } = [];
     }
 
     private class Bar

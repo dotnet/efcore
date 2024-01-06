@@ -3064,7 +3064,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersFunction = orderMapping.StoreFunction;
-            Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, new string[0]));
+            Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, []));
             Assert.Equal(
                 new[] { orderType },
                 ordersFunction.EntityTypeMappings.Select(m => m.TypeBase));

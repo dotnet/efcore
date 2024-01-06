@@ -41,7 +41,7 @@ public abstract class ModelCodeGeneratorTestBase
     {
         var testAssembly = typeof(ModelCodeGeneratorTestBase).Assembly;
         var reporter = new TestOperationReporter();
-        var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+        var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
         return services;
     }

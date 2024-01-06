@@ -615,7 +615,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
     {
         private readonly Func<DbContextOptionsBuilder, DbContextOptionsBuilder> _configureProvider = configureProvider;
 
-        public List<ConnectionCreationInterceptor> Interceptors { get; } = new();
+        public List<ConnectionCreationInterceptor> Interceptors { get; } = [];
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => _configureProvider(optionsBuilder).AddInterceptors(Interceptors);

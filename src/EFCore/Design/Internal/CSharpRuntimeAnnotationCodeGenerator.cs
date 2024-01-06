@@ -355,7 +355,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
         ICSharpHelper codeHelper)
     {
         var mainBuilder = parameters.MainBuilder;
-        var constructor = converter.GetType().GetDeclaredConstructor(new[] { typeof(JsonValueReaderWriter) });
+        var constructor = converter.GetType().GetDeclaredConstructor([typeof(JsonValueReaderWriter)]);
         var jsonReaderWriterProperty = converter.GetType().GetProperty(nameof(CollectionToJsonStringConverter<object>.JsonReaderWriter));
         if (constructor == null
             || jsonReaderWriterProperty == null)
@@ -415,7 +415,7 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
     {
         var mainBuilder = parameters.MainBuilder;
 
-        var constructor = comparer.GetType().GetDeclaredConstructor(new[] { typeof(ValueComparer) });
+        var constructor = comparer.GetType().GetDeclaredConstructor([typeof(ValueComparer)]);
         var elementComparerProperty = comparer.GetType().GetProperty(nameof(ListComparer<object>.ElementComparer));
         if (constructor == null
             || elementComparerProperty == null)

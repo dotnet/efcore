@@ -38,7 +38,7 @@ public class FakeRelationalConnection(IDbContextOptions options = null) : Relati
 {
     private DbConnection _connection;
 
-    private readonly List<FakeDbConnection> _dbConnections = new();
+    private readonly List<FakeDbConnection> _dbConnections = [];
 
     private class FakeDbContext : DbContext;
 

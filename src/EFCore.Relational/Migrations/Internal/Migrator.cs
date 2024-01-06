@@ -224,12 +224,12 @@ public class Migrator : IMigrator
                 .OrderBy(m => m.Key)
                 .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))
                 .ToList();
-            migrationsToRevert = Array.Empty<Migration>();
+            migrationsToRevert = [];
             actualTargetMigration = null;
         }
         else if (targetMigration == Migration.InitialDatabase)
         {
-            migrationsToApply = Array.Empty<Migration>();
+            migrationsToApply = [];
             migrationsToRevert = appliedMigrations
                 .OrderByDescending(m => m.Key)
                 .Select(p => _migrationsAssembly.CreateMigration(p.Value, _activeProvider))

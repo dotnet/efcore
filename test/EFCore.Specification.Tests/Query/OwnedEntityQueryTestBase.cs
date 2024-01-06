@@ -60,12 +60,12 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
             var em = new Movie
             {
                 Title = "Ex Machina",
-                Cast = new List<Actor>
-                {
+                Cast =
+                [
                     av,
                     oi,
                     dg
-                },
+                ],
                 Details = new Details { Info = "Best movie ever made" }
             };
 
@@ -292,27 +292,24 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
             {
                 FirstValueObject = new FirstValueObject
                 {
-                    SecondValueObjects = new List<SecondValueObject>
-                    {
+                    SecondValueObjects =
+                    [
                         new()
                         {
                             FourthValueObject =
-                                new FourthValueObject
-                                {
-                                    FifthValueObjects = new List<FifthValueObject> { new() { AnyValue = 10 } }
-                                },
-                            ThirdValueObjects = new List<ThirdValueObject>
-                            {
+                                new FourthValueObject { FifthValueObjects = [new() { AnyValue = 10 }] },
+                            ThirdValueObjects =
+                            [
                                 new()
                                 {
                                     FourthValueObject = new FourthValueObject
                                     {
-                                        FifthValueObjects = new List<FifthValueObject> { new() { AnyValue = 20 } }
+                                        FifthValueObjects = [new() { AnyValue = 20 }]
                                     }
                                 }
-                            }
+                            ]
                         }
-                    }
+                    ]
                 }
             };
 
@@ -628,10 +625,10 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
                 {
                     Reference = new Reference(),
                     OwnedReference = new Owned(),
-                    Collection = new List<Collection>
-                    {
-                        new(), new(),
-                    }
+                    Collection =
+                    [
+                        new(), new()
+                    ]
                 }
             };
 
@@ -836,7 +833,7 @@ public abstract class OwnedEntityQueryTestBase : NonSharedModelTestBase
         {
             public int Id { get; private set; }
 
-            private List<Post> _posts = new();
+            private List<Post> _posts = [];
 
             public static Blog Create(IEnumerable<Post> posts)
                 => new() { _posts = posts.ToList() };

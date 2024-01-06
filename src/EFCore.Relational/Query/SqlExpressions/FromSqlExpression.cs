@@ -33,7 +33,7 @@ public class FromSqlExpression : TableExpressionBase, ITableBasedExpression
     ///// </summary>
     ///// <param name="sqlQuery">A sql query associated with this table source.</param>
     //public FromSqlExpression(ISqlQuery sqlQuery)
-    //    : this(sqlQuery, sqlQuery.Sql, Constant(Array.Empty<object>(), typeof(object[])))
+    //    : this(sqlQuery, sqlQuery.Sql, Constant([], typeof(object[])))
     //{
     //}
 

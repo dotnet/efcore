@@ -30,14 +30,17 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         IModelRuntimeInitializer modelRuntimeInitializer)
     {
         _operationReporter = operationReporter;
-        _relationalNames = new HashSet<string>(
-            typeof(RelationalAnnotationNames)
+        _relationalNames =
+        [
+            ..typeof(RelationalAnnotationNames)
                 .GetRuntimeFields()
-                .Where(p => p.Name != nameof(RelationalAnnotationNames.Prefix)
-                    && p.Name != nameof(RelationalAnnotationNames.AllNames))
+                .Where(
+                    p => p.Name != nameof(RelationalAnnotationNames.Prefix)
+                        && p.Name != nameof(RelationalAnnotationNames.AllNames))
                 .Select(p => (string)p.GetValue(null)!)
                 .Where(v => v.IndexOf(':') > 0)
-                .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..]));
+                .Select(v => v[(RelationalAnnotationNames.Prefix.Length - 1)..])
+        ];
         _modelRuntimeInitializer = modelRuntimeInitializer;
     }
 

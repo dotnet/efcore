@@ -12,8 +12,8 @@ public class ProceduralQueryExpressionGenerator
 
     public ProceduralQueryExpressionGenerator(DbContext context)
     {
-        _mutators = new List<ExpressionMutator>
-        {
+        _mutators =
+        [
             new AppendSelectConstantExpressionMutator(context),
             new AppendSelectIdentityExpressionMutator(context),
             new AppendSelectPropertyExpressionMutator(context),
@@ -31,7 +31,7 @@ public class ProceduralQueryExpressionGenerator
             new AppendIncludeToExistingExpressionMutator(context),
             new InjectIncludeExpressionMutator(context),
             new InjectWhereExpressionMutator(context)
-        };
+        ];
     }
 
     public Expression Generate(Expression expression, Random random)
@@ -292,7 +292,7 @@ public class ProcedurallyGeneratedQueryExecutor
         }
         else
         {
-            _knownFailingTests[testName] = new List<string> { expectedException };
+            _knownFailingTests[testName] = [expectedException];
         }
     }
 

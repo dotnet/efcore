@@ -28,7 +28,7 @@ namespace Microsoft.Data.Sqlite
         private const int SQLITE_WIN32_DATA_DIRECTORY_TYPE = 1;
         private const int SQLITE_WIN32_TEMP_DIRECTORY_TYPE = 2;
 
-        private readonly List<WeakReference<SqliteCommand>> _commands = new();
+        private readonly List<WeakReference<SqliteCommand>> _commands = [];
 
         private Dictionary<string, (object? state, strdelegate_collation? collation)>? _collations;
 
@@ -704,7 +704,7 @@ namespace Microsoft.Data.Sqlite
         /// <param name="collectionName">The name of the schema.</param>
         /// <returns>Schema information.</returns>
         public override DataTable GetSchema(string collectionName)
-            => GetSchema(collectionName, Array.Empty<string>());
+            => GetSchema(collectionName, []);
 
         /// <summary>
         ///     Returns schema information for the data source of this connection.
@@ -754,7 +754,7 @@ namespace Microsoft.Data.Sqlite
                     rc = sqlite3_keyword_name(i, out keyword);
                     SqliteException.ThrowExceptionForRC(rc, null);
 
-                    dataTable.Rows.Add(new object[] { keyword });
+                    dataTable.Rows.Add([keyword]);
                 }
 
                 return dataTable;

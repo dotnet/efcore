@@ -15,11 +15,11 @@ public class InMemoryApiConsistencyTest(InMemoryApiConsistencyTest.InMemoryApiCo
 
     public class InMemoryApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(InMemoryServiceCollectionExtensions),
             typeof(InMemoryDbContextOptionsExtensions),
             typeof(InMemoryDbContextOptionsBuilder)
-        };
+        ];
     }
 }

@@ -22,7 +22,7 @@ public class SqlServerHierarchyIdTypeMapping : RelationalTypeMapping
     private const string HierarchyIdFormatConst = "hierarchyid::Parse('{0}')";
 
     private static readonly ConstructorInfo HierarchyIdConstructor
-        = typeof(HierarchyId).GetConstructor(new[] { typeof(string) })!;
+        = typeof(HierarchyId).GetConstructor([typeof(string)])!;
 
     private static readonly SqlServerHierarchyIdValueConverter ValueConverter = new();
 

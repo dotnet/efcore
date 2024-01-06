@@ -63,7 +63,7 @@ internal static class DictionaryExtensions
         {
             if (found)
             {
-                pairsRemainder ??= new List<KeyValuePair<TKey, TValue>>();
+                pairsRemainder ??= [];
 
                 pairsRemainder.Add(pair);
                 continue;

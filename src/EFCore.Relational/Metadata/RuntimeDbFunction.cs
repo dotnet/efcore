@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class RuntimeDbFunction : AnnotatableBase, IRuntimeDbFunction
 {
-    private readonly List<RuntimeDbFunctionParameter> _parameters = new();
+    private readonly List<RuntimeDbFunctionParameter> _parameters = [];
     private readonly MethodInfo? _methodInfo;
     private readonly Type _returnType;
     private readonly bool _isScalar;

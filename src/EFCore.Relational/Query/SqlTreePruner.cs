@@ -145,7 +145,7 @@ public class SqlTreePruner : ExpressionVisitor
     private SelectExpression PruneTopLevelSelect(SelectExpression select)
     {
 #if DEBUG
-        RemovedAliases = new();
+        RemovedAliases = [];
 #endif
         select = select.PruneToplevel(this);
 #if DEBUG

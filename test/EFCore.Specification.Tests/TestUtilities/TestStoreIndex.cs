@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class TestStoreIndex
 {
-    private readonly HashSet<string> _createdDatabases = new();
+    private readonly HashSet<string> _createdDatabases = [];
     private readonly ConcurrentDictionary<string, object> _creationLocks = new();
     private readonly object _hashSetLock = new();
 

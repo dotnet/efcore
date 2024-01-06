@@ -166,7 +166,7 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object[] CreatePrincipalKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-        => new object[] { _principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues)! };
+        => [_principalKeyValueFactory.CreateKeyValue(command, fromOriginalValues)!];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -176,6 +176,6 @@ public abstract class RowForeignKeyValueFactory<TKey, TForeignKey> : IRowForeign
     /// </summary>
     public virtual object[]? CreateDependentKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateDependentKeyValue(command, fromOriginalValues, out var value)
-            ? (new object[] { value })
+            ? [value]
             : null;
 }

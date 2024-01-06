@@ -11,12 +11,12 @@ public class TestProviderCodeGenerator(ProviderCodeGeneratorDependencies depende
         => new(
             _useTestProviderMethodInfo,
             providerOptions == null
-                ? new object[] { connectionString }
-                : new object[] { connectionString, new NestedClosureCodeFragment("x", providerOptions) });
+                ? [connectionString]
+                : [connectionString, new NestedClosureCodeFragment("x", providerOptions)]);
 
     private static readonly MethodInfo _useTestProviderMethodInfo
         = typeof(TestProviderCodeGenerator).GetRuntimeMethod(
-            nameof(UseTestProvider), new[] { typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>) })!;
+            nameof(UseTestProvider), [typeof(DbContextOptionsBuilder), typeof(string), typeof(Action<object>)])!;
 
     public static void UseTestProvider(
         DbContextOptionsBuilder optionsBuilder,

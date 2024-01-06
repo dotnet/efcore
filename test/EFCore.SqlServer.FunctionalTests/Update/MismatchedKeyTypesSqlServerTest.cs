@@ -528,8 +528,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public OptionalSingleIntLong? OptionalSingle { get; set; }
         public RequiredSingleIntLong? RequiredSingle { get; set; }
-        public List<OptionalManyIntLong> OptionalMany { get; } = new();
-        public List<RequiredManyIntLong> RequiredMany { get; } = new();
+        public List<OptionalManyIntLong> OptionalMany { get; } = [];
+        public List<RequiredManyIntLong> RequiredMany { get; } = [];
     }
 
     protected class OptionalSingleIntLong
@@ -570,8 +570,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public OptionalSingleShortByte? OptionalSingle { get; set; }
         public RequiredSingleShortByte? RequiredSingle { get; set; }
-        public List<OptionalManyShortByte> OptionalMany { get; } = new();
-        public List<RequiredManyShortByte> RequiredMany { get; } = new();
+        public List<OptionalManyShortByte> OptionalMany { get; } = [];
+        public List<RequiredManyShortByte> RequiredMany { get; } = [];
     }
 
     protected class OptionalSingleShortByte
@@ -612,8 +612,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public OptionalSingleStringGuid? OptionalSingle { get; set; }
         public RequiredSingleStringGuid? RequiredSingle { get; set; }
-        public List<OptionalManyStringGuid> OptionalMany { get; } = new();
-        public List<RequiredManyStringGuid> RequiredMany { get; } = new();
+        public List<OptionalManyStringGuid> OptionalMany { get; } = [];
+        public List<RequiredManyStringGuid> RequiredMany { get; } = [];
     }
 
     protected class OptionalSingleStringGuid
@@ -656,8 +656,8 @@ public class MismatchedKeyTypesSqlServerTest(MismatchedKeyTypesSqlServerTest.Mis
 
         public OptionalSingleComposite? OptionalSingle { get; set; }
         public RequiredSingleComposite? RequiredSingle { get; set; }
-        public List<OptionalManyComposite> OptionalMany { get; } = new();
-        public List<RequiredManyComposite> RequiredMany { get; } = new();
+        public List<OptionalManyComposite> OptionalMany { get; } = [];
+        public List<RequiredManyComposite> RequiredMany { get; } = [];
     }
 
     protected class OptionalSingleComposite

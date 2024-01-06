@@ -164,7 +164,7 @@ public class SqlServerDatabaseCreatorTest
 
     private class FakeRelationalCommandBuilder : IRelationalCommandBuilder
     {
-        private readonly List<IRelationalParameter> _parameters = new();
+        private readonly List<IRelationalParameter> _parameters = [];
         public IndentedStringBuilder Instance { get; } = new();
 
         public IReadOnlyList<IRelationalParameter> Parameters

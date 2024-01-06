@@ -23,7 +23,7 @@ public class AppServiceProviderFactoryTest
 
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
         Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);
-        var services = factory.Create(new[] { "arg1" });
+        var services = factory.Create(["arg1"]);
 
         Assert.NotNull(services.GetRequiredService<TestService>());
     }
@@ -63,12 +63,12 @@ public class AppServiceProviderFactoryTest
     {
         var factory = new TestAppServiceProviderFactory(
             MockAssembly.Create(
-                new[] { typeof(ProgramWithNoHostBuilder) },
+                [typeof(ProgramWithNoHostBuilder)],
                 new MockMethodInfo(typeof(ProgramWithNoHostBuilder), InjectHostIntoDiagnostics)));
 
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", null);
         Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);
-        var services = factory.Create(new[] { "arg1" });
+        var services = factory.Create(["arg1"]);
 
         Assert.NotNull(services.GetRequiredService<TestService>());
     }
@@ -109,7 +109,7 @@ public class AppServiceProviderFactoryTest
         var factory = new TestAppServiceProviderFactory(
             MockAssembly.Create(typeof(ProgramWithoutBuildWebHost)));
 
-        var services = factory.Create(Array.Empty<string>());
+        var services = factory.Create([]);
 
         Assert.NotNull(services);
     }
@@ -124,7 +124,7 @@ public class AppServiceProviderFactoryTest
             MockAssembly.Create(typeof(ProgramWithThrowingBuildWebHost)),
             reporter);
 
-        var services = factory.Create(Array.Empty<string>());
+        var services = factory.Create([]);
 
         Assert.NotNull(services);
         Assert.Contains(
@@ -156,7 +156,7 @@ public class TestWebHostBuilder(IServiceProvider services)
 
 public class TestOperationReporter : IOperationReporter
 {
-    private readonly List<string> _messages = new();
+    private readonly List<string> _messages = [];
 
     public IReadOnlyList<string> Messages
         => _messages;

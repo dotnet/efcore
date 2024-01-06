@@ -66,7 +66,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             _indexBasedBinding = true;
             _projectionBindingCache = new Dictionary<StructuralTypeProjectionExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
-            _clientProjections = new List<Expression>();
+            _clientProjections = [];
 
             result = Visit(expression);
 

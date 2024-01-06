@@ -94,15 +94,15 @@ public class DateTimeOffsetConvertersTest
 
         Assert.Equal(
             new DateTimeOffset(1973, 9, 3, 0, 10, 15, new TimeSpan(7, 30, 0)),
-            converter(new byte[] { 8, 163, 157, 186, 146, 57, 205, 128, 1, 194 }));
+            converter([8, 163, 157, 186, 146, 57, 205, 128, 1, 194]));
 
         Assert.Equal(
             new DateTimeOffset(),
-            converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
+            converter([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]));
 
-        Assert.Equal(new DateTimeOffset(), converter(new byte[0]));
+        Assert.Equal(new DateTimeOffset(), converter([]));
         Assert.Throws<NullReferenceException>(() => converter(null));
-        Assert.Throws<IndexOutOfRangeException>(() => converter(new byte[] { 1, 2 }));
+        Assert.Throws<IndexOutOfRangeException>(() => converter([1, 2]));
     }
 
     [ConditionalFact]
@@ -134,7 +134,7 @@ public class DateTimeOffsetConvertersTest
             new DateTimeOffset(),
             converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
 
-        Assert.Equal(new DateTimeOffset(), converter(new byte[0]));
+        Assert.Equal(new DateTimeOffset(), converter(Array.Empty<byte>()));
         Assert.Throws<IndexOutOfRangeException>(() => converter(new byte[] { 1, 2 }));
         Assert.Null(converter(null));
     }

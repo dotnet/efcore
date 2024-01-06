@@ -1631,8 +1631,8 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 {
                     Id = 1,
                     Name = "Sol",
-                    Composition = new List<Element>
-                    {
+                    Composition =
+                    [
                         new()
                         {
                             Id = "H",
@@ -1645,7 +1645,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                             Name = "Helium",
                             StarId = 1
                         }
-                    }
+                    ]
                 }
             };
 
@@ -1759,7 +1759,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -10,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2018-07-11 10:01:41"),
-                Details = new List<OrderDetail> { new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" } }
+                Details = [new() { Detail = "Discounted Order" }, new() { Detail = "Full Price Order" }]
             };
 
             var order2 = new Order
@@ -1767,7 +1767,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -11,
                 Client = ownedPerson1,
                 ["OrderDate"] = Convert.ToDateTime("2015-03-03 04:37:59"),
-                Details = new List<OrderDetail>()
+                Details = []
             };
             ownedPerson1.Orders = new List<Order> { order1, order2 };
 
@@ -1776,7 +1776,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -20,
                 Client = ownedPerson2,
                 ["OrderDate"] = Convert.ToDateTime("2015-05-25 20:35:48"),
-                Details = new List<OrderDetail> { new() { Detail = "Internal Order" } }
+                Details = [new() { Detail = "Internal Order" }]
             };
             ownedPerson2.Orders = new List<Order> { order3 };
 
@@ -1785,7 +1785,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -30,
                 Client = ownedPerson3,
                 ["OrderDate"] = Convert.ToDateTime("2014-11-10 04:32:42"),
-                Details = new List<OrderDetail> { new() { Detail = "Bulk Order" } }
+                Details = [new() { Detail = "Bulk Order" }]
             };
             ownedPerson3.Orders = new List<Order> { order4 };
 
@@ -1794,7 +1794,7 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 Id = -40,
                 Client = ownedPerson4,
                 ["OrderDate"] = Convert.ToDateTime("2016-04-25 19:23:56"),
-                Details = new List<OrderDetail>()
+                Details = []
             };
             ownedPerson4.Orders = new List<Order> { order5 };
 
@@ -1848,9 +1848,9 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             leafB.PersonAddress.Country.Planet = planets[0];
             leafB.LeafBAddress.Country.Planet = planets[0];
 
-            planets[0].Moons = new List<Moon> { moons[0] };
+            planets[0].Moons = [moons[0]];
             planets[0].Star = stars[0];
-            stars[0].Planets = new List<Planet> { planets[0] };
+            stars[0].Planets = [planets[0]];
 
             finks[0].Barton = bartons[0];
         }

@@ -137,9 +137,9 @@ public partial class EntityTypeTest
         c.BaseType = b;
         d.BaseType = a;
 
-        Assert.Equal(new[] { b, d, c }, a.GetDerivedTypes().ToArray());
-        Assert.Equal(new[] { c }, b.GetDerivedTypes().ToArray());
-        Assert.Equal(new[] { b, d }, a.GetDirectlyDerivedTypes().ToArray());
+        Assert.Equal([b, d, c], a.GetDerivedTypes().ToArray());
+        Assert.Equal([c], b.GetDerivedTypes().ToArray());
+        Assert.Equal([b, d], a.GetDirectlyDerivedTypes().ToArray());
     }
 
     [ConditionalFact]
@@ -506,7 +506,7 @@ public partial class EntityTypeTest
         bType.AddProperty(B.FProperty);
 
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
             Array.Empty<string[]>(),
@@ -520,10 +520,10 @@ public partial class EntityTypeTest
         var b = builtModel.FindEntityType(typeof(B));
 
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -552,10 +552,10 @@ public partial class EntityTypeTest
         model.FinalizeModel();
 
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             b.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(new[] { "G", "E" }, a.GetProperties().Select(p => p.Name).ToArray());
         Assert.Equal(new[] { "G", "E", "F" }, b.GetProperties().Select(p => p.Name).ToArray());
@@ -581,7 +581,7 @@ public partial class EntityTypeTest
         b.BaseType = null;
 
         Assert.Equal(
-            new[] { new[] { "E" }, new[] { "G" } },
+            [["E"], ["G"]],
             a.GetKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
             Array.Empty<string[]>(),
@@ -677,7 +677,7 @@ public partial class EntityTypeTest
         var specialCustomerType = model.AddEntityType(typeof(SpecialCustomer));
 
         Assert.Equal(new[] { "Orders" }, customerType.GetNavigations().Select(p => p.Name).ToArray());
-        Assert.Equal(Array.Empty<string>(), specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
+        Assert.Equal([], specialCustomerType.GetNavigations().Select(p => p.Name).ToArray());
 
         specialCustomerType.BaseType = customerType;
 
@@ -979,19 +979,19 @@ public partial class EntityTypeTest
         specialOrderType.AddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.IdProperty.Name } },
+            [[Order.IdProperty.Name]],
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
         specialOrderType.BaseType = orderType;
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            [[Order.CustomerIdProperty.Name], [Order.IdProperty.Name]],
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Same(customerForeignKey, specialOrderType.FindForeignKey(foreignKeyProperty, customerKey, customerType));
     }
@@ -1013,20 +1013,20 @@ public partial class EntityTypeTest
         orderType.AddForeignKey(foreignKeyProperty, customerKey, customerType);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
         var derivedForeignKeyProperty = specialOrderType.AddProperty(Order.IdProperty);
         specialOrderType.AddForeignKey(derivedForeignKeyProperty, customerKey, customerType);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            [[Order.CustomerIdProperty.Name], [Order.IdProperty.Name]],
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
@@ -1051,10 +1051,10 @@ public partial class EntityTypeTest
         specialOrderType.BaseType = null;
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.IdProperty.Name } },
+            [[Order.IdProperty.Name]],
             specialOrderType.GetForeignKeys().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
@@ -1080,7 +1080,7 @@ public partial class EntityTypeTest
 
         Assert.Equal(2, orderType.FindForeignKeys(customerFkProperty).Count());
         Assert.Same(fk2, orderType.FindForeignKey(customerFkProperty, customerKey1, customerType));
-        Assert.Equal(new[] { fk1, fk2 }, orderType.GetForeignKeys().ToArray());
+        Assert.Equal([fk1, fk2], orderType.GetForeignKeys().ToArray());
     }
 
     [ConditionalFact]
@@ -1253,19 +1253,19 @@ public partial class EntityTypeTest
         specialOrderType.AddIndex(derivedIndexProperty);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.IdProperty.Name } },
+            [[Order.IdProperty.Name]],
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
         specialOrderType.BaseType = orderType;
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            [[Order.CustomerIdProperty.Name], [Order.IdProperty.Name]],
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Same(index, specialOrderType.FindIndex(indexProperty));
     }
@@ -1284,20 +1284,20 @@ public partial class EntityTypeTest
         orderType.AddIndex(indexProperty);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
 
         var derivedIndexProperty = specialOrderType.AddProperty(Order.IdProperty);
         specialOrderType.AddIndex(derivedIndexProperty);
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name }, new[] { Order.IdProperty.Name } },
+            [[Order.CustomerIdProperty.Name], [Order.IdProperty.Name]],
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 
@@ -1319,10 +1319,10 @@ public partial class EntityTypeTest
         specialOrderType.BaseType = null;
 
         Assert.Equal(
-            new[] { new[] { Order.CustomerIdProperty.Name } },
+            [[Order.CustomerIdProperty.Name]],
             orderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
         Assert.Equal(
-            new[] { new[] { Order.IdProperty.Name } },
+            [[Order.IdProperty.Name]],
             specialOrderType.GetIndexes().Select(fk => fk.Properties.Select(p => p.Name).ToArray()).ToArray());
     }
 

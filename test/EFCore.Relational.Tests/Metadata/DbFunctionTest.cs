@@ -33,7 +33,7 @@ public class DbFunctionTest
             => optionsBuilder.UseFakeRelational();
 
         public static readonly string[] FunctionNames =
-        {
+        [
             nameof(StaticPublicBase),
             nameof(StaticProtectedBase),
             nameof(StaticPrivateBase),
@@ -44,7 +44,7 @@ public class DbFunctionTest
             nameof(InstancePrivateBase),
             nameof(InstanceInternalBase),
             nameof(InstanceProtectedInternalBase)
-        };
+        ];
 
         public static void Foo()
         {
@@ -109,7 +109,7 @@ public class DbFunctionTest
             => modelBuilder.Entity<Foo>().HasNoKey();
 
         public static new readonly string[] FunctionNames =
-        {
+        [
             nameof(StaticPublicDerived),
             nameof(StaticProtectedDerived),
             nameof(StaticPrivateDerived),
@@ -120,7 +120,7 @@ public class DbFunctionTest
             nameof(InstancePrivateDerived),
             nameof(InstanceInternalDerived),
             nameof(InstanceProtectedInternalDerived)
-        };
+        ];
 
         public static void Bar()
         {
@@ -204,13 +204,13 @@ public class DbFunctionTest
     }
 
     private static readonly MethodInfo MethodAmi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodA), new[] { typeof(string), typeof(int) });
+        nameof(TestMethods.MethodA), [typeof(string), typeof(int)]);
 
     private static readonly MethodInfo MethodBmi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodB), new[] { typeof(string), typeof(int) });
+        nameof(TestMethods.MethodB), [typeof(string), typeof(int)]);
 
     private static readonly MethodInfo MethodImi = typeof(TestMethods).GetRuntimeMethod(
-        nameof(TestMethods.MethodI), new Type[] { });
+        nameof(TestMethods.MethodI), []);
 
     private static readonly MethodInfo MethodHmi = typeof(TestMethods).GetTypeInfo().GetDeclaredMethod(nameof(TestMethods.MethodH));
 
@@ -276,11 +276,11 @@ public class DbFunctionTest
 
         var dup1methodInfo
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyDerivedContext.DuplicateNameTest), []);
 
         var dup2methodInfo
             = typeof(MyNonDbContext)
-                .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyNonDbContext.DuplicateNameTest), []);
 
         var dbFunc1 = modelBuilder.HasDbFunction(dup1methodInfo).HasName("Dup1").Metadata;
         var dbFunc2 = modelBuilder.HasDbFunction(dup2methodInfo).HasName("Dup2").Metadata;
@@ -320,7 +320,7 @@ public class DbFunctionTest
 
         var methodInfo
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyDerivedContext.InstancePublicBase), []);
 
         var dbFunc = modelBuilder.HasDbFunction(methodInfo).Metadata;
 
@@ -338,7 +338,7 @@ public class DbFunctionTest
 
         var methodInfo
             = typeof(MyNonDbContext)
-                .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyNonDbContext.NonStatic), []);
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidInstanceType(methodInfo.DisplayName(), typeof(MyNonDbContext).ShortDisplayName()),
@@ -350,7 +350,7 @@ public class DbFunctionTest
     {
         var modelBuilder = GetModelBuilder();
 
-        var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), Array.Empty<Type>());
+        var methodInfo = typeof(TestMethods).GetRuntimeMethod(nameof(TestMethods.MethodC), []);
 
         Assert.Equal(
             RelationalStrings.DbFunctionInvalidReturnType(nameof(TestMethods.MethodC), typeof(void).ShortDisplayName()),
@@ -656,7 +656,7 @@ public class DbFunctionTest
 
         var queryableNoParams
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), []);
 
         var functionName = modelBuilder.HasDbFunction(queryableNoParams).Metadata.ModelName;
 
@@ -679,7 +679,7 @@ public class DbFunctionTest
 
         var queryableNoParams
             = typeof(MyDerivedContext)
-                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), Array.Empty<Type>());
+                .GetRuntimeMethod(nameof(MyDerivedContext.QueryableNoParams), []);
 
         Assert.Equal(
             RelationalStrings.NonScalarFunctionCannotBeNullable(nameof(MyDerivedContext.QueryableNoParams)),
@@ -692,7 +692,7 @@ public class DbFunctionTest
         var modelBuilder = GetModelBuilder();
 
         var queryableSingleParam = typeof(MyDerivedContext)
-            .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), new[] { typeof(int) });
+            .GetRuntimeMethod(nameof(MyDerivedContext.QueryableSingleParam), [typeof(int)]);
 
         var function = modelBuilder.HasDbFunction(queryableSingleParam);
         var parameter = function.HasParameter("i");

@@ -13,8 +13,8 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 /// </summary>
 public class SqliteObjectToStringTranslator : IMethodCallTranslator
 {
-    private static readonly HashSet<Type> TypeMapping = new()
-    {
+    private static readonly HashSet<Type> TypeMapping =
+    [
         typeof(bool),
         typeof(byte),
         typeof(byte[]),
@@ -34,7 +34,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         typeof(TimeSpan),
         typeof(uint),
         typeof(ushort)
-    };
+    ];
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerTimeOnlyMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo AddHoursMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.AddHours), new[] { typeof(double) })!;
+        nameof(TimeOnly.AddHours), [typeof(double)])!;
 
     private static readonly MethodInfo AddMinutesMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.AddMinutes), new[] { typeof(double) })!;
+        nameof(TimeOnly.AddMinutes), [typeof(double)])!;
 
     private static readonly MethodInfo IsBetweenMethod = typeof(TimeOnly).GetRuntimeMethod(
-        nameof(TimeOnly.IsBetween), new[] { typeof(TimeOnly), typeof(TimeOnly) })!;
+        nameof(TimeOnly.IsBetween), [typeof(TimeOnly), typeof(TimeOnly)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

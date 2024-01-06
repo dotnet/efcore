@@ -15,12 +15,11 @@ public abstract class JsonTypesRelationalTestBase : JsonTypesTestBase
         => Can_read_and_write_JSON_collection_value<StringCollectionType, List<string>>(
             b => b.ElementType().IsFixedLength().HasMaxLength(32),
             nameof(StringCollectionType.String),
-            new List<string>
-            {
+            [
                 "MinValue",
                 "Value",
                 "MaxValue"
-            },
+            ],
             """{"Prop":["MinValue","Value","MaxValue"]}""",
             facets: new Dictionary<string, object?>
             {
@@ -35,12 +34,11 @@ public abstract class JsonTypesRelationalTestBase : JsonTypesTestBase
         => Can_read_and_write_JSON_collection_value<StringCollectionType, List<string>>(
             b => b.ElementType().IsUnicode(false),
             nameof(StringCollectionType.String),
-            new List<string>
-            {
+            [
                 "MinValue",
                 "Value",
                 "MaxValue"
-            },
+            ],
             """{"Prop":["MinValue","Value","MaxValue"]}""",
             facets: new Dictionary<string, object?>
             {

@@ -55,7 +55,7 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
 
         var parseMethod = type.GetMethod(
             nameof(double.Parse),
-            new[] { typeof(string), typeof(NumberStyles), typeof(IFormatProvider) })!;
+            [typeof(string), typeof(NumberStyles), typeof(IFormatProvider)])!;
 
         var param = Expression.Parameter(typeof(string), "v");
 
@@ -95,7 +95,7 @@ public class StringNumberConverter<TModel, TProvider, TNumber> : ValueConverter<
 
         var formatMethod = typeof(string).GetMethod(
             nameof(string.Format),
-            new[] { typeof(IFormatProvider), typeof(string), typeof(object) })!;
+            [typeof(IFormatProvider), typeof(string), typeof(object)])!;
 
         var param = Expression.Parameter(typeof(TNumber), "v");
 

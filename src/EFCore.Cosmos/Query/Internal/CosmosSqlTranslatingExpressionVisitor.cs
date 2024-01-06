@@ -25,13 +25,13 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         typeof(CosmosSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor));
 
     private static readonly MethodInfo ConcatMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Concat), new[] { typeof(object), typeof(object) });
+        = typeof(string).GetRuntimeMethod(nameof(string.Concat), [typeof(object), typeof(object)]);
 
     private static readonly MethodInfo StringEqualsWithStringComparison
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) });
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(StringComparison)]);
 
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) });
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(string), typeof(StringComparison)]);
 
     private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
@@ -472,7 +472,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && right is SqlExpression rightSql)
             {
                 sqlObject = leftSql;
-                arguments = new[] { rightSql };
+                arguments = [rightSql];
             }
             else
             {
@@ -499,7 +499,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (left is SqlExpression leftSql
                 && right is SqlExpression rightSql)
             {
-                arguments = new[] { leftSql, rightSql };
+                arguments = [leftSql, rightSql];
             }
             else
             {
@@ -579,7 +579,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                 {
                     var translatedValues = values is IList iList
                         ? new List<SqlExpression>(iList.Count)
-                        : new List<SqlExpression>();
+                        : [];
                     foreach (var value in values)
                     {
                         translatedValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));

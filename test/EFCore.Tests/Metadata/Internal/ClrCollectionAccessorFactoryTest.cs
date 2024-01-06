@@ -362,16 +362,16 @@ public class ClrCollectionAccessorFactoryTest
                 _asICollection = new HashSet<MyOtherEntity>();
                 _asICollectionOfEntitiesWithCustomComparer = new HashSet<MyEntityWithCustomComparer>();
                 _asIList = new List<MyOtherEntity>();
-                _asList = new List<MyOtherEntity>();
-                _myCollection = new MyCollection();
+                _asList = [];
+                _myCollection = [];
                 _withNoBackingFieldFound = new HashSet<MyOtherEntity>();
                 _withNoSetter = new HashSet<MyOtherEntity>();
                 _withNoGetter = new HashSet<MyOtherEntity>();
                 _enumerable = new HashSet<MyOtherEntity>();
                 _enumerableNotCollection = new MyEnumerable();
-                _array = Array.Empty<MyOtherEntity>();
+                _array = [];
                 _privateCollection = MyPrivateCollection.Create();
-                _internalCollection = new MyInternalCollection();
+                _internalCollection = [];
                 _unavailableCollection = new MyUnavailableCollection(true);
                 AutoProp = new HashSet<MyOtherEntity>();
                 ReadOnlyAutoProp = new HashSet<MyOtherEntity>();
@@ -519,7 +519,7 @@ public class ClrCollectionAccessorFactoryTest
         }
 
         public static MyPrivateCollection Create()
-            => new();
+            => [];
     }
 
     private class MyInternalCollection : List<MyOtherEntity>

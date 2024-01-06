@@ -3870,7 +3870,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             async,
             ss => ss.Set<Order>().Where(e => dates.Contains(e.OrderDate.Value.Date)));
 
-        dates = new[] { new DateTime(1996, 07, 04) };
+        dates = [new DateTime(1996, 07, 04)];
 
         await AssertQuery(
             async,
@@ -4793,9 +4793,9 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual Task OrderBy_object_type_server_evals(bool async)
     {
         Expression<Func<Order, object>>[] orderingExpressions =
-        {
+        [
             o => o.OrderID, o => o.OrderDate, o => o.Customer.CustomerID, o => o.Customer.City
-        };
+        ];
 
         return AssertQuery(
             async,

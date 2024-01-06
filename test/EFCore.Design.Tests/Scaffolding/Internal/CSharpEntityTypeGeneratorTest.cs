@@ -253,10 +253,10 @@ public partial class Vista
                         x.Property<int>("B");
                         x.Property<int>("C");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                        x.HasIndex(["A", "B"], "IndexOnAAndB")
                             .IsUnique()
                             .IsDescending(true, false);
-                        x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC");
+                        x.HasIndex(["B", "C"], "IndexOnBAndC");
                         x.HasIndex("C");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
@@ -312,9 +312,9 @@ public partial class EntityWithIndexes
                         x.Property<int>("A");
                         x.Property<int>("B");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "AllAscending");
-                        x.HasIndex(new[] { "A", "B" }, "PartiallyDescending").IsDescending(true, false);
-                        x.HasIndex(new[] { "A", "B" }, "AllDescending").IsDescending();
+                        x.HasIndex(["A", "B"], "AllAscending");
+                        x.HasIndex(["A", "B"], "PartiallyDescending").IsDescending(true, false);
+                        x.HasIndex(["A", "B"], "AllDescending").IsDescending();
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
@@ -358,7 +358,7 @@ public partial class EntityWithAscendingDescendingIndexes
                     i =>
                     {
                         Assert.Equal("AllDescending", i.Name);
-                        Assert.Equal(Array.Empty<bool>(), i.IsDescending);
+                        Assert.Equal([], i.IsDescending);
                     },
                     i =>
                     {
@@ -380,9 +380,9 @@ public partial class EntityWithAscendingDescendingIndexes
                         x.Property<int>("B");
                         x.Property<int>("C");
                         x.HasKey("Id");
-                        x.HasIndex(new[] { "A", "B" }, "IndexOnAAndB")
+                        x.HasIndex(["A", "B"], "IndexOnAAndB")
                             .IsUnique();
-                        x.HasIndex(new[] { "B", "C" }, "IndexOnBAndC")
+                        x.HasIndex(["B", "C"], "IndexOnBAndC")
                             .HasFilter("Filter SQL");
                     }),
             new ModelCodeGenerationOptions { UseDataAnnotations = true },

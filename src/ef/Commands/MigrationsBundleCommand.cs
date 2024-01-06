@@ -138,7 +138,7 @@ internal partial class MigrationsBundleCommand
             publishArgs.Add("--runtime");
             publishArgs.Add(runtime);
 
-            var baseLength = runtime.IndexOfAny(new[] { '-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' });
+            var baseLength = runtime.IndexOfAny(['-', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']);
             var baseRid = runtime.Substring(0, baseLength);
             var exe = string.Equals(baseRid, "win", StringComparison.OrdinalIgnoreCase)
                 ? ".exe"

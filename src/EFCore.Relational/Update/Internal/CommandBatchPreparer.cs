@@ -658,7 +658,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                         if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
                         {
-                            predecessorCommands = new List<IReadOnlyModificationCommand>();
+                            predecessorCommands = [];
                             predecessorsMap.Add(principalKeyValue, predecessorCommands);
                         }
 
@@ -685,7 +685,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                         if (!predecessorsMap.TryGetValue(principalKeyValue, out var predecessorCommands))
                         {
-                            predecessorCommands = new List<IReadOnlyModificationCommand>();
+                            predecessorCommands = [];
                             predecessorsMap.Add(principalKeyValue, predecessorCommands);
                         }
 
@@ -711,7 +711,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         {
                             if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                             {
-                                predecessorCommands = new List<IReadOnlyModificationCommand>();
+                                predecessorCommands = [];
                                 originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
                             }
 
@@ -738,7 +738,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             {
                                 if (!originalPredecessorsMap.TryGetValue(dependentKeyValue, out var predecessorCommands))
                                 {
-                                    predecessorCommands = new List<IReadOnlyModificationCommand>();
+                                    predecessorCommands = [];
                                     originalPredecessorsMap.Add(dependentKeyValue, predecessorCommands);
                                 }
 
@@ -1159,7 +1159,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
                         if (!indexPredecessorsMap.TryGetValue(value, out var predecessorCommands))
                         {
-                            predecessorCommands = new List<IReadOnlyModificationCommand>();
+                            predecessorCommands = [];
                             indexPredecessorsMap.Add(value, predecessorCommands);
                         }
 
@@ -1182,7 +1182,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     Check.DebugAssert(keyValue != null, "null keyValue");
                     if (!keyPredecessorsMap.TryGetValue((key, keyValue), out var predecessorCommands))
                     {
-                        predecessorCommands = new List<IReadOnlyModificationCommand>();
+                        predecessorCommands = [];
                         keyPredecessorsMap.Add((key, keyValue), predecessorCommands);
                     }
 
@@ -1206,7 +1206,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         Check.DebugAssert(keyValue != null, "null keyValue");
                         if (!keyPredecessorsMap.TryGetValue((key, keyValue), out var predecessorCommands))
                         {
-                            predecessorCommands = new List<IReadOnlyModificationCommand>();
+                            predecessorCommands = [];
                             keyPredecessorsMap.Add((key, keyValue), predecessorCommands);
                         }
 
@@ -1301,7 +1301,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                 var table = (command.TableName, command.Schema);
                 if (!deletedDictionary.TryGetValue(table, out var deletedCommands))
                 {
-                    deletedCommands = (new List<IReadOnlyModificationCommand>(), false);
+                    deletedCommands = ([], false);
                     deletedDictionary.Add(table, deletedCommands);
                 }
 

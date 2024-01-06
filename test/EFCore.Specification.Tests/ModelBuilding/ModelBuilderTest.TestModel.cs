@@ -1036,7 +1036,7 @@ public abstract partial class ModelBuilderTest
 
         public ManyToManyNavPrincipal()
         {
-            _randomField = new List<NavDependent>();
+            _randomField = [];
         }
 
         public int Id { get; set; }
@@ -1236,15 +1236,15 @@ public abstract partial class ModelBuilderTest
     protected class AmbiguousManyToManyImplicitLeft
     {
         public int Id { get; set; }
-        public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = new();
-        public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = new();
+        public List<AmbiguousManyToManyImplicitRight> Navigation1 { get; } = [];
+        public List<AmbiguousManyToManyImplicitRight> Navigation2 { get; } = [];
     }
 
     protected class AmbiguousManyToManyImplicitRight
     {
         public int Id { get; set; }
-        public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = new();
-        public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = new();
+        public List<AmbiguousManyToManyImplicitLeft> Navigation1 { get; } = [];
+        public List<AmbiguousManyToManyImplicitLeft> Navigation2 { get; } = [];
     }
 
     protected class AmbiguousInversePropertyLeft
@@ -1335,7 +1335,7 @@ public abstract partial class ModelBuilderTest
     {
         public Guid Id { get; set; }
         public decimal Number { get; set; }
-        public List<OwnedOtter> OwnedEntities { get; } = new();
+        public List<OwnedOtter> OwnedEntities { get; } = [];
     }
 
     protected class OwnedOtter

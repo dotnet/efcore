@@ -815,7 +815,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         return (IQueryable)(collectionNavigation ? SelectManyMethod : SelectMethod)
             .MakeGenericMethod(ownerEntityType.ClrType, entityType.ClrType)
-            .Invoke(null, new object[] { queryRoot, navigationName })!;
+            .Invoke(null, [queryRoot, navigationName])!;
     }
 
     private static readonly MethodInfo SelectMethod

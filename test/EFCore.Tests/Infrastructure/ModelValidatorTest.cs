@@ -266,7 +266,7 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
 
     protected class MyCollection : IList<int>
     {
-        private readonly List<int> _list = new();
+        private readonly List<int> _list = [];
         public IEnumerator<int> GetEnumerator() => _list.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         public void Add(int item) => _list.Add(item);

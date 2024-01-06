@@ -20,8 +20,8 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>
     }
 
     protected override List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "Microsoft.AspNetCore.Identity.IdentityRole<int>",
@@ -139,6 +139,6 @@ public abstract class AspNetIdentityIntKeyTestBase<TFixture>
                     "Property: IdentityUserToken<int>.Value (string)",
                 },
                 FKs = { "ForeignKey: IdentityUserToken<int> {'UserId'} -> IdentityUser<int> {'Id'} Required Cascade", },
-            },
-        };
+            }
+        ];
 }

@@ -158,8 +158,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
             });
 
     protected override List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimString",
@@ -331,8 +331,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 {
                     "Navigation: CustomUserTokenString.User (CustomUserString) ToPrincipal CustomUserString Inverse: Tokens PropertyAccessMode.Field",
                 },
-            },
-        };
+            }
+        ];
 }
 
 public class CustomTypesIdentityContext(DbContextOptions options) : IdentityDbContext<CustomUserString, CustomRoleString, string, CustomUserClaimString,

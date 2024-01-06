@@ -82,7 +82,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         _sqlBuilder.Clear();
         _parameterValues = parameterValues;
-        _sqlParameters = new List<SqlParameter>();
+        _sqlParameters = [];
         _parameterNameGenerator = new ParameterNameGenerator();
 
         Visit(selectExpression);

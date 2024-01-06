@@ -1073,7 +1073,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             "\r\n-- Missing virtual APIs --\r\n" + string.Join(Environment.NewLine, nonVirtualMethods));
     }
 
-    private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = new();
+    private static readonly HashSet<MethodInfo> _nonCancellableAsyncMethods = [];
 
     protected virtual HashSet<MethodInfo> NonCancellableAsyncMethods
         => _nonCancellableAsyncMethods;
@@ -1236,7 +1236,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             Initialize();
         }
 
-        public virtual HashSet<Type> FluentApiTypes { get; } = new();
+        public virtual HashSet<Type> FluentApiTypes { get; } = [];
 
         public virtual Dictionary<Type, Type> GenericFluentApiTypes { get; } = new()
         {
@@ -1264,24 +1264,23 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
         public virtual Dictionary<Type, Type> MirrorTypes { get; } = new();
 
-        public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = new();
-        public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new();
-        public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new();
-        public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new();
+        public virtual HashSet<MethodInfo> NonVirtualMethods { get; } = [];
+        public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = [];
+        public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = [];
+        public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = [];
         public virtual Dictionary<Type, HashSet<MethodInfo>> UnmatchedMirrorMethods { get; } = new();
         public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
-        public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new();
+        public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = [];
 
-        public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; }
-            = new()
-            {
+        public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; } =
+            [
                 typeof(ProviderConventionSetBuilderDependencies).GetProperty(
                     nameof(ProviderConventionSetBuilderDependencies.ContextType)),
                 typeof(QueryCompilationContextDependencies).GetProperty(nameof(QueryCompilationContextDependencies.ContextType)),
                 typeof(QueryCompilationContextDependencies).GetProperty(
                     nameof(QueryCompilationContextDependencies.QueryTrackingBehavior)),
-                typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager)),
-            };
+                typeof(QueryContextDependencies).GetProperty(nameof(QueryContextDependencies.StateManager))
+            ];
 
         public Dictionary<Type, (Type Mutable, Type Convention, Type ConventionBuilder, Type Runtime)> MetadataTypes { get; }
             = new()
@@ -1412,7 +1411,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 IReadOnlyList<MethodInfo> Convention,
                 IReadOnlyList<MethodInfo> ConventionBuilder,
                 IReadOnlyList<MethodInfo> Runtime)>
-            MetadataMethods { get; } = new();
+            MetadataMethods { get; } = [];
 
         protected static MethodInfo GetMethod(
             Type type,
@@ -1426,8 +1425,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             || (mi.IsGenericMethod && mi.GetGenericArguments().Length == genericParameterCount))
                         && mi.GetParameters().Select(e => e.ParameterType).SequenceEqual(
                             parameterGenerator(
-                                type.IsGenericType ? type.GetGenericArguments() : Array.Empty<Type>(),
-                                mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>())));
+                                type.IsGenericType ? type.GetGenericArguments() : [],
+                                mi.IsGenericMethod ? mi.GetGenericArguments() : [])));
 
         protected virtual void Initialize()
         {
@@ -1444,20 +1443,20 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 var (mutableType, conventionType, conventionBuilderType, runtimeType) = MetadataTypes[type];
                 var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 var mutableMethods = extensionTypeTuple.MutableExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == mutableType).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 var conventionMethods = extensionTypeTuple.ConventionExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionType).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 var conventionBuilderMethods = extensionTypeTuple.ConventionBuilderExtensions
                         ?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == conventionBuilderType).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 var runtimeMethods = extensionTypeTuple.RuntimeExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == runtimeType).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));
             }
         }
@@ -1467,20 +1466,17 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             foreach (var typeTuple in types)
             {
                 var readOnlyMethods = typeTuple.Key.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray()
-                    ?? new MethodInfo[0];
+                    .Where(m => !IsObsolete(m)).ToArray();
                 var mutableMethods = typeTuple.Value.Mutable.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray()
-                    ?? new MethodInfo[0];
+                    .Where(m => !IsObsolete(m)).ToArray();
                 var conventionMethods = typeTuple.Value.Convention.GetMethods(PublicInstance)
-                        .Where(m => !IsObsolete(m)).ToArray()
-                    ?? new MethodInfo[0];
+                    .Where(m => !IsObsolete(m)).ToArray();
                 var conventionBuilderMethods = typeTuple.Value.ConventionBuilder?.GetMethods(PublicInstance)
                         .Where(m => !IsObsolete(m)).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 var runtimeMethods = typeTuple.Value.Runtime?.GetMethods(PublicInstance)
                         .Where(m => !IsObsolete(m)).ToArray()
-                    ?? new MethodInfo[0];
+                    ?? [];
                 MetadataMethods.Add((readOnlyMethods, mutableMethods, conventionMethods, conventionBuilderMethods, runtimeMethods));
             }
         }

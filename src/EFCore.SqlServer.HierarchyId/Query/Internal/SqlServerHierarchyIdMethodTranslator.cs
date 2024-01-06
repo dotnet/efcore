@@ -17,24 +17,24 @@ public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
     private static readonly Dictionary<MethodInfo, string> _methodToFunctionName = new()
     {
         // instance methods
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetAncestor), new[] { typeof(int) })!, "GetAncestor" },
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId) })!, "GetDescendant" },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetAncestor), [typeof(int)])!, "GetAncestor" },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), [typeof(HierarchyId)])!, "GetDescendant" },
         {
-            typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
+            typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), [typeof(HierarchyId), typeof(HierarchyId)])!,
             "GetDescendant"
         },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetLevel), Type.EmptyTypes)!, "GetLevel" },
         {
             typeof(HierarchyId).GetRuntimeMethod(
-                nameof(HierarchyId.GetReparentedValue), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
+                nameof(HierarchyId.GetReparentedValue), [typeof(HierarchyId), typeof(HierarchyId)])!,
             "GetReparentedValue"
         },
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.IsDescendantOf), new[] { typeof(HierarchyId) })!, "IsDescendantOf" },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.IsDescendantOf), [typeof(HierarchyId)])!, "IsDescendantOf" },
         { typeof(object).GetRuntimeMethod(nameof(ToString), Type.EmptyTypes)!, "ToString" },
 
         // static methods
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetRoot), Type.EmptyTypes)!, "hierarchyid::GetRoot" },
-        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.Parse), new[] { typeof(string) })!, "hierarchyid::Parse" },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.Parse), [typeof(string)])!, "hierarchyid::Parse" },
     };
 
     private readonly IRelationalTypeMappingSource _typeMappingSource;

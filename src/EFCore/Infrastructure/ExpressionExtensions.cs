@@ -72,7 +72,7 @@ public static class ExpressionExtensions
                 GetAssignBinaryExpressionType(),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
-                new object[] { memberExpression, valueExpression },
+                [memberExpression, valueExpression],
                 null)!;
         }
 
@@ -399,7 +399,7 @@ public static class ExpressionExtensions
     }
 
     private static readonly MethodInfo ObjectEqualsMethodInfo
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
+        = typeof(object).GetRuntimeMethod(nameof(object.Equals), [typeof(object), typeof(object)])!;
 
     /// <summary>
     ///     <para>

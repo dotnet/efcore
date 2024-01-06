@@ -74,7 +74,7 @@ public class InMemoryDatabaseTest
         await inMemoryDatabase.SaveChangesAsync(new[] { entityEntry });
 
         Assert.Single(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
-        Assert.Equal(new object[] { 42, "Unikorn" }, inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
+        Assert.Equal([42, "Unikorn"], inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
     }
 
     [ConditionalFact]
@@ -97,7 +97,7 @@ public class InMemoryDatabaseTest
 
         Assert.Single(inMemoryDatabase.Store.GetTables(entityEntry.EntityType).SelectMany(t => t.Rows));
         Assert.Equal(
-            new object[] { 42, "Unikorn, The Return" },
+            [42, "Unikorn, The Return"],
             inMemoryDatabase.Store.GetTables(entityEntry.EntityType).Single().Rows.Single());
     }
 

@@ -114,7 +114,7 @@ INSERT ZeroKey VALUES (NULL)
                 Add(
                     new Blog
                     {
-                        Posts = new List<Post> { new() { Comments = new List<Comment> { new(), new() } }, new() },
+                        Posts = [new() { Comments = [new(), new()] }, new()],
                         Author = new Author()
                     });
             }
@@ -1044,7 +1044,7 @@ ORDER BY [t].[Id]
             modelBuilder.HasDbFunction(
                 typeof(Context24216).GetMethod(
                     nameof(GetPersonStatusAsOf),
-                    new[] { typeof(long), typeof(DateTime) }));
+                    [typeof(long), typeof(DateTime)]));
         }
     }
 
@@ -1228,24 +1228,14 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     Name = "r1",
                     Nested = new JsonNested30478 { Number = 1 }
                 },
-                Collection = new List<Json30478>
-                {
-                    new Json30478
-                    {
-                        Name = "c11",
-                        Nested = new JsonNested30478 { Number = 11 }
-                    },
-                    new Json30478
-                    {
-                        Name = "c12",
-                        Nested = new JsonNested30478 { Number = 12 }
-                    },
-                    new Json30478
-                    {
-                        Name = "c13",
-                        Nested = new JsonNested30478 { Number = 12 }
-                    }
-                }
+                Collection =
+                [
+                    new Json30478 { Name = "c11", Nested = new JsonNested30478 { Number = 11 } },
+
+                    new Json30478 { Name = "c12", Nested = new JsonNested30478 { Number = 12 } },
+
+                    new Json30478 { Name = "c13", Nested = new JsonNested30478 { Number = 12 } }
+                ]
             };
 
             var e2 = new Entity30478
@@ -1257,19 +1247,13 @@ FROM [Entities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
                     Name = "r2",
                     Nested = new JsonNested30478 { Number = 2 }
                 },
-                Collection = new List<Json30478>
-                {
-                    new Json30478
-                    {
-                        Name = "c21",
-                        Nested = new JsonNested30478 { Number = 21 }
-                    },
-                    new Json30478
-                    {
-                        Name = "c22",
-                        Nested = new JsonNested30478 { Number = 22 }
-                    },
-                }
+                Collection =
+                [
+                    new Json30478 { Name = "c21", Nested = new JsonNested30478 { Number = 21 } },
+
+                    new Json30478 { Name = "c22", Nested = new JsonNested30478 { Number = 22 } }
+
+                ]
             };
 
             AddRange(e1, e2);

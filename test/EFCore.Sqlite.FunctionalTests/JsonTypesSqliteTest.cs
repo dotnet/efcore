@@ -26,12 +26,11 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_decimal_JSON_values()
         => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
             nameof(DecimalCollectionType.Decimal),
-            new List<decimal>
-            {
+            [
                 decimal.MinValue,
                 0,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""",
             mappedCollection: true);
 
@@ -39,12 +38,11 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
-            new List<DateTime>
-            {
+            [
                 DateTime.MinValue,
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01 00:00:00","2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""",
             mappedCollection: true);
 
@@ -52,14 +50,13 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
-            new List<DateTimeOffset>
-            {
+            [
                 DateTimeOffset.MinValue,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00","2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""",
             mappedCollection: true);
 
@@ -67,12 +64,11 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_GUID_JSON_values()
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
-            new List<Guid>
-            {
+            [
                 new(),
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["00000000-0000-0000-0000-000000000000","8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""",
             mappedCollection: true);
 
@@ -80,13 +76,12 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_binary_JSON_values()
         => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
             nameof(BytesCollectionType.Bytes),
-            new List<byte[]>
-            {
-                new byte[] { 0, 0, 0, 1 },
-                new byte[] { 255, 255, 255, 255 },
-                Array.Empty<byte>(),
-                new byte[] { 1, 2, 3, 4 }
-            },
+            [
+                [0, 0, 0, 1],
+                [255, 255, 255, 255],
+                [],
+                [1, 2, 3, 4]
+            ],
             """{"Prop":["00000001","FFFFFFFF","","01020304"]}""",
             mappedCollection: true);
 
@@ -95,12 +90,11 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => Can_read_and_write_JSON_collection_value<DecimalCollectionType, List<decimal>>(
             b => b.ElementType().HasPrecision(12, 6),
             nameof(DecimalCollectionType.Decimal),
-            new List<decimal>
-            {
+            [
                 decimal.MinValue,
                 0,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":["-79228162514264337593543950335.0","0.0","79228162514264337593543950335.0"]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.Precision, 12 }, { CoreAnnotationNames.Scale, 6 } });
 
@@ -109,12 +103,11 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
         => Can_read_and_write_JSON_collection_value<GuidCollectionType, List<Guid>>(
             b => b.ElementType().HasConversion<byte[]>(),
             nameof(GuidCollectionType.Guid),
-            new List<Guid>
-            {
+            [
                 new(),
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["00000000000000000000000000000000","2F24448C3F8E204A8BE898C7C1AADEBD","FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ProviderClrType, typeof(byte[]) } });
 
@@ -194,7 +187,7 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
             value == null
                 ? default
                 : value == ""
-                    ? Array.Empty<byte>()
+                    ? []
                     : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
 
     public override void Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
@@ -267,14 +260,13 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_nullable_binary_JSON_values()
         => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
             nameof(NullableBytesCollectionType.Bytes),
-            new List<byte[]?>
-            {
-                new byte[] { 0, 0, 0, 1 },
+            [
+                [0, 0, 0, 1],
                 null,
-                new byte[] { 255, 255, 255, 255 },
-                Array.Empty<byte>(),
-                new byte[] { 1, 2, 3, 4 }
-            },
+                [255, 255, 255, 255],
+                [],
+                [1, 2, 3, 4]
+            ],
             """{"Prop":["00000001",null,"FFFFFFFF","","01020304"]}""",
             mappedCollection: true);
 
@@ -282,13 +274,12 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_nullable_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
-            new List<DateTime?>
-            {
+            [
                 DateTime.MinValue,
                 null,
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01 00:00:00",null,"2023-05-29 10:52:47","9999-12-31 23:59:59.9999999"]}""",
             mappedCollection: true);
 
@@ -296,15 +287,14 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
-            new List<DateTimeOffset?>
-            {
+            [
                 DateTimeOffset.MinValue,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
                 null,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01 00:00:00+00:00","2023-05-29 10:52:47-02:00","2023-05-29 10:52:47+00:00",null,"2023-05-29 10:52:47+02:00","9999-12-31 23:59:59.9999999+00:00"]}""",
             mappedCollection: true);
 
@@ -312,13 +302,12 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_nullable_decimal_JSON_values()
         => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
             nameof(NullableDecimalCollectionType.Decimal),
-            new List<decimal?>
-            {
+            [
                 decimal.MinValue,
                 0,
                 null,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":["-79228162514264337593543950335.0","0.0",null,"79228162514264337593543950335.0"]}""",
             mappedCollection: true);
 
@@ -326,13 +315,12 @@ public class JsonTypesSqliteTest : JsonTypesRelationalTestBase
     public override void Can_read_write_collection_of_nullable_GUID_JSON_values()
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
-            new List<Guid?>
-            {
+            [
                 new(),
                 null,
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD","FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"]}""",
             mappedCollection: true);
 

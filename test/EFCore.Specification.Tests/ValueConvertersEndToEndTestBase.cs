@@ -40,24 +40,23 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
 
     protected static Dictionary<Type, object?[]> TestValues = new()
     {
-        { typeof(bool), new object?[] { true, false, true, false } },
-        { typeof(int), new object?[] { 77, 0, 78, 0 } },
-        { typeof(char), new object?[] { 'A', 'B', 'C', 'D' } },
-        { typeof(byte[]), new object?[] { new byte[] { 1 }, new byte[] { 2 }, new byte[] { 3 }, new byte[] { 4 } } },
-        { typeof(DateTimeOffset), new object?[] { _dateTimeOffset1, _dateTimeOffset2, _dateTimeOffset1, _dateTimeOffset2 } },
-        { typeof(DateTime), new object?[] { _dateTime1, _dateTime2, _dateTime1, _dateTime2 } },
-        { typeof(DateOnly), new object?[] { _dateOnly1, _dateOnly2, _dateOnly1, _dateOnly2 } },
-        { typeof(TheExperience), new object?[] { TheExperience.Jimi, TheExperience.Mitch, TheExperience.Noel, TheExperience.Jimi } },
-        { typeof(Guid), new object?[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() } },
-        { typeof(IPAddress), new object?[] { _ipAddress1, _ipAddress2, _ipAddress1, _ipAddress2 } },
-        { typeof(ulong), new object?[] { (ulong)77, (ulong)0, (ulong)78, (ulong)0 } },
-        { typeof(sbyte), new object?[] { (sbyte)-77, (sbyte)0, (sbyte)78, (sbyte)0 } },
-        { typeof(PhysicalAddress), new object?[] { _physicalAddress1, _physicalAddress2, _physicalAddress1, _physicalAddress2 } },
-        { typeof(TimeSpan), new object?[] { _timeSpan1, _timeSpan2, _timeSpan1, _timeSpan2 } },
-        { typeof(Uri), new object?[] { _uri1, _uri2, _uri1, _uri2 } },
+        { typeof(bool), [true, false, true, false] },
+        { typeof(int), [77, 0, 78, 0] },
+        { typeof(char), ['A', 'B', 'C', 'D'] },
+        { typeof(byte[]), [new byte[] { 1 }, new byte[] { 2 }, new byte[] { 3 }, new byte[] { 4 }] },
+        { typeof(DateTimeOffset), [_dateTimeOffset1, _dateTimeOffset2, _dateTimeOffset1, _dateTimeOffset2] },
+        { typeof(DateTime), [_dateTime1, _dateTime2, _dateTime1, _dateTime2] },
+        { typeof(DateOnly), [_dateOnly1, _dateOnly2, _dateOnly1, _dateOnly2] },
+        { typeof(TheExperience), [TheExperience.Jimi, TheExperience.Mitch, TheExperience.Noel, TheExperience.Jimi] },
+        { typeof(Guid), [Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()] },
+        { typeof(IPAddress), [_ipAddress1, _ipAddress2, _ipAddress1, _ipAddress2] },
+        { typeof(ulong), [(ulong)77, (ulong)0, (ulong)78, (ulong)0] },
+        { typeof(sbyte), [(sbyte)-77, (sbyte)0, (sbyte)78, (sbyte)0] },
+        { typeof(PhysicalAddress), [_physicalAddress1, _physicalAddress2, _physicalAddress1, _physicalAddress2] },
+        { typeof(TimeSpan), [_timeSpan1, _timeSpan2, _timeSpan1, _timeSpan2] },
+        { typeof(Uri), [_uri1, _uri2, _uri1, _uri2] },
         {
-            typeof(List<int>), new object?[]
-            {
+            typeof(List<int>), [
                 new List<int>
                 {
                     47,
@@ -85,12 +84,11 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                     78,
                     77,
                     76
-                },
-            }
+                }
+            ]
         },
         {
-            typeof(IEnumerable<int>), new object?[]
-            {
+            typeof(IEnumerable<int>), [
                 new List<int>
                 {
                     47,
@@ -118,62 +116,53 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                     78,
                     77,
                     76
-                },
-            }
+                }
+            ]
         },
     };
 
     protected static Dictionary<Type, object?[]> StringTestValues = new()
     {
-        { typeof(bool), new object?[] { "True", "False", "True", "False" } },
-        { typeof(char), new object?[] { "A", "B", "C", "D" } },
-        { typeof(byte[]), new object?[] { "", "", "", "" } },
+        { typeof(bool), ["True", "False", "True", "False"] },
+        { typeof(char), ["A", "B", "C", "D"] },
+        { typeof(byte[]), ["", "", "", ""] },
         {
-            typeof(DateTimeOffset),
-            new object?[]
-            {
+            typeof(DateTimeOffset), [
                 _dateTimeOffset1.ToString(_dateTimeOffsetFormat),
                 _dateTimeOffset2.ToString(_dateTimeOffsetFormat),
                 _dateTimeOffset1.ToString(_dateTimeOffsetFormat),
                 _dateTimeOffset2.ToString(_dateTimeOffsetFormat)
-            }
+            ]
         },
         {
-            typeof(DateTime),
-            new object?[]
-            {
+            typeof(DateTime), [
                 _dateTime1.ToString(_dateTimeFormat),
                 _dateTime2.ToString(_dateTimeFormat),
                 _dateTime1.ToString(_dateTimeFormat),
                 _dateTime2.ToString(_dateTimeFormat)
-            }
+            ]
         },
         {
-            typeof(DateOnly),
-            new object?[]
-            {
+            typeof(DateOnly), [
                 _dateOnly1.ToString(_dateOnlyFormat),
                 _dateOnly2.ToString(_dateOnlyFormat),
                 _dateOnly1.ToString(_dateOnlyFormat),
                 _dateOnly2.ToString(_dateOnlyFormat)
-            }
+            ]
         },
-        { typeof(string), new object?[] { "A", "<null>", "C", "<null>" } },
+        { typeof(string), ["A", "<null>", "C", "<null>"] },
         {
-            typeof(TheExperience),
-            new object?[]
-            {
+            typeof(TheExperience), [
                 nameof(TheExperience.Jimi), nameof(TheExperience.Mitch), nameof(TheExperience.Noel), nameof(TheExperience.Jimi)
-            }
+            ]
         },
         {
-            typeof(Guid),
-            new object?[] { Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString() }
+            typeof(Guid), [Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), Guid.NewGuid().ToString()]
         },
-        { typeof(ulong), new object?[] { "77", "0", "78", "0" } },
-        { typeof(sbyte), new object?[] { "-77", "75", "-78", "0" } },
-        { typeof(byte), new object?[] { "77", "75", "78", "0" } },
-        { typeof(TimeSpan), new object?[] { _timeSpan1.ToString(), _timeSpan2.ToString(), _timeSpan1.ToString(), _timeSpan2.ToString() } },
+        { typeof(ulong), ["77", "0", "78", "0"] },
+        { typeof(sbyte), ["-77", "75", "-78", "0"] },
+        { typeof(byte), ["77", "75", "78", "0"] },
+        { typeof(TimeSpan), [_timeSpan1.ToString(), _timeSpan2.ToString(), _timeSpan1.ToString(), _timeSpan2.ToString()] },
     };
 
     [ConditionalTheory]

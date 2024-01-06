@@ -208,12 +208,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            Assert.Equal(1, query(context, new[] { "ALFKI" }).Count());
+            Assert.Equal(1, query(context, ["ALFKI"]).Count());
         }
 
         using (var context = CreateContext())
         {
-            Assert.Equal(1, query(context, new[] { "ANATR" }).Count());
+            Assert.Equal(1, query(context, ["ANATR"]).Count());
         }
     }
 
@@ -226,12 +226,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            Assert.Equal("ALFKI", query(context, new[] { "ALFKI" }).First().CustomerID);
+            Assert.Equal("ALFKI", query(context, ["ALFKI"]).First().CustomerID);
         }
 
         using (var context = CreateContext())
         {
-            Assert.Equal("ANATR", query(context, new[] { "ANATR" }).First().CustomerID);
+            Assert.Equal("ANATR", query(context, ["ANATR"]).First().CustomerID);
         }
     }
 
@@ -466,12 +466,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            Assert.Equal(1, await CountAsync(query(context, new[] { "ALFKI" })));
+            Assert.Equal(1, await CountAsync(query(context, ["ALFKI"])));
         }
 
         using (var context = CreateContext())
         {
-            Assert.Equal(1, await CountAsync(query(context, new[] { "ANATR" })));
+            Assert.Equal(1, await CountAsync(query(context, ["ANATR"])));
         }
     }
 
@@ -858,5 +858,5 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

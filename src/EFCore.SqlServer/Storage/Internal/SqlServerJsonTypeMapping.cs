@@ -15,16 +15,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 public class SqlServerJsonTypeMapping : JsonTypeMapping
 {
     private static readonly MethodInfo GetStringMethod
-        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), new[] { typeof(int) })!;
+        = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), [typeof(int)])!;
 
     private static readonly PropertyInfo UTF8Property
         = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
 
     private static readonly MethodInfo EncodingGetBytesMethod
-        = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), new[] { typeof(string) })!;
+        = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), [typeof(string)])!;
 
     private static readonly ConstructorInfo MemoryStreamConstructor
-        = typeof(MemoryStream).GetConstructor(new[] { typeof(byte[]) })!;
+        = typeof(MemoryStream).GetConstructor([typeof(byte[])])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

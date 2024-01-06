@@ -1494,7 +1494,7 @@ public class CSharpHelper : ICSharpHelper
         var builder = new StringBuilder();
 
         var first = true;
-        foreach (var line in comment.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None))
+        foreach (var line in comment.Split(["\r\n", "\n", "\r"], StringSplitOptions.None))
         {
             if (!first)
             {

@@ -21,7 +21,7 @@ public abstract class AdHocQueryFiltersQueryTestBase : NonSharedModelTestBase
 
     protected class Context10295(DbContextOptions options) : DbContext(options)
     {
-        private readonly List<int> _ids = new() { 1, 7 };
+        private readonly List<int> _ids = [1, 7];
 
         public DbSet<MyEntity10295> Entities { get; set; }
 

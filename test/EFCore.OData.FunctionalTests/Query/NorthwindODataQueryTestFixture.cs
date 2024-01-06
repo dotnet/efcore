@@ -24,7 +24,7 @@ public class NorthwindODataQueryTestFixture : NorthwindQuerySqlServerFixture<Noo
             = ODataQueryTestFixtureInitializer.Initialize<NorthwindODataContext>(
                 StoreName,
                 GetEdmModel(),
-                new List<IODataControllerActionConvention> { new OrderDetailsControllerActionConvention() });
+                [new OrderDetailsControllerActionConvention()]);
     }
 
     private static IEdmModel GetEdmModel()

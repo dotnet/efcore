@@ -106,7 +106,7 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     ///     See <see href="https://aka.ms/efcore-docs-connection-resiliency">Connection resiliency and database retries</see>
     ///     for more information and examples.
     /// </remarks>
-    protected virtual List<Exception> ExceptionsEncountered { get; } = new();
+    protected virtual List<Exception> ExceptionsEncountered { get; } = [];
 
     /// <summary>
     ///     A pseudo-random number generator that can be used to vary the delay between retries.

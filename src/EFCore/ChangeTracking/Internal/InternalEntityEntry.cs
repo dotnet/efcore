@@ -510,7 +510,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
                 if (service == null)
                 {
-                    (dependentServices ??= new List<IServiceProperty>()).Add(serviceProperty);
+                    (dependentServices ??= []).Add(serviceProperty);
                 }
                 else
                 {

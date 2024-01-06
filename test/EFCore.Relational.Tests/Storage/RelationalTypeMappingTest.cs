@@ -65,7 +65,7 @@ public abstract class RelationalTypeMappingTest
             mappingType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
             null,
-            new[] { FakeTypeMapping.CreateParameters(type) },
+            [FakeTypeMapping.CreateParameters(type)],
             null,
             null);
 

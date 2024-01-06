@@ -28,7 +28,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     private readonly DatabaseTable _nullTable = new();
     private CSharpUniqueNamer<DatabaseTable> _tableNamer = null!;
     private CSharpUniqueNamer<DatabaseTable> _dbSetNamer = null!;
-    private readonly HashSet<DatabaseColumn> _unmappedColumns = new();
+    private readonly HashSet<DatabaseColumn> _unmappedColumns = [];
     private readonly IPluralizer _pluralizer;
     private readonly ICSharpUtilities _cSharpUtilities;
     private readonly IScaffoldingTypeMapper _scaffoldingTypeMapper;
@@ -957,7 +957,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
     {
         if (!_entityTypeAndPropertyIdentifiers.TryGetValue(entityType, out var existingIdentifiers))
         {
-            existingIdentifiers = new List<string> { entityType.Name };
+            existingIdentifiers = [entityType.Name];
             existingIdentifiers.AddRange(entityType.GetProperties().Select(p => p.Name));
             _entityTypeAndPropertyIdentifiers[entityType] = existingIdentifiers;
         }

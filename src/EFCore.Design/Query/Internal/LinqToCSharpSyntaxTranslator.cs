@@ -35,8 +35,8 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             new[]
             {
                 new StackFrame(
-                    new Dictionary<ParameterExpression, string>(), new HashSet<string>(), new Dictionary<LabelTarget, string>(),
-                    new HashSet<string>())
+                    new Dictionary<ParameterExpression, string>(), [], new Dictionary<LabelTarget, string>(),
+                    [])
             });
 
     private int _unnamedParameterCounter;
@@ -47,14 +47,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         HashSet<string> VariableNames,
         List<LocalDeclarationStatementSyntax> UnassignedVariableDeclarations);
 
-    private LiftedState _liftedState = new(
-        new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-        new List<LocalDeclarationStatementSyntax>());
+    private LiftedState _liftedState = new([], new Dictionary<ParameterExpression, string>(), [], []);
 
     private ExpressionContext _context;
     private bool _onLastLambdaLine;
 
-    private readonly HashSet<ParameterExpression> _capturedVariables = new();
+    private readonly HashSet<ParameterExpression> _capturedVariables = [];
     private ISet<string> _collectedNamespaces = null!;
 
     private static MethodInfo? _activatorCreateInstanceMethod;
@@ -232,7 +230,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 return Visit(
                     E.Call(
                         _mathPowMethod ??= typeof(Math).GetMethod(
-                            nameof(Math.Pow), BindingFlags.Static | BindingFlags.Public, new[] { typeof(double), typeof(double) })!,
+                            nameof(Math.Pow), BindingFlags.Static | BindingFlags.Public, [typeof(double), typeof(double)])!,
                         binary.Left,
                         binary.Right));
 
@@ -399,9 +397,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         if (blockContext != ExpressionContext.Expression)
         {
             ownStackFrame = PushNewStackFrame();
-            _liftedState = new LiftedState(
-                new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                new List<LocalDeclarationStatementSyntax>());
+            _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
         }
 
         var stackFrame = _stack.Peek();
@@ -756,9 +752,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 }
 
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState(
-                    new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                    new List<LocalDeclarationStatementSyntax>());
+                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
 
                 // If we're in a lambda body, we try to translate as an expression if possible (i.e. no blocks in the true/false arms).
                 using (ChangeContext(ExpressionContext.Expression))
@@ -796,9 +790,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
                 // We're in regular expression context, and there are lifted expressions inside one of the arms; we translate to an if/else
                 // statement but lowering an assignment into both sides of the condition
-                _liftedState = new LiftedState(
-                    new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                    new List<LocalDeclarationStatementSyntax>());
+                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
 
                 IdentifierNameSyntax assignmentVariable;
                 TypeSyntax? loweredAssignmentVariableType = null;
@@ -1396,11 +1388,10 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     E.Call(
                         E.Call(
                             E.Constant(member.Member.DeclaringType),
-                            _typeGetFieldMethod ??= typeof(Type).GetMethod(
-                                nameof(Type.GetField), new[] { typeof(string), typeof(BindingFlags) })!,
+                            _typeGetFieldMethod ??= typeof(Type).GetMethod(nameof(Type.GetField), [typeof(string), typeof(BindingFlags)])!,
                             E.Constant(fieldInfo.Name),
                             E.Constant(BindingFlags.NonPublic | BindingFlags.Instance)),
-                        _fieldGetValueMethod ??= typeof(FieldInfo).GetMethod(nameof(FieldInfo.GetValue), new[] { typeof(object) })!,
+                        _fieldGetValueMethod ??= typeof(FieldInfo).GetMethod(nameof(FieldInfo.GetValue), [typeof(object)])!,
                         member.Expression));
                 break;
 
@@ -1607,7 +1598,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         using var _ = ChangeContext(ExpressionContext.Expression);
 
         var arguments = node.Constructor is null
-            ? Array.Empty<ArgumentSyntax>()
+            ? []
             : TranslateMethodArguments(node.Constructor.GetParameters(), node.Arguments);
 
         if (node.Type.IsAnonymousType())
@@ -1646,7 +1637,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                     Translate(
                         E.Call(
                             (_activatorCreateInstanceMethod ??= typeof(Activator).GetMethod(
-                                nameof(Activator.CreateInstance), Array.Empty<Type>())!)
+                                nameof(Activator.CreateInstance), [])!)
                             .MakeGenericMethod(node.Type)));
             }
             else
@@ -1733,9 +1724,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             case ExpressionContext.Statement:
             {
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState(
-                    new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                    new List<LocalDeclarationStatementSyntax>());
+                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
 
                 var cases = List(
                     switchNode.Cases.Select(
@@ -1788,9 +1777,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 }
 
                 var parentLiftedState = _liftedState;
-                _liftedState = new LiftedState(
-                    new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                    new List<LocalDeclarationStatementSyntax>());
+                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
 
                 // Translate all arms
                 var arms = SeparatedList(
@@ -1817,9 +1804,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
                 // There are lifted expressions inside some of the arms, we must lift the entire switch expression, rewriting it to
                 // a switch statement.
-                _liftedState = new LiftedState(
-                    new List<StatementSyntax>(), new Dictionary<ParameterExpression, string>(), new HashSet<string>(),
-                    new List<LocalDeclarationStatementSyntax>());
+                _liftedState = new LiftedState([], new Dictionary<ParameterExpression, string>(), [], []);
 
                 IdentifierNameSyntax assignmentVariable;
                 TypeSyntax? loweredAssignmentVariableType = null;
@@ -1961,7 +1946,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
 
                     Result = _g.TryCatchStatement(
                         translatedBody,
-                        catchClauses: new[] { TranslateCatchBlock(E.Catch(typeof(Exception), tryNode.Fault), noType: true) });
+                        catchClauses: [TranslateCatchBlock(E.Catch(typeof(Exception), tryNode.Fault), noType: true)]);
 
                     return tryNode;
                 }
@@ -2068,7 +2053,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
                 && (!listBinding.Member.GetMemberType().IsAssignableTo(typeof(IEnumerable))
                     || listBinding.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1)))
             {
-                incompatibleListBindings ??= new List<MemberListBinding>();
+                incompatibleListBindings ??= [];
                 incompatibleListBindings.Add(listBinding);
                 continue;
             }
@@ -2116,7 +2101,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
             if (!listInit.NewExpression.Type.IsAssignableTo(typeof(IEnumerable))
                 || listInit.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1))
             {
-                incompatibleListBindings ??= new List<ElementInit>();
+                incompatibleListBindings ??= [];
                 incompatibleListBindings.Add(initializer);
                 continue;
             }
@@ -2306,9 +2291,9 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor, ILinqToCSharpSynt
         var previousFrame = _stack.Peek();
         var newFrame = new StackFrame(
             new Dictionary<ParameterExpression, string>(previousFrame.Variables),
-            new HashSet<string>(previousFrame.VariableNames),
+            [..previousFrame.VariableNames],
             new Dictionary<LabelTarget, string>(previousFrame.Labels),
-            new HashSet<string>(previousFrame.UnnamedLabelNames));
+            [..previousFrame.UnnamedLabelNames]);
 
         _stack.Push(newFrame);
 

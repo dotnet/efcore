@@ -346,5 +346,5 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
         => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
             ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
                 .MakeGenericMethod(key.GetKeyType())
-                .Invoke(key, new object[0])!);
+                .Invoke(key, [])!);
 }

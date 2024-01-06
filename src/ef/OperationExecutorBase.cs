@@ -47,7 +47,7 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         ProjectDirectory = projectDir ?? Directory.GetCurrentDirectory();
         Language = language;
         Nullable = nullable;
-        RemainingArguments = remainingArguments ?? Array.Empty<string>();
+        RemainingArguments = remainingArguments ?? [];
 
         Reporter.WriteVerbose(Resources.UsingAssembly(AssemblyFileName));
         Reporter.WriteVerbose(Resources.UsingStartupAssembly(StartupAssemblyFileName));

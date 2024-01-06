@@ -79,7 +79,7 @@ public sealed class TpcTablesExpression : TableExpressionBase
     public TpcTablesExpression Prune(IReadOnlyList<string> discriminatorValues)
     {
         var subSelectExpressions = discriminatorValues.Count == 0
-            ? new List<SelectExpression> { SelectExpressions[0] }
+            ? [SelectExpressions[0]]
             : SelectExpressions.Where(
                 se =>
                     discriminatorValues.Contains((string)((SqlConstantExpression)se.Projection[^1].Expression).Value!)).ToList();

@@ -62,7 +62,7 @@ public abstract class NullKeysTestBase<TFixture> : IClassFixture<TFixture>
             results.Select(e => e.Fk).ToArray());
 
         Assert.Equal(
-            new int?[] { 1, 1, 3 },
+            [1, 1, 3],
             results.Select(e => e.Principal.Id).ToArray());
     }
 

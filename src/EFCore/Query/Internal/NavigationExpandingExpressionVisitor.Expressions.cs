@@ -209,7 +209,7 @@ public partial class NavigationExpandingExpressionVisitor
     /// </summary>
     private sealed class NavigationExpansionExpression : Expression, IPrintableExpression
     {
-        private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = new();
+        private readonly List<(MethodInfo OrderingMethod, Expression KeySelector)> _pendingOrderings = [];
 
         private readonly string _parameterName;
 
@@ -246,7 +246,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression PendingSelector { get; private set; }
         public MethodInfo? CardinalityReducingGenericMethodInfo { get; private set; }
-        public List<Expression> CardinalityReducingMethodArguments { get; } = new();
+        public List<Expression> CardinalityReducingMethodArguments { get; } = [];
 
         public Type SourceElementType
             => CurrentParameter.Type;

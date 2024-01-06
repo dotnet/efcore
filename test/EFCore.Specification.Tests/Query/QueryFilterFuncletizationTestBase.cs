@@ -70,15 +70,15 @@ public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixtur
         var query = context.Set<ListFilter>().ToList();
         Assert.Empty(query);
 
-        context.TenantIds = new List<int>();
+        context.TenantIds = [];
         query = context.Set<ListFilter>().ToList();
         Assert.Empty(query);
 
-        context.TenantIds = new List<int> { 1 };
+        context.TenantIds = [1];
         query = context.Set<ListFilter>().ToList();
         Assert.Single(query);
 
-        context.TenantIds = new List<int> { 2, 3 };
+        context.TenantIds = [2, 3];
         query = context.Set<ListFilter>().ToList();
         Assert.Equal(2, query.Count);
     }

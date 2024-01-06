@@ -48,7 +48,7 @@ public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventio
         }
 
         ConfigureMethod.MakeGenericMethod(entityTypeBuilder.Metadata.ClrType)
-            .Invoke(null, new object[] { entityTypeBuilder.Metadata, entityTypeConfigurationType });
+            .Invoke(null, [entityTypeBuilder.Metadata, entityTypeConfigurationType]);
     }
 
     /// <summary>

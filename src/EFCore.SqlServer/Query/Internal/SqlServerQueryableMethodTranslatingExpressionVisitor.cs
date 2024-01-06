@@ -254,7 +254,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     {
                         Name = "value",
                         TypeMapping = elementTypeMapping,
-                        Path = Array.Empty<PathSegment>()
+                        Path = []
                     }
                 });
 
@@ -779,7 +779,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             return openJsonExpression.Update(
                 parameterExpression.ApplyTypeMapping(parameterTypeMapping),
                 path: null,
-                new[] { new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, Array.Empty<PathSegment>()) });
+                new[] { new SqlServerOpenJsonExpression.ColumnInfo("value", elementTypeMapping, []) });
         }
     }
 }

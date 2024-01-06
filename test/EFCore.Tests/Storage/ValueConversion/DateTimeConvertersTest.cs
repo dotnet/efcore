@@ -277,15 +277,15 @@ public class DateTimeConvertersTest
     {
         var converter = _dateTimeToBytes.ConvertFromProviderExpression.Compile();
 
-        var utcKind = converter(new byte[] { 72, 163, 157, 186, 146, 57, 205, 128 });
+        var utcKind = converter([72, 163, 157, 186, 146, 57, 205, 128]);
         Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Utc), utcKind);
         Assert.Equal(DateTimeKind.Utc, utcKind.Kind);
 
-        var unspecifiedKind = converter(new byte[] { 8, 163, 157, 186, 146, 57, 205, 128 });
+        var unspecifiedKind = converter([8, 163, 157, 186, 146, 57, 205, 128]);
         Assert.Equal(new DateTime(1973, 9, 3, 0, 10, 15, DateTimeKind.Unspecified), unspecifiedKind);
         Assert.Equal(DateTimeKind.Unspecified, unspecifiedKind.Kind);
 
-        Assert.Equal(new DateTime(), converter(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 }));
+        Assert.Equal(new DateTime(), converter([0, 0, 0, 0, 0, 0, 0, 0]));
     }
 
     [ConditionalFact]

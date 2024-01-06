@@ -876,7 +876,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             return;
         }
 
-        _propertiesByType.Add(type, new HashSet<Property> { property });
+        _propertiesByType.Add(type, [property]);
     }
 
     /// <summary>

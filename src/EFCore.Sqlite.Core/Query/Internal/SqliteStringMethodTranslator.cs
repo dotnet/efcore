@@ -15,10 +15,10 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteStringMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo IndexOfMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.IndexOf), [typeof(string)])!;
 
     private static readonly MethodInfo ReplaceMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Replace), new[] { typeof(string), typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Replace), [typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo ToLowerMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.ToLower), Type.EmptyTypes)!;
@@ -27,45 +27,45 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
         = typeof(string).GetRuntimeMethod(nameof(string.ToUpper), Type.EmptyTypes)!;
 
     private static readonly MethodInfo SubstringMethodInfoWithOneArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int)])!;
 
     private static readonly MethodInfo SubstringMethodInfoWithTwoArgs
-        = typeof(string).GetRuntimeMethod(nameof(string.Substring), new[] { typeof(int), typeof(int) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Substring), [typeof(int), typeof(int)])!;
 
     private static readonly MethodInfo IsNullOrWhiteSpaceMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.IsNullOrWhiteSpace), [typeof(string)])!;
 
     // Method defined in netcoreapp2.0 only
     private static readonly MethodInfo TrimStartMethodInfoWithoutArgs
         = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), Type.EmptyTypes)!;
 
     private static readonly MethodInfo TrimStartMethodInfoWithCharArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char)])!;
 
     private static readonly MethodInfo TrimEndMethodInfoWithoutArgs
         = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), Type.EmptyTypes)!;
 
     private static readonly MethodInfo TrimEndMethodInfoWithCharArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char)])!;
 
     private static readonly MethodInfo TrimMethodInfoWithoutArgs
         = typeof(string).GetRuntimeMethod(nameof(string.Trim), Type.EmptyTypes)!;
 
     private static readonly MethodInfo TrimMethodInfoWithCharArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char)])!;
 
     // Method defined in netstandard2.0
     private static readonly MethodInfo TrimStartMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), new[] { typeof(char[]) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimStart), [typeof(char[])])!;
 
     private static readonly MethodInfo TrimEndMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), new[] { typeof(char[]) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.TrimEnd), [typeof(char[])])!;
 
     private static readonly MethodInfo TrimMethodInfoWithCharArrayArg
-        = typeof(string).GetRuntimeMethod(nameof(string.Trim), new[] { typeof(char[]) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Trim), [typeof(char[])])!;
 
     private static readonly MethodInfo ContainsMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
 
     private static readonly MethodInfo FirstOrDefaultMethodInfoWithoutArgs
         = typeof(Enumerable).GetRuntimeMethods().Single(

@@ -317,7 +317,7 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
             Add(
                 new Owner23211
                 {
-                    Dependents = new List<Dependent23211> { new(), new() },
+                    Dependents = [new(), new()],
                     Owned1 = new OwnedType23211 { Value = "A" },
                     Owned2 = new OwnedType23211 { Value = "B" }
                 });
@@ -325,7 +325,7 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
             Add(
                 new SecondOwner23211
                 {
-                    Dependents = new List<SecondDependent23211> { new(), new() },
+                    Dependents = [new(), new()],
                     Owned = new OwnedType23211 { Value = "A" }
                 });
 

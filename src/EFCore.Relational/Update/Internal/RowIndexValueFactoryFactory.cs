@@ -23,7 +23,7 @@ public class RowIndexValueFactoryFactory : IRowIndexValueFactoryFactory
         => index.Columns.Count == 1
             ? (IRowIndexValueFactory)_createMethod
                 .MakeGenericMethod(index.Columns.First().ProviderClrType)
-                .Invoke(null, new object[] { index })!
+                .Invoke(null, [index])!
             : new CompositeRowIndexValueFactory(index);
 
     private static readonly MethodInfo _createMethod = typeof(RowIndexValueFactoryFactory).GetTypeInfo()

@@ -539,7 +539,7 @@ public class ObservableBackedBindingListTest
             String = i.ToString();
             XNode = new NotXText(i.ToString());
             Random = Random.Shared;
-            ByteArray = new[] { (byte)i, (byte)i, (byte)i, (byte)i };
+            ByteArray = [(byte)i, (byte)i, (byte)i, (byte)i];
         }
 
         public static implicit operator ListElement(int i)

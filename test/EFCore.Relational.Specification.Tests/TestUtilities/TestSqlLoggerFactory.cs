@@ -75,7 +75,7 @@ public class TestSqlLoggerFactory : ListLoggerFactory
         catch
         {
             var methodCallLine = Environment.StackTrace.Split(
-                new[] { _eol },
+                [_eol],
                 StringSplitOptions.RemoveEmptyEntries)[3][6..];
 
             var indexMethodEnding = methodCallLine.IndexOf(')') + 1;
@@ -290,8 +290,8 @@ public class TestSqlLoggerFactory : ListLoggerFactory
     {
         private readonly bool _shouldLogCommands = shouldLogCommands;
 
-        public List<string> SqlStatements { get; } = new();
-        public List<string> Parameters { get; } = new();
+        public List<string> SqlStatements { get; } = [];
+        public List<string> Parameters { get; } = [];
 
         private readonly StringBuilder _stringBuilder = new();
 

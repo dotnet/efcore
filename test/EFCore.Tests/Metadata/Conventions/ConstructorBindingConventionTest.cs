@@ -375,7 +375,7 @@ public class ConstructorBindingConventionTest
         var constructorBinding = GetBinding<BlogConflict>(
             e => ((EntityType)e).ConstructorBinding = new ConstructorBinding(
                 typeof(BlogConflict).GetConstructor(
-                    new[] { typeof(string), typeof(int) }),
+                    [typeof(string), typeof(int)]),
                 new[]
                 {
                     new PropertyParameterBinding((IProperty)e.FindProperty(nameof(Blog.Title))),

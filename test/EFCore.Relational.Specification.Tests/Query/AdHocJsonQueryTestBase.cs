@@ -36,7 +36,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             Visits = new Visits32310
             {
                 LocationTag = "tag",
-                DaysVisited = new List<DateOnly> { new(2023, 1, 1) }
+                DaysVisited = [new(2023, 1, 1)]
             }
         };
 
@@ -818,12 +818,12 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             Id = 1,
             Name = "e1",
             Reference = r1,
-            Collection = new List<MyJsonEntityLazyLoadingProxies>
-            {
+            Collection =
+            [
                 c11,
                 c12,
                 c13
-            }
+            ]
         };
 
         var e2 = new MyEntityLazyLoadingProxies
@@ -831,7 +831,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
             Id = 2,
             Name = "e2",
             Reference = r2,
-            Collection = new List<MyJsonEntityLazyLoadingProxies> { c21, c22 }
+            Collection = [c21, c22]
         };
 
         ctx.Entities.AddRange(e1, e2);
@@ -905,7 +905,7 @@ public abstract class AdHocJsonQueryTestBase : NonSharedModelTestBase
 
     public class MyJsonEntityNotICollection
     {
-        private readonly List<MyJsonNestedEntityNotICollection> _collection = new();
+        private readonly List<MyJsonNestedEntityNotICollection> _collection = [];
 
         public IEnumerable<MyJsonNestedEntityNotICollection> Collection => _collection.AsReadOnly();
     }

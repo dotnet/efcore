@@ -565,7 +565,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
                 new Blog5456
                 {
                     Id = i + 1,
-                    Posts = new List<Post5456> { new() { Comments = new List<Comment5456> { new(), new() } }, new() },
+                    Posts = [new() { Comments = [new(), new()] }, new()],
                     Author = new Author5456()
                 });
         }
@@ -684,7 +684,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private class AppEntity21803
     {
-        private readonly List<OtherEntity21803> _otherEntities = new();
+        private readonly List<OtherEntity21803> _otherEntities = [];
 
         public int Id { get; private set; }
 
@@ -1467,7 +1467,7 @@ public class QueryBugsInMemoryTest : IClassFixture<InMemoryFixture>
 
     private static void Seed18394(MyContext18394 context)
     {
-        var a = new A18394 { PropertyB = new B18394 { PropertyCList = new List<C18394> { new() { SomeText = "TestText" } } } };
+        var a = new A18394 { PropertyB = new B18394 { PropertyCList = [new() { SomeText = "TestText" }] } };
         context.As.Add(a);
 
         context.SaveChanges();

@@ -14,7 +14,7 @@ public class TestRelationalCommandBuilderFactory(
     private class TestRelationalCommandBuilder(
         RelationalCommandBuilderDependencies dependencies) : IRelationalCommandBuilder
     {
-        private readonly List<IRelationalParameter> _parameters = new();
+        private readonly List<IRelationalParameter> _parameters = [];
 
         public IndentedStringBuilder Instance { get; } = new();
 

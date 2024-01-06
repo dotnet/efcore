@@ -201,7 +201,7 @@ public class ChangeDetectorTest
 
         if (nullValue)
         {
-            baxter.Demands = new[] { 1, 767, 3, 4 };
+            baxter.Demands = [1, 767, 3, 4];
         }
         else
         {
@@ -221,7 +221,7 @@ public class ChangeDetectorTest
     {
         using var context = useTypeMapping ? new BaxterWithMappingContext() : new BaxterContext();
         var baxter = context.Attach(
-            new Baxter { Id = Guid.NewGuid(), Demands = new[] { 1, 2, 3, 4 } }).Entity;
+            new Baxter { Id = Guid.NewGuid(), Demands = [1, 2, 3, 4] }).Entity;
 
         baxter.Demands[2] = 33;
 

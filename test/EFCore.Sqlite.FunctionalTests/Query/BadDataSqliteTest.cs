@@ -87,7 +87,7 @@ public class BadDataSqliteTest(BadDataSqliteTest.BadDataSqliteFixture fixture) :
     [ConditionalFact]
     public void Bad_data_error_handling_null_projection()
     {
-        using var context = CreateContext(new object[] { null });
+        using var context = CreateContext([null]);
         Assert.Equal(
             RelationalStrings.ErrorMaterializingValueNullReference(typeof(bool)),
             Assert.Throws<InvalidOperationException>(

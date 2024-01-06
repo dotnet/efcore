@@ -28,11 +28,11 @@ public class EntityQueryProvider : IAsyncQueryProvider
 
     private static MethodInfo GenericCreateQueryMethod
         => _genericCreateQueryMethod ??= typeof(EntityQueryProvider)
-            .GetMethod("CreateQuery", 1, BindingFlags.Instance | BindingFlags.Public, null, new[] { typeof(Expression) }, null)!;
+            .GetMethod("CreateQuery", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
     private MethodInfo GenericExecuteMethod
         => _genericExecuteMethod ??= _queryCompiler.GetType()
-            .GetMethod("Execute", 1, BindingFlags.Instance | BindingFlags.Public, null, new[] { typeof(Expression) }, null)!;
+            .GetMethod("Execute", 1, BindingFlags.Instance | BindingFlags.Public, null, [typeof(Expression)], null)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -52,7 +52,7 @@ public class EntityQueryProvider : IAsyncQueryProvider
     public virtual IQueryable CreateQuery(Expression expression)
         => (IQueryable)GenericCreateQueryMethod
             .MakeGenericMethod(expression.Type.GetSequenceType())
-            .Invoke(this, new object[] { expression })!;
+            .Invoke(this, [expression])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +71,7 @@ public class EntityQueryProvider : IAsyncQueryProvider
     /// </summary>
     public virtual object Execute(Expression expression)
         => GenericExecuteMethod.MakeGenericMethod(expression.Type)
-            .Invoke(_queryCompiler, new object[] { expression })!;
+            .Invoke(_queryCompiler, [expression])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

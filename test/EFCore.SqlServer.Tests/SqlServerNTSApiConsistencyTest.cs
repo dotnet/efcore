@@ -13,10 +13,10 @@ public class SqlServerNTSApiConsistencyTest(SqlServerNTSApiConsistencyTest.SqlSe
 
     public class SqlServerNTSApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(SqlServerNetTopologySuiteDbContextOptionsBuilderExtensions),
             typeof(SqlServerNetTopologySuiteServiceCollectionExtensions)
-        };
+        ];
     }
 }

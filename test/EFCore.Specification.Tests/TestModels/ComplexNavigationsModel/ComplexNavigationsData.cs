@@ -349,7 +349,7 @@ public abstract class ComplexNavigationsData : ISetSource
         IReadOnlyList<InheritanceLeaf2> il2s)
     {
         ib2s[0].Reference = ib1s[0];
-        ib2s[0].Collection = new List<InheritanceBase1> { ib1s[1], ib1s[2] };
+        ib2s[0].Collection = [ib1s[1], ib1s[2]];
 
         ((InheritanceDerived1)ib1s[0]).ReferenceSameType = il1s[0];
         ((InheritanceDerived1)ib1s[1]).ReferenceSameType = il1s[1];
@@ -359,19 +359,19 @@ public abstract class ComplexNavigationsData : ISetSource
         ((InheritanceDerived1)ib1s[1]).ReferenceDifferentType = il1s[1];
         ((InheritanceDerived2)ib1s[2]).ReferenceDifferentType = il2s[0];
 
-        ((InheritanceDerived1)ib1s[0]).CollectionSameType = new List<InheritanceLeaf1> { il1s[0] };
-        ((InheritanceDerived1)ib1s[1]).CollectionSameType = new List<InheritanceLeaf1>();
-        ((InheritanceDerived2)ib1s[2]).CollectionSameType = new List<InheritanceLeaf1> { il1s[1], il1s[2] };
+        ((InheritanceDerived1)ib1s[0]).CollectionSameType = [il1s[0]];
+        ((InheritanceDerived1)ib1s[1]).CollectionSameType = [];
+        ((InheritanceDerived2)ib1s[2]).CollectionSameType = [il1s[1], il1s[2]];
 
-        ((InheritanceDerived1)ib1s[0]).CollectionDifferentType = new List<InheritanceLeaf1> { il1s[0] };
-        ((InheritanceDerived1)ib1s[1]).CollectionDifferentType = new List<InheritanceLeaf1> { il1s[1], il1s[2] };
-        ((InheritanceDerived2)ib1s[2]).CollectionDifferentType = new List<InheritanceLeaf2> { il2s[0] };
+        ((InheritanceDerived1)ib1s[0]).CollectionDifferentType = [il1s[0]];
+        ((InheritanceDerived1)ib1s[1]).CollectionDifferentType = [il1s[1], il1s[2]];
+        ((InheritanceDerived2)ib1s[2]).CollectionDifferentType = [il2s[0]];
     }
 
     private static void WireUpInheritancePart2(
         IReadOnlyList<InheritanceBase2> ib2s,
         IReadOnlyList<InheritanceLeaf2> il2s)
-        => il2s[0].BaseCollection = new List<InheritanceBase2> { ib2s[0] };
+        => il2s[0].BaseCollection = [ib2s[0]];
 
     private static void WireUpPart1(
         IReadOnlyList<Level1> l1s,

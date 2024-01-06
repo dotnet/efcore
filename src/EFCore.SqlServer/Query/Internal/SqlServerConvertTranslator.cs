@@ -25,8 +25,8 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         [nameof(Convert.ToString)] = "nvarchar(max)"
     };
 
-    private static readonly List<Type> SupportedTypes = new()
-    {
+    private static readonly List<Type> SupportedTypes =
+    [
         typeof(bool),
         typeof(byte),
         typeof(DateTime),
@@ -37,7 +37,7 @@ public class SqlServerConvertTranslator : IMethodCallTranslator
         typeof(long),
         typeof(short),
         typeof(string)
-    };
+    ];
 
     private static readonly MethodInfo[] SupportedMethods
         = TypeMapping.Keys

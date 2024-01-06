@@ -17,29 +17,29 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
     private static readonly Type[] DropOperationTypes =
-    {
+    [
         typeof(DropIndexOperation),
         typeof(DropPrimaryKeyOperation),
         typeof(DropUniqueConstraintOperation),
         typeof(DropCheckConstraintOperation)
-    };
+    ];
 
     private static readonly Type[] AlterOperationTypes =
-    {
+    [
         typeof(AddPrimaryKeyOperation), typeof(AddUniqueConstraintOperation), typeof(AlterSequenceOperation)
-    };
+    ];
 
     private static readonly Type[] RenameOperationTypes =
-    {
+    [
         typeof(RenameColumnOperation), typeof(RenameIndexOperation), typeof(RenameSequenceOperation)
-    };
+    ];
 
-    private static readonly Type[] ColumnOperationTypes = { typeof(AddColumnOperation), typeof(AlterColumnOperation) };
+    private static readonly Type[] ColumnOperationTypes = [typeof(AddColumnOperation), typeof(AlterColumnOperation)];
 
     private static readonly Type[] ConstraintOperationTypes =
-    {
+    [
         typeof(AddForeignKeyOperation), typeof(CreateIndexOperation), typeof(AddCheckConstraintOperation)
-    };
+    ];
 
     private Dictionary<ITable, IRowIdentityMap>? _sourceIdentityMaps;
     private Dictionary<ITable, IRowIdentityMap>? _targetIdentityMaps;
@@ -765,8 +765,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     primaryKeyPropertyGroups.Add(clrProperty, property);
                 }
 
-                groups.Add(
-                    clrProperty, new List<IProperty> { property });
+                groups.Add(clrProperty, [property]);
             }
 
             var clrType = clrProperty.DeclaringType!;
@@ -1715,7 +1714,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             };
         }
 
-        var sourceMigrationsAnnotations = RelationalAnnotationProvider.For(source, designTime: true);        
+        var sourceMigrationsAnnotations = RelationalAnnotationProvider.For(source, designTime: true);
         var targetMigrationsAnnotations = RelationalAnnotationProvider.For(target, designTime: true);
 
         if (source.IncrementBy != target.IncrementBy
@@ -2036,7 +2035,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     {
                         try
                         {
-                            value = propertyInfo.GetValue(seed, new[] { property.Name });
+                            value = propertyInfo.GetValue(seed, [property.Name]);
                         }
                         catch (Exception)
                         {
