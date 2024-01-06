@@ -3,10 +3,4 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.EntitySplitting;
 
-public class EntitySplittingContext : PoolableDbContext
-{
-    public EntitySplittingContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-}
+public class EntitySplittingContext(DbContextOptions options) : PoolableDbContext(options);

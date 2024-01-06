@@ -10,13 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class InheritanceTestBase : ModelBuilderTestBase
+    public abstract class InheritanceTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        public InheritanceTestBase(ModelBuilderFixtureBase fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_map_derived_types_first()
         {
@@ -956,13 +951,9 @@ public abstract partial class ModelBuilderTest
             public Q F { get; set; }
         }
 
-        protected abstract class P : PBase
-        {
-        }
+        protected abstract class P : PBase;
 
-        protected class Q : PBase
-        {
-        }
+        protected class Q : PBase;
 
         protected abstract class PBase
         {

@@ -132,14 +132,9 @@ public abstract class TestStore : IDisposable
             => TransactionManager.DistributedTransactionStarted -= DistributedTransactionStarted;
     }
 
-    private class CompositeDisposable : IDisposable
+    private class CompositeDisposable(params IDisposable[] disposables) : IDisposable
     {
-        private readonly IDisposable[] _disposables;
-
-        public CompositeDisposable(params IDisposable[] disposables)
-        {
-            _disposables = disposables;
-        }
+        private readonly IDisposable[] _disposables = disposables;
 
         public void Dispose()
         {

@@ -2562,9 +2562,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
         public EnumS8 EnumS8 { get; set; }
     }
 
-    protected class BuiltInDataTypesShadow : BuiltInDataTypesBase
-    {
-    }
+    protected class BuiltInDataTypesShadow : BuiltInDataTypesBase;
 
     protected enum Enum64 : long
     {
@@ -2700,9 +2698,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
         // ReSharper restore MemberHidesStaticFromOuterClass
     }
 
-    protected class BuiltInNullableDataTypesShadow : BuiltInNullableDataTypesBase
-    {
-    }
+    protected class BuiltInNullableDataTypesShadow : BuiltInNullableDataTypesBase;
 
     protected class EmailTemplate
     {

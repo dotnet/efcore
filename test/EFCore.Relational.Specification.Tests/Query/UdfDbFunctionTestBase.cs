@@ -102,7 +102,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         public string LastName { get; set; }
     }
 
-    protected class UDFSqlContext : PoolableDbContext
+    protected class UDFSqlContext(DbContextOptions options) : PoolableDbContext(options)
     {
         #region DbSets
 
@@ -257,13 +257,7 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             => FromExpression(() => GetCustomerData(customerId));
 
         #endregion
-
         #endregion
-
-        public UDFSqlContext(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

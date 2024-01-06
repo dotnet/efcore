@@ -62,16 +62,10 @@ namespace Microsoft.EntityFrameworkCore
 
         protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new();
 
-        private class InfoLogContext : DbContext
+        private class InfoLogContext(bool useLoggerFactory, bool configureForDebug) : DbContext
         {
-            private readonly bool _useLoggerFactory;
-            private readonly bool _configureForDebug;
-
-            public InfoLogContext(bool useLoggerFactory, bool configureForDebug)
-            {
-                _useLoggerFactory = useLoggerFactory;
-                _configureForDebug = configureForDebug;
-            }
+            private readonly bool _useLoggerFactory = useLoggerFactory;
+            private readonly bool _configureForDebug = configureForDebug;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             {
@@ -121,14 +115,9 @@ namespace Microsoft.EntityFrameworkCore
             public void Dispose()
                 => _disposed = true;
 
-            private class MyListLogger : ILogger
+            private class MyListLogger(List<(LogLevel, EventId, string)> logMessage) : ILogger
             {
-                public MyListLogger(List<(LogLevel, EventId, string)> logMessage)
-                {
-                    LogMessages = logMessage;
-                }
-
-                private List<(LogLevel, EventId, string)> LogMessages { get; }
+                private List<(LogLevel, EventId, string)> LogMessages { get; } = logMessage;
 
                 public void Log<TState>(
                     LogLevel logLevel,
@@ -421,55 +410,31 @@ namespace Microsoft.EntityFrameworkCore
                         }
                     });
 
-        private class TestSingletonService : DbSetFinder
+        private class TestSingletonService(ICoreSingletonOptions singletonOptions) : DbSetFinder
         {
-            private readonly ICoreSingletonOptions _singletonOptions;
-
-            public TestSingletonService(ICoreSingletonOptions singletonOptions)
-            {
-                _singletonOptions = singletonOptions;
-            }
+            private readonly ICoreSingletonOptions _singletonOptions = singletonOptions;
 
             public ApplicationService ApplicationService
                 => _singletonOptions.RootApplicationServiceProvider!.GetService<ApplicationService>();
         }
 
-        private class TestScopedService : EntityGraphAttacher
+        private class TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator) : EntityGraphAttacher(graphIterator)
         {
-            private readonly ICurrentDbContext _currentContext;
-
-            public TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator)
-                : base(graphIterator)
-            {
-                _currentContext = currentContext;
-            }
+            private readonly ICurrentDbContext _currentContext = currentContext;
 
             public ApplicationService ApplicationService
                 => _currentContext.Context.GetService<ApplicationService>();
         }
 
-        private class TestTransientService : LazyLoader
+        private class TestTransientService(ICurrentDbContext currentContext, IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger) : LazyLoader(currentContext, logger)
         {
-            public TestTransientService(ICurrentDbContext currentContext, IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
-                : base(currentContext, logger)
-            {
-            }
-
             public ApplicationService ApplicationService
                 => Context!.GetService<ApplicationService>();
         }
 
-        private class ApplicationService
-        {
-        }
+        private class ApplicationService;
 
-        private class ServiceResolutionContext : DbContext
-        {
-            public ServiceResolutionContext(DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+        private class ServiceResolutionContext(DbContextOptions options) : DbContext(options);
 
         [ConditionalFact]
         public void Can_use_GetInfrastructure_with_inferred_generic_to_get_service_provider()
@@ -986,13 +951,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class FakeEntityMaterializerSource : EntityMaterializerSource
-        {
-            public FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-        }
+        private class FakeEntityMaterializerSource(EntityMaterializerSourceDependencies dependencies) : EntityMaterializerSource(dependencies);
 
         private class FakeModelSource : IModelSource
         {
@@ -1512,13 +1471,9 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class SomeAppService
-        {
-        }
+        private class SomeAppService;
 
-        private class SomeScopedAppService
-        {
-        }
+        private class SomeScopedAppService;
 
         [ConditionalFact]
         public void Can_add_derived_context_with_options()
@@ -3079,39 +3034,15 @@ namespace Microsoft.EntityFrameworkCore
                 => throw new NotImplementedException();
         }
 
-        private class CustomModelCustomizer : ModelCustomizer
-        {
-            public CustomModelCustomizer(ModelCustomizerDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-        }
+        private class CustomModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
 
-        private class CustomModelCustomizer2 : ModelCustomizer
-        {
-            public CustomModelCustomizer2(ModelCustomizerDependencies dependencies)
-                : base(dependencies)
-            {
-            }
-        }
+        private class CustomModelCustomizer2(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
 
-        private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
-        {
-            public CustomInMemoryValueGeneratorSelector(
-                ValueGeneratorSelectorDependencies dependencies,
-                IInMemoryDatabase inMemoryDatabase)
-                : base(dependencies, inMemoryDatabase)
-            {
-            }
-        }
+        private class CustomInMemoryValueGeneratorSelector(
+            ValueGeneratorSelectorDependencies dependencies,
+            IInMemoryDatabase inMemoryDatabase) : InMemoryValueGeneratorSelector(dependencies, inMemoryDatabase);
 
-        private class CustomInMemoryTableFactory : InMemoryTableFactory
-        {
-            public CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options)
-                : base(loggingOptions, options)
-            {
-            }
-        }
+        private class CustomInMemoryTableFactory(ILoggingOptions loggingOptions, IInMemorySingletonOptions options) : InMemoryTableFactory(loggingOptions, options);
 
         [ConditionalFact]
         public void Can_replace_services_in_passed_options()
@@ -3390,9 +3321,7 @@ namespace Microsoft.EntityFrameworkCore
                     .UseInMemoryDatabase(Guid.NewGuid().ToString());
         }
 
-        private class DummyInterceptor : ISingletonInterceptor
-        {
-        }
+        private class DummyInterceptor : ISingletonInterceptor;
 
         [ConditionalFact]
         public void Throws_setting_LoggerFactory_in_options_when_UseInternalServiceProvider()
@@ -3539,19 +3468,14 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class ChangeSdlCacheContext : DbContext
+        private class ChangeSdlCacheContext(bool on) : DbContext
         {
             private static readonly IServiceProvider _serviceProvider
                 = new ServiceCollection()
                     .AddEntityFrameworkInMemoryDatabase()
                     .BuildServiceProvider(validateScopes: true);
 
-            private readonly bool _on;
-
-            public ChangeSdlCacheContext(bool on)
-            {
-                _on = on;
-            }
+            private readonly bool _on = on;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -3676,18 +3600,12 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class ChangeWarningsCacheContext : DbContext
+        private class ChangeWarningsCacheContext(
+            IServiceProvider serviceProvider,
+            Action<WarningsConfigurationBuilder> configAction) : DbContext
         {
-            private readonly IServiceProvider _serviceProvider;
-            private readonly Action<WarningsConfigurationBuilder> _configAction;
-
-            public ChangeWarningsCacheContext(
-                IServiceProvider serviceProvider,
-                Action<WarningsConfigurationBuilder> configAction)
-            {
-                _serviceProvider = serviceProvider;
-                _configAction = configAction;
-            }
+            private readonly IServiceProvider _serviceProvider = serviceProvider;
+            private readonly Action<WarningsConfigurationBuilder> _configAction = configAction;
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -3768,16 +3686,11 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class WrappingLoggerFactory : ILoggerFactory
+        private class WrappingLoggerFactory(ILoggerFactory loggerFactory) : ILoggerFactory
         {
-            private readonly ILoggerFactory _loggerFactory;
+            private readonly ILoggerFactory _loggerFactory = loggerFactory;
 
             public IList<string> CreatedLoggers { get; } = new List<string>();
-
-            public WrappingLoggerFactory(ILoggerFactory loggerFactory)
-            {
-                _loggerFactory = loggerFactory;
-            }
 
             public void Dispose()
                 => _loggerFactory.Dispose();
@@ -3793,27 +3706,14 @@ namespace Microsoft.EntityFrameworkCore
                 => _loggerFactory.AddProvider(provider);
         }
 
-        private class ConstructorTestContext1A : DbContext
-        {
-            public ConstructorTestContext1A(DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+        private class ConstructorTestContext1A(DbContextOptions options) : DbContext(options);
 
-        private class ConstructorTestContextWithSets : DbContext
+        private class ConstructorTestContextWithSets(DbContextOptions options) : DbContext(options)
         {
-            public ConstructorTestContextWithSets(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<Product> Products { get; set; }
         }
 
-        private class ConstructorTestContextNoConfiguration : DbContext
-        {
-        }
+        private class ConstructorTestContextNoConfiguration : DbContext;
 
         private class ConstructorTestContextNoConfigurationWithSets : DbContext
         {
@@ -3886,56 +3786,26 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private interface IConstructorTestContextWithOC1A
-        {
-        }
+        private interface IConstructorTestContextWithOC1A;
 
-        private class ConstructorTestContextWithOC1A : ConstructorTestContextWithOCBase, IConstructorTestContextWithOC1A
-        {
-        }
+        private class ConstructorTestContextWithOC1A : ConstructorTestContextWithOCBase, IConstructorTestContextWithOC1A;
 
-        private class ConstructorTestContextWithOC2A : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC2A(
-                IServiceProvider internalServicesProvider)
-                : base(internalServicesProvider)
-            {
-            }
-        }
+        private class ConstructorTestContextWithOC2A(
+            IServiceProvider internalServicesProvider) : ConstructorTestContextWithOCBase(internalServicesProvider);
 
-        private interface IConstructorTestContextWithOC3A
-        {
-        }
+        private interface IConstructorTestContextWithOC3A;
 
-        private class ConstructorTestContextWithOC3A : ConstructorTestContextWithOCBase, IConstructorTestContextWithOC3A
-        {
-            public ConstructorTestContextWithOC3A(
-                DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+        private class ConstructorTestContextWithOC3A(
+            DbContextOptions options) : ConstructorTestContextWithOCBase(options), IConstructorTestContextWithOC3A;
 
-        private class ConstructorTestContextWithOC1B : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC1B(
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(loggerFactory, memoryCache)
-            {
-            }
-        }
+        private class ConstructorTestContextWithOC1B(
+            ILoggerFactory loggerFactory,
+            IMemoryCache memoryCache) : ConstructorTestContextWithOCBase(loggerFactory, memoryCache);
 
-        private class ConstructorTestContextWithOC2B : ConstructorTestContextWithOCBase
-        {
-            public ConstructorTestContextWithOC2B(
-                IServiceProvider internalServicesProvider,
-                ILoggerFactory loggerFactory,
-                IMemoryCache memoryCache)
-                : base(internalServicesProvider, loggerFactory, memoryCache)
-            {
-            }
-        }
+        private class ConstructorTestContextWithOC2B(
+            IServiceProvider internalServicesProvider,
+            ILoggerFactory loggerFactory,
+            IMemoryCache memoryCache) : ConstructorTestContextWithOCBase(internalServicesProvider, loggerFactory, memoryCache);
 
         [ConditionalTheory]
         [InlineData(true)]
@@ -4061,21 +3931,9 @@ namespace Microsoft.EntityFrameworkCore
                     }).Message);
         }
 
-        private class NonGenericOptions1 : DbContext
-        {
-            public NonGenericOptions1(DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+        private class NonGenericOptions1(DbContextOptions options) : DbContext(options);
 
-        private class NonGenericOptions2 : DbContext
-        {
-            public NonGenericOptions2(DbContextOptions options)
-                : base(options)
-            {
-            }
-        }
+        private class NonGenericOptions2(DbContextOptions options) : DbContext(options);
 
         [ConditionalFact]
         public void AddDbContext_adds_options_for_all_types()
@@ -4146,13 +4004,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        private class DerivedContext2 : DerivedContext1
-        {
-            public DerivedContext2(DbContextOptions<DerivedContext2> options)
-                : base(options)
-            {
-            }
-        }
+        private class DerivedContext2(DbContextOptions<DerivedContext2> options) : DerivedContext1(options);
     }
 }
 

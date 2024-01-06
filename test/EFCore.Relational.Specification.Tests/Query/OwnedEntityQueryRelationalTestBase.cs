@@ -26,13 +26,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             message);
     }
 
-    private class Context23198 : DbContext
+    private class Context23198(DbContextOptions options) : DbContext(options)
     {
-        public Context23198(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<AnAggregateRoot>().OwnsOne(
                 e => e.AnOwnedTypeWithOwnedProperties,
@@ -84,13 +79,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         Assert.Equal(2, root3.ModdleA.Leaves.Count);
     }
 
-    private class Context24777 : DbContext
+    private class Context24777(DbContextOptions options) : DbContext(options)
     {
-        public Context24777(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Root> Roots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -198,13 +188,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             : query.FirstOrDefault();
     }
 
-    protected class Context25680 : DbContext
+    protected class Context25680(DbContextOptions options) : DbContext(options)
     {
-        public Context25680(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Location25680>().OwnsMany(
                 e => e.PublishTokenTypes,
@@ -263,13 +248,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         await base.Owned_references_on_same_level_nested_expanded_at_different_times_around_take_helper(context, async);
     }
 
-    protected class MyContext26592 : MyContext26592Base
+    protected class MyContext26592(DbContextOptions options) : MyContext26592Base(options)
     {
-        public MyContext26592(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Company>(
@@ -434,13 +414,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             });
     }
 
-    private class Context28247 : DbContext
+    private class Context28247(DbContextOptions options) : DbContext(options)
     {
-        public Context28247(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<RotRutCase> RotRutCases { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -522,15 +497,10 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         Assert.Equal("The Divider", result[0].magus.ToolUsed.Name);
     }
 
-    private class Context30358 : DbContext
+    private class Context30358(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Monarch> Monarchs { get; set; }
         public DbSet<Magus> Magi { get; set; }
-
-        public Context30358(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Magus>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
@@ -601,13 +571,8 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         context.Set<Context31107.BaseEntity>().ToList();
     }
 
-    private class Context31107 : DbContext
+    private class Context31107(DbContextOptions options) : DbContext(options)
     {
-        public Context31107(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<BaseEntity>();
@@ -645,9 +610,7 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             public ChildData Data { get; set; }
         }
 
-        public sealed class Child2Entity : BaseEntity
-        {
-        }
+        public sealed class Child2Entity : BaseEntity;
     }
 
     #endregion

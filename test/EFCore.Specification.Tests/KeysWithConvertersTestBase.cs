@@ -5432,30 +5432,20 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         }
     }
 
-    protected struct IntStructKey
+    protected struct IntStructKey(int id)
     {
-        public IntStructKey(int id)
-        {
-            Id = id;
-        }
-
         public static ValueConverter<IntStructKey, int> Converter
             = new(v => v.Id, v => new IntStructKey { Id = v });
 
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
-    protected struct BytesStructKey
+    protected struct BytesStructKey(byte[] id)
     {
         public static ValueConverter<BytesStructKey, byte[]> Converter
             = new(v => v.Id, v => new BytesStructKey { Id = v });
 
-        public BytesStructKey(byte[] id)
-        {
-            Id = id;
-        }
-
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = id;
 
         public override bool Equals(object obj)
             => obj is BytesStructKey other && Equals(other);
@@ -5480,33 +5470,23 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         }
     }
 
-    protected struct ComparableIntStructKey : IComparable
+    protected struct ComparableIntStructKey(int id) : IComparable
     {
         public static ValueConverter<ComparableIntStructKey, int> Converter
             = new(v => v.Id, v => new ComparableIntStructKey { Id = v });
 
-        public ComparableIntStructKey(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
 
         public int CompareTo(object other)
             => Id - ((ComparableIntStructKey)other).Id;
     }
 
-    protected struct ComparableBytesStructKey : IComparable
+    protected struct ComparableBytesStructKey(byte[] id) : IComparable
     {
         public static ValueConverter<ComparableBytesStructKey, byte[]> Converter
             = new(v => v.Id, v => new ComparableBytesStructKey { Id = v });
 
-        public ComparableBytesStructKey(byte[] id)
-        {
-            Id = id;
-        }
-
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = id;
 
         public override bool Equals(object obj)
             => obj is ComparableBytesStructKey other && Equals(other);
@@ -5541,34 +5521,24 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         }
     }
 
-    protected struct GenericComparableIntStructKey : IComparable<GenericComparableIntStructKey>
+    protected struct GenericComparableIntStructKey(int id) : IComparable<GenericComparableIntStructKey>
     {
         public static ValueConverter<GenericComparableIntStructKey, int> Converter
             = new(v => v.Id, v => new GenericComparableIntStructKey { Id = v });
 
-        public GenericComparableIntStructKey(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
 
         public int CompareTo(GenericComparableIntStructKey other)
             => Id - other.Id;
     }
 
-    protected struct GenericComparableBytesStructKey : IComparable<GenericComparableBytesStructKey>
+    protected struct GenericComparableBytesStructKey(byte[] id) : IComparable<GenericComparableBytesStructKey>
     {
         public static ValueConverter<GenericComparableBytesStructKey, byte[]> Converter
             = new(
                 v => v.Id, v => new GenericComparableBytesStructKey { Id = v });
 
-        public GenericComparableBytesStructKey(byte[] id)
-        {
-            Id = id;
-        }
-
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = id;
 
         public override bool Equals(object obj)
             => obj is GenericComparableBytesStructKey other && Equals(other);
@@ -5603,18 +5573,13 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         }
     }
 
-    protected struct StructuralComparableBytesStructKey : IStructuralComparable
+    protected struct StructuralComparableBytesStructKey(byte[] id) : IStructuralComparable
     {
         public static ValueConverter<StructuralComparableBytesStructKey, byte[]> Converter
             = new(
                 v => v.Id, v => new StructuralComparableBytesStructKey { Id = v });
 
-        public StructuralComparableBytesStructKey(byte[] id)
-        {
-            Id = id;
-        }
-
-        public byte[] Id { get; set; }
+        public byte[] Id { get; set; } = id;
 
         public override bool Equals(object obj)
             => obj is StructuralComparableBytesStructKey other && Equals(other);
@@ -5656,15 +5621,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         }
     }
 
-    protected class IntClassKey
+    protected class IntClassKey(int id)
     {
         public static ValueConverter<IntClassKey, int> Converter
             = new(v => v.Id, v => new IntClassKey(v));
-
-        public IntClassKey(int id)
-        {
-            Id = id;
-        }
 
         protected bool Equals(IntClassKey other)
             => other != null && Id == other.Id;
@@ -5677,18 +5637,13 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public override int GetHashCode()
             => Id;
 
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
-    protected class EnumerableClassKey : IEnumerable<byte>
+    protected class EnumerableClassKey(int id) : IEnumerable<byte>
     {
         public static ValueConverter<EnumerableClassKey, int> Converter
             = new(v => v.Id, v => new EnumerableClassKey(v));
-
-        public EnumerableClassKey(int id)
-        {
-            Id = id;
-        }
 
         public IEnumerator<byte> GetEnumerator()
             => throw new NotImplementedException();
@@ -5707,10 +5662,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public override int GetHashCode()
             => Id;
 
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
-    protected class BareIntClassKey
+    protected class BareIntClassKey(int id)
     {
         public static ValueConverter<BareIntClassKey, int> Converter
             = new(v => v.Id, v => new BareIntClassKey(v));
@@ -5721,25 +5676,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 v => v == null ? 0 : v.Id.GetHashCode(),
                 v => v == null ? null : new BareIntClassKey(v.Id));
 
-        public BareIntClassKey(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
-    protected class ComparableIntClassKey : IComparable
+    protected class ComparableIntClassKey(int id) : IComparable
     {
         public static ValueConverter<ComparableIntClassKey, int> Converter
             = new(v => v.Id, v => new ComparableIntClassKey(v));
 
-        public ComparableIntClassKey(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
 
         protected bool Equals(ComparableIntClassKey other)
             => other != null && Id == other.Id;
@@ -5756,17 +5701,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             => Id - ((ComparableIntClassKey)other).Id;
     }
 
-    protected class GenericComparableIntClassKey : IComparable<GenericComparableIntClassKey>
+    protected class GenericComparableIntClassKey(int id) : IComparable<GenericComparableIntClassKey>
     {
         public static ValueConverter<GenericComparableIntClassKey, int> Converter
             = new(v => v.Id, v => new GenericComparableIntClassKey(v));
 
-        public GenericComparableIntClassKey(int id)
-        {
-            Id = id;
-        }
-
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
 
         protected bool Equals(GenericComparableIntClassKey other)
             => other != null && Id == other.Id;
@@ -6729,14 +6669,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public GenericComparableIntClassKeyPrincipalShadow Principal { get; set; }
     }
 
-    protected class Key
+    protected class Key(string id)
     {
-        public string Value { get; }
-
-        public Key(string id)
-        {
-            Value = id;
-        }
+        public string Value { get; } = id;
     }
 
     protected class BaseEntity
@@ -6777,14 +6712,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedIntStructKey Owned { get; set; }
     }
 
-    protected class OwnedIntStructKey
+    protected class OwnedIntStructKey(int position)
     {
-        public OwnedIntStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerBytesStructKey
@@ -6804,14 +6734,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedBytesStructKey Owned { get; set; }
     }
 
-    protected class OwnedBytesStructKey
+    protected class OwnedBytesStructKey(int position)
     {
-        public OwnedBytesStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerComparableIntStructKey
@@ -6831,14 +6756,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedComparableIntStructKey Owned { get; set; }
     }
 
-    protected class OwnedComparableIntStructKey
+    protected class OwnedComparableIntStructKey(int position)
     {
-        public OwnedComparableIntStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerComparableBytesStructKey
@@ -6858,14 +6778,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedComparableBytesStructKey Owned { get; set; }
     }
 
-    protected class OwnedComparableBytesStructKey
+    protected class OwnedComparableBytesStructKey(int position)
     {
-        public OwnedComparableBytesStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerGenericComparableIntStructKey
@@ -6885,14 +6800,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedGenericComparableIntStructKey Owned { get; set; }
     }
 
-    protected class OwnedGenericComparableIntStructKey
+    protected class OwnedGenericComparableIntStructKey(int position)
     {
-        public OwnedGenericComparableIntStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerGenericComparableBytesStructKey
@@ -6912,14 +6822,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedGenericComparableBytesStructKey Owned { get; set; }
     }
 
-    protected class OwnedGenericComparableBytesStructKey
+    protected class OwnedGenericComparableBytesStructKey(int position)
     {
-        public OwnedGenericComparableBytesStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerStructuralComparableBytesStructKey
@@ -6941,14 +6846,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedStructuralComparableBytesStructKey Owned { get; set; }
     }
 
-    protected class OwnedStructuralComparableBytesStructKey
+    protected class OwnedStructuralComparableBytesStructKey(int position)
     {
-        public OwnedStructuralComparableBytesStructKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerIntClassKey
@@ -6968,14 +6868,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedIntClassKey Owned { get; set; }
     }
 
-    protected class OwnedIntClassKey
+    protected class OwnedIntClassKey(int position)
     {
-        public OwnedIntClassKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerBareIntClassKey
@@ -6995,14 +6890,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedBareIntClassKey Owned { get; set; }
     }
 
-    protected class OwnedBareIntClassKey
+    protected class OwnedBareIntClassKey(int position)
     {
-        public OwnedBareIntClassKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerComparableIntClassKey
@@ -7022,14 +6912,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedComparableIntClassKey Owned { get; set; }
     }
 
-    protected class OwnedComparableIntClassKey
+    protected class OwnedComparableIntClassKey(int position)
     {
-        public OwnedComparableIntClassKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     protected class OwnerGenericComparableIntClassKey
@@ -7049,14 +6934,9 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         public OwnedGenericComparableIntClassKey Owned { get; set; }
     }
 
-    protected class OwnedGenericComparableIntClassKey
+    protected class OwnedGenericComparableIntClassKey(int position)
     {
-        public OwnedGenericComparableIntClassKey(int position)
-        {
-            Position = position;
-        }
-
-        public int Position { get; set; }
+        public int Position { get; set; } = position;
     }
 
     public abstract class KeysWithConvertersFixtureBase : SharedStoreFixtureBase<PoolableDbContext>

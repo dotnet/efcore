@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendIncludeToExistingExpressionMutator : ExpressionMutator
+public class AppendIncludeToExistingExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendIncludeToExistingExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     private ExpressionFinder _expressionFinder;
 
     public override bool IsValid(Expression expression)

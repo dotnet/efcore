@@ -3,10 +3,5 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class CompositeKeysQuerySqliteTest : CompositeKeysQueryRelationalTestBase<CompositeKeysQuerySqliteFixture>
-{
-    public CompositeKeysQuerySqliteTest(CompositeKeysQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-    }
-}
+public class CompositeKeysQuerySqliteTest(CompositeKeysQuerySqliteFixture fixture)
+    : CompositeKeysQueryRelationalTestBase<CompositeKeysQuerySqliteFixture>(fixture);

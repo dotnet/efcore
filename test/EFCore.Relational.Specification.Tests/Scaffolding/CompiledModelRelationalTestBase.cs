@@ -1065,13 +1065,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.Same(getBlobs, objectEntityFunctionMapping.DbFunction);
             });
 
-    public class DbFunctionContext : DbContext
+    public class DbFunctionContext(DbContextOptions<DbFunctionContext> options) : DbContext(options)
     {
-        public DbFunctionContext(DbContextOptions<DbFunctionContext> options)
-            : base(options)
-        {
-        }
-
         public static bool IsDateStatic(string date)
             => throw new NotImplementedException();
 
@@ -1121,13 +1116,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.Equal("varchar", typeMapping.StoreType);
             });
 
-    public class FunctionTypeMappingContext : DbContext
+    public class FunctionTypeMappingContext(DbContextOptions<FunctionTypeMappingContext> options) : DbContext(options)
     {
-        public FunctionTypeMappingContext(DbContextOptions<FunctionTypeMappingContext> options)
-            : base(options)
-        {
-        }
-
         public static string GetSqlFragmentStatic(string param)
             => throw new NotImplementedException();
 
@@ -1153,13 +1143,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                 Assert.Equal("varchar", typeMapping.StoreType);
             });
 
-    public class FunctionParameterTypeMappingContext : DbContext
+    public class FunctionParameterTypeMappingContext(DbContextOptions<FunctionParameterTypeMappingContext> options) : DbContext(options)
     {
-        public FunctionParameterTypeMappingContext(DbContextOptions<FunctionParameterTypeMappingContext> options)
-            : base(options)
-        {
-        }
-
         public static string GetSqlFragmentStatic(string param)
             => throw new NotImplementedException();
 
@@ -1177,13 +1162,8 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         => Test<FunctionTranslationContext>(
             expectedExceptionMessage: RelationalStrings.CompiledModelFunctionTranslation("GetSqlFragmentStatic"));
 
-    public class FunctionTranslationContext : DbContext
+    public class FunctionTranslationContext(DbContextOptions<FunctionTranslationContext> options) : DbContext(options)
     {
-        public FunctionTranslationContext(DbContextOptions<FunctionTranslationContext> options)
-            : base(options)
-        {
-        }
-
         public static string GetSqlFragmentStatic()
             => throw new NotImplementedException();
 
@@ -1196,9 +1176,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
         }
     }
 
-    public class SpatialTypes : AbstractBase
-    {
-    }
+    public class SpatialTypes : AbstractBase;
 
     protected override BuildSource AddReferences(BuildSource build, [CallerFilePath] string filePath = "")
     {

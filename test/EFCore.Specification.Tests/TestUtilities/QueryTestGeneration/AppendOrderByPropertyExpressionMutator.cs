@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendOrderByPropertyExpressionMutator : ExpressionMutator
+public class AppendOrderByPropertyExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendOrderByPropertyExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     private bool HasValidPropertyToOrderBy(Expression expression)
         => expression.Type.GetGenericArguments()[0].GetProperties().Where(p => !p.GetMethod.IsStatic)
             .Any(p => IsOrderedableType(p.PropertyType));

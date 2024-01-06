@@ -193,14 +193,9 @@ public class ReverseEngineerScaffolderTest
         Assert.DoesNotContain(ScaffoldingAnnotationNames.ConnectionString, result.ContextFile.Code);
     }
 
-    private class TestNamedConnectionStringResolver : IDesignTimeConnectionStringResolver
+    private class TestNamedConnectionStringResolver(string resolvedConnectionString) : IDesignTimeConnectionStringResolver
     {
-        private readonly string _resolvedConnectionString;
-
-        public TestNamedConnectionStringResolver(string resolvedConnectionString)
-        {
-            _resolvedConnectionString = resolvedConnectionString;
-        }
+        private readonly string _resolvedConnectionString = resolvedConnectionString;
 
         public string ResolveConnectionString(string connectionString)
             => _resolvedConnectionString;

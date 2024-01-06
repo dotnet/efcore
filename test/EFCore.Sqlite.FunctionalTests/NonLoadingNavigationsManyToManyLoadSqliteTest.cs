@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class NonLoadingNavigationsManyToManyLoadSqliteTest
-    : ManyToManyLoadTestBase<NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture>
+public class NonLoadingNavigationsManyToManyLoadSqliteTest(NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
+    : ManyToManyLoadTestBase<NonLoadingNavigationsManyToManyLoadSqliteTest.NonLoadingNavigationsManyToManyLoadSqliteFixture>(fixture)
 {
-    public NonLoadingNavigationsManyToManyLoadSqliteTest(NonLoadingNavigationsManyToManyLoadSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class NonLoadingNavigationsManyToManyLoadSqliteFixture : ManyToManyLoadFixtureBase
     {
         protected override string StoreName

@@ -4464,14 +4464,9 @@ public class OwnedFixupTest
         public string Size { get; set; }
     }
 
-    private class OwnedModifiedContext : DbContext
+    private class OwnedModifiedContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public OwnedModifiedContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -4529,14 +4524,9 @@ public class OwnedFixupTest
         public ICollection<StreetAddress> ShippingCenters { get; set; }
     }
 
-    private class StreetContext : DbContext
+    private class StreetContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public StreetContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -4742,14 +4732,9 @@ public class OwnedFixupTest
             => rob.Property(e => e.Title);
     }
 
-    private class BooksContext : DbContext
+    private class BooksContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public BooksContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         public DbSet<Book> Books { get; set; }
 
@@ -4838,14 +4823,9 @@ public class OwnedFixupTest
         public int NumericCode { get; }
     }
 
-    private class TestCurrencyContext : DbContext
+    private class TestCurrencyContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public TestCurrencyContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -4917,14 +4897,9 @@ public class OwnedFixupTest
         Assert.Equal("USD", order.TestOrderItems.Single(e => e.ProductName == "Test Product 4").Price.Currency.Code);
     }
 
-    private class TestCurrencyContextRevisited : DbContext
+    private class TestCurrencyContextRevisited(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public TestCurrencyContextRevisited(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -5048,14 +5023,9 @@ public class OwnedFixupTest
         }
     }
 
-    private class OneRowContext : DbContext
+    private class OneRowContext(bool async) : DbContext
     {
-        private readonly bool _async;
-
-        public OneRowContext(bool async)
-        {
-            _async = async;
-        }
+        private readonly bool _async = async;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(nameof(OneRowContext) + _async);
@@ -5108,14 +5078,9 @@ public class OwnedFixupTest
             => Value == other.Value;
     }
 
-    private class EquatableEntitiesContext : DbContext
+    private class EquatableEntitiesContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public EquatableEntitiesContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);

@@ -199,11 +199,5 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         }
     }
 
-    private class ApplicationDbContext : DbContext
-    {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-    }
+    private class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options);
 }

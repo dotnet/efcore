@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class QueryAsserter
+public class QueryAsserter(
+    IQueryFixtureBase queryFixture,
+    Func<Expression, Expression> rewriteExpectedQueryExpression,
+    Func<Expression, Expression> rewriteServerQueryExpression,
+    bool ignoreEntryCount = false)
 {
     private static readonly MethodInfo _assertIncludeEntity =
         typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(AssertIncludeEntity));
@@ -17,39 +21,21 @@ public class QueryAsserter
     private static readonly MethodInfo _filteredIncludeMethodInfo =
         typeof(QueryAsserter).GetTypeInfo().GetDeclaredMethod(nameof(FilteredInclude));
 
-    private readonly Func<DbContext> _contextCreator;
-    private readonly IReadOnlyDictionary<Type, object> _entitySorters;
-    private readonly IReadOnlyDictionary<Type, object> _entityAsserters;
+    private readonly Func<DbContext> _contextCreator = queryFixture.GetContextCreator();
+    private readonly IReadOnlyDictionary<Type, object> _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
+    private readonly IReadOnlyDictionary<Type, object> _entityAsserters = queryFixture.EntityAsserters ?? new Dictionary<Type, object>();
 
-    private readonly Func<Expression, Expression> _rewriteExpectedQueryExpression;
-    private readonly Func<Expression, Expression> _rewriteServerQueryExpression;
+    private readonly Func<Expression, Expression> _rewriteExpectedQueryExpression = rewriteExpectedQueryExpression;
+    private readonly Func<Expression, Expression> _rewriteServerQueryExpression = rewriteServerQueryExpression;
 
-    private readonly bool _ignoreEntryCount;
+    private readonly bool _ignoreEntryCount = ignoreEntryCount;
     private const bool ProceduralQueryGeneration = false;
     private readonly List<string> _includePath = new();
-    private readonly ISetSource _expectedData;
+    private readonly ISetSource _expectedData = queryFixture.GetExpectedData();
 
-    public QueryAsserter(
-        IQueryFixtureBase queryFixture,
-        Func<Expression, Expression> rewriteExpectedQueryExpression,
-        Func<Expression, Expression> rewriteServerQueryExpression,
-        bool ignoreEntryCount = false)
-    {
-        QueryFixture = queryFixture;
-        _contextCreator = queryFixture.GetContextCreator();
-        _expectedData = queryFixture.GetExpectedData();
-        _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
-        _entityAsserters = queryFixture.EntityAsserters ?? new Dictionary<Type, object>();
-        SetSourceCreator = queryFixture.GetSetSourceCreator();
+    public virtual Func<DbContext, ISetSource> SetSourceCreator { get; } = queryFixture.GetSetSourceCreator();
 
-        _rewriteExpectedQueryExpression = rewriteExpectedQueryExpression;
-        _rewriteServerQueryExpression = rewriteServerQueryExpression;
-        _ignoreEntryCount = ignoreEntryCount;
-    }
-
-    public virtual Func<DbContext, ISetSource> SetSourceCreator { get; }
-
-    protected IQueryFixtureBase QueryFixture { get; }
+    protected IQueryFixtureBase QueryFixture { get; } = queryFixture;
 
     protected virtual void AssertRogueExecution(int expectedCount, IQueryable queryable)
     {

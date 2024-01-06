@@ -38,14 +38,9 @@ public class ModelSourceTest
         Assert.Equal(1, SlowContext.CallCount);
     }
 
-    private class SlowContext : DbContext
+    private class SlowContext(IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IServiceProvider _serviceProvider;
-
-        public SlowContext(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         public static int CallCount { get; private set; }
 
@@ -195,16 +190,10 @@ public class ModelSourceTest
         Assert.NotNull(context.Model);
     }
 
-    private class ModelContext : DbContext
+    private class ModelContext(IModel model, IServiceProvider serviceProvider) : DbContext
     {
-        private readonly IModel _model;
-        private readonly IServiceProvider _serviceProvider;
-
-        public ModelContext(IModel model, IServiceProvider serviceProvider)
-        {
-            _model = model;
-            _serviceProvider = serviceProvider;
-        }
+        private readonly IModel _model = model;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -242,19 +231,7 @@ public class ModelSourceTest
         Assert.StartsWith(packageVersion, model.GetProductVersion(), StringComparison.OrdinalIgnoreCase);
     }
 
-    private class Context1 : DbContext
-    {
-        public Context1(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class Context1(DbContextOptions options) : DbContext(options);
 
-    private class Context2 : DbContext
-    {
-        public Context2(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class Context2(DbContextOptions options) : DbContext(options);
 }

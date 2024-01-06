@@ -12,13 +12,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
 {
-    public class InMemoryGenericNonRelationship : InMemoryNonRelationship
+    public class InMemoryGenericNonRelationship(InMemoryModelBuilderFixture fixture) : InMemoryNonRelationship(fixture)
     {
-        public InMemoryGenericNonRelationship(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public void Can_discover_large_models_through_navigations()
         {
@@ -46,13 +41,8 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericComplexType : InMemoryComplexType
+    public class InMemoryGenericComplexType(InMemoryModelBuilderFixture fixture) : InMemoryComplexType(fixture)
     {
-        public InMemoryGenericComplexType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Changing_propertyInfo_updates_Property()
         {
@@ -73,24 +63,14 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericInheritance : InMemoryInheritance
+    public class InMemoryGenericInheritance(InMemoryModelBuilderFixture fixture) : InMemoryInheritance(fixture)
     {
-        public InMemoryGenericInheritance(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOneToMany : InMemoryOneToMany
+    public class InMemoryGenericOneToMany(InMemoryModelBuilderFixture fixture) : InMemoryOneToMany(fixture)
     {
-        public InMemoryGenericOneToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact] // Issue #3376
         public virtual void Can_use_self_referencing_overlapping_FK_PK()
         {
@@ -204,35 +184,20 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericManyToMany : InMemoryManyToMany
+    public class InMemoryGenericManyToMany(InMemoryModelBuilderFixture fixture) : InMemoryManyToMany(fixture)
     {
-        public InMemoryGenericManyToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericManyToOne : InMemoryManyToOne
+    public class InMemoryGenericManyToOne(InMemoryModelBuilderFixture fixture) : InMemoryManyToOne(fixture)
     {
-        public InMemoryGenericManyToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOneToOne : InMemoryOneToOne
+    public class InMemoryGenericOneToOne(InMemoryModelBuilderFixture fixture) : InMemoryOneToOne(fixture)
     {
-        public InMemoryGenericOneToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_use_self_referencing_overlapping_FK_PK()
         {
@@ -316,13 +281,8 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             => new GenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryGenericOwnedTypes : InMemoryOwnedTypes
+    public class InMemoryGenericOwnedTypes(InMemoryModelBuilderFixture fixture) : InMemoryOwnedTypes(fixture)
     {
-        public InMemoryGenericOwnedTypes(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new GenericTestModelBuilder(Fixture, configure);
     }

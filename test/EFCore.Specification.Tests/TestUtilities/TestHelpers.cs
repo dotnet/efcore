@@ -455,22 +455,15 @@ public abstract class TestHelpers
             });
     }
 
-    public class TestModelBuilder : ModelBuilder
+    public class TestModelBuilder(
+        ConventionSet conventions,
+        ModelDependencies modelDependencies,
+        ModelConfiguration modelConfiguration,
+        IModelRuntimeInitializer modelRuntimeInitializer,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger) : ModelBuilder(conventions, modelDependencies, modelConfiguration)
     {
-        private readonly IModelRuntimeInitializer _modelRuntimeInitializer;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _validationLogger;
-
-        public TestModelBuilder(
-            ConventionSet conventions,
-            ModelDependencies modelDependencies,
-            ModelConfiguration modelConfiguration,
-            IModelRuntimeInitializer modelRuntimeInitializer,
-            IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger)
-            : base(conventions, modelDependencies, modelConfiguration)
-        {
-            _modelRuntimeInitializer = modelRuntimeInitializer;
-            _validationLogger = validationLogger;
-        }
+        private readonly IModelRuntimeInitializer _modelRuntimeInitializer = modelRuntimeInitializer;
+        private readonly IDiagnosticsLogger<DbLoggerCategory.Model.Validation> _validationLogger = validationLogger;
 
         public override IModel FinalizeModel()
             => FinalizeModel(designTime: false);
@@ -479,15 +472,9 @@ public abstract class TestHelpers
             => _modelRuntimeInitializer.Initialize((IModel)Model, designTime, skipValidation ? null : _validationLogger);
     }
 
-    public class TestModelConfigurationBuilder : ModelConfigurationBuilder
+    public class TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider) : ModelConfigurationBuilder(conventionSet, serviceProvider)
     {
-        public TestModelConfigurationBuilder(ConventionSet conventionSet, IServiceProvider serviceProvider)
-            : base(conventionSet, serviceProvider)
-        {
-            ConventionSet = conventionSet;
-        }
-
-        public ConventionSet ConventionSet { get; }
+        public ConventionSet ConventionSet { get; } = conventionSet;
 
         public TestModelBuilder CreateModelBuilder(
             ModelDependencies modelDependencies,

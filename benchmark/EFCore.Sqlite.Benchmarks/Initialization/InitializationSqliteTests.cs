@@ -37,13 +37,10 @@ public class InitializationSqliteTests : InitializationTests
         return services;
     }
 
-    private class AdventureWorksSqliteContextFactory<T> : IDbContextFactory<AdventureWorksContextBase>
+    private class AdventureWorksSqliteContextFactory<T>(IDbContextFactory<T> factory) : IDbContextFactory<AdventureWorksContextBase>
         where T : AdventureWorksContextBase
     {
-        private readonly IDbContextFactory<T> _factory;
-
-        public AdventureWorksSqliteContextFactory(IDbContextFactory<T> factory)
-            => _factory = factory;
+        private readonly IDbContextFactory<T> _factory = factory;
 
         public AdventureWorksContextBase CreateDbContext()
             => _factory.CreateDbContext();

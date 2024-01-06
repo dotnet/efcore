@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Operators;
 
-public class OperatorsContext : DbContext
+public class OperatorsContext(DbContextOptions options) : DbContext(options)
 {
-    public OperatorsContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<OperatorEntityString>().Property(x => x.Id).ValueGeneratedNever();

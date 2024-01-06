@@ -115,13 +115,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class NumNumContext : DbContext
+    private class NumNumContext(DbContextOptions options) : DbContext(options)
     {
-        public NumNumContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<NownNum> NownNums { get; set; }
         public DbSet<NumNum> NumNums { get; set; }
         public DbSet<AnNum> AnNums { get; set; }
@@ -280,13 +275,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class ENumContext : DbContext
+    private class ENumContext(DbContextOptions options) : DbContext(options)
     {
-        public ENumContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<SNum> SNums { get; set; }
         public DbSet<EnNum> EnNums { get; set; }
         public DbSet<BNum> BNums { get; set; }
@@ -358,13 +348,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class ProjectContext : DbContext
+    private class ProjectContext(DbContextOptions options) : DbContext(options)
     {
-        public ProjectContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<EvaluationAction> EvaluationActions { get; set; }
         public DbSet<ProjectAction> ProjectActions { get; set; }
 
@@ -463,13 +448,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class CompositeKeysDbContext : DbContext
+    private class CompositeKeysDbContext(DbContextOptions options) : DbContext(options)
     {
-        public CompositeKeysDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Int32CompositeKeys>().HasKey(i => new { i.Id1, i.Id2 });
@@ -512,13 +492,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class FileContext : DbContext
+    private class FileContext(DbContextOptions options) : DbContext(options)
     {
-        public FileContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<FileMetadata> FileMetadata { get; set; }
         public DbSet<Category> Categories { get; set; }
 
@@ -575,13 +550,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class CarContext : DbContext
+    private class CarContext(DbContextOptions options) : DbContext(options)
     {
-        public CarContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Car>().ToTable("Car");
@@ -1054,13 +1024,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public byte[] RowVersion { get; set; } = Array.Empty<byte>();
     }
 
-    private class UniversityContext : DbContext
+    private class UniversityContext(DbContextOptions options) : DbContext(options)
     {
-        public UniversityContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Student> Students { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<Enrollment> Enrollments { get; set; }
@@ -1161,13 +1126,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public virtual ICollection<EntityB> EntitiesB { get; } = new List<EntityB>();
     }
 
-    private class SomeDbContext : DbContext
+    private class SomeDbContext(DbContextOptions options) : DbContext(options)
     {
-        public SomeDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<EntityA> EntitiesA { get; set; }
         public DbSet<EntityB> EntitiesB { get; set; }
         public DbSet<EntityC> EntitiesC { get; set; }
@@ -1396,13 +1356,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public virtual ICollection<Level> Levels { get; set; } = new HashSet<Level>();
     }
 
-    public class GameDbContext : DbContext
+    public class GameDbContext(DbContextOptions options) : DbContext(options)
     {
-        public GameDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Game> Games { get; set; }
         public DbSet<Level> Levels { get; set; }
         public DbSet<PlayerCharacter> Characters { get; set; }
@@ -1518,13 +1473,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         }
     }
 
-    private class SchemaContext : DbContext
+    private class SchemaContext(DbContextOptions options) : DbContext(options)
     {
-        public SchemaContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Jack> Jacks { get; set; }
         public DbSet<Black> Blacks { get; set; }
 
@@ -1688,13 +1638,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         return new[] { blog1, blog2 };
     }
 
-    private class NorthwindContext : DbContext
+    private class NorthwindContext(DbContextOptions options) : DbContext(options)
     {
-        public NorthwindContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -1713,13 +1658,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public string Fax { get; set; }
     }
 
-    private class BloggingContext : BloggingContext<Blog>
-    {
-        public BloggingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class BloggingContext(DbContextOptions options) : BloggingContext<Blog>(options);
 
     private class Blog : IBlog
     {
@@ -1747,14 +1686,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
         public byte[] AndChew { get; set; }
     }
 
-    private class BloggingContext<TBlog> : DbContext
+    private class BloggingContext<TBlog>(DbContextOptions options) : DbContext(options)
         where TBlog : class, IBlog
     {
-        public BloggingContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             if (typeof(INotifyPropertyChanging).IsAssignableFrom(typeof(TBlog)))

@@ -308,14 +308,9 @@ public class CosmosTestStore : TestStore
         _storeContext.Dispose();
     }
 
-    private class TestStoreContext : DbContext
+    private class TestStoreContext(CosmosTestStore testStore) : DbContext
     {
-        private readonly CosmosTestStore _testStore;
-
-        public TestStoreContext(CosmosTestStore testStore)
-        {
-            _testStore = testStore;
-        }
+        private readonly CosmosTestStore _testStore = testStore;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseCosmos(_testStore.ConnectionUri, _testStore.AuthToken, _testStore.Name, _testStore._configureCosmos);

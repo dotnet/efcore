@@ -192,16 +192,11 @@ public class CustomValueGeneratorTest
         return BitConverter.ToInt64(counterBytes, 0);
     }
 
-    private class CustomInMemoryValueGeneratorSelector : InMemoryValueGeneratorSelector
+    private class CustomInMemoryValueGeneratorSelector(
+        ValueGeneratorSelectorDependencies dependencies,
+        IInMemoryDatabase inMemoryDatabase) : InMemoryValueGeneratorSelector(dependencies, inMemoryDatabase)
     {
         private readonly ValueGeneratorFactory _factory = new CustomValueGeneratorFactory();
-
-        public CustomInMemoryValueGeneratorSelector(
-            ValueGeneratorSelectorDependencies dependencies,
-            IInMemoryDatabase inMemoryDatabase)
-            : base(dependencies, inMemoryDatabase)
-        {
-        }
 
         public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => _factory.Create(property, typeBase);

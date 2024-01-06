@@ -8,45 +8,26 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
 {
-    public class InMemoryNonGenericNonRelationship : InMemoryNonRelationship
+    public class InMemoryNonGenericNonRelationship(InMemoryModelBuilderFixture fixture) : InMemoryNonRelationship(fixture)
     {
-        public InMemoryNonGenericNonRelationship(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericComplexType : InMemoryComplexType
+    public class InMemoryNonGenericComplexType(InMemoryModelBuilderFixture fixture) : InMemoryComplexType(fixture)
     {
-        public InMemoryNonGenericComplexType(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericInheritance : InMemoryInheritance
+    public class InMemoryNonGenericInheritance(InMemoryModelBuilderFixture fixture) : InMemoryInheritance(fixture)
     {
-        public InMemoryNonGenericInheritance(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericOneToMany : InMemoryOneToMany
+    public class InMemoryNonGenericOneToMany(InMemoryModelBuilderFixture fixture) : InMemoryOneToMany(fixture)
     {
-        public InMemoryNonGenericOneToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
         [ConditionalFact]
         public virtual void HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {
@@ -128,46 +109,26 @@ public class InMemoryModelBuilderNonGenericTest : InMemoryModelBuilderTest
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericManyToMany : InMemoryManyToMany
+    public class InMemoryNonGenericManyToMany(InMemoryModelBuilderFixture fixture) : InMemoryManyToMany(fixture)
     {
-        public InMemoryNonGenericManyToMany(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericManyToOne : InMemoryManyToOne
+    public class InMemoryNonGenericManyToOne(InMemoryModelBuilderFixture fixture) : InMemoryManyToOne(fixture)
     {
-        public InMemoryNonGenericManyToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericOneToOne : InMemoryOneToOne
+    public class InMemoryNonGenericOneToOne(InMemoryModelBuilderFixture fixture) : InMemoryOneToOne(fixture)
     {
-        public InMemoryNonGenericOneToOne(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => new NonGenericTestModelBuilder(Fixture, configure);
     }
 
-    public class InMemoryNonGenericOwnedTypes : InMemoryOwnedTypes
+    public class InMemoryNonGenericOwnedTypes(InMemoryModelBuilderFixture fixture) : InMemoryOwnedTypes(fixture)
     {
-        public InMemoryNonGenericOwnedTypes(InMemoryModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void OwnsOne_HasOne_with_just_string_navigation_for_non_CLR_property_throws()
         {

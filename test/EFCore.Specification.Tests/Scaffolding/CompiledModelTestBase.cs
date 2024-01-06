@@ -1060,25 +1060,15 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         public ICollection<PrincipalBase> Principals { get; set; } = null!;
     }
 
-    public class DependentBase<TKey> : AbstractBase
+    public class DependentBase<TKey>(TKey id) : AbstractBase
     {
-        public DependentBase(TKey id)
-        {
-            Id = id;
-        }
-
-        private new TKey Id { get; }
+        private new TKey Id { get; } = id;
 
         public PrincipalDerived<DependentBase<TKey>>? Principal { get; set; }
     }
 
-    public class DependentDerived<TKey> : DependentBase<TKey>
+    public class DependentDerived<TKey>(TKey id) : DependentBase<TKey>(id)
     {
-        public DependentDerived(TKey id)
-            : base(id)
-        {
-        }
-
         private string? Data { get; set; }
     }
 

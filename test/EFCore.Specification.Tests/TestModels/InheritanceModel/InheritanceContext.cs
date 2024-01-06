@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-public class InheritanceContext : PoolableDbContext
+public class InheritanceContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public InheritanceContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<Animal> Animals { get; set; }
     public DbSet<AnimalQuery> AnimalQueries { get; set; }
     public DbSet<Country> Countries { get; set; }

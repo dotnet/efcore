@@ -516,15 +516,11 @@ public class EntityMaterializerSourceTest
         public int Id { get; set; }
     }
 
-    private class WithProperties
+    private class WithProperties(int id)
     {
-        public WithProperties(int id)
-        {
-            Id = id;
-        }
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
-        public int Id { get; set; }
+        public int Id { get; set; } = id;
     }
 
     private class ParameterlessAndWithProperties
@@ -542,64 +538,39 @@ public class EntityMaterializerSourceTest
         public int Id { get; set; }
     }
 
-    private class WithLazyLoader
+    private class WithLazyLoader(ILazyLoader lazyLoader)
     {
-        public WithLazyLoader(ILazyLoader lazyLoader)
-        {
-            LazyLoader = lazyLoader;
-        }
-
         public int Id { get; set; }
-        public ILazyLoader LazyLoader { get; }
+        public ILazyLoader LazyLoader { get; } = lazyLoader;
     }
 
-    private class WithLazyLoaderDelegate
+    private class WithLazyLoaderDelegate(Action<object, string> lazyLoader)
     {
-        public WithLazyLoaderDelegate(Action<object, string> lazyLoader)
-        {
-            LazyLoader = lazyLoader;
-        }
-
         public int Id { get; set; }
-        public Action<object, string> LazyLoader { get; }
+        public Action<object, string> LazyLoader { get; } = lazyLoader;
     }
 
-    private class WithEntityType
+    private class WithEntityType(IEntityType entityType)
     {
-        public WithEntityType(IEntityType entityType)
-        {
-            EntityType = entityType;
-        }
-
         public int Id { get; set; }
-        public IEntityType EntityType { get; }
+        public IEntityType EntityType { get; } = entityType;
     }
 
-    private class WithContext
+    private class WithContext(DbContext context)
     {
-        public WithContext(DbContext context)
-        {
-            Context = context;
-        }
-
         public int Id { get; set; }
-        public DbContext Context { get; }
+        public DbContext Context { get; } = context;
     }
 
-    private class WithServiceAndWithProperties
+    private class WithServiceAndWithProperties(ILazyLoader lazyLoader)
     {
-        public WithServiceAndWithProperties(ILazyLoader lazyLoader)
-        {
-            LazyLoader = lazyLoader;
-        }
-
         public WithServiceAndWithProperties(ILazyLoader lazyLoader, int id)
             : this(lazyLoader)
         {
             Id = id;
         }
 
-        public ILazyLoader LazyLoader { get; }
+        public ILazyLoader LazyLoader { get; } = lazyLoader;
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; set; }
@@ -625,18 +596,11 @@ public class EntityMaterializerSourceTest
                 _contextParameter)
             .Compile();
 
-    private abstract class SomeAbstractEntity
-    {
-    }
+    private abstract class SomeAbstractEntity;
 
-    private class SomeEntityContext : DbContext
+    private class SomeEntityContext(Action<ModelBuilder> builderAction) : DbContext
     {
-        private readonly Action<ModelBuilder> _builderAction;
-
-        public SomeEntityContext(Action<ModelBuilder> builderAction)
-        {
-            _builderAction = builderAction;
-        }
+        private readonly Action<ModelBuilder> _builderAction = builderAction;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -767,17 +731,12 @@ public class EntityMaterializerSourceTest
         EnumValue
     }
 
-    private class EntityWithoutParameterlessConstructor
+    private class EntityWithoutParameterlessConstructor(int value)
     {
         public static readonly PropertyInfo IdProperty = typeof(EntityWithoutParameterlessConstructor).GetProperty("Id");
 
         public int Id { get; set; }
 
-        private readonly int _value;
-
-        public EntityWithoutParameterlessConstructor(int value)
-        {
-            _value = value;
-        }
+        private readonly int _value = value;
     }
 }

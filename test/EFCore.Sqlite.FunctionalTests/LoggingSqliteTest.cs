@@ -29,13 +29,8 @@ public class LoggingSqliteTest : LoggingRelationalTestBase<SqliteDbContextOption
                 () => context.SaveChanges()).Message);
     }
 
-    protected class AmbientTransactionWarningContext : DbContext
+    protected class AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder) : DbContext(optionsBuilder.Options)
     {
-        public AmbientTransactionWarningContext(DbContextOptionsBuilder optionsBuilder)
-            : base(optionsBuilder.Options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Animal>();
     }

@@ -561,14 +561,9 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class ConnectionCreationOverrideInterceptor : ConnectionCreationInterceptor
+    protected class ConnectionCreationOverrideInterceptor(DbConnection replacementConnection) : ConnectionCreationInterceptor
     {
-        private readonly DbConnection _replacementConnection;
-
-        public ConnectionCreationOverrideInterceptor(DbConnection replacementConnection)
-        {
-            _replacementConnection = replacementConnection;
-        }
+        private readonly DbConnection _replacementConnection = replacementConnection;
 
         public override InterceptionResult<DbConnection> ConnectionCreating(
             ConnectionCreatingEventData eventData,
@@ -580,14 +575,9 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class ConnectionCreationReplaceInterceptor : ConnectionCreationInterceptor
+    protected class ConnectionCreationReplaceInterceptor(DbConnection replacementConnection) : ConnectionCreationInterceptor
     {
-        private readonly DbConnection _replacementConnection;
-
-        public ConnectionCreationReplaceInterceptor(DbConnection replacementConnection)
-        {
-            _replacementConnection = replacementConnection;
-        }
+        private readonly DbConnection _replacementConnection = replacementConnection;
 
         public override DbConnection ConnectionCreated(ConnectionCreatedEventData eventData, DbConnection result)
         {
@@ -621,14 +611,9 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected class ConnectionStringContext : DbContext
+    protected class ConnectionStringContext(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider) : DbContext
     {
-        private readonly Func<DbContextOptionsBuilder, DbContextOptionsBuilder> _configureProvider;
-
-        public ConnectionStringContext(Func<DbContextOptionsBuilder, DbContextOptionsBuilder> configureProvider)
-        {
-            _configureProvider = configureProvider;
-        }
+        private readonly Func<DbContextOptionsBuilder, DbContextOptionsBuilder> _configureProvider = configureProvider;
 
         public List<ConnectionCreationInterceptor> Interceptors { get; } = new();
 
@@ -638,17 +623,9 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
 
     protected abstract BadUniverseContext CreateBadUniverse(DbContextOptionsBuilder optionsBuilder);
 
-    protected class BadUniverseContext : UniverseContext
-    {
-        public BadUniverseContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    protected class BadUniverseContext(DbContextOptions options) : UniverseContext(options);
 
-    protected class NoOpConnectionInterceptor : DbConnectionInterceptor
-    {
-    }
+    protected class NoOpConnectionInterceptor : DbConnectionInterceptor;
 
     protected class ConnectionOverridingInterceptor : ConnectionInterceptor
     {

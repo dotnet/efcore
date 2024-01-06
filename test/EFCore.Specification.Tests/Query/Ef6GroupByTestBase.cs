@@ -903,13 +903,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         }.ToDictionary(e => e.Key, e => (object)e.Value);
     }
 
-    public class ArubaContext : PoolableDbContext
-    {
-        public ArubaContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    public class ArubaContext(DbContextOptions options) : PoolableDbContext(options);
 
     public class ArubaOwner
     {
@@ -919,17 +913,11 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public string Alias { get; set; }
     }
 
-    public class NumberForLinq
+    public class NumberForLinq(int value, string name)
     {
-        public NumberForLinq(int value, string name)
-        {
-            Value = value;
-            Name = name;
-        }
-
         public int Id { get; set; }
-        public int Value { get; set; }
-        public string Name { get; set; }
+        public int Value { get; set; } = value;
+        public string Name { get; set; } = name;
     }
 
     public class ProductForLinq
@@ -941,9 +929,7 @@ public abstract class Ef6GroupByTestBase<TFixture> : QueryTestBase<TFixture>
         public int UnitsInStock { get; set; }
     }
 
-    public class FeaturedProductForLinq : ProductForLinq
-    {
-    }
+    public class FeaturedProductForLinq : ProductForLinq;
 
     public class CustomerForLinq
     {

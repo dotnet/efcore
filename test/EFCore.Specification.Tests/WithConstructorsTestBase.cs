@@ -775,18 +775,12 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
             => ((List<Post>)Posts).Add(post);
     }
 
-    protected class BlogQuery
+    protected class BlogQuery(
+        string title,
+        int? monthlyRevenue)
     {
-        public BlogQuery(
-            string title,
-            int? monthlyRevenue)
-        {
-            Title = title;
-            MonthlyRevenue = monthlyRevenue;
-        }
-
-        public string Title { get; }
-        public int? MonthlyRevenue { get; set; }
+        public string Title { get; } = title;
+        public int? MonthlyRevenue { get; set; } = monthlyRevenue;
     }
 
     protected class Post
@@ -1585,17 +1579,9 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
         public int? MonthlyRevenue { get; init; }
     }
 
-    public class OtherContext : DbContext
-    {
-    }
+    public class OtherContext : DbContext;
 
-    public class WithConstructorsContext : PoolableDbContext
-    {
-        public WithConstructorsContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    public class WithConstructorsContext(DbContextOptions options) : PoolableDbContext(options);
 
     public abstract class WithConstructorsFixtureBase : SharedStoreFixtureBase<WithConstructorsContext>
     {

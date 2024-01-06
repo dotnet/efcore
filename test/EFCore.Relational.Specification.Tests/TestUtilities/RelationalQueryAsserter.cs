@@ -5,20 +5,14 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class RelationalQueryAsserter : QueryAsserter
+public class RelationalQueryAsserter(
+    IQueryFixtureBase queryFixture,
+    Func<Expression, Expression> rewriteExpectedQueryExpression,
+    Func<Expression, Expression> rewriteServerQueryExpression,
+    bool ignoreEntryCount = false,
+    bool canExecuteQueryString = false) : QueryAsserter(queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
 {
-    private readonly bool _canExecuteQueryString;
-
-    public RelationalQueryAsserter(
-        IQueryFixtureBase queryFixture,
-        Func<Expression, Expression> rewriteExpectedQueryExpression,
-        Func<Expression, Expression> rewriteServerQueryExpression,
-        bool ignoreEntryCount = false,
-        bool canExecuteQueryString = false)
-        : base(queryFixture, rewriteExpectedQueryExpression, rewriteServerQueryExpression, ignoreEntryCount)
-    {
-        _canExecuteQueryString = canExecuteQueryString;
-    }
+    private readonly bool _canExecuteQueryString = canExecuteQueryString;
 
     protected override void AssertRogueExecution(int expectedCount, IQueryable queryable)
     {

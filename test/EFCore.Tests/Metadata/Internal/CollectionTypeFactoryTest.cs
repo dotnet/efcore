@@ -67,13 +67,9 @@ public class CollectionTypeFactoryTest
         Assert.Null(factory.TryFindTypeToInstantiate(typeof(object), typeof(Random), false));
     }
 
-    private class CustomHashSet : HashSet<Random>
-    {
-    }
+    private class CustomHashSet : HashSet<Random>;
 
-    private class CustomList : List<Random>
-    {
-    }
+    private class CustomList : List<Random>;
 
     private class PrivateConstructor : List<Random>
     {
@@ -97,16 +93,11 @@ public class CollectionTypeFactoryTest
         }
     }
 
-    private class NoParameterlessConstructor : List<Random>
-    {
-        public NoParameterlessConstructor(bool _)
-        {
-        }
-    }
+#pragma warning disable CS9113 // Parameter '_' is unread
+    private class NoParameterlessConstructor(bool _) : List<Random>;
+#pragma warning restore CS9113
 
-    private abstract class Abstract : List<Random>
-    {
-    }
+    private abstract class Abstract : List<Random>;
 
     private class DummyNotifying : INotifyPropertyChanged
     {

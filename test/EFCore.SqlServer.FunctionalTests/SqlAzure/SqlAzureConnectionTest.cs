@@ -9,12 +9,10 @@ using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 namespace Microsoft.EntityFrameworkCore.SqlAzure;
 
 [SqlServerCondition(SqlServerCondition.IsSqlAzure)]
-public class SqlAzureConnectionTest : IClassFixture<SqlAzureFixture>
+#pragma warning disable CS9113 // Parameter is unread.
+public class SqlAzureConnectionTest(SqlAzureFixture fixture) : IClassFixture<SqlAzureFixture>
+#pragma warning restore CS9113 // Parameter is unread.
 {
-    public SqlAzureConnectionTest(SqlAzureFixture fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]

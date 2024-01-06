@@ -22,9 +22,7 @@ public abstract class FieldMappingTestBase<TFixture> : IClassFixture<TFixture>
 
     protected static AsyncLocal<bool> _isSeeding = new();
 
-    protected interface IUser2
-    {
-    }
+    protected interface IUser2;
 
     protected class User2 : IUser2
     {

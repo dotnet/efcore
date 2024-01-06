@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>
+public class ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture) : ComplexNavigationsQueryRelationalTestBase<ComplexNavigationsQuerySqliteFixture>(fixture)
 {
-    public ComplexNavigationsQuerySqliteTest(ComplexNavigationsQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Let_let_contains_from_outer_let(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,

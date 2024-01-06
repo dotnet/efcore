@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class ListLoggerFactory : ILoggerFactory
+public class ListLoggerFactory(Func<string, bool> shouldLogCategory) : ILoggerFactory
 {
-    private readonly Func<string, bool> _shouldLogCategory;
+    private readonly Func<string, bool> _shouldLogCategory = shouldLogCategory;
     private bool _disposed;
 
     public ListLoggerFactory()
@@ -15,16 +15,10 @@ public class ListLoggerFactory : ILoggerFactory
     {
     }
 
-    public ListLoggerFactory(Func<string, bool> shouldLogCategory)
-    {
-        _shouldLogCategory = shouldLogCategory;
-        Logger = new ListLogger();
-    }
-
     public List<(LogLevel Level, EventId Id, string Message, object State, Exception Exception)> Log
         => Logger.LoggedEvents;
 
-    protected ListLogger Logger { get; set; }
+    protected ListLogger Logger { get; set; } = new ListLogger();
 
     public virtual void Clear()
         => Logger.Clear();
@@ -152,14 +146,9 @@ public class ListLoggerFactory : ILoggerFactory
         public IDisposable BeginScope<TState>(TState state)
             => null;
 
-        private class RecordingSuspensionHandle : IDisposable
+        private class RecordingSuspensionHandle(ListLogger logger) : IDisposable
         {
-            private readonly ListLogger _logger;
-
-            public RecordingSuspensionHandle(ListLogger logger)
-            {
-                _logger = logger;
-            }
+            private readonly ListLogger _logger = logger;
 
             public void Dispose()
                 => _logger.IsRecordingSuspended = false;

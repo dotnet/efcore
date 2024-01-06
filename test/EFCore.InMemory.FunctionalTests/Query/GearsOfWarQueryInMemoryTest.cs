@@ -7,14 +7,9 @@ using Xunit.Sdk;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>
+public class GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture)
+    : GearsOfWarQueryTestBase<GearsOfWarQueryInMemoryFixture>(fixture)
 {
-    public GearsOfWarQueryInMemoryTest(GearsOfWarQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public override Task Client_member_and_unsupported_string_Equals_in_the_same_query(bool async)
         => AssertTranslationFailedWithDetails(
             () => base.Client_member_and_unsupported_string_Equals_in_the_same_query(async),

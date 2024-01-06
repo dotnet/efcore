@@ -596,18 +596,11 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
         AssertBeginTransactionEvents(listener);
     }
 
-    protected class NoOpTransactionInterceptor : DbConnectionInterceptor
-    {
-    }
+    protected class NoOpTransactionInterceptor : DbConnectionInterceptor;
 
-    private class WrappedDbTransaction : DbTransaction
+    private class WrappedDbTransaction(DbTransaction transaction) : DbTransaction
     {
-        private readonly DbTransaction _transaction;
-
-        public WrappedDbTransaction(DbTransaction transaction)
-        {
-            _transaction = transaction;
-        }
+        private readonly DbTransaction _transaction = transaction;
 
         public override void Commit()
             => _transaction.Commit();
@@ -625,16 +618,8 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             => _transaction.Dispose();
     }
 
-    private class FakeDbTransaction : DbTransaction
+    private class FakeDbTransaction(DbConnection dbConnection, IsolationLevel isolationLevel) : DbTransaction
     {
-        public FakeDbTransaction(DbConnection dbConnection, IsolationLevel isolationLevel)
-        {
-            DbConnection = dbConnection;
-            IsolationLevel = isolationLevel == IsolationLevel.Unspecified
-                ? IsolationLevel.Snapshot
-                : isolationLevel;
-        }
-
         public override void Commit()
         {
         }
@@ -643,9 +628,11 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
         {
         }
 
-        protected override DbConnection DbConnection { get; }
+        protected override DbConnection DbConnection { get; } = dbConnection;
 
-        public override IsolationLevel IsolationLevel { get; }
+        public override IsolationLevel IsolationLevel { get; } = isolationLevel == IsolationLevel.Unspecified
+                ? IsolationLevel.Snapshot
+                : isolationLevel;
     }
 
     private static void AssertBeginTransaction(DbContext context, TransactionInterceptor interceptor, bool async)

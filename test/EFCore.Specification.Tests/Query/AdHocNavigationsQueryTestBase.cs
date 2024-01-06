@@ -77,15 +77,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context3409 : DbContext
+    private class Context3409(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Parent> Parents { get; set; }
         public DbSet<Child> Children { get; set; }
-
-        public Context3409(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -198,13 +193,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             Assert.Throws<InvalidOperationException>(() => query4.ToList()).Message);
     }
 
-    protected class Context3758 : DbContext
+    protected class Context3758(DbContextOptions options) : DbContext(options)
     {
-        public Context3758(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Order> Orders { get; set; }
 
@@ -291,13 +281,9 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public string Name { get; set; }
         }
 
-        public class MyGenericCollection<TElement> : List<TElement>
-        {
-        }
+        public class MyGenericCollection<TElement> : List<TElement>;
 
-        public class MyNonGenericCollection : List<Order>
-        {
-        }
+        public class MyNonGenericCollection : List<Order>;
 
         public class MyInvalidCollection<TElement> : List<TElement>
         {
@@ -325,13 +311,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context7312 : DbContext
+    private class Context7312(DbContextOptions options) : DbContext(options)
     {
-        public Context7312(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Proposal> Proposals { get; set; }
         public DbSet<ProposalCustom> ProposalCustoms { get; set; }
         public DbSet<ProposalLeave> ProposalLeaves { get; set; }
@@ -404,13 +385,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context9038 : DbContext
+    private class Context9038(DbContextOptions options) : DbContext(options)
     {
-        public Context9038(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Person9038> People { get; set; }
 
         public DbSet<PersonFamily9038> Families { get; set; }
@@ -519,14 +495,9 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             b => Assert.Single(b.Posts));
     }
 
-    protected class Context10447 : DbContext
+    protected class Context10447(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
-
-        public Context10447(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -583,13 +554,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context10635 : DbContext
+    private class Context10635(DbContextOptions options) : DbContext(options)
     {
-        public Context10635(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Parent10635> Parents { get; set; }
         public DbSet<Child10635> Children { get; set; }
 
@@ -665,16 +631,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                     }).ToList());
     }
 
-    private class Context11923 : DbContext
+    private class Context11923(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
-
-        public Context11923(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -758,9 +719,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public int Id { get; set; }
         }
 
-        public class CustomCollection : List<Post>
-        {
-        }
+        public class CustomCollection : List<Post>;
     }
 
     #endregion
@@ -791,16 +750,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context11944 : DbContext
+    protected class Context11944(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Student> Students { get; set; }
         public DbSet<School> Schools { get; set; }
         public DbSet<ElementarySchool> ElementarySchools { get; set; }
-
-        public Context11944(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<ElementarySchool>().HasMany(s => s.Students).WithOne(s => s.School);
@@ -835,9 +789,7 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             public List<Student> Students { get; set; }
         }
 
-        public class ElementarySchool : PrimarySchool
-        {
-        }
+        public class ElementarySchool : PrimarySchool;
     }
 
     #endregion
@@ -878,15 +830,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12456 : DbContext
+    private class Context12456(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Activity> Activities { get; set; }
         public DbSet<CompetitionSeason> CompetitionSeasons { get; set; }
-
-        public Context12456(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public class CompetitionSeason
         {
@@ -964,15 +911,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context12582 : DbContext
+    private class Context12582(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Employee> Employees { get; set; }
         public DbSet<EmployeeDevice> Devices { get; set; }
-
-        public Context12582(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1031,15 +973,10 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         Assert.Single(result[0].Comments);
     }
 
-    private class Context12748 : DbContext
+    private class Context12748(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Comment> Comments { get; set; }
-
-        public Context12748(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -1078,13 +1015,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         var result = context.Set<Context20609.ClassA>().Include("SubB").ToList();
     }
 
-    protected class Context20609 : DbContext
+    protected class Context20609(DbContextOptions options) : DbContext(options)
     {
-        public Context20609(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<BaseClass> BaseClasses { get; set; }
         public DbSet<SubA> SubAs { get; set; }
         public DbSet<SubB> SubBs { get; set; }
@@ -1148,13 +1080,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
                 }).SingleOrDefault();
     }
 
-    private class Context20813 : DbContext
+    private class Context20813(DbContextOptions options) : DbContext(options)
     {
-        public Context20813(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Order> Orders { get; set; }
 
         public class Order
@@ -1231,16 +1158,11 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         var result = context.Books.Where(b => b.Id == 1).Select(projection).SingleOrDefault();
     }
 
-    private class Context21768 : DbContext
+    private class Context21768(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Book> Books { get; set; }
         public DbSet<BookCover> BookCovers { get; set; }
         public DbSet<CoverIllustration> CoverIllustrations { get; set; }
-
-        public Context21768(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -1402,13 +1324,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context22568 : DbContext
+    protected class Context22568(DbContextOptions options) : DbContext(options)
     {
-        public Context22568(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PrincipalOneToOne>().Navigation(e => e.Dependent).AutoInclude();
@@ -1587,13 +1504,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    private class Context23674 : DbContext
+    private class Context23674(DbContextOptions options) : DbContext(options)
     {
-        public Context23674(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Principal>();
 
@@ -1677,13 +1589,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    private class Context23676 : DbContext
+    private class Context23676(DbContextOptions options) : DbContext(options)
     {
-        public Context23676(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<PersonEntity> Persons { get; set; }
 
         public class PersonEntity
@@ -1790,13 +1697,8 @@ public abstract class AdHocNavigationsQueryTestBase : NonSharedModelTestBase
         Assert.Equal(3, Assert.Single(authors).BooksCount);
     }
 
-    protected class Context26433 : DbContext
+    protected class Context26433(DbContextOptions options) : DbContext(options)
     {
-        public Context26433(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
 

@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class FieldsOnlyLoadSqlServerTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture>
+public class FieldsOnlyLoadSqlServerTest(FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture fixture) : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqlServerTest.FieldsOnlyLoadSqlServerFixture>(fixture)
 {
-    public FieldsOnlyLoadSqlServerTest(FieldsOnlyLoadSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class FieldsOnlyLoadSqlServerFixture : FieldsOnlyLoadFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

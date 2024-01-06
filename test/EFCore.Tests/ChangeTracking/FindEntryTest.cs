@@ -2127,9 +2127,7 @@ public class FindEntryTest
         public int Int { get; set; }
     }
 
-    protected class ShadowIntKey
-    {
-    }
+    protected class ShadowIntKey;
 
     protected class ShadowAlternateIntKey
     {
@@ -2172,9 +2170,7 @@ public class FindEntryTest
         public int? NullableInt { get; set; }
     }
 
-    protected class ShadowNullableIntKey
-    {
-    }
+    protected class ShadowNullableIntKey;
 
     protected class ShadowAlternateNullableIntKey
     {
@@ -2216,9 +2212,7 @@ public class FindEntryTest
         public string? String { get; set; }
     }
 
-    protected class ShadowStringKey
-    {
-    }
+    protected class ShadowStringKey;
 
     protected class ShadowAlternateStringKey
     {
@@ -2268,9 +2262,7 @@ public class FindEntryTest
         public string? Foo { get; set; }
     }
 
-    protected class ShadowCompositeKey
-    {
-    }
+    protected class ShadowCompositeKey;
 
     protected class ShadowAlternateCompositeKey
     {

@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.Benchmarks.Models.AdventureWorks;
 
-public class AdventureWorksPoolableSqlServerContext : AdventureWorksContextBase
+public class AdventureWorksPoolableSqlServerContext(DbContextOptions<AdventureWorksPoolableSqlServerContext> options) : AdventureWorksContextBase(options)
 {
-    public AdventureWorksPoolableSqlServerContext(DbContextOptions<AdventureWorksPoolableSqlServerContext> options)
-        : base(options)
-    {
-    }
-
     protected override void ConfigureProvider(DbContextOptionsBuilder optionsBuilder)
     {
     }

@@ -4709,15 +4709,10 @@ public abstract class FieldsOnlyLoadTestBase<TFixture> : IClassFixture<TFixture>
     {
     }
 
-    protected class ChangeDetectorProxy : ChangeDetector
+    protected class ChangeDetectorProxy(
+        IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+        ILoggingOptions loggingOptions) : ChangeDetector(logger, loggingOptions)
     {
-        public ChangeDetectorProxy(
-            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            ILoggingOptions loggingOptions)
-            : base(logger, loggingOptions)
-        {
-        }
-
         public bool DetectChangesCalled { get; set; }
 
         public override void DetectChanges(IStateManager stateManager)

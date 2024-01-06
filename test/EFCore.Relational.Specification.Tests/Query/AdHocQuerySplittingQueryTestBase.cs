@@ -138,13 +138,8 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context21355 : DbContext
+    protected class Context21355(DbContextOptions options) : DbContext(options)
     {
-        public Context21355(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Parent> Parents { get; set; }
 
         public void Seed()
@@ -265,18 +260,13 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         );
     }
 
-    protected class Context25225 : DbContext
+    protected class Context25225(DbContextOptions options) : DbContext(options)
     {
         public static readonly Guid Parent1Id = new("d6457b52-690a-419e-8982-a1a8551b4572");
         public static readonly Guid Parent2Id = new("e79c82f4-3ae7-4c65-85db-04e08cba6fa7");
         public static readonly Guid Collection1Id = new("7ce625fb-863d-41b3-b42e-e4e4367f7548");
         public static readonly Guid Collection2Id = new("d347bbd5-003a-441f-a148-df8ab8ac4a29");
         public DbSet<Parent> Parents { get; set; }
-
-        public Context25225(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -336,14 +326,9 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
         Assert.Equal(1, Context25400.Test.ConstructorCallCount);
     }
 
-    private class Context25400 : DbContext
+    private class Context25400(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Test> Tests { get; set; }
-
-        public Context25400(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Test>().HasKey(e => e.Id);

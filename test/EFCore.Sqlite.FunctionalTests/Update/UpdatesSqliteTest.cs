@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public class UpdatesSqliteTest : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>
+public class UpdatesSqliteTest(UpdatesSqliteTest.UpdatesSqliteFixture fixture) : UpdatesRelationalTestBase<UpdatesSqliteTest.UpdatesSqliteFixture>(fixture)
 {
-    public UpdatesSqliteTest(UpdatesSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override void Save_with_shared_foreign_key()
     {
         // Store-generated guids are not supported

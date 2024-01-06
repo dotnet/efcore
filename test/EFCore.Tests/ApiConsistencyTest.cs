@@ -9,13 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiConsistencyFixture>
+public class ApiConsistencyTest(ApiConsistencyTest.ApiConsistencyFixture fixture) : ApiConsistencyTestBase<ApiConsistencyTest.ApiConsistencyFixture>(fixture)
 {
-    public ApiConsistencyTest(ApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Assembly TargetAssembly
         => typeof(EntityType).Assembly;
 

@@ -9,14 +9,9 @@
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
-public class MemoryOptimizedTablesTest : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
+public class MemoryOptimizedTablesTest(MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture fixture) : IClassFixture<MemoryOptimizedTablesTest.MemoryOptimizedTablesFixture>
 {
-    protected MemoryOptimizedTablesFixture Fixture { get; }
-
-    public MemoryOptimizedTablesTest(MemoryOptimizedTablesFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected MemoryOptimizedTablesFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Can_create_memoryOptimized_table()
@@ -60,13 +55,8 @@ public class MemoryOptimizedTablesTest : IClassFixture<MemoryOptimizedTablesTest
             => SqlServerTestStoreFactory.Instance;
     }
 
-    private class MemoryOptimizedContext : DbContext
+    private class MemoryOptimizedContext(DbContextOptions options) : DbContext(options)
     {
-        public MemoryOptimizedContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<FastUn> FastUns { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -2988,14 +2988,9 @@ public class FixupTest
             => StringComparer.InvariantCultureIgnoreCase.Compare(Name, other.Name);
     }
 
-    private class ComparableEntitiesContext : DbContext
+    private class ComparableEntitiesContext(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public ComparableEntitiesContext(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3077,14 +3072,9 @@ public class FixupTest
         public List<ContainerRoomX> Rooms { get; set; } = new();
     }
 
-    protected class EscapeRoom : DbContext
+    protected class EscapeRoom(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public EscapeRoom(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3205,14 +3195,9 @@ public class FixupTest
         public virtual IList<ParentChildX> ParentChildren { get; set; } = new List<ParentChildX>();
     }
 
-    protected class BadHashDay : DbContext
+    protected class BadHashDay(string databaseName) : DbContext
     {
-        private readonly string _databaseName;
-
-        public BadHashDay(string databaseName)
-        {
-            _databaseName = databaseName;
-        }
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseInMemoryDatabase(_databaseName);
@@ -3298,16 +3283,10 @@ public class FixupTest
         public EntityB EntityB { get; set; }
     }
 
-    private class BadBeeContext : DbContext
+    private class BadBeeContext(string databaseName, params IInterceptor[] interceptors) : DbContext
     {
-        private readonly IInterceptor[] _interceptors;
-        private readonly string _databaseName;
-
-        public BadBeeContext(string databaseName, params IInterceptor[] interceptors)
-        {
-            _interceptors = interceptors;
-            _databaseName = databaseName;
-        }
+        private readonly IInterceptor[] _interceptors = interceptors;
+        private readonly string _databaseName = databaseName;
 
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
@@ -3365,16 +3344,11 @@ public class FixupTest
         public ICollection<Cat> Cats { get; } = new List<Cat>();
     }
 
-    private class Parent
+    private class Parent(int id)
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private readonly int _id;
+        private readonly int _id = id;
         private Child _child;
-
-        public Parent(int id)
-        {
-            _id = id;
-        }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id
@@ -3391,18 +3365,12 @@ public class FixupTest
             => _child = child;
     }
 
-    private class Child
+    private class Child(int id, int parentId)
     {
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private readonly int _id;
-        private int _parentId;
+        private readonly int _id = id;
+        private int _parentId = parentId;
         private Parent _parent;
-
-        public Child(int id, int parentId)
-        {
-            _id = id;
-            _parentId = parentId;
-        }
 
         // ReSharper disable once ConvertToAutoProperty
         public int Id

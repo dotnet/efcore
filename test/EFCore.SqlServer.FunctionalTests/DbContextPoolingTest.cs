@@ -18,7 +18,9 @@ using Microsoft.EntityFrameworkCore.Internal;
 // ReSharper disable VirtualMemberCallInConstructor
 namespace Microsoft.EntityFrameworkCore;
 
-public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+#pragma warning disable CS9113 // Parameter is unread.
+public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper) : IClassFixture<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+#pragma warning restore CS9113 // Parameter is unread.
 {
     private static DbContextOptionsBuilder<TContext> ConfigureOptions<TContext>(DbContextOptionsBuilder<TContext> optionsBuilder)
         where TContext : DbContext
@@ -119,17 +121,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             ? BuildServiceProviderWithFactory<TContext>(poolSize).GetService<IDbContextFactory<TContext>>()
             : new PooledDbContextFactory<TContext>(ConfigureOptions(new DbContextOptionsBuilder<TContext>()).Options, poolSize);
 
-    private interface IPooledContext
-    {
-    }
+    private interface IPooledContext;
 
-    private class DefaultOptionsPooledContext : DbContext
-    {
-        public DefaultOptionsPooledContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class DefaultOptionsPooledContext(DbContextOptions options) : DbContext(options);
 
     private class PooledContext : DbContext, IPooledContext
     {
@@ -186,13 +180,8 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         }
     }
 
-    private class PooledContextWithOverrides : DbContext, IPooledContext
+    private class PooledContextWithOverrides(DbContextOptions options) : DbContext(options), IPooledContext
     {
-        public PooledContextWithOverrides(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -218,18 +207,11 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public Customer Customer { get; set; }
     }
 
-    private interface ISecondContext
-    {
-    }
+    private interface ISecondContext;
 
-    private class SecondContext : DbContext, ISecondContext
+    private class SecondContext(DbContextOptions options) : DbContext(options), ISecondContext
     {
         public DbSet<Blog> Blogs { get; set; }
-
-        public SecondContext(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public class Blog
         {
@@ -425,9 +407,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         }
     }
 
-    private class BadCtorContext : DbContext
-    {
-    }
+    private class BadCtorContext : DbContext;
 
     [ConditionalFact]
     public void Throws_when_used_with_parameterless_constructor_context()
@@ -465,15 +445,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
     }
 
-    private class TwoParameterConstructorContext : DbContext
+    private class TwoParameterConstructorContext(DbContextOptions options, string x) : DbContext(options)
     {
-        public string StringParameter { get; }
-
-        public TwoParameterConstructorContext(DbContextOptions options, string x)
-            : base(options)
-        {
-            StringParameter = x;
-        }
+        public string StringParameter { get; } = x;
     }
 
     [ConditionalFact]
@@ -488,13 +462,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>());
     }
 
-    private class WrongParameterConstructorContext : DbContext
-    {
-        public WrongParameterConstructorContext(string x)
-            : base(new DbContextOptions<WrongParameterConstructorContext>())
-        {
-        }
-    }
+#pragma warning disable CS9113 // Parameter 'x' is unread
+    private class WrongParameterConstructorContext(string x) : DbContext(new DbContextOptions<WrongParameterConstructorContext>());
+#pragma warning restore CS9113
 
     [ConditionalFact]
     public void Throws_when_pooled_context_constructor_has_scoped_service()
@@ -2177,10 +2147,5 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         }
     }
 
-    private readonly ITestOutputHelper _testOutputHelper;
-
-    public DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
-    {
-        _testOutputHelper = testOutputHelper;
-    }
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 }

@@ -68,14 +68,9 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
             => throw new NotImplementedException();
     }
 
-    public class ConnectionInterceptionSqlServerTest
-        : ConnectionInterceptionSqlServerTestBase, IClassFixture<ConnectionInterceptionSqlServerTest.InterceptionSqlServerFixture>
+    public class ConnectionInterceptionSqlServerTest(ConnectionInterceptionSqlServerTest.InterceptionSqlServerFixture fixture)
+        : ConnectionInterceptionSqlServerTestBase(fixture), IClassFixture<ConnectionInterceptionSqlServerTest.InterceptionSqlServerFixture>
     {
-        public ConnectionInterceptionSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -83,15 +78,10 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
         }
     }
 
-    public class ConnectionInterceptionWithConnectionStringSqlServerTest
-        : ConnectionInterceptionSqlServerTestBase,
+    public class ConnectionInterceptionWithConnectionStringSqlServerTest(ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture fixture)
+        : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithConnectionStringSqlServerTest.InterceptionSqlServerFixture>
     {
-        public ConnectionInterceptionWithConnectionStringSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener
@@ -102,15 +92,10 @@ public abstract class ConnectionInterceptionSqlServerTestBase : ConnectionInterc
             => optionsBuilder.UseSqlServer("Database=Dummy");
     }
 
-    public class ConnectionInterceptionWithDiagnosticsSqlServerTest
-        : ConnectionInterceptionSqlServerTestBase,
+    public class ConnectionInterceptionWithDiagnosticsSqlServerTest(ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture fixture)
+                : ConnectionInterceptionSqlServerTestBase(fixture),
             IClassFixture<ConnectionInterceptionWithDiagnosticsSqlServerTest.InterceptionSqlServerFixture>
     {
-        public ConnectionInterceptionWithDiagnosticsSqlServerTest(InterceptionSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public class InterceptionSqlServerFixture : InterceptionSqlServerFixtureBase
         {
             protected override bool ShouldSubscribeToDiagnosticListener

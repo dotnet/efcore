@@ -1421,26 +1421,16 @@ public class PropertyBaseTest
         public int Id { get; set; }
     }
 
-    private class FieldOnly
+    private class FieldOnly(int id)
     {
-        private readonly int _foo;
-
-        public FieldOnly(int id)
-        {
-            _foo = id;
-        }
+        private readonly int _foo = id;
 
         public int Id { get; set; }
     }
 
-    private class ReadOnlyFieldOnly
+    private class ReadOnlyFieldOnly(int id)
     {
-        private readonly int _foo;
-
-        public ReadOnlyFieldOnly(int id)
-        {
-            _foo = id;
-        }
+        private readonly int _foo = id;
 
         public int Id { get; set; }
     }

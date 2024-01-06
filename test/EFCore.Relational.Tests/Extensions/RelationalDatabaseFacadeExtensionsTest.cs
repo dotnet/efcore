@@ -301,13 +301,8 @@ public class RelationalDatabaseFacadeExtensionsTest
         Assert.False(testContext.Database.HasPendingModelChanges());
     }
 
-    private class TestDbContext : DbContext
+    private class TestDbContext(DbContextOptions options) : DbContext(options)
     {
-        public TestDbContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Simple> Simples { get; set; }
 
         public class Simple
@@ -316,14 +311,9 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
     }
 
-    private class FakeModelSnapshot : ModelSnapshot
+    private class FakeModelSnapshot(Action<ModelBuilder> buildModel) : ModelSnapshot
     {
-        private readonly Action<ModelBuilder> _buildModel;
-
-        public FakeModelSnapshot(Action<ModelBuilder> buildModel)
-        {
-            _buildModel = buildModel;
-        }
+        private readonly Action<ModelBuilder> _buildModel = buildModel;
 
         protected override void BuildModel(ModelBuilder modelBuilder)
             => _buildModel(modelBuilder);
@@ -651,15 +641,10 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
     }
 
-    private class TestRawSqlCommandBuilder : IRawSqlCommandBuilder
+    private class TestRawSqlCommandBuilder(
+        IRelationalCommandBuilderFactory relationalCommandBuilderFactory) : IRawSqlCommandBuilder
     {
-        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory;
-
-        public TestRawSqlCommandBuilder(
-            IRelationalCommandBuilderFactory relationalCommandBuilderFactory)
-        {
-            _commandBuilderFactory = relationalCommandBuilderFactory;
-        }
+        private readonly IRelationalCommandBuilderFactory _commandBuilderFactory = relationalCommandBuilderFactory;
 
         public string Sql { get; private set; }
         public IEnumerable<object> Parameters { get; private set; }

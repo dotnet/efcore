@@ -87,9 +87,7 @@ public class AppServiceProviderFactoryTest
             new TestWebHost(BuildTestServiceProvider()));
     }
 
-    private class ProgramWithNoHostBuilder
-    {
-    }
+    private class ProgramWithNoHostBuilder;
 
     private static void ValidateEnvironmentAndArgs(string[] args)
     {
@@ -103,9 +101,7 @@ public class AppServiceProviderFactoryTest
             .AddScoped<TestService>()
             .BuildServiceProvider(validateScopes: true);
 
-    private class TestService
-    {
-    }
+    private class TestService;
 
     [ConditionalFact]
     public void Create_works_when_no_BuildWebHost()
@@ -118,9 +114,7 @@ public class AppServiceProviderFactoryTest
         Assert.NotNull(services);
     }
 
-    private class ProgramWithoutBuildWebHost
-    {
-    }
+    private class ProgramWithoutBuildWebHost;
 
     [ConditionalFact]
     public void Create_works_when_BuildWebHost_throws()
@@ -145,32 +139,16 @@ public class AppServiceProviderFactoryTest
     }
 }
 
-public class TestAppServiceProviderFactory : AppServiceProviderFactory
+public class TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter reporter = null) : AppServiceProviderFactory(startupAssembly, reporter ?? new TestOperationReporter());
+
+public class TestWebHost(IServiceProvider services)
 {
-    public TestAppServiceProviderFactory(Assembly startupAssembly, IOperationReporter reporter = null)
-        : base(startupAssembly, reporter ?? new TestOperationReporter())
-    {
-    }
+    public IServiceProvider Services { get; } = services;
 }
 
-public class TestWebHost
+public class TestWebHostBuilder(IServiceProvider services)
 {
-    public TestWebHost(IServiceProvider services)
-    {
-        Services = services;
-    }
-
-    public IServiceProvider Services { get; }
-}
-
-public class TestWebHostBuilder
-{
-    public TestWebHostBuilder(IServiceProvider services)
-    {
-        Services = services;
-    }
-
-    public IServiceProvider Services { get; }
+    public IServiceProvider Services { get; } = services;
 
     public TestWebHost Build()
         => new(Services);

@@ -7,13 +7,8 @@ using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class EverythingIsBytesSqlServerTest : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>
+public class EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture fixture) : BuiltInDataTypesTestBase<EverythingIsBytesSqlServerTest.EverythingIsBytesSqlServerFixture>(fixture)
 {
-    public EverythingIsBytesSqlServerTest(EverythingIsBytesSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
     {

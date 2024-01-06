@@ -217,13 +217,7 @@ public class DbContextFactoryTest
         }
     }
 
-    private class WoolacombeContext : DbContext
-    {
-        public WoolacombeContext(DbContextOptions<WoolacombeContext> options)
-            : base(options)
-        {
-        }
-    }
+    private class WoolacombeContext(DbContextOptions<WoolacombeContext> options) : DbContext(options);
 
     [ConditionalFact]
     public void Factory_can_use_constructor_with_non_generic_builder()
@@ -322,24 +316,15 @@ public class DbContextFactoryTest
             => IsDisposed = true;
     }
 
-    private class SingletonService
-    {
-    }
+    private class SingletonService;
 
-    private class IlfracombeContext : DbContext
+    private class IlfracombeContext(
+        DbContextOptions<IlfracombeContext> options,
+        SingletonService singletonService,
+        TransientService transientService) : DbContext(options)
     {
-        public IlfracombeContext(
-            DbContextOptions<IlfracombeContext> options,
-            SingletonService singletonService,
-            TransientService transientService)
-            : base(options)
-        {
-            SingletonService = singletonService;
-            TransientService = transientService;
-        }
-
-        public SingletonService SingletonService { get; }
-        public TransientService TransientService { get; }
+        public SingletonService SingletonService { get; } = singletonService;
+        public TransientService TransientService { get; } = transientService;
     }
 
     [ConditionalFact]
@@ -405,23 +390,15 @@ public class DbContextFactoryTest
             => IsDisposed = true;
     }
 
-    private class CombeMartinContext : DbContext
+    private class CombeMartinContext(
+        DbContextOptions<CombeMartinContext> options,
+        SingletonService singletonService,
+        ScopedService scopedService,
+        TransientService transientService) : DbContext(options)
     {
-        public CombeMartinContext(
-            DbContextOptions<CombeMartinContext> options,
-            SingletonService singletonService,
-            ScopedService scopedService,
-            TransientService transientService)
-            : base(options)
-        {
-            SingletonService = singletonService;
-            ScopedService = scopedService;
-            TransientService = transientService;
-        }
-
-        public SingletonService SingletonService { get; }
-        public ScopedService ScopedService { get; }
-        public TransientService TransientService { get; }
+        public SingletonService SingletonService { get; } = singletonService;
+        public ScopedService ScopedService { get; } = scopedService;
+        public TransientService TransientService { get; } = transientService;
     }
 
     [ConditionalTheory]
@@ -506,13 +483,9 @@ public class DbContextFactoryTest
             Assert.Throws<InvalidOperationException>(() => factory.CreateDbContext()).Message);
     }
 
-    private class WestwardHoContext : DbContext
-    {
-        public WestwardHoContext(DbContextOptions options, Random random)
-            : base(options)
-        {
-        }
-    }
+#pragma warning disable CS9113 // Parameter 'random is unread.
+    private class WestwardHoContext(DbContextOptions options, Random random) : DbContext(options);
+#pragma warning restore CS9113
 
     [ConditionalFact]
     public void Can_register_factories_for_multiple_contexts_even_with_non_generic_options()
@@ -531,13 +504,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(ClovellyContext), GetStoreName(context2));
     }
 
-    private class ClovellyContext : DbContext
-    {
-        public ClovellyContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class ClovellyContext(DbContextOptions options) : DbContext(options);
 
     [ConditionalFact]
     public void Can_register_factories_for_multiple_contexts()
@@ -556,13 +523,7 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
     }
 
-    private class WidemouthBayContext : DbContext
-    {
-        public WidemouthBayContext(DbContextOptions<WidemouthBayContext> options)
-            : base(options)
-        {
-        }
-    }
+    private class WidemouthBayContext(DbContextOptions<WidemouthBayContext> options) : DbContext(options);
 
     [ConditionalFact]
     public void Application_can_register_explicit_factory_implementation()
@@ -604,14 +565,9 @@ public class DbContextFactoryTest
         Assert.Equal(nameof(WoolacombeContext), GetStoreName(context2));
     }
 
-    private class WoolacombeContextFactory : IDbContextFactory<WoolacombeContext>
+    private class WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options) : IDbContextFactory<WoolacombeContext>
     {
-        private readonly DbContextOptions<WoolacombeContext> _options;
-
-        public WoolacombeContextFactory(DbContextOptions<WoolacombeContext> options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions<WoolacombeContext> _options = options;
 
         public WoolacombeContext CreateDbContext()
             => new(_options);
@@ -892,21 +848,9 @@ public class DbContextFactoryTest
         }
     }
 
-    private class CustomModelCustomizer : ModelCustomizer
-    {
-        public CustomModelCustomizer(ModelCustomizerDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-    }
+    private class CustomModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
 
-    private class FactoryModelCustomizer : ModelCustomizer
-    {
-        public FactoryModelCustomizer(ModelCustomizerDependencies dependencies)
-            : base(dependencies)
-        {
-        }
-    }
+    private class FactoryModelCustomizer(ModelCustomizerDependencies dependencies) : ModelCustomizer(dependencies);
 
     private static string GetStoreName(DbContext context1)
         => context1.GetService<IDbContextOptions>().FindExtension<InMemoryOptionsExtension>().StoreName;

@@ -8,13 +8,8 @@ namespace Microsoft.EntityFrameworkCore;
 public class MaterializationInterceptionInMemoryTest :
     MaterializationInterceptionTestBase<MaterializationInterceptionInMemoryTest.InMemoryLibraryContext>
 {
-    public class InMemoryLibraryContext : LibraryContext
+    public class InMemoryLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
-        public InMemoryLibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

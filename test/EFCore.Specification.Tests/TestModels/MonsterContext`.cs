@@ -10,7 +10,7 @@ public class MonsterContext<
     TSmartCard, TRsaToken, TPasswordReset, TPageView, TLastLogin, TMessage, TAnOrder, TOrderNote, TOrderQualityCheck,
     TOrderLine, TProduct, TProductDetail, TProductReview, TProductPhoto, TProductWebFeature, TSupplier, TSupplierLogo,
     TSupplierInfo, TCustomerInfo, TComputer, TComputerDetail, TDriver, TLicense, TConcurrencyInfo, TAuditInfo,
-    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView> : MonsterContext
+    TContactDetails, TDimensions, TPhone, TBackOrderLine, TDiscontinuedProduct, TProductPageView>(DbContextOptions options) : MonsterContext(options)
     where TCustomer : class, ICustomer, new()
     where TBarcode : class, IBarcode, new()
     where TIncorrectScan : class, IIncorrectScan, new()
@@ -51,11 +51,6 @@ public class MonsterContext<
     where TDiscontinuedProduct : class, TProduct, IDiscontinuedProduct, new()
     where TProductPageView : class, TPageView, IProductPageView, new()
 {
-    public MonsterContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public override IQueryable<ICustomer> Customers
         => Set<TCustomer>();
 

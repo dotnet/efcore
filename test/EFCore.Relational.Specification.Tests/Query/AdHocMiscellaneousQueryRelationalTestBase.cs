@@ -35,13 +35,8 @@ namespace Microsoft.EntityFrameworkCore.Query
 
         protected abstract void Seed2951(Context2951 context);
 
-        protected class Context2951 : DbContext
+        protected class Context2951(DbContextOptions options) : DbContext(options)
         {
-            public Context2951(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
                 => modelBuilder.Entity<ZeroKey2951>().ToTable("ZeroKey", t => t.ExcludeFromMigrations())
                     .Property(z => z.Id).ValueGeneratedNever();
@@ -117,13 +112,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected class Context11818 : DbContext
+        protected class Context11818(DbContextOptions options) : DbContext(options)
         {
-            public Context11818(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 modelBuilder.Entity<Entity11818>().ToTable("Table");
@@ -177,13 +167,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             var bad = context.Set<TestQuery>().FromSqlRaw(@"SELECT cast(null as int) AS MyValue").ToList(); // Exception
         }
 
-        protected class Context23981 : DbContext
+        protected class Context23981(DbContextOptions options) : DbContext(options)
         {
-            public Context23981(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 var mb = modelBuilder.Entity(typeof(TestQuery));
@@ -227,13 +212,8 @@ namespace Microsoft.EntityFrameworkCore.Query
             }
         }
 
-        protected class Context27954 : DbContext
+        protected class Context27954(DbContextOptions options) : DbContext(options)
         {
-            public Context27954(DbContextOptions options)
-                : base(options)
-            {
-            }
-
             public DbSet<MyEntity> MyEntities { get; set; }
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -360,37 +360,21 @@ public class SqliteTypeMappingSourceTest : RelationalTypeMappingSourceTestBase
         return typeMappingSource;
     }
 
-    private enum LongEnum : long
-    {
-    }
+    private enum LongEnum : long;
 
-    private enum IntEnum
-    {
-    }
+    private enum IntEnum;
 
-    private enum ShortEnum : short
-    {
-    }
+    private enum ShortEnum : short;
 
-    private enum ByteEnum : byte
-    {
-    }
+    private enum ByteEnum : byte;
 
-    protected enum ULongEnum : ulong
-    {
-    }
+    protected enum ULongEnum : ulong;
 
-    protected enum UIntEnum : uint
-    {
-    }
+    protected enum UIntEnum : uint;
 
-    protected enum UShortEnum : ushort
-    {
-    }
+    protected enum UShortEnum : ushort;
 
-    protected enum SByteEnum : sbyte
-    {
-    }
+    protected enum SByteEnum : sbyte;
 
     protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
         => SqliteTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);

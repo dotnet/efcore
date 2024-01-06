@@ -7,16 +7,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTypeAliasTest : IClassFixture<SqlServerFixture>
+public class SqlServerTypeAliasTest(SqlServerFixture fixture) : IClassFixture<SqlServerFixture>
 {
     private const string DatabaseName = "SqlServerTypeAliasTest";
 
-    protected SqlServerFixture Fixture { get; }
-
-    public SqlServerTypeAliasTest(SqlServerFixture fixture)
-    {
-        Fixture = fixture;
-    }
+    protected SqlServerFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Can_create_database_with_alias_columns()
@@ -119,13 +114,8 @@ CREATE TYPE stringAlias FROM nvarchar(50);
             => entityType.FindProperty(propertyName)!.GetColumnType(new StoreObjectIdentifier());
     }
 
-    private class TypeAliasContext : DbContext
+    private class TypeAliasContext(DbContextOptions options) : DbContext(options)
     {
-        public TypeAliasContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TypeAliasEntity>();

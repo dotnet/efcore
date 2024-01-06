@@ -7,14 +7,9 @@ using System.Data;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ValueConvertersEndToEndSqlServerTest
-    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqlServerTest.ValueConvertersEndToEndSqlServerFixture>
+public class ValueConvertersEndToEndSqlServerTest(ValueConvertersEndToEndSqlServerTest.ValueConvertersEndToEndSqlServerFixture fixture)
+    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndSqlServerTest.ValueConvertersEndToEndSqlServerFixture>(fixture)
 {
-    public ValueConvertersEndToEndSqlServerTest(ValueConvertersEndToEndSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(nameof(ConvertingEntity.BoolAsChar), "nvarchar(1)", false)]
     [InlineData(nameof(ConvertingEntity.BoolAsNullableChar), "nvarchar(1)", false)]

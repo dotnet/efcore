@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.FunkyDataModel;
 
-public class FunkyDataContext : PoolableDbContext
+public class FunkyDataContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public FunkyDataContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<FunkyCustomer> FunkyCustomers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

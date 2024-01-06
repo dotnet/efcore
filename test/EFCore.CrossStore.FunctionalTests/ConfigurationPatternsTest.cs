@@ -52,15 +52,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
         }
     }
 
-    private class MultipleContext1 : CrossStoreContext
+    private class MultipleContext1(DbContextOptions<MultipleContext1> options) : CrossStoreContext(options)
     {
-        private readonly DbContextOptions<MultipleContext1> _options;
-
-        public MultipleContext1(DbContextOptions<MultipleContext1> options)
-            : base(options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions<MultipleContext1> _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -72,15 +66,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
         }
     }
 
-    private class MultipleContext2 : CrossStoreContext
+    private class MultipleContext2(DbContextOptions<MultipleContext2> options) : CrossStoreContext(options)
     {
-        private readonly DbContextOptions<MultipleContext2> _options;
-
-        public MultipleContext2(DbContextOptions<MultipleContext2> options)
-            : base(options)
-        {
-            _options = options;
-        }
+        private readonly DbContextOptions<MultipleContext2> _options = options;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -190,14 +178,9 @@ public class ConfigurationPatternsTest : IClassFixture<CrossStoreFixture>, IDisp
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private class SomeService
+    private class SomeService(MultipleProvidersContext context)
     {
-        public SomeService(MultipleProvidersContext context)
-        {
-            Context = context;
-        }
-
-        public MultipleProvidersContext Context { get; }
+        public MultipleProvidersContext Context { get; } = context;
     }
 
     private CrossStoreFixture Fixture { get; }

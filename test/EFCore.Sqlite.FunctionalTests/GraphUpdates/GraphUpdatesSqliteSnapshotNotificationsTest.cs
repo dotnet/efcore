@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesSqliteSnapshotNotificationsTest
-    : GraphUpdatesSqliteTestBase<GraphUpdatesSqliteSnapshotNotificationsTest.SqliteFixture>
+public class GraphUpdatesSqliteSnapshotNotificationsTest(GraphUpdatesSqliteSnapshotNotificationsTest.SqliteFixture fixture)
+    : GraphUpdatesSqliteTestBase<GraphUpdatesSqliteSnapshotNotificationsTest.SqliteFixture>(fixture)
 {
-    public GraphUpdatesSqliteSnapshotNotificationsTest(SqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

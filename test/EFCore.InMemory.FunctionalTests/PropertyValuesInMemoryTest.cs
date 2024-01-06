@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PropertyValuesInMemoryTest : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>
+public class PropertyValuesInMemoryTest(PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture fixture) : PropertyValuesTestBase<PropertyValuesInMemoryTest.PropertyValuesInMemoryFixture>(fixture)
 {
-    public PropertyValuesInMemoryTest(PropertyValuesInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class PropertyValuesInMemoryFixture : PropertyValuesFixtureBase
     {
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

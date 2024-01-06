@@ -24,15 +24,9 @@ public abstract class IdentityUserContext<TUser, TKey, TUserClaim, TUserLogin, T
     public virtual DbSet<TUserLogin> UserLogins { get; set; }
     public virtual DbSet<TUserToken> UserTokens { get; set; }
 
-    private class PersonalDataConverter : ValueConverter<string, string>
-    {
-        public PersonalDataConverter(IPersonalDataProtector protector)
-            : base(
-                s => protector.Protect(s),
-                s => protector.Unprotect(s))
-        {
-        }
-    }
+    private class PersonalDataConverter(IPersonalDataProtector protector) : ValueConverter<string, string>(
+            s => protector.Protect(s),
+            s => protector.Unprotect(s));
 
     private class PersonalDataProtector : IPersonalDataProtector
     {

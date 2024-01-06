@@ -3,16 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class QueryFilterFuncletizationInMemoryTest
-    : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture>
+public class QueryFilterFuncletizationInMemoryTest(QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture fixture)
+    : QueryFilterFuncletizationTestBase<QueryFilterFuncletizationInMemoryTest.QueryFilterFuncletizationInMemoryFixture>(fixture)
 {
-    public QueryFilterFuncletizationInMemoryTest(
-        QueryFilterFuncletizationInMemoryFixture fixture,
-        ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-    }
-
     public override void DbContext_list_is_parameterized()
     {
         using var context = CreateContext();

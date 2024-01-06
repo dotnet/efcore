@@ -5,13 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class StoreGeneratedSqlServerTest : StoreGeneratedSqlServerTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>
+public class StoreGeneratedSqlServerTest(StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture fixture) : StoreGeneratedSqlServerTestBase<StoreGeneratedSqlServerTest.StoreGeneratedSqlServerFixture>(fixture)
 {
-    public StoreGeneratedSqlServerTest(StoreGeneratedSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class StoreGeneratedSqlServerFixture : StoreGeneratedSqlServerFixtureBase
     {
         protected override string StoreName

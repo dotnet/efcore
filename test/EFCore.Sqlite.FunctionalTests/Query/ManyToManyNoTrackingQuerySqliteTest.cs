@@ -5,13 +5,9 @@ using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class ManyToManyNoTrackingQuerySqliteTest
-    : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>
+public class ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
+    : ManyToManyNoTrackingQueryRelationalTestBase<ManyToManyQuerySqliteFixture>(fixture)
 {
-    public ManyToManyNoTrackingQuerySqliteTest(ManyToManyQuerySqliteFixture fixture)
-        : base(fixture)
-    {
-    }
 
     // Sqlite does not support Apply operations
 

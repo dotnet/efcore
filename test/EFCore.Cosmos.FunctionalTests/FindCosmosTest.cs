@@ -25,33 +25,18 @@ public abstract class FindCosmosTest : FindTestBase<FindCosmosTest.FindCosmosFix
     public override Task Find_derived_using_base_set_type_from_store_async(CancellationType cancellationType)
         => Task.CompletedTask;
 
-    public class FindCosmosTestSet : FindCosmosTest
+    public class FindCosmosTestSet(FindCosmosFixture fixture) : FindCosmosTest(fixture)
     {
-        public FindCosmosTestSet(FindCosmosFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaSetFinder();
     }
 
-    public class FindCosmosTestContext : FindCosmosTest
+    public class FindCosmosTestContext(FindCosmosFixture fixture) : FindCosmosTest(fixture)
     {
-        public FindCosmosTestContext(FindCosmosFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaContextFinder();
     }
 
-    public class FindCosmosTestNonGeneric : FindCosmosTest
+    public class FindCosmosTestNonGeneric(FindCosmosFixture fixture) : FindCosmosTest(fixture)
     {
-        public FindCosmosTestNonGeneric(FindCosmosFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaNonGenericContextFinder();
     }
 

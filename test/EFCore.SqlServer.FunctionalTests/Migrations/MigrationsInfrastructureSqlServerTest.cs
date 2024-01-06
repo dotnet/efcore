@@ -9,14 +9,9 @@ using Microsoft.EntityFrameworkCore.TestModels.AspNetIdentity;
 namespace Microsoft.EntityFrameworkCore.Migrations
 {
     [SqlServerCondition(SqlServerCondition.IsNotSqlAzure | SqlServerCondition.IsNotCI)]
-    public class MigrationsInfrastructureSqlServerTest
-        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>
+    public class MigrationsInfrastructureSqlServerTest(MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture fixture)
+        : MigrationsInfrastructureTestBase<MigrationsInfrastructureSqlServerTest.MigrationsInfrastructureSqlServerFixture>(fixture)
     {
-        public MigrationsInfrastructureSqlServerTest(MigrationsInfrastructureSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
         public override void Can_generate_migration_from_initial_database_to_initial()
         {
             base.Can_generate_migration_from_initial_database_to_initial();
@@ -742,12 +737,8 @@ GO
             Assert.True(creator.Exists());
         }
 
-        private class BloggingContext : DbContext
+        private class BloggingContext(DbContextOptions options) : DbContext(options)
         {
-            public BloggingContext(DbContextOptions options)
-                : base(options)
-            {
-            }
 
             // ReSharper disable once UnusedMember.Local
             public DbSet<Blog> Blogs { get; set; }

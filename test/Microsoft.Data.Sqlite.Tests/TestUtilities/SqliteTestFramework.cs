@@ -41,16 +41,11 @@ internal class SqliteTestFramework : XunitTestFramework
         => new SqliteTestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
 }
 
-internal class SqliteTestFrameworkExecutor : XunitTestFrameworkExecutor
+internal class SqliteTestFrameworkExecutor(
+    AssemblyName assemblyName,
+    ISourceInformationProvider sourceInformationProvider,
+    IMessageSink diagnosticMessageSink) : XunitTestFrameworkExecutor(assemblyName, sourceInformationProvider, diagnosticMessageSink)
 {
-    public SqliteTestFrameworkExecutor(
-        AssemblyName assemblyName,
-        ISourceInformationProvider sourceInformationProvider,
-        IMessageSink diagnosticMessageSink)
-        : base(assemblyName, sourceInformationProvider, diagnosticMessageSink)
-    {
-    }
-
     protected override async void RunTestCases(
         IEnumerable<IXunitTestCase> testCases,
         IMessageSink executionMessageSink,
@@ -66,18 +61,13 @@ internal class SqliteTestFrameworkExecutor : XunitTestFrameworkExecutor
     }
 }
 
-internal class SqliteTestAssemblyRunner : XunitTestAssemblyRunner
+internal class SqliteTestAssemblyRunner(
+    ITestAssembly testAssembly,
+    IEnumerable<IXunitTestCase> testCases,
+    IMessageSink diagnosticMessageSink,
+    IMessageSink executionMessageSink,
+    ITestFrameworkExecutionOptions executionOptions) : XunitTestAssemblyRunner(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
 {
-    public SqliteTestAssemblyRunner(
-        ITestAssembly testAssembly,
-        IEnumerable<IXunitTestCase> testCases,
-        IMessageSink diagnosticMessageSink,
-        IMessageSink executionMessageSink,
-        ITestFrameworkExecutionOptions executionOptions)
-        : base(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
-    {
-    }
-
     protected override Task<RunSummary> RunTestCollectionAsync(
         IMessageBus messageBus,
         ITestCollection testCollection,

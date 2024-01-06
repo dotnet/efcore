@@ -51,16 +51,11 @@ WHERE ([t].[Name] <> N'Bar') OR [t].[Name] IS NULL
 """);
     }
 
-    protected class Context11803 : DbContext
+    protected class Context11803(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Faction11803> Factions { get; set; }
         public DbSet<Leader11803> Leaders { get; set; }
         public DbSet<LeaderQuery11803> LeadersQuery { get; set; }
-
-        public Context11803(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

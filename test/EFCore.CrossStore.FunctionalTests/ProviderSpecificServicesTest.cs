@@ -56,11 +56,5 @@ public class ProviderSpecificServicesTest
             Assert.Throws<InvalidOperationException>(() => context.Model).Message);
     }
 
-    private class ConstructorTestContext1A : DbContext
-    {
-        public ConstructorTestContext1A(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    private class ConstructorTestContext1A(DbContextOptions options) : DbContext(options);
 }

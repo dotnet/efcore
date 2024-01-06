@@ -336,21 +336,10 @@ public abstract class
     public new virtual MigrationsContext CreateContext()
         => base.CreateContext();
 
-    public class EmptyMigrationsContext : DbContext
-    {
-        public EmptyMigrationsContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-    }
+    public class EmptyMigrationsContext(DbContextOptions options) : DbContext(options);
 
-    public class MigrationsContext : PoolableDbContext
+    public class MigrationsContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public MigrationsContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Foo> Foos { get; set; }
     }
 

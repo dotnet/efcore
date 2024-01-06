@@ -30,13 +30,8 @@ public abstract class InterceptionTestBase
         public string Type { get; set; }
     }
 
-    public class UniverseContext : PoolableDbContext
+    public class UniverseContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public UniverseContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder

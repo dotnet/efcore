@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class FieldsOnlyLoadSqliteTest : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture>
+public class FieldsOnlyLoadSqliteTest(FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture fixture) : FieldsOnlyLoadTestBase<FieldsOnlyLoadSqliteTest.FieldsOnlyLoadSqliteFixture>(fixture)
 {
-    public FieldsOnlyLoadSqliteTest(FieldsOnlyLoadSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class FieldsOnlyLoadSqliteFixture : FieldsOnlyLoadFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

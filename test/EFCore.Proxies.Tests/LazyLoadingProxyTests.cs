@@ -271,13 +271,8 @@ public class LazyLoadingProxyTests
         }
     }
 
-    private class JammieDodgerContext : DbContext
+    private class JammieDodgerContext(DbContextOptions options) : DbContext(options)
     {
-        public JammieDodgerContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Phone>();
     }

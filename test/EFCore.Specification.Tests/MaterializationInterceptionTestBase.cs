@@ -481,14 +481,9 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         Assert.All(results, e => Assert.Equal("ABC", e.InitializedBy));
     }
 
-    protected class TestBindingInterceptor : IInstantiationBindingInterceptor
+    protected class TestBindingInterceptor(string id) : IInstantiationBindingInterceptor
     {
-        private readonly string _id;
-
-        public TestBindingInterceptor(string id)
-        {
-            _id = id;
-        }
+        private readonly string _id = id;
 
         public int CalledCount { get; private set; }
 
@@ -507,15 +502,10 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    protected class ValidatingMaterializationInterceptor : IMaterializationInterceptor
+    protected class ValidatingMaterializationInterceptor(
+        Action<MaterializationInterceptionData, object?, string> validate) : IMaterializationInterceptor
     {
-        private readonly Action<MaterializationInterceptionData, object?, string> _validate;
-
-        public ValidatingMaterializationInterceptor(
-            Action<MaterializationInterceptionData, object?, string> validate)
-        {
-            _validate = validate;
-        }
+        private readonly Action<MaterializationInterceptionData, object?, string> _validate = validate;
 
         public InterceptionResult<object> CreatingInstance(
             MaterializationInterceptionData materializationData,
@@ -555,14 +545,9 @@ public abstract class MaterializationInterceptionTestBase<TContext> : SingletonI
         }
     }
 
-    protected class CountingMaterializationInterceptor : IMaterializationInterceptor
+    protected class CountingMaterializationInterceptor(string id) : IMaterializationInterceptor
     {
-        private readonly string _id;
-
-        public CountingMaterializationInterceptor(string id)
-        {
-            _id = id;
-        }
+        private readonly string _id = id;
 
         public InterceptionResult<object> CreatingInstance(
             MaterializationInterceptionData materializationData,

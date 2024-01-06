@@ -1129,13 +1129,8 @@ public abstract class TrackGraphTestBase
         Assert.Equal(category.Id, category.Products[2].CategoryId);
     }
 
-    private class MyTracker : KeyValueEntityTracker
+    private class MyTracker(bool updateExistingEntities) : KeyValueEntityTracker(updateExistingEntities)
     {
-        public MyTracker(bool updateExistingEntities)
-            : base(updateExistingEntities)
-        {
-        }
-
         public override EntityState DetermineState(EntityEntry entry)
         {
             if (!entry.IsKeySet)
@@ -1251,22 +1246,15 @@ public abstract class TrackGraphTestBase
                 .UseInMemoryDatabase(nameof(TheShadows));
     }
 
-    private class Dark
-    {
-    }
+    private class Dark;
 
     private static Product CreateSimpleGraph(int id)
         => new() { Id = id, Category = new Category { Id = id } };
 
-    private class ChangeDetectorProxy : ChangeDetector
+    private class ChangeDetectorProxy(
+        IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+        ILoggingOptions loggingOptions) : ChangeDetector(logger, loggingOptions)
     {
-        public ChangeDetectorProxy(
-            IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            ILoggingOptions loggingOptions)
-            : base(logger, loggingOptions)
-        {
-        }
-
         public bool DetectChangesCalled { get; set; }
 
         public override void DetectChanges(InternalEntityEntry entry)
@@ -1380,13 +1368,9 @@ public abstract class TrackGraphTestBase
         public OfThis OfThis { get; }
     }
 
-    private class AreMade
-    {
-    }
+    private class AreMade;
 
-    private class OfThis : AreMade
-    {
-    }
+    private class OfThis : AreMade;
 
     private class EarlyLearningCenter : DbContext
     {
@@ -1475,14 +1459,9 @@ public abstract class TrackGraphTestBase
                 .UseInMemoryDatabase(_databaseName);
     }
 
-    public class KeyValueEntityTracker
+    public class KeyValueEntityTracker(bool updateExistingEntities)
     {
-        private readonly bool _updateExistingEntities;
-
-        public KeyValueEntityTracker(bool updateExistingEntities)
-        {
-            _updateExistingEntities = updateExistingEntities;
-        }
+        private readonly bool _updateExistingEntities = updateExistingEntities;
 
         public virtual void TrackEntity(EntityEntryGraphNode node)
             => node.Entry.GetInfrastructure().SetEntityState(DetermineState(node.Entry), acceptChanges: true);

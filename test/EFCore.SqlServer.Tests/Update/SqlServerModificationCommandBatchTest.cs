@@ -125,9 +125,7 @@ public class SqlServerModificationCommandBatchTest
             };
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 
     private static TestSqlServerModificationCommandBatch CreateBatch(int maxBatchSize = 42)
     {
@@ -164,13 +162,8 @@ public class SqlServerModificationCommandBatchTest
         => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
 
-    private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
+    private class TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize) : SqlServerModificationCommandBatch(dependencies, maxBatchSize)
     {
-        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
-            : base(dependencies, maxBatchSize)
-        {
-        }
-
         public new Dictionary<string, object> ParameterValues
             => base.ParameterValues;
 

@@ -3172,14 +3172,9 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
                 .GroupBy(o => o.CustomerID)
                 .Select(e => new Result(e.Key)));
 
-    private class Result
+    private class Result(string customerID)
     {
-        private readonly string _customerID;
-
-        public Result(string customerID)
-        {
-            _customerID = customerID;
-        }
+        private readonly string _customerID = customerID;
     }
 
     #endregion

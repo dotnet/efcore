@@ -22,13 +22,8 @@ public class SharedTypeQueryInMemoryTest : SharedTypeQueryTestBase
         Assert.Equal("Maumar", Assert.Single(data).Value);
     }
 
-    private class MyContextInMemory24601 : MyContext24601
+    private class MyContextInMemory24601(DbContextOptions options) : MyContext24601(options)
     {
-        public MyContextInMemory24601(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.SharedTypeEntity<Dictionary<string, object>>(

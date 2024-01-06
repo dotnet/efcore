@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerNTSApiConsistencyTest : ApiConsistencyTestBase<SqlServerNTSApiConsistencyTest.SqlServerNTSApiConsistencyFixture>
+public class SqlServerNTSApiConsistencyTest(SqlServerNTSApiConsistencyTest.SqlServerNTSApiConsistencyFixture fixture) : ApiConsistencyTestBase<SqlServerNTSApiConsistencyTest.SqlServerNTSApiConsistencyFixture>(fixture)
 {
-    public SqlServerNTSApiConsistencyTest(SqlServerNTSApiConsistencyFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void AddServices(ServiceCollection serviceCollection)
         => serviceCollection.AddEntityFrameworkSqlServerNetTopologySuite();
 

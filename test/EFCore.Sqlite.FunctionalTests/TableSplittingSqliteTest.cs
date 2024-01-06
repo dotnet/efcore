@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class TableSplittingSqliteTest : TableSplittingTestBase
+public class TableSplittingSqliteTest(ITestOutputHelper testOutputHelper) : TableSplittingTestBase(testOutputHelper)
 {
-    public TableSplittingSqliteTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
     {
         await base.ExecuteUpdate_works_for_table_sharing(async);

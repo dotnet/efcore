@@ -1644,11 +1644,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
             => HashCode.Combine(Id, Name);
     }
 
-    protected class TransactionCustomer : TransactionEntity
-    {
-    }
+    protected class TransactionCustomer : TransactionEntity;
 
-    protected class TransactionOrder : TransactionEntity
-    {
-    }
+    protected class TransactionOrder : TransactionEntity;
 }

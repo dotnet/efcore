@@ -3,21 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongSqliteTest : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>
-{
-    public OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencyULongSqliteTest(F1ULongSqliteFixture fixture) : OptimisticConcurrencySqliteTestBase<F1ULongSqliteFixture, ulong?>(fixture);
 
-public class OptimisticConcurrencySqliteTest : OptimisticConcurrencySqliteTestBase<F1SqliteFixture, byte[]>
-{
-    public OptimisticConcurrencySqliteTest(F1SqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-}
+public class OptimisticConcurrencySqliteTest(F1SqliteFixture fixture) : OptimisticConcurrencySqliteTestBase<F1SqliteFixture, byte[]>(fixture);
 
 public abstract class OptimisticConcurrencySqliteTestBase<TFixture, TRowVersion>
     : OptimisticConcurrencyRelationalTestBase<TFixture, TRowVersion>

@@ -830,13 +830,8 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         }
     }
 
-    protected class Context29196 : DbContext
+    protected class Context29196(DbContextOptions options) : DbContext(options)
     {
-        public Context29196(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Order> Orders
             => Set<Order>();
 
@@ -1025,13 +1020,8 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         SharedContextFactory = null;
     }
 
-    protected class SharedTableContext : PoolableDbContext
+    protected class SharedTableContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public SharedTableContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MeterReading> MeterReadings { get; set; }
         public DbSet<MeterReadingDetail> MeterReadingDetails { get; set; }
     }

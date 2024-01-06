@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class AppendCorrelatedCollectionExpressionMutator : ExpressionMutator
+public class AppendCorrelatedCollectionExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
-    public AppendCorrelatedCollectionExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
-
     private bool ContainsCollectionNavigation(Type type)
         => Context.Model.FindEntityType(type)?.GetNavigations().Any(n => n.IsCollection) ?? false;
 

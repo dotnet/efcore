@@ -10,33 +10,18 @@ public abstract class FindInMemoryTest : FindTestBase<FindInMemoryTest.FindInMem
     {
     }
 
-    public class FindInMemoryTestSet : FindInMemoryTest
+    public class FindInMemoryTestSet(FindInMemoryFixture fixture) : FindInMemoryTest(fixture)
     {
-        public FindInMemoryTestSet(FindInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaSetFinder();
     }
 
-    public class FindInMemoryTestContext : FindInMemoryTest
+    public class FindInMemoryTestContext(FindInMemoryFixture fixture) : FindInMemoryTest(fixture)
     {
-        public FindInMemoryTestContext(FindInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaContextFinder();
     }
 
-    public class FindInMemoryTestNonGeneric : FindInMemoryTest
+    public class FindInMemoryTestNonGeneric(FindInMemoryFixture fixture) : FindInMemoryTest(fixture)
     {
-        public FindInMemoryTestNonGeneric(FindInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
-
         protected override TestFinder Finder { get; } = new FindViaNonGenericContextFinder();
     }
 

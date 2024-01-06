@@ -6,14 +6,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
+public class SqlServerTriggersTest(SqlServerTriggersTest.SqlServerTriggersFixture fixture) : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
 {
-    public SqlServerTriggersTest(SqlServerTriggersFixture fixture)
-    {
-        Fixture = fixture;
-    }
-
-    private SqlServerTriggersFixture Fixture { get; }
+    private SqlServerTriggersFixture Fixture { get; } = fixture;
 
     [ConditionalFact]
     public void Triggers_run_on_insert_update_and_delete()
@@ -93,13 +88,8 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
     protected TriggersContext CreateContext()
         => (TriggersContext)Fixture.CreateContext();
 
-    protected class TriggersContext : PoolableDbContext
+    protected class TriggersContext(DbContextOptions options) : PoolableDbContext(options)
     {
-        public TriggersContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Product> Products { get; set; }
         public virtual DbSet<ProductBackup> ProductBackups { get; set; }
 

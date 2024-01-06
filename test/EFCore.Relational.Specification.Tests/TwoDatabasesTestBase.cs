@@ -102,16 +102,10 @@ public abstract class TwoDatabasesTestBase
         Assert.Equal(new[] { "Modified One", "Modified Two" }, context1.Foos.Select(e => e.Bar).ToList());
     }
 
-    protected class ConnectionStringConnectionInterceptor : DbConnectionInterceptor
+    protected class ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString) : DbConnectionInterceptor
     {
-        private readonly string _goodConnectionString;
-        private readonly string _dummyConnectionString;
-
-        public ConnectionStringConnectionInterceptor(string goodConnectionString, string dummyConnectionString)
-        {
-            _goodConnectionString = goodConnectionString;
-            _dummyConnectionString = dummyConnectionString;
-        }
+        private readonly string _goodConnectionString = goodConnectionString;
+        private readonly string _dummyConnectionString = dummyConnectionString;
 
         public override InterceptionResult ConnectionOpening(
             DbConnection connection,
@@ -140,13 +134,8 @@ public abstract class TwoDatabasesTestBase
 
     protected abstract string DummyConnectionString { get; }
 
-    protected class TwoDatabasesContext : DbContext
+    protected class TwoDatabasesContext(DbContextOptions options) : DbContext(options)
     {
-        public TwoDatabasesContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Foo>();
 
@@ -154,13 +143,8 @@ public abstract class TwoDatabasesTestBase
             => Set<Foo>().OrderBy(e => e.Id);
     }
 
-    protected class TwoDatabasesWithDataContext : TwoDatabasesContext
+    protected class TwoDatabasesWithDataContext(DbContextOptions options) : TwoDatabasesContext(options)
     {
-        public TwoDatabasesWithDataContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

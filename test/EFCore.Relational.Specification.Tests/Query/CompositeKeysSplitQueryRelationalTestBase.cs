@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture> : CompositeKeysQueryTestBase<TFixture>
+public abstract class CompositeKeysSplitQueryRelationalTestBase<TFixture>(TFixture fixture) : CompositeKeysQueryTestBase<TFixture>(fixture)
     where TFixture : CompositeKeysQueryFixtureBase, new()
 {
-    public CompositeKeysSplitQueryRelationalTestBase(TFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
         serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);

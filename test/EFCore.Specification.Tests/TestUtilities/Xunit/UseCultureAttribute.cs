@@ -7,7 +7,7 @@ using Xunit.Sdk;
 namespace Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public sealed class UseCultureAttribute : BeforeAfterTestAttribute
+public sealed class UseCultureAttribute(string culture, string uiCulture) : BeforeAfterTestAttribute
 {
     private CultureInfo _originalCulture;
     private CultureInfo _originalUiCulture;
@@ -17,15 +17,8 @@ public sealed class UseCultureAttribute : BeforeAfterTestAttribute
     {
     }
 
-    public UseCultureAttribute(string culture, string uiCulture)
-    {
-        Culture = new CultureInfo(culture);
-        UiCulture = new CultureInfo(uiCulture);
-    }
-
-    public CultureInfo Culture { get; }
-
-    public CultureInfo UiCulture { get; }
+    public CultureInfo Culture { get; } = new(culture);
+    public CultureInfo UiCulture { get; } = new(uiCulture);
 
     public override void Before(MethodInfo methodUnderTest)
     {

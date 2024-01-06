@@ -7,15 +7,8 @@ using Microsoft.EntityFrameworkCore.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 
-public class FakeRelationalConnection : RelationalConnection
-{
-    private DbConnection _connection;
-
-    private readonly List<FakeDbConnection> _dbConnections = new();
-
-    public FakeRelationalConnection(IDbContextOptions options = null)
-        : base(
-            new RelationalConnectionDependencies(
+public class FakeRelationalConnection(IDbContextOptions options = null) : RelationalConnection(
+        new RelationalConnectionDependencies(
                 options ?? CreateOptions(),
                 new DiagnosticsLogger<DbLoggerCategory.Database.Transaction>(
                     new LoggerFactory(),
@@ -42,12 +35,12 @@ public class FakeRelationalConnection : RelationalConnection
                             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
                             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                         new ExceptionDetector()))))
-    {
-    }
+{
+    private DbConnection _connection;
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private readonly List<FakeDbConnection> _dbConnections = new();
+
+    private class FakeDbContext : DbContext;
 
     private static IDbContextOptions CreateOptions()
     {

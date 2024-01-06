@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestBase<
-    GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>
+public class GraphUpdatesSqlServerClientCascadeTest(GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture fixture) : GraphUpdatesSqlServerTestBase<
+    GraphUpdatesSqlServerClientCascadeTest.SqlServerFixture>(fixture)
 {
-    public GraphUpdatesSqlServerClientCascadeTest(SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

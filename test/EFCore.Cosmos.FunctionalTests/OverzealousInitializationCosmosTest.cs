@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class OverzealousInitializationCosmosTest
-    : OverzealousInitializationTestBase<OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture>
+public class OverzealousInitializationCosmosTest(OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture fixture)
+    : OverzealousInitializationTestBase<OverzealousInitializationCosmosTest.OverzealousInitializationCosmosFixture>(fixture)
 {
-    public OverzealousInitializationCosmosTest(OverzealousInitializationCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact(Skip = "Issue #17246")]
     public override void Fixup_ignores_eagerly_initialized_reference_navs()
     {

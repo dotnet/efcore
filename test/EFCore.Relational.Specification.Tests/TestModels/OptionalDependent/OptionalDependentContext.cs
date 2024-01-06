@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.OptionalDependent;
 
-public class OptionalDependentContext : DbContext
+public class OptionalDependentContext(DbContextOptions options) : DbContext(options)
 {
-    public OptionalDependentContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<OptionalDependentEntityAllOptional> EntitiesAllOptional { get; set; }
     public DbSet<OptionalDependentEntitySomeRequired> EntitiesSomeRequired { get; set; }
 

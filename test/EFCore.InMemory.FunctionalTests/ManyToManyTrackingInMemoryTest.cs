@@ -5,14 +5,9 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingInMemoryTest
-    : ManyToManyTrackingTestBase<ManyToManyTrackingInMemoryTest.ManyToManyTrackingInMemoryFixture>
+public class ManyToManyTrackingInMemoryTest(ManyToManyTrackingInMemoryTest.ManyToManyTrackingInMemoryFixture fixture)
+    : ManyToManyTrackingTestBase<ManyToManyTrackingInMemoryTest.ManyToManyTrackingInMemoryFixture>(fixture)
 {
-    public ManyToManyTrackingInMemoryTest(ManyToManyTrackingInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     protected override void ExecuteWithStrategyInTransaction(
         Action<ManyToManyContext> testOperation,
         Action<ManyToManyContext> nestedTestOperation1 = null,

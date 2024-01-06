@@ -6,13 +6,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
 
-public class OptimisticConcurrencyULongSqlServerTest : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>
+public class OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture) : OptimisticConcurrencySqlServerTestBase<F1ULongSqlServerFixture, ulong>(fixture)
 {
-    public OptimisticConcurrencyULongSqlServerTest(F1ULongSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public async Task ULong_row_version_can_handle_empty_array_from_the_database()
     {
@@ -70,13 +65,8 @@ public class OptimisticConcurrencyULongSqlServerTest : OptimisticConcurrencySqlS
         => Row_version_with_table_splitting<StreetCircuitTpc, CityTpc, ulong>(updateDependentFirst, Mapping.Tpc, "ULongVersion");
 }
 
-public class OptimisticConcurrencySqlServerTest : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>
+public class OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture) : OptimisticConcurrencySqlServerTestBase<F1SqlServerFixture, byte[]>(fixture)
 {
-    public OptimisticConcurrencySqlServerTest(F1SqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]

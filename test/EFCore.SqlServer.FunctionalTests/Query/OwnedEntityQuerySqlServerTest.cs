@@ -38,13 +38,8 @@ ORDER BY [u].[Id] DESC
 """);
     }
 
-    protected class Context22054 : DbContext
+    protected class Context22054(DbContextOptions options) : DbContext(options)
     {
-        public Context22054(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<User22054>(
                 builder =>
@@ -168,13 +163,8 @@ ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[Cu
 """);
     }
 
-    protected class Context22340 : DbContext
+    protected class Context22340(DbContextOptions options) : DbContext(options)
     {
-        public Context22340(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MasterTrunk22340> MasterTrunk { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -313,13 +303,8 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
         }
     }
 
-    protected class Context23211 : DbContext
+    protected class Context23211(DbContextOptions options) : DbContext(options)
     {
-        public Context23211(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Owner23211>().OwnsOne(e => e.Owned1, b => b.ToTable("Owned1_23211"));

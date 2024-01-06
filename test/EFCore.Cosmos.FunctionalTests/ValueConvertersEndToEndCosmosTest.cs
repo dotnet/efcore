@@ -5,14 +5,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ValueConvertersEndToEndCosmosTest
-    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture>
+public class ValueConvertersEndToEndCosmosTest(ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture fixture)
+    : ValueConvertersEndToEndTestBase<ValueConvertersEndToEndCosmosTest.ValueConvertersEndToEndCosmosFixture>(fixture)
 {
-    public ValueConvertersEndToEndCosmosTest(ValueConvertersEndToEndCosmosFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class ValueConvertersEndToEndCosmosFixture : ValueConvertersEndToEndFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

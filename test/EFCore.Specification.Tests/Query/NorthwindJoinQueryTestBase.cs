@@ -754,18 +754,11 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                     a.Views.OrderBy(od => od.OrderID).ThenBy(od => od.ProductID));
             });
 
-    private class CustomerViewModel
+    private class CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
     {
-        public string CustomerID { get; }
-        public string City { get; }
-        public OrderDetailViewModel[] Views { get; }
-
-        public CustomerViewModel(string customerID, string city, OrderDetailViewModel[] views)
-        {
-            CustomerID = customerID;
-            City = city;
-            Views = views;
-        }
+        public string CustomerID { get; } = customerID;
+        public string City { get; } = city;
+        public OrderDetailViewModel[] Views { get; } = views;
 
         public override bool Equals(object obj)
         {
@@ -788,16 +781,10 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
             => HashCode.Combine(CustomerID, City);
     }
 
-    private class OrderDetailViewModel
+    private class OrderDetailViewModel(int orderID, int productID)
     {
-        public int OrderID { get; }
-        public int ProductID { get; }
-
-        public OrderDetailViewModel(int orderID, int productID)
-        {
-            OrderID = orderID;
-            ProductID = productID;
-        }
+        public int OrderID { get; } = orderID;
+        public int ProductID { get; } = productID;
 
         public override bool Equals(object obj)
         {

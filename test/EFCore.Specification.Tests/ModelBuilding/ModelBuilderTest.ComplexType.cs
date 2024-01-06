@@ -10,13 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public abstract class ComplexTypeTestBase : ModelBuilderTestBase
+    public abstract class ComplexTypeTestBase(ModelBuilderFixtureBase fixture) : ModelBuilderTestBase(fixture)
     {
-        public ComplexTypeTestBase(ModelBuilderFixtureBase fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Can_set_complex_property_annotation()
         {
@@ -481,7 +476,7 @@ public abstract partial class ModelBuilderTest
 
             var model = modelBuilder.FinalizeModel();
             AssertEqual(modelBuilder.Model, model);
-            
+
             var entityType = model.FindEntityType(typeof(ComplexProperties))!;
             Assert.Equal(PropertyAccessMode.Field, model.GetPropertyAccessMode());
 
@@ -1432,16 +1427,13 @@ public abstract partial class ModelBuilderTest
                     () => complexType.FindProperty("Down").GetValueGeneratorFactory()(null, null)).Message);
         }
 
-        private class BadCustomValueGenerator1 : CustomValueGenerator
+#pragma warning disable CS9113 // Parameter 'foo' is unread
+        private class BadCustomValueGenerator1(string foo) : CustomValueGenerator
+#pragma warning restore CS9113
         {
-            public BadCustomValueGenerator1(string foo)
-            {
-            }
         }
 
-        private abstract class BadCustomValueGenerator2 : CustomValueGenerator
-        {
-        }
+        private abstract class BadCustomValueGenerator2 : CustomValueGenerator;
 
         protected class StringCollectionEntity
         {

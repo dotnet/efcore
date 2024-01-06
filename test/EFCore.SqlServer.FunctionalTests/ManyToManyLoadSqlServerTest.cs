@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyLoadSqlServerTest : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>
+public class ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture fixture) : ManyToManyLoadTestBase<ManyToManyLoadSqlServerTest.ManyToManyLoadSqlServerFixture>(fixture)
 {
-    public ManyToManyLoadSqlServerTest(ManyToManyLoadSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override async Task Load_collection(EntityState state, QueryTrackingBehavior queryTrackingBehavior, bool async)
     {
         await base.Load_collection(state, queryTrackingBehavior, async);

@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class PropertyValuesSqliteTest : PropertyValuesTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>
+public class PropertyValuesSqliteTest(PropertyValuesSqliteTest.PropertyValuesSqliteFixture fixture) : PropertyValuesTestBase<PropertyValuesSqliteTest.PropertyValuesSqliteFixture>(fixture)
 {
-    public PropertyValuesSqliteTest(PropertyValuesSqliteFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public class PropertyValuesSqliteFixture : PropertyValuesFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

@@ -1481,9 +1481,7 @@ public class RelationalBuilderExtensionsTest
         public IEnumerable<Order> Orders { get; set; }
     }
 
-    private class SpecialCustomer : Customer
-    {
-    }
+    private class SpecialCustomer : Customer;
 
     private class Order
     {
@@ -1510,11 +1508,7 @@ public class RelationalBuilderExtensionsTest
         public int? Splowed { get; set; }
     }
 
-    private class Splow : Splot
-    {
-    }
+    private class Splow : Splot;
 
-    private class Splod : Splow
-    {
-    }
+    private class Splod : Splow;
 }

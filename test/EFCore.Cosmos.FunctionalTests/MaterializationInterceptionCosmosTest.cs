@@ -9,13 +9,8 @@ public class MaterializationInterceptionCosmosTest :
     public override Task Intercept_query_materialization_with_owned_types_projecting_collection(bool async, bool usePooling)
         => Task.CompletedTask;
 
-    public class CosmosLibraryContext : LibraryContext
+    public class CosmosLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
-        public CosmosLibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

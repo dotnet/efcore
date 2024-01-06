@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities.QueryTestGeneration;
 
-public class StringConcatWithSelfExpressionMutator : ExpressionMutator
+public class StringConcatWithSelfExpressionMutator(DbContext context) : ExpressionMutator(context)
 {
     private readonly ExpressionFinder _expressionFinder = new();
-
-    public StringConcatWithSelfExpressionMutator(DbContext context)
-        : base(context)
-    {
-    }
 
     public override bool IsValid(Expression expression)
     {

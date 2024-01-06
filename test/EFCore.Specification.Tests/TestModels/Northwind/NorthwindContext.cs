@@ -5,13 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-public class NorthwindContext : PoolableDbContext
+public class NorthwindContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public NorthwindContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public virtual DbSet<Customer> Customers { get; set; }
     public virtual DbSet<Employee> Employees { get; set; }
     public virtual DbSet<Order> Orders { get; set; }

@@ -659,16 +659,10 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             });
     }
 
-    private class ResultExpressionProjectionRewriter : ExpressionVisitor
+    private class ResultExpressionProjectionRewriter(Expression resultExpression, Expression[] roots) : ExpressionVisitor
     {
-        private readonly Expression[] _roots;
-        private readonly Expression _resultExpression;
-
-        public ResultExpressionProjectionRewriter(Expression resultExpression, Expression[] roots)
-        {
-            _resultExpression = resultExpression;
-            _roots = roots;
-        }
+        private readonly Expression[] _roots = roots;
+        private readonly Expression _resultExpression = resultExpression;
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
@@ -810,107 +804,74 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    public class OperatorDto1<TEntity1, TResult>
+    public class OperatorDto1<TEntity1, TResult>(TEntity1 entity1, TResult result)
         where TEntity1 : OperatorEntityBase
     {
-        public OperatorDto1(TEntity1 entity1, TResult result)
-        {
-            Entity1 = entity1;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
 
-        public TEntity1 Entity1 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto2<TEntity1, TEntity2, TResult>
+    public class OperatorDto2<TEntity1, TEntity2, TResult>(TEntity1 entity1, TEntity2 entity2, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
     {
-        public OperatorDto2(TEntity1 entity1, TEntity2 entity2, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>
+    public class OperatorDto3<TEntity1, TEntity2, TEntity3, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
     {
-        public OperatorDto3(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>
+    public class OperatorDto4<TEntity1, TEntity2, TEntity3, TEntity4, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
         where TEntity4 : OperatorEntityBase
     {
-        public OperatorDto4(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>
+    public class OperatorDto5<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TResult>(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
         where TEntity4 : OperatorEntityBase
         where TEntity5 : OperatorEntityBase
     {
-        public OperatorDto5(TEntity1 entity1, TEntity2 entity2, TEntity3 entity3, TEntity4 entity4, TEntity5 entity5, TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Entity5 = entity5;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
+        public TEntity5 Entity5 { get; set; } = entity5;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-        public TEntity5 Entity5 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
-    public class OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>
+    public class OperatorDto6<TEntity1, TEntity2, TEntity3, TEntity4, TEntity5, TEntity6, TResult>(
+        TEntity1 entity1,
+        TEntity2 entity2,
+        TEntity3 entity3,
+        TEntity4 entity4,
+        TEntity5 entity5,
+        TEntity6 entity6,
+        TResult result)
         where TEntity1 : OperatorEntityBase
         where TEntity2 : OperatorEntityBase
         where TEntity3 : OperatorEntityBase
@@ -918,32 +879,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         where TEntity5 : OperatorEntityBase
         where TEntity6 : OperatorEntityBase
     {
-        public OperatorDto6(
-            TEntity1 entity1,
-            TEntity2 entity2,
-            TEntity3 entity3,
-            TEntity4 entity4,
-            TEntity5 entity5,
-            TEntity6 entity6,
-            TResult result)
-        {
-            Entity1 = entity1;
-            Entity2 = entity2;
-            Entity3 = entity3;
-            Entity4 = entity4;
-            Entity5 = entity5;
-            Entity6 = entity6;
-            Result = result;
-        }
+        public TEntity1 Entity1 { get; set; } = entity1;
+        public TEntity2 Entity2 { get; set; } = entity2;
+        public TEntity3 Entity3 { get; set; } = entity3;
+        public TEntity4 Entity4 { get; set; } = entity4;
+        public TEntity5 Entity5 { get; set; } = entity5;
+        public TEntity6 Entity6 { get; set; } = entity6;
 
-        public TEntity1 Entity1 { get; set; }
-        public TEntity2 Entity2 { get; set; }
-        public TEntity3 Entity3 { get; set; }
-        public TEntity4 Entity4 { get; set; }
-        public TEntity5 Entity5 { get; set; }
-        public TEntity6 Entity6 { get; set; }
-
-        public TResult Result { get; set; }
+        public TResult Result { get; set; } = result;
     }
 
     #endregion
@@ -1210,20 +1153,14 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
         TEntity6 e6)
         => true;
 
-    private class ResultExpressionPredicateRewriter : ExpressionVisitor
+    private class ResultExpressionPredicateRewriter(Expression resultExpression, Expression[] roots) : ExpressionVisitor
     {
         private static readonly MethodInfo _likeMethodInfo
             = typeof(DbFunctionsExtensions).GetRuntimeMethod(
                 nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
 
-        private readonly Expression[] _roots;
-        private readonly Expression _resultExpression;
-
-        public ResultExpressionPredicateRewriter(Expression resultExpression, Expression[] roots)
-        {
-            _resultExpression = resultExpression;
-            _roots = roots;
-        }
+        private readonly Expression[] _roots = roots;
+        private readonly Expression _resultExpression = resultExpression;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {
@@ -1324,27 +1261,16 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     #region common infra
 
-    private class RootEntityExpressionInfo
+    private class RootEntityExpressionInfo(Expression expression)
     {
-        public RootEntityExpressionInfo(Expression expression)
-        {
-            Expression = expression;
-            Used = false;
-        }
+        public Expression Expression { get; } = expression;
 
-        public Expression Expression { get; }
-
-        public bool Used { get; set; }
+        public bool Used { get; set; } = false;
     }
 
-    private class ActualSetSource : ISetSource
+    private class ActualSetSource(DbContext context) : ISetSource
     {
-        private readonly DbContext _context;
-
-        public ActualSetSource(DbContext context)
-        {
-            _context = context;
-        }
+        private readonly DbContext _context = context;
 
         public IQueryable<TEntity> Set<TEntity>()
             where TEntity : class

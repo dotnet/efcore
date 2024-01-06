@@ -2441,14 +2441,9 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
         Assert.Equal(CoreStrings.EFConstantWithNonEvaluableArgument, exception.Message);
     }
 
-    private class EntityWithImplicitCast
+    private class EntityWithImplicitCast(int value)
     {
-        private readonly int _value;
-
-        public EntityWithImplicitCast(int value)
-        {
-            _value = value;
-        }
+        private readonly int _value = value;
 
         public string Value
             => _value.ToString();

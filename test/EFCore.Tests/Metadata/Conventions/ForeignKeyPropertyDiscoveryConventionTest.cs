@@ -1219,9 +1219,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         public PrincipalEntity SelfRef { get; set; }
     }
 
-    private class DerivedPrincipalEntity : PrincipalEntity
-    {
-    }
+    private class DerivedPrincipalEntity : PrincipalEntity;
 
     private class DependentEntity
     {

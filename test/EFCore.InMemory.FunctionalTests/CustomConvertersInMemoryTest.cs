@@ -5,13 +5,8 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>
+public class CustomConvertersInMemoryTest(CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture fixture) : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>(fixture)
 {
-    public CustomConvertersInMemoryTest(CustomConvertersInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override void Optional_datetime_reading_null_from_database()
     {
     }

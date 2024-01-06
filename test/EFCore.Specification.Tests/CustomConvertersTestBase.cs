@@ -180,19 +180,14 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         }
     }
 
-    protected class User
+    protected class User(Email email)
     {
-        public User(Email email)
-        {
-            Id = Guid.NewGuid();
-            Email = email;
-        }
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
-        public Guid Id { get; private set; }
+        public Guid Id { get; private set; } = Guid.NewGuid();
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
-        public Email Email { get; private set; }
+        public Email Email { get; private set; } = email;
     }
 
     protected class Email
@@ -244,14 +239,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         public Fuel Fuel { get; set; }
     }
 
-    protected struct Fuel
+    protected struct Fuel(double volume)
     {
-        public Fuel(double volume)
-        {
-            Volume = volume;
-        }
-
-        public double Volume { get; }
+        public double Volume { get; } = volume;
     }
 
     [ConditionalFact]
@@ -735,26 +725,16 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         Assert.Equal("Book1", Assert.Single(books).Value);
     }
 
-    public class Book
+    public class Book(BookId id)
     {
-        public BookId Id { get; set; }
+        public BookId Id { get; set; } = id;
 
         public string Value { get; set; }
-
-        public Book(BookId id)
-        {
-            Id = id;
-        }
     }
 
-    public class BookId
+    public class BookId(int id)
     {
-        public readonly int Id;
-
-        public BookId(int id)
-        {
-            Id = id;
-        }
+        public readonly int Id = id;
 
         public override bool Equals(object obj)
             => obj is BookId item && Id == item.Id;
@@ -1452,19 +1432,14 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
             }
         }
 
-        private class OrderIdEntityFrameworkValueConverter : ValueConverter<OrderId, string>
+        private class OrderIdEntityFrameworkValueConverter(ConverterMappingHints mappingHints) : ValueConverter<OrderId, string>(
+                orderId => orderId.StringValue,
+                stringValue => OrderId.Parse(stringValue),
+                mappingHints
+                )
         {
             public OrderIdEntityFrameworkValueConverter()
                 : this(null)
-            {
-            }
-
-            public OrderIdEntityFrameworkValueConverter(ConverterMappingHints mappingHints)
-                : base(
-                    orderId => orderId.StringValue,
-                    stringValue => OrderId.Parse(stringValue),
-                    mappingHints
-                )
             {
             }
         }

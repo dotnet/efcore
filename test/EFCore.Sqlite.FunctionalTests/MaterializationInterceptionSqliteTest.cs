@@ -17,13 +17,8 @@ public class MaterializationInterceptionSqliteTest :
                 () => base.Intercept_query_materialization_with_owned_types_projecting_collection(async, usePooling)))
             .Message);
 
-    public class SqliteLibraryContext : LibraryContext
+    public class SqliteLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
-        public SqliteLibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

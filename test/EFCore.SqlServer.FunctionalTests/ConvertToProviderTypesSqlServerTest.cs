@@ -4,14 +4,9 @@
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerCondition(SqlServerCondition.IsNotSqlAzure)]
-public class ConvertToProviderTypesSqlServerTest : ConvertToProviderTypesTestBase<
-    ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>
+public class ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture fixture) : ConvertToProviderTypesTestBase<
+    ConvertToProviderTypesSqlServerTest.ConvertToProviderTypesSqlServerFixture>(fixture)
 {
-    public ConvertToProviderTypesSqlServerTest(ConvertToProviderTypesSqlServerFixture fixture)
-        : base(fixture)
-    {
-    }
-
     [ConditionalFact]
     public virtual void Columns_have_expected_data_types()
     {

@@ -3,13 +3,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class WithConstructorsInMemoryTest : WithConstructorsTestBase<WithConstructorsInMemoryTest.WithConstructorsInMemoryFixture>
+public class WithConstructorsInMemoryTest(WithConstructorsInMemoryTest.WithConstructorsInMemoryFixture fixture) : WithConstructorsTestBase<WithConstructorsInMemoryTest.WithConstructorsInMemoryFixture>(fixture)
 {
-    public WithConstructorsInMemoryTest(WithConstructorsInMemoryFixture fixture)
-        : base(fixture)
-    {
-    }
-
     public override void Query_and_update_using_constructors_with_property_parameters()
     {
         base.Query_and_update_using_constructors_with_property_parameters();

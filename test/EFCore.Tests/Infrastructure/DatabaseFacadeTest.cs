@@ -130,15 +130,9 @@ public class DatabaseFacadeTest
                 : context.Database.BeginTransaction());
     }
 
-    private class FakeDbContextTransactionManager : IDbContextTransactionManager
+    private class FakeDbContextTransactionManager(FakeDbContextTransaction transaction) : IDbContextTransactionManager
     {
-        private readonly FakeDbContextTransaction _transaction;
-
-        public FakeDbContextTransactionManager(FakeDbContextTransaction transaction)
-        {
-            _transaction = transaction;
-        }
-
+        private readonly FakeDbContextTransaction _transaction = transaction;
         public int CommitCalls;
         public int RollbackCalls;
         public int CreateSavepointCalls;

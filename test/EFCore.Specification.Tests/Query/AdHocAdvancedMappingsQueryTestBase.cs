@@ -22,13 +22,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         var query = context.Set<Context9582.TipoServicio>().Where(xx => xx.Nombre.Contains("lla")).ToList();
     }
 
-    private class Context9582 : DbContext
+    private class Context9582(DbContextOptions options) : DbContext(options)
     {
-        public Context9582(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TipoServicio>(
@@ -85,15 +80,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context11835 : DbContext
+    private class Context11835(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
-
-        public Context11835(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public void Seed()
         {
@@ -152,15 +142,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(2, result.Count);
     }
 
-    private class Context15684 : DbContext
+    private class Context15684(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
-
-        public Context15684(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder
@@ -251,15 +236,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context17276 : DbContext
+    private class Context17276(DbContextOptions options) : DbContext(options)
     {
         public DbSet<RemovableEntity> RemovableEntities { get; set; }
         public DbSet<Parent> Parents { get; set; }
-
-        public Context17276(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public static List<T> List<T>(IQueryable<T> query)
             where T : IRemovable
@@ -307,15 +287,10 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             int Exists { get; }
         }
 
-        public class Specification<T>
+        public class Specification<T>(int id)
             where T : IHasId<int>
         {
-            public Expression<Func<T, bool>> Criteria { get; }
-
-            public Specification(int id)
-            {
-                Criteria = t => t.Id == id;
-            }
+            public Expression<Func<T, bool>> Criteria { get; } = t => t.Id == id;
         }
     }
 
@@ -334,17 +309,12 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(1, query);
     }
 
-    private class Context17794 : DbContext
+    private class Context17794(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Offer> Offers { get; set; }
         public DbSet<OfferAction> OfferActions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-        }
-
-        public Context17794(DbContextOptions options)
-            : base(options)
         {
         }
 
@@ -435,13 +405,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         }
     }
 
-    private class Context18087 : DbContext
+    private class Context18087(DbContextOptions options) : DbContext(options)
     {
-        public Context18087(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<MockEntity> MockEntities { get; set; }
 
         public void Seed()
@@ -486,14 +451,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         Assert.Equal(3, query.Count);
     }
 
-    private class Context18346 : DbContext
+    private class Context18346(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Business> Businesses { get; set; }
-
-        public Context18346(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
             => modelBuilder.Entity<Business>()
@@ -522,9 +482,7 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             public bool IsOnline { get; set; }
         }
 
-        public class Brand : Business
-        {
-        }
+        public class Brand : Business;
 
         public enum BusinessType
         {
@@ -615,14 +573,9 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
         _ = context.Entities.Where(x => x.TimeSpan == parameter).Select(e => e.TimeSpan).FirstOrDefault();
     }
 
-    private class Context26742 : DbContext
+    private class Context26742(DbContextOptions options) : DbContext(options)
     {
         public DbSet<Entity> Entities { get; set; }
-
-        public Context26742(DbContextOptions options)
-            : base(options)
-        {
-        }
 
         public class Entity
         {
@@ -652,13 +605,8 @@ public abstract class AdHocAdvancedMappingsQueryTestBase : NonSharedModelTestBas
             : query.ToList();
     }
 
-    protected class Context28196 : DbContext
+    protected class Context28196(DbContextOptions options) : DbContext(options)
     {
-        public Context28196(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         public DbSet<Animal> Animals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

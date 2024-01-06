@@ -5,13 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.TransportationModel;
 
-public class TransportationContext : PoolableDbContext
+public class TransportationContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public TransportationContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public DbSet<Vehicle> Vehicles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

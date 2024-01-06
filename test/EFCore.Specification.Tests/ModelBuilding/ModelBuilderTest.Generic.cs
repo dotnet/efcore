@@ -8,13 +8,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
-    public class GenericTestModelBuilder : TestModelBuilder
+    public class GenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure) : TestModelBuilder(fixture, configure)
     {
-        public GenericTestModelBuilder(ModelBuilderFixtureBase fixture, Action<ModelConfigurationBuilder>? configure)
-            : base(fixture, configure)
-        {
-        }
-
         public override TestEntityTypeBuilder<TEntity> Entity<TEntity>()
             => new GenericTestEntityTypeBuilder<TEntity>(ModelBuilder.Entity<TEntity>());
 
@@ -48,15 +43,10 @@ public abstract partial class ModelBuilderTest
         }
     }
 
-    protected class GenericTestEntityTypeBuilder<TEntity> : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder<TEntity>>
+    protected class GenericTestEntityTypeBuilder<TEntity>(EntityTypeBuilder<TEntity> entityTypeBuilder) : TestEntityTypeBuilder<TEntity>, IInfrastructure<EntityTypeBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestEntityTypeBuilder(EntityTypeBuilder<TEntity> entityTypeBuilder)
-        {
-            EntityTypeBuilder = entityTypeBuilder;
-        }
-
-        protected EntityTypeBuilder<TEntity> EntityTypeBuilder { get; }
+        protected EntityTypeBuilder<TEntity> EntityTypeBuilder { get; } = entityTypeBuilder;
 
         public override IMutableEntityType Metadata
             => EntityTypeBuilder.Metadata;
@@ -356,16 +346,11 @@ public abstract partial class ModelBuilderTest
             => EntityTypeBuilder;
     }
 
-    protected class GenericTestComplexPropertyBuilder<TComplex> :
+    protected class GenericTestComplexPropertyBuilder<TComplex>(ComplexPropertyBuilder<TComplex> complexPropertyBuilder) :
         TestComplexPropertyBuilder<TComplex>,
         IInfrastructure<ComplexPropertyBuilder<TComplex>>
     {
-        public GenericTestComplexPropertyBuilder(ComplexPropertyBuilder<TComplex> complexPropertyBuilder)
-        {
-            PropertyBuilder = complexPropertyBuilder;
-        }
-
-        protected ComplexPropertyBuilder<TComplex> PropertyBuilder { get; }
+        protected ComplexPropertyBuilder<TComplex> PropertyBuilder { get; } = complexPropertyBuilder;
 
         public override IMutableComplexProperty Metadata
             => PropertyBuilder.Metadata;
@@ -471,14 +456,9 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class GenericTestDiscriminatorBuilder<TDiscriminator> : TestDiscriminatorBuilder<TDiscriminator>
+    protected class GenericTestDiscriminatorBuilder<TDiscriminator>(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder) : TestDiscriminatorBuilder<TDiscriminator>
     {
-        public GenericTestDiscriminatorBuilder(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder)
-        {
-            DiscriminatorBuilder = discriminatorBuilder;
-        }
-
-        protected DiscriminatorBuilder<TDiscriminator> DiscriminatorBuilder { get; }
+        protected DiscriminatorBuilder<TDiscriminator> DiscriminatorBuilder { get; } = discriminatorBuilder;
 
         protected virtual TestDiscriminatorBuilder<TDiscriminator> Wrap(DiscriminatorBuilder<TDiscriminator> discriminatorBuilder)
             => new GenericTestDiscriminatorBuilder<TDiscriminator>(discriminatorBuilder);
@@ -499,29 +479,19 @@ public abstract partial class ModelBuilderTest
             => Wrap(DiscriminatorBuilder.HasValue(entityTypeName, value));
     }
 
-    protected class GenericTestOwnedEntityTypeBuilder<TEntity> : TestOwnedEntityTypeBuilder<TEntity>,
+    protected class GenericTestOwnedEntityTypeBuilder<TEntity>(OwnedEntityTypeBuilder<TEntity> ownedEntityTypeBuilder) : TestOwnedEntityTypeBuilder<TEntity>,
         IInfrastructure<OwnedEntityTypeBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestOwnedEntityTypeBuilder(OwnedEntityTypeBuilder<TEntity> ownedEntityTypeBuilder)
-        {
-            OwnedEntityTypeBuilder = ownedEntityTypeBuilder;
-        }
-
-        protected OwnedEntityTypeBuilder<TEntity> OwnedEntityTypeBuilder { get; }
+        protected OwnedEntityTypeBuilder<TEntity> OwnedEntityTypeBuilder { get; } = ownedEntityTypeBuilder;
 
         public OwnedEntityTypeBuilder<TEntity> Instance
             => OwnedEntityTypeBuilder;
     }
 
-    protected class GenericTestPropertyBuilder<TProperty> : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
+    protected class GenericTestPropertyBuilder<TProperty>(PropertyBuilder<TProperty> propertyBuilder) : TestPropertyBuilder<TProperty>, IInfrastructure<PropertyBuilder<TProperty>>
     {
-        public GenericTestPropertyBuilder(PropertyBuilder<TProperty> propertyBuilder)
-        {
-            PropertyBuilder = propertyBuilder;
-        }
-
-        protected PropertyBuilder<TProperty> PropertyBuilder { get; }
+        protected PropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
             => PropertyBuilder.Metadata;
@@ -667,15 +637,10 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class GenericTestPrimitiveCollectionBuilder<TProperty>
+    protected class GenericTestPrimitiveCollectionBuilder<TProperty>(PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
         : TestPrimitiveCollectionBuilder<TProperty>, IInfrastructure<PrimitiveCollectionBuilder<TProperty>>
     {
-        public GenericTestPrimitiveCollectionBuilder(PrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        {
-            PrimitiveCollectionBuilder = primitiveCollectionBuilder;
-        }
-
-        protected PrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; }
+        protected PrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; } = primitiveCollectionBuilder;
 
         public override IMutableProperty Metadata
             => PrimitiveCollectionBuilder.Metadata;
@@ -741,16 +706,11 @@ public abstract partial class ModelBuilderTest
             => PrimitiveCollectionBuilder;
     }
 
-    protected class GenericTestComplexTypePropertyBuilder<TProperty> :
+    protected class GenericTestComplexTypePropertyBuilder<TProperty>(ComplexTypePropertyBuilder<TProperty> propertyBuilder) :
         TestComplexTypePropertyBuilder<TProperty>,
         IInfrastructure<ComplexTypePropertyBuilder<TProperty>>
     {
-        public GenericTestComplexTypePropertyBuilder(ComplexTypePropertyBuilder<TProperty> propertyBuilder)
-        {
-            PropertyBuilder = propertyBuilder;
-        }
-
-        protected ComplexTypePropertyBuilder<TProperty> PropertyBuilder { get; }
+        protected ComplexTypePropertyBuilder<TProperty> PropertyBuilder { get; } = propertyBuilder;
 
         public override IMutableProperty Metadata
             => PropertyBuilder.Metadata;
@@ -892,16 +852,11 @@ public abstract partial class ModelBuilderTest
             => PropertyBuilder;
     }
 
-    protected class GenericTestComplexTypePrimitiveCollectionBuilder<TProperty> :
+    protected class GenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder) :
         TestComplexTypePrimitiveCollectionBuilder<TProperty>,
         IInfrastructure<ComplexTypePrimitiveCollectionBuilder<TProperty>>
     {
-        public GenericTestComplexTypePrimitiveCollectionBuilder(ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
-        {
-            PrimitiveCollectionBuilder = primitiveCollectionBuilder;
-        }
-
-        protected ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; }
+        protected ComplexTypePrimitiveCollectionBuilder<TProperty> PrimitiveCollectionBuilder { get; } = primitiveCollectionBuilder;
 
         public override IMutableProperty Metadata
             => PrimitiveCollectionBuilder.Metadata;
@@ -962,14 +917,9 @@ public abstract partial class ModelBuilderTest
             => PrimitiveCollectionBuilder;
     }
 
-    protected class GenericTestKeyBuilder<TEntity> : TestKeyBuilder<TEntity>, IInfrastructure<KeyBuilder<TEntity>>
+    protected class GenericTestKeyBuilder<TEntity>(KeyBuilder<TEntity> keyBuilder) : TestKeyBuilder<TEntity>, IInfrastructure<KeyBuilder<TEntity>>
     {
-        public GenericTestKeyBuilder(KeyBuilder<TEntity> keyBuilder)
-        {
-            KeyBuilder = keyBuilder;
-        }
-
-        private KeyBuilder<TEntity> KeyBuilder { get; }
+        private KeyBuilder<TEntity> KeyBuilder { get; } = keyBuilder;
 
         public override IMutableKey Metadata
             => KeyBuilder.Metadata;
@@ -981,14 +931,9 @@ public abstract partial class ModelBuilderTest
             => KeyBuilder;
     }
 
-    protected class GenericTestIndexBuilder<TEntity> : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
+    protected class GenericTestIndexBuilder<TEntity>(IndexBuilder<TEntity> indexBuilder) : TestIndexBuilder<TEntity>, IInfrastructure<IndexBuilder<TEntity>>
     {
-        public GenericTestIndexBuilder(IndexBuilder<TEntity> indexBuilder)
-        {
-            IndexBuilder = indexBuilder;
-        }
-
-        private IndexBuilder<TEntity> IndexBuilder { get; }
+        private IndexBuilder<TEntity> IndexBuilder { get; } = indexBuilder;
 
         public override IMutableIndex Metadata
             => IndexBuilder.Metadata;
@@ -1006,16 +951,11 @@ public abstract partial class ModelBuilderTest
             => IndexBuilder;
     }
 
-    protected class GenericTestNavigationBuilder<TSource, TTarget> : TestNavigationBuilder
+    protected class GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder<TSource, TTarget> navigationBuilder) : TestNavigationBuilder
         where TSource : class
         where TTarget : class
     {
-        public GenericTestNavigationBuilder(NavigationBuilder<TSource, TTarget> navigationBuilder)
-        {
-            NavigationBuilder = navigationBuilder;
-        }
-
-        private NavigationBuilder<TSource, TTarget> NavigationBuilder { get; }
+        private NavigationBuilder<TSource, TTarget> NavigationBuilder { get; } = navigationBuilder;
 
         public override TestNavigationBuilder HasAnnotation(string annotation, object? value)
             => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.HasAnnotation(annotation, value));
@@ -1037,16 +977,11 @@ public abstract partial class ModelBuilderTest
     }
 
     protected class
-        GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+        GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>(ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder) : TestReferenceNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
-        public GenericTestReferenceNavigationBuilder(ReferenceNavigationBuilder<TEntity, TRelatedEntity> referenceNavigationBuilder)
-        {
-            ReferenceNavigationBuilder = referenceNavigationBuilder;
-        }
-
-        protected ReferenceNavigationBuilder<TEntity, TRelatedEntity> ReferenceNavigationBuilder { get; }
+        protected ReferenceNavigationBuilder<TEntity, TRelatedEntity> ReferenceNavigationBuilder { get; } = referenceNavigationBuilder;
 
         public override TestReferenceCollectionBuilder<TRelatedEntity, TEntity> WithMany(string? navigationName)
             => new GenericTestReferenceCollectionBuilder<TRelatedEntity, TEntity>(
@@ -1067,17 +1002,12 @@ public abstract partial class ModelBuilderTest
                 ReferenceNavigationBuilder.WithOne(navigationExpression));
     }
 
-    protected class GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity> :
+    protected class GenericTestCollectionNavigationBuilder<TEntity, TRelatedEntity>(CollectionNavigationBuilder<TEntity, TRelatedEntity> collectionNavigationBuilder) :
         TestCollectionNavigationBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
-        public GenericTestCollectionNavigationBuilder(CollectionNavigationBuilder<TEntity, TRelatedEntity> collectionNavigationBuilder)
-        {
-            CollectionNavigationBuilder = collectionNavigationBuilder;
-        }
-
-        protected CollectionNavigationBuilder<TEntity, TRelatedEntity> CollectionNavigationBuilder { get; }
+        protected CollectionNavigationBuilder<TEntity, TRelatedEntity> CollectionNavigationBuilder { get; } = collectionNavigationBuilder;
 
         public override TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(string? navigationName)
             => new GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(
@@ -1099,17 +1029,12 @@ public abstract partial class ModelBuilderTest
                 CollectionNavigationBuilder.WithMany(navigationExpression));
     }
 
-    protected class GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>
+    protected class GenericTestReferenceCollectionBuilder<TEntity, TRelatedEntity>(ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
         : TestReferenceCollectionBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
-        public GenericTestReferenceCollectionBuilder(ReferenceCollectionBuilder<TEntity, TRelatedEntity> referenceCollectionBuilder)
-        {
-            ReferenceCollectionBuilder = referenceCollectionBuilder;
-        }
-
-        public ReferenceCollectionBuilder<TEntity, TRelatedEntity> ReferenceCollectionBuilder { get; }
+        public ReferenceCollectionBuilder<TEntity, TRelatedEntity> ReferenceCollectionBuilder { get; } = referenceCollectionBuilder;
 
         public override IMutableForeignKey Metadata
             => ReferenceCollectionBuilder.Metadata;
@@ -1142,17 +1067,12 @@ public abstract partial class ModelBuilderTest
             => Wrap(ReferenceCollectionBuilder.OnDelete(deleteBehavior));
     }
 
-    protected class GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity> :
+    protected class GenericTestReferenceReferenceBuilder<TEntity, TRelatedEntity>(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder) :
         TestReferenceReferenceBuilder<TEntity, TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {
-        public GenericTestReferenceReferenceBuilder(ReferenceReferenceBuilder<TEntity, TRelatedEntity> referenceReferenceBuilder)
-        {
-            ReferenceReferenceBuilder = referenceReferenceBuilder;
-        }
-
-        protected ReferenceReferenceBuilder<TEntity, TRelatedEntity> ReferenceReferenceBuilder { get; }
+        protected ReferenceReferenceBuilder<TEntity, TRelatedEntity> ReferenceReferenceBuilder { get; } = referenceReferenceBuilder;
 
         public override IMutableForeignKey Metadata
             => ReferenceReferenceBuilder.Metadata;
@@ -1187,18 +1107,13 @@ public abstract partial class ModelBuilderTest
             => Wrap(ReferenceReferenceBuilder.OnDelete(deleteBehavior));
     }
 
-    protected class GenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity> :
+    protected class GenericTestCollectionCollectionBuilder<TLeftEntity, TRightEntity>(
+        CollectionCollectionBuilder<TLeftEntity, TRightEntity> collectionCollectionBuilder) :
         TestCollectionCollectionBuilder<TLeftEntity, TRightEntity>
         where TLeftEntity : class
         where TRightEntity : class
     {
-        public GenericTestCollectionCollectionBuilder(
-            CollectionCollectionBuilder<TLeftEntity, TRightEntity> collectionCollectionBuilder)
-        {
-            CollectionCollectionBuilder = collectionCollectionBuilder;
-        }
-
-        protected CollectionCollectionBuilder<TLeftEntity, TRightEntity> CollectionCollectionBuilder { get; }
+        protected CollectionCollectionBuilder<TLeftEntity, TRightEntity> CollectionCollectionBuilder { get; } = collectionCollectionBuilder;
 
         public override TestEntityTypeBuilder<Dictionary<string, object>> UsingEntity(string joinEntityName)
             => new GenericTestEntityTypeBuilder<Dictionary<string, object>>(
@@ -1378,17 +1293,12 @@ public abstract partial class ModelBuilderTest
                     e => configureJoinEntityType(new GenericTestEntityTypeBuilder<TJoinEntity>(e))));
     }
 
-    protected class GenericTestOwnershipBuilder<TEntity, TDependentEntity>
+    protected class GenericTestOwnershipBuilder<TEntity, TDependentEntity>(OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder)
         : TestOwnershipBuilder<TEntity, TDependentEntity>, IInfrastructure<OwnershipBuilder<TEntity, TDependentEntity>>
         where TEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnershipBuilder(OwnershipBuilder<TEntity, TDependentEntity> ownershipBuilder)
-        {
-            OwnershipBuilder = ownershipBuilder;
-        }
-
-        protected OwnershipBuilder<TEntity, TDependentEntity> OwnershipBuilder { get; }
+        protected OwnershipBuilder<TEntity, TDependentEntity> OwnershipBuilder { get; } = ownershipBuilder;
 
         public override IMutableForeignKey Metadata
             => OwnershipBuilder.Metadata;
@@ -1422,18 +1332,13 @@ public abstract partial class ModelBuilderTest
             => OwnershipBuilder;
     }
 
-    protected class GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>
+    protected class GenericTestOwnedNavigationBuilder<TEntity, TDependentEntity>(OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
         : TestOwnedNavigationBuilder<TEntity, TDependentEntity>,
             IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>>
         where TEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationBuilder(OwnedNavigationBuilder<TEntity, TDependentEntity> ownedNavigationBuilder)
-        {
-            OwnedNavigationBuilder = ownedNavigationBuilder;
-        }
-
-        protected OwnedNavigationBuilder<TEntity, TDependentEntity> OwnedNavigationBuilder { get; }
+        protected OwnedNavigationBuilder<TEntity, TDependentEntity> OwnedNavigationBuilder { get; } = ownedNavigationBuilder;
 
         public override IMutableForeignKey Metadata
             => OwnedNavigationBuilder.Metadata;

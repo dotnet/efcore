@@ -229,14 +229,9 @@ public class ClrPropertyGetterFactoryTest
         internal Fuel Fuel { get; set; }
     }
 
-    private struct Fuel
+    private struct Fuel(double volume)
     {
-        public Fuel(double volume)
-        {
-            Volume = volume;
-        }
-
-        public double Volume { get; }
+        public double Volume { get; } = volume;
     }
 
     private class IndexedClass

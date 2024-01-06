@@ -110,9 +110,7 @@ public class RelationalEventIdTest : EventIdTestBase
             });
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
+    private class FakeDbContext : DbContext;
 
     [Migration("00000000000000_FakeMigration")]
     private class FakeMigration : Migration

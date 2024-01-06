@@ -3,14 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class OwnedQueryInMemoryTest : OwnedQueryTestBase<OwnedQueryInMemoryTest.OwnedQueryInMemoryFixture>
+public class OwnedQueryInMemoryTest(OwnedQueryInMemoryTest.OwnedQueryInMemoryFixture fixture)
+    : OwnedQueryTestBase<OwnedQueryInMemoryTest.OwnedQueryInMemoryFixture>(fixture)
 {
-    public OwnedQueryInMemoryTest(OwnedQueryInMemoryFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
-    {
-        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-    }
-
     public class OwnedQueryInMemoryFixture : OwnedQueryFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory

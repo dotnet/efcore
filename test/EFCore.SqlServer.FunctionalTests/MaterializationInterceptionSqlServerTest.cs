@@ -10,13 +10,8 @@ namespace Microsoft.EntityFrameworkCore;
 public class MaterializationInterceptionSqlServerTest :
     MaterializationInterceptionTestBase<MaterializationInterceptionSqlServerTest.SqlServerLibraryContext>
 {
-    public class SqlServerLibraryContext : LibraryContext
+    public class SqlServerLibraryContext(DbContextOptions options) : LibraryContext(options)
     {
-        public SqlServerLibraryContext(DbContextOptions options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

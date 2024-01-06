@@ -10,13 +10,8 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
 {
-    public abstract class SqlServerNonRelationship : RelationalNonRelationshipTestBase, IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerNonRelationship(SqlServerModelBuilderFixture fixture) : RelationalNonRelationshipTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        public SqlServerNonRelationship(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Index_has_a_filter_if_nonclustered_unique_with_nullable_properties()
         {
@@ -304,21 +299,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
     }
 
-    public abstract class SqlServerComplexType : RelationalComplexTypeTestBase, IClassFixture<SqlServerModelBuilderFixture>
-    {
-        public SqlServerComplexType(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqlServerComplexType(SqlServerModelBuilderFixture fixture) : RelationalComplexTypeTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerInheritance : RelationalInheritanceTestBase, IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerInheritance(SqlServerModelBuilderFixture fixture) : RelationalInheritanceTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        public SqlServerInheritance(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact] // #7240
         public void Can_use_shadow_FK_that_collides_with_convention_shadow_FK_on_other_derived_type()
         {
@@ -655,22 +639,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             public string? Name { get; set; }
         }
 
-        protected class DisjointChildSubclass1 : Child
-        {
-        }
+        protected class DisjointChildSubclass1 : Child;
 
-        protected class DisjointChildSubclass2 : Child
-        {
-        }
+        protected class DisjointChildSubclass2 : Child;
     }
 
-    public abstract class SqlServerOneToMany : RelationalOneToManyTestBase, IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerOneToMany(SqlServerModelBuilderFixture fixture) : RelationalOneToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        public SqlServerOneToMany(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Shadow_foreign_keys_to_generic_types_have_terrible_names_that_should_not_change()
         {
@@ -715,42 +690,19 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             public virtual List<ActivityEvent<T>> Events { get; } = null!;
         }
 
-        protected class ActivityEvent<TTarget> : EventBase
-        {
-        }
+        protected class ActivityEvent<TTarget> : EventBase;
 
-        protected class Company
-        {
-        }
+        protected class Company;
 
-        protected class User
-        {
-        }
+        protected class User;
     }
 
-    public abstract class SqlServerManyToOne : RelationalManyToOneTestBase, IClassFixture<SqlServerModelBuilderFixture>
-    {
-        public SqlServerManyToOne(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqlServerManyToOne(SqlServerModelBuilderFixture fixture) : RelationalManyToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerOneToOne : RelationalOneToOneTestBase, IClassFixture<SqlServerModelBuilderFixture>
-    {
-        public SqlServerOneToOne(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-    }
+    public abstract class SqlServerOneToOne(SqlServerModelBuilderFixture fixture) : RelationalOneToOneTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>;
 
-    public abstract class SqlServerManyToMany : RelationalManyToManyTestBase, IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerManyToMany(SqlServerModelBuilderFixture fixture) : RelationalManyToManyTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        public SqlServerManyToMany(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-
         [ConditionalFact]
         public virtual void Join_entity_type_uses_same_schema()
         {
@@ -808,13 +760,8 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         }
     }
 
-    public abstract class SqlServerOwnedTypes : RelationalOwnedTypesTestBase, IClassFixture<SqlServerModelBuilderFixture>
+    public abstract class SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture) : RelationalOwnedTypesTestBase(fixture), IClassFixture<SqlServerModelBuilderFixture>
     {
-        public SqlServerOwnedTypes(SqlServerModelBuilderFixture fixture)
-            : base(fixture)
-        {
-        }
-        
         [ConditionalFact]
         public virtual void Owned_types_use_table_splitting_by_default()
         {
@@ -2135,16 +2082,11 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public abstract TestTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
     }
 
-    public class GenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>,
+    public class GenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder<TEntity> temporalTableBuilder) : TestTemporalTableBuilder<TEntity>,
         IInfrastructure<TemporalTableBuilder<TEntity>>
         where TEntity : class
     {
-        public GenericTestTemporalTableBuilder(TemporalTableBuilder<TEntity> temporalTableBuilder)
-        {
-            TemporalTableBuilder = temporalTableBuilder;
-        }
-
-        private TemporalTableBuilder<TEntity> TemporalTableBuilder { get; }
+        private TemporalTableBuilder<TEntity> TemporalTableBuilder { get; } = temporalTableBuilder;
 
         TemporalTableBuilder<TEntity> IInfrastructure<TemporalTableBuilder<TEntity>>.Instance
             => TemporalTableBuilder;
@@ -2162,15 +2104,10 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
 
-    public class NonGenericTestTemporalTableBuilder<TEntity> : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
+    public class NonGenericTestTemporalTableBuilder<TEntity>(TemporalTableBuilder temporalTableBuilder) : TestTemporalTableBuilder<TEntity>, IInfrastructure<TemporalTableBuilder>
         where TEntity : class
     {
-        public NonGenericTestTemporalTableBuilder(TemporalTableBuilder temporalTableBuilder)
-        {
-            TemporalTableBuilder = temporalTableBuilder;
-        }
-
-        private TemporalTableBuilder TemporalTableBuilder { get; }
+        private TemporalTableBuilder TemporalTableBuilder { get; } = temporalTableBuilder;
 
         TemporalTableBuilder IInfrastructure<TemporalTableBuilder>.Instance
             => TemporalTableBuilder;
@@ -2199,19 +2136,14 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
         public abstract TestOwnedNavigationTemporalPeriodPropertyBuilder HasPeriodEnd(string propertyName);
     }
 
-    public class GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+        OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> temporalTableBuilder) :
         TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public GenericTestOwnedNavigationTemporalTableBuilder(
-            OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> temporalTableBuilder)
-        {
-            TemporalTableBuilder = temporalTableBuilder;
-        }
-
-        private OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> TemporalTableBuilder { get; }
+        private OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> TemporalTableBuilder { get; } = temporalTableBuilder;
 
         OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>
             IInfrastructure<OwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
@@ -2231,18 +2163,13 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
 
-    public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity> :
+    public class NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(OwnedNavigationTemporalTableBuilder temporalTableBuilder) :
         TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>,
         IInfrastructure<OwnedNavigationTemporalTableBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
-        public NonGenericTestOwnedNavigationTemporalTableBuilder(OwnedNavigationTemporalTableBuilder temporalTableBuilder)
-        {
-            TemporalTableBuilder = temporalTableBuilder;
-        }
-
-        private OwnedNavigationTemporalTableBuilder TemporalTableBuilder { get; }
+        private OwnedNavigationTemporalTableBuilder TemporalTableBuilder { get; } = temporalTableBuilder;
 
         OwnedNavigationTemporalTableBuilder IInfrastructure<OwnedNavigationTemporalTableBuilder>.Instance
             => TemporalTableBuilder;
@@ -2261,27 +2188,17 @@ public class SqlServerModelBuilderTestBase : RelationalModelBuilderTest
             => new(TemporalTableBuilder.HasPeriodEnd(propertyName));
     }
 
-    public class TestTemporalPeriodPropertyBuilder
+    public class TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
     {
-        public TestTemporalPeriodPropertyBuilder(TemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
-        {
-            TemporalPeriodPropertyBuilder = temporalPeriodPropertyBuilder;
-        }
-
-        protected TemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
+        protected TemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; } = temporalPeriodPropertyBuilder;
 
         public TestTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));
     }
 
-    public class TestOwnedNavigationTemporalPeriodPropertyBuilder
+    public class TestOwnedNavigationTemporalPeriodPropertyBuilder(OwnedNavigationTemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
     {
-        public TestOwnedNavigationTemporalPeriodPropertyBuilder(OwnedNavigationTemporalPeriodPropertyBuilder temporalPeriodPropertyBuilder)
-        {
-            TemporalPeriodPropertyBuilder = temporalPeriodPropertyBuilder;
-        }
-
-        protected OwnedNavigationTemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; }
+        protected OwnedNavigationTemporalPeriodPropertyBuilder TemporalPeriodPropertyBuilder { get; } = temporalPeriodPropertyBuilder;
 
         public TestOwnedNavigationTemporalPeriodPropertyBuilder HasColumnName(string name)
             => new(TemporalPeriodPropertyBuilder.HasColumnName(name));

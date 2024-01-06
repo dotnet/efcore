@@ -10,14 +10,9 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class SqliteTypeMappingTest : RelationalTypeMappingTest
 {
-    private class YouNoTinyContext : DbContext
+    private class YouNoTinyContext(SqliteConnection connection) : DbContext
     {
-        private readonly SqliteConnection _connection;
-
-        public YouNoTinyContext(SqliteConnection connection)
-        {
-            _connection = connection;
-        }
+        private readonly SqliteConnection _connection = connection;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(_connection);

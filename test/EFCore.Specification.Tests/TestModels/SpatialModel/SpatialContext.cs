@@ -5,13 +5,8 @@ using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 
-public class SpatialContext : PoolableDbContext
+public class SpatialContext(DbContextOptions options) : PoolableDbContext(options)
 {
-    public SpatialContext(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     public static void Seed(SpatialContext context, GeometryFactory factory)
     {
         context.AddRange(SpatialData.CreatePointEntities(factory));

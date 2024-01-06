@@ -121,15 +121,9 @@ public class SqlServerDatabaseCreatorTest
         }
     }
 
-    private class FakeSqlServerConnection : SqlServerConnection
+    private class FakeSqlServerConnection(IDbContextOptions options, RelationalConnectionDependencies dependencies) : SqlServerConnection(dependencies)
     {
-        private readonly IDbContextOptions _options;
-
-        public FakeSqlServerConnection(IDbContextOptions options, RelationalConnectionDependencies dependencies)
-            : base(dependencies)
-        {
-            _options = options;
-        }
+        private readonly IDbContextOptions _options = options;
 
         public int ErrorNumber { get; set; }
         public int FailureCount { get; set; }

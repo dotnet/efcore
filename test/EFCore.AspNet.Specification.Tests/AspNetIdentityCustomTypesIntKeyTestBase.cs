@@ -177,14 +177,9 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
         };
 }
 
-public class CustomTypesIdentityContextInt : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
-    CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>
+public class CustomTypesIdentityContextInt(DbContextOptions options) : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,
+    CustomUserLoginInt, CustomRoleClaimInt, CustomUserTokenInt>(options)
 {
-    public CustomTypesIdentityContextInt(DbContextOptions options)
-        : base(options)
-    {
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -209,26 +204,14 @@ public class CustomUserInt : IdentityUser<int>
     public virtual ICollection<CustomUserRoleInt> UserRoles { get; set; }
 }
 
-public class CustomRoleInt : IdentityRole<int>
-{
-}
+public class CustomRoleInt : IdentityRole<int>;
 
-public class CustomUserClaimInt : IdentityUserClaim<int>
-{
-}
+public class CustomUserClaimInt : IdentityUserClaim<int>;
 
-public class CustomUserRoleInt : IdentityUserRole<int>
-{
-}
+public class CustomUserRoleInt : IdentityUserRole<int>;
 
-public class CustomUserLoginInt : IdentityUserLogin<int>
-{
-}
+public class CustomUserLoginInt : IdentityUserLogin<int>;
 
-public class CustomRoleClaimInt : IdentityRoleClaim<int>
-{
-}
+public class CustomRoleClaimInt : IdentityRoleClaim<int>;
 
-public class CustomUserTokenInt : IdentityUserToken<int>
-{
-}
+public class CustomUserTokenInt : IdentityUserToken<int>;

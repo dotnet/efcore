@@ -80,18 +80,11 @@ public class CosmosDatabaseCreatorTest
         Assert.False(async ? await creator.EnsureDeletedAsync() : creator.EnsureDeleted());
     }
 
-    private class BloggingContext : DbContext
+    private class BloggingContext(CosmosTestStore testStore) : DbContext
     {
-        private readonly string _connectionUri;
-        private readonly string _authToken;
-        private readonly string _name;
-
-        public BloggingContext(CosmosTestStore testStore)
-        {
-            _connectionUri = testStore.ConnectionUri;
-            _authToken = testStore.AuthToken;
-            _name = testStore.Name;
-        }
+        private readonly string _connectionUri = testStore.ConnectionUri;
+        private readonly string _authToken = testStore.AuthToken;
+        private readonly string _name = testStore.Name;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder
