@@ -391,7 +391,7 @@ public class SqlServerAnnotationCodeGeneratorTest
                         new ValueConverterSelector(
                             new ValueConverterSelectorDependencies()),
                         new JsonValueReaderWriterSource(new JsonValueReaderWriterSourceDependencies()),
-                        Array.Empty<ITypeMappingSourcePlugin>()),
+                        []),
                     new RelationalTypeMappingSourceDependencies(
-                        Array.Empty<IRelationalTypeMappingSourcePlugin>()))));
+                        []))));
 }

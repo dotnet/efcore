@@ -159,7 +159,7 @@ public class CustomValueGeneratorTest
     }
 
     private readonly string[] _names =
-    {
+    [
         "Jamie Vardy",
         "Danny Drinkwater",
         "Andy King",
@@ -168,7 +168,7 @@ public class CustomValueGeneratorTest
         "Wes Morgan",
         "Robert Huth",
         "Leonardo Ulloa"
-    };
+    ];
 
     private static long ToCounter(Guid guid)
     {
@@ -205,7 +205,7 @@ public class CustomValueGeneratorTest
     private class CustomGuidValueGenerator : ValueGenerator<Guid>
     {
         public static Guid[] SpecialGuids { get; } =
-        {
+        [
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid(),
@@ -214,7 +214,7 @@ public class CustomValueGeneratorTest
             Guid.NewGuid(),
             Guid.NewGuid(),
             Guid.NewGuid()
-        };
+        ];
 
         private int _counter = -1;
 

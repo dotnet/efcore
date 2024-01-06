@@ -150,7 +150,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
         => Expression.Convert(
             Expression.Call(
                 Expression.New(WktReaderType),
-                WktReaderType.GetMethod("Read", new[] { typeof(string) })!,
+                WktReaderType.GetMethod("Read", [typeof(string)])!,
                 Expression.Constant(CreateWktWithSrid(value), typeof(string))),
             value.GetType());
 

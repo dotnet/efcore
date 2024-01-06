@@ -146,7 +146,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         {
             if (property.Keys == null)
             {
-                property.Keys = new List<RuntimeKey> { key };
+                property.Keys = [key];
             }
             else
             {
@@ -526,7 +526,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         {
             if (property.Indexes == null)
             {
-                property.Indexes = new List<RuntimeIndex> { index };
+                property.Indexes = [index];
             }
             else
             {

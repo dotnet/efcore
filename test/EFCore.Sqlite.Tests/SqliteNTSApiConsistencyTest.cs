@@ -13,9 +13,7 @@ public class SqliteNTSApiConsistencyTest(SqliteNTSApiConsistencyTest.SqliteNTSAp
 
     public class SqliteNTSApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
-            typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions), typeof(SqliteNetTopologySuiteServiceCollectionExtensions)
-        };
+        public override HashSet<Type> FluentApiTypes { get; } =
+            [typeof(SqliteNetTopologySuiteDbContextOptionsBuilderExtensions), typeof(SqliteNetTopologySuiteServiceCollectionExtensions)];
     }
 }

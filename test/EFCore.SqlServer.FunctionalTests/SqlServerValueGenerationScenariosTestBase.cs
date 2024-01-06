@@ -711,7 +711,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                     Id = IntSentinel,
                     Name = "Two Unicorns",
                     GeometryCollection = GeometryFactory.CreateGeometryCollection(
-                        new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 3)) })
+                        [GeometryFactory.CreatePoint(new Coordinate(1, 3))])
                 }
             };
 
@@ -798,7 +798,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                             Id = 9979,
                             Name = "W Unicorns",
                             GeometryCollection = GeometryFactory.CreateGeometryCollection(
-                                new Geometry[] { GeometryFactory.CreatePoint(new Coordinate(1, 2)) })
+                                [GeometryFactory.CreatePoint(new Coordinate(1, 2))])
                         });
                 });
         }
@@ -1753,5 +1753,5 @@ END");
                     b => b.UseNetTopologySuite().ApplyConfiguration());
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

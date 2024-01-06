@@ -6114,13 +6114,13 @@ namespace RootNamespace
                 Assert.Null(unspecifiedIndex.IsDescending);
 
                 var emptyIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_empty");
-                Assert.Equal(Array.Empty<bool>(), emptyIndex.IsDescending);
+                Assert.Equal([], emptyIndex.IsDescending);
 
                 var allAscendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_ascending");
                 Assert.Null(allAscendingIndex.IsDescending);
 
                 var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-                Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
+                Assert.Equal([], allDescendingIndex.IsDescending);
 
                 var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
                 Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);
@@ -7500,47 +7500,43 @@ namespace RootNamespace
                 .ToList();
 
         var lineString1 = new LineString(
-            new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2) })
+            [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(7.1, 7.2)])
         {
             SRID = 4326
         };
 
         var lineString2 = new LineString(
-            new[] { new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2) })
+            [new Coordinate(7.1, 7.2), new Coordinate(20.2, 20.2), new Coordinate(20.20, 1.1), new Coordinate(70.1, 70.2)])
         {
             SRID = 4326
         };
 
         var multiPoint = new MultiPoint(
-            new[] { new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1) })
+                [new Point(1.1, 2.2), new Point(2.2, 2.2), new Point(2.2, 1.1)])
         { SRID = 4326 };
 
         var polygon1 = new Polygon(
             new LinearRing(
-                new[] { new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2) }))
+                [new Coordinate(1.1, 2.2), new Coordinate(2.2, 2.2), new Coordinate(2.2, 1.1), new Coordinate(1.1, 2.2)]))
         {
             SRID = 4326
         };
 
         var polygon2 = new Polygon(
             new LinearRing(
-                new[] { new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2) }))
+                [new Coordinate(10.1, 20.2), new Coordinate(20.2, 20.2), new Coordinate(20.2, 10.1), new Coordinate(10.1, 20.2)]))
         {
             SRID = 4326
         };
 
         var point1 = new Point(1.1, 2.2, 3.3) { SRID = 4326 };
 
-        var multiLineString = new MultiLineString(
-            new[] { lineString1, lineString2 })
-        { SRID = 4326 };
+        var multiLineString = new MultiLineString([lineString1, lineString2]) { SRID = 4326 };
 
-        var multiPolygon = new MultiPolygon(
-            new[] { polygon2, polygon1 })
-        { SRID = 4326 };
+        var multiPolygon = new MultiPolygon([polygon2, polygon1]) { SRID = 4326 };
 
         var geometryCollection = new GeometryCollection(
-            new Geometry[] { lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon })
+            [lineString1, lineString2, multiPoint, polygon1, polygon2, point1, multiLineString, multiPolygon])
         {
             SRID = 4326
         };
@@ -7558,7 +7554,7 @@ namespace RootNamespace
                             {
                                 Id = 42,
                                 String = "FortyThree",
-                                Bytes = new byte[] { 44, 45 },
+                                Bytes = [44, 45],
                                 Int16 = 46,
                                 Int32 = 47,
                                 Int64 = 48,
@@ -7597,12 +7593,12 @@ namespace RootNamespace
                                 SpatialCMultiPolygon = multiPolygon,
                                 SpatialCPoint = point1,
                                 SpatialCPolygon = polygon1,
-                                Int32Collection = new[] { 1, 2, 3, 4 },
-                                DoubleCollection = new[] { 1.2, 3.4 },
-                                StringCollection = new[] { "AB", "CD" },
-                                DateTimeCollection = new[] { new DateTime(2023, 9, 7), new DateTime(2023, 11, 14) },
-                                BoolCollection = new[] { true, false },
-                                BytesCollection = new[] { new byte[] { 1, 2 }, new byte[] { 3, 4 } }
+                                Int32Collection = [1, 2, 3, 4],
+                                DoubleCollection = [1.2, 3.4],
+                                StringCollection = ["AB", "CD"],
+                                DateTimeCollection = [new DateTime(2023, 9, 7), new DateTime(2023, 11, 14)],
+                                BoolCollection = [true, false],
+                                BytesCollection = [[1, 2], [3, 4]]
                             },
                             new
                             {
@@ -8149,7 +8145,7 @@ namespace RootNamespace
             "BuildModel",
             BindingFlags.Instance | BindingFlags.NonPublic,
             null,
-            new[] { typeof(ModelBuilder) },
+            [typeof(ModelBuilder)],
             null);
 
         var builder = new ModelBuilder();
@@ -8157,7 +8153,7 @@ namespace RootNamespace
 
         buildModelMethod.Invoke(
             Activator.CreateInstance(snapshotType),
-            new object[] { builder });
+            [builder]);
 
         var services = TestHelpers.CreateContextServices(new ServiceCollection().AddEntityFrameworkSqlServerNetTopologySuite());
 

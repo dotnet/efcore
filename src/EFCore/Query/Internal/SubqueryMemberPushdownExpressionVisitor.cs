@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 /// </summary>
 public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 {
-    private static readonly List<MethodInfo> SupportedMethods = new()
-    {
+    private static readonly List<MethodInfo> SupportedMethods =
+    [
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
         QueryableMethods.FirstOrDefaultWithPredicate,
@@ -27,7 +27,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastOrDefaultWithoutPredicate,
         QueryableMethods.ElementAt,
         QueryableMethods.ElementAtOrDefault
-    };
+    ];
 
     private static readonly IDictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
     {

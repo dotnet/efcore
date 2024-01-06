@@ -94,7 +94,7 @@ public abstract class InterceptionTestBase
     {
         private readonly DbContextId _contextId;
         private readonly IDisposable _subscription;
-        private readonly List<string> _events = new();
+        private readonly List<string> _events = [];
 
         public TestDiagnosticListener(DbContextId contextId)
         {

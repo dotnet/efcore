@@ -78,7 +78,7 @@ public class AppendIncludeToExistingExpressionMutator(DbContext context) : Expre
 
     private class ExpressionFinder : ExpressionVisitor
     {
-        public readonly List<Expression> FoundExpressions = new();
+        public readonly List<Expression> FoundExpressions = [];
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {

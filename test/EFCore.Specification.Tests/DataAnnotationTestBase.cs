@@ -2504,7 +2504,7 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     {
         public Guid Id { get; set; }
         private readonly string _email = string.Empty;
-        private readonly List<Profile13694> _profiles = new();
+        private readonly List<Profile13694> _profiles = [];
     }
 
     protected class Profile13694

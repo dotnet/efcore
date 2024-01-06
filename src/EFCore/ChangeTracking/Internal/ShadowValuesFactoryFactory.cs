@@ -62,7 +62,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
         => false;
 
     internal static readonly MethodInfo ContainsKeyMethod =
-        typeof(IDictionary<string, object?>).GetMethod(nameof(IDictionary<string, object?>.ContainsKey), new[] { typeof(string) })!;
+        typeof(IDictionary<string, object?>).GetMethod(nameof(IDictionary<string, object?>.ContainsKey), [typeof(string)])!;
 
     private static readonly PropertyInfo DictionaryIndexer
         = typeof(IDictionary<string, object?>).GetRuntimeProperties().Single(p => p.GetIndexParameters().Length > 0);

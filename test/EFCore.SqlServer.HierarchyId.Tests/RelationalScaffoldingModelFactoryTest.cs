@@ -45,7 +45,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter = new TestOperationReporter();
 
         var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
-        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
+        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
             .BuildServiceProvider(validateScopes: true)

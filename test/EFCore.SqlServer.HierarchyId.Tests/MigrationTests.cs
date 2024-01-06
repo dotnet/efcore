@@ -54,7 +54,7 @@ public class MigrationTests
         //this works because we have placed the DesignTimeServicesReferenceAttribute
         //in the test project's properties, which simulates
         //the nuget package's build target
-        var migration = new DesignTimeServicesBuilder(assembly, assembly, reporter, Array.Empty<string>())
+        var migration = new DesignTimeServicesBuilder(assembly, assembly, reporter, [])
             .Build(context)
             .GetRequiredService<IMigrationsScaffolder>()
             .ScaffoldMigration(migrationName, rootNamespace);

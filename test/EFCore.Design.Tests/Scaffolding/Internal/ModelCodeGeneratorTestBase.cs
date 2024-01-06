@@ -148,7 +148,7 @@ public abstract class ModelCodeGeneratorTestBase
     {
         var testAssembly = MockAssembly.Create();
         var reporter = new TestOperationReporter(_output);
-        var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
+        var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
         return services;
     }

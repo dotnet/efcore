@@ -691,7 +691,7 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
     public async Task Can_add_update_delete_with_collections()
     {
         await Can_add_update_delete_with_collection(
-            new List<short> { 1, 2 },
+            [1, 2],
             c =>
             {
                 c.Collection.Clear();
@@ -729,12 +729,11 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
 
         // See #25343
         await Can_add_update_delete_with_collection(
-            new List<EntityType>
-            {
+            [
                 EntityType.Base,
                 EntityType.Derived,
                 EntityType.Derived
-            },
+            ],
             c =>
             {
                 c.Collection.Clear();
@@ -750,7 +749,7 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
                                 ValueComparer.CreateDefault(typeof(EntityType), false), readOnly: false))));
 
         await Can_add_update_delete_with_collection(
-            new[] { 1f, 2 },
+            [1f, 2],
             c =>
             {
                 c.Collection[0] = 3f;
@@ -758,7 +757,7 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
             new[] { 3f, 2 });
 
         await Can_add_update_delete_with_collection(
-            new decimal?[] { 1, null },
+            [1, null],
             c =>
             {
                 c.Collection[0] = 3;
@@ -796,18 +795,18 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
     public async Task Can_add_update_delete_with_nested_collections()
     {
         await Can_add_update_delete_with_collection(
-            new List<List<short>> { new() { 1, 2 } },
+            [[1, 2]],
             c =>
             {
                 c.Collection.Clear();
-                c.Collection.Add(new List<short> { 3 });
+                c.Collection.Add([3]);
             },
             new List<List<short>> { new() { 3 } });
         await Can_add_update_delete_with_collection<IList<byte?[]>>(
             new List<byte?[]>(),
             c =>
             {
-                c.Collection.Add(new byte?[] { 3, null });
+                c.Collection.Add([3, null]);
                 c.Collection.Add(null);
             },
             new List<byte?[]> { new byte?[] { 3, null }, null });
@@ -820,15 +819,15 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
             new List<Dictionary<string, string>> { new() { { "1", null }, { "3", "2" } } });
 
         await Can_add_update_delete_with_collection(
-            new List<float>[] { new() { 1f }, new() { 2 } },
+            [[1f], [2]],
             c =>
             {
                 c.Collection[1][0] = 3f;
             },
-            new List<float>[] { new() { 1f }, new() { 3f } });
+            new List<float>[] { [1f], [3f] });
 
         await Can_add_update_delete_with_collection(
-            new[] { new decimal?[] { 1, null } },
+            [[1, null]],
             c =>
             {
                 c.Collection[0][1] = 3;
@@ -836,15 +835,15 @@ public class EndToEndCosmosTest(EndToEndCosmosTest.CosmosFixture fixture) : ICla
             new[] { new decimal?[] { 1, 3 } });
 
         await Can_add_update_delete_with_collection(
-            new Dictionary<string, List<int>> { { "1", new List<int> { 1 } } },
+            new Dictionary<string, List<int>> { { "1", [1] } },
             c =>
             {
-                c.Collection["2"] = new List<int> { 3 };
+                c.Collection["2"] = [3];
             },
-            new Dictionary<string, List<int>> { { "1", new List<int> { 1 } }, { "2", new List<int> { 3 } } });
+            new Dictionary<string, List<int>> { { "1", [1] }, { "2", [3] } });
 
         await Can_add_update_delete_with_collection<IDictionary<string, long?[]>>(
-            new SortedDictionary<string, long?[]> { { "2", new long?[] { 2 } }, { "1", new long?[] { 1 } } },
+            new SortedDictionary<string, long?[]> { { "2", [2] }, { "1", [1] } },
             c =>
             {
                 c.Collection.Clear();

@@ -56,8 +56,7 @@ public abstract class ClrAccessorFactory<TAccessor>
 
         try
         {
-            return (TAccessor)boundMethod.Invoke(
-                this, new object?[] { memberInfo, propertyBase })!;
+            return (TAccessor)boundMethod.Invoke(this, [memberInfo, propertyBase])!;
         }
         catch (TargetInvocationException e) when (e.InnerException != null)
         {

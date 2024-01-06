@@ -2077,11 +2077,11 @@ public abstract partial class ModelBuilderTest
                     b =>
                     {
                         b.PrimitiveCollection(e => e.Up).HasSentinel(null);
-                        b.PrimitiveCollection(e => e.Down).HasSentinel(new ObservableCollection<string>());
-                        b.PrimitiveCollection<int[]>("Charm").HasSentinel(new int[0]);
-                        b.PrimitiveCollection<List<string>>("Strange").HasSentinel(new List<string> { });
-                        b.PrimitiveCollection<int[]>("Top").HasSentinel(new int[] { 77 });
-                        b.PrimitiveCollection<List<string>>("Bottom").HasSentinel(new List<string> { "" });
+                        b.PrimitiveCollection(e => e.Down).HasSentinel([]);
+                        b.PrimitiveCollection<int[]>("Charm").HasSentinel([]);
+                        b.PrimitiveCollection<List<string>>("Strange").HasSentinel([]);
+                        b.PrimitiveCollection<int[]>("Top").HasSentinel([77]);
+                        b.PrimitiveCollection<List<string>>("Bottom").HasSentinel([""]);
                     });
 
             var model = modelBuilder.FinalizeModel();
@@ -2090,7 +2090,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(0, complexType.FindProperty(nameof(CollectionQuarks.Id))!.Sentinel);
             Assert.Null(complexType.FindProperty("Up")!.Sentinel);
             Assert.Equal(new ObservableCollection<string>(), complexType.FindProperty("Down")!.Sentinel);
-            Assert.Equal(new int[0], complexType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal(Array.Empty<int>(), complexType.FindProperty("Charm")!.Sentinel);
             Assert.Equal(new List<string> { }, complexType.FindProperty("Strange")!.Sentinel);
             Assert.Equal(new int[] { 77 }, complexType.FindProperty("Top")!.Sentinel);
             Assert.Equal(new List<string> { "" }, complexType.FindProperty("Bottom")!.Sentinel);

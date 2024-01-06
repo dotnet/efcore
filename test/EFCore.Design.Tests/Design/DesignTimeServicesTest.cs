@@ -299,7 +299,7 @@ public class UserMigrationsIdGenerator : IMigrationsIdGenerator
             : Compile(startupAssemblyCode);
 
         var reporter = new TestOperationReporter();
-        var servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, new string[0]);
+        var servicesBuilder = new DesignTimeServicesBuilder(assembly, startupAssembly, reporter, []);
 
         return (context == null
                 ? servicesBuilder

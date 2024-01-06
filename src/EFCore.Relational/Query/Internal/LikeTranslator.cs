@@ -15,11 +15,11 @@ public class LikeTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo MethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
+            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)])!;
 
     private static readonly MethodInfo MethodInfoWithEscape
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string), typeof(string) })!;
+            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string), typeof(string)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

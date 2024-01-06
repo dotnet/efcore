@@ -43,7 +43,7 @@ public class CosmosDateTimeMemberTranslator : IMemberTranslator
         {
             return _sqlExpressionFactory.Function(
                 "GetCurrentDateTime",
-                Array.Empty<SqlExpression>(),
+                [],
                 returnType);
         }
 

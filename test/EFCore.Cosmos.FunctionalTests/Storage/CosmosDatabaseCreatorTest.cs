@@ -5,11 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class CosmosDatabaseCreatorTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new[]
-    {
-        new object[] { true },
-        new object[] { false }
-    };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     [ConditionalFact]
     public async Task EnsureCreated_returns_true_when_database_does_not_exist()

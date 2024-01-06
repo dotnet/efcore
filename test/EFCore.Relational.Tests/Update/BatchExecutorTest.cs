@@ -59,7 +59,7 @@ public class BatchExecutorTest
     private static FakeDbConnection SetupConnection(TestContext context)
     {
         var dataReader = new FakeDbDataReader(
-            new[] { "RowsAffected" }, new List<object[]> { new object[] { 1 } });
+            ["RowsAffected"], new List<object[]> { new object[] { 1 } });
 
         var connection = new FakeDbConnection(
             "A=B", new FakeCommandExecutor(

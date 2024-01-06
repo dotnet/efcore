@@ -259,7 +259,7 @@ public class ServiceProviderCacheTest
             => _info ??= new ExtensionInfo(this);
 
         public FakeDbContextOptionsExtension1()
-            : this(new List<string>())
+            : this([])
         {
         }
 
@@ -298,7 +298,7 @@ public class ServiceProviderCacheTest
             => _info ??= new ExtensionInfo(this);
 
         public FakeDbContextOptionsExtension2()
-            : this(new List<string>())
+            : this([])
         {
         }
 

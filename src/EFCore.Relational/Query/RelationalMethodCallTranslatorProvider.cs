@@ -9,8 +9,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class RelationalMethodCallTranslatorProvider : IMethodCallTranslatorProvider
 {
-    private readonly List<IMethodCallTranslator> _plugins = new();
-    private readonly List<IMethodCallTranslator> _translators = new();
+    private readonly List<IMethodCallTranslator> _plugins = [];
+    private readonly List<IMethodCallTranslator> _translators = [];
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>

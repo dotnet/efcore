@@ -996,7 +996,7 @@ public class FixupTest
             () =>
             {
                 Assert.Equal(setFk ? principal.Id : 0, dependent.CategoryId);
-                Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                Assert.Equal(setToDependent ? [dependent] : [], principal.Products);
                 Assert.Equal(EntityState.Detached, context.Entry(principal).State);
                 Assert.Equal(
                     entityState == EntityState.Unchanged && setFk ? EntityState.Modified : entityState,
@@ -1050,7 +1050,7 @@ public class FixupTest
             () =>
             {
                 Assert.Equal(principal.Id, dependent.CategoryId);
-                Assert.Equal(setToDependent ? new[] { dependent } : Array.Empty<ProductPN>(), principal.Products);
+                Assert.Equal(setToDependent ? [dependent] : [], principal.Products);
                 Assert.Equal(entityState, context.Entry(principal).State);
                 Assert.Equal(
                     setToDependent
@@ -3052,7 +3052,7 @@ public class FixupTest
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<ContainerRoomX> Rooms { get; set; } = new();
+        public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
     public class ContainerRoomX
@@ -3069,7 +3069,7 @@ public class FixupTest
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public List<ContainerRoomX> Rooms { get; set; } = new();
+        public List<ContainerRoomX> Rooms { get; set; } = [];
     }
 
     protected class EscapeRoom(string databaseName) : DbContext
@@ -3834,7 +3834,7 @@ public class FixupTest
         public string Name { get; set; }
 
         public FixupSite FixupSite { get; set; }
-        public List<FixupPost> Posts { get; } = new();
+        public List<FixupPost> Posts { get; } = [];
     }
 
     public class FixupSite
@@ -3853,7 +3853,7 @@ public class FixupTest
 
         public int? FixupBlogId { get; set; }
         public FixupBlog FixupBlog { get; set; }
-        public List<FixupTag> Tags { get; } = new();
+        public List<FixupTag> Tags { get; } = [];
     }
 
     public class FixupTag
@@ -3861,7 +3861,7 @@ public class FixupTest
         public int Id { get; set; }
         public string Content { get; set; }
 
-        public List<FixupPost> Posts { get; } = new();
+        public List<FixupPost> Posts { get; } = [];
     }
 
     [ConditionalFact]

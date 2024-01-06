@@ -41,7 +41,7 @@ public class RelationalScaffoldingModelFactoryTest
         _reporter = new TestOperationReporter();
 
         var assembly = typeof(RelationalScaffoldingModelFactoryTest).Assembly;
-        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, new string[0])
+        _factory = new DesignTimeServicesBuilder(assembly, assembly, _reporter, [])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
             .AddSingleton<IScaffoldingModelFactory, FakeScaffoldingModelFactory>()
             .BuildServiceProvider(validateScopes: true)
@@ -1515,7 +1515,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Null(allAscendingIndex.IsDescending);
 
         var allDescendingIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_all_descending");
-        Assert.Equal(Array.Empty<bool>(), allDescendingIndex.IsDescending);
+        Assert.Equal([], allDescendingIndex.IsDescending);
 
         var mixedIndex = Assert.Single(entityType.GetIndexes(), i => i.Name == "IX_mixed");
         Assert.Equal(new[] { false, true, false }, mixedIndex.IsDescending);

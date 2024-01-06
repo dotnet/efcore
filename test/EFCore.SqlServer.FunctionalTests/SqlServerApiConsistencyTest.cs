@@ -15,8 +15,8 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
 
     public class SqlServerApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(SqlServerDbContextOptionsBuilder),
             typeof(SqlServerDbContextOptionsExtensions),
             typeof(SqlServerMigrationBuilderExtensions),
@@ -35,7 +35,7 @@ public class SqlServerApiConsistencyTest(SqlServerApiConsistencyTest.SqlServerAp
             typeof(TemporalPeriodPropertyBuilder),
             typeof(TemporalTableBuilder),
             typeof(TemporalTableBuilder<>)
-        };
+        ];
 
         public override
             Dictionary<Type,

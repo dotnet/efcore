@@ -33,7 +33,7 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
     protected virtual Expression RewriteExpectedQueryExpression(Expression expectedQueryExpression)
         => new ExpectedQueryRewritingVisitor().Visit(expectedQueryExpression);
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     public Task AssertQuery<TResult>(
         bool async,

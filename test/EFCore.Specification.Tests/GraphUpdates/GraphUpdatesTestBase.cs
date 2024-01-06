@@ -962,7 +962,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         var newEntities = new HashSet<object>(actualEntries.Select(ne => ne.Entity));
         var missingEntities = expectedEntries.Select(e => e.Entity).Where(e => !newEntities.Contains(e)).ToList();
-        Assert.Equal(Array.Empty<object>(), missingEntities);
+        Assert.Equal([], missingEntities);
         Assert.Equal(expectedEntries.Count, actualEntries.Count);
     }
 

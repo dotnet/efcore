@@ -7,7 +7,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class ReloadTest
 {
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { true }, new object[] { false } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -764,7 +764,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             {
                 if (flattenedExpressions is null)
                 {
-                    flattenedExpressions = new List<SqlExpression>();
+                    flattenedExpressions = [];
                     for (var j = 0; j < i; j++)
                     {
                         flattenedExpressions.Add(expressions[j]);

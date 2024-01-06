@@ -42,7 +42,7 @@ public class MigrationsOperations
         _projectDir = projectDir;
         _rootNamespace = rootNamespace;
         _language = language;
-        args ??= Array.Empty<string>();
+        args ??= [];
         _contextOperations = new DbContextOperations(
             reporter,
             assembly,

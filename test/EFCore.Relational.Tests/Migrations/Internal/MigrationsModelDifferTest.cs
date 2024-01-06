@@ -4188,7 +4188,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.ToTable("Donkey", "dbo");
                     x.Property<int>("Id");
                     x.Property<int>("Value");
-                    x.HasIndex(new[] { "Value" }, "IX_dbo.Donkey_Value");
+                    x.HasIndex(["Value"], "IX_dbo.Donkey_Value");
                 }),
             operations =>
             {
@@ -4222,7 +4222,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.Property<int>("Value");
                     x.Property<int>("MuleValue");
-                    x.HasIndex(new[] { "MuleValue" }, "IX_Muel_Value");
+                    x.HasIndex(["MuleValue"], "IX_Muel_Value");
                 }),
             operations =>
             {
@@ -5052,7 +5052,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                     x.Property<int>("Id");
                     x.HasKey("Id").HasName("PK_Gnat");
                     x.Property<string>("Name");
-                    x.HasIndex(new[] { "Name" }, "IX_Gnat_Name");
+                    x.HasIndex(["Name"], "IX_Gnat_Name");
                 }),
             operations =>
             {
@@ -10263,9 +10263,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 {
                     x.Property<byte[]>("Value1")
                         .IsRequired()
-                        .HasConversion(e => new DateTime(), e => new byte[0]);
+                        .HasConversion(e => new DateTime(), e => Array.Empty<byte>());
                     x.HasData(
-                        new { Id = 42, Value1 = new byte[0] });
+                        new { Id = 42, Value1 = Array.Empty<byte>() });
                 }),
             Assert.Empty,
             Assert.Empty);
@@ -10294,9 +10294,9 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken()
-                        .HasConversion(e => new DateTime(), e => new byte[0]);
+                        .HasConversion(e => new DateTime(), e => Array.Empty<byte>());
                     x.HasData(
-                        new { Id = 42, Value1 = new byte[0] });
+                        new { Id = 42, Value1 = Array.Empty<byte>() });
                 }),
             Assert.Empty,
             Assert.Empty);

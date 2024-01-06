@@ -87,7 +87,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
 
     [ConditionalFact]
     public virtual Task Array_of_byte_array()
-        => TestArray(new byte[] { 1, 2 }, new byte[] { 3, 4 });
+        => TestArray([1, 2], new byte[] { 3, 4 });
 
     [ConditionalFact]
     public virtual Task Array_of_enum()
@@ -98,7 +98,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     [ConditionalFact]
     public virtual async Task Array_of_array_is_not_supported()
     {
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestArray(new[] { 1, 2, 3 }, new[] { 4, 5, 6 }));
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => TestArray([1, 2, 3], new[] { 4, 5, 6 }));
         Assert.Equal(CoreStrings.PropertyNotMapped("int[][]", "TestEntity", "SomeArray"), exception.Message);
     }
 
@@ -126,8 +126,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
             seed: context =>
             {
                 context.AddRange(
-                    new TestEntity { Id = 1, Ints = new[] { 1, 2, 3 } },
-                    new TestEntity { Id = 2, Ints = new[] { 1, 2, 4 } });
+                    new TestEntity { Id = 1, Ints = [1, 2, 3] },
+                    new TestEntity { Id = 2, Ints = [1, 2, 4] });
                 context.SaveChanges();
             });
 

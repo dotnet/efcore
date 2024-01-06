@@ -750,13 +750,12 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         ConfigureProperty(propertyBuilder.Metadata, "DefaultValue", "2");
 
         VerifyWarnings(
-            new[]
-            {
+            [
                 SqlServerResources.LogConflictingValueGenerationStrategies(new TestLogger<SqlServerLoggingDefinitions>())
                     .GenerateMessage(sqlServerValueGenerationStrategy.ToString(), "DefaultValue", "Id", nameof(Dog)),
                 RelationalResources.LogKeyHasDefaultValue(new TestLogger<SqlServerLoggingDefinitions>())
                     .GenerateMessage("Id", nameof(Dog))
-            },
+            ],
             modelBuilder);
     }
 

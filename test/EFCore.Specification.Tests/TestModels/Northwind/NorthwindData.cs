@@ -42,7 +42,7 @@ public partial class NorthwindData : ISetSource
 
         foreach (var customer in Customers)
         {
-            customer.Orders = new List<Order>();
+            customer.Orders = [];
 
             customerQueries.Add(
                 new CustomerQuery
@@ -62,7 +62,7 @@ public partial class NorthwindData : ISetSource
 
         foreach (var product in Products)
         {
-            product.OrderDetails = new List<OrderDetail>();
+            product.OrderDetails = [];
 
             if (!product.Discontinued)
             {

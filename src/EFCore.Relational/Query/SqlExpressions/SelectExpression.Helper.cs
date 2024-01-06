@@ -352,7 +352,7 @@ public sealed partial class SelectExpression
     private sealed class AliasUniquifier : ExpressionVisitor
     {
         private readonly HashSet<string> _usedAliases;
-        private readonly List<SelectExpression> _visitedSelectExpressions = new();
+        private readonly List<SelectExpression> _visitedSelectExpressions = [];
 
         public AliasUniquifier(HashSet<string> usedAliases)
         {
@@ -627,7 +627,7 @@ public sealed partial class SelectExpression
 
     private sealed class SelectExpressionVerifyingExpressionVisitor : ExpressionVisitor
     {
-        private readonly List<TableReferenceExpression> _tableReferencesInScope = new();
+        private readonly List<TableReferenceExpression> _tableReferencesInScope = [];
 
         public SelectExpressionVerifyingExpressionVisitor(IEnumerable<TableReferenceExpression> tableReferencesInScope)
         {

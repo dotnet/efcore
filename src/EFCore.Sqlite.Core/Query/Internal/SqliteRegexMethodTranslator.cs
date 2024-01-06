@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteRegexMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo RegexIsMatchMethodInfo
-        = typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string) })!;
+        = typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), [typeof(string), typeof(string)])!;
 
     private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 

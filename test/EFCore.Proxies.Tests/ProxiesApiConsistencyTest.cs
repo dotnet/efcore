@@ -13,6 +13,6 @@ public class ProxiesApiConsistencyTest(ProxiesApiConsistencyTest.ProxiesApiConsi
 
     public class ProxiesApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(ProxiesServiceCollectionExtensions) };
+        public override HashSet<Type> FluentApiTypes { get; } = [typeof(ProxiesServiceCollectionExtensions)];
     }
 }

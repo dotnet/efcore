@@ -1276,11 +1276,11 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
         Assert.Same(order3, orderLine6.Order);
 
         Assert.Equal(
-            new[] { orderLine2, orderLine1 },
+            [orderLine2, orderLine1],
             order1.OrderLines.OrderBy(e => e.Quantity).ToArray());
 
         Assert.Equal(
-            new[] { orderLine3, orderLine4, orderLine5 },
+            [orderLine3, orderLine4, orderLine5],
             order2.OrderLines.OrderBy(e => e.Quantity).ToArray());
 
         Assert.Same(orderLine6, order3.OrderLines.Single());
@@ -1301,7 +1301,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
         Assert.Same(product1, productReview1.Product);
         Assert.Same(product1, productReview2.Product);
         Assert.Equal(
-            new[] { productReview1, productReview2 },
+            [productReview1, productReview2],
             product1.Reviews.OrderBy(r => r.Review).ToArray());
 
         Assert.Same(product2, productReview3.Product);
@@ -1322,7 +1322,7 @@ public abstract class MonsterFixupTestBase<TFixture> : IClassFixture<TFixture>, 
             : context.ProductPhotos.Single(e => e.Photo[0] == 105);
 
         Assert.Equal(
-            new[] { productPhoto1, productPhoto2 },
+            [productPhoto1, productPhoto2],
             product1.Photos.OrderBy(r => r.Photo.First()).ToArray());
 
         Assert.Same(productPhoto3, product3.Photos.Single());

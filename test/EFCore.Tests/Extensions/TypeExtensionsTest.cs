@@ -67,12 +67,12 @@ public class TypeExtensionsTest
 
     [ConditionalFact]
     public void GetDeclaredConstructor_returns_null_when_no_match()
-        => Assert.Null(typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(string) }));
+        => Assert.Null(typeof(CtorFixture).GetDeclaredConstructor([typeof(string)]));
 
     [ConditionalFact]
     public void GetDeclaredConstructor_finds_ctor_args()
     {
-        var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor(new[] { typeof(int) });
+        var constructorInfo = typeof(CtorFixture).GetDeclaredConstructor([typeof(int)]);
 
         Assert.NotNull(constructorInfo);
         Assert.Single(constructorInfo.GetParameters());

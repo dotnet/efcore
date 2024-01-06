@@ -767,7 +767,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             if (property.Keys == null)
             {
-                property.Keys = new List<Key> { key };
+                property.Keys = [key];
             }
             else
             {
@@ -1011,7 +1011,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             if (property.ForeignKeys == null)
             {
-                property.ForeignKeys = new List<ForeignKey> { foreignKey };
+                property.ForeignKeys = [foreignKey];
             }
             else
             {
@@ -2010,7 +2010,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         {
             if (property.Indexes == null)
             {
-                property.Indexes = new List<Index> { index };
+                property.Indexes = [index];
             }
             else
             {
@@ -2740,7 +2740,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                             {
                                 try
                                 {
-                                    value = propertyInfo.GetValue(rawSeed, new[] { propertyBase.Name });
+                                    value = propertyInfo.GetValue(rawSeed, [propertyBase.Name]);
                                 }
                                 catch (Exception)
                                 {
@@ -2823,7 +2823,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     {
         EnsureMutable();
 
-        _data ??= new List<object>();
+        _data ??= [];
 
         foreach (var entity in data)
         {

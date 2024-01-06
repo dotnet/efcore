@@ -21,8 +21,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 {
     private const string RuntimeParameterPrefix = QueryCompilationContext.QueryParameterPrefix + "entity_equality_";
 
-    private static readonly List<MethodInfo> SingleResultMethodInfos = new()
-    {
+    private static readonly List<MethodInfo> SingleResultMethodInfos =
+    [
         QueryableMethods.FirstWithPredicate,
         QueryableMethods.FirstWithoutPredicate,
         QueryableMethods.FirstOrDefaultWithPredicate,
@@ -37,7 +37,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastOrDefaultWithoutPredicate,
         QueryableMethods.ElementAt,
         QueryableMethods.ElementAtOrDefault
-    };
+    ];
 
     private static readonly MethodInfo ParameterValueExtractorMethod =
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterValueExtractor))!;
@@ -46,10 +46,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         typeof(RelationalSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ParameterListValueExtractor))!;
 
     private static readonly MethodInfo StringEqualsWithStringComparison
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(StringComparison) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(StringComparison)])!;
 
     private static readonly MethodInfo StringEqualsWithStringComparisonStatic
-        = typeof(string).GetRuntimeMethod(nameof(string.Equals), new[] { typeof(string), typeof(string), typeof(StringComparison) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Equals), [typeof(string), typeof(string), typeof(StringComparison)])!;
 
     private static readonly MethodInfo LeastMethodInfo
         = typeof(RelationalDbFunctionsExtensions).GetMethod(nameof(RelationalDbFunctionsExtensions.Least))!;
@@ -817,7 +817,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && right is SqlExpression rightSql)
             {
                 sqlObject = leftSql;
-                scalarArguments = new List<SqlExpression> { rightSql };
+                scalarArguments = [rightSql];
             }
             else
             {
@@ -852,7 +852,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (left is SqlExpression leftSql
                 && right is SqlExpression rightSql)
             {
-                scalarArguments = new List<SqlExpression> { leftSql, rightSql };
+                scalarArguments = [leftSql, rightSql];
             }
             else
             {
@@ -875,7 +875,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             if (enumerable is SqlExpression sqlEnumerable
                 && item is SqlExpression sqlItem)
             {
-                scalarArguments = new List<SqlExpression> { sqlEnumerable, sqlItem };
+                scalarArguments = [sqlEnumerable, sqlItem];
             }
             else
             {
@@ -899,7 +899,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && item is SqlExpression sqlItem)
             {
                 sqlObject = sqlEnumerable;
-                scalarArguments = new List<SqlExpression> { sqlItem };
+                scalarArguments = [sqlItem];
             }
             else
             {
@@ -963,7 +963,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 goto SubqueryTranslation;
             }
 
-            scalarArguments = new List<SqlExpression>();
+            scalarArguments = [];
             if (!TryTranslateAsEnumerableExpression(methodCallExpression.Object, out enumerableExpression)
                 && TranslationFailed(methodCallExpression.Object, Visit(methodCallExpression.Object), out sqlObject))
             {
@@ -1471,7 +1471,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 if (!abortTranslation)
                 {
                     translation = TranslateAggregateMethod(
-                        enumerableExpression, methodCallExpression.Method, new List<SqlExpression>());
+                        enumerableExpression, methodCallExpression.Method, []);
 
                     return translation != null;
                 }
@@ -2151,7 +2151,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             IComplexProperty firstComplexProperty)
         {
             ParameterExpression = parameterExpression;
-            ComplexPropertyChain = new List<IComplexProperty> { firstComplexProperty };
+            ComplexPropertyChain = [firstComplexProperty];
         }
 
         public SqlParameterExpression ParameterExpression { get; }

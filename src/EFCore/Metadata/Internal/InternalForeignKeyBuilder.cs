@@ -255,12 +255,12 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
 
             if (Metadata.GetPropertiesConfigurationSource() == configurationSource)
             {
-                dependentProperties = Array.Empty<Property>();
+                dependentProperties = [];
             }
 
             if (Metadata.GetPrincipalKeyConfigurationSource() == configurationSource)
             {
-                principalProperties = Array.Empty<Property>();
+                principalProperties = [];
             }
         }
 
@@ -1390,8 +1390,8 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             return null;
         }
 
-        var dependentProperties = (IReadOnlyList<Property>)Array.Empty<Property>();
-        var principalProperties = (IReadOnlyList<Property>)Array.Empty<Property>();
+        var dependentProperties = (IReadOnlyList<Property>)[];
+        var principalProperties = (IReadOnlyList<Property>)[];
         var builder = this;
         if (shouldInvert)
         {
@@ -1528,7 +1528,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         {
             foreach (var referencingForeignKey in key.GetReferencingForeignKeys().ToList())
             {
-                detachedRelationships ??= new List<RelationshipSnapshot>();
+                detachedRelationships ??= [];
 
                 detachedRelationships.Add(InternalEntityTypeBuilder.DetachRelationship(referencingForeignKey));
             }
@@ -1678,7 +1678,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ? null
                 : ReplaceForeignKey(
                     configurationSource,
-                    dependentProperties: Array.Empty<Property>());
+                    dependentProperties: []);
         }
 
         properties = dependentEntityType.Builder.GetActualProperties(properties, configurationSource)!;
@@ -1710,7 +1710,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             configurationSource,
             dependentEntityTypeBuilder: dependentEntityType.Builder,
             dependentProperties: properties,
-            principalProperties: resetPrincipalKey ? Array.Empty<Property>() : null,
+            principalProperties: resetPrincipalKey ? [] : null,
             principalEndConfigurationSource: configurationSource,
             removeCurrent: !Property.AreCompatible(properties, Metadata.DeclaringEntityType));
     }
@@ -1891,7 +1891,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ? null
                 : ReplaceForeignKey(
                     configurationSource,
-                    principalProperties: Array.Empty<Property>());
+                    principalProperties: []);
         }
 
         properties = Metadata.PrincipalEntityType.Builder.GetActualProperties(properties, configurationSource)!;
@@ -1922,7 +1922,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
         return ReplaceForeignKey(
             configurationSource,
             principalProperties: properties,
-            dependentProperties: resetDependent ? Array.Empty<Property>() : null,
+            dependentProperties: resetDependent ? [] : null,
             principalEndConfigurationSource: configurationSource,
             oldNameDependentProperties: oldNameDependentProperties,
             removeCurrent: oldNameDependentProperties != null);

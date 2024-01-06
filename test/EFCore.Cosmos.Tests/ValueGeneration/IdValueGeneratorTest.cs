@@ -30,9 +30,9 @@ public class IdValueGeneratorTest
             Create(new IntStructEntity { Id = new IntStruct(1) }),
             Create(new IntStructEntity { Id = new IntStruct(2) }),
             Create(new BytesStructEntity { Id = new BytesStruct(null) }),
-            Create(new BytesStructEntity { Id = new BytesStruct(new byte[0]) }),
-            Create(new BytesStructEntity { Id = new BytesStruct(new byte[] { 1 }) }),
-            Create(new BytesStructEntity { Id = new BytesStruct(new byte[] { 2, 2 }) }),
+            Create(new BytesStructEntity { Id = new BytesStruct([]) }),
+            Create(new BytesStructEntity { Id = new BytesStruct([1]) }),
+            Create(new BytesStructEntity { Id = new BytesStruct([2, 2]) }),
         };
 
         Assert.Equal(ids.Count, new HashSet<string>(ids.Concat(ids)).Count);

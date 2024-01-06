@@ -58,8 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 false,
                 BindingFlags.Default,
                 null,
-                new object[]
-                {
+                [
                     reportHandler,
                     new Hashtable
                     {
@@ -72,7 +71,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                         { "toolsVersion", ProductInfo.GetVersion() },
                         { "remainingArguments", RemainingArguments }
                     }
-                },
+                ],
                 null,
                 null);
         }
@@ -87,7 +86,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 false,
                 BindingFlags.Default,
                 null,
-                new[] { _executor, resultHandler, arguments },
+                [_executor, resultHandler, arguments],
                 null,
                 null);
 

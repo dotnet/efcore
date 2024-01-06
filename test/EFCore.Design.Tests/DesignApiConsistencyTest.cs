@@ -16,10 +16,10 @@ public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsiste
 
     public class DesignApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new() { typeof(DesignTimeServiceCollectionExtensions) };
+        public override HashSet<Type> FluentApiTypes { get; } = [typeof(DesignTimeServiceCollectionExtensions)];
 
-        public override HashSet<MethodInfo> NonVirtualMethods { get; } = new()
-        {
+        public override HashSet<MethodInfo> NonVirtualMethods { get; } =
+        [
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
                 .GetProperty(nameof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper.FormatProvider)).GetMethod,
             typeof(CSharpEntityTypeGeneratorBase.ToStringInstanceHelper)
@@ -32,6 +32,6 @@ public class DesignApiConsistencyTest(DesignApiConsistencyTest.DesignApiConsiste
                 .GetProperty(nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.FormatProvider)).SetMethod,
             typeof(CSharpDbContextGeneratorBase.ToStringInstanceHelper).GetMethod(
                 nameof(CSharpDbContextGeneratorBase.ToStringInstanceHelper.ToStringWithCulture))
-        };
+        ];
     }
 }

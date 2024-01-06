@@ -1186,8 +1186,8 @@ public class SqliteConnectionTest
             c => Assert.Equal(DbMetaDataColumnNames.NumberOfIdentifierParts, c.ColumnName));
         Assert.Collection(
             dataTable.Rows.Cast<DataRow>().Select(r => r.ItemArray),
-            r => Assert.Equal(new object[] { DbMetaDataCollectionNames.MetaDataCollections, 0, 0 }, r),
-            r => Assert.Equal(new object[] { DbMetaDataCollectionNames.ReservedWords, 0, 0 }, r));
+            r => Assert.Equal([DbMetaDataCollectionNames.MetaDataCollections, 0, 0], r),
+            r => Assert.Equal([DbMetaDataCollectionNames.ReservedWords, 0, 0], r));
     }
 
     [Fact]

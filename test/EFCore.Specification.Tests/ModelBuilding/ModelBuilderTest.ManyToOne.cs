@@ -1199,7 +1199,7 @@ public abstract partial class ModelBuilderTest
         {
             public Guid Id { get; set; }
             private readonly string _email = string.Empty;
-            private readonly List<Profile13300> _profiles = new();
+            private readonly List<Profile13300> _profiles = [];
         }
 
         protected class Profile13300

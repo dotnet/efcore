@@ -319,7 +319,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
 
                 owner.OwnedCollection = addNew
-                    ? new List<Owned> { new(), new() }
+                    ? [new(), new()]
                     : new List<Owned>();
 
                 Assert.Equal(
@@ -545,11 +545,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
 
                 owner.OwnedCollection = addNew
-                    ? new List<OwnedWithKey> { new() { Bar = "OfGold" }, new() { Bar = "OfSoap" } }
+                    ? [new() { Bar = "OfGold" }, new() { Bar = "OfSoap" }]
                     : new List<OwnedWithKey>();
 
                 owner.OwnedCollectionPrivateKey = addNew
-                    ? new List<OwnedWithPrivateKey> { new() { Bar = "OfChocolate" }, new() { Bar = "OfLead" } }
+                    ? [new() { Bar = "OfChocolate" }, new() { Bar = "OfLead" }]
                     : new List<OwnedWithPrivateKey>();
 
                 if (async)

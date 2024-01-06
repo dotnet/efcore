@@ -1670,9 +1670,9 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
     {
         private int _index;
 
-        private readonly int[] _ints = { 977, 988, 999 };
+        private readonly int[] _ints = [977, 988, 999];
 
-        private readonly string[] _strings = { "<977>", "<988>", "<999>" };
+        private readonly string[] _strings = ["<977>", "<988>", "<999>"];
         public override int FieldCount { get; }
         public override int RecordsAffected { get; }
         public override bool HasRows { get; }

@@ -31,7 +31,7 @@ public class Team
 
     private readonly ILazyLoader _loader;
     private readonly ObservableCollection<Driver> _drivers = new ObservableCollectionListSource<Driver>();
-    private readonly ObservableCollection<Sponsor> _sponsors = new();
+    private readonly ObservableCollection<Sponsor> _sponsors = [];
     private Engine _engine;
     private Chassis _chassis;
     private Gearbox _gearbox;

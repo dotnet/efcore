@@ -212,7 +212,7 @@ public class ConventionDispatcherTest
     private class ModelAnnotationChangedConvention(bool terminate) : IModelAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessModelAnnotationChanged(
             IConventionModelBuilder propertyBuilder,
@@ -469,7 +469,7 @@ public class ConventionDispatcherTest
     private class EntityTypeMemberIgnoredConvention(bool terminate) : IEntityTypeMemberIgnoredConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessEntityTypeMemberIgnored(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -564,7 +564,7 @@ public class ConventionDispatcherTest
     private class EntityTypeBaseTypeChangedConvention(bool terminate) : IEntityTypeBaseTypeChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<Type> Calls = new();
+        public readonly List<Type> Calls = [];
 
         public void ProcessEntityTypeBaseTypeChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -658,7 +658,7 @@ public class ConventionDispatcherTest
     private class DiscriminatorPropertySetConvention(bool terminate) : IDiscriminatorPropertySetConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessDiscriminatorPropertySet(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -760,7 +760,7 @@ public class ConventionDispatcherTest
     private class EntityTypePrimaryKeyChangedConvention(bool terminate) : IEntityTypePrimaryKeyChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessEntityTypePrimaryKeyChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -856,7 +856,7 @@ public class ConventionDispatcherTest
     private class EntityTypeAnnotationChangedConvention(bool terminate) : IEntityTypeAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessEntityTypeAnnotationChanged(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -932,7 +932,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyAddedConvention(bool terminate) : IForeignKeyAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessForeignKeyAdded(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1006,7 +1006,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyRemovedConvention(bool terminate) : IForeignKeyRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessForeignKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -1132,7 +1132,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyPrincipalEndChangedConvention(bool terminate) : IForeignKeyPrincipalEndChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessForeignKeyPrincipalEndChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1198,7 +1198,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyPropertiesChangedConvention(bool terminate) : IForeignKeyPropertiesChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<(string, string)> Calls = new();
+        public readonly List<(string, string)> Calls = [];
 
         public void ProcessForeignKeyPropertiesChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1313,7 +1313,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyUniquenessChangedConvention(bool terminate) : IForeignKeyUniquenessChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessForeignKeyUniquenessChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1412,7 +1412,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyRequirednessChangedConvention(bool terminate) : IForeignKeyRequirednessChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessForeignKeyRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1513,7 +1513,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyDependentRequirednessChangedConvention(bool terminate) : IForeignKeyDependentRequirednessChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessForeignKeyDependentRequirednessChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1614,7 +1614,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyOwnershipChangedConvention(bool terminate) : IForeignKeyOwnershipChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessForeignKeyOwnershipChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1712,7 +1712,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyAnnotationChangedConvention(bool terminate) : IForeignKeyAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         /// <summary>
         ///     Called after an annotation is changed on a foreign key.
@@ -1801,7 +1801,7 @@ public class ConventionDispatcherTest
     private class ForeignKeyNullNavigationSetConvention(bool terminate) : IForeignKeyNullNavigationSetConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessForeignKeyNullNavigationSet(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -1881,7 +1881,7 @@ public class ConventionDispatcherTest
     private class NavigationAddedConvention(bool terminate) : INavigationAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessNavigationAdded(
             IConventionNavigationBuilder navigationBuilder,
@@ -1992,7 +1992,7 @@ public class ConventionDispatcherTest
     private class NavigationAnnotationChangedConvention(bool terminate) : INavigationAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public virtual void ProcessNavigationAnnotationChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
@@ -2087,7 +2087,7 @@ public class ConventionDispatcherTest
     private class NavigationRemovedConvention(bool terminate) : INavigationRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessNavigationRemoved(
             IConventionEntityTypeBuilder sourceEntityTypeBuilder,
@@ -2160,7 +2160,7 @@ public class ConventionDispatcherTest
     private class SkipNavigationAddedConvention(bool terminate) : ISkipNavigationAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessSkipNavigationAdded(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
@@ -2261,7 +2261,7 @@ public class ConventionDispatcherTest
     private class SkipNavigationAnnotationChangedConvention(bool terminate) : ISkipNavigationAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public virtual void ProcessSkipNavigationAnnotationChanged(
             IConventionSkipNavigationBuilder navigationBuilder,
@@ -2351,7 +2351,7 @@ public class ConventionDispatcherTest
     private class SkipNavigationForeignKeyChangedConvention(bool terminate) : ISkipNavigationForeignKeyChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public virtual void ProcessSkipNavigationForeignKeyChanged(
             IConventionSkipNavigationBuilder navigationBuilder,
@@ -2447,7 +2447,7 @@ public class ConventionDispatcherTest
     private class SkipNavigationInverseChangedConvention(bool terminate) : ISkipNavigationInverseChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public virtual void ProcessSkipNavigationInverseChanged(
             IConventionSkipNavigationBuilder skipNavigationBuilder,
@@ -2518,7 +2518,7 @@ public class ConventionDispatcherTest
     private class SkipNavigationRemovedConvention(bool terminate) : ISkipNavigationRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessSkipNavigationRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -2588,7 +2588,7 @@ public class ConventionDispatcherTest
     private class TriggerAddedConvention(bool terminate) : ITriggerAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessTriggerAdded(IConventionTriggerBuilder triggerBuilder, IConventionContext<IConventionTriggerBuilder> context)
         {
@@ -2655,7 +2655,7 @@ public class ConventionDispatcherTest
     private class TriggerRemovedConvention(bool terminate) : ITriggerRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessTriggerRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -2729,7 +2729,7 @@ public class ConventionDispatcherTest
     private class KeyAddedConvention(bool terminate) : IKeyAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessKeyAdded(IConventionKeyBuilder keyBuilder, IConventionContext<IConventionKeyBuilder> context)
         {
@@ -2790,7 +2790,7 @@ public class ConventionDispatcherTest
     private class KeyRemovedConvention(bool terminate) : IKeyRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessKeyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -2888,7 +2888,7 @@ public class ConventionDispatcherTest
     private class KeyAnnotationChangedConvention(bool terminate) : IKeyAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessKeyAnnotationChanged(
             IConventionKeyBuilder keyBuilder,
@@ -2963,7 +2963,7 @@ public class ConventionDispatcherTest
     private class IndexAddedConvention(bool terminate) : IIndexAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessIndexAdded(IConventionIndexBuilder indexBuilder, IConventionContext<IConventionIndexBuilder> context)
         {
@@ -3029,7 +3029,7 @@ public class ConventionDispatcherTest
     private class IndexRemovedConvention(bool terminate) : IIndexRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessIndexRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
@@ -3125,7 +3125,7 @@ public class ConventionDispatcherTest
     private class IndexUniquenessChangedConvention(bool terminate) : IIndexUniquenessChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<bool> Calls = new();
+        public readonly List<bool> Calls = [];
 
         public void ProcessIndexUniquenessChanged(
             IConventionIndexBuilder indexBuilder,
@@ -3167,11 +3167,11 @@ public class ConventionDispatcherTest
 
         if (useBuilder)
         {
-            index.Builder.IsDescending(Array.Empty<bool>(), ConfigurationSource.Convention);
+            index.Builder.IsDescending([], ConfigurationSource.Convention);
         }
         else
         {
-            index.IsDescending = Array.Empty<bool>();
+            index.IsDescending = [];
         }
 
         if (useScope)
@@ -3181,21 +3181,21 @@ public class ConventionDispatcherTest
             scope!.Dispose();
         }
 
-        Assert.Equal(new[] { Array.Empty<bool>() }, convention1.Calls);
-        Assert.Equal(new[] { Array.Empty<bool>() }, convention2.Calls);
+        Assert.Equal([[]], convention1.Calls);
+        Assert.Equal([[]], convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         if (useBuilder)
         {
-            index.Builder.IsDescending(Array.Empty<bool>(), ConfigurationSource.Convention);
+            index.Builder.IsDescending([], ConfigurationSource.Convention);
         }
         else
         {
-            index.IsDescending = Array.Empty<bool>();
+            index.IsDescending = [];
         }
 
-        Assert.Equal(new[] { Array.Empty<bool>() }, convention1.Calls);
-        Assert.Equal(new[] { Array.Empty<bool>() }, convention2.Calls);
+        Assert.Equal([[]], convention1.Calls);
+        Assert.Equal([[]], convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         if (useBuilder)
@@ -3207,8 +3207,8 @@ public class ConventionDispatcherTest
             index.IsDescending = null;
         }
 
-        Assert.Equal(new[] { Array.Empty<bool>(), null }, convention1.Calls);
-        Assert.Equal(new[] { Array.Empty<bool>(), null }, convention2.Calls);
+        Assert.Equal([[], null], convention1.Calls);
+        Assert.Equal([[], null], convention2.Calls);
         Assert.Empty(convention3.Calls);
 
         Assert.Same(index, entityBuilder.Metadata.RemoveIndex(index.Properties));
@@ -3220,7 +3220,7 @@ public class ConventionDispatcherTest
     private class IndexSortOrderChangedConvention(bool terminate) : IIndexSortOrderChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<IReadOnlyList<bool>?> Calls = new();
+        public readonly List<IReadOnlyList<bool>?> Calls = [];
 
         public void ProcessIndexSortOrderChanged(
             IConventionIndexBuilder indexBuilder,
@@ -3317,7 +3317,7 @@ public class ConventionDispatcherTest
     private class IndexAnnotationChangedConvention(bool terminate) : IIndexAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessIndexAnnotationChanged(
             IConventionIndexBuilder indexBuilder,
@@ -3419,7 +3419,7 @@ public class ConventionDispatcherTest
     private class PropertyAddedConvention(bool terminate) : IPropertyAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
@@ -3555,7 +3555,7 @@ public class ConventionDispatcherTest
 
     private class PropertyNullabilityChangedConvention(bool terminate) : IPropertyNullabilityChangedConvention
     {
-        public readonly List<bool?> Calls = new();
+        public readonly List<bool?> Calls = [];
         private readonly bool _terminate = terminate;
 
         public void ProcessPropertyNullabilityChanged(
@@ -3652,7 +3652,7 @@ public class ConventionDispatcherTest
     private class PropertyFieldChangedConvention(bool terminate) : IPropertyFieldChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessPropertyFieldChanged(
             IConventionPropertyBuilder propertyBuilder,
@@ -3750,7 +3750,7 @@ public class ConventionDispatcherTest
     private class PropertyElementTypeChangedConvention(bool terminate) : IPropertyElementTypeChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<(object, object)> Calls = new();
+        public readonly List<(object, object)> Calls = [];
 
         public void ProcessPropertyElementTypeChanged(
             IConventionPropertyBuilder propertyBuilder,
@@ -3848,7 +3848,7 @@ public class ConventionDispatcherTest
     private class PropertyAnnotationChangedConvention(bool terminate) : IPropertyAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessPropertyAnnotationChanged(
             IConventionPropertyBuilder propertyBuilder,
@@ -3919,7 +3919,7 @@ public class ConventionDispatcherTest
     private class PropertyRemovedConvention(bool terminate) : IPropertyRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessPropertyRemoved(
             IConventionTypeBaseBuilder typeBaseBuilder,
@@ -4418,7 +4418,7 @@ public class ConventionDispatcherTest
     private class ComplexPropertyAddedConvention(bool terminate) : IComplexPropertyAddedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexPropertyAdded(
             IConventionComplexPropertyBuilder propertyBuilder,
@@ -4554,7 +4554,7 @@ public class ConventionDispatcherTest
 
     private class ComplexPropertyNullabilityChangedConvention(bool terminate) : IComplexPropertyNullabilityChangedConvention
     {
-        public readonly List<bool?> Calls = new();
+        public readonly List<bool?> Calls = [];
         private readonly bool _terminate = terminate;
 
         public void ProcessComplexPropertyNullabilityChanged(
@@ -4652,7 +4652,7 @@ public class ConventionDispatcherTest
     private class ComplexPropertyFieldChangedConvention(bool terminate) : IComplexPropertyFieldChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexPropertyFieldChanged(
             IConventionComplexPropertyBuilder propertyBuilder,
@@ -4750,7 +4750,7 @@ public class ConventionDispatcherTest
     private class ComplexPropertyAnnotationChangedConvention(bool terminate) : IComplexPropertyAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexPropertyAnnotationChanged(
             IConventionComplexPropertyBuilder propertyBuilder,
@@ -4821,7 +4821,7 @@ public class ConventionDispatcherTest
     private class ComplexPropertyRemovedConvention(bool terminate) : IComplexPropertyRemovedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexPropertyRemoved(
             IConventionTypeBaseBuilder typeBaseBuilder,
@@ -4919,7 +4919,7 @@ public class ConventionDispatcherTest
     private class ComplexTypeAnnotationChangedConvention(bool terminate) : IComplexTypeAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexTypeAnnotationChanged(
             IConventionComplexTypeBuilder propertyBuilder,
@@ -5020,7 +5020,7 @@ public class ConventionDispatcherTest
     private class ComplexTypeMemberIgnoredConvention(bool terminate) : IComplexTypeMemberIgnoredConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessComplexTypeMemberIgnored(
             IConventionComplexTypeBuilder complexTypeBuilder,
@@ -5118,7 +5118,7 @@ public class ConventionDispatcherTest
     private class ElementTypeAnnotationChangedConvention(bool terminate) : IElementTypeAnnotationChangedConvention
     {
         private readonly bool _terminate = terminate;
-        public readonly List<object> Calls = new();
+        public readonly List<object> Calls = [];
 
         public void ProcessElementTypeAnnotationChanged(
             IConventionElementTypeBuilder builder,
@@ -5258,7 +5258,7 @@ public class ConventionDispatcherTest
 
     private class ElementTypeNullabilityChangedConvention(bool terminate) : IElementTypeNullabilityChangedConvention
     {
-        public readonly List<bool?> Calls = new();
+        public readonly List<bool?> Calls = [];
         private readonly bool _terminate = terminate;
 
         public void ProcessElementTypeNullabilityChanged(

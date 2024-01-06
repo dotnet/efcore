@@ -218,7 +218,7 @@ public class CompiledModelSqlServerTest : CompiledModelRelationalTestBase
             {
                 eb.ToTable("PrincipalBase");
 
-                eb.HasIndex(new[] { "PrincipalBaseId" }, "PrincipalIndex")
+                eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
                     .IsUnique()
                     .IsClustered()
                     .IsCreatedOnline()

@@ -226,7 +226,7 @@ public class ValueConverterTest
             {
                 var converter = (ValueConverter)Activator.CreateInstance(
                     typeof(CastingConverter<,>).MakeGenericType(fromType, toType),
-                    new object[] { null });
+                    [null]);
 
                 var resultToProvider = Expression.Lambda<Func<object>>(
                         Expression.Convert(

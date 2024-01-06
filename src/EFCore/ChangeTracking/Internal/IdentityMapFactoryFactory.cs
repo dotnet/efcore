@@ -23,7 +23,7 @@ public class IdentityMapFactoryFactory
         => (Func<bool, IIdentityMap>)typeof(IdentityMapFactoryFactory)
             .GetMethod(nameof(CreateFactory), BindingFlags.NonPublic | BindingFlags.Static)!
             .MakeGenericMethod(key.GetKeyType())
-            .Invoke(null, new object[] { key })!;
+            .Invoke(null, [key])!;
 
     [UsedImplicitly]
     private static Func<bool, IIdentityMap> CreateFactory<TKey>(IKey key)

@@ -19,7 +19,7 @@ public class InjectStringFunctionExpressionMutator(DbContext context) : Expressi
         var i = random.Next(_expressionFinder.FoundExpressions.Count);
         var methodNames = new[] { nameof(string.ToLower), nameof(string.ToUpper), nameof(string.Trim) };
 
-        var methodInfos = methodNames.Select(n => typeof(string).GetRuntimeMethod(n, new Type[] { })).ToList();
+        var methodInfos = methodNames.Select(n => typeof(string).GetRuntimeMethod(n, [])).ToList();
         var methodInfo = methodInfos[random.Next(methodInfos.Count)];
 
         var injector = new ExpressionInjector(_expressionFinder.FoundExpressions[i], e => Expression.Call(e, methodInfo));
@@ -32,7 +32,7 @@ public class InjectStringFunctionExpressionMutator(DbContext context) : Expressi
         private bool _insideLambda;
         private bool _insideEFProperty;
 
-        public List<Expression> FoundExpressions { get; } = new();
+        public List<Expression> FoundExpressions { get; } = [];
 
         public override Expression Visit(Expression node)
         {

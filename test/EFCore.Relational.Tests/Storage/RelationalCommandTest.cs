@@ -359,7 +359,7 @@ public class RelationalCommandTest
             CreateOptions());
 
         DbDataReader CreateDbDataReader()
-            => new FakeDbDataReader(new[] { "Id", "Name" }, new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
+            => new FakeDbDataReader(["Id", "Name"], new List<object[]> { new object[] { 1, "Foo" }, new object[] { 2, "Bar" } });
 
         var fakeDbConnection = new FakeDbConnection(
             ConnectionString,
@@ -876,7 +876,7 @@ public class RelationalCommandTest
                         TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                     new ExceptionDetector()),
                 commandText,
-                Array.Empty<IRelationalParameter>());
+                []);
 
         private class ThrowingRelationalReader : RelationalDataReader
         {
@@ -1375,7 +1375,7 @@ public class RelationalCommandTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
-            parameters ?? Array.Empty<IRelationalParameter>());
+            parameters ?? []);
 
     private Task<RelationalDataReader> ExecuteReader(
         IRelationalCommand relationalCommand,
@@ -1388,5 +1388,5 @@ public class RelationalCommandTest
     private Task<bool> Read(RelationalDataReader relationalReader, bool async)
         => async ? relationalReader.ReadAsync() : Task.FromResult(relationalReader.Read());
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

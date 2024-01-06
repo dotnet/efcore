@@ -16,7 +16,7 @@ public abstract class EventIdTestBase
         => TestEventLogging(
             eventIdType,
             loggerExtensionType,
-            loggerMethodTypes: Array.Empty<Type>(),
+            loggerMethodTypes: [],
             loggerDefinitions,
             fakeFactories,
             serviceCollectionBuilder: services => new EntityFrameworkServicesBuilder(services).TryAddCoreServices(),

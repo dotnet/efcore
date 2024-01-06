@@ -99,7 +99,7 @@ public class CosmosDatabaseCreator : IDatabaseCreator
 
             if (!containers.TryGetValue(container, out var mappedTypes))
             {
-                mappedTypes = new List<IEntityType>();
+                mappedTypes = [];
                 containers[container] = mappedTypes;
             }
 

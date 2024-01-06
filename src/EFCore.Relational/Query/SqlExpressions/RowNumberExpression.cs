@@ -26,7 +26,7 @@ public class RowNumberExpression : SqlExpression
         RelationalTypeMapping? typeMapping)
         : base(typeof(long), typeMapping)
     {
-        Partitions = partitions ?? Array.Empty<SqlExpression>();
+        Partitions = partitions ?? [];
         Orderings = orderings;
     }
 

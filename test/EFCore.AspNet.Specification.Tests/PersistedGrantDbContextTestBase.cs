@@ -258,8 +258,8 @@ public abstract class PersistedGrantDbContextTestBase<TFixture> : IClassFixture<
     }
 
     protected virtual List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "IdentityServer4.EntityFramework.Entities.DeviceFlowCodes",
@@ -306,8 +306,8 @@ public abstract class PersistedGrantDbContextTestBase<TFixture> : IClassFixture<
                     "{'SubjectId', 'ClientId', 'Type'} ",
                     "{'SubjectId', 'SessionId', 'Type'} ",
                 },
-            },
-        };
+            }
+        ];
 
     protected PersistedGrantDbContext CreateContext()
         => Fixture.CreateContext();

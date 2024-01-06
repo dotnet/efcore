@@ -68,10 +68,10 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     private static readonly Dictionary<string, long[]> DefaultSequenceMinMax =
         new(StringComparer.OrdinalIgnoreCase)
         {
-            { "tinyint", new[] { 0L, 255L } },
-            { "smallint", new[] { -32768L, 32767L } },
-            { "int", new[] { -2147483648L, 2147483647L } },
-            { "bigint", new[] { -9223372036854775808L, 9223372036854775807L } }
+            { "tinyint", [0L, 255L] },
+            { "smallint", [-32768L, 32767L] },
+            { "int", [-2147483648L, 2147483647L] },
+            { "bigint", [-9223372036854775808L, 9223372036854775807L] }
         };
 
     private byte? _compatibilityLevel;

@@ -45,7 +45,7 @@ public class DesignTimeFlagTest
                 typeof(TestContext),
                 null,
                 null,
-                new[] { "A", "B" }));
+                ["A", "B"]));
 
         Assert.True(EF.IsDesignTime);
     }

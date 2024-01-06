@@ -2392,7 +2392,7 @@ public static class EntityFrameworkQueryableExtensions
                     Expression.Call(
                         instance: null,
                         method: IncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                        arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                        arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
     }
 
@@ -2407,7 +2407,7 @@ public static class EntityFrameworkQueryableExtensions
                     Expression.Call(
                         instance: null,
                         method: NotQuiteIncludeMethodInfo.MakeGenericMethod(typeof(TEntity), typeof(TProperty)),
-                        arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                        arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
     internal static readonly MethodInfo ThenIncludeAfterEnumerableMethodInfo
@@ -2455,7 +2455,7 @@ public static class EntityFrameworkQueryableExtensions
                         instance: null,
                         method: ThenIncludeAfterEnumerableMethodInfo.MakeGenericMethod(
                             typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                        arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
     /// <summary>
@@ -2484,7 +2484,7 @@ public static class EntityFrameworkQueryableExtensions
                         instance: null,
                         method: ThenIncludeAfterReferenceMethodInfo.MakeGenericMethod(
                             typeof(TEntity), typeof(TPreviousProperty), typeof(TProperty)),
-                        arguments: new[] { source.Expression, Expression.Quote(navigationPropertyPath) }))
+                        arguments: [source.Expression, Expression.Quote(navigationPropertyPath)]))
                 : source);
 
     private sealed class IncludableQueryable<TEntity, TProperty> : IIncludableQueryable<TEntity, TProperty>, IAsyncEnumerable<TEntity>
@@ -2777,13 +2777,13 @@ public static class EntityFrameworkQueryableExtensions
 
     internal static readonly MethodInfo TagWithMethodInfo
         = typeof(EntityFrameworkQueryableExtensions).GetMethod(
-            nameof(TagWith), new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string) })!;
+            nameof(TagWith), [typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string)])!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
             .GetMethod(
                 nameof(TagWithCallSite),
-                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
+                [typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int)])!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations
@@ -3164,8 +3164,8 @@ public static class EntityFrameworkQueryableExtensions
                     instance: null,
                     method: operatorMethodInfo,
                     arguments: expression == null
-                        ? new[] { source.Expression }
-                        : new[] { source.Expression, expression }),
+                        ? [source.Expression]
+                        : [source.Expression, expression]),
                 cancellationToken);
         }
 

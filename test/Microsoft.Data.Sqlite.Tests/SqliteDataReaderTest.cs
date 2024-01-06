@@ -117,9 +117,9 @@ public class SqliteDataReaderTest
                 }
 
                 Assert.Equal(3, list.Count);
-                Assert.Equal(new byte[6] { 0x42, 0x7E, 0x57, 0x43, 0, 0 }, list[0]);
-                Assert.Equal(new byte[6] { 0x53, 0x8F, 0x68, 0x54, 0, 0 }, list[1]);
-                Assert.Equal(new byte[6] { 0x64, 0x9A, 0x79, 0x65, 0, 0 }, list[2]);
+                Assert.Equal([0x42, 0x7E, 0x57, 0x43, 0, 0], list[0]);
+                Assert.Equal([0x53, 0x8F, 0x68, 0x54, 0, 0], list[1]);
+                Assert.Equal([0x64, 0x9A, 0x79, 0x65, 0, 0], list[2]);
             }
         }
     }
@@ -140,7 +140,7 @@ public class SqliteDataReaderTest
 
                 var buffer = new byte[2];
                 reader.GetBytes(1, 1, buffer, 0, buffer.Length);
-                Assert.Equal(new byte[] { 0x02, 0x03 }, buffer);
+                Assert.Equal([0x02, 0x03], buffer);
             }
         }
     }
@@ -233,7 +233,7 @@ public class SqliteDataReaderTest
 
                 var buffer = new char[2];
                 reader.GetChars(0, 1, buffer, 0, buffer.Length);
-                Assert.Equal(new char[2] { 'ê', 's' }, buffer);
+                Assert.Equal(new[] { 'ê', 's' }, buffer);
             }
         }
     }
@@ -441,7 +441,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -468,7 +468,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -496,7 +496,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -524,7 +524,7 @@ public class SqliteDataReaderTest
                     var buffer = new byte[4];
                     var bytesRead = sourceStream.Read(buffer, 0, 4);
                     Assert.Equal(4, bytesRead);
-                    Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    Assert.Equal([0x01, 0x02, 0x03, 0x04], buffer);
                 }
             }
         }
@@ -873,8 +873,7 @@ public class SqliteDataReaderTest
     [Fact]
     public void GetFieldValue_of_byteArray_empty()
         => GetFieldValue_works(
-            "SELECT X'';",
-            new byte[0]);
+            "SELECT X'';", Array.Empty<byte>());
 
     [Fact]
     public void GetFieldValue_of_byteArray_throws_when_null()
@@ -1456,7 +1455,7 @@ public class SqliteDataReaderTest
                 var hasData = reader.Read();
                 Assert.True(hasData);
 
-                var values = new object[0];
+                var values = Array.Empty<object>();
                 Assert.Throws<IndexOutOfRangeException>(() => reader.GetValues(values));
             }
         }

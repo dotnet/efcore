@@ -18,8 +18,8 @@ public class SelectExpression : Expression
     private const string RootAlias = "c";
 
     private IDictionary<ProjectionMember, Expression> _projectionMapping = new Dictionary<ProjectionMember, Expression>();
-    private readonly List<ProjectionExpression> _projection = new();
-    private readonly List<OrderingExpression> _orderings = new();
+    private readonly List<ProjectionExpression> _projection = [];
+    private readonly List<OrderingExpression> _orderings = [];
 
     private ValueConverter _partitionKeyValueConverter;
     private Expression _partitionKeyValue;

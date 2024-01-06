@@ -84,7 +84,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding
                         e.HasKey("Id");
                         ((EntityType)e.Metadata).ConstructorBinding = new ConstructorBinding(
                             typeof(object).GetConstructor(Type.EmptyTypes)!,
-                            Array.Empty<ParameterBinding>());
+                            []);
                     }),
                 expectedExceptionMessage: DesignStrings.CompiledModelConstructorBinding("Lazy", "Customize()", "LazyEntityType"));
 

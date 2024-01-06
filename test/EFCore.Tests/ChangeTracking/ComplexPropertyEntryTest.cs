@@ -118,7 +118,7 @@ public class ComplexPropertyEntryTest
 
         modified = complexEntry.Properties.Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
 
-        Assert.Equal(new List<string> { "Species", "Subspecies" }, modified);
+        Assert.Equal(["Species", "Subspecies"], modified);
     }
 
     [ConditionalFact]
@@ -128,13 +128,12 @@ public class ComplexPropertyEntryTest
         var complexEntry = context.Add(CreateYogurt()).ComplexProperty(e => e.Culture);
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Rating",
                 "Species",
                 "Subspecies",
                 "Validation"
-            },
+            ],
             complexEntry.Properties.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -179,13 +178,13 @@ public class ComplexPropertyEntryTest
         var complexEntry = context.Add(CreateYogurt()).ComplexProperty(e => e.Culture);
 
         Assert.Equal(
-            new List<string> { "License", "Manufacturer" },
+            ["License", "Manufacturer"],
             complexEntry.ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         var nestedComplexEntry = complexEntry.ComplexProperty(e => e.License);
 
         Assert.Equal(
-            new List<string> { "Tag", "Tog" },
+            ["Tag", "Tog"],
             nestedComplexEntry.ComplexProperties.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -303,7 +302,7 @@ public class ComplexPropertyEntryTest
 
         modified = complexEntry.Properties.Where(e => e.IsModified).Select(e => e.Metadata.Name).ToList();
 
-        Assert.Equal(new List<string> { "Species", "Subspecies" }, modified);
+        Assert.Equal(["Species", "Subspecies"], modified);
     }
 
     [ConditionalFact]
@@ -313,13 +312,12 @@ public class ComplexPropertyEntryTest
         var complexEntry = context.Add(CreateYogurt()).ComplexProperty(e => e.FieldCulture);
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "Rating",
                 "Species",
                 "Subspecies",
                 "Validation"
-            },
+            ],
             complexEntry.Properties.Select(e => e.Metadata.Name).ToList());
     }
 
@@ -364,13 +362,13 @@ public class ComplexPropertyEntryTest
         var complexEntry = context.Add(CreateYogurt()).ComplexProperty(e => e.FieldCulture);
 
         Assert.Equal(
-            new List<string> { "License", "Manufacturer" },
+            ["License", "Manufacturer"],
             complexEntry.ComplexProperties.Select(e => e.Metadata.Name).ToList());
 
         var nestedComplexEntry = complexEntry.ComplexProperty(e => e.License);
 
         Assert.Equal(
-            new List<string> { "Tag", "Tog" },
+            ["Tag", "Tog"],
             nestedComplexEntry.ComplexProperties.Select(e => e.Metadata.Name).ToList());
     }
 

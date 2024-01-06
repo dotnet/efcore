@@ -12,15 +12,15 @@ public class QueryFilterFuncletizationInMemoryTest(QueryFilterFuncletizationInMe
         // Default value of TenantIds is null InExpression over null values throws
         Assert.Throws<ArgumentNullException>(() => context.Set<ListFilter>().ToList());
 
-        context.TenantIds = new List<int>();
+        context.TenantIds = [];
         var query = context.Set<ListFilter>().ToList();
         Assert.Empty(query);
 
-        context.TenantIds = new List<int> { 1 };
+        context.TenantIds = [1];
         query = context.Set<ListFilter>().ToList();
         Assert.Single(query);
 
-        context.TenantIds = new List<int> { 2, 3 };
+        context.TenantIds = [2, 3];
         query = context.Set<ListFilter>().ToList();
         Assert.Equal(2, query.Count);
     }

@@ -30,7 +30,7 @@ public class QueryAsserter(
 
     private readonly bool _ignoreEntryCount = ignoreEntryCount;
     private const bool ProceduralQueryGeneration = false;
-    private readonly List<string> _includePath = new();
+    private readonly List<string> _includePath = [];
     private readonly ISetSource _expectedData = queryFixture.GetExpectedData();
 
     public virtual Func<DbContext, ISetSource> SetSourceCreator { get; } = queryFixture.GetSetSourceCreator();
@@ -1693,11 +1693,11 @@ public class QueryAsserter(
                 i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
         {
             _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
-                .Invoke(this, new[] { expected, actual, expectedIncludes, assertOrder });
+                .Invoke(this, [expected, actual, expectedIncludes, assertOrder]);
         }
         else
         {
-            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, new[] { expected, actual, expectedIncludes });
+            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, [expected, actual, expectedIncludes]);
         }
     }
 
@@ -1738,7 +1738,7 @@ public class QueryAsserter(
         {
             var elementType = expectedList[i].GetType();
             _assertIncludeEntity.MakeGenericMethod(elementType)
-                .Invoke(this, new object[] { expectedList[i], actualList[i], expectedIncludes });
+                .Invoke(this, [expectedList[i], actualList[i], expectedIncludes]);
         }
     }
 
@@ -1758,7 +1758,7 @@ public class QueryAsserter(
                     this,
                     BindingFlags.NonPublic,
                     null,
-                    new[] { expectedIncludedNavigation, expectedInclude },
+                    [expectedIncludedNavigation, expectedInclude],
                     CultureInfo.CurrentCulture);
 
                 assertOrder = (bool)expectedInclude.GetType()

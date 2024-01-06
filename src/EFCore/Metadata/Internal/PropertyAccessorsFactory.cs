@@ -24,7 +24,7 @@ public class PropertyAccessorsFactory
     public virtual PropertyAccessors Create(IPropertyBase propertyBase)
         => (PropertyAccessors)GenericCreate
             .MakeGenericMethod(propertyBase.ClrType)
-            .Invoke(null, new object[] { propertyBase })!;
+            .Invoke(null, [propertyBase])!;
 
     private static readonly MethodInfo GenericCreate
         = typeof(PropertyAccessorsFactory).GetTypeInfo().GetDeclaredMethod(nameof(CreateGeneric))!;

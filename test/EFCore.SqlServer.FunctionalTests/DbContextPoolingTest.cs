@@ -196,7 +196,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
         public string CustomerId { get; set; }
         public string CompanyName { get; set; }
         public ILazyLoader LazyLoader { get; set; }
-        public ObservableCollection<Order> Orders { get; } = new();
+        public ObservableCollection<Order> Orders { get; } = [];
     }
 
     public class Order

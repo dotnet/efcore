@@ -1372,7 +1372,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var preBatched = operation.Sql
             .Replace("\\\n", "")
             .Replace("\\\r\n", "")
-            .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            .Split(["\r\n", "\n"], StringSplitOptions.None);
 
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)

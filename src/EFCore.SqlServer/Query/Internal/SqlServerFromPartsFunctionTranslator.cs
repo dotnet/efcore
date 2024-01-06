@@ -16,18 +16,17 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
     private static readonly MethodInfo DateFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.DateFromParts),
-            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int) })!;
+            [typeof(DbFunctions), typeof(int), typeof(int), typeof(int)])!;
 
     private static readonly MethodInfo DateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.DateTimeFromParts),
-            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
+            [typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)])!;
 
     private static readonly MethodInfo DateTime2FromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.DateTime2FromParts),
-            new[]
-            {
+            [
                 typeof(DbFunctions),
                 typeof(int),
                 typeof(int),
@@ -37,13 +36,12 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
                 typeof(int),
                 typeof(int),
                 typeof(int)
-            })!;
+            ])!;
 
     private static readonly MethodInfo DateTimeOffsetFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.DateTimeOffsetFromParts),
-            new[]
-            {
+            [
                 typeof(DbFunctions),
                 typeof(int),
                 typeof(int),
@@ -55,17 +53,17 @@ public class SqlServerFromPartsFunctionTranslator : IMethodCallTranslator
                 typeof(int),
                 typeof(int),
                 typeof(int)
-            })!;
+            ])!;
 
     private static readonly MethodInfo SmallDateTimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.SmallDateTimeFromParts),
-            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
+            [typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)])!;
 
     private static readonly MethodInfo TimeFromPartsMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.TimeFromParts),
-            new[] { typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int) })!;
+            [typeof(DbFunctions), typeof(int), typeof(int), typeof(int), typeof(int), typeof(int)])!;
 
     private static readonly IDictionary<MethodInfo, (string FunctionName, string ReturnType)> MethodFunctionMapping
         = new Dictionary<MethodInfo, (string, string)>

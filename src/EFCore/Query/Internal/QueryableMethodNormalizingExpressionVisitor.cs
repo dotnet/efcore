@@ -306,7 +306,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         var enumerableMethod = methodCallExpression.Method;
         var enumerableParameters = enumerableMethod.GetParameters();
-        var genericTypeArguments = Array.Empty<Type>();
+        Type[] genericTypeArguments = [];
         if (enumerableMethod.Name is nameof(Enumerable.Min) or nameof(Enumerable.Max))
         {
             genericTypeArguments = new Type[methodCallExpression.Arguments.Count];
@@ -705,7 +705,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
     {
-        private readonly List<ParameterExpression> _allowedParameters = new();
+        private readonly List<ParameterExpression> _allowedParameters = [];
         private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
         private ParameterExpression? _rootParameter;

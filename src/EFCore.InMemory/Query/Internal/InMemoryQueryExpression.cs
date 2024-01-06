@@ -34,8 +34,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
     private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
-    private readonly List<Expression> _clientProjections = new();
-    private readonly List<Expression> _projectionMappingExpressions = new();
+    private readonly List<Expression> _clientProjections = [];
+    private readonly List<Expression> _projectionMappingExpressions = [];
 
     private InMemoryQueryExpression(
         Expression serverQueryExpression,

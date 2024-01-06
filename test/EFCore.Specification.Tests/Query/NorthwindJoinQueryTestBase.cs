@@ -230,7 +230,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                   join id in ids on e.EmployeeID equals id
                   select e.EmployeeID);
 
-        ids = new uint[] { 3 };
+        ids = [3];
         await AssertQueryScalar(
             async,
             ss => from e in ss.Set<Employee>()
@@ -272,7 +272,7 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       join id in ids on e.EmployeeID equals id
                       select e.EmployeeID));
 
-        ids = new byte[] { 3 };
+        ids = [3];
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,

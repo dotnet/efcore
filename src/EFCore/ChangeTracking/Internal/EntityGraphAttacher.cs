@@ -155,7 +155,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                 internalEntityEntry,
                 node.InboundNavigation, node.SourceEntry?.GetInfrastructure()))
         {
-            (_visited ??= new HashSet<object>()).Add(internalEntityEntry.Entity);
+            (_visited ??= []).Add(internalEntityEntry.Entity);
         }
         else
         {

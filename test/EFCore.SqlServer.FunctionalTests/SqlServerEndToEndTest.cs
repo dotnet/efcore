@@ -64,9 +64,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 nownNum1, nownNum2, numNum1, numNum2, adNum1, adNum2, anNum1, anNum2,
                 byteNownNum1, byteNownNum2, byteNum1, byteNum2, byteAdNum1, byteAdNum2, byteAnNum1, byteAnNum2);
 
-            preSaveValues = new[] { numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id };
+            preSaveValues = [numNum1.Id, numNum2.Id, adNum1.Id, adNum2.Id, anNum1.Id, anNum2.Id];
 
-            preSaveByteValues = new[] { byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id };
+            preSaveByteValues = [byteNum1.Id, byteNum2.Id, byteAdNum1.Id, byteAdNum2.Id, byteAnNum1.Id, byteAnNum2.Id];
 
             context.SaveChanges();
         }
@@ -982,7 +982,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public byte[] RowVersion { get; set; } = [];
     }
 
     public class Student
@@ -999,7 +999,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         public virtual ICollection<Course> Courses { get; set; } = new List<Course>();
 
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public byte[] RowVersion { get; set; } = [];
     }
 
     public enum Grade
@@ -1021,7 +1021,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         public virtual Student Student { get; set; } = new();
 
-        public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+        public byte[] RowVersion { get; set; } = [];
     }
 
     private class UniversityContext(DbContextOptions options) : DbContext(options)
@@ -1612,7 +1612,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 OrULong = 888,
                 OrUSkint = 8888888,
                 OrUShort = 888888888888888,
-                AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
+                AndChew = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
             })).Entity;
         var blog2 = (await context.AddAsync(
             new TBlog
@@ -1635,7 +1635,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             })).Entity;
         await context.SaveChangesAsync();
 
-        return new[] { blog1, blog2 };
+        return [blog1, blog2];
     }
 
     private class NorthwindContext(DbContextOptions options) : DbContext(options)

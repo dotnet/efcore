@@ -39,7 +39,7 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
                 .MakeGenericMethod(
                     foreignKey.PrincipalColumns.First().ProviderClrType,
                     foreignKey.Columns.First().ProviderClrType)
-                .Invoke(null, new object[] { foreignKey, _valueConverterSelector })!
+                .Invoke(null, [foreignKey, _valueConverterSelector])!
             : new CompositeRowForeignKeyValueFactory(foreignKey, _valueConverterSelector);
 
     private static readonly MethodInfo CreateMethod = typeof(RowForeignKeyValueFactoryFactory).GetTypeInfo()

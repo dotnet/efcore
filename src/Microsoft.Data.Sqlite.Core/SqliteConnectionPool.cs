@@ -13,7 +13,7 @@ namespace Microsoft.Data.Sqlite
         private static readonly Random _random = new();
 
         private readonly SqliteConnectionStringBuilder _connectionOptions;
-        private readonly List<SqliteConnectionInternal> _connections = new();
+        private readonly List<SqliteConnectionInternal> _connections = [];
         private readonly Stack<SqliteConnectionInternal> _warmPool = new();
         private readonly Stack<SqliteConnectionInternal> _coldPool = new();
 

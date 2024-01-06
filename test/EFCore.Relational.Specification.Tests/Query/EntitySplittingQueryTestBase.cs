@@ -2516,7 +2516,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
     private static readonly MethodInfo _filteredIncludeMethodInfo =
         typeof(EntitySplittingQueryTestBase).GetTypeInfo().GetDeclaredMethod(nameof(FilteredInclude));
 
-    private readonly List<string> _includePath = new();
+    private readonly List<string> _includePath = [];
 
     protected void AssertInclude<TEntity>(
         TEntity expected,
@@ -2547,11 +2547,11 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                 i => i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>)))
         {
             _assertIncludeCollectionMethodInfo.MakeGenericMethod(expectedType.GenericTypeArguments[0])
-                .Invoke(this, new[] { expected, actual, expectedIncludes, assertOrder });
+                .Invoke(this, [expected, actual, expectedIncludes, assertOrder]);
         }
         else
         {
-            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, new[] { expected, actual, expectedIncludes });
+            _assertIncludeEntity.MakeGenericMethod(expectedType).Invoke(this, [expected, actual, expectedIncludes]);
         }
     }
 
@@ -2592,7 +2592,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
         {
             var elementType = expectedList[i].GetType();
             _assertIncludeEntity.MakeGenericMethod(elementType)
-                .Invoke(this, new object[] { expectedList[i], actualList[i], expectedIncludes });
+                .Invoke(this, [expectedList[i], actualList[i], expectedIncludes]);
         }
     }
 
@@ -2612,7 +2612,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                     this,
                     BindingFlags.NonPublic,
                     null,
-                    new[] { expectedIncludedNavigation, expectedInclude },
+                    [expectedIncludedNavigation, expectedInclude],
                     CultureInfo.CurrentCulture);
 
                 assertOrder = (bool)expectedInclude.GetType()

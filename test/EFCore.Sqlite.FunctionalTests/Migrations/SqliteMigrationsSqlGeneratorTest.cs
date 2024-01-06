@@ -31,8 +31,8 @@ public class SqliteMigrationsSqlGeneratorTest : MigrationsSqlGeneratorTestBase
             {
                 Table = "Pie",
                 PrincipalTable = "Flavor",
-                Columns = new[] { "FlavorId" },
-                PrincipalColumns = new[] { "Id" }
+                Columns = ["FlavorId"],
+                PrincipalColumns = ["Id"]
             });
 
         AssertSql(
@@ -138,15 +138,15 @@ CREATE TABLE "TestLineBreaks" (
                         IsNullable = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = new[] { "Id" } },
-                UniqueConstraints = { new AddUniqueConstraintOperation { Columns = new[] { "SSN" } } },
+                PrimaryKey = new AddPrimaryKeyOperation { Name = pkName, Columns = ["Id"] },
+                UniqueConstraints = { new AddUniqueConstraintOperation { Columns = ["SSN"] } },
                 ForeignKeys =
                 {
                     new AddForeignKeyOperation
                     {
-                        Columns = new[] { "EmployerId" },
+                        Columns = ["EmployerId"],
                         PrincipalTable = "Companies",
-                        PrincipalColumns = new[] { "Id" }
+                        PrincipalColumns = ["Id"]
                     }
                 }
             });
@@ -367,7 +367,7 @@ ALTER TABLE "People" RENAME TO "Person";
                         ["Autoincrement"] = true
                     }
                 },
-                PrimaryKey = new AddPrimaryKeyOperation { Columns = new[] { "Id" } }
+                PrimaryKey = new AddPrimaryKeyOperation { Columns = ["Id"] }
             });
 
         AssertSql(
@@ -695,7 +695,7 @@ SELECT changes();
                 {
                     Table = "Blogs",
                     Name = "PK_Blogs",
-                    Columns = new[] { "Id" }
+                    Columns = ["Id"]
                 }));
 
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddPrimaryKeyOperation"), ex.Message);
@@ -710,7 +710,7 @@ SELECT changes();
                 {
                     Table = "Blogs",
                     Name = "AK_Blogs_Uri",
-                    Columns = new[] { "Uri" }
+                    Columns = ["Uri"]
                 }));
 
         Assert.Equal(SqliteStrings.InvalidMigrationOperation("AddUniqueConstraintOperation"), ex.Message);

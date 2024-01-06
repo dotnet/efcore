@@ -216,7 +216,7 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
         => AssertExpression(
             MemberInit(
                 New(
-                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    typeof(Blog).GetConstructor([typeof(string)])!,
                     Constant("foo")),
                 Bind(typeof(Blog).GetProperty(nameof(Blog.PublicProperty))!, Constant(8)),
                 Bind(typeof(Blog).GetField(nameof(Blog.PublicField))!, Constant(9))),
@@ -233,7 +233,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
         => AssertExpression(
             MemberInit(
                 New(
-                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    typeof(Blog).GetConstructor([typeof(string)])!,
                     Constant("foo")),
                 ListBind(
                     typeof(Blog).GetProperty(nameof(Blog.ListOfInts))!,
@@ -255,7 +255,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
         => AssertExpression(
             MemberInit(
                 New(
-                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    typeof(Blog).GetConstructor([typeof(string)])!,
                     Constant("foo")),
                 MemberBind(
                     typeof(Blog).GetProperty(nameof(Blog.Details))!,
@@ -378,7 +378,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
         AssertStatement(
             Block(
                 variables: new[] { inParam, outParam, refParam },
-                Call(WithInOutRefParameterMethod, new[] { inParam, outParam, refParam })),
+                Call(WithInOutRefParameterMethod, [inParam, outParam, refParam])),
             """
 {
     int inParam;
@@ -393,7 +393,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
     public void Instantiation()
         => AssertExpression(
             New(
-                typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                typeof(Blog).GetConstructor([typeof(string)])!,
                 Constant("foo")),
             """new LinqToCSharpTranslatorTest.Blog("foo")""");
 
@@ -401,7 +401,7 @@ new LinqToCSharpTranslatorTest.Blog("foo")
     public void Instantiation_with_required_properties_and_parameterless_constructor()
         => AssertExpression(
             New(
-                typeof(BlogWithRequiredProperties).GetConstructor(Array.Empty<Type>())!),
+                typeof(BlogWithRequiredProperties).GetConstructor([])!),
             """
 Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>()
 """);
@@ -411,14 +411,14 @@ Activator.CreateInstance<LinqToCSharpTranslatorTest.BlogWithRequiredProperties>(
         => Assert.Throws<NotImplementedException>(
             () => AssertExpression(
                 New(
-                    typeof(BlogWithRequiredProperties).GetConstructor(new[] { typeof(string) })!,
+                    typeof(BlogWithRequiredProperties).GetConstructor([typeof(string)])!,
                     Constant("foo")), ""));
 
     [Fact]
     public void Instantiation_with_required_properties_with_SetsRequiredMembers()
         => AssertExpression(
             New(
-                typeof(BlogWithRequiredProperties).GetConstructor(new[] { typeof(string), typeof(int) })!,
+                typeof(BlogWithRequiredProperties).GetConstructor([typeof(string), typeof(int)])!,
                 Constant("foo"), Constant(8)),
             """new LinqToCSharpTranslatorTest.BlogWithRequiredProperties("foo", 8)""");
 
@@ -1174,7 +1174,7 @@ f1 = (int i) =>
                 Assign(
                     b,
                     New(
-                        typeof(Blog).GetConstructor(new[] { typeof(int), typeof(int) })!,
+                        typeof(Blog).GetConstructor([typeof(int), typeof(int)])!,
                         Call(FooMethod),
                         Block(
                             Call(BarMethod),
@@ -1287,7 +1287,7 @@ new int[]
                     Block(
                         Call(FooMethod),
                         Call(BarMethod))),
-                Array.Empty<ParameterExpression>()),
+                []),
             """
 () =>
 {
@@ -1301,7 +1301,7 @@ new int[]
         => AssertExpression(
             Lambda<Func<int>>(
                 Block(Block(Constant(8))),
-                Array.Empty<ParameterExpression>()),
+                []),
             """
 () =>
 {
@@ -1832,7 +1832,7 @@ catch
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            new RelationalTypeMappingSourceDependencies(new IRelationalTypeMappingSourcePlugin[0]));
+            new RelationalTypeMappingSourceDependencies([]));
 
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();
@@ -1935,7 +1935,7 @@ catch
 #pragma warning restore IDE0044 // Add readonly modifier
         private int PrivateProperty { get; set; }
 
-        public List<int> ListOfInts { get; set; } = new();
+        public List<int> ListOfInts { get; set; } = [];
         public BlogDetails Details { get; set; } = new();
 #pragma warning restore CS0649
 #pragma warning restore CS0169
@@ -1948,7 +1948,7 @@ catch
             => 3;
 
         public static readonly ConstructorInfo Constructor
-            = typeof(Blog).GetConstructor(Array.Empty<Type>())!;
+            = typeof(Blog).GetConstructor([])!;
 
         public static int Static_method_on_nested_type()
             => 3;
@@ -1957,7 +1957,7 @@ catch
     public class BlogDetails
     {
         public int Foo { get; set; }
-        public List<int> ListOfInts { get; set; } = new();
+        public List<int> ListOfInts { get; set; } = [];
     }
 
     private class BlogWithRequiredProperties
@@ -2000,14 +2000,14 @@ catch
 internal class LinqExpressionToRoslynTranslatorExtensionType
 {
     public static readonly ConstructorInfo Constructor
-        = typeof(LinqExpressionToRoslynTranslatorExtensionType).GetConstructor(Array.Empty<Type>())!;
+        = typeof(LinqExpressionToRoslynTranslatorExtensionType).GetConstructor([])!;
 }
 
 internal static class LinqExpressionToRoslynTranslatorExtensions
 {
     public static readonly MethodInfo SomeExtensionMethod
         = typeof(LinqExpressionToRoslynTranslatorExtensions).GetMethod(
-            nameof(SomeExtension), new[] { typeof(LinqExpressionToRoslynTranslatorExtensionType) })!;
+            nameof(SomeExtension), [typeof(LinqExpressionToRoslynTranslatorExtensionType)])!;
 
     public static int SomeExtension(this LinqExpressionToRoslynTranslatorExtensionType? someType)
         => 3;

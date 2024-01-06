@@ -124,7 +124,7 @@ public class InMemoryModelBuilderGenericTest : InMemoryModelBuilderTest
             ModifierGroupHeader child1,
             ModifierGroupHeader child2)
         {
-            Assert.Equal(new[] { child1, child2 }, parent.ModifierGroupHeader1.ToArray());
+            Assert.Equal([child1, child2], parent.ModifierGroupHeader1.ToArray());
             Assert.Same(parent, child1.ModifierGroupHeader2);
             Assert.Same(parent, child2.ModifierGroupHeader2);
 

@@ -167,7 +167,7 @@ namespace Microsoft.Data.Sqlite
         /// <value>The collection of parameters used by the command.</value>
         /// <seealso href="https://docs.microsoft.com/dotnet/standard/data/sqlite/parameters">Parameters</seealso>
         public new virtual SqliteParameterCollection Parameters
-            => _parameters ??= new SqliteParameterCollection();
+            => _parameters ??= [];
 
         /// <summary>
         ///     Gets the collection of parameters used by the command.

@@ -138,7 +138,7 @@ public class RuntimeKey : RuntimeAnnotatableBase, IRuntimeKey
         => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
             ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
                 .MakeGenericMethod(key.GetKeyType())
-                .Invoke(key, new object[0])!);
+                .Invoke(key, [])!);
 
     private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
         .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;

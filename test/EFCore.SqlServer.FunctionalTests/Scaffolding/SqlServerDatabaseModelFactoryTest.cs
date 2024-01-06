@@ -1743,8 +1743,7 @@ CREATE TABLE PrimaryKeyTable (
                 Assert.Equal("PrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__PrimaryK", pk.Name);
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
-                Assert.Equal(
-                    new List<string> { "Id" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -1789,8 +1788,7 @@ CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
                 Assert.Equal("UniqueConstraint", uniqueConstraint.Table.Name);
                 Assert.StartsWith("UQ__UniqueCo", uniqueConstraint.Name);
                 Assert.Null(uniqueConstraint[SqlServerAnnotationNames.Clustered]);
-                Assert.Equal(
-                    new List<string> { "Name" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Name"], uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -1984,10 +1982,8 @@ CREATE TABLE SecondDependent (
                 Assert.Equal("FirstDependent", firstFk.Table.Name);
                 Assert.Equal("dbo", firstFk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", firstFk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId" }, firstFk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, firstFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId"], firstFk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], firstFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, firstFk.OnDelete);
 
                 var secondFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "SecondDependent").ForeignKeys);
@@ -1997,10 +1993,8 @@ CREATE TABLE SecondDependent (
                 Assert.Equal("SecondDependent", secondFk.Table.Name);
                 Assert.Equal("dbo", secondFk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", secondFk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "Id" }, secondFk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], secondFk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], secondFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.NoAction, secondFk.OnDelete);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -2068,8 +2062,7 @@ DROP TABLE PrincipalTable;");
     [ConditionalFact]
     public void Triggers()
         => Test(
-            new[]
-            {
+            [
                 @"
 CREATE TABLE SomeTable (
     Id int IDENTITY PRIMARY KEY,
@@ -2091,7 +2084,7 @@ CREATE TRIGGER Trigger2
 BEGIN
     UPDATE SomeTable SET Baz=Foo WHERE Id IN (SELECT INSERTED.Id FROM INSERTED);
 END;"
-            },
+            ],
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
             (dbModel, scaffoldingFactory) =>
@@ -4600,8 +4593,7 @@ CREATE TABLE CompositePrimaryKeyTable (
                 Assert.Equal("dbo", pk!.Table!.Schema);
                 Assert.Equal("CompositePrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__Composit", pk.Name);
-                Assert.Equal(
-                    new List<string> { "Id2", "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2", "Id1"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -4654,8 +4646,7 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
                 Assert.Equal("NonClusteredPrimaryKeyTable", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
-                Assert.Equal(
-                    new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id1"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -4699,8 +4690,7 @@ CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClustere
                 Assert.Equal("NonClusteredPrimaryKeyTableWithClusteredIndex", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
-                Assert.Equal(
-                    new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id1"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4726,8 +4716,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
                 Assert.Equal("NonClusteredPrimaryKeyTableWithClusteredConstraint", pk.Table.Name);
                 Assert.StartsWith("PK__NonClust", pk.Name);
                 Assert.False((bool)pk[SqlServerAnnotationNames.Clustered]!);
-                Assert.Equal(
-                    new List<string> { "Id1" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id1"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4753,8 +4742,7 @@ CREATE TABLE PrimaryKeyName (
                 Assert.Equal("PrimaryKeyName", pk.Table.Name);
                 Assert.StartsWith("MyPK", pk.Name);
                 Assert.Null(pk[SqlServerAnnotationNames.Clustered]);
-                Assert.Equal(
-                    new List<string> { "Id2" }, pk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], pk.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4784,8 +4772,7 @@ CREATE TABLE CompositeUniqueConstraintTable (
                 Assert.Equal("dbo", uniqueConstraint.Table.Schema);
                 Assert.Equal("CompositeUniqueConstraintTable", uniqueConstraint.Table.Name);
                 Assert.Equal("UX", uniqueConstraint.Name);
-                Assert.Equal(
-                    new List<string> { "Id2", "Id1" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2", "Id1"], uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4811,8 +4798,7 @@ CREATE TABLE ClusteredUniqueConstraintTable (
                 Assert.Equal("ClusteredUniqueConstraintTable", uniqueConstraint.Table.Name);
                 Assert.StartsWith("UQ__Clustere", uniqueConstraint.Name);
                 Assert.True((bool)uniqueConstraint[SqlServerAnnotationNames.Clustered]!);
-                Assert.Equal(
-                    new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4838,8 +4824,7 @@ CREATE TABLE UniqueConstraintName (
                 Assert.Equal("dbo", uniqueConstraint.Table.Schema);
                 Assert.Equal("UniqueConstraintName", uniqueConstraint.Table.Name);
                 Assert.Equal("MyUC", uniqueConstraint.Name);
-                Assert.Equal(
-                    new List<string> { "Id2" }, uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], uniqueConstraint.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4870,8 +4855,7 @@ CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
                 Assert.Equal("dbo", index.Table!.Schema);
                 Assert.Equal("CompositeIndexTable", index.Table.Name);
                 Assert.Equal("IX_COMPOSITE", index.Name);
-                Assert.Equal(
-                    new List<string> { "Id2", "Id1" }, index.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2", "Id1"], index.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
 
@@ -4919,8 +4903,7 @@ CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
                 Assert.Equal("ClusteredIndexTable", index.Table.Name);
                 Assert.Equal("IX_CLUSTERED", index.Name);
                 Assert.True((bool)index[SqlServerAnnotationNames.Clustered]!);
-                Assert.Equal(
-                    new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], index.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4949,8 +4932,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
                 Assert.Equal("IX_UNIQUE", index.Name);
                 Assert.True(index.IsUnique);
                 Assert.Null(index.Filter);
-                Assert.Equal(
-                    new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], index.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -4978,8 +4960,7 @@ CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
                 Assert.Equal("FilteredIndexTable", index.Table.Name);
                 Assert.Equal("IX_UNIQUE", index.Name);
                 Assert.Equal("([Id2]>(10))", index.Filter);
-                Assert.Equal(
-                    new List<string> { "Id2" }, index.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], index.Columns.Select(ic => ic.Name).ToList());
 
                 var model = scaffoldingFactory.Create(dbModel, new());
                 Assert.Equal(1, model.GetEntityTypes().Count());
@@ -5111,10 +5092,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", fk.Table.Name);
                 Assert.Equal("dbo", fk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId1", "ForeignKeyId2" }, fk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id1", "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId1", "ForeignKeyId2"], fk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id1", "Id2"], fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -5205,10 +5184,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", principalFk.Table.Name);
                 Assert.Equal("dbo", principalFk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", principalFk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId1" }, principalFk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId1"], principalFk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], principalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, principalFk.OnDelete);
 
                 var anotherPrincipalFk = Assert.Single(foreignKeys.Where(f => f.PrincipalTable.Name == "AnotherPrincipalTable"));
@@ -5218,10 +5195,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", anotherPrincipalFk.Table.Name);
                 Assert.Equal("dbo", anotherPrincipalFk.PrincipalTable.Schema);
                 Assert.Equal("AnotherPrincipalTable", anotherPrincipalFk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId2" }, anotherPrincipalFk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, anotherPrincipalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId2"], anotherPrincipalFk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], anotherPrincipalFk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, anotherPrincipalFk.OnDelete);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -5321,10 +5296,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", fk.Table.Name);
                 Assert.Equal("dbo", fk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id2" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId"], fk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id2"], fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -5406,10 +5379,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", fk.Table.Name);
                 Assert.Equal("dbo", fk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId"], fk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.Cascade, fk.OnDelete);
                 Assert.Equal("MYFK", fk.Name);
 
@@ -5444,10 +5415,8 @@ CREATE TABLE DependentTable (
                 Assert.Equal("DependentTable", fk.Table.Name);
                 Assert.Equal("dbo", fk.PrincipalTable.Schema);
                 Assert.Equal("PrincipalTable", fk.PrincipalTable.Name);
-                Assert.Equal(
-                    new List<string> { "ForeignKeyId" }, fk.Columns.Select(ic => ic.Name).ToList());
-                Assert.Equal(
-                    new List<string> { "Id" }, fk.PrincipalColumns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["ForeignKeyId"], fk.Columns.Select(ic => ic.Name).ToList());
+                Assert.Equal(["Id"], fk.PrincipalColumns.Select(ic => ic.Name).ToList());
                 Assert.Equal(ReferentialAction.SetNull, fk.OnDelete);
 
                 var model = scaffoldingFactory.Create(dbModel, new());
@@ -5689,7 +5658,7 @@ DROP TABLE TestViewDefinition;");
         Action<DatabaseModel, IScaffoldingModelFactory> asserter,
         string? cleanupSql)
         => Test(
-            string.IsNullOrEmpty(createSql) ? Array.Empty<string>() : new[] { createSql },
+            string.IsNullOrEmpty(createSql) ? [] : [createSql],
             tables,
             schemas,
             asserter,

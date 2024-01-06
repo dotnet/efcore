@@ -91,7 +91,7 @@ public abstract class ToSqlQueryTestBase : NonSharedModelTestBase
     {
         public long Id { get; set; }
         public string Name { get; set; } = null!;
-        public List<Post> Posts { get; } = new();
+        public List<Post> Posts { get; } = [];
         public PostStat? PostStat { get; set; }
     }
 

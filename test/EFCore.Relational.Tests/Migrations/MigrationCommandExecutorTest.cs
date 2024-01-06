@@ -404,5 +404,5 @@ public class MigrationCommandExecutorTest
                     TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
                 new ExceptionDetector()),
             commandText,
-            parameters ?? Array.Empty<IRelationalParameter>());
+            parameters ?? []);
 }

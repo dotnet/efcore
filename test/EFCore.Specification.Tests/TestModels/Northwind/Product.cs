@@ -11,7 +11,7 @@ public class Product
 
     public Product()
     {
-        OrderDetails = new List<OrderDetail>();
+        OrderDetails = [];
     }
 
     public int ProductID

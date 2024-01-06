@@ -20,10 +20,10 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     private static readonly MethodInfo StringStartsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringEndsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqliteSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;

@@ -82,7 +82,7 @@ public class ValueComparerTest
 
     private static ValueComparer CompareTest(Type type, object value1, object value2, int? hashCode, bool toNullable)
     {
-        var comparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { false });
+        var comparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [false]);
         if (toNullable)
         {
             comparer = ToNonNullNullableComparer(comparer);
@@ -98,7 +98,7 @@ public class ValueComparerTest
 
         Assert.Equal(hashCode ?? value1.GetHashCode(), comparer.GetHashCode(value1));
 
-        var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), new object[] { true });
+        var keyComparer = (ValueComparer)Activator.CreateInstance(typeof(ValueComparer<>).MakeGenericType(type), [true]);
         if (toNullable)
         {
             keyComparer = ToNonNullNullableComparer(keyComparer);

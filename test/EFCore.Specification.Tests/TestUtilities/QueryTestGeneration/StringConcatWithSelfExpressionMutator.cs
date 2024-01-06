@@ -21,7 +21,7 @@ public class StringConcatWithSelfExpressionMutator(DbContext context) : Expressi
         var stringConcatMethodInfo
             = typeof(string).GetRuntimeMethod(
                 nameof(string.Concat),
-                new[] { typeof(string), typeof(string) });
+                [typeof(string), typeof(string)]);
 
         var injector = new ExpressionInjector(_expressionFinder.FoundExpressions[i], e => Expression.Add(e, e, stringConcatMethodInfo));
 
@@ -32,7 +32,7 @@ public class StringConcatWithSelfExpressionMutator(DbContext context) : Expressi
     {
         private bool _insideLambda;
 
-        public List<Expression> FoundExpressions { get; } = new();
+        public List<Expression> FoundExpressions { get; } = [];
 
         public override Expression Visit(Expression node)
         {

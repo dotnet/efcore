@@ -144,7 +144,7 @@ public abstract class AdHocQuerySplittingQueryTestBase : NonSharedModelTestBase
 
         public void Seed()
         {
-            Add(new Parent { Id = "Parent1", Children1 = new List<Child> { new(), new() } });
+            Add(new Parent { Id = "Parent1", Children1 = [new(), new()] });
             SaveChanges();
         }
 

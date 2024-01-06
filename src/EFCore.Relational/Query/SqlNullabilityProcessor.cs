@@ -37,8 +37,8 @@ public class SqlNullabilityProcessor
 
         _sqlExpressionFactory = dependencies.SqlExpressionFactory;
         UseRelationalNulls = useRelationalNulls;
-        _nonNullableColumns = new List<ColumnExpression>();
-        _nullValueColumns = new List<ColumnExpression>();
+        _nonNullableColumns = [];
+        _nullValueColumns = [];
         ParameterValues = null!;
     }
 
@@ -260,7 +260,7 @@ public class SqlNullabilityProcessor
             if (projection != item
                 && projections == selectExpression.Projection)
             {
-                projections = new List<ProjectionExpression>();
+                projections = [];
                 for (var j = 0; j < i; j++)
                 {
                     projections.Add(selectExpression.Projection[j]);
@@ -283,7 +283,7 @@ public class SqlNullabilityProcessor
             if (table != item
                 && tables == selectExpression.Tables)
             {
-                tables = new List<TableExpressionBase>();
+                tables = [];
                 for (var j = 0; j < i; j++)
                 {
                     tables.Add(selectExpression.Tables[j]);
@@ -315,7 +315,7 @@ public class SqlNullabilityProcessor
             if (groupingKey != item
                 && groupBy == selectExpression.GroupBy)
             {
-                groupBy = new List<SqlExpression>();
+                groupBy = [];
                 for (var j = 0; j < i; j++)
                 {
                     groupBy.Add(selectExpression.GroupBy[j]);
@@ -347,7 +347,7 @@ public class SqlNullabilityProcessor
             if (ordering != item
                 && orderings == selectExpression.Orderings)
             {
-                orderings = new List<OrderingExpression>();
+                orderings = [];
                 for (var j = 0; j < i; j++)
                 {
                     orderings.Add(selectExpression.Orderings[j]);
@@ -748,7 +748,7 @@ public class SqlNullabilityProcessor
 
                     // No need for a projection with EXISTS, clear it to get SELECT 1
                     subquery = subquery.Update(
-                        Array.Empty<ProjectionExpression>(),
+                        [],
                         subquery.Tables,
                         subquery.Predicate,
                         subquery.GroupBy,
@@ -874,7 +874,7 @@ public class SqlNullabilityProcessor
             out List<SqlExpression> nullables)
         {
             List<SqlExpression>? processedValues = null;
-            (hasNull, nullables) = (false, new List<SqlExpression>());
+            (hasNull, nullables) = (false, []);
 
             if (inExpression.ValuesParameter is SqlParameterExpression valuesParameter)
             {
@@ -884,7 +884,7 @@ public class SqlNullabilityProcessor
                 var typeMapping = inExpression.ValuesParameter.TypeMapping;
                 var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
 
-                processedValues = new List<SqlExpression>();
+                processedValues = [];
 
                 foreach (var value in values)
                 {

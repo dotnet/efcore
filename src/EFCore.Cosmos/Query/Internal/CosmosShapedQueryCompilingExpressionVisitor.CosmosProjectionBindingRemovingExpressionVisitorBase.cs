@@ -54,7 +54,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = new Dictionary<Expression, Expression>();
 
         private List<IncludeExpression> _pendingIncludes
-            = new();
+            = [];
 
         private static readonly MethodInfo ToObjectWithSerializerMethodInfo
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase)
@@ -328,7 +328,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             shaperExpressions.RemoveAt(shaperExpressions.Count - 1);
 
             var includesToProcess = _pendingIncludes;
-            _pendingIncludes = new List<IncludeExpression>();
+            _pendingIncludes = [];
 
             foreach (var include in includesToProcess)
             {
@@ -565,7 +565,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 .GetDeclaredMethod(nameof(PopulateCollection));
 
         private static readonly MethodInfo IsAssignableFromMethodInfo
-            = typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.IsAssignableFrom), new[] { typeof(IReadOnlyEntityType) })!;
+            = typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.IsAssignableFrom), [typeof(IReadOnlyEntityType)])!;
 
         private static TCollection PopulateCollection<TEntity, TCollection>(
             IClrCollectionAccessor accessor,

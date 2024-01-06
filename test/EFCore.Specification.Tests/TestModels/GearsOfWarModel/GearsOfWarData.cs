@@ -110,15 +110,15 @@ public class GearsOfWarData : ISetSource
             {
                 Id = 1,
                 Name = "Delta",
-                Banner = new byte[] { 0x00, 0x01 },
-                Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 }
+                Banner = [0x00, 0x01],
+                Banner5 = [0x04, 0x05, 0x06, 0x07, 0x08]
             },
             new()
             {
                 Id = 2,
                 Name = "Kilo",
-                Banner = new byte[] { 0x02, 0x03 },
-                Banner5 = new byte[] { 0x04, 0x05, 0x06, 0x07, 0x08 }
+                Banner = [0x02, 0x03],
+                Banner5 = [0x04, 0x05, 0x06, 0x07, 0x08]
             }
         };
 
@@ -535,14 +535,14 @@ public class GearsOfWarData : ISetSource
             gears[3]
         };
 
-        cities[0].BornGears = new List<Gear> { gears[4] };
-        cities[1].BornGears = new List<Gear> { gears[0] };
-        cities[2].BornGears = new List<Gear> { gears[1] };
-        cities[3].BornGears = new List<Gear> { gears[2], gears[3] };
-        cities[0].StationedGears = new List<Gear> { gears[1], gears[3] };
-        cities[1].StationedGears = new List<Gear> { gears[0] };
-        cities[2].StationedGears = new List<Gear>();
-        cities[3].StationedGears = new List<Gear> { gears[2] };
+        cities[0].BornGears = [gears[4]];
+        cities[1].BornGears = [gears[0]];
+        cities[2].BornGears = [gears[1]];
+        cities[3].BornGears = [gears[2], gears[3]];
+        cities[0].StationedGears = [gears[1], gears[3]];
+        cities[1].StationedGears = [gears[0]];
+        cities[2].StationedGears = [];
+        cities[3].StationedGears = [gears[2]];
 
         weapons[0].Owner = gears[4];
         weapons[0].OwnerFullName = gears[4].FullName;
@@ -589,10 +589,7 @@ public class GearsOfWarData : ISetSource
         ((LocustHorde)factions[0]).Commander = ((LocustCommander)locustLeaders[3]);
         ((LocustHorde)factions[1]).Commander = ((LocustCommander)locustLeaders[5]);
 
-        locustHighCommands[0].Commanders = new List<LocustCommander>
-        {
-            (LocustCommander)locustLeaders[3], (LocustCommander)locustLeaders[5]
-        };
+        locustHighCommands[0].Commanders = [(LocustCommander)locustLeaders[3], (LocustCommander)locustLeaders[5]];
 
         ((LocustCommander)locustLeaders[3]).HighCommand = locustHighCommands[0];
         ((LocustCommander)locustLeaders[3]).HighCommandId = 1;
@@ -605,13 +602,13 @@ public class GearsOfWarData : ISetSource
         IReadOnlyList<LocustLeader> locustLeaders,
         IReadOnlyList<Faction> factions)
     {
-        ((LocustHorde)factions[0]).Leaders = new List<LocustLeader>
-        {
+        ((LocustHorde)factions[0]).Leaders =
+        [
             locustLeaders[0],
             locustLeaders[1],
             locustLeaders[2],
             locustLeaders[3]
-        };
-        ((LocustHorde)factions[1]).Leaders = new List<LocustLeader> { locustLeaders[4], locustLeaders[5] };
+        ];
+        ((LocustHorde)factions[1]).Leaders = [locustLeaders[4], locustLeaders[5]];
     }
 }

@@ -45,8 +45,8 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Description = "ApiScope 1",
                 Required = true,
                 Emphasize = true,
-                UserClaims = new List<ApiScopeClaim>(),
-                Properties = new List<ApiScopeProperty>(),
+                UserClaims = [],
+                Properties = [],
             },
             new ApiScope
             {
@@ -55,8 +55,8 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Description = "ApiScope 2",
                 Required = true,
                 Emphasize = true,
-                UserClaims = new List<ApiScopeClaim>(),
-                Properties = new List<ApiScopeProperty>(),
+                UserClaims = [],
+                Properties = [],
             },
             new ApiScope
             {
@@ -65,8 +65,8 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Description = "ApiScope 3",
                 Required = true,
                 Emphasize = true,
-                UserClaims = new List<ApiScopeClaim>(),
-                Properties = new List<ApiScopeProperty>(),
+                UserClaims = [],
+                Properties = [],
             });
 
         await context.SaveChangesAsync();
@@ -200,14 +200,14 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Name = "ApiResource1",
                 DisplayName = "ApiResource 1",
                 Description = "ApiResource 1",
-                Scopes = new List<ApiResourceScope> { new() { Scope = "S1" }, new() { Scope = "S2" } }
+                Scopes = [new() { Scope = "S1" }, new() { Scope = "S2" }]
             },
             new ApiResource
             {
                 Name = "ApiResource2",
                 DisplayName = "ApiResource 2",
                 Description = "ApiResource 2",
-                Scopes = new List<ApiResourceScope> { new() { Scope = "S4" }, new() { Scope = "S5" } }
+                Scopes = [new() { Scope = "S4" }, new() { Scope = "S5" }]
             },
             new ApiResource
             {
@@ -245,8 +245,8 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
     }
 
     protected virtual List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "IdentityServer4.EntityFramework.Entities.ApiResource",
@@ -717,8 +717,8 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 {
                     "Navigation: IdentityResourceProperty.IdentityResource (IdentityResource) ToPrincipal IdentityResource Inverse: Properties",
                 },
-            },
-        };
+            }
+        ];
 
     protected ConfigurationDbContext CreateContext()
         => Fixture.CreateContext();

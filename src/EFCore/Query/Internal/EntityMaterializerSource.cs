@@ -227,13 +227,12 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
     private static readonly ConstructorInfo MaterializationInterceptionDataConstructor
         = typeof(MaterializationInterceptionData).GetDeclaredConstructor(
-            new[]
-            {
-                typeof(MaterializationContext),
+        [
+            typeof(MaterializationContext),
                 typeof(IEntityType),
                 typeof(QueryTrackingBehavior?),
                 typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
-            })!;
+        ])!;
 
     private static readonly MethodInfo CreatingInstanceMethod
         = typeof(IMaterializationInterceptor).GetMethod(nameof(IMaterializationInterceptor.CreatingInstance))!;
@@ -259,11 +258,11 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     private static readonly MethodInfo DictionaryAddMethod
         = typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>).GetMethod(
             nameof(Dictionary<IPropertyBase, object>.Add),
-            new[] { typeof(IPropertyBase), typeof((object, Func<MaterializationContext, object?>)) })!;
+            [typeof(IPropertyBase), typeof((object, Func<MaterializationContext, object?>))])!;
 
     private static readonly ConstructorInfo DictionaryConstructor
         = typeof(ValueTuple<object, Func<MaterializationContext, object?>>).GetConstructor(
-            new[] { typeof(object), typeof(Func<MaterializationContext, object?>) })!;
+            [typeof(object), typeof(Func<MaterializationContext, object?>)])!;
 
     private Expression CreateMaterializeExpression(
         List<Expression> blockExpressions,
@@ -540,7 +539,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                             blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo)
                     : CreateInterceptionMaterializeExpression(
                         entityType,
-                        new HashSet<IPropertyBase>(),
+                        [],
                         _materializationInterceptor,
                         bindingInfo,
                         constructorExpression,

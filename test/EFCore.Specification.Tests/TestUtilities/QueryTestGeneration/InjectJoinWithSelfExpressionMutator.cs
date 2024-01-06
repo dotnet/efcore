@@ -46,7 +46,7 @@ public class InjectJoinWithSelfExpressionMutator(DbContext context) : Expression
 
         private readonly InjectJoinWithSelfExpressionMutator _mutator = mutator;
 
-        public List<Expression> FoundExpressions { get; } = new();
+        public List<Expression> FoundExpressions { get; } = [];
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {

@@ -31,8 +31,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -58,8 +58,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -70,8 +70,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new IntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntStructKey(1))),
                 context.Set<IntStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -79,22 +79,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<IntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntStructKey { Id = 4 }))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new IntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new IntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey(101))),
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey(oneOhTwo))),
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey(104))),
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(new IntStructKey(oneOhFive))),
                 context.Set<IntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntStructKeyOptionalDependent>().Find(new IntStructKey(101)));
             Assert.Same(dependents[1], context.Set<IntStructKeyOptionalDependent>().Find(new IntStructKey(oneOhTwo)));
@@ -130,8 +130,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -157,8 +157,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -169,8 +169,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new ComparableIntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(1))),
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -178,15 +178,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 4 }))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new ComparableIntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new ComparableIntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(101))),
                 context.Set<ComparableIntStructKeyOptionalDependent>()
@@ -197,7 +197,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(oneOhFive))),
                 context.Set<ComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0], context.Set<ComparableIntStructKeyOptionalDependent>().Find(new ComparableIntStructKey(101)));
@@ -239,8 +239,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -266,8 +266,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -278,8 +278,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new GenericComparableIntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(1))),
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -288,15 +288,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(three)),
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 4 }))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new GenericComparableIntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new GenericComparableIntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableIntStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(101))),
                 context.Set<GenericComparableIntStructKeyOptionalDependent>()
@@ -307,7 +307,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableIntStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(oneOhFive))),
                 context.Set<GenericComparableIntStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
@@ -353,8 +353,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -380,8 +380,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -392,8 +392,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new IntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new IntStructKey { Id = 11 })),
                 context.Set<IntStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -401,15 +401,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                 context.Set<IntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new IntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new IntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new IntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = 111 })),
                 context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
                 context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneThirteen)),
@@ -417,7 +417,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
                 context.Set<IntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntStructKeyRequiredDependent>().Find(new IntStructKey { Id = 111 }));
             Assert.Same(dependents[1], context.Set<IntStructKeyRequiredDependent>().Find(new IntStructKey { Id = oneTwelve }));
@@ -453,8 +453,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -480,8 +480,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -492,8 +492,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new ComparableIntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 11 })),
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -502,15 +502,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<ComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new ComparableIntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new ComparableIntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })),
                 context.Set<ComparableIntStructKeyRequiredDependent>()
@@ -521,7 +521,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })),
                 context.Set<ComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0], context.Set<ComparableIntStructKeyRequiredDependent>().Find(new ComparableIntStructKey { Id = 111 }));
@@ -563,8 +563,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -590,8 +590,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -602,8 +602,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new GenericComparableIntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 11 })),
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -612,15 +612,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<GenericComparableIntStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new GenericComparableIntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new GenericComparableIntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableIntStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
                 context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(
@@ -631,7 +631,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
                 context.Set<GenericComparableIntStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
@@ -677,8 +677,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -704,8 +704,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -716,8 +716,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new IntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntClassKey(1))),
                 context.Set<IntClassKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -725,22 +725,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntClassKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<IntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new IntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new IntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id.Equals(new IntClassKey(101))),
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id.Equals(new IntClassKey(oneOhTwo))),
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id == new IntClassKey(104)),
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id == new IntClassKey(oneOhFive)),
                 context.Set<IntClassKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntClassKeyOptionalDependent>().Find(new IntClassKey(101)));
             Assert.Same(dependents[1], context.Set<IntClassKeyOptionalDependent>().Find(new IntClassKey(oneOhTwo)));
@@ -776,8 +776,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -803,8 +803,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -815,8 +815,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new EnumerableClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new EnumerableClassKey(1))),
                 context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -824,22 +824,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<EnumerableClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new EnumerableClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new EnumerableClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new EnumerableClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(new EnumerableClassKey(101))),
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(new EnumerableClassKey(oneOhTwo))),
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == new EnumerableClassKey(104)),
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == new EnumerableClassKey(oneOhFive)),
                 context.Set<EnumerableClassKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<EnumerableClassKeyOptionalDependent>().Find(new EnumerableClassKey(101)));
             Assert.Same(dependents[1], context.Set<EnumerableClassKeyOptionalDependent>().Find(new EnumerableClassKey(oneOhTwo)));
@@ -875,8 +875,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -902,8 +902,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -914,8 +914,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new BareIntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BareIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BareIntClassKey(1))),
                 context.Set<BareIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -923,22 +923,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BareIntClassKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<BareIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BareIntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new BareIntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new BareIntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id.Equals(new BareIntClassKey(101))),
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id.Equals(new BareIntClassKey(oneOhTwo))),
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id == new BareIntClassKey(104)),
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id == new BareIntClassKey(oneOhFive)),
                 context.Set<BareIntClassKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<BareIntClassKeyOptionalDependent>().Find(new BareIntClassKey(101)));
             Assert.Same(dependents[1], context.Set<BareIntClassKeyOptionalDependent>().Find(new BareIntClassKey(oneOhTwo)));
@@ -974,8 +974,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -1001,8 +1001,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -1013,8 +1013,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new ComparableIntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(1))),
                 context.Set<ComparableIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -1022,15 +1022,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntClassKeyPrincipal>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<ComparableIntClassKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new ComparableIntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new ComparableIntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntClassKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(101))),
                 context.Set<ComparableIntClassKeyOptionalDependent>()
@@ -1040,7 +1040,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntClassKeyOptionalDependent>()
                     .Single(e => e.Id == new ComparableIntClassKey(oneOhFive)),
                 context.Set<ComparableIntClassKeyOptionalDependent>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(
                 dependents[0], context.Set<ComparableIntClassKeyOptionalDependent>().Find(new ComparableIntClassKey(101)));
@@ -1079,8 +1079,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -1106,8 +1106,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -1116,10 +1116,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out BytesStructKeyOptionalDependent[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new BytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new BytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -1128,15 +1128,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(),
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new BytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new BytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new BytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new BytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BytesStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey(oneOhTwo))),
@@ -1145,14 +1145,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 104 } })),
                 context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(new BytesStructKey(oneOhFive))),
                 context.Set<BytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
-                dependents[0], context.Set<BytesStructKeyOptionalDependent>().Find(new BytesStructKey { Id = new byte[] { 101 } }));
+                dependents[0], context.Set<BytesStructKeyOptionalDependent>().Find(new BytesStructKey { Id = [101] }));
             Assert.Same(dependents[1], context.Set<BytesStructKeyOptionalDependent>().Find(new BytesStructKey(oneOhTwo)));
             Assert.Same(dependents[2], context.Set<BytesStructKeyOptionalDependent>().Find(oneOhThree));
             Assert.Same(
-                dependents[3], context.Find(typeof(BytesStructKeyOptionalDependent), new BytesStructKey { Id = new byte[] { 104 } }));
+                dependents[3], context.Find(typeof(BytesStructKeyOptionalDependent), new BytesStructKey { Id = [104] }));
             Assert.Same(dependents[4], context.Find(typeof(BytesStructKeyOptionalDependent), new BytesStructKey(oneOhFive)));
             Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyOptionalDependent), oneOhSix));
         }
@@ -1183,8 +1183,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -1213,8 +1213,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -1223,10 +1223,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out StructuralComparableBytesStructKeyOptionalDependent[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new StructuralComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new StructuralComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -1235,15 +1235,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(three)),
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new StructuralComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new StructuralComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new StructuralComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new StructuralComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(
@@ -1254,12 +1254,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhFive))),
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>()
-                    .Find(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new StructuralComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<StructuralComparableBytesStructKeyOptionalDependent>()
@@ -1269,7 +1269,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(StructuralComparableBytesStructKeyOptionalDependent),
-                    new StructuralComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    new StructuralComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -1305,8 +1305,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -1332,8 +1332,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -1342,10 +1342,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out ComparableBytesStructKeyOptionalDependent[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new ComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new ComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -1354,15 +1354,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Where(e => e.Id.Equals(three)).ToList().Single(),
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new ComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new ComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new ComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new ComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableBytesStructKeyOptionalDependent>().Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<ComparableBytesStructKeyOptionalDependent>()
@@ -1373,12 +1373,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableBytesStructKeyOptionalDependent>()
                     .Single(e => e.Id.Equals(new ComparableBytesStructKey(oneOhFive))),
                 context.Set<ComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<ComparableBytesStructKeyOptionalDependent>()
-                    .Find(new ComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new ComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<ComparableBytesStructKeyOptionalDependent>().Find(new ComparableBytesStructKey(oneOhTwo)));
@@ -1386,7 +1386,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Assert.Same(
                 dependents[3],
                 context.Find(
-                    typeof(ComparableBytesStructKeyOptionalDependent), new ComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    typeof(ComparableBytesStructKeyOptionalDependent), new ComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(typeof(ComparableBytesStructKeyOptionalDependent), new ComparableBytesStructKey(oneOhFive)));
@@ -1419,8 +1419,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -1446,8 +1446,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -1456,10 +1456,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out GenericComparableBytesStructKeyOptionalDependent[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new GenericComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new GenericComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents)
@@ -1468,15 +1468,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(three)),
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new GenericComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new GenericComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new GenericComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new GenericComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(
@@ -1487,12 +1487,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhFive))),
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>()
-                    .Find(new GenericComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new GenericComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<GenericComparableBytesStructKeyOptionalDependent>()
@@ -1502,7 +1502,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(GenericComparableBytesStructKeyOptionalDependent),
-                    new GenericComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    new GenericComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -1536,8 +1536,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -1563,8 +1563,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -1573,10 +1573,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out BytesStructKeyRequiredDependent[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new BytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new BytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -1584,15 +1584,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                 context.Set<BytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new BytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new BytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new BytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new BytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BytesStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<BytesStructKeyRequiredDependent>()
@@ -1603,14 +1603,14 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BytesStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })),
                 context.Set<BytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
-                dependents[0], context.Set<BytesStructKeyRequiredDependent>().Find(new BytesStructKey { Id = new byte[] { 111 } }));
+                dependents[0], context.Set<BytesStructKeyRequiredDependent>().Find(new BytesStructKey { Id = [111] }));
             Assert.Same(dependents[1], context.Set<BytesStructKeyRequiredDependent>().Find(new BytesStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], context.Set<BytesStructKeyRequiredDependent>().Find(oneThirteen));
             Assert.Same(
-                dependents[3], context.Find(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = new byte[] { 114 } }));
+                dependents[3], context.Find(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = [114] }));
             Assert.Same(dependents[4], context.Find(typeof(BytesStructKeyRequiredDependent), new BytesStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyRequiredDependent), oneSixteen));
         }
@@ -1641,8 +1641,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -1668,8 +1668,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -1678,10 +1678,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out ComparableBytesStructKeyRequiredDependent[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new ComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new ComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -1690,15 +1690,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<ComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new ComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new ComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new ComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new ComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<ComparableBytesStructKeyRequiredDependent>()
@@ -1709,12 +1709,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableBytesStructKeyRequiredDependent>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<ComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<ComparableBytesStructKeyRequiredDependent>()
-                    .Find(new ComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new ComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<ComparableBytesStructKeyRequiredDependent>().Find(new ComparableBytesStructKey { Id = oneTwelve }));
@@ -1722,7 +1722,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Assert.Same(
                 dependents[3],
                 context.Find(
-                    typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(typeof(ComparableBytesStructKeyRequiredDependent), new ComparableBytesStructKey { Id = oneFifteeen }));
@@ -1755,8 +1755,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -1785,8 +1785,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -1795,10 +1795,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out StructuralComparableBytesStructKeyRequiredDependent[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new StructuralComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new StructuralComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -1807,15 +1807,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<StructuralComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new StructuralComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new StructuralComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new StructuralComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new StructuralComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
@@ -1826,12 +1826,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
-                    .Find(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new StructuralComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<StructuralComparableBytesStructKeyRequiredDependent>()
@@ -1841,7 +1841,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(StructuralComparableBytesStructKeyRequiredDependent),
-                    new StructuralComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    new StructuralComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -1877,8 +1877,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -1904,8 +1904,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -1914,10 +1914,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out GenericComparableBytesStructKeyRequiredDependent[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new GenericComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new GenericComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents)
@@ -1926,15 +1926,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<GenericComparableBytesStructKeyPrincipal>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new GenericComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new GenericComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new GenericComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new GenericComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
@@ -1945,12 +1945,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>()
-                    .Find(new GenericComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new GenericComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<GenericComparableBytesStructKeyRequiredDependent>()
@@ -1960,7 +1960,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(GenericComparableBytesStructKeyRequiredDependent),
-                    new GenericComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    new GenericComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -2054,7 +2054,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
     {
         using (var context = CreateContext())
         {
-            context.Add(new OwnerBytesStructKey(new BytesStructKey(new byte[] { 1, 5, 7, 1 }), new OwnedBytesStructKey(77)));
+            context.Add(new OwnerBytesStructKey(new BytesStructKey([1, 5, 7, 1]), new OwnedBytesStructKey(77)));
             context.SaveChanges();
         }
 
@@ -2069,7 +2069,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
 
         using (var context = CreateContext())
         {
-            var owner = context.Set<OwnerBytesStructKey>().Find(new BytesStructKey(new byte[] { 1, 5, 7, 1 }));
+            var owner = context.Set<OwnerBytesStructKey>().Find(new BytesStructKey([1, 5, 7, 1]));
             Assert.Equal(88, owner.Owned.Position);
         }
     }
@@ -2106,7 +2106,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             context.Add(
                 new OwnerComparableBytesStructKey(
-                    new ComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }), new OwnedComparableBytesStructKey(77)));
+                    new ComparableBytesStructKey([1, 5, 7, 1]), new OwnedComparableBytesStructKey(77)));
             context.SaveChanges();
         }
 
@@ -2122,7 +2122,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
 
         using (var context = CreateContext())
         {
-            var owner = context.Set<OwnerComparableBytesStructKey>().Find(new ComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }));
+            var owner = context.Set<OwnerComparableBytesStructKey>().Find(new ComparableBytesStructKey([1, 5, 7, 1]));
             Assert.Equal(88, owner.Owned.Position);
         }
     }
@@ -2162,7 +2162,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             context.Add(
                 new OwnerGenericComparableBytesStructKey(
-                    new GenericComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }), new OwnedGenericComparableBytesStructKey(77)));
+                    new GenericComparableBytesStructKey([1, 5, 7, 1]), new OwnedGenericComparableBytesStructKey(77)));
             context.SaveChanges();
         }
 
@@ -2179,7 +2179,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         using (var context = CreateContext())
         {
             var owner = context.Set<OwnerGenericComparableBytesStructKey>()
-                .Find(new GenericComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }));
+                .Find(new GenericComparableBytesStructKey([1, 5, 7, 1]));
             Assert.Equal(88, owner.Owned.Position);
         }
     }
@@ -2191,7 +2191,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             context.Add(
                 new OwnerStructuralComparableBytesStructKey(
-                    new StructuralComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }),
+                    new StructuralComparableBytesStructKey([1, 5, 7, 1]),
                     new OwnedStructuralComparableBytesStructKey(77)));
             context.SaveChanges();
         }
@@ -2209,7 +2209,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         using (var context = CreateContext())
         {
             var owner = context.Set<OwnerStructuralComparableBytesStructKey>()
-                .Find(new StructuralComparableBytesStructKey(new byte[] { 1, 5, 7, 1 }));
+                .Find(new StructuralComparableBytesStructKey([1, 5, 7, 1]));
             Assert.Equal(88, owner.Owned.Position);
         }
     }
@@ -2348,8 +2348,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -2376,8 +2376,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -2388,8 +2388,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new IntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntStructKey(1))),
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -2397,22 +2397,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntStructKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new IntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new IntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntStructKey(101))),
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntStructKey(oneOhTwo))),
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntStructKey(104))),
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntStructKey(oneOhFive))),
                 context.Set<IntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntStructKeyOptionalDependentShadow>().Find(new IntStructKey(101)));
             Assert.Same(dependents[1], context.Set<IntStructKeyOptionalDependentShadow>().Find(new IntStructKey(oneOhTwo)));
@@ -2496,8 +2496,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -2524,8 +2524,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -2536,8 +2536,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new ComparableIntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(1))),
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -2545,15 +2545,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new ComparableIntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new ComparableIntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(101))),
                 context.Set<ComparableIntStructKeyOptionalDependentShadow>()
@@ -2564,7 +2564,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new ComparableIntStructKey(oneOhFive))),
                 context.Set<ComparableIntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0], context.Set<ComparableIntStructKeyOptionalDependentShadow>().Find(new ComparableIntStructKey(101)));
@@ -2668,8 +2668,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -2695,8 +2695,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -2707,8 +2707,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new GenericComparableIntStructKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(1))),
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -2717,15 +2717,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(three)),
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new GenericComparableIntStructKey(103);
             var oneOhFive = 105;
             var oneOhSix = new GenericComparableIntStructKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableIntStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(101))),
                 context.Set<GenericComparableIntStructKeyOptionalDependentShadow>()
@@ -2736,7 +2736,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableIntStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey(oneOhFive))),
                 context.Set<GenericComparableIntStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
@@ -2829,8 +2829,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -2856,8 +2856,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -2868,8 +2868,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new IntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new IntStructKey { Id = 11 })),
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -2877,15 +2877,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                 context.Set<IntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new IntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new IntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new IntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = 111 })),
                 context.Set<IntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneTwelve })),
@@ -2894,7 +2894,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new IntStructKey { Id = oneFifteeen })),
                 context.Set<IntStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntStructKeyRequiredDependentShadow>().Find(new IntStructKey { Id = 111 }));
             Assert.Same(dependents[1], context.Set<IntStructKeyRequiredDependentShadow>().Find(new IntStructKey { Id = oneTwelve }));
@@ -2975,8 +2975,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -3002,8 +3002,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -3014,8 +3014,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new ComparableIntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 11 })),
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -3024,15 +3024,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<ComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new ComparableIntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new ComparableIntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new ComparableIntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = 111 })),
                 context.Set<ComparableIntStructKeyRequiredDependentShadow>()
@@ -3043,7 +3043,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableIntStructKey { Id = oneFifteeen })),
                 context.Set<ComparableIntStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
@@ -3149,8 +3149,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -3176,8 +3176,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -3188,8 +3188,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var twelve = 12;
             var thirteen = new GenericComparableIntStructKey { Id = 13 };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 11 })),
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -3198,15 +3198,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<GenericComparableIntStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 14 }))
-            };
+            ];
 
             var oneTwelve = 112;
             var oneThirteen = new GenericComparableIntStructKey { Id = 113 };
             var oneFifteeen = 115;
             var oneSixteen = new GenericComparableIntStructKey { Id = 116 };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = 111 })),
                 context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
@@ -3217,7 +3217,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableIntStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new GenericComparableIntStructKey { Id = oneFifteeen })),
                 context.Set<GenericComparableIntStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
@@ -3310,8 +3310,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -3337,8 +3337,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -3349,8 +3349,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new IntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<IntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntClassKey(1))),
                 context.Set<IntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -3358,22 +3358,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<IntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<IntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new IntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new IntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new IntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntClassKey(101))),
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new IntClassKey(oneOhTwo))),
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id == new IntClassKey(104)),
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id == new IntClassKey(oneOhFive)),
                 context.Set<IntClassKeyOptionalDependentShadow>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<IntClassKeyOptionalDependentShadow>().Find(new IntClassKey(101)));
             Assert.Same(dependents[1], context.Set<IntClassKeyOptionalDependentShadow>().Find(new IntClassKey(oneOhTwo)));
@@ -3457,8 +3457,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -3484,8 +3484,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -3496,8 +3496,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new BareIntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BareIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BareIntClassKey(1))),
                 context.Set<BareIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -3505,22 +3505,22 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BareIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<BareIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BareIntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new BareIntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new BareIntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new BareIntClassKey(101))),
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new BareIntClassKey(oneOhTwo))),
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhThree)),
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id == new BareIntClassKey(104)),
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id == new BareIntClassKey(oneOhFive)),
                 context.Set<BareIntClassKeyOptionalDependentShadow>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(dependents[0], context.Set<BareIntClassKeyOptionalDependentShadow>().Find(new BareIntClassKey(101)));
             Assert.Same(dependents[1], context.Set<BareIntClassKeyOptionalDependentShadow>().Find(new BareIntClassKey(oneOhTwo)));
@@ -3604,8 +3604,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -3631,8 +3631,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -3643,8 +3643,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             var two = 2;
             var three = new ComparableIntClassKey(3);
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(1))),
                 context.Set<ComparableIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -3652,15 +3652,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(e => e.Id.Equals(three)),
                 context.Set<ComparableIntClassKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(4)))
-            };
+            ];
 
             var oneOhTwo = 102;
             var oneOhThree = new ComparableIntClassKey(103);
             var oneOhFive = 105;
             var oneOhSix = new ComparableIntClassKey(106);
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableIntClassKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new ComparableIntClassKey(101))),
                 context.Set<ComparableIntClassKeyOptionalDependentShadow>()
@@ -3670,7 +3670,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableIntClassKeyOptionalDependentShadow>()
                     .Single(e => e.Id == new ComparableIntClassKey(oneOhFive)),
                 context.Set<ComparableIntClassKeyOptionalDependentShadow>().Single(e => e.Id == oneOhSix)
-            };
+            ];
 
             Assert.Same(
                 dependents[0], context.Set<ComparableIntClassKeyOptionalDependentShadow>().Find(new ComparableIntClassKey(101)));
@@ -3731,21 +3731,21 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new BytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new BytesStructKey(new byte[] { 1 }), Foo = "X1" },
-                new() { Id = new BytesStructKey(new byte[] { 2, 2 }), Foo = "X2" },
-                new() { Id = new BytesStructKey(new byte[] { 3, 3, 3 }), Foo = "X3" },
-                new() { Id = new BytesStructKey(new byte[] { 4, 4, 4, 4 }), Foo = "X4" }
+                new() { Id = new BytesStructKey([1]), Foo = "X1" },
+                new() { Id = new BytesStructKey([2, 2]), Foo = "X2" },
+                new() { Id = new BytesStructKey([3, 3, 3]), Foo = "X3" },
+                new() { Id = new BytesStructKey([4, 4, 4, 4]), Foo = "X4" }
             };
 
             context.Set<BytesStructKeyPrincipalShadow>().AddRange(principals);
 
             context.Set<BytesStructKeyOptionalDependentShadow>().AddRange(
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 101 }), Principal = principals[0] },
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 102 }), Principal = principals[1] },
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 103 }), Principal = principals[2] },
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 104 }), Principal = principals[2] },
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 105 }), Principal = principals[2] },
-                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey(new byte[] { 106 }) });
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([101]), Principal = principals[0] },
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([102]), Principal = principals[1] },
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([103]), Principal = principals[2] },
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([104]), Principal = principals[2] },
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([105]), Principal = principals[2] },
+                new BytesStructKeyOptionalDependentShadow { Id = new BytesStructKey([106]) });
 
             Assert.Equal(10, context.SaveChanges());
         }
@@ -3757,8 +3757,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -3784,8 +3784,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -3794,10 +3794,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out BytesStructKeyOptionalDependentShadow[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new BytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new BytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -3806,15 +3806,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(),
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new BytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new BytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new BytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new BytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<BytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new BytesStructKey(oneOhTwo))),
@@ -3823,16 +3823,16 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 104 } })),
                 context.Set<BytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(new BytesStructKey(oneOhFive))),
                 context.Set<BytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
-                context.Set<BytesStructKeyOptionalDependentShadow>().Find(new BytesStructKey { Id = new byte[] { 101 } }));
+                context.Set<BytesStructKeyOptionalDependentShadow>().Find(new BytesStructKey { Id = [101] }));
             Assert.Same(dependents[1], context.Set<BytesStructKeyOptionalDependentShadow>().Find(new BytesStructKey(oneOhTwo)));
             Assert.Same(dependents[2], context.Set<BytesStructKeyOptionalDependentShadow>().Find(oneOhThree));
             Assert.Same(
                 dependents[3],
-                context.Find(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey { Id = new byte[] { 104 } }));
+                context.Find(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey { Id = [104] }));
             Assert.Same(dependents[4], context.Find(typeof(BytesStructKeyOptionalDependentShadow), new BytesStructKey(oneOhFive)));
             Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyOptionalDependentShadow), oneOhSix));
         }
@@ -3887,10 +3887,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new StructuralComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 1 }), Foo = "X1" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 2, 2 }), Foo = "X2" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 3, 3, 3 }), Foo = "X3" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 4, 4, 4, 4 }), Foo = "X4" }
+                new() { Id = new StructuralComparableBytesStructKey([1]), Foo = "X1" },
+                new() { Id = new StructuralComparableBytesStructKey([2, 2]), Foo = "X2" },
+                new() { Id = new StructuralComparableBytesStructKey([3, 3, 3]), Foo = "X3" },
+                new() { Id = new StructuralComparableBytesStructKey([4, 4, 4, 4]), Foo = "X4" }
             };
 
             context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -3898,27 +3898,27 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 101 }), Principal = principals[0]
+                    Id = new StructuralComparableBytesStructKey([101]), Principal = principals[0]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 102 }), Principal = principals[1]
+                    Id = new StructuralComparableBytesStructKey([102]), Principal = principals[1]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 103 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([103]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 104 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([104]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 105 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([105]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 106 })
+                    Id = new StructuralComparableBytesStructKey([106])
                 });
 
             Assert.Equal(10, context.SaveChanges());
@@ -3931,8 +3931,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -3961,8 +3961,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -3971,10 +3971,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out StructuralComparableBytesStructKeyOptionalDependentShadow[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new StructuralComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new StructuralComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -3984,15 +3984,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(),
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new StructuralComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new StructuralComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new StructuralComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new StructuralComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
@@ -4003,12 +4003,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new StructuralComparableBytesStructKey(oneOhFive))),
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
-                    .Find(new StructuralComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new StructuralComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<StructuralComparableBytesStructKeyOptionalDependentShadow>()
@@ -4018,7 +4018,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(StructuralComparableBytesStructKeyOptionalDependentShadow),
-                    new StructuralComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    new StructuralComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -4077,10 +4077,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new ComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new ComparableBytesStructKey(new byte[] { 1 }), Foo = "X1" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 2, 2 }), Foo = "X2" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 3, 3, 3 }), Foo = "X3" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 4, 4, 4, 4 }), Foo = "X4" }
+                new() { Id = new ComparableBytesStructKey([1]), Foo = "X1" },
+                new() { Id = new ComparableBytesStructKey([2, 2]), Foo = "X2" },
+                new() { Id = new ComparableBytesStructKey([3, 3, 3]), Foo = "X3" },
+                new() { Id = new ComparableBytesStructKey([4, 4, 4, 4]), Foo = "X4" }
             };
 
             context.Set<ComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -4088,25 +4088,25 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<ComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 101 }), Principal = principals[0]
+                    Id = new ComparableBytesStructKey([101]), Principal = principals[0]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 102 }), Principal = principals[1]
+                    Id = new ComparableBytesStructKey([102]), Principal = principals[1]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 103 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([103]), Principal = principals[2]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 104 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([104]), Principal = principals[2]
                 },
                 new ComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 105 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([105]), Principal = principals[2]
                 },
-                new ComparableBytesStructKeyOptionalDependentShadow { Id = new ComparableBytesStructKey(new byte[] { 106 }) });
+                new ComparableBytesStructKeyOptionalDependentShadow { Id = new ComparableBytesStructKey([106]) });
 
             Assert.Equal(10, context.SaveChanges());
         }
@@ -4118,8 +4118,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -4145,8 +4145,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -4155,10 +4155,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out ComparableBytesStructKeyOptionalDependentShadow[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new ComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new ComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -4168,15 +4168,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(),
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new ComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new ComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new ComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new ComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>()
@@ -4187,12 +4187,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new ComparableBytesStructKey(oneOhFive))),
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>()
-                    .Find(new ComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new ComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<ComparableBytesStructKeyOptionalDependentShadow>().Find(new ComparableBytesStructKey(oneOhTwo)));
@@ -4200,7 +4200,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Assert.Same(
                 dependents[3],
                 context.Find(
-                    typeof(ComparableBytesStructKeyOptionalDependentShadow), new ComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    typeof(ComparableBytesStructKeyOptionalDependentShadow), new ComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(typeof(ComparableBytesStructKeyOptionalDependentShadow), new ComparableBytesStructKey(oneOhFive)));
@@ -4257,10 +4257,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new GenericComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 1 }), Foo = "X1" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 2, 2 }), Foo = "X2" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 3, 3, 3 }), Foo = "X3" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 4, 4, 4, 4 }), Foo = "X4" }
+                new() { Id = new GenericComparableBytesStructKey([1]), Foo = "X1" },
+                new() { Id = new GenericComparableBytesStructKey([2, 2]), Foo = "X2" },
+                new() { Id = new GenericComparableBytesStructKey([3, 3, 3]), Foo = "X3" },
+                new() { Id = new GenericComparableBytesStructKey([4, 4, 4, 4]), Foo = "X4" }
             };
 
             context.Set<GenericComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -4268,27 +4268,27 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>().AddRange(
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 101 }), Principal = principals[0]
+                    Id = new GenericComparableBytesStructKey([101]), Principal = principals[0]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 102 }), Principal = principals[1]
+                    Id = new GenericComparableBytesStructKey([102]), Principal = principals[1]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 103 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([103]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 104 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([104]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 105 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([105]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyOptionalDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 106 })
+                    Id = new GenericComparableBytesStructKey([106])
                 });
 
             Assert.Equal(10, context.SaveChanges());
@@ -4301,8 +4301,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, null)]);
 
             foreach (var principal in principals)
             {
@@ -4331,8 +4331,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new (int, int?)[] { (0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (1, null), (2, 2), (3, 0), (4, null), (5, 0)]);
         }
 
         void RunQueries(
@@ -4341,10 +4341,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out GenericComparableBytesStructKeyOptionalDependentShadow[] dependents)
         {
             var two = new byte[] { 2, 2 };
-            var three = new GenericComparableBytesStructKey { Id = new byte[] { 3, 3, 3 } };
+            var three = new GenericComparableBytesStructKey { Id = [3, 3, 3] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
                     .Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 1 } })),
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents)
@@ -4354,15 +4354,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(),
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.OptionalDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 4, 4, 4, 4 } }))
-            };
+            ];
 
             var oneOhTwo = new byte[] { 102 };
-            var oneOhThree = new GenericComparableBytesStructKey { Id = new byte[] { 103 } };
+            var oneOhThree = new GenericComparableBytesStructKey { Id = [103] };
             var oneOhFive = new byte[] { 105 };
-            var oneOhSix = new GenericComparableBytesStructKey { Id = new byte[] { 106 } };
+            var oneOhSix = new GenericComparableBytesStructKey { Id = [106] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 101 } })),
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>()
@@ -4373,12 +4373,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>()
                     .Single(e => e.Id.Equals(new GenericComparableBytesStructKey(oneOhFive))),
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>().Single(e => e.Id.Equals(oneOhSix))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>()
-                    .Find(new GenericComparableBytesStructKey { Id = new byte[] { 101 } }));
+                    .Find(new GenericComparableBytesStructKey { Id = [101] }));
             Assert.Same(
                 dependents[1],
                 context.Set<GenericComparableBytesStructKeyOptionalDependentShadow>()
@@ -4388,7 +4388,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(GenericComparableBytesStructKeyOptionalDependentShadow),
-                    new GenericComparableBytesStructKey { Id = new byte[] { 104 } }));
+                    new GenericComparableBytesStructKey { Id = [104] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -4446,21 +4446,21 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new BytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new BytesStructKey(new byte[] { 11 }), Foo = "X1" },
-                new() { Id = new BytesStructKey(new byte[] { 12, 12 }), Foo = "X2" },
-                new() { Id = new BytesStructKey(new byte[] { 13, 13, 13 }), Foo = "X3" },
-                new() { Id = new BytesStructKey(new byte[] { 14, 14, 14, 14 }), Foo = "X4" }
+                new() { Id = new BytesStructKey([11]), Foo = "X1" },
+                new() { Id = new BytesStructKey([12, 12]), Foo = "X2" },
+                new() { Id = new BytesStructKey([13, 13, 13]), Foo = "X3" },
+                new() { Id = new BytesStructKey([14, 14, 14, 14]), Foo = "X4" }
             };
 
             context.Set<BytesStructKeyPrincipalShadow>().AddRange(principals);
 
             context.Set<BytesStructKeyRequiredDependentShadow>().AddRange(
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 111 }), Principal = principals[0] },
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 112 }), Principal = principals[1] },
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 113 }), Principal = principals[2] },
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 114 }), Principal = principals[2] },
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 115 }), Principal = principals[2] },
-                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey(new byte[] { 116 }), Principal = principals[2] });
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([111]), Principal = principals[0] },
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([112]), Principal = principals[1] },
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([113]), Principal = principals[2] },
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([114]), Principal = principals[2] },
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([115]), Principal = principals[2] },
+                new BytesStructKeyRequiredDependentShadow { Id = new BytesStructKey([116]), Principal = principals[2] });
 
             Assert.Equal(10, context.SaveChanges());
         }
@@ -4472,8 +4472,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -4499,8 +4499,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -4509,10 +4509,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out BytesStructKeyRequiredDependentShadow[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new BytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new BytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -4520,15 +4520,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(e => e.Id.Equals(thirteen)),
                 context.Set<BytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new BytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new BytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new BytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new BytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<BytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<BytesStructKeyRequiredDependentShadow>()
@@ -4539,17 +4539,17 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<BytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new BytesStructKey { Id = oneFifteeen })),
                 context.Set<BytesStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
-                context.Set<BytesStructKeyRequiredDependentShadow>().Find(new BytesStructKey { Id = new byte[] { 111 } }));
+                context.Set<BytesStructKeyRequiredDependentShadow>().Find(new BytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1], context.Set<BytesStructKeyRequiredDependentShadow>().Find(new BytesStructKey { Id = oneTwelve }));
             Assert.Same(dependents[2], context.Set<BytesStructKeyRequiredDependentShadow>().Find(oneThirteen));
             Assert.Same(
                 dependents[3],
-                context.Find(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = new byte[] { 114 } }));
+                context.Find(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4], context.Find(typeof(BytesStructKeyRequiredDependentShadow), new BytesStructKey { Id = oneFifteeen }));
             Assert.Same(dependents[5], context.Find(typeof(BytesStructKeyRequiredDependentShadow), oneSixteen));
@@ -4606,10 +4606,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new ComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new ComparableBytesStructKey(new byte[] { 11 }), Foo = "X1" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 12, 12 }), Foo = "X2" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 13, 13, 13 }), Foo = "X3" },
-                new() { Id = new ComparableBytesStructKey(new byte[] { 14, 14, 14, 14 }), Foo = "X4" }
+                new() { Id = new ComparableBytesStructKey([11]), Foo = "X1" },
+                new() { Id = new ComparableBytesStructKey([12, 12]), Foo = "X2" },
+                new() { Id = new ComparableBytesStructKey([13, 13, 13]), Foo = "X3" },
+                new() { Id = new ComparableBytesStructKey([14, 14, 14, 14]), Foo = "X4" }
             };
 
             context.Set<ComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -4617,27 +4617,27 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<ComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 111 }), Principal = principals[0]
+                    Id = new ComparableBytesStructKey([111]), Principal = principals[0]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 112 }), Principal = principals[1]
+                    Id = new ComparableBytesStructKey([112]), Principal = principals[1]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 113 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([113]), Principal = principals[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 114 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([114]), Principal = principals[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 115 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([115]), Principal = principals[2]
                 },
                 new ComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new ComparableBytesStructKey(new byte[] { 116 }), Principal = principals[2]
+                    Id = new ComparableBytesStructKey([116]), Principal = principals[2]
                 });
 
             Assert.Equal(10, context.SaveChanges());
@@ -4650,8 +4650,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -4677,8 +4677,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -4687,10 +4687,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out ComparableBytesStructKeyRequiredDependentShadow[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new ComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new ComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -4699,15 +4699,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<ComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new ComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new ComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new ComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new ComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
@@ -4718,12 +4718,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new ComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>()
-                    .Find(new ComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new ComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<ComparableBytesStructKeyRequiredDependentShadow>().Find(new ComparableBytesStructKey { Id = oneTwelve }));
@@ -4731,7 +4731,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Assert.Same(
                 dependents[3],
                 context.Find(
-                    typeof(ComparableBytesStructKeyRequiredDependentShadow), new ComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    typeof(ComparableBytesStructKeyRequiredDependentShadow), new ComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -4790,10 +4790,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new StructuralComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 11 }), Foo = "X1" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 12, 12 }), Foo = "X2" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 13, 13, 13 }), Foo = "X3" },
-                new() { Id = new StructuralComparableBytesStructKey(new byte[] { 14, 14, 14, 14 }), Foo = "X4" }
+                new() { Id = new StructuralComparableBytesStructKey([11]), Foo = "X1" },
+                new() { Id = new StructuralComparableBytesStructKey([12, 12]), Foo = "X2" },
+                new() { Id = new StructuralComparableBytesStructKey([13, 13, 13]), Foo = "X3" },
+                new() { Id = new StructuralComparableBytesStructKey([14, 14, 14, 14]), Foo = "X4" }
             };
 
             context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -4801,27 +4801,27 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 111 }), Principal = principals[0]
+                    Id = new StructuralComparableBytesStructKey([111]), Principal = principals[0]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 112 }), Principal = principals[1]
+                    Id = new StructuralComparableBytesStructKey([112]), Principal = principals[1]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 113 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([113]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 114 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([114]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 115 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([115]), Principal = principals[2]
                 },
                 new StructuralComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new StructuralComparableBytesStructKey(new byte[] { 116 }), Principal = principals[2]
+                    Id = new StructuralComparableBytesStructKey([116]), Principal = principals[2]
                 });
 
             Assert.Equal(10, context.SaveChanges());
@@ -4834,8 +4834,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -4864,8 +4864,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -4874,10 +4874,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out StructuralComparableBytesStructKeyRequiredDependentShadow[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new StructuralComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new StructuralComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -4886,15 +4886,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<StructuralComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new StructuralComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new StructuralComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new StructuralComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new StructuralComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
@@ -4905,12 +4905,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new StructuralComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
-                    .Find(new StructuralComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new StructuralComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<StructuralComparableBytesStructKeyRequiredDependentShadow>()
@@ -4920,7 +4920,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(StructuralComparableBytesStructKeyRequiredDependentShadow),
-                    new StructuralComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    new StructuralComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -4980,10 +4980,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
         {
             var principals = new GenericComparableBytesStructKeyPrincipalShadow[]
             {
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 11 }), Foo = "X1" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 12, 12 }), Foo = "X2" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 13, 13, 13 }), Foo = "X3" },
-                new() { Id = new GenericComparableBytesStructKey(new byte[] { 14, 14, 14, 14 }), Foo = "X4" }
+                new() { Id = new GenericComparableBytesStructKey([11]), Foo = "X1" },
+                new() { Id = new GenericComparableBytesStructKey([12, 12]), Foo = "X2" },
+                new() { Id = new GenericComparableBytesStructKey([13, 13, 13]), Foo = "X3" },
+                new() { Id = new GenericComparableBytesStructKey([14, 14, 14, 14]), Foo = "X4" }
             };
 
             context.Set<GenericComparableBytesStructKeyPrincipalShadow>().AddRange(principals);
@@ -4991,27 +4991,27 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>().AddRange(
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 111 }), Principal = principals[0]
+                    Id = new GenericComparableBytesStructKey([111]), Principal = principals[0]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 112 }), Principal = principals[1]
+                    Id = new GenericComparableBytesStructKey([112]), Principal = principals[1]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 113 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([113]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 114 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([114]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 115 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([115]), Principal = principals[2]
                 },
                 new GenericComparableBytesStructKeyRequiredDependentShadow
                 {
-                    Id = new GenericComparableBytesStructKey(new byte[] { 116 }), Principal = principals[2]
+                    Id = new GenericComparableBytesStructKey([116]), Principal = principals[2]
                 });
 
             Assert.Equal(10, context.SaveChanges());
@@ -5024,8 +5024,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0 }), (1, new[] { 1 }), (2, new[] { 2, 2, 2, 2 }), (3, new int[0]) },
-                new[] { (0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2) });
+                [(0, [0]), (1, [1]), (2, [2, 2, 2, 2]), (3, [])],
+                [(0, 0), (1, 1), (2, 2), (3, 2), (4, 2), (5, 2)]);
 
             foreach (var principal in principals)
             {
@@ -5054,8 +5054,8 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             Validate(
                 principals,
                 dependents,
-                new[] { (0, new[] { 0, 3, 5 }), (1, new int[0]), (2, new[] { 2 }), (3, new int[0]) },
-                new[] { (0, 0), (2, 2), (3, 0), (5, 0) });
+                [(0, [0, 3, 5]), (1, []), (2, [2]), (3, [])],
+                [(0, 0), (2, 2), (3, 0), (5, 0)]);
         }
 
         void RunQueries(
@@ -5064,10 +5064,10 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
             out GenericComparableBytesStructKeyRequiredDependentShadow[] dependents)
         {
             var twelve = new byte[] { 12, 12 };
-            var thirteen = new GenericComparableBytesStructKey { Id = new byte[] { 13, 13, 13 } };
+            var thirteen = new GenericComparableBytesStructKey { Id = [13, 13, 13] };
 
-            principals = new[]
-            {
+            principals =
+            [
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
                     .Single(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 11 } })),
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents)
@@ -5076,15 +5076,15 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                     .Single(e => e.Id.Equals(thirteen)),
                 context.Set<GenericComparableBytesStructKeyPrincipalShadow>().Include(e => e.RequiredDependents).Single(
                     e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 14, 14, 14, 14 } }))
-            };
+            ];
 
             var oneTwelve = new byte[] { 112 };
-            var oneThirteen = new GenericComparableBytesStructKey { Id = new byte[] { 113 } };
+            var oneThirteen = new GenericComparableBytesStructKey { Id = [113] };
             var oneFifteeen = new byte[] { 115 };
-            var oneSixteen = new GenericComparableBytesStructKey { Id = new byte[] { 116 } };
+            var oneSixteen = new GenericComparableBytesStructKey { Id = [116] };
 
-            dependents = new[]
-            {
+            dependents =
+            [
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = new byte[] { 111 } })),
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
@@ -5095,12 +5095,12 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
                     .FirstOrDefault(e => e.Id.Equals(new GenericComparableBytesStructKey { Id = oneFifteeen })),
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>().FirstOrDefault(e => e.Id.Equals(oneSixteen))
-            };
+            ];
 
             Assert.Same(
                 dependents[0],
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
-                    .Find(new GenericComparableBytesStructKey { Id = new byte[] { 111 } }));
+                    .Find(new GenericComparableBytesStructKey { Id = [111] }));
             Assert.Same(
                 dependents[1],
                 context.Set<GenericComparableBytesStructKeyRequiredDependentShadow>()
@@ -5110,7 +5110,7 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
                 dependents[3],
                 context.Find(
                     typeof(GenericComparableBytesStructKeyRequiredDependentShadow),
-                    new GenericComparableBytesStructKey { Id = new byte[] { 114 } }));
+                    new GenericComparableBytesStructKey { Id = [114] }));
             Assert.Same(
                 dependents[4],
                 context.Find(
@@ -5300,18 +5300,18 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
     {
         using var context = CreateContext();
         context.Set<TPrincipal>().AddRange(
-            new TPrincipal { BackingId = new byte[] { 1 }, Foo = "X1" },
-            new TPrincipal { BackingId = new byte[] { 2, 2 }, Foo = "X2" },
-            new TPrincipal { BackingId = new byte[] { 3, 3, 3 }, Foo = "X3" },
-            new TPrincipal { BackingId = new byte[] { 4, 4, 4, 4 }, Foo = "X4" });
+            new TPrincipal { BackingId = [1], Foo = "X1" },
+            new TPrincipal { BackingId = [2, 2], Foo = "X2" },
+            new TPrincipal { BackingId = [3, 3, 3], Foo = "X3" },
+            new TPrincipal { BackingId = [4, 4, 4, 4], Foo = "X4" });
 
         context.Set<TDependent>().AddRange(
-            new TDependent { BackingId = new byte[] { 101 }, BackingPrincipalId = new byte[] { 1 } },
-            new TDependent { BackingId = new byte[] { 102 }, BackingPrincipalId = new byte[] { 2, 2 } },
-            new TDependent { BackingId = new byte[] { 103 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
-            new TDependent { BackingId = new byte[] { 104 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
-            new TDependent { BackingId = new byte[] { 105 }, BackingPrincipalId = new byte[] { 3, 3, 3 } },
-            new TDependent { BackingId = new byte[] { 106 } });
+            new TDependent { BackingId = [101], BackingPrincipalId = [1] },
+            new TDependent { BackingId = [102], BackingPrincipalId = [2, 2] },
+            new TDependent { BackingId = [103], BackingPrincipalId = [3, 3, 3] },
+            new TDependent { BackingId = [104], BackingPrincipalId = [3, 3, 3] },
+            new TDependent { BackingId = [105], BackingPrincipalId = [3, 3, 3] },
+            new TDependent { BackingId = [106] });
 
         Assert.Equal(10, context.SaveChanges());
     }
@@ -5322,18 +5322,18 @@ public abstract class KeysWithConvertersTestBase<TFixture> : IClassFixture<TFixt
     {
         using var context = CreateContext();
         context.Set<TPrincipal>().AddRange(
-            new TPrincipal { BackingId = new byte[] { 11 }, Foo = "X1" },
-            new TPrincipal { BackingId = new byte[] { 12, 12 }, Foo = "X2" },
-            new TPrincipal { BackingId = new byte[] { 13, 13, 13 }, Foo = "X3" },
-            new TPrincipal { BackingId = new byte[] { 14, 14, 14, 14 }, Foo = "X4" });
+            new TPrincipal { BackingId = [11], Foo = "X1" },
+            new TPrincipal { BackingId = [12, 12], Foo = "X2" },
+            new TPrincipal { BackingId = [13, 13, 13], Foo = "X3" },
+            new TPrincipal { BackingId = [14, 14, 14, 14], Foo = "X4" });
 
         context.Set<TDependent>().AddRange(
-            new TDependent { BackingId = new byte[] { 111 }, BackingPrincipalId = new byte[] { 11 } },
-            new TDependent { BackingId = new byte[] { 112 }, BackingPrincipalId = new byte[] { 12, 12 } },
-            new TDependent { BackingId = new byte[] { 113 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
-            new TDependent { BackingId = new byte[] { 114 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
-            new TDependent { BackingId = new byte[] { 115 }, BackingPrincipalId = new byte[] { 13, 13, 13 } },
-            new TDependent { BackingId = new byte[] { 116 }, BackingPrincipalId = new byte[] { 13, 13, 13 } });
+            new TDependent { BackingId = [111], BackingPrincipalId = [11] },
+            new TDependent { BackingId = [112], BackingPrincipalId = [12, 12] },
+            new TDependent { BackingId = [113], BackingPrincipalId = [13, 13, 13] },
+            new TDependent { BackingId = [114], BackingPrincipalId = [13, 13, 13] },
+            new TDependent { BackingId = [115], BackingPrincipalId = [13, 13, 13] },
+            new TDependent { BackingId = [116], BackingPrincipalId = [13, 13, 13] });
 
         Assert.Equal(10, context.SaveChanges());
     }

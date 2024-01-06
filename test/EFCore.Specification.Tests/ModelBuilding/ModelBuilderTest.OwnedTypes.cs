@@ -599,7 +599,7 @@ public abstract partial class ModelBuilderTest
                             break;
                         case HasDataOverload.Array | HasDataOverload.Generic:
                             // ReSharper disable once RedundantExplicitParamsArrayCreation
-                            ownedNavigationBuilder.HasData(new[] { new OrderDetails { OrderId = -1 } });
+                            ownedNavigationBuilder.HasData([new OrderDetails { OrderId = -1 }]);
                             break;
                         case HasDataOverload.Array | HasDataOverload.Params | HasDataOverload.Generic:
                             ownedNavigationBuilder.HasData(new OrderDetails { OrderId = -1 });

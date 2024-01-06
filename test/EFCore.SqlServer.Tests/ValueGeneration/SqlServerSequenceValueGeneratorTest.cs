@@ -139,7 +139,7 @@ public class SqlServerSequenceValueGeneratorTest
         for (var i = 0; i < tests.Length; i++)
         {
             var testNumber = i;
-            generatedValues[testNumber] = new List<long>();
+            generatedValues[testNumber] = [];
             tests[testNumber] = async () =>
             {
                 for (var j = 0; j < valueCount; j++)

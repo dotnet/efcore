@@ -100,7 +100,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                         Expression.Call(
                             typeof(BitConverter).GetMethod(
                                 nameof(BitConverter.GetBytes),
-                                new[] { type })!,
+                                [type])!,
                             input));
 
         if (typeof(TNumber).IsNullableType())
@@ -143,7 +143,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
                     : (Expression)Expression.Call(
                         typeof(BitConverter).GetMethod(
                             "To" + type.Name,
-                            new[] { typeof(byte[]), typeof(int) })!,
+                            [typeof(byte[]), typeof(int)])!,
                         EnsureEndian(HandleEmptyArray(param)),
                         Expression.Constant(0));
 
@@ -212,7 +212,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseLong(byte[] bytes)
-        => new[] { bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0] };
+        => [bytes[7], bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0]];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -222,7 +222,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseInt(byte[] bytes)
-        => new[] { bytes[3], bytes[2], bytes[1], bytes[0] };
+        => [bytes[3], bytes[2], bytes[1], bytes[0]];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -232,7 +232,7 @@ public class NumberToBytesConverter<TNumber> : ValueConverter<TNumber, byte[]>
     /// </summary>
     [EntityFrameworkInternal]
     public static byte[] ReverseShort(byte[] bytes)
-        => new[] { bytes[1], bytes[0] };
+        => [bytes[1], bytes[0]];
 
     private static int GetByteCount()
     {

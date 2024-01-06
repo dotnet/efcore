@@ -432,7 +432,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
         var expression = Expression.Call(
             typeof(Queryable), nameof(Queryable.OrderBy),
-            new[] { query.ElementType, typeof(string) }, query.Expression, Expression.Quote(getProperty));
+            [query.ElementType, typeof(string)], query.Expression, Expression.Quote(getProperty));
 
         query = query.Provider.CreateQuery<Kiwi>(expression);
 

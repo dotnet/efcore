@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 public class SqliteLineStringMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo GetPointN
-        = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), new[] { typeof(int) })!;
+        = typeof(LineString).GetRuntimeMethod(nameof(LineString.GetPointN), [typeof(int)])!;
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 

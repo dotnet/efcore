@@ -50,7 +50,7 @@ public class DbContextOperationsTest
             rootNamespace: null,
             language: "C#",
             nullable: false,
-            args: Array.Empty<string>(),
+            args: [],
             new TestAppServiceProviderFactory(assembly));
 
         var baseContext = Assert.IsType<BaseContext>(operations.CreateContext(nameof(BaseContext)));
@@ -168,7 +168,7 @@ public class DbContextOperationsTest
             rootNamespace: null,
             language: "C#",
             nullable: false,
-            /* args: */ Array.Empty<string>(),
+            /* args: */ [],
             new TestAppServiceProviderFactory(assembly));
     }
 

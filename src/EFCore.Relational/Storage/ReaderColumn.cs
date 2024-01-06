@@ -74,7 +74,7 @@ public abstract class ReaderColumn
         string? columnName,
         IPropertyBase? property,
         object readFunc)
-        => (ReaderColumn)GetConstructor(type).Invoke(new[] { nullable, columnName, property, readFunc });
+        => (ReaderColumn)GetConstructor(type).Invoke([nullable, columnName, property, readFunc]);
 
     private static ConstructorInfo GetConstructor(Type type)
         => Constructors.GetOrAdd(

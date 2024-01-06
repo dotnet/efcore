@@ -67,7 +67,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
-                    BinaryAlias = new byte[] { 0, 1, 2, 3 },
+                    BinaryAlias = [0, 1, 2, 3],
                     StringAlias = "Rodrigo y Gabriela"
                 },
                 new TypeAliasEntityWithFacets
@@ -78,7 +78,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
-                    BinaryAlias = new byte[] { 0, 1, 2, 3 },
+                    BinaryAlias = [0, 1, 2, 3],
                     StringAlias = "Mettavolution"
                 });
 

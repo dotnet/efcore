@@ -53,7 +53,7 @@ public static class DbContextActivator
                 rootNamespace: null,
                 language: "C#",
                 nullable: false,
-                args: args ?? Array.Empty<string>())
+                args: args ?? [])
             .CreateContext(contextType.FullName!);
     }
 }

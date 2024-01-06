@@ -2122,13 +2122,10 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
             Add(
                 new Parent
                 {
-                    Children = new List<Child>
-                    {
-                        new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }
-                    }
+                    Children = [new() { SomeInteger = 1, SomeOtherNullableDateTime = new DateTime(2000, 11, 18) }]
                 });
 
-            Add(new Parent { Children = new List<Child> { new() { SomeInteger = 1, } } });
+            Add(new Parent { Children = [new() { SomeInteger = 1, }] });
             SaveChanges();
         }
 

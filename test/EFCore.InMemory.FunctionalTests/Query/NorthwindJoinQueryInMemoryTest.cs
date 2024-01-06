@@ -35,7 +35,7 @@ public class NorthwindJoinQueryInMemoryTest(NorthwindQueryInMemoryFixture<NoopMo
                       join id in ids on e.EmployeeID equals id
                       select e.EmployeeID));
 
-        ids = new uint[] { 3 };
+        ids = [3];
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,

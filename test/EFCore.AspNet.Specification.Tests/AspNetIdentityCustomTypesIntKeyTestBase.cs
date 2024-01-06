@@ -46,8 +46,8 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
     }
 
     protected override List<EntityTypeMapping> ExpectedMappings
-        => new()
-        {
+        =>
+        [
             new EntityTypeMapping
             {
                 Name = "Microsoft.EntityFrameworkCore.CustomRoleClaimInt",
@@ -173,8 +173,8 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                     "Property: CustomUserTokenInt.Value (string)",
                 },
                 FKs = { "ForeignKey: CustomUserTokenInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Tokens", },
-            },
-        };
+            }
+        ];
 }
 
 public class CustomTypesIdentityContextInt(DbContextOptions options) : IdentityDbContext<CustomUserInt, CustomRoleInt, int, CustomUserClaimInt, CustomUserRoleInt,

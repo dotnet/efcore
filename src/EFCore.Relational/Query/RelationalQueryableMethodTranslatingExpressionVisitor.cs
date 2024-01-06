@@ -2932,7 +2932,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         protected virtual ValuesExpression ApplyTypeMappingsOnValuesExpression(ValuesExpression valuesExpression, bool stripOrdering)
         {
             var inferredTypeMappings = TryGetInferredTypeMapping(valuesExpression, ValuesValueColumnName, out var typeMapping)
-                ? new[] { null, typeMapping }
+                ? [null, typeMapping]
                 : new RelationalTypeMapping?[] { null, null };
 
             Check.DebugAssert(

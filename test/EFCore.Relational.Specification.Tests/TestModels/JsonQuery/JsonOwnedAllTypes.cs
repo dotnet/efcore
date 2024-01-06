@@ -8,14 +8,14 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonOwnedAllTypes
 {
-    private List<long> _testInt64CollectionX = new();
+    private List<long> _testInt64CollectionX = [];
     private IList<double> _testDoubleCollectionX = new List<double>();
-    private List<float> _testSingleCollectionX = new() { 1.1f, 1.2f };
+    private List<float> _testSingleCollectionX = [1.1f, 1.2f];
     private IList<bool> _testBooleanCollectionX = new List<bool> { true };
-    private ObservableCollection<char> _testCharacterCollectionX = new();
-    private ObservableCollection<int?> _testNullableInt32CollectionX = new() { 99 };
-    private Collection<JsonEnum?> _testNullableEnumCollectionX = new();
-    private Collection<JsonEnum?> _testNullableEnumWithIntConverterCollectionX = new() { JsonEnum.Three };
+    private ObservableCollection<char> _testCharacterCollectionX = [];
+    private ObservableCollection<int?> _testNullableInt32CollectionX = [99];
+    private Collection<JsonEnum?> _testNullableEnumCollectionX = [];
+    private Collection<JsonEnum?> _testNullableEnumWithIntConverterCollectionX = [JsonEnum.Three];
 
     public string TestDefaultString { get; set; }
     public string TestMaxLengthString { get; set; }
@@ -49,7 +49,7 @@ public class JsonOwnedAllTypes
     public List<string> TestMaxLengthStringCollection { get; set; }
     public IList<short> TestInt16Collection { get; set; }
 
-    public int[] TestInt32Collection { get; set; } = Array.Empty<int>();
+    public int[] TestInt32Collection { get; set; } = [];
 
     public List<long> TestInt64Collection
     {
@@ -74,7 +74,7 @@ public class JsonOwnedAllTypes
     public decimal[] TestDecimalCollection { get; set; }
     public List<DateTime> TestDateTimeCollection { get; set; }
     public IList<DateTimeOffset> TestDateTimeOffsetCollection { get; set; }
-    public TimeSpan[] TestTimeSpanCollection { get; set; } = { new(1, 1, 1) };
+    public TimeSpan[] TestTimeSpanCollection { get; set; } = [new(1, 1, 1)];
     public DateOnly[] TestDateOnlyCollection { get; set; }
     public TimeOnly[] TestTimeOnlyCollection { get; set; }
 

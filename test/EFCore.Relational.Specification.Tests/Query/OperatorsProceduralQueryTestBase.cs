@@ -9,11 +9,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 {
     private static readonly MethodInfo LikeMethodInfo
         = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-            nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+            nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
 
     private static readonly MethodInfo StringConcatMethodInfo
         = typeof(string).GetRuntimeMethod(
-            nameof(string.Concat), new[] { typeof(string), typeof(string) });
+            nameof(string.Concat), [typeof(string), typeof(string)]);
 
     protected readonly List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
         Binaries;
@@ -27,8 +27,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected OperatorsProceduralQueryTestBase()
     {
-        Binaries = new List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
-        {
+        Binaries =
+        [
             ((typeof(string), typeof(string)), typeof(bool), Expression.Equal),
             ((typeof(string), typeof(string)), typeof(bool), Expression.NotEqual),
             ((typeof(string), typeof(string)), typeof(string), (x, y) => Expression.Add(x, y, StringConcatMethodInfo)),
@@ -75,11 +75,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.AndAlso),
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.OrElse),
             ((typeof(bool), typeof(bool)), typeof(bool), Expression.And),
-            ((typeof(bool), typeof(bool)), typeof(bool), Expression.Or),
-        };
+            ((typeof(bool), typeof(bool)), typeof(bool), Expression.Or)
+        ];
 
-        Unaries = new List<(Type InputType, Type ResultType, Func<Expression, Expression> OperatorCreator)>
-        {
+        Unaries =
+        [
             (typeof(string), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(string)))),
             (typeof(string), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(string)))),
             (typeof(string), typeof(bool), x => Expression.Call(
@@ -104,8 +104,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             (typeof(long), typeof(int), x => Expression.Convert(x, typeof(int))),
             (typeof(bool), typeof(bool), Expression.Not),
             (typeof(bool?), typeof(bool), x => Expression.Equal(x, Expression.Constant(null, typeof(bool?)))),
-            (typeof(bool?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(bool?)))),
-        };
+            (typeof(bool?), typeof(bool), x => Expression.NotEqual(x, Expression.Constant(null, typeof(bool?))))
+        ];
 
         PropertyTypeToEntityMap = new Dictionary<Type, Type>
         {
@@ -473,7 +473,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[] { seed, actualSetSource, resultRewriter });
+            [seed, actualSetSource, resultRewriter]);
     }
 
     private void TestProjectionQueryWithOneSource<TEntity1, TResult>(
@@ -929,7 +929,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         genericMethod.Invoke(
             this,
-            new object[] { seed, actualSetSource, resultRewriter });
+            [seed, actualSetSource, resultRewriter]);
     }
 
     private void TestPredicateQueryWithOneSource<TEntity1>(
@@ -1157,7 +1157,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     {
         private static readonly MethodInfo _likeMethodInfo
             = typeof(DbFunctionsExtensions).GetRuntimeMethod(
-                nameof(DbFunctionsExtensions.Like), new[] { typeof(DbFunctions), typeof(string), typeof(string) });
+                nameof(DbFunctionsExtensions.Like), [typeof(DbFunctions), typeof(string), typeof(string)]);
 
         private readonly Expression[] _roots = roots;
         private readonly Expression _resultExpression = resultExpression;
@@ -1281,11 +1281,11 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
     {
         private static readonly MethodInfo _startsWithMethodInfo
             = typeof(string).GetRuntimeMethod(
-                nameof(string.StartsWith), new[] { typeof(string) })!;
+                nameof(string.StartsWith), [typeof(string)])!;
 
         private static readonly MethodInfo _endsWithMethodInfo
             = typeof(string).GetRuntimeMethod(
-                nameof(string.EndsWith), new[] { typeof(string) })!;
+                nameof(string.EndsWith), [typeof(string)])!;
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
         {

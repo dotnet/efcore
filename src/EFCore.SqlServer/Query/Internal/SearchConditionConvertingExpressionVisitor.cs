@@ -790,7 +790,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             }
             else if (!ReferenceEquals(newValue, columnValueSetter.Value))
             {
-                columnValueSetters = new List<ColumnValueSetter>();
+                columnValueSetters = [];
                 for (var j = 0; j < i; j++)
                 {
                     columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);

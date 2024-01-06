@@ -974,11 +974,11 @@ public class StateManagerTest
         var fk = model.FindEntityType(typeof(Product)).GetForeignKeys().Single();
 
         Assert.Equal(
-            new[] { productEntry1, productEntry2 },
+            [productEntry1, productEntry2],
             stateManager.GetDependents(categoryEntry1, fk).ToArray());
 
         Assert.Equal(
-            new[] { productEntry3, productEntry4 },
+            [productEntry3, productEntry4],
             stateManager.GetDependents(categoryEntry2, fk).ToArray());
 
         Assert.Empty(stateManager.GetDependents(categoryEntry3, fk).ToArray());

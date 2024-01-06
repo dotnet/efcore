@@ -22,12 +22,12 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public class ExpressionPrinter : ExpressionVisitor
 {
-    private static readonly List<string> SimpleMethods = new()
-    {
+    private static readonly List<string> SimpleMethods =
+    [
         "get_Item",
         "TryReadValue",
         "ReferenceEquals"
-    };
+    ];
 
     private readonly IndentedStringBuilder _stringBuilder;
     private readonly Dictionary<ParameterExpression, string?> _parametersInScope;
@@ -63,8 +63,8 @@ public class ExpressionPrinter : ExpressionVisitor
     {
         _stringBuilder = new IndentedStringBuilder();
         _parametersInScope = new Dictionary<ParameterExpression, string?>();
-        _namelessParameters = new List<ParameterExpression>();
-        _encounteredParameters = new List<ParameterExpression>();
+        _namelessParameters = [];
+        _encounteredParameters = [];
     }
 
     private int? CharacterLimit { get; set; }
@@ -711,7 +711,7 @@ public class ExpressionPrinter : ExpressionVisitor
                     ? extensionMethod
                         ? method.GetParameters().Skip(1).Select(p => p.Name).ToList()
                         : method.GetParameters().Select(p => p.Name).ToList()
-                    : new List<string?>();
+                    : [];
 
             IDisposable? indent = null;
 

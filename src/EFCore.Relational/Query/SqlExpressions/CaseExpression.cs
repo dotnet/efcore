@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </summary>
 public class CaseExpression : SqlExpression
 {
-    private readonly List<CaseWhenClause> _whenClauses = new();
+    private readonly List<CaseWhenClause> _whenClauses = [];
 
     /// <summary>
     ///     Creates a new instance of the <see cref="CaseExpression" /> class which represents a simple CASE expression.

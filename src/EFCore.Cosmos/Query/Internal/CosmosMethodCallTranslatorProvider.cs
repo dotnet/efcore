@@ -11,8 +11,8 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 /// </summary>
 public class CosmosMethodCallTranslatorProvider : IMethodCallTranslatorProvider
 {
-    private readonly List<IMethodCallTranslator> _plugins = new();
-    private readonly List<IMethodCallTranslator> _translators = new();
+    private readonly List<IMethodCallTranslator> _plugins = [];
+    private readonly List<IMethodCallTranslator> _translators = [];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

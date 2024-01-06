@@ -15,13 +15,13 @@ public class SqliteApiConsistencyTest(SqliteApiConsistencyTest.SqliteApiConsiste
 
     public class SqliteApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
+        public override HashSet<Type> FluentApiTypes { get; } =
+        [
             typeof(SqliteServiceCollectionExtensions),
             typeof(SqliteDbContextOptionsBuilderExtensions),
             typeof(SqliteDbContextOptionsBuilder),
-            typeof(SqlitePropertyBuilderExtensions),
-        };
+            typeof(SqlitePropertyBuilderExtensions)
+        ];
 
         public override
             Dictionary<Type,

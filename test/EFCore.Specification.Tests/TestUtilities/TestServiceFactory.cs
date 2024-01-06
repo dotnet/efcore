@@ -35,7 +35,7 @@ public class TestServiceFactory
 
         return _factories.GetOrAdd(
                 typeof(TService),
-                t => AddType(new ServiceCollection(), typeof(TService), exceptions).BuildServiceProvider(validateScopes: true))
+                t => AddType([], typeof(TService), exceptions).BuildServiceProvider(validateScopes: true))
             .GetService<TService>();
     }
 

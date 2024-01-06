@@ -44,7 +44,7 @@ internal static class Reporter
                 ? prefix
                 : string.Join(
                     Environment.NewLine,
-                    value.Split(new[] { Environment.NewLine }, StringSplitOptions.None).Select(l => prefix + l))
+                    value.Split([Environment.NewLine], StringSplitOptions.None).Select(l => prefix + l))
             : value;
 
     private static void WriteLine(string? value)

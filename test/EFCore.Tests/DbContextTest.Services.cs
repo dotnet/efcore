@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore
             }
         }
 
-        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = new();
+        protected static List<(LogLevel Level, EventId Id, string Message)> Log { get; } = [];
 
         private class InfoLogContext(bool useLoggerFactory, bool configureForDebug) : DbContext
         {

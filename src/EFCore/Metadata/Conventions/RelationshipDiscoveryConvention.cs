@@ -117,7 +117,7 @@ public class RelationshipDiscoveryConvention :
                 // Current entity type was removed while the target entity type was being added
                 relationshipCandidates[candidateTargetEntityType] =
                     new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                        candidateTargetEntityTypeBuilder, [], [], false);
                 break;
             }
 
@@ -128,7 +128,7 @@ public class RelationshipDiscoveryConvention :
             {
                 relationshipCandidates[candidateTargetEntityType] =
                     new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                        candidateTargetEntityTypeBuilder, [], [], false);
                 continue;
             }
 
@@ -163,7 +163,7 @@ public class RelationshipDiscoveryConvention :
                 // Also skip non-ownership navigations from the owner
                 relationshipCandidates[candidateTargetEntityType] =
                     new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                        candidateTargetEntityTypeBuilder, [], [], false);
                 continue;
             }
 
@@ -174,7 +174,7 @@ public class RelationshipDiscoveryConvention :
                 // Don't try to configure a collection on an owned type unless it represents a sub-ownership
                 relationshipCandidates[candidateTargetEntityType] =
                     new RelationshipCandidate(
-                        candidateTargetEntityTypeBuilder, new List<PropertyInfo>(), new List<PropertyInfo>(), false);
+                        candidateTargetEntityTypeBuilder, [], [], false);
                 continue;
             }
 
@@ -444,8 +444,8 @@ public class RelationshipDiscoveryConvention :
                     filteredRelationshipCandidates.Add(
                         new RelationshipCandidate(
                             targetEntityTypeBuilder,
-                            new List<PropertyInfo> { navigationProperty },
-                            new List<PropertyInfo>(),
+                            [navigationProperty],
+                            [],
                             relationshipCandidate.IsOwnership));
 
                     if (relationshipCandidate.TargetTypeBuilder.Metadata == entityTypeBuilder.Metadata
@@ -494,8 +494,8 @@ public class RelationshipDiscoveryConvention :
                     filteredRelationshipCandidates.Add(
                         new RelationshipCandidate(
                             targetEntityTypeBuilder,
-                            new List<PropertyInfo> { navigationProperty },
-                            new List<PropertyInfo> { compatibleInverse },
+                            [navigationProperty],
+                            [compatibleInverse],
                             relationshipCandidate.IsOwnership)
                     );
 

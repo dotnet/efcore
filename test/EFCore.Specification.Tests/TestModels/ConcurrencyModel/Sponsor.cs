@@ -28,7 +28,7 @@ public class Sponsor
 
     public static readonly string ClientTokenPropertyName = "ClientToken";
 
-    private readonly ObservableCollection<Team> _teams = new();
+    private readonly ObservableCollection<Team> _teams = [];
 
     public int Id { get; set; }
     public string Name { get; set; }

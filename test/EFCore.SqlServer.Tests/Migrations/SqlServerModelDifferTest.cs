@@ -681,7 +681,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
     [ConditionalFact]
     public void Add_dbfunction_ignore()
     {
-        var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), Array.Empty<Type>());
+        var mi = typeof(SqlServerModelDifferTest).GetRuntimeMethod(nameof(Function), []);
 
         Execute(
             _ => { },

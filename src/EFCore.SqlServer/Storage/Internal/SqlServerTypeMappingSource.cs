@@ -160,53 +160,53 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         _storeTypeMappings
             = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
             {
-                { "bigint", new[] { SqlServerLongTypeMapping.Default } },
-                { "binary varying", new[] { SqlServerByteArrayTypeMapping.Default } },
-                { "binary", new[] { FixedLengthBinary } },
-                { "bit", new[] { SqlServerBoolTypeMapping.Default } },
-                { "char varying", new[] { SqlServerStringTypeMapping.Default } },
-                { "char varying(max)", new[] { VariableLengthMaxAnsiString } },
-                { "char", new[] { FixedLengthAnsiString } },
-                { "character varying", new[] { SqlServerStringTypeMapping.Default } },
-                { "character varying(max)", new[] { VariableLengthMaxAnsiString } },
-                { "character", new[] { FixedLengthAnsiString } },
-                { "date", new RelationalTypeMapping[] { SqlServerDateOnlyTypeMapping.Default, DateAsDateTime } },
-                { "datetime", new[] { Datetime } },
-                { "datetime2", new[] { SqlServerDateTimeTypeMapping.Default } },
-                { "datetimeoffset", new[] { SqlServerDateTimeOffsetTypeMapping.Default } },
-                { "dec", new[] { Decimal } },
-                { "decimal", new[] { Decimal } },
-                { "double precision", new[] { SqlServerDoubleTypeMapping.Default } },
-                { "float", new[] { SqlServerDoubleTypeMapping.Default } },
-                { "image", new[] { ImageBinary } },
-                { "int", new[] { IntTypeMapping.Default } },
-                { "money", new[] { Money } },
-                { "national char varying", new[] { VariableLengthUnicodeString } },
-                { "national char varying(max)", new[] { VariableLengthMaxUnicodeString } },
-                { "national character varying", new[] { VariableLengthUnicodeString } },
-                { "national character varying(max)", new[] { VariableLengthMaxUnicodeString } },
-                { "national character", new[] { FixedLengthUnicodeString } },
-                { "nchar", new[] { FixedLengthUnicodeString } },
-                { "ntext", new[] { TextUnicodeString } },
-                { "numeric", new[] { Decimal } },
-                { "nvarchar", new[] { VariableLengthUnicodeString } },
-                { "nvarchar(max)", new[] { VariableLengthMaxUnicodeString } },
-                { "real", new[] { SqlServerFloatTypeMapping.Default } },
-                { "rowversion", new[] { Rowversion } },
-                { "smalldatetime", new[] { SmallDatetime } },
-                { "smallint", new[] { SqlServerShortTypeMapping.Default } },
-                { "smallmoney", new[] { SmallMoney } },
-                { "sql_variant", new[] { SqlServerSqlVariantTypeMapping.Default } },
-                { "text", new[] { TextAnsiString } },
-                { "time", new RelationalTypeMapping[] { SqlServerTimeOnlyTypeMapping.Default, SqlServerTimeSpanTypeMapping.Default } },
-                { "timestamp", new[] { Rowversion } },
-                { "tinyint", new[] { SqlServerByteTypeMapping.Default } },
-                { "uniqueidentifier", new[] { Uniqueidentifier } },
-                { "varbinary", new[] { SqlServerByteArrayTypeMapping.Default } },
-                { "varbinary(max)", new[] { VariableLengthMaxBinary } },
-                { "varchar", new[] { SqlServerStringTypeMapping.Default } },
-                { "varchar(max)", new[] { VariableLengthMaxAnsiString } },
-                { "xml", new[] { Xml } }
+                { "bigint", [SqlServerLongTypeMapping.Default] },
+                { "binary varying", [SqlServerByteArrayTypeMapping.Default] },
+                { "binary", [FixedLengthBinary] },
+                { "bit", [SqlServerBoolTypeMapping.Default] },
+                { "char varying", [SqlServerStringTypeMapping.Default] },
+                { "char varying(max)", [VariableLengthMaxAnsiString] },
+                { "char", [FixedLengthAnsiString] },
+                { "character varying", [SqlServerStringTypeMapping.Default] },
+                { "character varying(max)", [VariableLengthMaxAnsiString] },
+                { "character", [FixedLengthAnsiString] },
+                { "date", [SqlServerDateOnlyTypeMapping.Default, DateAsDateTime] },
+                { "datetime", [Datetime] },
+                { "datetime2", [SqlServerDateTimeTypeMapping.Default] },
+                { "datetimeoffset", [SqlServerDateTimeOffsetTypeMapping.Default] },
+                { "dec", [Decimal] },
+                { "decimal", [Decimal] },
+                { "double precision", [SqlServerDoubleTypeMapping.Default] },
+                { "float", [SqlServerDoubleTypeMapping.Default] },
+                { "image", [ImageBinary] },
+                { "int", [IntTypeMapping.Default] },
+                { "money", [Money] },
+                { "national char varying", [VariableLengthUnicodeString] },
+                { "national char varying(max)", [VariableLengthMaxUnicodeString] },
+                { "national character varying", [VariableLengthUnicodeString] },
+                { "national character varying(max)", [VariableLengthMaxUnicodeString] },
+                { "national character", [FixedLengthUnicodeString] },
+                { "nchar", [FixedLengthUnicodeString] },
+                { "ntext", [TextUnicodeString] },
+                { "numeric", [Decimal] },
+                { "nvarchar", [VariableLengthUnicodeString] },
+                { "nvarchar(max)", [VariableLengthMaxUnicodeString] },
+                { "real", [SqlServerFloatTypeMapping.Default] },
+                { "rowversion", [Rowversion] },
+                { "smalldatetime", [SmallDatetime] },
+                { "smallint", [SqlServerShortTypeMapping.Default] },
+                { "smallmoney", [SmallMoney] },
+                { "sql_variant", [SqlServerSqlVariantTypeMapping.Default] },
+                { "text", [TextAnsiString] },
+                { "time", [SqlServerTimeOnlyTypeMapping.Default, SqlServerTimeSpanTypeMapping.Default] },
+                { "timestamp", [Rowversion] },
+                { "tinyint", [SqlServerByteTypeMapping.Default] },
+                { "uniqueidentifier", [Uniqueidentifier] },
+                { "varbinary", [SqlServerByteArrayTypeMapping.Default] },
+                { "varbinary(max)", [VariableLengthMaxBinary] },
+                { "varchar", [SqlServerStringTypeMapping.Default] },
+                { "varchar(max)", [VariableLengthMaxAnsiString] },
+                { "xml", [Xml] }
             };
         // ReSharper restore CoVariantArrayConversion
     }
@@ -371,8 +371,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         return null;
     }
 
-    private static readonly List<string> NameBasesUsingPrecision = new()
-    {
+    private static readonly List<string> NameBasesUsingPrecision =
+    [
         "decimal",
         "dec",
         "numeric",
@@ -381,7 +381,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         "double precision",
         "float",
         "time"
-    };
+    ];
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

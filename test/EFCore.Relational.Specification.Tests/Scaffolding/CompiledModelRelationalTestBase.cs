@@ -502,7 +502,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
                         .HasRowsAffectedReturnValue()
                         .HasOriginalValueParameter(p => p.Id));
 
-                eb.HasIndex(new[] { "PrincipalBaseId" }, "PrincipalIndex")
+                eb.HasIndex(["PrincipalBaseId"], "PrincipalIndex")
                     .IsUnique()
                     .HasDatabaseName("PIX")
                     .HasFilter("AlternateId <> NULL");
@@ -1094,7 +1094,7 @@ public abstract class CompiledModelRelationalTestBase : CompiledModelTestBase
             modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(IsDateStatic))!).HasName("IsDate").IsBuiltIn()
                 .Metadata.SetAnnotation("MyGuid", new Guid());
 
-            modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), new[] { typeof(int) })!);
+            modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), [typeof(int)])!);
             modelBuilder.HasDbFunction(typeof(DbFunctionContext).GetMethod(nameof(GetData), new Type[0])!);
 
             modelBuilder.Entity<Data>().ToFunction(typeof(DbFunctionContext).FullName + ".GetData()", f => f.HasName("GetAllData"))

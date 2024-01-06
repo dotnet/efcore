@@ -33,8 +33,8 @@ public abstract class TrackGraphTestBase
             var category = new Category
             {
                 Id = 1,
-                Products = new List<Product>
-                {
+                Products =
+                [
                     new()
                     {
                         Id = 1,
@@ -53,7 +53,7 @@ public abstract class TrackGraphTestBase
                         CategoryId = 1,
                         Details = new ProductDetails { Id = 3 }
                     }
-                }
+                ]
             };
 
             var rootEntry = context.Attach(category);
@@ -91,8 +91,7 @@ public abstract class TrackGraphTestBase
             }
 
             Assert.Equal(
-                new List<string>
-                {
+                [
                     "<None> -----> Category:1",
                     "Category:1 ---Products--> Product:1",
                     "Product:1 ---Details--> ProductDetails:1",
@@ -100,7 +99,7 @@ public abstract class TrackGraphTestBase
                     "Product:2 ---Details--> ProductDetails:2",
                     "Category:1 ---Products--> Product:3",
                     "Product:3 ---Details--> ProductDetails:3"
-                },
+                ],
                 traversal);
 
             Assert.Equal(7, visited.Count);
@@ -163,12 +162,12 @@ public abstract class TrackGraphTestBase
         using var context = new EarlyLearningCenter(GetType().Name);
         var category = new NullbileCategory
         {
-            Products = new List<NullbileProduct>
-            {
+            Products =
+            [
                 new(),
                 new(),
                 new()
-            }
+            ]
         };
 
         if (setKeys)
@@ -412,12 +411,12 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 }
-            }
+            ]
         };
 
         Assert.Equal(
@@ -580,12 +579,12 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new() { Id = 1 },
                 existingProduct,
                 new() { Id = 3 }
-            }
+            ]
         };
 
         Assert.Equal(
@@ -625,8 +624,8 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new()
                 {
                     Id = 1,
@@ -645,7 +644,7 @@ public abstract class TrackGraphTestBase
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 3 }
                 }
-            }
+            ]
         };
 
         Assert.Equal(
@@ -794,12 +793,12 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 }
-            }
+            ]
         };
 
         context.Attach(category);
@@ -844,12 +843,12 @@ public abstract class TrackGraphTestBase
 
         if (trackNewDependents)
         {
-            newCategory.Products = new List<Product>
-            {
+            newCategory.Products =
+            [
                 new() { Id = 1 },
                 new() { Id = 2 },
                 new() { Id = 3 }
-            };
+            ];
         }
 
         if (delayCascade && trackNewDependents)
@@ -862,13 +861,13 @@ public abstract class TrackGraphTestBase
         {
             Assert.Equal(
                 trackNewDependents
-                    ? new List<string>
-                    {
+                    ?
+                    [
                         "<None> -----> Category:1",
                         "Category:1 ---Products--> Product:1",
                         "Category:1 ---Products--> Product:2",
                         "Category:1 ---Products--> Product:3"
-                    }
+                    ]
                     : new List<string> { "<None> -----> Category:1" },
                 TrackGraph());
 
@@ -939,8 +938,8 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new()
                 {
                     Id = 1,
@@ -959,7 +958,7 @@ public abstract class TrackGraphTestBase
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 3 }
                 }
-            }
+            ]
         };
 
         var visited = new HashSet<object>();
@@ -983,8 +982,7 @@ public abstract class TrackGraphTestBase
             });
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "<None> -----> Category:1",
                 "Category:1 ---Products--> Product:1",
                 "Product:1 ---Details--> ProductDetails:1",
@@ -992,7 +990,7 @@ public abstract class TrackGraphTestBase
                 "Product:2 ---Details--> ProductDetails:2",
                 "Category:1 ---Products--> Product:3",
                 "Product:3 ---Details--> ProductDetails:3"
-            },
+            ],
             traversal);
 
         Assert.Equal(7, visited.Count);
@@ -1056,12 +1054,12 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 77,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new() { Id = 77, CategoryId = expectModified ? 0 : 77 },
                 new() { Id = 0, CategoryId = expectModified ? 0 : 77 },
                 new() { Id = 78, CategoryId = expectModified ? 0 : 77 }
-            }
+            ]
         };
 
         tracker(category, context.ChangeTracker);
@@ -1099,12 +1097,12 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 77,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new() { Id = 77, CategoryId = 77 },
                 new() { Id = 0, CategoryId = 77 },
                 new() { Id = 78, CategoryId = 77 }
-            }
+            ]
         };
 
         context.ChangeTracker.TrackGraph(category, tracker.TrackEntity);
@@ -1170,8 +1168,8 @@ public abstract class TrackGraphTestBase
         var category = new Category
         {
             Id = 1,
-            Products = new List<Product>
-            {
+            Products =
+            [
                 new()
                 {
                     Id = 1,
@@ -1190,7 +1188,7 @@ public abstract class TrackGraphTestBase
                     CategoryId = 1,
                     Details = new ProductDetails { Id = 3 }
                 }
-            }
+            ]
         };
 
         context.Attach(category);
@@ -1214,8 +1212,7 @@ public abstract class TrackGraphTestBase
             });
 
         Assert.Equal(
-            new List<string>
-            {
+            [
                 "<None> -----> Category:1",
                 "Category:1 ---Products--> Product:1",
                 "Product:1 ---Details--> ProductDetails:1",
@@ -1223,7 +1220,7 @@ public abstract class TrackGraphTestBase
                 "Product:2 ---Details--> ProductDetails:2",
                 "Category:1 ---Products--> Product:3",
                 "Product:3 ---Details--> ProductDetails:3"
-            },
+            ],
             traversal);
 
         Assert.Equal(7, visited.Count);

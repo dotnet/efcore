@@ -60,7 +60,7 @@ public abstract class AdHocNavigationsQueryRelationalTestBase : AdHocNavigations
 
         public class AppEntity
         {
-            private readonly List<OtherEntity> _otherEntities = new();
+            private readonly List<OtherEntity> _otherEntities = [];
 
             public int Id { get; private set; }
 

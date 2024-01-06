@@ -20,7 +20,7 @@ public class SqlServerSqlHierarchyIdTypeMapping : RelationalTypeMapping
     private const string SqlHierarchyIdFormatConst = "hierarchyid::Parse('{0}')";
 
     private static readonly MethodInfo SqlHierarchyIdParseMethod
-        = typeof(SqlHierarchyId).GetRuntimeMethod(nameof(SqlHierarchyId.Parse), new[] { typeof(SqlString) })!;
+        = typeof(SqlHierarchyId).GetRuntimeMethod(nameof(SqlHierarchyId.Parse), [typeof(SqlString)])!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -77,7 +77,7 @@ public class RelationalEventIdTest : EventIdTestBase
         TestEventLogging(
             typeof(RelationalEventId),
             typeof(RelationalLoggerExtensions),
-            new[] { typeof(IRelationalConnectionDiagnosticsLogger), typeof(IRelationalCommandDiagnosticsLogger) },
+            [typeof(IRelationalConnectionDiagnosticsLogger), typeof(IRelationalCommandDiagnosticsLogger)],
             new TestRelationalLoggingDefinitions(),
             fakeFactories,
             services => FakeRelationalOptionsExtension.AddEntityFrameworkRelationalDatabase(services),

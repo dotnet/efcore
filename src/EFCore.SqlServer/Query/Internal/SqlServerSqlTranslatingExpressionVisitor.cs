@@ -21,43 +21,43 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     private static readonly HashSet<string> DateTimeDataTypes
-        = new()
-        {
+        =
+        [
             "time",
             "date",
             "datetime",
             "datetime2",
             "datetimeoffset"
-        };
+        ];
 
     private static readonly HashSet<Type> DateTimeClrTypes
-        = new()
-        {
+        =
+        [
             typeof(TimeOnly),
             typeof(DateOnly),
             typeof(TimeSpan),
             typeof(DateTime),
             typeof(DateTimeOffset)
-        };
+        ];
 
     private static readonly HashSet<ExpressionType> ArithmeticOperatorTypes
-        = new()
-        {
+        =
+        [
             ExpressionType.Add,
             ExpressionType.Subtract,
             ExpressionType.Multiply,
             ExpressionType.Divide,
             ExpressionType.Modulo
-        };
+        ];
 
     private static readonly MethodInfo StringStartsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.StartsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringEndsWithMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.EndsWith), [typeof(string)])!;
 
     private static readonly MethodInfo StringContainsMethodInfo
-        = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) })!;
+        = typeof(string).GetRuntimeMethod(nameof(string.Contains), [typeof(string)])!;
 
     private static readonly MethodInfo EscapeLikePatternParameterMethod =
         typeof(SqlServerSqlTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ConstructLikePatternParameter))!;

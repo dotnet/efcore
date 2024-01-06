@@ -17,9 +17,7 @@ public class SqlServerHierarchyIdApiConsistencyTest(SqlServerHierarchyIdApiConsi
 
     public class SqlServerHierarchyIdApiConsistencyFixture : ApiConsistencyFixtureBase
     {
-        public override HashSet<Type> FluentApiTypes { get; } = new()
-        {
-            typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions), typeof(SqlServerHierarchyIdServiceCollectionExtensions)
-        };
+        public override HashSet<Type> FluentApiTypes { get; } =
+            [typeof(SqlServerHierarchyIdDbContextOptionsBuilderExtensions), typeof(SqlServerHierarchyIdServiceCollectionExtensions)];
     }
 }

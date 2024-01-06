@@ -70,7 +70,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -108,7 +108,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -169,7 +169,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         {
             Id = id,
             Nvarchar = "Into",
-            Binary = new byte[] { 10, 11, 12, 13 }
+            Binary = [10, 11, 12, 13]
         };
 
     [ConditionalFact]
@@ -289,7 +289,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -328,7 +328,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             Real = 84.4,
             SomeString = "don't",
             Text = "G",
-            Blob = new byte[] { 86 }
+            Blob = [86]
         };
 
     [ConditionalFact]
@@ -390,7 +390,7 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
         {
             AltId = id,
             Nvarchar = "Into",
-            Binary = new byte[] { 10, 11, 12, 13 }
+            Binary = [10, 11, 12, 13]
         };
 
     [ConditionalFact]

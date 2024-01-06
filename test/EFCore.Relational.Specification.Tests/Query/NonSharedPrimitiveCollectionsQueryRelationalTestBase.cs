@@ -18,8 +18,8 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
             seed: context =>
             {
                 context.AddRange(
-                    new TestOwner { Owned = new TestOwned { Strings = new[] { "foo", "bar" } } },
-                    new TestOwner { Owned = new TestOwned { Strings = new[] { "baz" } } });
+                    new TestOwner { Owned = new TestOwned { Strings = ["foo", "bar"] } },
+                    new TestOwner { Owned = new TestOwned { Strings = ["baz"] } });
                 context.SaveChanges();
             });
 

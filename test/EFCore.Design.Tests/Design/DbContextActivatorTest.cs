@@ -18,7 +18,7 @@ public class DbContextActivatorTest
                 typeof(TestContext),
                 null,
                 null,
-                new[] { "A", "B" }));
+                ["A", "B"]));
 
     private class TestContext : DbContext
     {

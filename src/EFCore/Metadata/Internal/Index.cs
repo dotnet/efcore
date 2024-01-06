@@ -227,7 +227,7 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
                 // Normalize all-ascending/descending to null/empty respectively.
                 if (descending.All(desc => desc))
                 {
-                    descending = Array.Empty<bool>();
+                    descending = [];
                 }
                 else if (descending.All(desc => !desc))
                 {

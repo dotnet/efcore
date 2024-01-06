@@ -3599,7 +3599,7 @@ public class FixupCompositeTest
         public long? FavoriteChildID { get; set; }
 
         public virtual ChildShared FavoriteChildShared { get; set; }
-        public virtual List<ChildShared> Children { get; } = new();
+        public virtual List<ChildShared> Children { get; } = [];
     }
 
     public class ChildShared

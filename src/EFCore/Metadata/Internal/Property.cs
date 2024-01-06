@@ -1181,7 +1181,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<Property>();
+            checkedProperties = [];
         }
         else if (checkedProperties.Contains(this))
         {
@@ -1288,7 +1288,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
 
         if (checkedProperties == null)
         {
-            checkedProperties = new HashSet<Property>();
+            checkedProperties = [];
         }
         else if (checkedProperties.Contains(this))
         {

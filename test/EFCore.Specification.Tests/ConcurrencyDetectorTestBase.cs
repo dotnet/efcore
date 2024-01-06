@@ -100,5 +100,5 @@ public abstract class ConcurrencyDetectorTestBase<TFixture> : IClassFixture<TFix
             => ConcurrencyDetectorDbContext.Seed(context);
     }
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
 }

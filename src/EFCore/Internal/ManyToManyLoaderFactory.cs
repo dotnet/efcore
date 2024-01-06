@@ -26,7 +26,7 @@ public class ManyToManyLoaderFactory
         => (ICollectionLoader)GenericCreate.MakeGenericMethod(
                 skipNavigation.TargetEntityType.ClrType,
                 skipNavigation.DeclaringEntityType.ClrType)
-            .Invoke(null, new object[] { skipNavigation })!;
+            .Invoke(null, [skipNavigation])!;
 
     [UsedImplicitly]
     private static ICollectionLoader CreateManyToMany<TEntity, TTargetEntity>(ISkipNavigation skipNavigation)

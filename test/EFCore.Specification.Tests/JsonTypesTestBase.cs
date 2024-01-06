@@ -291,7 +291,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_binary_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value<BytesType, byte[]>(
             nameof(BytesType.Bytes),
-            value == "" ? Array.Empty<byte>() : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
+            value == "" ? [] : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
 
     protected class BytesType
     {
@@ -739,7 +739,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             value == null
                 ? default
                 : value == ""
-                    ? Array.Empty<byte>()
+                    ? []
                     : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
 
     protected class NullableBytesType
@@ -1153,7 +1153,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             value == null
                 ? default
                 : value == ""
-                    ? Array.Empty<byte>()
+                    ? []
                     : value.Split(',').Select(e => byte.Parse(e)).ToArray(), json);
 
     [ConditionalTheory]
@@ -1377,7 +1377,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
         Can_read_and_write_JSON_value<LineStringType, LineString>(
             nameof(LineStringType.LineString),
-            factory.CreateLineString(new[] { new Coordinate(0, 0), new Coordinate(1, 0) }),
+            factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]),
             """{"Prop":"LINESTRING (0 0, 1 0)"}""");
     }
 
@@ -1406,13 +1406,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Can_read_and_write_JSON_value<MultiLineStringType, MultiLineString>(
             nameof(MultiLineStringType.MultiLineString),
             factory.CreateMultiLineString(
-                new[]
-                {
+            [
+                factory.CreateLineString(
+                    [new Coordinate(0, 0), new Coordinate(0, 1)]),
                     factory.CreateLineString(
-                        new[] { new Coordinate(0, 0), new Coordinate(0, 1) }),
-                    factory.CreateLineString(
-                        new[] { new Coordinate(1, 0), new Coordinate(1, 1) })
-                }),
+                    [new Coordinate(1, 0), new Coordinate(1, 1)])
+            ]),
             """{"Prop":"MULTILINESTRING ((0 0, 0 1), (1 0, 1 1))"}""");
     }
 
@@ -1440,7 +1439,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
         Can_read_and_write_JSON_value<PolygonType, Polygon>(
             nameof(PolygonType.Polygon),
-            factory.CreatePolygon(new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) }),
+            factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":"POLYGON ((0 0, 1 0, 0 1, 0 0))"}""");
     }
 
@@ -1468,7 +1467,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
 
         Can_read_and_write_JSON_value<GeometryType, Geometry>(
             nameof(GeometryType.Geometry),
-            factory.CreatePolygon(new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) }),
+            factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":"POLYGON ((0 0, 1 0, 0 1, 0 0))"}""");
     }
 
@@ -1553,7 +1552,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Can_read_and_write_JSON_property_value<LineStringType, LineString>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(LineStringType.LineString),
-            factory.CreateLineString(new[] { new Coordinate(0, 0), new Coordinate(1, 0) }),
+            factory.CreateLineString([new Coordinate(0, 0), new Coordinate(1, 0)]),
             """{"Prop":{"type":"LineString","coordinates":[[0.0,0.0],[1.0,0.0]]}}""");
     }
 
@@ -1574,13 +1573,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(MultiLineStringType.MultiLineString),
             factory.CreateMultiLineString(
-                new[]
-                {
+            [
+                factory.CreateLineString(
+                    [new Coordinate(0, 0), new Coordinate(0, 1)]),
                     factory.CreateLineString(
-                        new[] { new Coordinate(0, 0), new Coordinate(0, 1) }),
-                    factory.CreateLineString(
-                        new[] { new Coordinate(1, 0), new Coordinate(1, 1) })
-                }),
+                    [new Coordinate(1, 0), new Coordinate(1, 1)])
+            ]),
             """{"Prop":{"type":"MultiLineString","coordinates":[[[0.0,0.0],[0.0,1.0]],[[1.0,0.0],[1.0,1.0]]]}}""");
     }
 
@@ -1600,7 +1598,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Can_read_and_write_JSON_property_value<PolygonType, Polygon>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(PolygonType.Polygon),
-            factory.CreatePolygon(new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) }),
+            factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0],[0.0,1.0],[0.0,0.0]]]}}""");
     }
 
@@ -1620,7 +1618,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         Can_read_and_write_JSON_property_value<GeometryType, Geometry>(
             b => b.Metadata.SetJsonValueReaderWriterType(typeof(JsonGeoJsonReaderWriter)),
             nameof(GeometryType.Geometry),
-            factory.CreatePolygon(new[] { new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0) }),
+            factory.CreatePolygon([new Coordinate(0, 0), new Coordinate(1, 0), new Coordinate(0, 1), new Coordinate(0, 0)]),
             """{"Prop":{"type":"Polygon","coordinates":[[[0.0,0.0],[1.0,0.0],[0.0,1.0],[0.0,0.0]]]}}""");
     }
 
@@ -1737,12 +1735,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_sbyte_JSON_values()
         => Can_read_and_write_JSON_value<Int8CollectionType, List<sbyte>>(
             nameof(Int8CollectionType.Int8),
-            new List<sbyte>
-            {
+            [
                 sbyte.MinValue,
                 0,
                 sbyte.MaxValue
-            },
+            ],
             """{"Prop":[-128,0,127]}""",
             mappedCollection: true);
 
@@ -1755,12 +1752,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_short_JSON_values()
         => Can_read_and_write_JSON_value<Int16CollectionType, List<short>>(
             nameof(Int16CollectionType.Int16),
-            new List<short>
-            {
+            [
                 short.MinValue,
                 0,
                 short.MaxValue
-            },
+            ],
             """{"Prop":[-32768,0,32767]}""",
             mappedCollection: true);
 
@@ -1773,12 +1769,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_int_JSON_values()
         => Can_read_and_write_JSON_value<Int32CollectionType, List<int>>(
             nameof(Int32CollectionType.Int32),
-            new List<int>
-            {
+            [
                 int.MinValue,
                 0,
                 int.MaxValue
-            },
+            ],
             """{"Prop":[-2147483648,0,2147483647]}""",
             mappedCollection: true);
 
@@ -1791,12 +1786,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_long_JSON_values()
         => Can_read_and_write_JSON_value<Int64CollectionType, List<long>>(
             nameof(Int64CollectionType.Int64),
-            new List<long>
-            {
+            [
                 long.MinValue,
                 0,
                 long.MaxValue
-            },
+            ],
             """{"Prop":[-9223372036854775808,0,9223372036854775807]}""",
             mappedCollection: true);
 
@@ -1809,12 +1803,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_byte_JSON_values()
         => Can_read_and_write_JSON_value<UInt8CollectionType, List<byte>>(
             nameof(UInt8CollectionType.UInt8),
-            new List<byte>
-            {
+            [
                 byte.MinValue,
                 1,
                 byte.MaxValue
-            },
+            ],
             """{"Prop":[0,1,255]}""",
             mappedCollection: true);
 
@@ -1827,12 +1820,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_ushort_JSON_values()
         => Can_read_and_write_JSON_value<UInt16CollectionType, List<ushort>>(
             nameof(UInt16CollectionType.UInt16),
-            new List<ushort>
-            {
+            [
                 ushort.MinValue,
                 1,
                 ushort.MaxValue
-            },
+            ],
             """{"Prop":[0,1,65535]}""",
             mappedCollection: true);
 
@@ -1845,12 +1837,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_uint_JSON_values()
         => Can_read_and_write_JSON_value<UInt32CollectionType, List<uint>>(
             nameof(UInt32CollectionType.UInt32),
-            new List<uint>
-            {
+            [
                 uint.MinValue,
                 1,
                 uint.MaxValue
-            },
+            ],
             """{"Prop":[0,1,4294967295]}""",
             mappedCollection: true);
 
@@ -1863,12 +1854,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_ulong_JSON_values()
         => Can_read_and_write_JSON_value<UInt64CollectionType, List<ulong>>(
             nameof(UInt64CollectionType.UInt64),
-            new List<ulong>
-            {
+            [
                 ulong.MinValue,
                 1,
                 ulong.MaxValue
-            },
+            ],
             """{"Prop":[0,1,18446744073709551615]}""",
             mappedCollection: true,
             new ObservableCollection<ulong>());
@@ -1882,12 +1872,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_float_JSON_values()
         => Can_read_and_write_JSON_value<FloatCollectionType, List<float>>(
             nameof(FloatCollectionType.Float),
-            new List<float>
-            {
+            [
                 float.MinValue,
                 0,
                 float.MaxValue
-            },
+            ],
             """{"Prop":[-3.4028235E+38,0,3.4028235E+38]}""",
             mappedCollection: true);
 
@@ -1900,12 +1889,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_double_JSON_values()
         => Can_read_and_write_JSON_value<DoubleCollectionType, List<double>>(
             nameof(DoubleCollectionType.Double),
-            new List<double>
-            {
+            [
                 double.MinValue,
                 0,
                 double.MaxValue
-            },
+            ],
             """{"Prop":[-1.7976931348623157E+308,0,1.7976931348623157E+308]}""",
             mappedCollection: true);
 
@@ -1918,12 +1906,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_decimal_JSON_values()
         => Can_read_and_write_JSON_value<DecimalCollectionType, List<decimal>>(
             nameof(DecimalCollectionType.Decimal),
-            new List<decimal>
-            {
+            [
                 decimal.MinValue,
                 0,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""",
             mappedCollection: true);
 
@@ -1936,12 +1923,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_DateOnly_JSON_values()
         => Can_read_and_write_JSON_value<DateOnlyCollectionType, List<DateOnly>>(
             nameof(DateOnlyCollectionType.DateOnly),
-            new List<DateOnly>
-            {
+            [
                 DateOnly.MinValue,
                 new(2023, 5, 29),
                 DateOnly.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01","2023-05-29","9999-12-31"]}""",
             mappedCollection: true);
 
@@ -1954,12 +1940,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_TimeOnly_JSON_values()
         => Can_read_and_write_JSON_value<TimeOnlyCollectionType, List<TimeOnly>>(
             nameof(TimeOnlyCollectionType.TimeOnly),
-            new List<TimeOnly>
-            {
+            [
                 TimeOnly.MinValue,
                 new(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
-            },
+            ],
             """{"Prop":["00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
             mappedCollection: true,
             new List<TimeOnly>());
@@ -1973,12 +1958,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeCollectionType, List<DateTime>>(
             nameof(DateTimeCollectionType.DateTime),
-            new List<DateTime>
-            {
+            [
                 DateTime.MinValue,
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01T00:00:00","2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""",
             mappedCollection: true);
 
@@ -1991,14 +1975,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<DateTimeOffsetCollectionType, List<DateTimeOffset>>(
             nameof(DateTimeOffsetCollectionType.DateTimeOffset),
-            new List<DateTimeOffset>
-            {
+            [
                 DateTimeOffset.MinValue,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00","2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""",
             mappedCollection: true);
 
@@ -2011,12 +1994,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_TimeSpan_JSON_values()
         => Can_read_and_write_JSON_value<TimeSpanCollectionType, List<TimeSpan>>(
             nameof(TimeSpanCollectionType.TimeSpan),
-            new List<TimeSpan>
-            {
+            [
                 TimeSpan.MinValue,
                 new(1, 2, 3, 4, 5),
                 TimeSpan.MaxValue
-            },
+            ],
             """{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807"]}""",
             mappedCollection: true);
 
@@ -2029,7 +2011,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_bool_JSON_values()
         => Can_read_and_write_JSON_value<BooleanCollectionType, List<bool>>(
             nameof(BooleanCollectionType.Boolean),
-            new List<bool> { false, true },
+            [false, true],
             """{"Prop":[false,true]}""",
             mappedCollection: true);
 
@@ -2042,12 +2024,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_char_JSON_values()
         => Can_read_and_write_JSON_value<CharacterCollectionType, List<char>>(
             nameof(CharacterCollectionType.Character),
-            new List<char>
-            {
+            [
                 char.MinValue,
                 'X',
                 char.MaxValue
-            },
+            ],
             """{"Prop":["\u0000","X","\uFFFF"]}""",
             mappedCollection: true);
 
@@ -2060,12 +2041,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_GUID_JSON_values()
         => Can_read_and_write_JSON_value<GuidCollectionType, List<Guid>>(
             nameof(GuidCollectionType.Guid),
-            new List<Guid>
-            {
+            [
                 new(),
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["00000000-0000-0000-0000-000000000000","8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""",
             mappedCollection: true);
 
@@ -2078,12 +2058,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_string_JSON_values()
         => Can_read_and_write_JSON_value<StringCollectionType, List<string>>(
             nameof(StringCollectionType.String),
-            new List<string>
-            {
+            [
                 "MinValue",
                 "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
                 "MaxValue"
-            },
+            ],
             """{"Prop":["MinValue","\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A","MaxValue"]}""",
             mappedCollection: true);
 
@@ -2096,13 +2075,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_binary_JSON_values()
         => Can_read_and_write_JSON_value<BytesCollectionType, List<byte[]>>(
             nameof(BytesCollectionType.Bytes),
-            new List<byte[]>
-            {
-                new byte[] { 0, 0, 0, 1 },
-                new byte[] { 255, 255, 255, 255 },
-                Array.Empty<byte>(),
-                new byte[] { 1, 2, 3, 4 }
-            },
+            [
+                [0, 0, 0, 1],
+                [255, 255, 255, 255],
+                [],
+                [1, 2, 3, 4]
+            ],
             """{"Prop":["AAAAAQ==","/////w==","","AQIDBA=="]}""",
             mappedCollection: true);
 
@@ -2115,11 +2093,10 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_URI_JSON_values()
         => Can_read_and_write_JSON_value<UriCollectionType, List<Uri>>(
             nameof(UriCollectionType.Uri),
-            new List<Uri>
-            {
+            [
                 new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
                 new("file:///C:/test/path/file.txt")
-            },
+            ],
             """{"Prop":["https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName","file:///C:/test/path/file.txt"]}""",
             mappedCollection: true);
 
@@ -2132,16 +2109,15 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_IP_address_JSON_values()
         => Can_read_and_write_JSON_value<IpAddressCollectionType, List<IPAddress>>(
             nameof(IpAddressCollectionType.IpAddress),
-            new List<IPAddress>
-            {
+            [
                 IPAddress.Parse("127.0.0.1"),
                 IPAddress.Parse("0.0.0.0"),
                 IPAddress.Parse("255.255.255.255"),
                 IPAddress.Parse("192.168.1.156"),
                 IPAddress.Parse("::1"),
                 IPAddress.Parse("::"),
-                IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"),
-            },
+                IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")
+            ],
             """{"Prop":["127.0.0.1","0.0.0.0","255.255.255.255","192.168.1.156","::1","::","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]}""",
             mappedCollection: true);
 
@@ -2154,13 +2130,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_physical_address_JSON_values()
         => Can_read_and_write_JSON_value<PhysicalAddressCollectionType, List<PhysicalAddress>>(
             nameof(PhysicalAddressCollectionType.PhysicalAddress),
-            new List<PhysicalAddress>
-            {
+            [
                 PhysicalAddress.None,
                 PhysicalAddress.Parse("001122334455"),
                 PhysicalAddress.Parse("00-11-22-33-44-55"),
                 PhysicalAddress.Parse("0011.2233.4455")
-            },
+            ],
             """{"Prop":["","001122334455","001122334455","001122334455"]}""",
             mappedCollection: true);
 
@@ -2173,14 +2148,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_sbyte_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum8CollectionType, List<Enum8>>(
             nameof(Enum8CollectionType.Enum8),
-            new List<Enum8>
-            {
+            [
                 Enum8.Min,
                 Enum8.Max,
                 Enum8.Default,
                 Enum8.One,
                 (Enum8)(-8)
-            },
+            ],
             """{"Prop":[-128,127,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2193,14 +2167,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_short_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum16CollectionType, List<Enum16>>(
             nameof(Enum16CollectionType.Enum16),
-            new List<Enum16>
-            {
+            [
                 Enum16.Min,
                 Enum16.Max,
                 Enum16.Default,
                 Enum16.One,
                 (Enum16)(-8)
-            },
+            ],
             """{"Prop":[-32768,32767,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2213,14 +2186,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_int_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum32CollectionType, List<Enum32>>(
             nameof(Enum32CollectionType.Enum32),
-            new List<Enum32>
-            {
+            [
                 Enum32.Min,
                 Enum32.Max,
                 Enum32.Default,
                 Enum32.One,
                 (Enum32)(-8)
-            },
+            ],
             """{"Prop":[-2147483648,2147483647,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2233,14 +2205,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_long_enum_JSON_values()
         => Can_read_and_write_JSON_value<Enum64CollectionType, List<Enum64>>(
             nameof(Enum64CollectionType.Enum64),
-            new List<Enum64>
-            {
+            [
                 Enum64.Min,
                 Enum64.Max,
                 Enum64.Default,
                 Enum64.One,
                 (Enum64)(-8)
-            },
+            ],
             """{"Prop":[-9223372036854775808,9223372036854775807,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2253,14 +2224,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_byte_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU8CollectionType, List<EnumU8>>(
             nameof(EnumU8CollectionType.EnumU8),
-            new List<EnumU8>
-            {
+            [
                 EnumU8.Min,
                 EnumU8.Max,
                 EnumU8.Default,
                 EnumU8.One,
                 (EnumU8)8
-            },
+            ],
             """{"Prop":[0,255,0,1,8]}""",
             mappedCollection: true);
 
@@ -2273,14 +2243,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_ushort_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU16CollectionType, List<EnumU16>>(
             nameof(EnumU16CollectionType.EnumU16),
-            new List<EnumU16>
-            {
+            [
                 EnumU16.Min,
                 EnumU16.Max,
                 EnumU16.Default,
                 EnumU16.One,
                 (EnumU16)8
-            },
+            ],
             """{"Prop":[0,65535,0,1,8]}""",
             mappedCollection: true);
 
@@ -2293,14 +2262,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_uint_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU32CollectionType, List<EnumU32>>(
             nameof(EnumU32CollectionType.EnumU32),
-            new List<EnumU32>
-            {
+            [
                 EnumU32.Min,
                 EnumU32.Max,
                 EnumU32.Default,
                 EnumU32.One,
                 (EnumU32)8
-            },
+            ],
             """{"Prop":[0,4294967295,0,1,8]}""",
             mappedCollection: true,
             new ObservableCollection<EnumU32>());
@@ -2314,14 +2282,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_ulong_enum_JSON_values()
         => Can_read_and_write_JSON_value<EnumU64CollectionType, List<EnumU64>>(
             nameof(EnumU64CollectionType.EnumU64),
-            new List<EnumU64>
-            {
+            [
                 EnumU64.Min,
                 EnumU64.Max,
                 EnumU64.Default,
                 EnumU64.One,
                 (EnumU64)8
-            },
+            ],
             """{"Prop":[0,18446744073709551615,0,1,8]}""",
             mappedCollection: true);
 
@@ -2334,13 +2301,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_sbyte_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt8CollectionType, List<sbyte?>>(
             nameof(NullableInt8CollectionType.Int8),
-            new List<sbyte?>
-            {
+            [
                 null,
                 sbyte.MinValue,
                 0,
                 sbyte.MaxValue
-            },
+            ],
             """{"Prop":[null,-128,0,127]}""",
             mappedCollection: true);
 
@@ -2353,13 +2319,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_short_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt16CollectionType, List<short?>>(
             nameof(NullableInt16CollectionType.Int16),
-            new List<short?>
-            {
+            [
                 short.MinValue,
                 null,
                 0,
                 short.MaxValue
-            },
+            ],
             """{"Prop":[-32768,null,0,32767]}""",
             mappedCollection: true);
 
@@ -2372,13 +2337,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_int_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt32CollectionType, List<int?>>(
             nameof(NullableInt32CollectionType.Int32),
-            new List<int?>
-            {
+            [
                 int.MinValue,
                 0,
                 null,
                 int.MaxValue
-            },
+            ],
             """{"Prop":[-2147483648,0,null,2147483647]}""",
             mappedCollection: true);
 
@@ -2391,13 +2355,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_long_JSON_values()
         => Can_read_and_write_JSON_value<NullableInt64CollectionType, List<long?>>(
             nameof(NullableInt64CollectionType.Int64),
-            new List<long?>
-            {
+            [
                 long.MinValue,
                 0,
                 long.MaxValue,
                 null
-            },
+            ],
             """{"Prop":[-9223372036854775808,0,9223372036854775807,null]}""",
             mappedCollection: true);
 
@@ -2410,13 +2373,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_byte_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt8CollectionType, List<byte?>>(
             nameof(NullableUInt8CollectionType.UInt8),
-            new List<byte?>
-            {
+            [
                 null,
                 byte.MinValue,
                 1,
                 byte.MaxValue
-            },
+            ],
             """{"Prop":[null,0,1,255]}""",
             mappedCollection: true);
 
@@ -2429,13 +2391,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_ushort_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt16CollectionType, List<ushort?>>(
             nameof(NullableUInt16CollectionType.UInt16),
-            new List<ushort?>
-            {
+            [
                 ushort.MinValue,
                 null,
                 1,
                 ushort.MaxValue
-            },
+            ],
             """{"Prop":[0,null,1,65535]}""",
             mappedCollection: true);
 
@@ -2448,13 +2409,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_uint_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt32CollectionType, List<uint?>>(
             nameof(NullableUInt32CollectionType.UInt32),
-            new List<uint?>
-            {
+            [
                 uint.MinValue,
                 1,
                 null,
                 uint.MaxValue
-            },
+            ],
             """{"Prop":[0,1,null,4294967295]}""",
             mappedCollection: true);
 
@@ -2467,13 +2427,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_ulong_JSON_values()
         => Can_read_and_write_JSON_value<NullableUInt64CollectionType, List<ulong?>>(
             nameof(NullableUInt64CollectionType.UInt64),
-            new List<ulong?>
-            {
+            [
                 ulong.MinValue,
                 1,
                 ulong.MaxValue,
                 null
-            },
+            ],
             """{"Prop":[0,1,18446744073709551615,null]}""",
             mappedCollection: true);
 
@@ -2486,13 +2445,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_float_JSON_values()
         => Can_read_and_write_JSON_value<NullableFloatCollectionType, List<float?>>(
             nameof(NullableFloatCollectionType.Float),
-            new List<float?>
-            {
+            [
                 null,
                 float.MinValue,
                 0,
                 float.MaxValue
-            },
+            ],
             """{"Prop":[null,-3.4028235E+38,0,3.4028235E+38]}""",
             mappedCollection: true);
 
@@ -2505,13 +2463,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_double_JSON_values()
         => Can_read_and_write_JSON_value<NullableDoubleCollectionType, List<double?>>(
             nameof(NullableDoubleCollectionType.Double),
-            new List<double?>
-            {
+            [
                 double.MinValue,
                 null,
                 0,
                 double.MaxValue
-            },
+            ],
             """{"Prop":[-1.7976931348623157E+308,null,0,1.7976931348623157E+308]}""",
             mappedCollection: true);
 
@@ -2524,13 +2481,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_decimal_JSON_values()
         => Can_read_and_write_JSON_value<NullableDecimalCollectionType, List<decimal?>>(
             nameof(NullableDecimalCollectionType.Decimal),
-            new List<decimal?>
-            {
+            [
                 decimal.MinValue,
                 0,
                 null,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":[-79228162514264337593543950335,0,null,79228162514264337593543950335]}""",
             mappedCollection: true);
 
@@ -2543,13 +2499,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_DateOnly_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateOnlyCollectionType, List<DateOnly?>>(
             nameof(NullableDateOnlyCollectionType.DateOnly),
-            new List<DateOnly?>
-            {
+            [
                 DateOnly.MinValue,
                 new(2023, 5, 29),
                 DateOnly.MaxValue,
                 null
-            },
+            ],
             """{"Prop":["0001-01-01","2023-05-29","9999-12-31",null]}""",
             mappedCollection: true);
 
@@ -2562,13 +2517,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_TimeOnly_JSON_values()
         => Can_read_and_write_JSON_value<NullableTimeOnlyCollectionType, List<TimeOnly?>>(
             nameof(NullableTimeOnlyCollectionType.TimeOnly),
-            new List<TimeOnly?>
-            {
+            [
                 null,
                 TimeOnly.MinValue,
                 new(11, 5, 2, 3, 4),
                 TimeOnly.MaxValue
-            },
+            ],
             """{"Prop":[null,"00:00:00.0000000","11:05:02.0030040","23:59:59.9999999"]}""",
             mappedCollection: true);
 
@@ -2581,13 +2535,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_DateTime_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeCollectionType, List<DateTime?>>(
             nameof(NullableDateTimeCollectionType.DateTime),
-            new List<DateTime?>
-            {
+            [
                 DateTime.MinValue,
                 null,
                 new(2023, 5, 29, 10, 52, 47),
                 DateTime.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01T00:00:00",null,"2023-05-29T10:52:47","9999-12-31T23:59:59.9999999"]}""",
             mappedCollection: true);
 
@@ -2600,15 +2553,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_DateTimeOffset_JSON_values()
         => Can_read_and_write_JSON_value<NullableDateTimeOffsetCollectionType, List<DateTimeOffset?>>(
             nameof(NullableDateTimeOffsetCollectionType.DateTimeOffset),
-            new List<DateTimeOffset?>
-            {
+            [
                 DateTimeOffset.MinValue,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(-2, 0, 0)),
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(0, 0, 0)),
                 null,
                 new(new DateTime(2023, 5, 29, 10, 52, 47), new TimeSpan(2, 0, 0)),
                 DateTimeOffset.MaxValue
-            },
+            ],
             """{"Prop":["0001-01-01T00:00:00+00:00","2023-05-29T10:52:47-02:00","2023-05-29T10:52:47+00:00",null,"2023-05-29T10:52:47+02:00","9999-12-31T23:59:59.9999999+00:00"]}""",
             mappedCollection: true);
 
@@ -2621,13 +2573,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_TimeSpan_JSON_values()
         => Can_read_and_write_JSON_value<NullableTimeSpanCollectionType, List<TimeSpan?>>(
             nameof(NullableTimeSpanCollectionType.TimeSpan),
-            new List<TimeSpan?>
-            {
+            [
                 TimeSpan.MinValue,
                 new(1, 2, 3, 4, 5),
                 TimeSpan.MaxValue,
                 null
-            },
+            ],
             """{"Prop":["-10675199:2:48:05.4775808","1:2:03:04.005","10675199:2:48:05.4775807",null]}""",
             mappedCollection: true);
 
@@ -2640,12 +2591,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_bool_JSON_values()
         => Can_read_and_write_JSON_value<NullableBooleanCollectionType, List<bool?>>(
             nameof(NullableBooleanCollectionType.Boolean),
-            new List<bool?>
-            {
+            [
                 false,
                 null,
                 true
-            },
+            ],
             """{"Prop":[false,null,true]}""",
             mappedCollection: true);
 
@@ -2658,13 +2608,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_char_JSON_values()
         => Can_read_and_write_JSON_value<NullableCharacterCollectionType, List<char?>>(
             nameof(NullableCharacterCollectionType.Character),
-            new List<char?>
-            {
+            [
                 char.MinValue,
                 'X',
                 char.MaxValue,
                 null
-            },
+            ],
             """{"Prop":["\u0000","X","\uFFFF",null]}""",
             mappedCollection: true);
 
@@ -2677,13 +2626,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_GUID_JSON_values()
         => Can_read_and_write_JSON_value<NullableGuidCollectionType, List<Guid?>>(
             nameof(NullableGuidCollectionType.Guid),
-            new List<Guid?>
-            {
+            [
                 new(),
                 null,
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["00000000-0000-0000-0000-000000000000",null,"8c44242f-8e3f-4a20-8be8-98c7c1aadebd","ffffffff-ffff-ffff-ffff-ffffffffffff"]}""",
             mappedCollection: true);
 
@@ -2696,13 +2644,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_string_JSON_values()
         => Can_read_and_write_JSON_value<NullableStringCollectionType, List<string?>>(
             nameof(NullableStringCollectionType.String),
-            new List<string?>
-            {
+            [
                 "MinValue",
                 null,
                 "❤❥웃유♋☮✌☏☢☠✔☑♚▲♪฿Ɖ⛏♥❣♂♀☿👍✍✉☣☤✘☒♛▼♫⌘⌛¡♡ღツ☼☁❅♾️✎©®™Σ✪✯☭➳Ⓐ✞℃℉°✿⚡☃☂✄¢€£∞✫★½☯✡☪",
                 "MaxValue"
-            },
+            ],
             """{"Prop":["MinValue",null,"\u2764\u2765\uC6C3\uC720\u264B\u262E\u270C\u260F\u2622\u2620\u2714\u2611\u265A\u25B2\u266A\u0E3F\u0189\u26CF\u2665\u2763\u2642\u2640\u263F\uD83D\uDC4D\u270D\u2709\u2623\u2624\u2718\u2612\u265B\u25BC\u266B\u2318\u231B\u00A1\u2661\u10E6\u30C4\u263C\u2601\u2745\u267E\uFE0F\u270E\u00A9\u00AE\u2122\u03A3\u272A\u272F\u262D\u27B3\u24B6\u271E\u2103\u2109\u00B0\u273F\u26A1\u2603\u2602\u2704\u00A2\u20AC\u00A3\u221E\u272B\u2605\u00BD\u262F\u2721\u262A","MaxValue"]}""",
             mappedCollection: true);
 
@@ -2715,14 +2662,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_binary_JSON_values()
         => Can_read_and_write_JSON_value<NullableBytesCollectionType, List<byte[]?>>(
             nameof(NullableBytesCollectionType.Bytes),
-            new List<byte[]?>
-            {
-                new byte[] { 0, 0, 0, 1 },
+            [
+                [0, 0, 0, 1],
                 null,
-                new byte[] { 255, 255, 255, 255 },
-                Array.Empty<byte>(),
-                new byte[] { 1, 2, 3, 4 }
-            },
+                [255, 255, 255, 255],
+                [],
+                [1, 2, 3, 4]
+            ],
             """{"Prop":["AAAAAQ==",null,"/////w==","","AQIDBA=="]}""",
             mappedCollection: true);
 
@@ -2735,12 +2681,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_URI_JSON_values()
         => Can_read_and_write_JSON_value<NullableUriCollectionType, List<Uri?>>(
             nameof(NullableUriCollectionType.Uri),
-            new List<Uri?>
-            {
+            [
                 new("https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1&q2=v2#FragmentName"),
                 null,
                 new("file:///C:/test/path/file.txt")
-            },
+            ],
             """{"Prop":["https://user:password@www.contoso.com:80/Home/Index.htm?q1=v1\u0026q2=v2#FragmentName",null,"file:///C:/test/path/file.txt"]}""",
             mappedCollection: true);
 
@@ -2753,8 +2698,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_IP_address_JSON_values()
         => Can_read_and_write_JSON_value<NullableIpAddressCollectionType, List<IPAddress?>>(
             nameof(NullableIpAddressCollectionType.IpAddress),
-            new List<IPAddress?>
-            {
+            [
                 IPAddress.Parse("127.0.0.1"),
                 null,
                 IPAddress.Parse("0.0.0.0"),
@@ -2762,8 +2706,8 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                 IPAddress.Parse("192.168.1.156"),
                 IPAddress.Parse("::1"),
                 IPAddress.Parse("::"),
-                IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"),
-            },
+                IPAddress.Parse("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577")
+            ],
             """{"Prop":["127.0.0.1",null,"0.0.0.0","255.255.255.255","192.168.1.156","::1","::","2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577"]}""",
             mappedCollection: true);
 
@@ -2776,14 +2720,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_physical_address_JSON_values()
         => Can_read_and_write_JSON_value<NullablePhysicalAddressCollectionType, List<PhysicalAddress?>>(
             nameof(NullablePhysicalAddressCollectionType.PhysicalAddress),
-            new List<PhysicalAddress?>
-            {
+            [
                 PhysicalAddress.None,
                 null,
                 PhysicalAddress.Parse("001122334455"),
                 PhysicalAddress.Parse("00-11-22-33-44-55"),
                 PhysicalAddress.Parse("0011.2233.4455")
-            },
+            ],
             """{"Prop":["",null,"001122334455","001122334455","001122334455"]}""",
             mappedCollection: true);
 
@@ -2796,15 +2739,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_sbyte_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum8CollectionType, List<Enum8?>>(
             nameof(NullableEnum8CollectionType.Enum8),
-            new List<Enum8?>
-            {
+            [
                 Enum8.Min,
                 null,
                 Enum8.Max,
                 Enum8.Default,
                 Enum8.One,
                 (Enum8)(-8)
-            },
+            ],
             """{"Prop":[-128,null,127,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2817,15 +2759,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_short_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum16CollectionType, List<Enum16?>>(
             nameof(NullableEnum16CollectionType.Enum16),
-            new List<Enum16?>
-            {
+            [
                 Enum16.Min,
                 null,
                 Enum16.Max,
                 Enum16.Default,
                 Enum16.One,
                 (Enum16)(-8)
-            },
+            ],
             """{"Prop":[-32768,null,32767,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2838,15 +2779,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_int_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum32CollectionType, List<Enum32?>>(
             nameof(NullableEnum32CollectionType.Enum32),
-            new List<Enum32?>
-            {
+            [
                 Enum32.Min,
                 null,
                 Enum32.Max,
                 Enum32.Default,
                 Enum32.One,
                 (Enum32)(-8)
-            },
+            ],
             """{"Prop":[-2147483648,null,2147483647,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2859,15 +2799,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_long_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnum64CollectionType, List<Enum64?>>(
             nameof(NullableEnum64CollectionType.Enum64),
-            new List<Enum64?>
-            {
+            [
                 Enum64.Min,
                 null,
                 Enum64.Max,
                 Enum64.Default,
                 Enum64.One,
                 (Enum64)(-8)
-            },
+            ],
             """{"Prop":[-9223372036854775808,null,9223372036854775807,0,1,-8]}""",
             mappedCollection: true);
 
@@ -2880,15 +2819,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_byte_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU8CollectionType, List<EnumU8?>>(
             nameof(NullableEnumU8CollectionType.EnumU8),
-            new List<EnumU8?>
-            {
+            [
                 EnumU8.Min,
                 null,
                 EnumU8.Max,
                 EnumU8.Default,
                 EnumU8.One,
                 (EnumU8?)8
-            },
+            ],
             """{"Prop":[0,null,255,0,1,8]}""",
             mappedCollection: true);
 
@@ -2901,15 +2839,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_ushort_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU16CollectionType, List<EnumU16?>>(
             nameof(NullableEnumU16CollectionType.EnumU16),
-            new List<EnumU16?>
-            {
+            [
                 EnumU16.Min,
                 null,
                 EnumU16.Max,
                 EnumU16.Default,
                 EnumU16.One,
                 (EnumU16?)8
-            },
+            ],
             """{"Prop":[0,null,65535,0,1,8]}""",
             mappedCollection: true);
 
@@ -2922,15 +2859,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_uint_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU32CollectionType, List<EnumU32?>>(
             nameof(NullableEnumU32CollectionType.EnumU32),
-            new List<EnumU32?>
-            {
+            [
                 EnumU32.Min,
                 null,
                 EnumU32.Max,
                 EnumU32.Default,
                 EnumU32.One,
                 (EnumU32?)8
-            },
+            ],
             """{"Prop":[0,null,4294967295,0,1,8]}""",
             mappedCollection: true);
 
@@ -2943,15 +2879,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
     public virtual void Can_read_write_collection_of_nullable_ulong_enum_JSON_values()
         => Can_read_and_write_JSON_value<NullableEnumU64CollectionType, List<EnumU64?>>(
             nameof(NullableEnumU64CollectionType.EnumU64),
-            new List<EnumU64?>
-            {
+            [
                 EnumU64.Min,
                 null,
                 EnumU64.Max,
                 EnumU64.Default,
                 EnumU64.One,
                 (EnumU64?)8
-            },
+            ],
             """{"Prop":[0,null,18446744073709551615,0,1,8]}""",
             mappedCollection: true);
 
@@ -2965,7 +2900,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<Int8ConvertedType, sbyte[]>(
             b => b.HasConversion<CustomCollectionConverter<sbyte[], sbyte>, CustomCollectionComparer<sbyte[], sbyte>>(),
             nameof(Int8ConvertedType.Int8Converted),
-            new sbyte[] { sbyte.MinValue, 0, sbyte.MaxValue },
+            [sbyte.MinValue, 0, sbyte.MaxValue],
             """{"Prop":"[-128,0,127]"}""");
 
     protected class Int8ConvertedType
@@ -2978,12 +2913,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<Int32ConvertedType, List<int>>(
             b => b.HasConversion<CustomCollectionConverter<List<int>, int>, CustomCollectionComparer<List<int>, int>>(),
             nameof(Int32ConvertedType.Int32Converted),
-            new List<int>
-            {
+            [
                 int.MinValue,
                 0,
                 int.MaxValue
-            },
+            ],
             """{"Prop":"[-2147483648,0,2147483647]"}""");
 
     protected class Int32ConvertedType
@@ -2997,12 +2931,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             b => b.HasConversion<CustomCollectionConverter<ObservableCollection<ulong>, ulong>,
                 CustomCollectionComparer<ObservableCollection<ulong>, ulong>>(),
             nameof(UInt64ConvertedType.UInt64Converted),
-            new ObservableCollection<ulong>
-            {
+            [
                 ulong.MinValue,
                 1,
                 ulong.MaxValue
-            },
+            ],
             """{"Prop":"[0,1,18446744073709551615]"}""");
 
     protected class UInt64ConvertedType
@@ -3015,7 +2948,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<DoubleConvertedType, double[]>(
             b => b.HasConversion<CustomCollectionConverter<double[], double>, CustomCollectionComparer<double[], double>>(),
             nameof(DoubleConvertedType.DoubleConverted),
-            new[] { double.MinValue, 0, double.MaxValue },
+            [double.MinValue, 0, double.MaxValue],
             """{"Prop":"[-1.7976931348623157E\u002B308,0,1.7976931348623157E\u002B308]"}""");
 
     protected class DoubleConvertedType
@@ -3134,14 +3067,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<Enum32ConvertedType, List<Enum32>>(
             b => b.HasConversion<CustomCollectionConverter<List<Enum32>, Enum32>, CustomCollectionComparer<List<Enum32>, Enum32>>(),
             nameof(Enum32ConvertedType.Enum32Converted),
-            new List<Enum32>
-            {
+            [
                 Enum32.Min,
                 Enum32.Max,
                 Enum32.Default,
                 Enum32.One,
                 (Enum32)(-8)
-            },
+            ],
             """{"Prop":"[-2147483648,2147483647,0,1,-8]"}""");
 
     protected class Enum32ConvertedType
@@ -3174,7 +3106,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<NullableInt8ConvertedType, sbyte?[]>(
             b => b.HasConversion<CustomCollectionConverter<sbyte?[], sbyte?>, CustomCollectionComparer<sbyte?[], sbyte?>>(),
             nameof(NullableInt8ConvertedType.Int8Converted),
-            new sbyte?[] { null, sbyte.MinValue, 0, sbyte.MaxValue },
+            [null, sbyte.MinValue, 0, sbyte.MaxValue],
             """{"Prop":"[null,-128,0,127]"}""");
 
     protected class NullableInt8ConvertedType
@@ -3187,13 +3119,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<NullableInt32ConvertedType, List<int?>>(
             b => b.HasConversion<CustomCollectionConverter<List<int?>, int?>, CustomCollectionComparer<List<int?>, int?>>(),
             nameof(NullableInt32ConvertedType.Int32Converted),
-            new List<int?>
-            {
+            [
                 int.MinValue,
                 0,
                 null,
                 int.MaxValue
-            },
+            ],
             """{"Prop":"[-2147483648,0,null,2147483647]"}""");
 
     protected class NullableInt32ConvertedType
@@ -3207,13 +3138,12 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
             b => b.HasConversion<CustomCollectionConverter<ObservableCollection<ulong?>, ulong?>,
                 CustomCollectionComparer<ObservableCollection<ulong?>, ulong?>>(),
             nameof(NullableUInt64ConvertedType.UInt64Converted),
-            new ObservableCollection<ulong?>
-            {
+            [
                 ulong.MinValue,
                 1,
                 ulong.MaxValue,
                 null
-            },
+            ],
             """{"Prop":"[0,1,18446744073709551615,null]"}""");
 
     protected class NullableUInt64ConvertedType
@@ -3226,7 +3156,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<NullableDoubleConvertedType, double?[]>(
             b => b.HasConversion<CustomCollectionConverter<double?[], double?>, CustomCollectionComparer<double?[], double?>>(),
             nameof(NullableDoubleConvertedType.DoubleConverted),
-            new double?[] { double.MinValue, null, 0, double.MaxValue },
+            [double.MinValue, null, 0, double.MaxValue],
             """{"Prop":"[-1.7976931348623157E\u002B308,null,0,1.7976931348623157E\u002B308]"}""");
 
     protected class NullableDoubleConvertedType
@@ -3356,15 +3286,14 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_property_value<NullableEnum32ConvertedType, List<Enum32?>>(
             b => b.HasConversion<CustomCollectionConverter<List<Enum32?>, Enum32?>, CustomCollectionComparer<List<Enum32?>, Enum32?>>(),
             nameof(NullableEnum32ConvertedType.Enum32Converted),
-            new List<Enum32?>
-            {
+            [
                 Enum32.Min,
                 null,
                 Enum32.Max,
                 Enum32.Default,
                 Enum32.One,
                 (Enum32)(-8)
-            },
+            ],
             """{"Prop":"[-2147483648,null,2147483647,0,1,-8]"}""");
 
     protected class NullableEnum32ConvertedType
@@ -3404,12 +3333,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
                     b.IsRequired();
                 }),
             nameof(DddIdCollectionType.DddId),
-            new List<DddId>
-            {
+            [
                 new() { Id = int.MinValue },
                 new() { Id = 0 },
                 new() { Id = int.MaxValue }
-            },
+            ],
             """{"Prop":[-2147483648,0,2147483647]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ValueConverter, typeof(DddIdConverter) } });
 
@@ -3423,14 +3351,13 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_collection_value<NullableDddIdCollectionType, List<DddId?>>(
             b => b.ElementType().HasConversion<DddIdConverter>(),
             nameof(NullableDddIdCollectionType.DddId),
-            new List<DddId?>
-            {
+            [
                 null,
                 new() { Id = int.MinValue },
                 null,
                 new() { Id = 0 },
                 new() { Id = int.MaxValue }
-            },
+            ],
             """{"Prop":[null,-2147483648,null,0,2147483647]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ValueConverter, typeof(DddIdConverter) } });
 
@@ -3444,7 +3371,7 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_collection_value<BinaryAsJsonType, byte[]>(
             _ => { },
             nameof(BinaryAsJsonType.BinaryAsJson),
-            new byte[] { 77, 78, 79, 80 },
+            [77, 78, 79, 80],
             """{"Prop":[77,78,79,80]}""");
 
     protected class BinaryAsJsonType
@@ -3457,12 +3384,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_collection_value<DecimalCollectionType, List<decimal>>(
             b => b.ElementType().HasPrecision(12, 6),
             nameof(DecimalCollectionType.Decimal),
-            new List<decimal>
-            {
+            [
                 decimal.MinValue,
                 0,
                 decimal.MaxValue
-            },
+            ],
             """{"Prop":[-79228162514264337593543950335,0,79228162514264337593543950335]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.Precision, 12 }, { CoreAnnotationNames.Scale, 6 } });
 
@@ -3471,12 +3397,11 @@ public abstract class JsonTypesTestBase : NonSharedModelTestBase
         => Can_read_and_write_JSON_collection_value<GuidCollectionType, List<Guid>>(
             b => b.ElementType().HasConversion<byte[]>(),
             nameof(GuidCollectionType.Guid),
-            new List<Guid>
-            {
+            [
                 new(),
                 new("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD"),
                 Guid.Parse("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF")
-            },
+            ],
             """{"Prop":["AAAAAAAAAAAAAAAAAAAAAA==","LyREjD+OIEqL6JjHwarevQ==","/////////////////////w=="]}""",
             facets: new Dictionary<string, object?> { { CoreAnnotationNames.ProviderClrType, typeof(byte[]) } });
 

@@ -18,7 +18,7 @@ public class BufferedDataReader : DbDataReader
     private readonly bool _detailedErrorsEnabled;
 
     private DbDataReader? _underlyingReader;
-    private List<BufferedDataRecord> _bufferedDataRecords = new();
+    private List<BufferedDataRecord> _bufferedDataRecords = [];
     private BufferedDataRecord _currentResultSet;
     private int _currentResultSetNumber;
     private int _recordsAffected;

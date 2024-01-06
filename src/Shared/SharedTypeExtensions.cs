@@ -311,7 +311,7 @@ internal static class SharedTypeExtensions
         this Type type,
         Type[]? types)
     {
-        types ??= Array.Empty<Type>();
+        types ??= [];
 
         return type.GetTypeInfo().DeclaredConstructors
             .SingleOrDefault(
@@ -624,7 +624,7 @@ internal static class SharedTypeExtensions
 
     public static ConstantExpression GetDefaultValueConstant(this Type type)
         => (ConstantExpression)GenerateDefaultValueConstantMethod
-            .MakeGenericMethod(type).Invoke(null, Array.Empty<object>())!;
+            .MakeGenericMethod(type).Invoke(null, [])!;
 
     private static readonly MethodInfo GenerateDefaultValueConstantMethod =
         typeof(SharedTypeExtensions).GetTypeInfo().GetDeclaredMethod(nameof(GenerateDefaultValueConstant))!;
