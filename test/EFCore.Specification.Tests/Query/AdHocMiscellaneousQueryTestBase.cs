@@ -12,6 +12,65 @@ public abstract class AdHocMiscellaneousQueryTestBase : NonSharedModelTestBase
     protected override string StoreName
         => "AdHocMiscellaneousQueryTests";
 
+    #region Issue #32735
+
+    [ConditionalFact]
+    public virtual async Task Contains_does_not_match_string_values_that_do_not_fit()
+    {
+        var contextFactory = await InitializeAsync<Context32735>();
+        using (var context = contextFactory.CreateContext())
+        {
+            Assert.Equal(1, (await context.SampleItems.AsNoTracking().ToListAsync()).Count);
+
+            var codes = new[] { "INVALID" };
+            var items = await context.SampleItems.Where(x => codes.Contains(x.Code)).ToListAsync();
+
+            Assert.Equal(0, items.Count);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData("10.2")]
+    [InlineData("79228162514264337593543950335")]
+    [InlineData("0.79228162514264337593543950335m")]
+    public virtual async Task Contains_does_not_match_decimal_values_that_do_not_fit(string value)
+    {
+        var contextFactory = await InitializeAsync<Context32735>();
+        using (var context = contextFactory.CreateContext())
+        {
+            Assert.Equal(1, (await context.SampleItems.AsNoTracking().ToListAsync()).Count);
+
+            var values = new[] { decimal.Parse(value) };
+            var items = await context.SampleItems.Where(x => values.Contains(x.Value)).ToListAsync();
+
+            Assert.Equal(0, items.Count);
+        }
+    }
+
+    private class Context32735(DbContextOptions options) : DbContext(options)
+    {
+        public DbSet<SampleItem> SampleItems { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<SampleItem>(
+                b =>
+                {
+                    b.Property(e => e.Code).HasMaxLength(3);
+                    b.HasData(new SampleItem { Id = 1, Code = "IN", Value = 10m });
+                });
+
+        public class SampleItem
+        {
+            public int Id { get; set; }
+            public string Code { get; set; }
+
+            [Precision(10, 0)]
+            public decimal Value { get; set; }
+        }
+    }
+
+    #endregion
+
     #region 603
 
     [ConditionalFact]

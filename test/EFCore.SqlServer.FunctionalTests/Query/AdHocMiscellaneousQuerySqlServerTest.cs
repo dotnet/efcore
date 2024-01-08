@@ -17,6 +17,52 @@ public class AdHocMiscellaneousQuerySqlServerTest : AdHocMiscellaneousQueryRelat
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
 
+    #region Issue #32735
+
+    public override async Task Contains_does_not_match_string_values_that_do_not_fit()
+    {
+        await base.Contains_does_not_match_string_values_that_do_not_fit();
+
+//         AssertSql(
+//             """
+// SELECT [s].[Id], [s].[Code]
+// FROM [SampleItems] AS [s]
+//
+// @__codes_0='["INVALID"]' (Size = 4000)
+//
+// SELECT [s].[Id], [s].[Code]
+// FROM [SampleItems] AS [s]
+// WHERE EXISTS (
+//     SELECT 1
+//     FROM OPENJSON(@__codes_0) WITH ([value] nvarchar(2) '$') AS [c]
+//     WHERE [c].[value] = [s].[Code] OR ([c].[value] IS NULL AND [s].[Code] IS NULL))
+// """);
+    }
+
+    public override async Task Contains_does_not_match_decimal_values_that_do_not_fit(string value)
+    {
+        await base.Contains_does_not_match_decimal_values_that_do_not_fit(value);
+
+//         AssertSql(
+//             """
+// SELECT [s].[Id], [s].[Code]
+// FROM [SampleItems] AS [s]
+//
+// @__codes_0='["INVALID"]' (Size = 4000)
+//
+// SELECT [s].[Id], [s].[Code]
+// FROM [SampleItems] AS [s]
+// WHERE EXISTS (
+//     SELECT 1
+//     FROM OPENJSON(@__codes_0) WITH ([value] nvarchar(2) '$') AS [c]
+//     WHERE [c].[value] = [s].[Code] OR ([c].[value] IS NULL AND [s].[Code] IS NULL))
+// """);
+    }
+
+    #endregion
+
+    #region 2951
+
     protected override void Seed2951(Context2951 context)
     {
         context.Database.ExecuteSqlRaw(
@@ -25,6 +71,8 @@ CREATE TABLE ZeroKey (Id int);
 INSERT ZeroKey VALUES (NULL)
 """);
     }
+
+    #endregion
 
     #region 5456
 
