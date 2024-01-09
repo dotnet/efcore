@@ -1223,10 +1223,10 @@ END, [l].[Id], [l0].[Id], [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Req
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 LEFT JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[Name] IN (
+    SELECT [v].[value]
     FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v]
-    WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
+)
 ORDER BY [l].[Id], [l0].[Id]
 """);
     }
@@ -2336,19 +2336,19 @@ SELECT [t].[Date], [t0].[Id]
 FROM (
     SELECT [l].[Date]
     FROM [LevelOne] AS [l]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [l].[Name] IN (
+        SELECT [v].[value]
         FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v]
-        WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
+    )
     GROUP BY [l].[Date]
 ) AS [t]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Date]
     FROM [LevelOne] AS [l0]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [l0].[Name] IN (
+        SELECT [v0].[value]
         FROM OPENJSON(@__validIds_0) WITH ([value] nvarchar(max) '$') AS [v0]
-        WHERE [v0].[value] = [l0].[Name] OR ([v0].[value] IS NULL AND [l0].[Name] IS NULL))
+    )
 ) AS [t0] ON [t].[Date] = [t0].[Date]
 ORDER BY [t].[Date]
 """);

@@ -1585,10 +1585,10 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c0]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [c0].[City] IN (
+        SELECT [i].[value]
         FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(15) '$') AS [i]
-        WHERE [i].[value] = [c0].[City] OR ([i].[value] IS NULL AND [c0].[City] IS NULL)) AND [c0].[CustomerID] = [c].[CustomerID])
+    ) AND [c0].[CustomerID] = [c].[CustomerID])
 """,
             //
             """
@@ -1599,10 +1599,10 @@ FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
     FROM [Customers] AS [c0]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [c0].[City] IN (
+        SELECT [i].[value]
         FROM OPENJSON(@__ids_0) WITH ([value] nvarchar(15) '$') AS [i]
-        WHERE [i].[value] = [c0].[City] OR ([i].[value] IS NULL AND [c0].[City] IS NULL)) AND [c0].[CustomerID] = [c].[CustomerID])
+    ) AND [c0].[CustomerID] = [c].[CustomerID])
 """);
     }
 
@@ -2076,10 +2076,10 @@ WHERE [c].[CustomerID] IN (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
-    WHERE [i].[value] = [c].[CustomerID])
+)
 """);
     }
 
@@ -2683,10 +2683,10 @@ WHERE [c].[City] = N'México D.F.' AND [c].[CustomerID] IN (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
-    WHERE [i].[value] = [c].[CustomerID])
+)
 """);
     }
 
@@ -2712,10 +2712,10 @@ WHERE [c].[CustomerID] NOT IN (N'ABCDE', N'ALFKI', N'ANATR')
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
-    WHERE [i].[value] = [c].[CustomerID])
+)
 """);
     }
 
@@ -2729,10 +2729,10 @@ WHERE NOT EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = N'México D.F.' AND NOT EXISTS (
-    SELECT 1
+WHERE [c].[City] = N'México D.F.' AND [c].[CustomerID] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
-    WHERE [i].[value] = [c].[CustomerID])
+)
 """,
             //
             """
@@ -2740,10 +2740,10 @@ WHERE [c].[City] = N'México D.F.' AND NOT EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = N'México D.F.' AND NOT EXISTS (
-    SELECT 1
+WHERE [c].[City] = N'México D.F.' AND [c].[CustomerID] NOT IN (
+    SELECT [i].[value]
     FROM OPENJSON(@__ids_0) WITH ([value] nchar(5) '$') AS [i]
-    WHERE [i].[value] = [c].[CustomerID])
+)
 """);
     }
 

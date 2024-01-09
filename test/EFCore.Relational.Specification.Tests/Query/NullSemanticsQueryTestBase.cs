@@ -1244,6 +1244,8 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     #endregion Contains with subquery
 
+    // For more tests on Contains with parameterized collections, see PrimitiveCollectionsqueryTestBase
+
     #region Contains with inline collection
 
     [ConditionalTheory]
@@ -1260,7 +1262,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_non_nullable_values_with_null(bool async)
+    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_null(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
@@ -1272,7 +1274,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values(bool async)
+    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
@@ -1284,7 +1286,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_nullable_values_with_null(bool async)
+    public virtual async Task Null_semantics_contains_with_non_nullable_item_and_inline_values_with_nullable_column_and_null(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
@@ -1308,7 +1310,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_nullable_item_and_inline_non_nullable_values_with_null(bool async)
+    public virtual async Task Null_semantics_contains_with_nullable_item_and_inline_values_with_null(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
@@ -1320,7 +1322,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_nullable_item_and_inline_nullable_values(bool async)
+    public virtual async Task Null_semantics_contains_with_nullable_item_and_inline_values_with_nullable_column(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
@@ -1332,7 +1334,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Null_semantics_contains_with_nullable_item_and_inline_nullable_values_with_null(bool async)
+    public virtual async Task Null_semantics_contains_with_nullable_item_and_values_with_nullable_column_and_null(bool async)
     {
         await AssertQueryScalar(
             async, ss => ss.Set<NullSemanticsEntity1>()
