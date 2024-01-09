@@ -621,19 +621,19 @@ ORDER BY [c].[CustomerID], [o].[OrderID]
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN NOT EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] NOT IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN NOT EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] NOT IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -969,19 +969,19 @@ ORDER BY [t0].[CustomerID], [t1].[OrderID], [t1].[OrderID0]
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -1365,19 +1365,19 @@ ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID], [o3].
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -1844,19 +1844,19 @@ ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
-        WHEN NOT EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] NOT IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN NOT EXISTS (
-            SELECT 1
+        WHEN [c].[CustomerID] NOT IN (
+            SELECT [l].[value]
             FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
-            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS

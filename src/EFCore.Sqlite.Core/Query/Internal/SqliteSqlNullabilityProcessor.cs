@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
@@ -83,4 +84,36 @@ public class SqliteSqlNullabilityProcessor : SqlNullabilityProcessor
 
         return regexpExpression.Update(match, pattern);
     }
+
+#pragma warning disable EF1001
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool IsCollectionTable(TableExpressionBase table, [NotNullWhen(true)] out Expression? collection)
+    {
+        if (table is TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var argument] })
+        {
+            collection = argument;
+            return true;
+        }
+
+        return base.IsCollectionTable(table, out collection);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override TableExpressionBase UpdateParameterCollection(
+        TableExpressionBase table,
+        SqlParameterExpression newCollectionParameter)
+        => table is TableValuedFunctionExpression { Arguments: [SqlParameterExpression] } jsonEachExpression
+            ? jsonEachExpression.Update(new[] { newCollectionParameter })
+            : base.UpdateParameterCollection(table, newCollectionParameter);
+#pragma warning restore EF1001
 }
