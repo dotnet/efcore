@@ -83,15 +83,9 @@ namespace Microsoft.Data.Sqlite
                 throw new InvalidOperationException(Resources.TransactionCompleted);
             }
 
-            try
-            {
-                sqlite3_rollback_hook(_connection.Handle, null, null);
-                _connection.ExecuteNonQuery("COMMIT;");
-            }
-            finally
-            {
-                Complete();
-            }
+            sqlite3_rollback_hook(_connection.Handle, null, null);
+            _connection.ExecuteNonQuery("COMMIT;");
+            Complete();
         }
 
         /// <summary>
