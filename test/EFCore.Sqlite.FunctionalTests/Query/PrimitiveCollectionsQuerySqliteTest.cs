@@ -248,9 +248,9 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_of_ints_Contains(bool async)
+    public override async Task Parameter_collection_of_ints_Contains_int(bool async)
     {
-        await base.Parameter_collection_of_ints_Contains(async);
+        await base.Parameter_collection_of_ints_Contains_int(async);
 
         AssertSql(
             """
@@ -262,6 +262,45 @@ WHERE "p"."Int" IN (
     SELECT "i"."value"
     FROM json_each(@__ints_0) AS "i"
 )
+""",
+            //
+            """
+@__ints_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" NOT IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""");
+    }
+
+    public override async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
+    {
+        await base.Parameter_collection_of_ints_Contains_nullable_int(async);
+
+        AssertSql(
+            """
+@__ints_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableInt" IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+)
+""",
+            //
+            """
+@__ints_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableInt" NOT IN (
+    SELECT "i"."value"
+    FROM json_each(@__ints_0) AS "i"
+) OR "p"."NullableInt" IS NULL
 """);
     }
 
@@ -279,6 +318,17 @@ WHERE "p"."Int" IN (
     SELECT "n"."value"
     FROM json_each(@__nullableInts_0) AS "n"
 )
+""",
+            //
+            """
+@__nullableInts_0='[10,999]' (Size = 8)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."Int" NOT IN (
+    SELECT "n"."value"
+    FROM json_each(@__nullableInts_0) AS "n"
+)
 """);
     }
 
@@ -288,20 +338,31 @@ WHERE "p"."Int" IN (
 
         AssertSql(
             """
-@__nullableInts_0='[null,999]' (Size = 10)
+@__nullableInts_0_without_nulls='[999]' (Size = 5)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
-    FROM json_each(@__nullableInts_0) AS "n"
-    WHERE "n"."value" = "p"."NullableInt" OR ("n"."value" IS NULL AND "p"."NullableInt" IS NULL))
+WHERE "p"."NullableInt" IN (
+    SELECT "n"."value"
+    FROM json_each(@__nullableInts_0_without_nulls) AS "n"
+) OR "p"."NullableInt" IS NULL
+""",
+            //
+            """
+@__nullableInts_0_without_nulls='[999]' (Size = 5)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableInt" NOT IN (
+    SELECT "n"."value"
+    FROM json_each(@__nullableInts_0_without_nulls) AS "n"
+) AND "p"."NullableInt" IS NOT NULL
 """);
     }
 
-    public override async Task Parameter_collection_of_strings_Contains_non_nullable_string(bool async)
+    public override async Task Parameter_collection_of_strings_Contains_string(bool async)
     {
-        await base.Parameter_collection_of_strings_Contains_non_nullable_string(async);
+        await base.Parameter_collection_of_strings_Contains_string(async);
 
         AssertSql(
             """
@@ -310,6 +371,17 @@ WHERE EXISTS (
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE "p"."String" IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0) AS "s"
+)
+""",
+            //
+            """
+@__strings_0='["10","999"]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."String" NOT IN (
     SELECT "s"."value"
     FROM json_each(@__strings_0) AS "s"
 )
@@ -322,14 +394,81 @@ WHERE "p"."String" IN (
 
         AssertSql(
             """
-@__strings_0='["999",null]' (Size = 12)
+@__strings_0='["10","999"]' (Size = 12)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."NullableString" IN (
+    SELECT "s"."value"
     FROM json_each(@__strings_0) AS "s"
-    WHERE "s"."value" = "p"."NullableString" OR ("s"."value" IS NULL AND "p"."NullableString" IS NULL))
+)
+""",
+            //
+            """
+@__strings_0='["10","999"]' (Size = 12)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableString" NOT IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0) AS "s"
+) OR "p"."NullableString" IS NULL
+""");
+    }
+
+    public override async Task Parameter_collection_of_nullable_strings_Contains_string(bool async)
+    {
+        await base.Parameter_collection_of_nullable_strings_Contains_string(async);
+
+        AssertSql(
+            """
+@__strings_0='["10",null]' (Size = 11)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."String" IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0) AS "s"
+)
+""",
+            //
+            """
+@__strings_0_without_nulls='["10"]' (Size = 6)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."String" NOT IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0_without_nulls) AS "s"
+)
+""");
+    }
+
+    public override async Task Parameter_collection_of_nullable_strings_Contains_nullable_string(bool async)
+    {
+        await base.Parameter_collection_of_nullable_strings_Contains_nullable_string(async);
+
+        AssertSql(
+            """
+@__strings_0_without_nulls='["999"]' (Size = 7)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableString" IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0_without_nulls) AS "s"
+) OR "p"."NullableString" IS NULL
+""",
+            //
+            """
+@__strings_0_without_nulls='["999"]' (Size = 7)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."NullableString", "p"."NullableStrings", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE "p"."NullableString" NOT IN (
+    SELECT "s"."value"
+    FROM json_each(@__strings_0_without_nulls) AS "s"
+) AND "p"."NullableString" IS NOT NULL
 """);
     }
 

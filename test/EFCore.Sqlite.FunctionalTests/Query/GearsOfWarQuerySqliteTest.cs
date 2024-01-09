@@ -810,10 +810,10 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "c"."Location" IS NOT NULL AND EXISTS (
-    SELECT 1
+WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN (
+    SELECT "t0"."value"
     FROM json_each(@__tags_0) AS "t0"
-    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+)
 """);
     }
 
@@ -1178,10 +1178,10 @@ FROM "Weapons" AS "w"
 
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE EXISTS (
-    SELECT 1
+WHERE "c"."Location" IN (
+    SELECT "c0"."value"
     FROM json_each(@__cities_0) AS "c0"
-    WHERE "c0"."value" = "c"."Location" OR ("c0"."value" IS NULL AND "c"."Location" IS NULL))
+)
 """);
     }
 
@@ -1902,10 +1902,10 @@ WHERE "g"."Rank" & @__parameter_0 = @__parameter_0
 SELECT "g"."Nickname", "g"."SquadId", "w"."Name", "w"."Id"
 FROM "Gears" AS "g"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
-ORDER BY COALESCE("g"."Nickname" IN (
+ORDER BY "g"."Nickname" IN (
     SELECT "n"."value"
     FROM json_each(@__nicknames_0) AS "n"
-), 0) DESC, "g"."Nickname", "g"."SquadId"
+) DESC, "g"."Nickname", "g"."SquadId"
 """);
     }
 
@@ -2744,15 +2744,15 @@ ORDER BY (
 
         AssertSql(
             """
-@__cities_0='["Ephyra",null]' (Size = 15)
+@__cities_0_without_nulls='["Ephyra"]' (Size = 10)
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Cities" AS "c" ON "g"."AssignedCityName" = "c"."Name"
-WHERE "g"."SquadId" < 2 AND EXISTS (
-    SELECT 1
-    FROM json_each(@__cities_0) AS "c0"
-    WHERE "c0"."value" = "c"."Name" OR ("c0"."value" IS NULL AND "c"."Name" IS NULL))
+WHERE "g"."SquadId" < 2 AND ("c"."Name" IN (
+    SELECT "c0"."value"
+    FROM json_each(@__cities_0_without_nulls) AS "c0"
+) OR "c"."Name" IS NULL)
 """);
     }
 
@@ -3033,15 +3033,15 @@ WHERE COALESCE("w"."Id", 0) = 0
 
         AssertSql(
             """
-@__types_0='[null,1]' (Size = 8)
+@__types_0_without_nulls='[1]' (Size = 3)
 
 SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Weapons" AS "w"
 LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
-WHERE "w0"."Id" IS NOT NULL AND EXISTS (
-    SELECT 1
-    FROM json_each(@__types_0) AS "t"
-    WHERE "t"."value" = "w0"."AmmunitionType" OR ("t"."value" IS NULL AND "w0"."AmmunitionType" IS NULL))
+WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" IN (
+    SELECT "t"."value"
+    FROM json_each(@__types_0_without_nulls) AS "t"
+) OR "w0"."AmmunitionType" IS NULL)
 """);
     }
 
@@ -3668,10 +3668,10 @@ FROM "Tags" AS "t"
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND EXISTS (
-    SELECT 1
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (
+    SELECT "t0"."value"
     FROM json_each(@__tags_0) AS "t0"
-    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+)
 """);
     }
 
@@ -4835,10 +4835,10 @@ FROM "Tags" AS "t"
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND EXISTS (
-    SELECT 1
+WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN (
+    SELECT "t0"."value"
     FROM json_each(@__tags_0) AS "t0"
-    WHERE "t0"."value" = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
+)
 """);
     }
 
@@ -9553,20 +9553,15 @@ END IN (
 
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE EXISTS (
-    SELECT 1
+WHERE (
+    SELECT "w"."Name"
+    FROM "Weapons" AS "w"
+    WHERE "g"."FullName" = "w"."OwnerFullName"
+    ORDER BY "w"."Id"
+    LIMIT 1) IN (
+    SELECT "w0"."value"
     FROM json_each(@__weapons_0) AS "w0"
-    WHERE "w0"."value" = (
-        SELECT "w"."Name"
-        FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName"
-        ORDER BY "w"."Id"
-        LIMIT 1) OR ("w0"."value" IS NULL AND (
-        SELECT "w"."Name"
-        FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName"
-        ORDER BY "w"."Id"
-        LIMIT 1) IS NULL))
+)
 """);
     }
 
