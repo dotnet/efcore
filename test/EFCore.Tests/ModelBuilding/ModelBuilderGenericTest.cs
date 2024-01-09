@@ -1028,6 +1028,12 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override IMutableProperty Metadata
             => PrimitiveCollectionBuilder.Metadata;
 
+        public override TestElementTypeBuilder ElementType()
+            => new(PrimitiveCollectionBuilder.ElementType());
+
+        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction)
+            => Wrap(PrimitiveCollectionBuilder.ElementType(b => builderAction(new TestElementTypeBuilder(b))));
+
         protected virtual TestComplexTypePrimitiveCollectionBuilder<TProperty> Wrap(
             ComplexTypePrimitiveCollectionBuilder<TProperty> primitiveCollectionBuilder)
             => new GenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(primitiveCollectionBuilder);
@@ -1592,6 +1598,13 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> Property<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => Wrap(OwnedNavigationBuilder.Property(propertyExpression));
+
+        public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
+            => new GenericTestPrimitiveCollectionBuilder<TProperty>(OwnedNavigationBuilder.PrimitiveCollection<TProperty>(propertyName));
+
+        public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => new GenericTestPrimitiveCollectionBuilder<TProperty>(OwnedNavigationBuilder.PrimitiveCollection(propertyExpression));
 
         public override TestNavigationBuilder Navigation<TNavigation>(
             Expression<Func<TDependentEntity, TNavigation?>> navigationExpression)
