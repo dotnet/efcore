@@ -40,7 +40,7 @@ CREATE SEQUENCE db2.CustomFacetsSequence
     CYCLE;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var defaultSequence = dbModel.Sequences.First(ds => ds.Name == "DefaultFacetsSequence");
                 Assert.Equal("dbo", defaultSequence.Schema);
@@ -80,7 +80,7 @@ CREATE SEQUENCE [IntSequence] AS int;
 CREATE SEQUENCE [BigIntSequence] AS bigint;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.All(
                     dbModel.Sequences,
@@ -109,7 +109,7 @@ CREATE SEQUENCE [DecimalSequence] AS decimal;
 CREATE SEQUENCE [NumericSequence] AS numeric;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.All(
                     dbModel.Sequences,
@@ -138,7 +138,7 @@ CREATE SEQUENCE [dbo].[HighDecimalSequence]
  CACHE;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.All(
                     dbModel.Sequences,
@@ -167,7 +167,7 @@ CREATE TYPE [dbo].[TestTypeAlias] FROM int;");
 CREATE SEQUENCE [TypeAliasSequence] AS [dbo].[TestTypeAlias];",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var sequence = Assert.Single(dbModel.Sequences);
                 // ReSharper disable once PossibleNullReferenceException
@@ -192,7 +192,7 @@ DROP TYPE [dbo].[TestTypeAlias];");
 CREATE SEQUENCE [TypeFacetSequence] AS decimal(10, 0);",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var sequence = Assert.Single(dbModel.Sequences);
                 // ReSharper disable once PossibleNullReferenceException
@@ -214,7 +214,7 @@ CREATE SEQUENCE [dbo].[Sequence];
 CREATE SEQUENCE [db2].[Sequence]",
             Enumerable.Empty<string>(),
             new[] { "db2" },
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var sequence = Assert.Single(dbModel.Sequences);
                 // ReSharper disable once PossibleNullReferenceException
@@ -239,7 +239,7 @@ DROP SEQUENCE [db2].[Sequence];");
             "SELECT 1",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var defaultSchema = Fixture.TestStore.ExecuteScalar<string>("SELECT SCHEMA_NAME()");
                 Assert.Equal(defaultSchema, dbModel.DefaultSchema);
@@ -255,7 +255,7 @@ CREATE TABLE [dbo].[Everest] ( id int );
 CREATE TABLE [dbo].[Denali] ( id int );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.Collection(
                     dbModel.Tables.OrderBy(t => t.Name),
@@ -276,12 +276,161 @@ DROP TABLE [dbo].[Everest];
 DROP TABLE [dbo].[Denali];");
 
     [ConditionalFact]
+    public void Expose_join_table_when_interloper_reference()
+        => Test(
+            @"
+CREATE TABLE BBlogs (Id int IDENTITY CONSTRAINT [PK_BBlogs] PRIMARY KEY,);
+CREATE TABLE PPosts (Id int IDENTITY CONSTRAINT [PK_PPosts] PRIMARY KEY,);
+
+CREATE TABLE BBlogPPosts (
+    BBlogId int NOT NULL CONSTRAINT [FK_BBlogPPosts_BBlogs] REFERENCES BBlogs ON DELETE CASCADE,
+    PPostId int NOT NULL CONSTRAINT [FK_BBlogPPosts_PPosts] REFERENCES PPosts ON DELETE CASCADE,
+    CONSTRAINT [PK_BBlogPPosts ] PRIMARY KEY (BBlogId, PPostId));
+
+CREATE TABLE LinkToBBlogPPosts (
+    LinkId1 int NOT NULL,
+    LinkId2 int NOT NULL,
+    CONSTRAINT [PK_LinkToBBlogPPosts] PRIMARY KEY (LinkId1, LinkId2),
+    CONSTRAINT [FK_LinkToBBlogPPosts_BlogPosts] FOREIGN KEY (LinkId1, LinkId2) REFERENCES BBlogPPosts);
+",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                Assert.Collection(
+                    dbModel.Tables.OrderBy(t => t.Name),
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("BBlogPPosts", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("BBlogId", c.Name),
+                            c => Assert.Equal("PPostId", c.Name));
+                        Assert.Collection(t.ForeignKeys,
+                            c =>
+                            {
+                                Assert.Equal("BBlogs", c.PrincipalTable.Name);
+                                Assert.Equal("BBlogPPosts", c.Table.Name);
+                                Assert.Collection(c.Columns, c => Assert.Equal("BBlogId", c.Name));
+                            },
+                            c =>
+                            {
+                                Assert.Equal("PPosts", c.PrincipalTable.Name);
+                                Assert.Equal("BBlogPPosts", c.Table.Name);
+                                Assert.Collection(c.Columns, c => Assert.Equal("PPostId", c.Name));
+                            });
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("BBlogs", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("Id", c.Name));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("LinkToBBlogPPosts", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("LinkId1", c.Name),
+                            c => Assert.Equal("LinkId2", c.Name));
+                        Assert.Collection(t.ForeignKeys,
+                            c =>
+                            {
+                                Assert.Equal("BBlogPPosts", c.PrincipalTable.Name);
+                                Assert.Equal("LinkToBBlogPPosts", c.Table.Name);
+                                Assert.Collection(
+                                    c.Columns,
+                                    c => Assert.Equal("LinkId1", c.Name),
+                                    c => Assert.Equal("LinkId2", c.Name));
+                            });
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("PPosts", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("Id", c.Name));
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("Bblog", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPposts", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("BblogPpost", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("BblogId", p.Name),
+                            p => Assert.Equal("PpostId", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("Bblog", k.PrincipalEntityType.Name);
+                                Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("BblogId", p.Name));
+                            },
+                            k =>
+                            {
+                                Assert.Equal("Ppost", k.PrincipalEntityType.Name);
+                                Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("PpostId", p.Name));
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(),
+                            p => Assert.Equal("Bblog", p.Name),
+                            p => Assert.Equal("LinkToBblogPpost", p.Name),
+                            p => Assert.Equal("Ppost", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("LinkToBblogPpost", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("LinkId1", p.Name),
+                            p => Assert.Equal("LinkId2", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("BblogPpost", k.PrincipalEntityType.Name);
+                                Assert.Equal("LinkToBblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("LinkId1", p.Name),
+                                    p => Assert.Equal("LinkId2", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("BblogId", p.Name),
+                                    p => Assert.Equal("PpostId", p.Name));
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPpost", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("Ppost", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPposts", p.Name));
+                    });
+            },
+            @"
+DROP TABLE [dbo].[LinkToBBlogPPosts];
+DROP TABLE [dbo].[BBlogPPosts];
+DROP TABLE [dbo].[PPosts];
+DROP TABLE [dbo].[BBlogs];");
+
+    [ConditionalFact]
     public void Default_database_collation_is_not_scaffolded()
         => Test(
             @"",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel => Assert.Null(dbModel.Collation),
+            (dbModel, scaffoldingFactory) => Assert.Null(dbModel.Collation),
             @"");
 
     #endregion
@@ -297,7 +446,7 @@ CREATE TABLE [db2].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B));",
             Enumerable.Empty<string>(),
             new[] { "db2" },
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -320,7 +469,7 @@ CREATE TABLE [dbo].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES K2 (A) );",
             new[] { "K2" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -343,7 +492,7 @@ CREATE TABLE [dbo].[K2'] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B), FOREIGN KEY (B) REFERENCES [K2'] (A) );",
             new[] { "K2'" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -366,7 +515,7 @@ CREATE TABLE [dbo].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
             new[] { "[K.2]" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -391,7 +540,7 @@ CREATE TABLE [db2].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
             new[] { "dbo.K2" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -418,7 +567,7 @@ CREATE TABLE [db.2].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
             new[] { "[db.2].[K.2]" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -445,7 +594,7 @@ CREATE TABLE [db2].[K.2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [dbo].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
             new[] { "dbo.[K.2]" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -472,7 +621,7 @@ CREATE TABLE [db.2].[K2] ( Id int, A varchar, UNIQUE (A ) );
 CREATE TABLE [db.2].[Kilimanjaro] ( Id int, B varchar, UNIQUE (B) );",
             new[] { "[db.2].K2" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables);
                 // ReSharper disable once PossibleNullReferenceException
@@ -529,7 +678,7 @@ CREATE TABLE [db2].[DependentTable] (
 );",
             new[] { "[db.2].[QuotedTableName]", "[db.2].SimpleTableName", "dbo.[Table.With.Dot]", "dbo.SimpleTableName", "JustTableName" },
             new[] { "db2" },
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var sequence = Assert.Single(dbModel.Sequences);
                 // ReSharper disable once PossibleNullReferenceException
@@ -630,7 +779,7 @@ CREATE TABLE [Blogs] (
 ) WITH (MEMORY_OPTIMIZED = ON);",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.Single(dbModel.Tables.Where(t => t.Name == "Blogs"));
 
@@ -658,7 +807,7 @@ EXECUTE sys.sp_addextendedproperty @name = N'MS_Description', @value = N'Blog.Id
 ",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = dbModel.Tables.Single();
 
@@ -691,7 +840,7 @@ SELECT
  CAST(N'' AS nvarchar(100)) AS Name;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = Assert.IsType<DatabaseView>(dbModel.Tables.Single());
 
@@ -718,7 +867,7 @@ CREATE TABLE PrimaryKeyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -744,7 +893,7 @@ CREATE TABLE UniqueConstraint (
 CREATE INDEX IX_INDEX on UniqueConstraint ( IndexProperty );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
@@ -772,7 +921,7 @@ CREATE INDEX IX_NAME on IndexTable ( Name );
 CREATE INDEX IX_INDEX on IndexTable ( IndexProperty );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = dbModel.Tables.Single();
 
@@ -802,7 +951,7 @@ CREATE INDEX IX_One on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 100);
 CREATE INDEX IX_Two on IndexTable ( IndexProperty ) WITH (FILLFACTOR = 50);",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = dbModel.Tables.Single();
 
@@ -849,7 +998,7 @@ CREATE TABLE SecondDependent (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var firstFk = Assert.Single(dbModel.Tables.Single(t => t.Name == "FirstDependent").ForeignKeys);
 
@@ -911,7 +1060,7 @@ END;"
             },
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var table = dbModel.Tables.Single();
                 var triggers = table.Triggers;
@@ -943,7 +1092,7 @@ CREATE TABLE TypeAlias (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
 
@@ -966,7 +1115,7 @@ CREATE TABLE TypeAlias (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var column = Assert.Single(dbModel.Tables.Single().Columns.Where(c => c.Name == "typeAliasColumn"));
 
@@ -993,7 +1142,7 @@ CREATE TABLE NumericColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1024,7 +1173,7 @@ CREATE TABLE MaxColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1060,7 +1209,7 @@ CREATE TABLE LengthColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1092,7 +1241,7 @@ CREATE TABLE DefaultRequiredLengthBinaryColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1112,7 +1261,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1130,7 +1279,7 @@ CREATE TABLE DefaultRequiredLengthCharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1150,7 +1299,7 @@ CREATE TABLE DefaultRequiredLengthVarcharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1170,7 +1319,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1188,7 +1337,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1206,7 +1355,7 @@ CREATE TABLE DefaultRequiredLengthNcharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1226,7 +1375,7 @@ CREATE TABLE DefaultRequiredLengthNvarcharColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1248,7 +1397,7 @@ CREATE TABLE LengthColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1281,7 +1430,7 @@ CREATE TABLE OneLengthColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1341,7 +1490,7 @@ CREATE TABLE RowversionType (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single(t => t.Name == "NoFacetTypes").Columns;
 
@@ -1393,7 +1542,7 @@ CREATE TABLE DefaultComputedValues (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1428,7 +1577,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1461,7 +1610,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1519,7 +1668,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1549,7 +1698,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1579,7 +1728,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1608,7 +1757,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1635,7 +1784,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1670,7 +1819,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1705,7 +1854,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1743,7 +1892,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1790,7 +1939,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1826,7 +1975,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1855,7 +2004,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1880,7 +2029,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1905,7 +2054,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1934,7 +2083,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1959,7 +2108,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -1989,7 +2138,7 @@ CREATE TABLE MyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2036,7 +2185,7 @@ CREATE TABLE ValueGeneratedProperties (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2058,7 +2207,7 @@ CREATE TABLE RowVersionTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2077,7 +2226,7 @@ CREATE TABLE NullableColumns (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2097,7 +2246,7 @@ CREATE TABLE ColumnsWithCollation (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2117,7 +2266,7 @@ CREATE TABLE ColumnsWithSparseness (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2146,7 +2295,7 @@ CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
 ",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2181,7 +2330,7 @@ CREATE INDEX IX_HiddenColumnsTable_3 ON dbo.HiddenColumnsTable ( Name );
 ",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var columns = dbModel.Tables.Single().Columns;
 
@@ -2211,7 +2360,7 @@ CREATE TABLE CompositePrimaryKeyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -2233,7 +2382,7 @@ CREATE TABLE NonClusteredPrimaryKeyTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -2258,7 +2407,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredIndex (
 CREATE CLUSTERED INDEX ClusteredIndex ON NonClusteredPrimaryKeyTableWithClusteredIndex( Id2 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -2282,7 +2431,7 @@ CREATE TABLE NonClusteredPrimaryKeyTableWithClusteredConstraint (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -2306,7 +2455,7 @@ CREATE TABLE PrimaryKeyName (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var pk = dbModel.Tables.Single().PrimaryKey;
 
@@ -2334,7 +2483,7 @@ CREATE TABLE CompositeUniqueConstraintTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
@@ -2357,7 +2506,7 @@ CREATE TABLE ClusteredUniqueConstraintTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
@@ -2382,7 +2531,7 @@ CREATE TABLE UniqueConstraintName (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var uniqueConstraint = Assert.Single(dbModel.Tables.Single().UniqueConstraints);
 
@@ -2411,7 +2560,7 @@ CREATE TABLE CompositeIndexTable (
 CREATE INDEX IX_COMPOSITE ON CompositeIndexTable ( Id2, Id1 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
@@ -2436,7 +2585,7 @@ CREATE TABLE ClusteredIndexTable (
 CREATE CLUSTERED INDEX IX_CLUSTERED ON ClusteredIndexTable ( Id2 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
@@ -2462,7 +2611,7 @@ CREATE TABLE UniqueIndexTable (
 CREATE UNIQUE INDEX IX_UNIQUE ON UniqueIndexTable ( Id2 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
@@ -2489,7 +2638,7 @@ CREATE TABLE FilteredIndexTable (
 CREATE UNIQUE INDEX IX_UNIQUE ON FilteredIndexTable ( Id2 ) WHERE Id2 > 10;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
 
@@ -2515,7 +2664,7 @@ CREATE TABLE HypotheticalIndexTable (
 CREATE INDEX ixHypo ON HypotheticalIndexTable ( Id1 ) WITH STATISTICS_ONLY = -1;",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables.Single().Indexes);
             },
@@ -2533,7 +2682,7 @@ CREATE TABLE ColumnStoreIndexTable (
 CREATE NONCLUSTERED COLUMNSTORE INDEX ixColumnStore ON ColumnStoreIndexTable ( Id1, Id2 )",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables.Single().Indexes);
             },
@@ -2552,7 +2701,7 @@ CREATE TABLE IncludeIndexTable (
 CREATE INDEX IX_INCLUDE ON IncludeIndexTable(IndexProperty) INCLUDE (IncludeProperty);",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
                 Assert.Equal(new[] { "IndexProperty" }, index.Columns.Select(ic => ic.Name).ToList());
@@ -2577,7 +2726,7 @@ CREATE NONCLUSTERED INDEX [IX_Name] ON [dbo].[IndexFillFactor]
 WITH (FILLFACTOR = 80) ON [PRIMARY]",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var index = Assert.Single(dbModel.Tables.Single().Indexes);
                 Assert.Equal(new[] { "Name" }, index.Columns.Select(ic => ic.Name).ToList());
@@ -2607,7 +2756,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
@@ -2647,7 +2796,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var foreignKeys = dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys;
 
@@ -2700,7 +2849,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
@@ -2734,7 +2883,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
@@ -2769,7 +2918,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var fk = Assert.Single(dbModel.Tables.Single(t => t.Name == "DependentTable").ForeignKeys);
 
@@ -2801,7 +2950,7 @@ CREATE TABLE Blank (
 );",
             Enumerable.Empty<string>(),
             new[] { "MySchema" },
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables);
 
@@ -2822,7 +2971,7 @@ CREATE TABLE Blank (
 );",
             new[] { "MyTable" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 Assert.Empty(dbModel.Tables);
 
@@ -2849,7 +2998,7 @@ CREATE TABLE DependentTable (
 );",
             new[] { "DependentTable" },
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var message = Fixture.OperationReporter.Messages.Single(m => m.Level == LogLevel.Warning).Message;
 
@@ -2872,7 +3021,7 @@ CREATE TABLE PrincipalTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var level = Fixture.OperationReporter.Messages
                     .Single(
@@ -2915,7 +3064,7 @@ CREATE TABLE DependentTable (
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var level = Fixture.OperationReporter.Messages
                     .Single(
@@ -2941,7 +3090,7 @@ Id int PRIMARY KEY,
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
-            dbModel =>
+            (dbModel, scaffoldingFactory) =>
             {
                 var message = Fixture.OperationReporter.Messages
                     .SingleOrDefault(
@@ -2960,7 +3109,7 @@ DROP TABLE TestViewDefinition;");
         string? createSql,
         IEnumerable<string> tables,
         IEnumerable<string> schemas,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel, IScaffoldingModelFactory> asserter,
         string? cleanupSql)
         => Test(
             string.IsNullOrEmpty(createSql) ? Array.Empty<string>() : new[] { createSql },
@@ -2973,7 +3122,7 @@ DROP TABLE TestViewDefinition;");
         string[] createSqls,
         IEnumerable<string> tables,
         IEnumerable<string> schemas,
-        Action<DatabaseModel> asserter,
+        Action<DatabaseModel, IScaffoldingModelFactory> asserter,
         string? cleanupSql)
     {
         foreach (var createSql in createSqls)
@@ -2983,15 +3132,18 @@ DROP TABLE TestViewDefinition;");
 
         try
         {
-            var databaseModelFactory = SqlServerTestHelpers.Instance.CreateDesignServiceProvider(
-                    reporter: Fixture.OperationReporter)
-                .CreateScope().ServiceProvider.GetRequiredService<IDatabaseModelFactory>();
+            var serviceProvider = SqlServerTestHelpers.Instance.CreateDesignServiceProvider(reporter: Fixture.OperationReporter)
+                .CreateScope().ServiceProvider;
+
+            var databaseModelFactory = serviceProvider.GetRequiredService<IDatabaseModelFactory>();
 
             var databaseModel = databaseModelFactory.Create(
                 Fixture.TestStore.ConnectionString,
                 new DatabaseModelFactoryOptions(tables, schemas));
+
             Assert.NotNull(databaseModel);
-            asserter(databaseModel);
+
+            asserter(databaseModel, serviceProvider.GetRequiredService<IScaffoldingModelFactory>());
         }
         finally
         {
