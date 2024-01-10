@@ -6005,6 +6005,45 @@ ORDER BY [c].[CustomerID]
 """);
     }
 
+    public override async Task Skip_1_Take_0_works_when_constant(bool async)
+    {
+        await base.Skip_1_Take_0_works_when_constant(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Orders] AS [o]
+        WHERE 0 = 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]
+""");
+    }
+
+    public override async Task Take_0_works_when_constant(bool async)
+    {
+        await base.Take_0_works_when_constant(async);
+
+        AssertSql(
+            """
+SELECT CASE
+    WHEN EXISTS (
+        SELECT TOP(0) 1
+        FROM [Orders] AS [o]
+        WHERE [c].[CustomerID] = [o].[CustomerID]
+        ORDER BY [o].[OrderID]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]
+""");
+    }
+
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()
         => await Assert.ThrowsAnyAsync<OperationCanceledException>(
