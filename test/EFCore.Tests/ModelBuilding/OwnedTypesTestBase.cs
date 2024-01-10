@@ -1976,5 +1976,103 @@ public abstract partial class ModelBuilderTest
                             () => b.OwnsMany("Shared1", e => e.Collection)).Message);
                 });
         }
+
+        [ConditionalFact]
+        public virtual void PrimitiveCollectionBuilder_methods_can_be_chained()
+            => CreateModelBuilder()
+                .Entity<ComplexProperties>()
+                .OwnsOne(e => e.CollectionQuarks)
+                .PrimitiveCollection(e => e.Up)
+                .ElementType(t => t
+                    .HasAnnotation("B", "C")
+                    .HasConversion(typeof(long))
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                    .HasConversion(typeof(long), new CustomValueComparer<int>())
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                    .HasConversion<long>()
+                    .HasConversion<long>(new CustomValueComparer<int>())
+                    .HasConversion<long, CustomValueComparer<int>>()
+                    .HasMaxLength(2)
+                    .HasPrecision(1)
+                    .HasPrecision(1, 2)
+                    .IsRequired()
+                    .IsUnicode())
+                .IsRequired()
+                .HasAnnotation("A", "V")
+                .IsConcurrencyToken()
+                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
+                .ValueGeneratedOnAddOrUpdate()
+                .ValueGeneratedOnUpdate()
+                .IsUnicode()
+                .HasMaxLength(100)
+                .HasSentinel(null)
+                .HasValueGenerator<CustomValueGenerator>()
+                .HasValueGenerator(typeof(CustomValueGenerator))
+                .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
+                .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
+                .IsRequired();
+
+        [ConditionalFact]
+        public virtual void PrimitiveCollectionBuilder_methods_can_be_chained_on_collection()
+            => CreateModelBuilder()
+                .Entity<Customer>()
+                .OwnsMany(e => e.Orders)
+                .PrimitiveCollection<List<int>>("List")
+                .ElementType(t => t
+                    .HasAnnotation("B", "C")
+                    .HasConversion(typeof(long))
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                    .HasConversion(typeof(long), new CustomValueComparer<int>())
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                    .HasConversion<long>()
+                    .HasConversion<long>(new CustomValueComparer<int>())
+                    .HasConversion<long, CustomValueComparer<int>>()
+                    .HasMaxLength(2)
+                    .HasPrecision(1)
+                    .HasPrecision(1, 2)
+                    .IsRequired()
+                    .IsUnicode())
+                .IsRequired()
+                .HasAnnotation("A", "V")
+                .IsConcurrencyToken()
+                .ValueGeneratedNever()
+                .ValueGeneratedOnAdd()
+                .ValueGeneratedOnAddOrUpdate()
+                .ValueGeneratedOnUpdate()
+                .IsUnicode()
+                .HasMaxLength(100)
+                .HasSentinel(null)
+                .HasValueGenerator<CustomValueGenerator>()
+                .HasValueGenerator(typeof(CustomValueGenerator))
+                .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
+                .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
+                .IsRequired();
+
+        private class CustomValueGenerator : ValueGenerator<int>
+        {
+            public override int Next(EntityEntry entry)
+                => throw new NotImplementedException();
+
+            public override bool GeneratesTemporaryValues
+                => false;
+        }
+
+        private class CustomValueGeneratorFactory : ValueGeneratorFactory
+        {
+            public override ValueGenerator Create(IProperty property, ITypeBase entityType)
+                => new CustomValueGenerator();
+        }
+        private class CustomValueComparer<T> : ValueComparer<T>
+        {
+            public CustomValueComparer()
+                : base(false)
+            {
+            }
+        }
     }
 }
