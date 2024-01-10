@@ -81,10 +81,10 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
 @__cities_0='["London","Berlin"]' (Size = 19)
 
 SELECT COUNT(CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN "c"."City" IN (
+        SELECT "c0"."value"
         FROM json_each(@__cities_0) AS "c0"
-        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ) THEN 1
 END)
 FROM "Customers" AS "c"
 GROUP BY "c"."Country"
@@ -100,10 +100,10 @@ GROUP BY "c"."Country"
 @__cities_0='["London","Berlin"]' (Size = 19)
 
 SELECT AVG(CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN "c"."City" IN (
+        SELECT "c0"."value"
         FROM json_each(@__cities_0) AS "c0"
-        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1.0
+    ) THEN 1.0
     ELSE 0.0
 END)
 FROM "Customers" AS "c"
@@ -119,10 +119,10 @@ FROM "Customers" AS "c"
 @__cities_0='["London","Berlin"]' (Size = 19)
 
 SELECT COALESCE(SUM(CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN "c"."City" IN (
+        SELECT "c0"."value"
         FROM json_each(@__cities_0) AS "c0"
-        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ) THEN 1
     ELSE 0
 END), 0)
 FROM "Customers" AS "c"
@@ -139,10 +139,10 @@ FROM "Customers" AS "c"
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE EXISTS (
-    SELECT 1
+WHERE "c"."City" IN (
+    SELECT "c0"."value"
     FROM json_each(@__cities_0) AS "c0"
-    WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL))
+)
 """);
     }
 
@@ -156,10 +156,10 @@ WHERE EXISTS (
 
 SELECT COUNT(*)
 FROM "Customers" AS "c"
-WHERE EXISTS (
-    SELECT 1
+WHERE "c"."City" IN (
+    SELECT "c0"."value"
     FROM json_each(@__cities_0) AS "c0"
-    WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL))
+)
 """);
     }
 
@@ -172,10 +172,10 @@ WHERE EXISTS (
 @__cities_0='["London","Berlin"]' (Size = 19)
 
 SELECT MAX(CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN "c"."City" IN (
+        SELECT "c0"."value"
         FROM json_each(@__cities_0) AS "c0"
-        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"
@@ -191,10 +191,10 @@ FROM "Customers" AS "c"
 @__cities_0='["London","Berlin"]' (Size = 19)
 
 SELECT MIN(CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN "c"."City" IN (
+        SELECT "c0"."value"
         FROM json_each(@__cities_0) AS "c0"
-        WHERE "c0"."value" = "c"."City" OR ("c0"."value" IS NULL AND "c"."City" IS NULL)) THEN 1
+    ) THEN 1
     ELSE 0
 END)
 FROM "Customers" AS "c"

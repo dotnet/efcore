@@ -62,5 +62,14 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
 
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
-        => writer.WriteNumberValue((ulong)Convert.ChangeType(value, typeof(ulong))!);
+    {
+        if (_isSigned)
+        {
+            writer.WriteNumberValue((long)Convert.ChangeType(value, typeof(long)));
+        }
+        else
+        {
+            writer.WriteNumberValue((ulong)Convert.ChangeType(value, typeof(ulong)));
+        }
+    }
 }

@@ -64,11 +64,24 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
     [Theory]
     [InlineData(ExpressionType.Add, "+")]
     [InlineData(ExpressionType.Subtract, "-")]
-    // TODO: Complete
+    [InlineData(ExpressionType.Assign, "=")]
+    [InlineData(ExpressionType.AddAssign, "+=")]
+    [InlineData(ExpressionType.AddAssignChecked, "+=")]
+    [InlineData(ExpressionType.MultiplyAssign, "*=")]
+    [InlineData(ExpressionType.MultiplyAssignChecked, "*=")]
+    [InlineData(ExpressionType.DivideAssign, "/=")]
+    [InlineData(ExpressionType.ModuloAssign, "%=")]
+    [InlineData(ExpressionType.SubtractAssign, "-=")]
+    [InlineData(ExpressionType.SubtractAssignChecked, "-=")]
+    [InlineData(ExpressionType.AndAssign, "&=")]
+    [InlineData(ExpressionType.OrAssign, "|=")]
+    [InlineData(ExpressionType.LeftShiftAssign, "<<=")]
+    [InlineData(ExpressionType.RightShiftAssign, ">>=")]
+    [InlineData(ExpressionType.ExclusiveOrAssign, "^=")]
     public void Binary_numeric(ExpressionType expressionType, string op)
         => AssertExpression(
-            MakeBinary(expressionType, Constant(2), Constant(3)),
-            $"2 {op} 3");
+            MakeBinary(expressionType, Parameter(typeof(int), "i"), Constant(3)),
+            $"i {op} 3");
 
     [Fact]
     public void Binary_ArrayIndex()
@@ -87,6 +100,33 @@ public class LinqToCSharpTranslatorTest(ITestOutputHelper testOutputHelper)
         => AssertExpression(
             PowerAssign(Parameter(typeof(double), "d"), Constant(3.0)),
             "d = Math.Pow(d, 3D)");
+
+    [Fact]
+    public void Private_instance_field_SimpleAssign()
+        => AssertExpression(
+            Assign(
+                Field(Parameter(typeof(Blog), "blog"), "_privateField"),
+                Constant(3)),
+            """typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, 3)""");
+
+    [Theory]
+    [InlineData(ExpressionType.AddAssign, "+")]
+    [InlineData(ExpressionType.MultiplyAssign, "*")]
+    [InlineData(ExpressionType.DivideAssign, "/")]
+    [InlineData(ExpressionType.ModuloAssign, "%")]
+    [InlineData(ExpressionType.SubtractAssign, "-")]
+    [InlineData(ExpressionType.AndAssign, "&")]
+    [InlineData(ExpressionType.OrAssign, "|")]
+    [InlineData(ExpressionType.LeftShiftAssign, "<<")]
+    [InlineData(ExpressionType.RightShiftAssign, ">>")]
+    [InlineData(ExpressionType.ExclusiveOrAssign, "^")]
+    public void Private_instance_field_AssignOperators(ExpressionType expressionType, string op)
+        => AssertExpression(
+            MakeBinary(
+                expressionType,
+                Field(Parameter(typeof(Blog), "blog"), "_privateField"),
+                Constant(3)),
+            $"""typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(blog, typeof(LinqToCSharpTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog) {op} 3)""");
 
     [Theory]
     [InlineData(ExpressionType.Negate, "-i")]
