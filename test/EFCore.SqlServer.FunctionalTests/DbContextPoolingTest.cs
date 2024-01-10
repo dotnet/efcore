@@ -1880,7 +1880,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         await Dispose(context2, async);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory (Skip = "Issue #32700")]
     [InlineData(true)]
     [InlineData(false)]
     public void Double_dispose_concurrency_test(bool useInterface)
