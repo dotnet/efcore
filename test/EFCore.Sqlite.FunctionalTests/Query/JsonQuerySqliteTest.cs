@@ -99,7 +99,7 @@ WHERE (
         SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Enums' AS "Enums", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'NullableEnum' AS "NullableEnum", "o"."value" ->> 'NullableEnums' AS "NullableEnums", "o"."value" ->> 'OwnedCollectionLeaf' AS "OwnedCollectionLeaf", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
     ) AS "t"
-    WHERE "t"."Enum" = 2
+    WHERE "t"."Enum" = -3
     ORDER BY "t"."key"
     LIMIT 1 OFFSET 0) = 'e1_r_c2_r'
 """);
