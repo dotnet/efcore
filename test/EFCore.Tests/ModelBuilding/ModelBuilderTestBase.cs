@@ -531,10 +531,9 @@ public abstract partial class ModelBuilderTest
 
     public abstract class TestPrimitiveCollectionBuilder<TProperty>
     {
+        public abstract IMutableProperty Metadata { get; }
         public abstract TestElementTypeBuilder ElementType();
         public abstract TestPrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction);
-
-        public abstract IMutableProperty Metadata { get; }
         public abstract TestPrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPrimitiveCollectionBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);
@@ -698,6 +697,8 @@ public abstract partial class ModelBuilderTest
     public abstract class TestComplexTypePrimitiveCollectionBuilder<TProperty>
     {
         public abstract IMutableProperty Metadata { get; }
+        public abstract TestElementTypeBuilder ElementType();
+        public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestComplexTypePrimitiveCollectionBuilder<TProperty> HasMaxLength(int maxLength);
@@ -952,6 +953,11 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName);
 
         public abstract TestPropertyBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName);
+
+        public abstract TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
             Expression<Func<TDependentEntity, TProperty>> propertyExpression);
 
         public abstract TestNavigationBuilder Navigation<TNavigation>(

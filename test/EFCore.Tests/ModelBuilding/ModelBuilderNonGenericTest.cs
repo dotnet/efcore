@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.Reflection;
+
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public class ModelBuilderNonGenericTest : ModelBuilderTest
@@ -1120,6 +1122,12 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             ComplexTypePrimitiveCollectionBuilder primitiveCollectionBuilder)
             => new NonGenericTestComplexTypePrimitiveCollectionBuilder<TProperty>(primitiveCollectionBuilder);
 
+        public override TestElementTypeBuilder ElementType()
+            => new(PrimitiveCollectionBuilder.ElementType());
+
+        public override TestComplexTypePrimitiveCollectionBuilder<TProperty> ElementType(Action<TestElementTypeBuilder> builderAction)
+            => Wrap(PrimitiveCollectionBuilder.ElementType(b => builderAction(new TestElementTypeBuilder(b))));
+
         public override TestComplexTypePrimitiveCollectionBuilder<TProperty> HasAnnotation(string annotation, object? value)
             => Wrap(PrimitiveCollectionBuilder.HasAnnotation(annotation, value));
 
@@ -1682,6 +1690,17 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             var memberInfo = propertyExpression.GetMemberAccess();
             return new NonGenericTestPropertyBuilder<TProperty>(
                 OwnedNavigationBuilder.Property(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
+        }
+
+        public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(string propertyName)
+            => new NonGenericTestPrimitiveCollectionBuilder<TProperty>(OwnedNavigationBuilder.PrimitiveCollection<TProperty>(propertyName));
+
+        public override TestPrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        {
+            var memberInfo = propertyExpression.GetMemberAccess();
+            return new NonGenericTestPrimitiveCollectionBuilder<TProperty>(
+                OwnedNavigationBuilder.PrimitiveCollection(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
         public override TestNavigationBuilder Navigation<TNavigation>(
