@@ -495,91 +495,61 @@ ORDER BY [c].[Id], [t].[Id]
 
     public override async Task Whats_new_2021_sample_3(bool async)
     {
-#if DEBUG
-        // GroupBy debug assert. Issue #26104.
-        Assert.StartsWith(
-            "Missing alias in the list",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Whats_new_2021_sample_3(async))).Message);
-
-        AssertSql();
-#else
         await base.Whats_new_2021_sample_3(async);
 
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [p1].[LastName]
-    FROM [Person] AS [p1]
-    WHERE [p1].[MiddleInitial] = N'Q' AND [p1].[Age] = 20 AND ([p].[LastName] = [p1].[LastName] OR ([p].[LastName] IS NULL AND [p1].[LastName] IS NULL)))
+    SELECT TOP(1) [p0].[LastName]
+    FROM [Person] AS [p0]
+    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND ([p].[LastName] = [p0].[LastName] OR ([p].[LastName] IS NULL AND [p0].[LastName] IS NULL)))
 FROM [Person] AS [p]
 WHERE [p].[MiddleInitial] = N'Q' AND [p].[Age] = 20
 GROUP BY [p].[LastName]
 ORDER BY CAST(LEN((
-    SELECT TOP(1) [p1].[LastName]
-    FROM [Person] AS [p1]
-    WHERE [p1].[MiddleInitial] = N'Q' AND [p1].[Age] = 20 AND ([p].[LastName] = [p1].[LastName] OR ([p].[LastName] IS NULL AND [p1].[LastName] IS NULL)))) AS int)
+    SELECT TOP(1) [p0].[LastName]
+    FROM [Person] AS [p0]
+    WHERE [p0].[MiddleInitial] = N'Q' AND [p0].[Age] = 20 AND ([p].[LastName] = [p0].[LastName] OR ([p].[LastName] IS NULL AND [p0].[LastName] IS NULL)))) AS int)
 """);
-#endif
     }
 
     public override async Task Whats_new_2021_sample_5(bool async)
     {
-#if DEBUG
-        // GroupBy debug assert. Issue #26104.
-        Assert.StartsWith(
-            "Missing alias in the list",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Whats_new_2021_sample_5(async))).Message);
-
-        AssertSql();
-#else
         await base.Whats_new_2021_sample_5(async);
 
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [p1].[LastName]
-    FROM [Person] AS [p1]
-    WHERE [p].[FirstName] = [p1].[FirstName] OR ([p].[FirstName] IS NULL AND [p1].[FirstName] IS NULL))
+    SELECT TOP(1) [p0].[LastName]
+    FROM [Person] AS [p0]
+    WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL))
 FROM [Person] AS [p]
 GROUP BY [p].[FirstName]
 ORDER BY (
-    SELECT TOP(1) [p1].[LastName]
-    FROM [Person] AS [p1]
-    WHERE [p].[FirstName] = [p1].[FirstName] OR ([p].[FirstName] IS NULL AND [p1].[FirstName] IS NULL))
+    SELECT TOP(1) [p0].[LastName]
+    FROM [Person] AS [p0]
+    WHERE [p].[FirstName] = [p0].[FirstName] OR ([p].[FirstName] IS NULL AND [p0].[FirstName] IS NULL))
 """);
-#endif
     }
 
     public override async Task Whats_new_2021_sample_6(bool async)
     {
-#if DEBUG
-        // GroupBy debug assert. Issue #26104.
-        Assert.StartsWith(
-            "Missing alias in the list",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Whats_new_2021_sample_6(async))).Message);
-
-        AssertSql();
-#else
         await base.Whats_new_2021_sample_6(async);
 
         AssertSql(
             """
 SELECT (
-    SELECT TOP(1) [p1].[MiddleInitial]
-    FROM [Person] AS [p1]
-    WHERE [p1].[Age] = 20 AND [p].[Id] = [p1].[Id])
+    SELECT TOP(1) [p0].[MiddleInitial]
+    FROM [Person] AS [p0]
+    WHERE [p0].[Age] = 20 AND [p].[Id] = [p0].[Id])
 FROM [Person] AS [p]
 WHERE [p].[Age] = 20
 GROUP BY [p].[Id]
 ORDER BY (
-    SELECT TOP(1) [p1].[MiddleInitial]
-    FROM [Person] AS [p1]
-    WHERE [p1].[Age] = 20 AND [p].[Id] = [p1].[Id])
+    SELECT TOP(1) [p0].[MiddleInitial]
+    FROM [Person] AS [p0]
+    WHERE [p0].[Age] = 20 AND [p].[Id] = [p0].[Id])
 """);
-#endif
     }
 
     public override async Task Whats_new_2021_sample_14(bool async)
@@ -595,7 +565,7 @@ ORDER BY (
 
         AssertSql(
             """
-SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial]
+SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial]
 FROM (
     SELECT [f].[Id], [f].[Size]
     FROM [Person] AS [p]
@@ -603,14 +573,14 @@ FROM (
     GROUP BY [f].[Id], [f].[Size]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial], [t1].[Id0], [t1].[Size]
+    SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial], [t0].[Id0], [t0].[Size]
     FROM (
         SELECT [p0].[Id], [p0].[Age], [p0].[FirstName], [p0].[LastName], [p0].[MiddleInitial], [f0].[Id] AS [Id0], [f0].[Size], ROW_NUMBER() OVER(PARTITION BY [f0].[Id], [f0].[Size] ORDER BY [p0].[Id] DESC) AS [row]
         FROM [Person] AS [p0]
         LEFT JOIN [Feet] AS [f0] ON [p0].[Id] = [f0].[Id]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON ([t].[Id] = [t0].[Id0] OR ([t].[Id] IS NULL AND [t0].[Id0] IS NULL)) AND ([t].[Size] = [t0].[Size] OR ([t].[Size] IS NULL AND [t0].[Size] IS NULL))
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON ([t].[Id] = [t1].[Id0] OR ([t].[Id] IS NULL AND [t1].[Id0] IS NULL)) AND ([t].[Size] = [t1].[Size] OR ([t].[Size] IS NULL AND [t1].[Size] IS NULL))
 """);
     }
 
@@ -743,7 +713,7 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [t0].[FirstName], [t0].[FullName], [t0].[c]
+SELECT [t1].[FirstName], [t1].[FullName], [t1].[c]
 FROM (
     SELECT TOP(1) [p].[FirstName]
     FROM [Person] AS [p]
@@ -751,13 +721,13 @@ FROM (
     ORDER BY [p].[FirstName]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[FirstName], [t1].[FullName], [t1].[c]
+    SELECT [t0].[FirstName], [t0].[FullName], [t0].[c]
     FROM (
         SELECT [p0].[FirstName], COALESCE([p0].[FirstName], N'') + N' ' + COALESCE([p0].[MiddleInitial], N'') + N' ' + COALESCE([p0].[LastName], N'') AS [FullName], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[Id]) AS [row]
         FROM [Person] AS [p0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[FirstName] = [t0].[FirstName]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[FirstName] = [t1].[FirstName]
 ORDER BY [t].[FirstName]
 """);
     }
@@ -768,22 +738,22 @@ ORDER BY [t].[FirstName]
 
         AssertSql(
             """
-SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial], [t].[FirstName], [s].[Id], [s].[Age], [s].[PersonId], [s].[Style]
+SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial], [t].[FirstName], [s].[Id], [s].[Age], [s].[PersonId], [s].[Style]
 FROM (
     SELECT [p].[FirstName]
     FROM [Person] AS [p]
     GROUP BY [p].[FirstName]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial]
+    SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial]
     FROM (
         SELECT [p0].[Id], [p0].[Age], [p0].[FirstName], [p0].[LastName], [p0].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p0].[FirstName] ORDER BY [p0].[FirstName], [p0].[LastName]) AS [row]
         FROM [Person] AS [p0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[FirstName] = [t0].[FirstName]
-LEFT JOIN [Shoes] AS [s] ON [t0].[Id] = [s].[PersonId]
-ORDER BY [t].[FirstName], [t0].[Id]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[FirstName] = [t1].[FirstName]
+LEFT JOIN [Shoes] AS [s] ON [t1].[Id] = [s].[PersonId]
+ORDER BY [t].[FirstName], [t1].[Id]
 """);
     }
 
@@ -918,29 +888,29 @@ GROUP BY [p].[Category]
 
         AssertSql(
             """
-SELECT [t].[LastName], [t].[c], [t0].[Id], [t2].[Id], [t2].[Age], [t2].[FirstName], [t2].[LastName], [t2].[MiddleInitial], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial]
+SELECT [t].[LastName], [t].[c], [t1].[Id], [t3].[Id], [t3].[Age], [t3].[FirstName], [t3].[LastName], [t3].[MiddleInitial], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial]
 FROM (
     SELECT [p].[LastName], COUNT(*) AS [c]
     FROM [Person] AS [p]
     GROUP BY [p].[LastName]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Age], [t1].[FirstName], [t1].[LastName], [t1].[MiddleInitial]
+    SELECT [t0].[Id], [t0].[Age], [t0].[FirstName], [t0].[LastName], [t0].[MiddleInitial]
     FROM (
         SELECT [p0].[Id], [p0].[Age], [p0].[FirstName], [p0].[LastName], [p0].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p0].[LastName] ORDER BY [p0].[Id]) AS [row]
         FROM [Person] AS [p0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[LastName] = [t0].[LastName]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[LastName] = [t1].[LastName]
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[Age], [t3].[FirstName], [t3].[LastName], [t3].[MiddleInitial]
+    SELECT [t2].[Id], [t2].[Age], [t2].[FirstName], [t2].[LastName], [t2].[MiddleInitial]
     FROM (
         SELECT [p1].[Id], [p1].[Age], [p1].[FirstName], [p1].[LastName], [p1].[MiddleInitial], ROW_NUMBER() OVER(PARTITION BY [p1].[LastName] ORDER BY [p1].[Id]) AS [row]
         FROM [Person] AS [p1]
-    ) AS [t3]
-    WHERE [t3].[row] <= 2
-) AS [t2] ON [t].[LastName] = [t2].[LastName]
-ORDER BY [t].[LastName] DESC, [t0].[Id], [t2].[LastName], [t2].[Id]
+    ) AS [t2]
+    WHERE [t2].[row] <= 2
+) AS [t3] ON [t].[LastName] = [t3].[LastName]
+ORDER BY [t].[LastName] DESC, [t1].[Id], [t3].[LastName], [t3].[Id]
 """);
     }
 

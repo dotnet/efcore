@@ -54,9 +54,9 @@ INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
 
         AssertSql(
             """
-SELECT [e].[Id], [s0].[IntValue3], [s0].[StringValue3]
+SELECT [e].[Id], [s].[IntValue3], [s].[StringValue3]
 FROM [EntityOne] AS [e]
-INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
+INNER JOIN [SplitEntityOnePart2] AS [s] ON [e].[Id] = [s].[Id]
 """);
     }
 
@@ -179,9 +179,9 @@ ORDER BY [e].[Id]
 
         AssertSql(
             """
-SELECT [e].[IntValue1], [s0].[IntValue3], [e0].[Id], [e0].[Name]
+SELECT [e].[IntValue1], [s].[IntValue3], [e0].[Id], [e0].[Name]
 FROM [EntityOne] AS [e]
-INNER JOIN [SplitEntityOnePart2] AS [s0] ON [e].[Id] = [s0].[Id]
+INNER JOIN [SplitEntityOnePart2] AS [s] ON [e].[Id] = [s].[Id]
 LEFT JOIN [EntityThree] AS [e0] ON [e].[EntityThreeId] = [e0].[Id]
 """);
     }

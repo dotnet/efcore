@@ -1042,18 +1042,18 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1070,20 +1070,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1106,7 +1106,7 @@ ORDER BY [t].[Id]
             """
 @__p_0='5'
 
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [t0].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [t0].[Id]
 FROM (
     SELECT TOP(@__p_0) [t].[Id]
     FROM (
@@ -1115,14 +1115,14 @@ FROM (
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
-INNER JOIN [Order] AS [o0] ON [t0].[Id] = [o0].[ClientId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [t0].[Id] = [o1].[ClientId]
+ORDER BY [t0].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
 @__p_0='5'
 
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [t0].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [t0].[Id], [o1].[ClientId], [o1].[Id]
 FROM (
     SELECT TOP(@__p_0) [t].[Id]
     FROM (
@@ -1131,9 +1131,9 @@ FROM (
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
-INNER JOIN [Order] AS [o0] ON [t0].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [t0].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [t0].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1150,20 +1150,20 @@ ORDER BY [o].[Id], [p].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id], [p].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id], [p].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
 LEFT JOIN [Planet] AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1201,20 +1201,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1231,20 +1231,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1261,20 +1261,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] AS [o]
-INNER JOIN [Order] AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 

@@ -241,12 +241,12 @@ INNER JOIN (
             SELECT [c1].[CustomerID], [c1].[CompanyName]
             FROM [Customers] AS [c1]
             WHERE [c1].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-        ) AS [t3] ON [o1].[CustomerID] = [t3].[CustomerID]
-        WHERE [t3].[CustomerID] IS NOT NULL AND [t3].[CompanyName] IS NOT NULL
+        ) AS [t1] ON [o1].[CustomerID] = [t1].[CustomerID]
+        WHERE [t1].[CustomerID] IS NOT NULL AND [t1].[CompanyName] IS NOT NULL
     ) AS [t2] ON [o0].[OrderID] = [t2].[OrderID]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
-) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
-WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\' AND [t1].[Discount] < CAST(10 AS real)
+) AS [t3] ON [t0].[OrderID] = [t3].[OrderID]
+WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\' AND [t3].[Discount] < CAST(10 AS real)
 """);
     }
 

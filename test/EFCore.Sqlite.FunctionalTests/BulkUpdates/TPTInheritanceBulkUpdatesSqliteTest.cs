@@ -83,14 +83,14 @@ public class TPTInheritanceBulkUpdatesSqliteTest(
 
         AssertExecuteUpdateSql(
             """
-UPDATE "Animals" AS "a"
+UPDATE "Animals" AS "a0"
 SET "Name" = 'Animal'
 FROM (
-    SELECT "a0"."Id"
-    FROM "Animals" AS "a0"
-    WHERE "a0"."Name" = 'Great spotted kiwi'
+    SELECT "a"."Id"
+    FROM "Animals" AS "a"
+    WHERE "a"."Name" = 'Great spotted kiwi'
 ) AS "t"
-WHERE "a"."Id" = "t"."Id"
+WHERE "a0"."Id" = "t"."Id"
 """);
     }
 

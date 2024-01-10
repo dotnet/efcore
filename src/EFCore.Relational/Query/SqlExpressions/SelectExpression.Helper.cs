@@ -349,51 +349,6 @@ public sealed partial class SelectExpression
             => obj.Column.GetHashCode();
     }
 
-    private sealed class AliasUniquifier : ExpressionVisitor
-    {
-        private readonly HashSet<string> _usedAliases;
-        private readonly List<SelectExpression> _visitedSelectExpressions = [];
-
-        public AliasUniquifier(HashSet<string> usedAliases)
-        {
-            _usedAliases = usedAliases;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (expression is SelectExpression innerSelectExpression
-                && !_visitedSelectExpressions.Contains(innerSelectExpression))
-            {
-                for (var i = 0; i < innerSelectExpression._tableReferences.Count; i++)
-                {
-                    var currentAlias = innerSelectExpression._tableReferences[i].Alias;
-                    var newAlias = GenerateUniqueAlias(_usedAliases, currentAlias);
-
-                    if (newAlias != currentAlias)
-                    {
-                        // we keep the old alias in the list (even though it's not actually being used anymore)
-                        // to disambiguate the APPLY case, e.g. something like this:
-                        // SELECT * FROM EntityOne as e
-                        // OUTER APPLY (
-                        //    SELECT * FROM EntityTwo as e1
-                        //    LEFT JOIN EntityThree as e ON (...) -- reuse alias e, since we use e1 after uniquification
-                        //    WHERE e.Foo == e1.Bar -- ambiguity! e could refer to EntityOne or EntityThree
-                        // ) as t
-                        innerSelectExpression._usedAliases.Add(newAlias);
-                    }
-
-                    innerSelectExpression._tableReferences[i].Alias = newAlias;
-                    UnwrapJoinExpression(innerSelectExpression._tables[i]).Alias = newAlias;
-                }
-
-                _visitedSelectExpressions.Add(innerSelectExpression);
-            }
-
-            return base.Visit(expression);
-        }
-    }
-
     private sealed class ConcreteColumnExpression : ColumnExpression
     {
         private readonly TableReferenceExpression _table;
@@ -749,13 +704,21 @@ public sealed partial class SelectExpression
                 .Visit(expression);
     }
 
-    private sealed class CloningExpressionVisitor : ExpressionVisitor
+    // We sometimes clone when the result will be integrated in the same query tree (e.g. GroupBy - this needs to be reviewed and hopefully
+    // improved); for those cases SqlAliasManager is passed in and ensures unique table aliases across the entire query.
+    // But for split query, we clone in order to create a completely separate query, in which case we don't want unique aliases - and so
+    // SqlAliasManager isn't passed in.
+    private sealed class CloningExpressionVisitor(SqlAliasManager? sqlAliasManager) : ExpressionVisitor
     {
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
             => expression switch
             {
-                TableExpressionBase table => table.Clone(this),
+                TableExpressionBase table
+                    => table.Clone(
+                        sqlAliasManager is null || table.Alias is null
+                            ? table.Alias
+                            : sqlAliasManager.GenerateTableAlias(table.Alias), this),
 
                 _ => base.Visit(expression)
             };
@@ -764,24 +727,24 @@ public sealed partial class SelectExpression
     private sealed class ColumnExpressionReplacingExpressionVisitor : ExpressionVisitor
     {
         private readonly SelectExpression _oldSelectExpression;
-        private readonly Dictionary<string, TableReferenceExpression> _newTableReferences;
+        private readonly List<TableReferenceExpression> _newTableReferences;
 
         public ColumnExpressionReplacingExpressionVisitor(
             SelectExpression oldSelectExpression,
             IEnumerable<TableReferenceExpression> newTableReferences)
         {
             _oldSelectExpression = oldSelectExpression;
-            _newTableReferences = newTableReferences.ToDictionary(e => e.Alias);
+            _newTableReferences = newTableReferences.ToList();
         }
 
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
             => expression is ConcreteColumnExpression concreteColumnExpression
-                && _oldSelectExpression.ContainsTableReference(concreteColumnExpression)
-                && _newTableReferences.ContainsKey(concreteColumnExpression.TableAlias)
+                && _oldSelectExpression.Tables.IndexOf(concreteColumnExpression.Table) is var index
+                && index > -1
                     ? new ConcreteColumnExpression(
                         concreteColumnExpression.Name,
-                        _newTableReferences[concreteColumnExpression.TableAlias],
+                        _newTableReferences[index],
                         concreteColumnExpression.Type,
                         concreteColumnExpression.TypeMapping!,
                         concreteColumnExpression.IsNullable)
@@ -790,11 +753,11 @@ public sealed partial class SelectExpression
 
     private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
     {
-        private readonly HashSet<string> _usedAliases;
+        private readonly SqlAliasManager _sqlAliasManager;
 
-        public TpcTableExpressionRemovingExpressionVisitor(HashSet<string> usedAliases)
+        public TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager)
         {
-            _usedAliases = usedAliases;
+            _sqlAliasManager = sqlAliasManager;
         }
 
         [return: NotNullIfNotNull("expression")]
@@ -860,21 +823,15 @@ public sealed partial class SelectExpression
                         }
                     }
 
-                    if (identitySelect)
-                    {
-                        // If we are lifting then we remove the alias for tpc because it will be unused.
-                        _usedAliases.Remove(tpcTablesExpression.Alias);
-                    }
-
                     RemapProjections(reindexingMap, firstSelectExpression);
                     var result = subSelectExpressions[0];
                     for (var i = 1; i < subSelectExpressions.Count; i++)
                     {
-                        var setOperationAlias = GenerateUniqueAlias(_usedAliases, "t");
+                        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("t");
                         var source1 = result;
                         var source2 = subSelectExpressions[i];
                         RemapProjections(reindexingMap, source2);
-                        var generatedSelectExpression = new SelectExpression(alias: null);
+                        var generatedSelectExpression = new SelectExpression(alias: null, _sqlAliasManager);
 
                         var unionExpression = new UnionExpression(setOperationAlias, source1, source2, distinct: false);
                         var tableReferenceExpression = new TableReferenceExpression(generatedSelectExpression, setOperationAlias);
@@ -919,7 +876,7 @@ public sealed partial class SelectExpression
                     {
                         // we assign unique alias to inner tables here so that we can avoid wasting aliases on pruned tables
                         var table = se._tables[0];
-                        var alias = GenerateUniqueAlias(_usedAliases, table.Alias!);
+                        var alias = _sqlAliasManager.GenerateTableAlias(table.Alias!);
                         table.Alias = alias;
                         se._tableReferences[0].Alias = alias;
 

@@ -39,8 +39,9 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)> _tpcDiscriminatorValues
         = new(ReferenceEqualityComparer.Instance);
 
+    private readonly SqlAliasManager _sqlAliasManager;
+
     private bool _mutable = true;
-    private HashSet<string> _usedAliases = [];
     private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private List<Expression> _clientProjections = [];
     private readonly List<string?> _aliasForClientProjections = [];
@@ -55,9 +56,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     // Pushdown should null it out as if GroupBy was present was pushed down.
     private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
 
-#if DEBUG
-    internal List<string>? RemovedAliases { get; set; }
-#endif
 
     private SelectExpression(
         string? alias,
@@ -66,7 +64,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         List<TableReferenceExpression> tableReferences,
         List<SqlExpression> groupBy,
         List<OrderingExpression> orderings,
-        IEnumerable<IAnnotation> annotations)
+        IEnumerable<IAnnotation> annotations,
+        SqlAliasManager sqlAliasManager)
         : base(alias)
     {
         _projection = projections;
@@ -83,20 +82,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _annotations[annotation.Name] = annotation;
             }
         }
+
+        _sqlAliasManager = sqlAliasManager;
     }
 
-    private SelectExpression(string? alias)
+    private SelectExpression(string? alias, SqlAliasManager sqlAliasManager)
         : base(alias)
-    {
-    }
+        => _sqlAliasManager = sqlAliasManager;
 
-    internal SelectExpression(SqlExpression? projection)
+    internal SelectExpression(SqlExpression? projection, SqlAliasManager sqlAliasManager)
         : base(null)
     {
         if (projection != null)
         {
             _projectionMapping[new ProjectionMember()] = projection;
         }
+
+        _sqlAliasManager = sqlAliasManager;
     }
 
     /// <summary>
@@ -107,6 +109,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     [EntityFrameworkInternal]
     public SelectExpression(
+        SqlAliasManager sqlAliasManager,
         TableExpressionBase tableExpression,
         string columnName,
         Type columnType,
@@ -117,6 +120,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         RelationalTypeMapping? identifierColumnTypeMapping = null)
         : base(null)
     {
+        _sqlAliasManager = sqlAliasManager;
+
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
         AddTable(tableExpression, tableReferenceExpression);
 
@@ -148,9 +153,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
-    internal SelectExpression(IEntityType entityType, ISqlExpressionFactory sqlExpressionFactory)
+    internal SelectExpression(
+        IEntityType entityType,
+        ISqlExpressionFactory sqlExpressionFactory,
+        SqlAliasManager sqlAliasManager)
         : base(null)
     {
+        _sqlAliasManager = sqlAliasManager;
+
         switch (entityType.GetMappingStrategy())
         {
             case RelationalAnnotationNames.TptMappingStrategy:
@@ -162,8 +172,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 foreach (var baseType in entityType.GetAllBaseTypesInclusive())
                 {
                     var table = GetTableBaseFiltered(baseType, tableMap);
-                    var tableExpression = new TableExpression(table);
-                    var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
+                    var alias = _sqlAliasManager.GenerateTableAlias(table);
+                    var tableExpression = new TableExpression(alias, table);
+                    var tableReferenceExpression = new TableReferenceExpression(this, alias);
                     tableMap.Add(table, tableReferenceExpression);
 
                     foreach (var property in baseType.GetDeclaredProperties())
@@ -200,8 +211,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 foreach (var derivedType in entityType.GetDerivedTypes())
                 {
                     var table = GetTableBaseFiltered(derivedType, tableMap);
-                    var tableExpression = new TableExpression(table);
-                    var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
+                    var alias = _sqlAliasManager.GenerateTableAlias(table);
+                    var tableExpression = new TableExpression(alias, table);
+                    var tableReferenceExpression = new TableReferenceExpression(this, alias);
                     tableMap.Add(table, tableReferenceExpression);
 
                     foreach (var property in derivedType.GetDeclaredProperties())
@@ -247,8 +259,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     // For single entity case, we don't need discriminator.
                     var table = entityTypes[0].GetViewOrTableMappings().Single().Table;
-                    var tableExpression = new TableExpression(table);
-                    var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
+                    var alias = _sqlAliasManager.GenerateTableAlias(table);
+                    var tableExpression = new TableExpression(alias, table);
+                    var tableReferenceExpression = new TableReferenceExpression(this, alias);
                     var tableMap = new Dictionary<ITableBase, TableReferenceExpression> { [table] = tableReferenceExpression };
                     AddTable(tableExpression, tableReferenceExpression);
 
@@ -321,10 +334,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         var concreteEntityType = entityTypes[i];
                         var table = tables[i];
-                        var selectExpression = new SelectExpression(alias: null);
-                        // We intentionally do not assign unique aliases here in case some select expression gets pruned later
-                        var tableExpression = new TableExpression(table);
-                        var tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias);
+                        var selectExpression = new SelectExpression(alias: null, _sqlAliasManager);
+                        var alias = _sqlAliasManager.GenerateTableAlias(table);
+                        var tableExpression = new TableExpression(alias, table);
+                        var tableReferenceExpression = new TableReferenceExpression(selectExpression, alias);
                         selectExpression._tables.Add(tableExpression);
                         selectExpression._tableReferences.Add(tableReferenceExpression);
 
@@ -349,7 +362,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
 
                     // We only assign unique alias to Tpc
-                    var tableAlias = GenerateUniqueAlias(_usedAliases, "t");
+                    var tableAlias = _sqlAliasManager.GenerateTableAlias("t");
                     var tpcTables = new TpcTablesExpression(tableAlias, entityType, subSelectExpressions);
                     var tpcTableReference = new TableReferenceExpression(this, tableAlias);
                     _tables.Add(tpcTables);
@@ -385,8 +398,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     var storeFunction = functionMapping.Table;
 
+                    var alias = _sqlAliasManager.GenerateTableAlias(storeFunction);
                     GenerateNonHierarchyNonSplittingEntityType(
-                        storeFunction, new TableValuedFunctionExpression((IStoreFunction)storeFunction, []));
+                        storeFunction, new TableValuedFunctionExpression(alias, (IStoreFunction)storeFunction, []));
                 }
                 else
                 {
@@ -394,8 +408,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                     if (mappings.Count == 1)
                     {
                         var table = mappings[0].Table;
+                        var alias = _sqlAliasManager.GenerateTableAlias(table);
 
-                        GenerateNonHierarchyNonSplittingEntityType(table, new TableExpression(table));
+                        GenerateNonHierarchyNonSplittingEntityType(table, new TableExpression(alias, table));
                     }
                     else
                     {
@@ -407,8 +422,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         foreach (var mapping in mappings)
                         {
                             var table = mapping.Table;
-                            var tableExpression = new TableExpression(table);
-                            var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias);
+                            var alias = _sqlAliasManager.GenerateTableAlias(table);
+                            var tableExpression = new TableExpression(alias, table);
+                            var tableReferenceExpression = new TableReferenceExpression(this, alias);
                             tableReferenceExpressionMap[table] = tableReferenceExpression;
 
                             if (_tables.Count == 0)
@@ -492,9 +508,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             => entityType.GetViewOrTableMappings().Single(m => !existingTables.ContainsKey(m.Table)).Table;
     }
 
-    internal SelectExpression(IEntityType entityType, TableExpressionBase tableExpressionBase)
+    internal SelectExpression(
+        IEntityType entityType,
+        TableExpressionBase tableExpressionBase,
+        SqlAliasManager sqlAliasManager)
         : base(null)
     {
+        _sqlAliasManager = sqlAliasManager;
+
         if ((entityType.BaseType != null || entityType.GetDirectlyDerivedTypes().Any())
             && entityType.FindDiscriminatorProperty() == null)
         {
@@ -537,6 +558,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     [EntityFrameworkInternal]
     public SelectExpression(
+        SqlAliasManager sqlAliasManager,
         JsonQueryExpression jsonQueryExpression,
         TableExpressionBase tableExpressionBase,
         string identifierColumnName,
@@ -544,6 +566,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         RelationalTypeMapping identifierColumnTypeMapping)
         : base(null)
     {
+        _sqlAliasManager = sqlAliasManager;
+
         if (!jsonQueryExpression.IsCollection)
         {
             throw new ArgumentException(RelationalStrings.SelectCanOnlyBeBuiltOnCollectionJsonQuery, nameof(jsonQueryExpression));
@@ -1094,7 +1118,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 && (containsSingleResult || containsCollection))
             {
                 // SingleResult can lift collection from inner
-                cloningExpressionVisitor = new CloningExpressionVisitor();
+                cloningExpressionVisitor = new CloningExpressionVisitor(sqlAliasManager: null);
             }
 
             var earlierClientProjectionCount = _clientProjections.Count;
@@ -1922,8 +1946,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 jsonQueryExpression.JsonColumn.TypeMapping!,
                 jsonQueryExpression.IsNullable);
 
-            var sqlExpression = AssignUniqueAliases(jsonScalarExpression);
-            _projection.Add(new ProjectionExpression(sqlExpression, ""));
+            _projection.Add(new ProjectionExpression(jsonScalarExpression, ""));
             var jsonColumnIndex = _projection.Count - 1;
             var keyAccessInfo = new List<(IProperty?, int?, int?)>();
             var keyProperties = GetMappedKeyProperties(jsonQueryExpression.EntityType.FindPrimaryKey()!);
@@ -2028,7 +2051,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public int AddToProjection(SqlExpression sqlExpression)
         => AddToProjection(sqlExpression, null);
 
-    private int AddToProjection(SqlExpression sqlExpression, string? alias, bool assignUniqueTableAlias = true)
+    private int AddToProjection(SqlExpression sqlExpression, string? alias)
     {
         var existingIndex = _projection.FindIndex(pe => pe.Expression.Equals(sqlExpression));
         if (existingIndex != -1)
@@ -2051,11 +2074,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             baseAlias = currentAlias;
-        }
-
-        if (assignUniqueTableAlias)
-        {
-            sqlExpression = AssignUniqueAliases(sqlExpression);
         }
 
         _projection.Add(new ProjectionExpression(sqlExpression, baseAlias ?? ""));
@@ -2156,8 +2174,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
         }
-
-        sqlExpression = AssignUniqueAliases(sqlExpression);
 
         if (_groupBy.Count > 0)
         {
@@ -2387,7 +2403,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     private void AppendOrderingInternal(OrderingExpression orderingExpression)
-        => _orderings.Add(orderingExpression.Update(AssignUniqueAliases(orderingExpression.Expression)));
+        => _orderings.Add(orderingExpression.Update(orderingExpression.Expression));
 
     /// <summary>
     ///     Reverses the existing orderings on the <see cref="SelectExpression" />.
@@ -2477,12 +2493,15 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ApplyUnion(SelectExpression source2, bool distinct)
         => ApplySetOperation(SetOperationType.Union, source2, distinct);
 
-    private void ApplySetOperation(SetOperationType setOperationType, SelectExpression select2, bool distinct)
+    private void ApplySetOperation(
+        SetOperationType setOperationType,
+        SelectExpression select2,
+        bool distinct)
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
             null, [], _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(), _orderings.ToList(),
-            GetAnnotations())
+            GetAnnotations(), _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -2532,11 +2551,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         // currently support that.
         if (select1.Limit != null || select1.Offset != null)
         {
-            // If we are pushing down here, we need to make sure to assign unique alias to subquery also.
-            var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
             select1.PushdownIntoSubqueryInternal(liftOrderings: false);
-            select1._tables[0].Alias = subqueryAlias;
-            select1._tableReferences[0].Alias = subqueryAlias;
         }
         else
         {
@@ -2566,10 +2581,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.ProjectionMappingCountMismatch);
         }
 
-        var setOperationAlias = GenerateUniqueAlias(_usedAliases, "t");
+        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("t");
         var tableReferenceExpression = new TableReferenceExpression(this, setOperationAlias);
 
-        var aliasUniquifier = new AliasUniquifier(_usedAliases);
         foreach (var (projectionMember, expression1, expression2) in select1._projectionMapping.Join(
                      select2._projectionMapping,
                      kv => kv.Key,
@@ -2586,17 +2600,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             var innerColumn1 = (SqlExpression)expression1;
             var innerColumn2 = (SqlExpression)expression2;
 
-            // We have to unique-fy left side since those projections were never uniquified
-            // Right side is unique already when we did it when running select2 through it.
-            innerColumn1 = (SqlExpression)aliasUniquifier.Visit(innerColumn1);
-
-            var alias = GenerateUniqueColumnAlias(
+            var projectionAlias = GenerateUniqueColumnAlias(
                 projectionMember.Last?.Name
                 ?? (innerColumn1 as ColumnExpression)?.Name
                 ?? "c");
 
-            var innerProjection1 = new ProjectionExpression(innerColumn1, alias);
-            var innerProjection2 = new ProjectionExpression(innerColumn2, alias);
+            var innerProjection1 = new ProjectionExpression(innerColumn1, projectionAlias);
+            var innerProjection2 = new ProjectionExpression(innerColumn2, projectionAlias);
             select1._projection.Add(innerProjection1);
             select2._projection.Add(innerProjection2);
             var outerProjection = new ConcreteColumnExpression(innerProjection1, tableReferenceExpression);
@@ -2648,7 +2658,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         // We generate actual set operation after applying projection to lift group by aggregate
         // select1 already has unique aliases. We unique-fy select2 and set operation alias.
-        select2 = (SelectExpression)aliasUniquifier.Visit(select2);
         var setExpression = setOperationType switch
         {
             SetOperationType.Except => (SetOperationBase)new ExceptExpression(setOperationAlias, select1, select2, distinct),
@@ -2847,7 +2856,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         var nullSqlExpression = sqlExpressionFactory.ApplyDefaultTypeMapping(
             new SqlConstantExpression(Constant(null, typeof(string)), null));
 
-        var dummySelectExpression = new SelectExpression(alias: "e");
+        var alias = _sqlAliasManager.GenerateTableAlias("empty");
+        var dummySelectExpression = new SelectExpression(alias, _sqlAliasManager);
         dummySelectExpression._projection.Add(new ProjectionExpression(nullSqlExpression, "empty"));
         dummySelectExpression._mutable = false;
 
@@ -2910,14 +2920,15 @@ public sealed partial class SelectExpression : TableExpressionBase
     public StructuralTypeShaperExpression GenerateOwnedReferenceEntityProjectionExpression(
         StructuralTypeProjectionExpression principalEntityProjection,
         INavigation navigation,
-        ISqlExpressionFactory sqlExpressionFactory)
+        ISqlExpressionFactory sqlExpressionFactory,
+        SqlAliasManager sqlAliasManager)
     {
         // We first find the select expression where principal tableExpressionBase is located
         // That is where we find shared tableExpressionBase to pull columns from or add joins
         var identifyingColumn = principalEntityProjection.BindProperty(
             navigation.DeclaringEntityType.FindPrimaryKey()!.Properties.First());
 
-        var expressions = GetPropertyExpressions(sqlExpressionFactory, navigation, this, identifyingColumn);
+        var expressions = GetPropertyExpressions(sqlExpressionFactory, sqlAliasManager, navigation, this, identifyingColumn);
 
         var entityShaper = new RelationalStructuralTypeShaperExpression(
             navigation.TargetEntityType,
@@ -2932,6 +2943,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         // TODO: The following code should also handle Function and SqlQuery mappings when supported on owned type
         static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressions(
             ISqlExpressionFactory sqlExpressionFactory,
+            SqlAliasManager sqlAliasManager,
             INavigation navigation,
             SelectExpression selectExpression,
             ColumnExpression identifyingColumn)
@@ -2947,7 +2959,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     .Expression;
 
                 var subqueryPropertyExpressions = GetPropertyExpressions(
-                    sqlExpressionFactory, navigation, subquery, subqueryIdentifyingColumn);
+                    sqlExpressionFactory, sqlAliasManager, navigation, subquery, subqueryIdentifyingColumn);
                 var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
                 var tableIndex = selectExpression._tables.FindIndex(e => ReferenceEquals(e, identifyingColumn.Table));
                 var subqueryTableReferenceExpression = selectExpression._tableReferences[tableIndex];
@@ -3035,13 +3047,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                             }
                             else
                             {
-                                TableExpressionBase tableExpression = new TableExpression(table);
+                                var alias = sqlAliasManager.GenerateTableAlias(table);
+                                TableExpressionBase tableExpression = new TableExpression(alias, table);
                                 foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
                                 {
                                     tableExpression = tableExpression.AddAnnotation(annotation.Name, annotation.Value);
                                 }
 
-                                tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias!);
+                                tableReferenceExpression = new TableReferenceExpression(selectExpression, alias);
                                 tableReferenceExpressionMap[table] = tableReferenceExpression;
 
                                 var innerColumns = keyProperties.Select(
@@ -3088,13 +3101,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                 ownerJoinColumns.Add(columnExpression);
             }
 
-            TableExpressionBase ownedTable = new TableExpression(dependentMainTable);
+            var ownedTableAlias = sqlAliasManager.GenerateTableAlias(dependentMainTable);
+            TableExpressionBase ownedTable = new TableExpression(ownedTableAlias, dependentMainTable);
             foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
             {
                 ownedTable = ownedTable.AddAnnotation(annotation.Name, annotation.Value);
             }
 
-            mainTableReferenceExpression = new TableReferenceExpression(selectExpression, ownedTable.Alias!);
+            mainTableReferenceExpression = new TableReferenceExpression(selectExpression, ownedTableAlias);
             var outerJoinPredicate = ownerJoinColumns
                 .Zip(
                     navigation.ForeignKey.Properties
@@ -3118,13 +3132,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                 for (var i = 1; i < dependentTables.Count; i++)
                 {
                     var table = dependentTables[i];
-                    TableExpressionBase tableExpression = new TableExpression(table);
+                    var alias = sqlAliasManager.GenerateTableAlias(table);
+                    TableExpressionBase tableExpression = new TableExpression(alias, table);
                     foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
                     {
                         tableExpression = tableExpression.AddAnnotation(annotation.Name, annotation.Value);
                     }
 
-                    tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias!);
+                    tableReferenceExpression = new TableReferenceExpression(selectExpression, alias);
                     tableReferenceExpressionMap[table] = tableReferenceExpression;
 
                     var innerColumns = keyProperties.Select(
@@ -3954,17 +3969,16 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="liftOrderings">Whether orderings on the query should be lifted out of the subquery.</param>
     private SqlRemappingVisitor PushdownIntoSubqueryInternal(bool liftOrderings = true)
     {
-        var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
+        var subqueryAlias = _sqlAliasManager.GenerateTableAlias("t");
         var subquery = new SelectExpression(
             subqueryAlias, [], _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
-            _orderings.ToList(), GetAnnotations())
+            _orderings.ToList(), GetAnnotations(), _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
             Having = Having,
             Offset = Offset,
             Limit = Limit,
-            _usedAliases = _usedAliases,
             _mutable = false
         };
         _tables.Clear();
@@ -4003,10 +4017,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _projection.Clear();
             foreach (var projection in projections)
             {
-                // Since these projections are already added, they have unique table alias already.
-                // The only new alias added was for "t" which we already made unique at the start of the method.
-                var outerColumn = subquery.GenerateOuterColumn(
-                    subqueryTableReferenceExpression, projection.Expression, projection.Alias, assignUniqueTableAlias: false);
+                var outerColumn = subquery.GenerateOuterColumn(subqueryTableReferenceExpression, projection.Expression, projection.Alias);
                 AddToProjection(outerColumn, null);
                 projectionMap[projection.Expression] = outerColumn;
             }
@@ -4125,8 +4136,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 _orderings.Add(
                     ordering.Update(
-                        subquery.GenerateOuterColumn(
-                            subqueryTableReferenceExpression, orderingExpression, assignUniqueTableAlias: false)));
+                        subquery.GenerateOuterColumn(subqueryTableReferenceExpression, orderingExpression)));
             }
             else
             {
@@ -4336,17 +4346,13 @@ public sealed partial class SelectExpression : TableExpressionBase
     [EntityFrameworkInternal]
     public SelectExpression Clone()
     {
-        _cloningExpressionVisitor ??= new CloningExpressionVisitor();
+        _cloningExpressionVisitor ??= new CloningExpressionVisitor(_sqlAliasManager);
 
         return (SelectExpression)_cloningExpressionVisitor.Visit(this);
     }
 
-    /// <summary>
-    ///     Creates a new object that is a copy of the current instance.
-    /// </summary>
-    /// <param name="cloningExpressionVisitor">The cloning expression for further visitation of nested nodes.</param>
-    /// <returns>A new object that is a copy of this instance.</returns>
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    /// <inheritdoc />
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newProjectionMappings = new Dictionary<ProjectionMember, Expression>(_projectionMapping.Count);
         foreach (var (projectionMember, value) in _projectionMapping)
@@ -4364,10 +4370,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         // Since we are cloning we need to generate new table references
         // In other cases (like VisitChildren), we just reuse the same table references and update the SelectExpression inside it.
         // We initially assign old SelectExpression in table references and later update it once we construct clone
-        var newTableReferences = _tableReferences.Select(e => new TableReferenceExpression(this, e.Alias)).ToList();
-        Check.DebugAssert(
-            newTables.Select(GetAliasFromTableExpressionBase).SequenceEqual(newTableReferences.Select(e => e.Alias)),
-            "Alias of updated tables must match the old tables.");
+        var newTableReferences = newTables.Select(t => new TableReferenceExpression(this, t.UnwrapJoin().Alias!)).ToList();
 
         var predicate = (SqlExpression?)cloningExpressionVisitor.Visit(Predicate);
         var newGroupBy = _groupBy.Select(cloningExpressionVisitor.Visit)
@@ -4379,8 +4382,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var limit = (SqlExpression?)cloningExpressionVisitor.Visit(Limit);
 
         var newSelectExpression = new SelectExpression(
-            Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings,
-            GetAnnotations())
+            alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, GetAnnotations(), _sqlAliasManager)
         {
             Predicate = predicate,
             Having = havingExpression,
@@ -4388,7 +4390,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit = limit,
             IsDistinct = IsDistinct,
             Tags = Tags,
-            _usedAliases = _usedAliases.ToHashSet(),
             _projectionMapping = newProjectionMappings,
             _mutable = _mutable
         };
@@ -4408,6 +4409,10 @@ public sealed partial class SelectExpression : TableExpressionBase
             tableReference.UpdateTableReference(this, newSelectExpression);
         }
 
+        Check.DebugAssert(
+            newTables.Select(GetAliasFromTableExpressionBase).SequenceEqual(newTableReferences.Select(e => e.Alias)),
+            "Alias of updated tables must match the old tables.");
+
         // Now that we have SelectExpression, we visit all components and update table references inside columns
         newSelectExpression = (SelectExpression)new ColumnExpressionReplacingExpressionVisitor(
             this, newSelectExpression._tableReferences).Visit(newSelectExpression);
@@ -4425,7 +4430,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public SelectExpression PruneToplevel(SqlTreePruner pruningVisitor)
     {
         // TODO: This doesn't belong in pruning, take a deeper look at how we manage TPC etc.
-        var select = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_usedAliases).Visit(this);
+        var select = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_sqlAliasManager).Visit(this);
         select.Prune(pruningVisitor, pruneProjection: false);
         return select;
     }
@@ -4520,9 +4525,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 _tables.RemoveAt(i);
                 _tableReferences.RemoveAt(i);
-#if DEBUG
-                pruningVisitor.RemovedAliases.Add(wrappedTable.Alias!);
-#endif
                 continue;
             }
 
@@ -4534,6 +4536,28 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _tables[i] = newTable;
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void ChangeTableAlias(int tableIndex, string newAlias, HashSet<TableReferenceExpression> visitedTableReferences)
+    {
+        // TableReferenceExpression instances can (currently) be shared by multiple SelectExpression instances in the
+        // same tree. We don't want to the same one multiple times, so we track the ones we already visited.
+        // This will all go away soon as we get rid of TableReferenceExpression altogether.
+        var tableReference = _tableReferences[tableIndex];
+        if (!visitedTableReferences.Add(tableReference))
+        {
+            return;
+        }
+
+        _tables[tableIndex].UnwrapJoin().Alias = newAlias;
+        tableReference.Alias = newAlias;
     }
 
     private Dictionary<ProjectionMember, int> ConvertProjectionMappingToClientProjections(
@@ -4654,12 +4678,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     private ConcreteColumnExpression GenerateOuterColumn(
         TableReferenceExpression tableReferenceExpression,
         SqlExpression projection,
-        string? alias = null,
-        bool assignUniqueTableAlias = true)
+        string? alias = null)
     {
         // TODO: Add check if we can add projection in subquery to generate out column
         // Subquery having Distinct or GroupBy can block it.
-        var index = AddToProjection(projection, alias, assignUniqueTableAlias);
+        var index = AddToProjection(projection, alias);
 
         return new ConcreteColumnExpression(_projection[index], tableReferenceExpression);
     }
@@ -4677,38 +4700,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 GetAliasFromTableExpressionBase(tableExpressionBase), tableReferenceExpression.Alias, StringComparison.Ordinal),
             "Alias of table and table reference should be the same.");
 
-        var uniqueAlias = GenerateUniqueAlias(_usedAliases, tableReferenceExpression.Alias);
-        // We unwrap here since alias are not assigned to wrapper expressions
-        UnwrapJoinExpression(tableExpressionBase).Alias = uniqueAlias;
-        tableReferenceExpression.Alias = uniqueAlias;
-
-        tableExpressionBase = (TableExpressionBase)new AliasUniquifier(_usedAliases).Visit(tableExpressionBase);
         _tables.Add(tableExpressionBase);
         _tableReferences.Add(tableReferenceExpression);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public SqlExpression AssignUniqueAliases(SqlExpression expression)
-        => (SqlExpression)new AliasUniquifier(_usedAliases).Visit(expression);
-
-    private static string GenerateUniqueAlias(HashSet<string> usedAliases, string currentAlias)
-    {
-        var counter = 0;
-        var baseAlias = currentAlias[..1];
-
-        while (usedAliases.Contains(currentAlias))
-        {
-            currentAlias = baseAlias + counter++;
-        }
-
-        usedAliases.Add(currentAlias);
-        return currentAlias;
     }
 
     /// <inheritdoc />
@@ -4881,7 +4874,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var newTableReferences = _tableReferences.ToList();
                 var newSelectExpression = new SelectExpression(
-                    Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, GetAnnotations())
+                    Alias, newProjections, newTables, newTableReferences, newGroupBy, newOrderings, GetAnnotations(), _sqlAliasManager)
                 {
                     _clientProjections = _clientProjections,
                     _projectionMapping = _projectionMapping,
@@ -4891,7 +4884,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Limit = limit,
                     IsDistinct = IsDistinct,
                     Tags = Tags,
-                    _usedAliases = _usedAliases,
                     _mutable = false
                 };
                 foreach (var kvp in newTpcDiscriminatorValues)
@@ -5021,7 +5013,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         // tracking from calling code.
         var newTableReferences = _tableReferences.ToList();
         var newSelectExpression = new SelectExpression(
-            Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList(), GetAnnotations())
+            Alias, projections.ToList(), tables.ToList(), newTableReferences, groupBy.ToList(), orderings.ToList(), GetAnnotations(),
+            _sqlAliasManager)
         {
             _projectionMapping = projectionMapping,
             _clientProjections = _clientProjections.ToList(),

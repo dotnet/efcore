@@ -1200,17 +1200,17 @@ WHERE (
         FROM (
             SELECT TOP(20) [t0].[value]
             FROM (
-                SELECT DISTINCT [t2].[value]
+                SELECT DISTINCT [t].[value]
                 FROM (
                     SELECT [i].[value]
                     FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
                     ORDER BY [i].[value]
                     OFFSET 1 ROWS
-                ) AS [t2]
+                ) AS [t]
             ) AS [t0]
             ORDER BY [t0].[value] DESC
         ) AS [t1]
-    ) AS [t]) = 3
+    ) AS [t2]) = 3
 """);
     }
 

@@ -292,7 +292,7 @@ LEFT JOIN [CustomerMemberships] AS [c0] ON [c].[Id] = [c0].[CustomerId]
         await base.Group_by_multiple_aggregate_joining_different_tables(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM (
@@ -300,20 +300,20 @@ SELECT (
         FROM (
             SELECT [p0].[Child1Id], 1 AS [Key]
             FROM [Parents] AS [p0]
-        ) AS [t1]
-        LEFT JOIN [Child1] AS [c] ON [t1].[Child1Id] = [c].[Id]
-        WHERE [t].[Key] = [t1].[Key]
-    ) AS [t0]) AS [Test1], (
+        ) AS [t0]
+        LEFT JOIN [Child1] AS [c] ON [t0].[Child1Id] = [c].[Id]
+        WHERE [t].[Key] = [t0].[Key]
+    ) AS [t1]) AS [Test1], (
     SELECT COUNT(*)
     FROM (
         SELECT DISTINCT [c0].[Value2]
         FROM (
             SELECT [p1].[Child2Id], 1 AS [Key]
             FROM [Parents] AS [p1]
-        ) AS [t3]
-        LEFT JOIN [Child2] AS [c0] ON [t3].[Child2Id] = [c0].[Id]
-        WHERE [t].[Key] = [t3].[Key]
-    ) AS [t2]) AS [Test2]
+        ) AS [t2]
+        LEFT JOIN [Child2] AS [c0] ON [t2].[Child2Id] = [c0].[Id]
+        WHERE [t].[Key] = [t2].[Key]
+    ) AS [t3]) AS [Test2]
 FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]
@@ -327,11 +327,11 @@ GROUP BY [t].[Key]
         await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
 
         AssertSql(
-"""
+            """
 SELECT (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [t2].[Value1]
+        SELECT DISTINCT [t1].[Value1]
         FROM (
             SELECT [p0].[ChildFilter1Id], 1 AS [Key]
             FROM [Parents] AS [p0]
@@ -340,23 +340,23 @@ SELECT (
             SELECT [c].[Id], [c].[Value1]
             FROM [ChildFilter1] AS [c]
             WHERE [c].[Filter1] = N'Filter1'
-        ) AS [t2] ON [t0].[ChildFilter1Id] = [t2].[Id]
+        ) AS [t1] ON [t0].[ChildFilter1Id] = [t1].[Id]
         WHERE [t].[Key] = [t0].[Key]
-    ) AS [t1]) AS [Test1], (
+    ) AS [t2]) AS [Test1], (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [t5].[Value2]
+        SELECT DISTINCT [t4].[Value2]
         FROM (
             SELECT [p1].[ChildFilter2Id], 1 AS [Key]
             FROM [Parents] AS [p1]
-        ) AS [t4]
+        ) AS [t3]
         LEFT JOIN (
             SELECT [c0].[Id], [c0].[Value2]
             FROM [ChildFilter2] AS [c0]
             WHERE [c0].[Filter2] = N'Filter2'
-        ) AS [t5] ON [t4].[ChildFilter2Id] = [t5].[Id]
-        WHERE [t].[Key] = [t4].[Key]
-    ) AS [t3]) AS [Test2]
+        ) AS [t4] ON [t3].[ChildFilter2Id] = [t4].[Id]
+        WHERE [t].[Key] = [t3].[Key]
+    ) AS [t5]) AS [Test2]
 FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]

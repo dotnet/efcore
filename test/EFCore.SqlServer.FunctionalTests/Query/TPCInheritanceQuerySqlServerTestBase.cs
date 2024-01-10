@@ -73,19 +73,19 @@ ORDER BY [c].[Name], [c].[Id]
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Id], [t0].[CountryId], [t0].[Name], [t0].[Species], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn], [t0].[Discriminator]
+SELECT [t0].[Id], [t0].[CountryId], [t0].[Name], [t0].[Species], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
     FROM [Eagle] AS [e]
-) AS [t]
+) AS [t0]
 LEFT JOIN (
     SELECT [e0].[Id], [e0].[CountryId], [e0].[Name], [e0].[Species], [e0].[EagleId], [e0].[IsFlightless], [e0].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
     FROM [Eagle] AS [e0]
     UNION ALL
     SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
-) AS [t0] ON [t].[Id] = [t0].[EagleId]
-ORDER BY [t].[Id]
+) AS [t] ON [t0].[Id] = [t].[EagleId]
+ORDER BY [t0].[Id]
 """);
     }
 
@@ -173,8 +173,8 @@ UNION ALL
 SELECT [l].[Id], [l].[SortIndex], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], [l].[LiltCO2], [l].[SugarGrams] AS [SugarGrams0], NULL AS [CaffeineGrams0], NULL AS [HasMilk], N'Lilt' AS [Discriminator]
 FROM [Lilt] AS [l]
 UNION ALL
-SELECT [t0].[Id], [t0].[SortIndex], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], NULL AS [LiltCO2], NULL AS [SugarGrams0], [t0].[CaffeineGrams] AS [CaffeineGrams0], [t0].[HasMilk], N'Tea' AS [Discriminator]
-FROM [Tea] AS [t0]
+SELECT [t].[Id], [t].[SortIndex], NULL AS [CaffeineGrams], NULL AS [CokeCO2], NULL AS [SugarGrams], NULL AS [LiltCO2], NULL AS [SugarGrams0], [t].[CaffeineGrams] AS [CaffeineGrams0], [t].[HasMilk], N'Tea' AS [Discriminator]
+FROM [Tea] AS [t]
 """);
     }
 
@@ -535,17 +535,17 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT TOP(1) [t1].[Discriminator]
+        SELECT TOP(1) [t0].[Discriminator]
         FROM (
             SELECT [e0].[Name], N'Eagle' AS [Discriminator]
             FROM [Eagle] AS [e0]
             UNION ALL
             SELECT [k0].[Name], N'Kiwi' AS [Discriminator]
             FROM [Kiwi] AS [k0]
-        ) AS [t1]
-        WHERE [t1].[Name] = N'Great spotted kiwi'
-    ) AS [t0]
-    WHERE [t0].[Discriminator] = N'Kiwi')
+        ) AS [t0]
+        WHERE [t0].[Name] = N'Great spotted kiwi'
+    ) AS [t1]
+    WHERE [t1].[Discriminator] = N'Kiwi')
 ORDER BY [t].[Species]
 """);
     }

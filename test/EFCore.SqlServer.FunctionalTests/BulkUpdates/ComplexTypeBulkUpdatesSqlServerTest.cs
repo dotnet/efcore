@@ -197,20 +197,20 @@ FROM [Customer] AS [c]
             """
 @__p_0='1'
 
-UPDATE [c]
-SET [c].[ShippingAddress_AddressLine1] = [t].[BillingAddress_AddressLine1],
-    [c].[ShippingAddress_AddressLine2] = [t].[BillingAddress_AddressLine2],
-    [c].[ShippingAddress_Tags] = [t].[BillingAddress_Tags],
-    [c].[ShippingAddress_ZipCode] = [t].[BillingAddress_ZipCode],
-    [c].[ShippingAddress_Country_Code] = [t].[ShippingAddress_Country_Code],
-    [c].[ShippingAddress_Country_FullName] = [t].[ShippingAddress_Country_FullName]
-FROM [Customer] AS [c]
+UPDATE [c0]
+SET [c0].[ShippingAddress_AddressLine1] = [t].[BillingAddress_AddressLine1],
+    [c0].[ShippingAddress_AddressLine2] = [t].[BillingAddress_AddressLine2],
+    [c0].[ShippingAddress_Tags] = [t].[BillingAddress_Tags],
+    [c0].[ShippingAddress_ZipCode] = [t].[BillingAddress_ZipCode],
+    [c0].[ShippingAddress_Country_Code] = [t].[ShippingAddress_Country_Code],
+    [c0].[ShippingAddress_Country_FullName] = [t].[ShippingAddress_Country_FullName]
+FROM [Customer] AS [c0]
 INNER JOIN (
-    SELECT [c0].[Id], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
-    FROM [Customer] AS [c0]
-    ORDER BY [c0].[Id]
+    SELECT [c].[Id], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+    FROM [Customer] AS [c]
+    ORDER BY [c].[Id]
     OFFSET @__p_0 ROWS
-) AS [t] ON [c].[Id] = [t].[Id]
+) AS [t] ON [c0].[Id] = [t].[Id]
 """);
     }
 

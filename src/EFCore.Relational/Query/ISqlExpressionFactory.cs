@@ -460,29 +460,31 @@ public interface ISqlExpressionFactory
     SqlFragmentExpression Fragment(string sql);
 
     /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting a <see cref="SqlExpression" />
-    ///     or 1 from no table and without any composition.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="projection">A <see cref="SqlExpression" /> to project.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(SqlExpression? projection);
+    [EntityFrameworkInternal]
+    SelectExpression Select(SqlExpression? projection, SqlAliasManager sqlAliasManager);
 
     /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting an entity type from
-    ///     a table source created using default mapping in the model.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entityType">An entity type to project.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(IEntityType entityType);
+    [EntityFrameworkInternal]
+    SelectExpression Select(IEntityType entityType, SqlAliasManager sqlAliasManager);
 
     /// <summary>
-    ///     Creates a new <see cref="SelectExpression" /> which represents a SELECT in a SQL tree projecting an entity type from
-    ///     a table source.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entityType">An entity type to project.</param>
-    /// <param name="tableExpressionBase">A table source to project from.</param>
-    /// <returns>An expression representing a SELECT in a SQL tree.</returns>
-    SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase);
+    [EntityFrameworkInternal]
+    SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase, SqlAliasManager sqlAliasManager);
 
     /// <summary>
     ///     Attempts to creates a new expression that returns the smallest value from a list of expressions, e.g. an invocation of the

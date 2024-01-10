@@ -732,16 +732,16 @@ WHERE [c].[CustomerID] LIKE N'F%'
             """
 @__p_0='4'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -769,16 +769,16 @@ WHERE [c].[CustomerID] LIKE N'F%'
 @__p_0='2'
 @__p_1='4'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
     ORDER BY (SELECT 1)
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -788,14 +788,14 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -807,16 +807,16 @@ INNER JOIN (
             """
 @__p_0='4'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    ORDER BY [c0].[City]
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[City]
     OFFSET @__p_0 ROWS
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -828,15 +828,15 @@ INNER JOIN (
             """
 @__p_0='4'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT TOP(@__p_0) [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    ORDER BY [c0].[City]
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    SELECT TOP(@__p_0) [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[City]
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -849,16 +849,16 @@ INNER JOIN (
 @__p_0='2'
 @__p_1='4'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT [c0].[CustomerID]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    ORDER BY [c0].[City]
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    ORDER BY [c].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -871,21 +871,21 @@ INNER JOIN (
 @__p_0='2'
 @__p_1='6'
 
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
     SELECT [t].[CustomerID]
     FROM (
-        SELECT [c0].[CustomerID], [c0].[City]
-        FROM [Customers] AS [c0]
-        WHERE [c0].[CustomerID] LIKE N'F%'
-        ORDER BY [c0].[City]
+        SELECT [c].[CustomerID], [c].[City]
+        FROM [Customers] AS [c]
+        WHERE [c].[CustomerID] LIKE N'F%'
+        ORDER BY [c].[City]
         OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
     ) AS [t]
     ORDER BY [t].[City]
     OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
-) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+) AS [t0] ON [c0].[CustomerID] = [t0].[CustomerID]
 """);
     }
 
@@ -961,14 +961,14 @@ WHERE [c].[CustomerID] IN (
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c0]
+SET [c0].[ContactName] = N'Updated'
+FROM [Customers] AS [c0]
 INNER JOIN (
-    SELECT DISTINCT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
-    FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+) AS [t] ON [c0].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1139,18 +1139,18 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c1]
+SET [c1].[ContactName] = N'Updated'
+FROM [Customers] AS [c1]
 INNER JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    UNION
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    UNION
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+) AS [t] ON [c1].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1160,18 +1160,18 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c1]
+SET [c1].[ContactName] = N'Updated'
+FROM [Customers] AS [c1]
 INNER JOIN (
+    SELECT [c].[CustomerID]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    UNION ALL
     SELECT [c0].[CustomerID]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    UNION ALL
-    SELECT [c1].[CustomerID]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+) AS [t] ON [c1].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1181,18 +1181,18 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c1]
+SET [c1].[ContactName] = N'Updated'
+FROM [Customers] AS [c1]
 INNER JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    EXCEPT
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    EXCEPT
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+) AS [t] ON [c1].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1202,18 +1202,18 @@ INNER JOIN (
 
         AssertExecuteUpdateSql(
             """
-UPDATE [c]
-SET [c].[ContactName] = N'Updated'
-FROM [Customers] AS [c]
+UPDATE [c1]
+SET [c1].[ContactName] = N'Updated'
+FROM [Customers] AS [c1]
 INNER JOIN (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+    FROM [Customers] AS [c]
+    WHERE [c].[CustomerID] LIKE N'F%'
+    INTERSECT
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CustomerID] LIKE N'F%'
-    INTERSECT
-    SELECT [c1].[CustomerID], [c1].[Address], [c1].[City], [c1].[CompanyName], [c1].[ContactName], [c1].[ContactTitle], [c1].[Country], [c1].[Fax], [c1].[Phone], [c1].[PostalCode], [c1].[Region]
-    FROM [Customers] AS [c1]
-    WHERE [c1].[CustomerID] LIKE N'A%'
-) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+    WHERE [c0].[CustomerID] LIKE N'A%'
+) AS [t] ON [c1].[CustomerID] = [t].[CustomerID]
 """);
     }
 
@@ -1389,19 +1389,19 @@ WHERE [c].[CustomerID] LIKE N'F%'
 
         AssertExecuteUpdateSql(
             """
-UPDATE [o]
-SET [o].[OrderDate] = NULL
-FROM [Orders] AS [o]
+UPDATE [o0]
+SET [o0].[OrderDate] = NULL
+FROM [Orders] AS [o0]
 INNER JOIN (
     SELECT [t].[OrderID]
     FROM [Customers] AS [c]
     INNER JOIN (
-        SELECT [o0].[OrderID], [o0].[CustomerID]
-        FROM [Orders] AS [o0]
-        WHERE DATEPART(year, [o0].[OrderDate]) = 1997
+        SELECT [o].[OrderID], [o].[CustomerID]
+        FROM [Orders] AS [o]
+        WHERE DATEPART(year, [o].[OrderDate]) = 1997
     ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
     WHERE [c].[CustomerID] LIKE N'F%'
-) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
+) AS [t0] ON [o0].[OrderID] = [t0].[OrderID]
 """);
     }
 

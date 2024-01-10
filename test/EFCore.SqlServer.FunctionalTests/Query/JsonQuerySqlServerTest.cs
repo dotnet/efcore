@@ -1345,15 +1345,15 @@ ORDER BY [j].[Id], [t].[c]
     {
         await base.Json_multiple_collection_projections(async);
 
-        AssertSql(
-            """
-SELECT [j].[Id], [t].[Id], [t].[SomethingSomething], [t].[key], [t0].[Id], [t0].[Name], [t0].[Names], [t0].[Number], [t0].[Numbers], [t0].[c], [t0].[c0], [t1].[key], [t1].[Id], [t1].[Date], [t1].[Enum], [t1].[Enums], [t1].[Fraction], [t1].[NullableEnum], [t1].[NullableEnums], [t1].[c], [t1].[c0], [t1].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
+AssertSql(
+"""
+SELECT [j].[Id], [t0].[Id], [t0].[SomethingSomething], [t0].[key], [t].[Id], [t].[Name], [t].[Names], [t].[Number], [t].[Numbers], [t].[c], [t].[c0], [t2].[key], [t2].[Id], [t2].[Date], [t2].[Enum], [t2].[Enums], [t2].[Fraction], [t2].[NullableEnum], [t2].[NullableEnums], [t2].[c], [t2].[c0], [t2].[key0], [j0].[Id], [j0].[Name], [j0].[ParentId]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
     SELECT [j].[Id], JSON_VALUE([o].[value], '$.SomethingSomething') AS [SomethingSomething], [o].[key], CAST([o].[key] AS int) AS [c]
     FROM OPENJSON([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf') AS [o]
     WHERE JSON_VALUE([o].[value], '$.SomethingSomething') <> N'Baz' OR JSON_VALUE([o].[value], '$.SomethingSomething') IS NULL
-) AS [t]
+) AS [t0]
 OUTER APPLY (
     SELECT DISTINCT [j].[Id], [o0].[Name], [o0].[Names], [o0].[Number], [o0].[Numbers], [o0].[OwnedCollectionBranch] AS [c], [o0].[OwnedReferenceBranch] AS [c0]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') WITH (
@@ -1364,18 +1364,18 @@ OUTER APPLY (
         [OwnedCollectionBranch] nvarchar(max) '$.OwnedCollectionBranch' AS JSON,
         [OwnedReferenceBranch] nvarchar(max) '$.OwnedReferenceBranch' AS JSON
     ) AS [o0]
-) AS [t0]
+) AS [t]
 OUTER APPLY (
-    SELECT [o1].[key], [t2].[Id], [t2].[Date], [t2].[Enum], [t2].[Enums], [t2].[Fraction], [t2].[NullableEnum], [t2].[NullableEnums], [t2].[c], [t2].[c0], [t2].[key] AS [key0], CAST([o1].[key] AS int) AS [c1], [t2].[c1] AS [c10]
+    SELECT [o1].[key], [t1].[Id], [t1].[Date], [t1].[Enum], [t1].[Enums], [t1].[Fraction], [t1].[NullableEnum], [t1].[NullableEnums], [t1].[c], [t1].[c0], [t1].[key] AS [key0], CAST([o1].[key] AS int) AS [c1], [t1].[c1] AS [c10]
     FROM OPENJSON([j].[OwnedCollectionRoot], '$') AS [o1]
     OUTER APPLY (
         SELECT [j].[Id], CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) AS [Date], CAST(JSON_VALUE([o2].[value], '$.Enum') AS int) AS [Enum], JSON_QUERY([o2].[value], '$.Enums') AS [Enums], CAST(JSON_VALUE([o2].[value], '$.Fraction') AS decimal(18,2)) AS [Fraction], CAST(JSON_VALUE([o2].[value], '$.NullableEnum') AS int) AS [NullableEnum], JSON_QUERY([o2].[value], '$.NullableEnums') AS [NullableEnums], JSON_QUERY([o2].[value], '$.OwnedCollectionLeaf') AS [c], JSON_QUERY([o2].[value], '$.OwnedReferenceLeaf') AS [c0], [o2].[key], CAST([o2].[key] AS int) AS [c1]
         FROM OPENJSON(JSON_QUERY([o1].[value], '$.OwnedCollectionBranch'), '$') AS [o2]
         WHERE CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) <> '2000-01-01T00:00:00.0000000' OR CAST(JSON_VALUE([o2].[value], '$.Date') AS datetime2) IS NULL
-    ) AS [t2]
-) AS [t1]
+    ) AS [t1]
+) AS [t2]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
-ORDER BY [j].[Id], [t].[c], [t].[key], [t0].[Name], [t0].[Names], [t0].[Number], [t0].[Numbers], [t1].[c1], [t1].[key], [t1].[c10], [t1].[key0]
+ORDER BY [j].[Id], [t0].[c], [t0].[key], [t].[Name], [t].[Names], [t].[Number], [t].[Numbers], [t2].[c1], [t2].[key], [t2].[c10], [t2].[key0]
 """);
     }
 
@@ -1886,7 +1886,7 @@ GROUP BY [t].[Key]
 
         AssertSql(
             """
-SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], [t1].[c], [t1].[c0]
+SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c], [t3].[c0]
 FROM (
     SELECT [t].[Key]
     FROM (
@@ -1894,18 +1894,18 @@ FROM (
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
-) AS [t0]
+) AS [t1]
 LEFT JOIN (
     SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], [t2].[c] AS [c], [t2].[c0] AS [c0], [t2].[Key]
     FROM (
-        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c] AS [c], [t3].[c0] AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        SELECT [t0].[Id], [t0].[EntityBasicId], [t0].[Name], [t0].[c] AS [c], [t0].[c0] AS [c0], [t0].[Key], ROW_NUMBER() OVER(PARTITION BY [t0].[Key] ORDER BY [t0].[Id]) AS [row]
         FROM (
             SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot] AS [c], [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
-        ) AS [t3]
+        ) AS [t0]
     ) AS [t2]
     WHERE [t2].[row] <= 1
-) AS [t1] ON [t0].[Key] = [t1].[Key]
+) AS [t3] ON [t1].[Key] = [t3].[Key]
 """);
     }
 
@@ -1915,7 +1915,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], [t1].[c], [t1].[c0]
+SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c], [t3].[c0]
 FROM (
     SELECT [t].[Key]
     FROM (
@@ -1923,18 +1923,18 @@ FROM (
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
-) AS [t0]
+) AS [t1]
 LEFT JOIN (
     SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], [t2].[c] AS [c], [t2].[c0] AS [c0], [t2].[Key]
     FROM (
-        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c] AS [c], [t3].[c0] AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        SELECT [t0].[Id], [t0].[EntityBasicId], [t0].[Name], [t0].[c] AS [c], [t0].[c0] AS [c0], [t0].[Key], ROW_NUMBER() OVER(PARTITION BY [t0].[Key] ORDER BY [t0].[Id]) AS [row]
         FROM (
             SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot] AS [c], [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
-        ) AS [t3]
+        ) AS [t0]
     ) AS [t2]
     WHERE [t2].[row] <= 1
-) AS [t1] ON [t0].[Key] = [t1].[Key]
+) AS [t3] ON [t1].[Key] = [t3].[Key]
 """);
     }
 
@@ -1944,7 +1944,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [t0].[Key], [t1].[Id], [t1].[EntityBasicId], [t1].[Name], [t1].[c], [t1].[c0]
+SELECT [t1].[Key], [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c], [t3].[c0]
 FROM (
     SELECT [t].[Key]
     FROM (
@@ -1952,19 +1952,19 @@ FROM (
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
-) AS [t0]
+) AS [t1]
 LEFT JOIN (
     SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], [t2].[c], [t2].[c0], [t2].[Key]
     FROM (
-        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], [t3].[c] AS [c], [t3].[c0] AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        SELECT [t0].[Id], [t0].[EntityBasicId], [t0].[Name], [t0].[c] AS [c], [t0].[c0] AS [c0], [t0].[Key], ROW_NUMBER() OVER(PARTITION BY [t0].[Key] ORDER BY [t0].[Id]) AS [row]
         FROM (
             SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot] AS [c], [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot], '$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
-        ) AS [t3]
+        ) AS [t0]
     ) AS [t2]
     WHERE 1 < [t2].[row] AND [t2].[row] <= 6
-) AS [t1] ON [t0].[Key] = [t1].[Key]
-ORDER BY [t0].[Key], [t1].[Key], [t1].[Id]
+) AS [t3] ON [t1].[Key] = [t3].[Key]
+ORDER BY [t1].[Key], [t3].[Key], [t3].[Id]
 """);
     }
 

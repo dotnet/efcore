@@ -66,6 +66,14 @@ public class ExceptExpression : SetOperationBase
         => new ExceptExpression(Alias, Source1, Source2, IsDistinct, annotations);
 
     /// <inheritdoc />
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
+        => new ExceptExpression(
+            alias!,
+            (SelectExpression)cloningExpressionVisitor.Visit(Source1),
+            (SelectExpression)cloningExpressionVisitor.Visit(Source2),
+            IsDistinct);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("(");

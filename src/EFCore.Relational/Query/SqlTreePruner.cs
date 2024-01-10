@@ -25,12 +25,6 @@ public class SqlTreePruner : ExpressionVisitor
     public virtual IReadOnlyDictionary<TableExpressionBase, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
 
     /// <summary>
-    /// Used for extra verification for DEBUG only
-    /// </summary>
-    [EntityFrameworkInternal]
-    public virtual List<string> RemovedAliases { get; private set; } = null!;
-
-    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
@@ -55,18 +49,18 @@ public class SqlTreePruner : ExpressionVisitor
         {
             case ShapedQueryExpression shapedQueryExpression:
                 return shapedQueryExpression.Update(
-                    PruneTopLevelSelect((SelectExpression)shapedQueryExpression.QueryExpression),
+                    ((SelectExpression)shapedQueryExpression.QueryExpression).PruneToplevel(this),
                     Visit(shapedQueryExpression.ShaperExpression));
 
             case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
                 return relationalSplitCollectionShaperExpression.Update(
                     relationalSplitCollectionShaperExpression.ParentIdentifier,
                     relationalSplitCollectionShaperExpression.ChildIdentifier,
-                    PruneTopLevelSelect(relationalSplitCollectionShaperExpression.SelectExpression),
+                    relationalSplitCollectionShaperExpression.SelectExpression.PruneToplevel(this),
                     Visit(relationalSplitCollectionShaperExpression.InnerShaper));
 
             case DeleteExpression deleteExpression:
-                return deleteExpression.Update(PruneTopLevelSelect(deleteExpression.SelectExpression));
+                return deleteExpression.Update(deleteExpression.SelectExpression.PruneToplevel(this));
 
             case UpdateExpression updateExpression:
                 // Note that we must visit the setters before we visit the select, since the setters can reference tables inside it.
@@ -74,7 +68,7 @@ public class SqlTreePruner : ExpressionVisitor
                     .Select(e => e with { Value = (SqlExpression)Visit(e.Value) })
                     .ToList();
                 return updateExpression.Update(
-                    PruneTopLevelSelect(updateExpression.SelectExpression),
+                    updateExpression.SelectExpression.PruneToplevel(this),
                     visitedSetters);
 
             // The following remaining cases deal with recursive visitation (i.e. non-top-level things)
@@ -140,18 +134,5 @@ public class SqlTreePruner : ExpressionVisitor
                 RegisterTable(setOperation.Source2, column);
             }
         }
-    }
-
-    private SelectExpression PruneTopLevelSelect(SelectExpression select)
-    {
-#if DEBUG
-        RemovedAliases = [];
-#endif
-        select = select.PruneToplevel(this);
-#if DEBUG
-        select.RemovedAliases = RemovedAliases;
-#endif
-
-        return select;
     }
 }

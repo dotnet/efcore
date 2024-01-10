@@ -1053,18 +1053,18 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1081,20 +1081,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] IN (N'Branch', N'LeafA')
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1117,7 +1117,7 @@ ORDER BY [t].[Id]
             """
 @__p_0='5'
 
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [t0].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [t0].[Id]
 FROM (
     SELECT TOP(@__p_0) [t].[Id]
     FROM (
@@ -1126,14 +1126,14 @@ FROM (
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [t0].[Id] = [o0].[ClientId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [t0].[Id] = [o1].[ClientId]
+ORDER BY [t0].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
 @__p_0='5'
 
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [t0].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [t0].[Id], [o1].[ClientId], [o1].[Id]
 FROM (
     SELECT TOP(@__p_0) [t].[Id]
     FROM (
@@ -1142,9 +1142,9 @@ FROM (
     ) AS [t]
     ORDER BY [t].[Id]
 ) AS [t0]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [t0].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [t0].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [t0].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [t0].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1161,20 +1161,20 @@ ORDER BY [o].[Id], [p].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id], [p].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [p].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
 LEFT JOIN [Planet] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [p] ON [o].[PersonAddress_Country_PlanetId] = [p].[Id]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
-ORDER BY [o].[Id], [p].[Id], [o0].[ClientId], [o0].[Id]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
+ORDER BY [o].[Id], [p].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1212,20 +1212,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Discriminator] = N'LeafA'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1242,20 +1242,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Id] = 1
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 
@@ -1272,20 +1272,20 @@ ORDER BY [o].[Id]
 """,
             //
             """
-SELECT [o0].[ClientId], [o0].[Id], [o0].[OrderDate], [o0].[PeriodEnd], [o0].[PeriodStart], [o].[Id]
+SELECT [o1].[ClientId], [o1].[Id], [o1].[OrderDate], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """,
             //
             """
-SELECT [o1].[OrderClientId], [o1].[OrderId], [o1].[Id], [o1].[Detail], [o1].[PeriodEnd], [o1].[PeriodStart], [o].[Id], [o0].[ClientId], [o0].[Id]
+SELECT [o3].[OrderClientId], [o3].[OrderId], [o3].[Id], [o3].[Detail], [o3].[PeriodEnd], [o3].[PeriodStart], [o].[Id], [o1].[ClientId], [o1].[Id]
 FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
-INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0] ON [o].[Id] = [o0].[ClientId]
-INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o0].[ClientId] = [o1].[OrderClientId] AND [o0].[Id] = [o1].[OrderId]
+INNER JOIN [Order] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o1] ON [o].[Id] = [o1].[ClientId]
+INNER JOIN [OrderDetail] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o3] ON [o1].[ClientId] = [o3].[OrderClientId] AND [o1].[Id] = [o3].[OrderId]
 WHERE [o].[Name] = N'Mona Cy'
-ORDER BY [o].[Id], [o0].[ClientId], [o0].[Id]
+ORDER BY [o].[Id], [o1].[ClientId], [o1].[Id]
 """);
     }
 

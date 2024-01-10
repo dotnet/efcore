@@ -39,10 +39,10 @@ LEFT JOIN (
     SELECT [p0].[Name], [p0].[Computed], [p0].[Description], CASE
         WHEN [s].[VehicleName] IS NOT NULL THEN N'SolidRocket'
         WHEN [i].[VehicleName] IS NOT NULL THEN N'IntermittentCombustionEngine'
-        WHEN [c1].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
+        WHEN [c0].[VehicleName] IS NOT NULL THEN N'ContinuousCombustionEngine'
     END AS [Discriminator]
     FROM [PoweredVehicles] AS [p0]
-    LEFT JOIN [ContinuousCombustionEngines] AS [c1] ON [p0].[Name] = [c1].[VehicleName]
+    LEFT JOIN [ContinuousCombustionEngines] AS [c0] ON [p0].[Name] = [c0].[VehicleName]
     LEFT JOIN [IntermittentCombustionEngines] AS [i] ON [p0].[Name] = [i].[VehicleName]
     LEFT JOIN [SolidRockets] AS [s] ON [p0].[Name] = [s].[VehicleName]
     WHERE [p0].[Computed] IS NOT NULL
@@ -50,12 +50,12 @@ LEFT JOIN (
     WHEN [t1].[Computed] IS NOT NULL THEN [t1].[Name]
 END
 LEFT JOIN (
-    SELECT [c2].[VehicleName], [c2].[Capacity], [c2].[FuelType], [s0].[GrainGeometry], CASE
+    SELECT [c1].[VehicleName], [c1].[Capacity], [c1].[FuelType], [s0].[GrainGeometry], CASE
         WHEN [s0].[VehicleName] IS NOT NULL THEN N'SolidFuelTank'
     END AS [Discriminator]
-    FROM [CombustionEngines] AS [c2]
-    LEFT JOIN [SolidFuelTanks] AS [s0] ON [c2].[VehicleName] = [s0].[VehicleName]
-    WHERE [c2].[Capacity] IS NOT NULL
+    FROM [CombustionEngines] AS [c1]
+    LEFT JOIN [SolidFuelTanks] AS [s0] ON [c1].[VehicleName] = [s0].[VehicleName]
+    WHERE [c1].[Capacity] IS NOT NULL
 ) AS [t2] ON [t1].[Name] = CASE
     WHEN [t2].[Capacity] IS NOT NULL THEN [t2].[VehicleName]
 END

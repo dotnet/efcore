@@ -1065,12 +1065,12 @@ FROM [Orders] AS [o0]
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
 UNION
-SELECT [t0].[OrderID]
+SELECT [t].[OrderID]
 FROM (
     SELECT TOP(@__p_0) [o0].[OrderID]
     FROM [Orders] AS [o0]
     ORDER BY [o0].[OrderDate]
-) AS [t0]
+) AS [t]
 """);
     }
 
@@ -1103,12 +1103,12 @@ FROM (
     ORDER BY [c].[ContactName]
 ) AS [t]
 UNION
-SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM (
     SELECT TOP(@__p_0) [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
     ORDER BY [c0].[ContactName]
-) AS [t1]
+) AS [t0]
 """);
     }
 

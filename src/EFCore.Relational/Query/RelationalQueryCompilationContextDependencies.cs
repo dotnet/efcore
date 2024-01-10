@@ -45,7 +45,11 @@ public sealed record RelationalQueryCompilationContextDependencies
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
-    public RelationalQueryCompilationContextDependencies()
-    {
-    }
+    public RelationalQueryCompilationContextDependencies(ISqlAliasManagerFactory sqlAliasManagerFactory)
+        => SqlAliasManagerFactory = sqlAliasManagerFactory;
+
+    /// <summary>
+    ///     The current context.
+    /// </summary>
+    public ISqlAliasManagerFactory SqlAliasManagerFactory { get; init; }
 }

@@ -344,28 +344,28 @@ WHERE [b].[Discriminator] = N'ClassA'
         await base.SelectMany_and_collection_in_projection_in_FirstOrDefault();
 
         AssertSql(
-"""
+            """
 @__referenceId_0='a' (Size = 4000)
 @__customerId_1='1115c816-6c4c-4016-94df-d8b60a22ffa1'
 
-SELECT [t].[Id], [t0].[Id], [t0].[Image], [t0].[Id0], [t0].[Id00]
+SELECT [t].[Id], [t1].[Id], [t1].[Image], [t1].[Id0], [t1].[Id00]
 FROM (
     SELECT TOP(2) [o].[Id]
     FROM [Orders] AS [o]
     WHERE [o].[ExternalReferenceId] = @__referenceId_0 AND [o].[CustomerId] = @__customerId_1
 ) AS [t]
 OUTER APPLY (
-    SELECT [i].[Id], [t1].[Image], [t1].[Id] AS [Id0], [t1].[Id0] AS [Id00]
+    SELECT [i].[Id], [t0].[Image], [t0].[Id] AS [Id0], [t0].[Id0] AS [Id00]
     FROM [IdentityDocument] AS [i]
     OUTER APPLY (
         SELECT [i1].[Image], [i0].[Id], [i1].[Id] AS [Id0]
         FROM [IdentityDocument] AS [i0]
         INNER JOIN [IdentityDocumentImage] AS [i1] ON [i0].[Id] = [i1].[IdentityDocumentId]
         WHERE [t].[Id] = [i0].[OrderId]
-    ) AS [t1]
+    ) AS [t0]
     WHERE [t].[Id] = [i].[OrderId]
-) AS [t0]
-ORDER BY [t].[Id], [t0].[Id], [t0].[Id0]
+) AS [t1]
+ORDER BY [t].[Id], [t1].[Id], [t1].[Id0]
 """);
     }
 
@@ -398,7 +398,7 @@ WHERE [b].[Id] = 1
         if (split)
         {
             AssertSql(
-"""
+                """
 SELECT [e].[Id]
 FROM [Entities] AS [e]
 ORDER BY [e].[Id]
@@ -528,27 +528,27 @@ ORDER BY [m].[Id], [p].[Id], [t].[Id]
             """
 @__id_0='1'
 
-SELECT [t].[Id], [t].[Name], [t].[Surname], [t].[Birthday], [t].[Hometown], [t].[Bio], [t].[AvatarUrl], [t].[Id0], [t].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [t0].[Id], [t0].[Name], [t0].[PosterUrl], [t0].[Rating]
+SELECT [t0].[Id], [t0].[Name], [t0].[Surname], [t0].[Birthday], [t0].[Hometown], [t0].[Bio], [t0].[AvatarUrl], [t0].[Id0], [t0].[Id1], [p0].[Id], [p0].[ImageUrl], [p0].[Height], [p0].[Width], [t].[Id], [t].[Name], [t].[PosterUrl], [t].[Rating]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Name], [p].[Surname], [p].[Birthday], [p].[Hometown], [p].[Bio], [p].[AvatarUrl], [a].[Id] AS [Id0], [d].[Id] AS [Id1]
     FROM [Persons] AS [p]
     LEFT JOIN [ActorEntity] AS [a] ON [p].[Id] = [a].[PersonId]
     LEFT JOIN [DirectorEntity] AS [d] ON [p].[Id] = [d].[PersonId]
     WHERE [p].[Id] = @__id_0
-) AS [t]
-LEFT JOIN [PersonImageEntity] AS [p0] ON [t].[Id] = [p0].[PersonId]
+) AS [t0]
+LEFT JOIN [PersonImageEntity] AS [p0] ON [t0].[Id] = [p0].[PersonId]
 OUTER APPLY (
     SELECT [m0].[Id], [m0].[Budget], [m0].[Description], [m0].[DurationInMins], [m0].[Name], [m0].[PosterUrl], [m0].[Rating], [m0].[ReleaseDate], [m0].[Revenue]
     FROM [MovieActorEntity] AS [m]
     INNER JOIN [MovieEntity] AS [m0] ON [m].[MovieId] = [m0].[Id]
-    WHERE [t].[Id0] IS NOT NULL AND [t].[Id0] = [m].[ActorId]
+    WHERE [t0].[Id0] IS NOT NULL AND [t0].[Id0] = [m].[ActorId]
     UNION
     SELECT [m2].[Id], [m2].[Budget], [m2].[Description], [m2].[DurationInMins], [m2].[Name], [m2].[PosterUrl], [m2].[Rating], [m2].[ReleaseDate], [m2].[Revenue]
     FROM [MovieDirectorEntity] AS [m1]
     INNER JOIN [MovieEntity] AS [m2] ON [m1].[MovieId] = [m2].[Id]
-    WHERE [t].[Id1] IS NOT NULL AND [t].[Id1] = [m1].[DirectorId]
-) AS [t0]
-ORDER BY [t].[Id], [t].[Id0], [t].[Id1], [p0].[Id]
+    WHERE [t0].[Id1] IS NOT NULL AND [t0].[Id1] = [m1].[DirectorId]
+) AS [t]
+ORDER BY [t0].[Id], [t0].[Id0], [t0].[Id1], [p0].[Id]
 """);
     }
 

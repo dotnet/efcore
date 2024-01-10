@@ -73,20 +73,20 @@ ORDER BY [o].[OrderID], [o].[ProductID]
             """
 @__p_0='2'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]
 """);
     }
@@ -135,7 +135,7 @@ ORDER BY [c].[CustomerID]
             """
 @__p_0='2'
 
-SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
+SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -143,13 +143,13 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
+    SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
     FROM (
         SELECT [o].[CustomerID], [o].[OrderID], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]
 """);
     }
@@ -162,7 +162,7 @@ ORDER BY [t].[CustomerID]
             """
 @__p_0='2'
 
-SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
+SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -170,13 +170,13 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[CustomerID], [t1].[OrderID], [t1].[c]
+    SELECT [t0].[CustomerID], [t0].[OrderID], [t0].[c]
     FROM (
         SELECT [o].[CustomerID], [o].[OrderID], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]
 """);
     }
@@ -189,20 +189,20 @@ ORDER BY [t].[CustomerID]
             """
 @__p_0='2'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]
 """);
     }
@@ -215,7 +215,7 @@ ORDER BY [t].[CustomerID]
             """
 @__p_0='20'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -223,13 +223,13 @@ FROM (
     OFFSET @__p_0 ROWS
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 ORDER BY [t].[CustomerID]
 """);
     }

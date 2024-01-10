@@ -777,19 +777,19 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT DISTINCT [c].[CustomerID]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [t0]
 INNER JOIN (
-    SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
     FROM (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
         FROM [Customers] AS [c0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 2
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
 """);
     }
 
@@ -799,19 +799,19 @@ INNER JOIN (
 
         AssertSql(
             """
-SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT DISTINCT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [t0]
 INNER JOIN (
-    SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
     FROM (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
         FROM [Customers] AS [c0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 2
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
 """);
     }
 
@@ -823,21 +823,21 @@ INNER JOIN (
             """
 @__p_0='2'
 
-SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
-) AS [t]
+) AS [t0]
 INNER JOIN (
-    SELECT [t1].[CustomerID], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
     FROM (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], ROW_NUMBER() OVER(PARTITION BY [c0].[CustomerID] ORDER BY [c0].[CustomerID] + COALESCE([c0].[City], N'')) AS [row]
         FROM [Customers] AS [c0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 2
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
-ORDER BY [t].[CustomerID]
+    ) AS [t]
+    WHERE [t].[row] <= 2
+) AS [t1] ON [t0].[CustomerID] = [t1].[CustomerID]
+ORDER BY [t0].[CustomerID]
 """);
     }
 
@@ -847,25 +847,25 @@ ORDER BY [t].[CustomerID]
 
         AssertSql(
             """
-SELECT [t].[CustomerID], [t0].[Title], [t0].[OrderID], [t0].[CustomerID]
+SELECT [t0].[CustomerID], [t1].[Title], [t1].[OrderID], [t1].[CustomerID]
 FROM (
     SELECT TOP(1) [c].[CustomerID]
     FROM [Customers] AS [c]
-) AS [t]
+) AS [t0]
 OUTER APPLY (
     SELECT CASE
-        WHEN [t1].[CustomerID] = [c0].[City] OR ([t1].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
+        WHEN [t].[CustomerID] = [c0].[City] OR ([t].[CustomerID] IS NULL AND [c0].[City] IS NULL) THEN N'A'
         ELSE N'B'
-    END AS [Title], [t1].[OrderID], [c0].[CustomerID], [t1].[OrderDate]
+    END AS [Title], [t].[OrderID], [c0].[CustomerID], [t].[OrderDate]
     FROM (
         SELECT TOP(1) [o].[OrderID], [o].[CustomerID], [o].[OrderDate]
         FROM [Orders] AS [o]
-        WHERE [t].[CustomerID] = [o].[CustomerID]
+        WHERE [t0].[CustomerID] = [o].[CustomerID]
         ORDER BY [o].[OrderDate]
-    ) AS [t1]
-    LEFT JOIN [Customers] AS [c0] ON [t1].[CustomerID] = [c0].[CustomerID]
-) AS [t0]
-ORDER BY [t].[CustomerID], [t0].[OrderDate], [t0].[OrderID]
+    ) AS [t]
+    LEFT JOIN [Customers] AS [c0] ON [t].[CustomerID] = [c0].[CustomerID]
+) AS [t1]
+ORDER BY [t0].[CustomerID], [t1].[OrderDate], [t1].[OrderID]
 """);
     }
 

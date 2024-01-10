@@ -37,7 +37,7 @@ public class NorthwindSplitIncludeNoTrackingQuerySqlServerTest : NorthwindSplitI
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -45,15 +45,15 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[OrderID]) AS [row]
         FROM [Orders] AS [o0]
         LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
         WHERE [o0].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 """);
     }
 
@@ -246,7 +246,7 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
             """
 @__p_0='1'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
+SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [t].[CustomerID]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -254,14 +254,14 @@ FROM (
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 ) AS [t]
-INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-ORDER BY [t].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t].[CustomerID] = [o3].[CustomerID]
+ORDER BY [t].[CustomerID], [o3].[OrderID]
 """,
             //
             """
 @__p_0='1'
 
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t].[CustomerID], [o].[OrderID]
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [t].[CustomerID], [o3].[OrderID]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -269,9 +269,9 @@ FROM (
     ORDER BY [c].[CustomerID]
     OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 ) AS [t]
-INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
-INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [t].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t].[CustomerID] = [o3].[CustomerID]
+INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
+ORDER BY [t].[CustomerID], [o3].[OrderID]
 """);
     }
 
@@ -356,7 +356,7 @@ ORDER BY [t1].[CustomerID], [t1].[CustomerID0]
 @__p_1='1'
 @__p_0='2'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t1].[CustomerID], [t1].[CustomerID0]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t2].[CustomerID], [t2].[CustomerID0]
 FROM (
     SELECT TOP(@__p_1) [t].[CustomerID], [t0].[CustomerID] AS [CustomerID0]
     FROM (
@@ -371,9 +371,9 @@ FROM (
         OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t0]
     ORDER BY [t].[CustomerID]
-) AS [t1]
-INNER JOIN [Orders] AS [o] ON [t1].[CustomerID0] = [o].[CustomerID]
-ORDER BY [t1].[CustomerID], [t1].[CustomerID0]
+) AS [t2]
+INNER JOIN [Orders] AS [o0] ON [t2].[CustomerID0] = [o0].[CustomerID]
+ORDER BY [t2].[CustomerID], [t2].[CustomerID0]
 """);
     }
 
@@ -562,7 +562,7 @@ ORDER BY [t].[OrderID], [t].[ProductID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t].[OrderID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -570,19 +570,19 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[OrderID]) AS [row]
         FROM [Orders] AS [o0]
         WHERE [o0].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID]
 """,
             //
             """
-SELECT [o1].[OrderID], [o1].[ProductID], [o1].[Discount], [o1].[Quantity], [o1].[UnitPrice], [t].[OrderID], [t0].[OrderID]
+SELECT [o6].[OrderID], [o6].[ProductID], [o6].[Discount], [o6].[Quantity], [o6].[UnitPrice], [t].[OrderID], [t1].[OrderID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -590,16 +590,16 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID]
+    SELECT [t0].[OrderID]
     FROM (
-        SELECT [o0].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[OrderID]) AS [row]
-        FROM [Orders] AS [o0]
-        WHERE [o0].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-INNER JOIN [Order Details] AS [o1] ON [t0].[OrderID] = [o1].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID]
+        SELECT [o5].[OrderID], ROW_NUMBER() OVER(PARTITION BY [o5].[OrderID] ORDER BY [o5].[OrderID]) AS [row]
+        FROM [Orders] AS [o5]
+        WHERE [o5].[OrderID] = 10248
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+INNER JOIN [Order Details] AS [o6] ON [t1].[OrderID] = [o6].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID]
 """);
     }
 
@@ -609,7 +609,7 @@ ORDER BY [t].[OrderID], [t0].[OrderID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -618,20 +618,20 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID]
     FROM (
         SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 """,
             //
             """
-SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+SELECT [o11].[OrderID], [o11].[ProductID], [o11].[Discount], [o11].[Quantity], [o11].[UnitPrice], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -640,17 +640,17 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
-        FROM [Order Details] AS [o1]
-        INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
-        WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+        SELECT [o10].[OrderID], [o9].[OrderID] AS [OrderID0], [o9].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o10].[OrderID] ORDER BY [o10].[OrderID]) AS [row]
+        FROM [Order Details] AS [o9]
+        INNER JOIN [Orders] AS [o10] ON [o9].[OrderID] = [o10].[OrderID]
+        WHERE [o9].[OrderID] = 10248
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+INNER JOIN [Order Details] AS [o11] ON [t1].[OrderID] = [o11].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 """);
     }
 
@@ -742,7 +742,7 @@ ORDER BY [t].[CompanyName] DESC, [t].[CustomerID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -750,15 +750,15 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
         SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         INNER JOIN [Orders] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         LEFT JOIN [Customers] AS [c] ON [o2].[CustomerID] = [c].[CustomerID]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 """);
     }
 
@@ -768,7 +768,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -777,20 +777,20 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID]
     FROM (
         SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         CROSS JOIN [Orders] AS [o2]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 """,
             //
             """
-SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+SELECT [o11].[OrderID], [o11].[ProductID], [o11].[Discount], [o11].[Quantity], [o11].[UnitPrice], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -799,17 +799,17 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
     FROM (
-        SELECT [o2].[OrderID], [o1].[OrderID] AS [OrderID0], [o1].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
-        FROM [Order Details] AS [o1]
-        CROSS JOIN [Orders] AS [o2]
-        WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID0], [t0].[ProductID], [t0].[OrderID]
+        SELECT [o10].[OrderID], [o9].[OrderID] AS [OrderID0], [o9].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o10].[OrderID] ORDER BY [o10].[OrderID]) AS [row]
+        FROM [Order Details] AS [o9]
+        CROSS JOIN [Orders] AS [o10]
+        WHERE [o9].[OrderID] = 10248
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+INNER JOIN [Order Details] AS [o11] ON [t1].[OrderID] = [o11].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID0], [t1].[ProductID], [t1].[OrderID]
 """);
     }
 
@@ -833,7 +833,7 @@ WHERE [o].[OrderID] % 23 = 13
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -842,20 +842,20 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID]
     FROM (
         SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         CROSS JOIN [Order Details] AS [o2]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 """,
             //
             """
-SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [o11].[OrderID], [o11].[ProductID], [o11].[Discount], [o11].[Quantity], [o11].[UnitPrice], [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -864,17 +864,17 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
-        FROM [Orders] AS [o1]
-        CROSS JOIN [Order Details] AS [o2]
-        WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+        SELECT [o9].[OrderID], [o10].[OrderID] AS [OrderID0], [o10].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o9].[OrderID] ORDER BY [o9].[OrderID]) AS [row]
+        FROM [Orders] AS [o9]
+        CROSS JOIN [Order Details] AS [o10]
+        WHERE [o9].[OrderID] = 10248
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+INNER JOIN [Order Details] AS [o11] ON [t1].[OrderID] = [o11].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 """);
     }
 
@@ -1038,17 +1038,17 @@ ORDER BY [c].[CustomerID], [t0].[OrderID]
 """,
             //
             """
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [c].[CustomerID], [t0].[OrderID]
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [c].[CustomerID], [t0].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN (
     SELECT [t].[OrderID], [t].[CustomerID]
     FROM (
-        SELECT [o].[OrderID], [o].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderDate]) AS [row]
-        FROM [Orders] AS [o]
+        SELECT [o3].[OrderID], [o3].[CustomerID], ROW_NUMBER() OVER(PARTITION BY [o3].[CustomerID] ORDER BY [o3].[OrderDate]) AS [row]
+        FROM [Orders] AS [o3]
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
-INNER JOIN [Order Details] AS [o0] ON [t0].[OrderID] = [o0].[OrderID]
+INNER JOIN [Order Details] AS [o4] ON [t0].[OrderID] = [o4].[OrderID]
 WHERE [c].[CustomerID] LIKE N'F%'
 ORDER BY [c].[CustomerID], [t0].[OrderID]
 """);
@@ -1220,7 +1220,7 @@ ORDER BY [t].[CustomerID]
             """
 @__p_0='1'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID]
+SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [t0].[CustomerID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1231,14 +1231,14 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
-ORDER BY [t0].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t0].[CustomerID] = [o3].[CustomerID]
+ORDER BY [t0].[CustomerID], [o3].[OrderID]
 """,
             //
             """
 @__p_0='1'
 
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t0].[CustomerID], [o].[OrderID]
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [t0].[CustomerID], [o3].[OrderID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1249,9 +1249,9 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
-INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [t0].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t0].[CustomerID] = [o3].[CustomerID]
+INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
+ORDER BY [t0].[CustomerID], [o3].[OrderID]
 """);
     }
 
@@ -1527,7 +1527,7 @@ ORDER BY [t].[CustomerID], [t0].[CustomerID]
             """
 @__p_0='2'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
+SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], [t].[CustomerID], [t0].[CustomerID]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -1539,7 +1539,7 @@ CROSS JOIN (
     ORDER BY [c0].[CustomerID]
     OFFSET 2 ROWS FETCH NEXT 2 ROWS ONLY
 ) AS [t0]
-INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
+INNER JOIN [Orders] AS [o0] ON [t0].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID], [t0].[CustomerID]
 """);
     }
@@ -1830,7 +1830,7 @@ ORDER BY [t].[CustomerID]
             """
 @__p_0='1'
 
-SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t0].[CustomerID]
+SELECT [o3].[OrderID], [o3].[CustomerID], [o3].[EmployeeID], [o3].[OrderDate], [t0].[CustomerID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1842,14 +1842,14 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
-ORDER BY [t0].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t0].[CustomerID] = [o3].[CustomerID]
+ORDER BY [t0].[CustomerID], [o3].[OrderID]
 """,
             //
             """
 @__p_0='1'
 
-SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [t0].[CustomerID], [o].[OrderID]
+SELECT [o4].[OrderID], [o4].[ProductID], [o4].[Discount], [o4].[Quantity], [o4].[UnitPrice], [t0].[CustomerID], [o3].[OrderID]
 FROM (
     SELECT TOP(1) [t].[CustomerID]
     FROM (
@@ -1861,9 +1861,9 @@ FROM (
     ) AS [t]
     ORDER BY [t].[CustomerID]
 ) AS [t0]
-INNER JOIN [Orders] AS [o] ON [t0].[CustomerID] = [o].[CustomerID]
-INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-ORDER BY [t0].[CustomerID], [o].[OrderID]
+INNER JOIN [Orders] AS [o3] ON [t0].[CustomerID] = [o3].[CustomerID]
+INNER JOIN [Order Details] AS [o4] ON [o3].[OrderID] = [o4].[OrderID]
+ORDER BY [t0].[CustomerID], [o3].[OrderID]
 """);
     }
 
@@ -2041,7 +2041,7 @@ ORDER BY [o].[OrderID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -2050,16 +2050,16 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
         SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         INNER JOIN [Order Details] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 """);
     }
 
@@ -2346,7 +2346,7 @@ ORDER BY [c].[CustomerID], [o].[OrderID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT [o0].[OrderID]
     FROM [Order Details] AS [o]
@@ -2355,16 +2355,16 @@ FROM (
     GROUP BY [o0].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
         SELECT [o2].[OrderID], [o2].[CustomerID], [o2].[EmployeeID], [o2].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(PARTITION BY [o2].[OrderID] ORDER BY [o2].[OrderID]) AS [row]
         FROM [Order Details] AS [o1]
         CROSS JOIN [Orders] AS [o2]
         LEFT JOIN [Customers] AS [c] ON [o2].[CustomerID] = [c].[CustomerID]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 """);
     }
 
@@ -2374,7 +2374,7 @@ LEFT JOIN (
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -2383,16 +2383,16 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[CustomerID0], [t1].[Address], [t1].[City], [t1].[CompanyName], [t1].[ContactName], [t1].[ContactTitle], [t1].[Country], [t1].[Fax], [t1].[Phone], [t1].[PostalCode], [t1].[Region]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[CustomerID0], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
     FROM (
         SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [c].[CustomerID] AS [CustomerID0], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         CROSS JOIN [Order Details] AS [o2]
         LEFT JOIN [Customers] AS [c] ON [o1].[CustomerID] = [c].[CustomerID]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 """);
     }
 
@@ -2671,7 +2671,7 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
             """
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -2680,20 +2680,20 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t0].[OrderID0], [t0].[ProductID]
     FROM (
         SELECT [o1].[OrderID], [o1].[CustomerID], [o1].[EmployeeID], [o1].[OrderDate], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
         FROM [Orders] AS [o1]
         INNER JOIN [Order Details] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
         WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 """,
             //
             """
-SELECT [o3].[OrderID], [o3].[ProductID], [o3].[Discount], [o3].[Quantity], [o3].[UnitPrice], [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+SELECT [o11].[OrderID], [o11].[ProductID], [o11].[Discount], [o11].[Quantity], [o11].[UnitPrice], [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 FROM (
     SELECT [o].[OrderID]
     FROM [Orders] AS [o]
@@ -2702,17 +2702,17 @@ FROM (
     GROUP BY [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
+    SELECT [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
     FROM (
-        SELECT [o1].[OrderID], [o2].[OrderID] AS [OrderID0], [o2].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o1].[OrderID] ORDER BY [o1].[OrderID]) AS [row]
-        FROM [Orders] AS [o1]
-        INNER JOIN [Order Details] AS [o2] ON [o1].[OrderID] = [o2].[OrderID]
-        WHERE [o1].[OrderID] = 10248
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
-INNER JOIN [Order Details] AS [o3] ON [t0].[OrderID] = [o3].[OrderID]
-ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
+        SELECT [o9].[OrderID], [o10].[OrderID] AS [OrderID0], [o10].[ProductID], ROW_NUMBER() OVER(PARTITION BY [o9].[OrderID] ORDER BY [o9].[OrderID]) AS [row]
+        FROM [Orders] AS [o9]
+        INNER JOIN [Order Details] AS [o10] ON [o9].[OrderID] = [o10].[OrderID]
+        WHERE [o9].[OrderID] = 10248
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
+INNER JOIN [Order Details] AS [o11] ON [t1].[OrderID] = [o11].[OrderID]
+ORDER BY [t].[OrderID], [t1].[OrderID], [t1].[OrderID0], [t1].[ProductID]
 """);
     }
 

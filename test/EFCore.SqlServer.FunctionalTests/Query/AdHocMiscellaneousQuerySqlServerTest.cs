@@ -1647,7 +1647,7 @@ FROM [Entities] AS [e]
         await base.Union_and_insert_works_correctly_together();
 
         AssertSql(
-"""
+            """
 @__id1_0='1'
 @__id2_1='2'
 
@@ -1655,12 +1655,12 @@ SELECT [t].[Id]
 FROM [Tables1] AS [t]
 WHERE [t].[Id] = @__id1_0
 UNION
-SELECT [t1].[Id]
-FROM [Tables2] AS [t1]
-WHERE [t1].[Id] = @__id2_1
+SELECT [t0].[Id]
+FROM [Tables2] AS [t0]
+WHERE [t0].[Id] = @__id2_1
 """,
-                //
-                """
+            //
+            """
 SET NOCOUNT ON;
 INSERT INTO [Tables1]
 OUTPUT INSERTED.[Id]
@@ -1846,57 +1846,57 @@ FROM [Blogs] AS [b]
         await base.GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination();
 
         AssertSql(
-"""
-SELECT [t0].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
+            """
+SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name]
 """,
-                //
-                """
-SELECT [t0].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+            //
+            """
+SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t2] ON [t].[Id] = CASE
-    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
+    SELECT [t2].[Id], [t2].[MaumarEntity11818_Exists], [t2].[MaumarEntity11818_Name]
+    FROM [Table] AS [t2]
+    WHERE [t2].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """,
-                //
-                """
-SELECT TOP(1) [t0].[AnotherEntity11818_Name] AS [MyKey], [t2].[MaumarEntity11818_Name] AS [cnt]
+            //
+            """
+SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t2] ON [t].[Id] = CASE
-    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
+    SELECT [t2].[Id], [t2].[MaumarEntity11818_Exists], [t2].[MaumarEntity11818_Name]
+    FROM [Table] AS [t2]
+    WHERE [t2].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """);
     }
 

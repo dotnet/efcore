@@ -1203,18 +1203,18 @@ WHERE (
         FROM (
             SELECT "t0"."value"
             FROM (
-                SELECT DISTINCT "t2"."value"
+                SELECT DISTINCT "t"."value"
                 FROM (
                     SELECT "i"."value"
                     FROM json_each("p"."Ints") AS "i"
                     ORDER BY "i"."value"
                     LIMIT -1 OFFSET 1
-                ) AS "t2"
+                ) AS "t"
             ) AS "t0"
             ORDER BY "t0"."value" DESC
             LIMIT 20
         ) AS "t1"
-    ) AS "t") = 3
+    ) AS "t2") = 3
 """);
     }
 

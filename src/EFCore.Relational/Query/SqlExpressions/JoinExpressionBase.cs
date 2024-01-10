@@ -46,10 +46,10 @@ public abstract class JoinExpressionBase : TableExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public abstract JoinExpressionBase Update(TableExpressionBase table);
 
+    // Joins necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a new
+    // copy of this JoinExpressionBase by calling Update.
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
-        // Joins necessary contain other TableExpressionBase, which will get cloned; this will cause our VisitChildren to create a new
-        // copy of this JoinExpressionBase by calling Update.
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
         => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
 
     /// <inheritdoc />

@@ -413,16 +413,16 @@ LEFT JOIN (
     WHERE [e].[EmployeeID] = -1
 ) AS [t] ON 1 = 1
 INNER JOIN (
-    SELECT [t1].[EmployeeID]
+    SELECT [t0].[EmployeeID]
     FROM (
         SELECT 1 AS empty
-    ) AS [e1]
+    ) AS [e2]
     LEFT JOIN (
-        SELECT [e2].[EmployeeID]
-        FROM [Employees] AS [e2]
-        WHERE [e2].[EmployeeID] = -1
-    ) AS [t1] ON 1 = 1
-) AS [t0] ON [t].[EmployeeID] = [t0].[EmployeeID]
+        SELECT [e1].[EmployeeID]
+        FROM [Employees] AS [e1]
+        WHERE [e1].[EmployeeID] = -1
+    ) AS [t0] ON 1 = 1
+) AS [t1] ON [t].[EmployeeID] = [t1].[EmployeeID]
 """);
     }
 
@@ -790,20 +790,20 @@ WHERE [t].[FirstName] = (
             """
 @__p_0='2'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [o].[OrderID], [o].[ProductID]
     FROM [Order Details] AS [o]
     ORDER BY [o].[ProductID], [o].[OrderID]
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[OrderID] ORDER BY [o0].[OrderID]) AS [row]
         FROM [Orders] AS [o0]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[OrderID] = [t0].[OrderID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[OrderID] = [t1].[OrderID]
 ORDER BY [t].[ProductID], [t].[OrderID]
 """);
     }
@@ -856,39 +856,39 @@ WHERE (
             """
 @__p_0='1'
 
-SELECT [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
     FROM [Orders] AS [o]
     ORDER BY [o].[OrderID]
-) AS [t]
+) AS [t0]
 WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT TOP(2) [o0].[OrderID]
         FROM [Order Details] AS [o0]
         ORDER BY [o0].[OrderID]
-    ) AS [t0]
+    ) AS [t]
     WHERE (
         SELECT TOP(1) [c].[Country]
         FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] = [t].[CustomerID]
+        WHERE [c].[CustomerID] = [t0].[CustomerID]
         ORDER BY [c].[CustomerID]) = (
         SELECT TOP(1) [c0].[Country]
         FROM [Orders] AS [o1]
         INNER JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
-        WHERE [o1].[OrderID] = [t0].[OrderID]
+        WHERE [o1].[OrderID] = [t].[OrderID]
         ORDER BY [o1].[OrderID], [c0].[CustomerID]) OR ((
         SELECT TOP(1) [c].[Country]
         FROM [Customers] AS [c]
-        WHERE [c].[CustomerID] = [t].[CustomerID]
+        WHERE [c].[CustomerID] = [t0].[CustomerID]
         ORDER BY [c].[CustomerID]) IS NULL AND (
         SELECT TOP(1) [c0].[Country]
         FROM [Orders] AS [o1]
         INNER JOIN [Customers] AS [c0] ON [o1].[CustomerID] = [c0].[CustomerID]
-        WHERE [o1].[OrderID] = [t0].[OrderID]
+        WHERE [o1].[OrderID] = [t].[OrderID]
         ORDER BY [o1].[OrderID], [c0].[CustomerID]) IS NULL)) > 0
-ORDER BY [t].[OrderID]
+ORDER BY [t0].[OrderID]
 """);
     }
 
@@ -5524,7 +5524,7 @@ ORDER BY [t].[OrderID], [o0].[OrderID]
             """
 @__p_0='0'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -5533,13 +5533,13 @@ FROM (
     OFFSET @__p_0 ROWS
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 """);
     }
 
@@ -5551,20 +5551,20 @@ LEFT JOIN (
             """
 @__p_0='1'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] = N'FISSA'
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 """);
     }
 
@@ -5577,7 +5577,7 @@ LEFT JOIN (
 @__p_0='0'
 @__p_1='1'
 
-SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
 FROM (
     SELECT [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -5586,13 +5586,13 @@ FROM (
     OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 ) AS [t]
 LEFT JOIN (
-    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    SELECT [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
     FROM (
         SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID]) AS [row]
         FROM [Orders] AS [o]
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t0] ON [t].[CustomerID] = [t0].[CustomerID]
+    ) AS [t0]
+    WHERE [t0].[row] <= 1
+) AS [t1] ON [t].[CustomerID] = [t1].[CustomerID]
 """);
     }
 
@@ -7318,13 +7318,6 @@ WHERE (
 
     public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
     {
-#if DEBUG
-        // GroupBy debug assert. Issue #26104.
-        Assert.StartsWith(
-            "Missing alias in the list",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_Contains_with_projection_and_ordering(async))).Message);
-#else
         await base.Parameter_collection_Contains_with_projection_and_ordering(async);
 
         AssertSql(
@@ -7332,13 +7325,13 @@ WHERE (
 @__ids_0='[10248,10249]' (Size = 4000)
 
 SELECT [o].[Quantity] AS [Key], (
-    SELECT MAX([o3].[OrderDate])
-    FROM [Order Details] AS [o2]
-    INNER JOIN [Orders] AS [o3] ON [o2].[OrderID] = [o3].[OrderID]
-    WHERE [o2].[OrderID] IN (
-        SELECT [i1].[value]
-        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i1]
-    ) AND [o].[Quantity] = [o2].[Quantity]) AS [MaxTimestamp]
+    SELECT MAX([o1].[OrderDate])
+    FROM [Order Details] AS [o0]
+    INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+    WHERE [o0].[OrderID] IN (
+        SELECT [i0].[value]
+        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i0]
+    ) AND [o].[Quantity] = [o0].[Quantity]) AS [MaxTimestamp]
 FROM [Order Details] AS [o]
 WHERE [o].[OrderID] IN (
     SELECT [i].[value]
@@ -7346,16 +7339,15 @@ WHERE [o].[OrderID] IN (
 )
 GROUP BY [o].[Quantity]
 ORDER BY (
-    SELECT MAX([o3].[OrderDate])
-    FROM [Order Details] AS [o2]
-    INNER JOIN [Orders] AS [o3] ON [o2].[OrderID] = [o3].[OrderID]
-    WHERE [o2].[OrderID] IN (
+    SELECT MAX([o1].[OrderDate])
+    FROM [Order Details] AS [o0]
+    INNER JOIN [Orders] AS [o1] ON [o0].[OrderID] = [o1].[OrderID]
+    WHERE [o0].[OrderID] IN (
         SELECT [i0].[value]
         FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i0]
-    ) AND [o].[Quantity] = [o2].[Quantity])
+    ) AND [o].[Quantity] = [o0].[Quantity])
 """);
-#endif
-	}
+    }
 
     public override async Task Contains_over_concatenated_columns_with_different_sizes(bool async)
     {

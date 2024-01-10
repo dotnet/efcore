@@ -1039,28 +1039,28 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t].[Id0]
 SELECT [e].[Id], [e].[CollectionInverseId], [e].[Name], [e].[PeriodEnd], [e].[PeriodStart], [e].[ReferenceInverseId], [t3].[OneId], [t3].[ThreeId], [t3].[Payload], [t3].[PeriodEnd], [t3].[PeriodStart], [t3].[Id], [t3].[Name], [t3].[PeriodEnd0], [t3].[PeriodStart0], [t3].[OneId0], [t3].[TwoId], [t3].[JoinOneToTwoExtraId], [t3].[PeriodEnd1], [t3].[PeriodStart1], [t3].[Id0], [t3].[CollectionInverseId], [t3].[ExtraId], [t3].[Name0], [t3].[PeriodEnd00], [t3].[PeriodStart00], [t3].[ReferenceInverseId], [t3].[EntityBranchId], [t3].[EntityOneId], [t3].[PeriodEnd2], [t3].[PeriodStart2], [t3].[Id1], [t3].[Discriminator], [t3].[Name1], [t3].[PeriodEnd01], [t3].[PeriodStart01], [t3].[Number], [t3].[IsGreen]
 FROM [EntityThrees] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e]
 LEFT JOIN (
-    SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Id], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [t0].[OneId] AS [OneId0], [t0].[TwoId], [t0].[JoinOneToTwoExtraId], [t0].[PeriodEnd] AS [PeriodEnd1], [t0].[PeriodStart] AS [PeriodStart1], [t0].[Id] AS [Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name] AS [Name0], [t0].[PeriodEnd0] AS [PeriodEnd00], [t0].[PeriodStart0] AS [PeriodStart00], [t0].[ReferenceInverseId], [t1].[EntityBranchId], [t1].[EntityOneId], [t1].[PeriodEnd] AS [PeriodEnd2], [t1].[PeriodStart] AS [PeriodStart2], [t1].[Id] AS [Id1], [t1].[Discriminator], [t1].[Name] AS [Name1], [t1].[PeriodEnd0] AS [PeriodEnd01], [t1].[PeriodStart0] AS [PeriodStart01], [t1].[Number], [t1].[IsGreen]
+    SELECT [j].[OneId], [j].[ThreeId], [j].[Payload], [j].[PeriodEnd], [j].[PeriodStart], [e0].[Id], [e0].[Name], [e0].[PeriodEnd] AS [PeriodEnd0], [e0].[PeriodStart] AS [PeriodStart0], [t1].[OneId] AS [OneId0], [t1].[TwoId], [t1].[JoinOneToTwoExtraId], [t1].[PeriodEnd] AS [PeriodEnd1], [t1].[PeriodStart] AS [PeriodStart1], [t1].[Id] AS [Id0], [t1].[CollectionInverseId], [t1].[ExtraId], [t1].[Name] AS [Name0], [t1].[PeriodEnd0] AS [PeriodEnd00], [t1].[PeriodStart0] AS [PeriodStart00], [t1].[ReferenceInverseId], [t2].[EntityBranchId], [t2].[EntityOneId], [t2].[PeriodEnd] AS [PeriodEnd2], [t2].[PeriodStart] AS [PeriodStart2], [t2].[Id] AS [Id1], [t2].[Discriminator], [t2].[Name] AS [Name1], [t2].[PeriodEnd0] AS [PeriodEnd01], [t2].[PeriodStart0] AS [PeriodStart01], [t2].[Number], [t2].[IsGreen]
     FROM [JoinOneToThreePayloadFull] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j]
     INNER JOIN [EntityOnes] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e0] ON [j].[OneId] = [e0].[Id]
     LEFT JOIN (
-        SELECT [t].[OneId], [t].[TwoId], [t].[JoinOneToTwoExtraId], [t].[PeriodEnd], [t].[PeriodStart], [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[PeriodEnd0], [t].[PeriodStart0], [t].[ReferenceInverseId]
+        SELECT [t0].[OneId], [t0].[TwoId], [t0].[JoinOneToTwoExtraId], [t0].[PeriodEnd], [t0].[PeriodStart], [t0].[Id], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name], [t0].[PeriodEnd0], [t0].[PeriodStart0], [t0].[ReferenceInverseId]
         FROM (
             SELECT [j0].[OneId], [j0].[TwoId], [j0].[JoinOneToTwoExtraId], [j0].[PeriodEnd], [j0].[PeriodStart], [e1].[Id], [e1].[CollectionInverseId], [e1].[ExtraId], [e1].[Name], [e1].[PeriodEnd] AS [PeriodEnd0], [e1].[PeriodStart] AS [PeriodStart0], [e1].[ReferenceInverseId], ROW_NUMBER() OVER(PARTITION BY [j0].[OneId] ORDER BY [e1].[Id]) AS [row]
             FROM [JoinOneToTwo] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j0]
             INNER JOIN [EntityTwos] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e1] ON [j0].[TwoId] = [e1].[Id]
-        ) AS [t]
-        WHERE 1 < [t].[row] AND [t].[row] <= 3
-    ) AS [t0] ON [e0].[Id] = [t0].[OneId]
+        ) AS [t0]
+        WHERE 1 < [t0].[row] AND [t0].[row] <= 3
+    ) AS [t1] ON [e0].[Id] = [t1].[OneId]
     LEFT JOIN (
-        SELECT [j1].[EntityBranchId], [j1].[EntityOneId], [j1].[PeriodEnd], [j1].[PeriodStart], [t2].[Id], [t2].[Discriminator], [t2].[Name], [t2].[PeriodEnd] AS [PeriodEnd0], [t2].[PeriodStart] AS [PeriodStart0], [t2].[Number], [t2].[IsGreen]
+        SELECT [j1].[EntityBranchId], [j1].[EntityOneId], [j1].[PeriodEnd], [j1].[PeriodStart], [t].[Id], [t].[Discriminator], [t].[Name], [t].[PeriodEnd] AS [PeriodEnd0], [t].[PeriodStart] AS [PeriodStart0], [t].[Number], [t].[IsGreen]
         FROM [JoinOneToBranch] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [j1]
         INNER JOIN (
             SELECT [e2].[Id], [e2].[Discriminator], [e2].[Name], [e2].[PeriodEnd], [e2].[PeriodStart], [e2].[Number], [e2].[IsGreen]
             FROM [EntityRoots] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [e2]
             WHERE [e2].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
-        ) AS [t2] ON [j1].[EntityBranchId] = [t2].[Id]
-        WHERE [t2].[Id] < 20
-    ) AS [t1] ON [e0].[Id] = [t1].[EntityOneId]
+        ) AS [t] ON [j1].[EntityBranchId] = [t].[Id]
+        WHERE [t].[Id] < 20
+    ) AS [t2] ON [e0].[Id] = [t2].[EntityOneId]
     WHERE [e0].[Id] < 10
 ) AS [t3] ON [e].[Id] = [t3].[ThreeId]
 ORDER BY [e].[Id], [t3].[OneId], [t3].[ThreeId], [t3].[Id], [t3].[OneId0], [t3].[Id0], [t3].[TwoId], [t3].[EntityBranchId], [t3].[EntityOneId]

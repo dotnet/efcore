@@ -249,15 +249,15 @@ ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[Cu
             Assert.Equal("B", owner.Owned2.Value);
 
             AssertSql(
-"""
+                """
 SELECT TOP(2) [o].[Id], [o0].[Owner23211Id], [o0].[Value], [o1].[Owner23211Id], [o1].[Value]
 FROM [Owner23211] AS [o]
 LEFT JOIN [Owned1_23211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
 LEFT JOIN [Owned2_23211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
 ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]
 """,
-                    //
-                    """
+                //
+                """
 SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
 FROM (
     SELECT TOP(1) [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id] AS [Owner23211Id0]
@@ -423,30 +423,30 @@ ORDER BY [p].[Id]
         await base.Owned_entity_multiple_level_in_aggregate();
 
         AssertSql(
-"""
-SELECT [t].[Id], [t].[FirstValueObject_Value], [t2].[Id], [t2].[AggregateId], [t2].[FourthValueObject_Value], [t2].[Id0], [t2].[AnyValue], [t2].[SecondValueObjectId], [t2].[Id1], [t2].[SecondValueObjectId0], [t2].[FourthValueObject_Value0], [t2].[Id00], [t2].[AnyValue0], [t2].[ThirdValueObjectId]
+            """
+SELECT [t1].[Id], [t1].[FirstValueObject_Value], [t3].[Id], [t3].[AggregateId], [t3].[FourthValueObject_Value], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[FourthValueObject_Value0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
 FROM (
     SELECT TOP(1) [a].[Id], [a].[FirstValueObject_Value]
     FROM [Aggregate] AS [a]
     ORDER BY [a].[Id] DESC
-) AS [t]
+) AS [t1]
 LEFT JOIN (
-    SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [s0].[Id] AS [Id0], [s0].[AnyValue], [s0].[SecondValueObjectId], [t1].[Id] AS [Id1], [t1].[SecondValueObjectId] AS [SecondValueObjectId0], [t1].[FourthValueObject_Value] AS [FourthValueObject_Value0], [t1].[Id0] AS [Id00], [t1].[AnyValue] AS [AnyValue0], [t1].[ThirdValueObjectId]
+    SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [s0].[Id] AS [Id0], [s0].[AnyValue], [s0].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[FourthValueObject_Value] AS [FourthValueObject_Value0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
     FROM [SecondValueObject] AS [s]
     LEFT JOIN [SecondValueObject_FifthValueObjects] AS [s0] ON CASE
         WHEN [s].[FourthValueObject_Value] IS NOT NULL THEN [s].[Id]
     END = [s0].[SecondValueObjectId]
     LEFT JOIN (
-        SELECT [t0].[Id], [t0].[SecondValueObjectId], [t0].[FourthValueObject_Value], [t3].[Id] AS [Id0], [t3].[AnyValue], [t3].[ThirdValueObjectId]
-        FROM [ThirdValueObject] AS [t0]
-        LEFT JOIN [ThirdValueObject_FifthValueObjects] AS [t3] ON CASE
-            WHEN [t0].[FourthValueObject_Value] IS NOT NULL THEN [t0].[Id]
-        END = [t3].[ThirdValueObjectId]
-    ) AS [t1] ON [s].[Id] = [t1].[SecondValueObjectId]
-) AS [t2] ON CASE
-    WHEN [t].[FirstValueObject_Value] IS NOT NULL THEN [t].[Id]
-END = [t2].[AggregateId]
-ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1]
+        SELECT [t].[Id], [t].[SecondValueObjectId], [t].[FourthValueObject_Value], [t0].[Id] AS [Id0], [t0].[AnyValue], [t0].[ThirdValueObjectId]
+        FROM [ThirdValueObject] AS [t]
+        LEFT JOIN [ThirdValueObject_FifthValueObjects] AS [t0] ON CASE
+            WHEN [t].[FourthValueObject_Value] IS NOT NULL THEN [t].[Id]
+        END = [t0].[ThirdValueObjectId]
+    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
+) AS [t3] ON CASE
+    WHEN [t1].[FirstValueObject_Value] IS NOT NULL THEN [t1].[Id]
+END = [t3].[AggregateId]
+ORDER BY [t1].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1]
 """);
     }
 
@@ -455,8 +455,8 @@ ORDER BY [t].[Id] DESC, [t2].[Id], [t2].[Id0], [t2].[Id1]
         await base.Multiple_single_result_in_projection_containing_owned_types(async);
 
         AssertSql(
-"""
-SELECT [e].[Id], [t0].[Id], [t0].[EntityId], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t1].[Id], [t1].[EntityId], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
+            """
+SELECT [e].[Id], [t0].[Id], [t0].[EntityId], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t2].[Id], [t2].[EntityId], [t2].[Owned_IsDeleted], [t2].[Owned_Value], [t2].[Type], [t2].[c]
 FROM [Entities] AS [e]
 LEFT JOIN (
     SELECT [t].[Id], [t].[EntityId], [t].[Owned_IsDeleted], [t].[Owned_Value], [t].[Type], [t].[c]
@@ -468,14 +468,14 @@ LEFT JOIN (
     WHERE [t].[row] <= 1
 ) AS [t0] ON [e].[Id] = [t0].[EntityId]
 LEFT JOIN (
-    SELECT [t2].[Id], [t2].[EntityId], [t2].[Owned_IsDeleted], [t2].[Owned_Value], [t2].[Type], [t2].[c]
+    SELECT [t1].[Id], [t1].[EntityId], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
     FROM (
         SELECT [c0].[Id], [c0].[EntityId], [c0].[Owned_IsDeleted], [c0].[Owned_Value], [c0].[Type], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [c0].[EntityId] ORDER BY [c0].[EntityId], [c0].[Id]) AS [row]
         FROM [Child] AS [c0]
         WHERE [c0].[Type] = 2
-    ) AS [t2]
-    WHERE [t2].[row] <= 1
-) AS [t1] ON [e].[Id] = [t1].[EntityId]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t2] ON [e].[Id] = [t2].[EntityId]
 """);
     }
 
@@ -519,7 +519,7 @@ FROM [Entity] AS [e]
         await base.Multiple_owned_reference_mapped_to_own_table_containing_owned_collection_in_split_query(async);
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [r].[Id], [m].[Id], [m].[Enabled], [m].[RootId], [m0].[Id], [m0].[RootId]
 FROM [Root] AS [r]
 LEFT JOIN [MiddleB] AS [m] ON [r].[Id] = [m].[RootId]
@@ -527,9 +527,9 @@ LEFT JOIN [ModdleA] AS [m0] ON [r].[Id] = [m0].[RootId]
 WHERE [r].[Id] = 3
 ORDER BY [r].[Id], [m].[Id], [m0].[Id]
 """,
-                //
-                """
-SELECT [l].[ModdleAId], [l].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
+            //
+            """
+SELECT [l0].[ModdleAId], [l0].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
 FROM (
     SELECT TOP(1) [r].[Id], [m].[Id] AS [Id0], [m0].[Id] AS [Id1]
     FROM [Root] AS [r]
@@ -537,7 +537,7 @@ FROM (
     LEFT JOIN [ModdleA] AS [m0] ON [r].[Id] = [m0].[RootId]
     WHERE [r].[Id] = 3
 ) AS [t]
-INNER JOIN [Leaf] AS [l] ON [t].[Id1] = [l].[ModdleAId]
+INNER JOIN [Leaf] AS [l0] ON [t].[Id1] = [l0].[ModdleAId]
 ORDER BY [t].[Id], [t].[Id0], [t].[Id1]
 """);
     }
