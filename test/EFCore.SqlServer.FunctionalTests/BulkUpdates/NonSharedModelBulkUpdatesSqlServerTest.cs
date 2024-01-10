@@ -65,6 +65,19 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
+    {
+        await base.Update_non_owned_property_on_entity_with_owned_in_join(async);
+
+        AssertSql(
+            """
+UPDATE [o]
+SET [o].[Title] = N'NewValue'
+FROM [Owner] AS [o]
+INNER JOIN [Owner] AS [o0] ON [o].[Id] = [o0].[Id]
+""");
+    }
+
     public override async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
     {
         await base.Update_owned_and_non_owned_properties_with_table_sharing(async);
