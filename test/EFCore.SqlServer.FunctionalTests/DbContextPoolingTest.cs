@@ -2008,7 +2008,7 @@ public class DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustom
             });
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory (Skip = "Issue #32700")]
     [InlineData(false, false)]
     [InlineData(true, false)]
     [InlineData(false, true)]
