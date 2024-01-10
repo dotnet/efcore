@@ -3854,6 +3854,22 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI") OR (c
         AssertSql();
     }
 
+    public override async Task Skip_1_Take_0_works_when_constant(bool async)
+    {
+        // Non embedded collection subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.Skip_1_Take_0_works_when_constant(async));
+
+        AssertSql();
+    }
+
+    public override async Task Take_0_works_when_constant(bool async)
+    {
+        // Non embedded collection subquery. Issue #17246.
+        await AssertTranslationFailed(() => base.Take_0_works_when_constant(async));
+
+        AssertSql();
+    }
+
     public override async Task Using_static_string_Equals_with_StringComparison_throws_informative_error(bool async)
     {
         await AssertTranslationFailedWithDetails(
