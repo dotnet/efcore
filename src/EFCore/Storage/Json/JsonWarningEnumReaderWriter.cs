@@ -12,9 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<TEnum>
     where TEnum : struct, Enum
 {
-    private static readonly bool UseOldBehavior32679 =
-        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32679", out var enabled32679) && enabled32679;
-
     /// <summary>
     ///     The singleton instance of this stateless reader/writer.
     /// </summary>
@@ -66,7 +63,7 @@ public sealed class JsonWarningEnumReaderWriter<TEnum> : JsonValueReaderWriter<T
     /// <inheritdoc />
     public override void ToJsonTyped(Utf8JsonWriter writer, TEnum value)
     {
-        if (_isSigned && !UseOldBehavior32679)
+        if (_isSigned)
         {
             writer.WriteNumberValue((long)Convert.ChangeType(value, typeof(long)));
         }
