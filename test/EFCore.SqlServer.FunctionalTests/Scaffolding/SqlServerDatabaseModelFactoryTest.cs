@@ -1022,6 +1022,155 @@ DROP TABLE [dbo].[PPosts];
 DROP TABLE [dbo].[BBlogs];");
 
     [ConditionalFact]
+    public void Expose_join_table_when_interloper_reference()
+        => Test(
+            @"
+CREATE TABLE BBlogs (Id int IDENTITY CONSTRAINT [PK_BBlogs] PRIMARY KEY,);
+CREATE TABLE PPosts (Id int IDENTITY CONSTRAINT [PK_PPosts] PRIMARY KEY,);
+
+CREATE TABLE BBlogPPosts (
+    BBlogId int NOT NULL CONSTRAINT [FK_BBlogPPosts_BBlogs] REFERENCES BBlogs ON DELETE CASCADE,
+    PPostId int NOT NULL CONSTRAINT [FK_BBlogPPosts_PPosts] REFERENCES PPosts ON DELETE CASCADE,
+    CONSTRAINT [PK_BBlogPPosts ] PRIMARY KEY (BBlogId, PPostId));
+
+CREATE TABLE LinkToBBlogPPosts (
+    LinkId1 int NOT NULL,
+    LinkId2 int NOT NULL,
+    CONSTRAINT [PK_LinkToBBlogPPosts] PRIMARY KEY (LinkId1, LinkId2),
+    CONSTRAINT [FK_LinkToBBlogPPosts_BlogPosts] FOREIGN KEY (LinkId1, LinkId2) REFERENCES BBlogPPosts);
+",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            (dbModel, scaffoldingFactory) =>
+            {
+                Assert.Collection(
+                    dbModel.Tables.OrderBy(t => t.Name),
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("BBlogPPosts", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("BBlogId", c.Name),
+                            c => Assert.Equal("PPostId", c.Name));
+                        Assert.Collection(t.ForeignKeys,
+                            c =>
+                            {
+                                Assert.Equal("BBlogs", c.PrincipalTable.Name);
+                                Assert.Equal("BBlogPPosts", c.Table.Name);
+                                Assert.Collection(c.Columns, c => Assert.Equal("BBlogId", c.Name));
+                            },
+                            c =>
+                            {
+                                Assert.Equal("PPosts", c.PrincipalTable.Name);
+                                Assert.Equal("BBlogPPosts", c.Table.Name);
+                                Assert.Collection(c.Columns, c => Assert.Equal("PPostId", c.Name));
+                            });
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("BBlogs", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("Id", c.Name));
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("LinkToBBlogPPosts", t.Name);
+                        Assert.Collection(t.Columns,
+                            c => Assert.Equal("LinkId1", c.Name),
+                            c => Assert.Equal("LinkId2", c.Name));
+                        Assert.Collection(t.ForeignKeys,
+                            c =>
+                            {
+                                Assert.Equal("BBlogPPosts", c.PrincipalTable.Name);
+                                Assert.Equal("LinkToBBlogPPosts", c.Table.Name);
+                                Assert.Collection(
+                                    c.Columns,
+                                    c => Assert.Equal("LinkId1", c.Name),
+                                    c => Assert.Equal("LinkId2", c.Name));
+                            });
+                    },
+                    t =>
+                    {
+                        Assert.Equal("dbo", t.Schema);
+                        Assert.Equal("PPosts", t.Name);
+                        Assert.Collection(t.Columns, c => Assert.Equal("Id", c.Name));
+                    });
+
+                var model = scaffoldingFactory.Create(dbModel, new ModelReverseEngineerOptions());
+
+                Assert.Collection(
+                    model.GetEntityTypes(),
+                    e =>
+                    {
+                        Assert.Equal("Bblog", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPposts", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("BblogPpost", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("BblogId", p.Name),
+                            p => Assert.Equal("PpostId", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("Bblog", k.PrincipalEntityType.Name);
+                                Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("BblogId", p.Name));
+                            },
+                            k =>
+                            {
+                                Assert.Equal("Ppost", k.PrincipalEntityType.Name);
+                                Assert.Equal("BblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties, p => Assert.Equal("PpostId", p.Name));
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(),
+                            p => Assert.Equal("Bblog", p.Name),
+                            p => Assert.Equal("LinkToBblogPpost", p.Name),
+                            p => Assert.Equal("Ppost", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("LinkToBblogPpost", e.Name);
+                        Assert.Collection(e.GetProperties(),
+                            p => Assert.Equal("LinkId1", p.Name),
+                            p => Assert.Equal("LinkId2", p.Name));
+                        Assert.Collection(e.GetForeignKeys(),
+                            k =>
+                            {
+                                Assert.Equal("BblogPpost", k.PrincipalEntityType.Name);
+                                Assert.Equal("LinkToBblogPpost", k.DeclaringEntityType.Name);
+                                Assert.Collection(k.Properties,
+                                    p => Assert.Equal("LinkId1", p.Name),
+                                    p => Assert.Equal("LinkId2", p.Name));
+                                Assert.Collection(k.PrincipalKey.Properties,
+                                    p => Assert.Equal("BblogId", p.Name),
+                                    p => Assert.Equal("PpostId", p.Name));
+                            });
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPpost", p.Name));
+                    },
+                    e =>
+                    {
+                        Assert.Equal("Ppost", e.Name);
+                        Assert.Collection(e.GetProperties(), p => Assert.Equal("Id", p.Name));
+                        Assert.Empty(e.GetForeignKeys());
+                        Assert.Empty(e.GetSkipNavigations());
+                        Assert.Collection(e.GetNavigations(), p => Assert.Equal("BblogPposts", p.Name));
+                    });
+            },
+            @"
+DROP TABLE [dbo].[LinkToBBlogPPosts];
+DROP TABLE [dbo].[BBlogPPosts];
+DROP TABLE [dbo].[PPosts];
+DROP TABLE [dbo].[BBlogs];");
+
+    [ConditionalFact]
     public void Default_database_collation_is_not_scaffolded()
         => Test(
             @"",
