@@ -124,6 +124,24 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_non_owned_property_on_entity_with_owned_in_join(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
+            });
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Owner>().Join(ss.Set<Owner>(), o => o.Id, i => i.Id, (o, i) => new { Outer = o, Inner = i}),
+            s => s.SetProperty(t => t.Outer.Title, "NewValue"),
+            rowsAffectedCount: 0);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Update_owned_and_non_owned_properties_with_table_sharing(bool async)
     {
         var contextFactory = await InitializeAsync<Context28671>(

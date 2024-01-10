@@ -33,10 +33,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     {
         // Our source may have IncludeExpressions because of owned entities or auto-include; unwrap these, as they're meaningless for
         // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.
-        if (source.ShaperExpression is IncludeExpression includeExpression)
-        {
-            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
-        }
+        source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
         var setters = new List<(LambdaExpression PropertySelector, Expression ValueExpression)>();
         PopulateSetPropertyCalls(setPropertyCalls.Body, setters, setPropertyCalls.Parameters[0]);

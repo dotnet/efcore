@@ -17,10 +17,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
     /// <returns>The non query after translation.</returns>
     protected virtual NonQueryExpression? TranslateExecuteDelete(ShapedQueryExpression source)
     {
-        if (source.ShaperExpression is IncludeExpression includeExpression)
-        {
-            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
-        }
+        source = source.UpdateShaperExpression(new IncludePruner().Visit(source.ShaperExpression));
 
         if (source.ShaperExpression is not StructuralTypeShaperExpression { StructuralType: IEntityType entityType } shaper)
         {

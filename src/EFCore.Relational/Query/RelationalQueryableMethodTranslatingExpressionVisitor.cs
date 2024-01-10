@@ -1342,16 +1342,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
         => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-    private static Expression PruneIncludes(IncludeExpression includeExpression)
+    private sealed class IncludePruner : ExpressionVisitor
     {
-        if (includeExpression.Navigation is ISkipNavigation or not INavigation)
-        {
-            return includeExpression;
-        }
-
-        return includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
-            ? PruneIncludes(innerIncludeExpression)
-            : includeExpression.EntityExpression;
+        protected override Expression VisitExtension(Expression node)
+            => node switch
+            {
+                IncludeExpression { Navigation: ISkipNavigation or not INavigation } i => i,
+                IncludeExpression i => Visit(i.EntityExpression),
+                _ => base.VisitExtension(node)
+            };
     }
 
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
