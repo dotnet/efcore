@@ -206,7 +206,7 @@ SET [c].[ShippingAddress_AddressLine1] = [t].[BillingAddress_AddressLine1],
     [c].[ShippingAddress_Country_FullName] = [t].[ShippingAddress_Country_FullName]
 FROM [Customer] AS [c]
 INNER JOIN (
-    SELECT [c0].[Id], [c0].[Name], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[BillingAddress_Country_Code], [c0].[BillingAddress_Country_FullName], [c0].[ShippingAddress_AddressLine1], [c0].[ShippingAddress_AddressLine2], [c0].[ShippingAddress_Tags], [c0].[ShippingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
+    SELECT [c0].[Id], [c0].[BillingAddress_AddressLine1], [c0].[BillingAddress_AddressLine2], [c0].[BillingAddress_Tags], [c0].[BillingAddress_ZipCode], [c0].[ShippingAddress_Country_Code], [c0].[ShippingAddress_Country_FullName]
     FROM [Customer] AS [c0]
     ORDER BY [c0].[Id]
     OFFSET @__p_0 ROWS
