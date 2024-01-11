@@ -2918,7 +2918,24 @@ public abstract partial class ModelBuilderTest
             => CreateModelBuilder()
                 .Entity<CollectionQuarks>()
                 .PrimitiveCollection(e => e.Up)
+                .ElementType(t => t
+                    .HasAnnotation("B", "C")
+                    .HasConversion(typeof(long))
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(typeof(long), typeof(CustomValueComparer<int>))
+                    .HasConversion(typeof(long), new CustomValueComparer<int>())
+                    .HasConversion(new CastingConverter<int, long>())
+                    .HasConversion(new CastingConverter<int, long>(), new CustomValueComparer<int>())
+                    .HasConversion<long>()
+                    .HasConversion<long>(new CustomValueComparer<int>())
+                    .HasConversion<long, CustomValueComparer<int>>()
+                    .HasMaxLength(2)
+                    .HasPrecision(1)
+                    .HasPrecision(1, 2)
+                    .IsRequired()
+                    .IsUnicode())
                 .IsRequired()
+                .IsRequired(false)
                 .HasAnnotation("A", "V")
                 .IsConcurrencyToken()
                 .ValueGeneratedNever()
@@ -2931,8 +2948,7 @@ public abstract partial class ModelBuilderTest
                 .HasValueGenerator<CustomValueGenerator>()
                 .HasValueGenerator(typeof(CustomValueGenerator))
                 .HasValueGeneratorFactory<CustomValueGeneratorFactory>()
-                .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory))
-                .IsRequired();
+                .HasValueGeneratorFactory(typeof(CustomValueGeneratorFactory));
 
         [ConditionalFact]
         public virtual void Can_set_primary_key_by_convention_for_user_specified_shadow_primitive_collection()

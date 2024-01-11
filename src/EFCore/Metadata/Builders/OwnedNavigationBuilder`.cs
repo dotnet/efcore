@@ -112,10 +112,10 @@ public class OwnedNavigationBuilder<
     ///     <c>blog => blog.Url</c>).
     /// </param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual PropertyBuilder<TProperty> PrimitiveCollection<TProperty>(
+    public virtual PrimitiveCollectionBuilder<TProperty> PrimitiveCollection<TProperty>(
         Expression<Func<TDependentEntity, TProperty>> propertyExpression)
         => UpdateBuilder(
-            () => new PropertyBuilder<TProperty>(
+            () => new PrimitiveCollectionBuilder<TProperty>(
                 DependentEntityType.Builder.PrimitiveCollection(
                     Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
                     ConfigurationSource.Explicit)!.Metadata));
