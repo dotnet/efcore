@@ -72,7 +72,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
             x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
-            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -144,7 +145,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
             x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
-            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -346,6 +348,7 @@ public abstract class
     public class Foo
     {
         public int Id { get; set; }
+        public string Description { get; set; }
     }
 
     [DbContext(typeof(MigrationsContext))]
@@ -359,7 +362,7 @@ public abstract class
             migrationBuilder
                 .CreateTable(
                     name: "Table1",
-                    columns: x => new { Id = x.Column<int>(), Foo = x.Column<int>() })
+                    columns: x => new { Id = x.Column<int>(), Foo = x.Column<int>(), Description = x.Column<string>() })
                 .PrimaryKey(
                     name: "PK_Table1",
                     columns: x => x.Id);
@@ -439,6 +442,27 @@ public abstract class
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000005_Migration5")]
+    private class Migration5 : Migration
+    {
+        public const string TestValue = """
+            Value With
+
+            Empty Lines
+            """;
+
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', '{TestValue}')");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+
         }
     }
 }
