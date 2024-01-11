@@ -79,11 +79,13 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
     foreach (var entityType in Model.GetEntityTypes().Where(e => !e.IsSimpleManyToManyJoinEntityType()))
     {
 
-            this.Write("    public virtual DbSet<");
+            this.Write("    public DbSet<");
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.Name));
             this.Write("> ");
             this.Write(this.ToStringHelper.ToStringWithCulture(entityType.GetDbSetName()));
-            this.Write(" { get; set; }\r\n\r\n");
+            this.Write(" => Set<");
+            this.Write(this.ToStringHelper.ToStringWithCulture(entityType.Name));
+            this.Write(">();\r\n\r\n");
 
     }
 
