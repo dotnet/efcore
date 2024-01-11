@@ -2016,7 +2016,7 @@ public class SqlNullabilityProcessor
                 // We exclude the predicate since it may actually filter out nulls
                 Projection: [{ Expression: ColumnExpression projectedColumn }] projection
             }
-            && projectedColumn.Table == collectionTable
+            && projectedColumn.TableAlias == collectionTable.Alias
             && IsCollectionTable(collectionTable, out var collection)
             && collection is SqlParameterExpression collectionParameter
             && ParameterValues[collectionParameter.Name] is IList values)

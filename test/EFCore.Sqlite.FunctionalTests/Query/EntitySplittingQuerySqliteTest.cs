@@ -370,7 +370,7 @@ ORDER BY "b"."Id", "s0"."LeafEntityId"
 
         AssertSql(
             """
-SELECT "t"."Id", "t"."BaseValue", "t"."MiddleValue", "t"."SiblingValue", "t"."LeafValue", "t"."Discriminator", "s"."LeafEntityId", "s"."Id", "s"."OwnedIntValue1", "s"."OwnedIntValue2", "s"."OwnedIntValue3", "s"."OwnedIntValue4", "s"."OwnedStringValue1", "s"."OwnedStringValue2", "s"."OwnedStringValue3", "s"."OwnedStringValue4"
+SELECT "t"."Id", "t"."BaseValue", "t"."MiddleValue", "t"."SiblingValue", "t"."LeafValue", "t"."Discriminator", "s0"."LeafEntityId", "s0"."Id", "s0"."OwnedIntValue1", "s0"."OwnedIntValue2", "s0"."OwnedIntValue3", "s0"."OwnedIntValue4", "s0"."OwnedStringValue1", "s0"."OwnedStringValue2", "s0"."OwnedStringValue3", "s0"."OwnedStringValue4"
 FROM (
     SELECT "b"."Id", "b"."BaseValue", NULL AS "MiddleValue", NULL AS "SiblingValue", NULL AS "LeafValue", 'BaseEntity' AS "Discriminator"
     FROM "BaseEntity" AS "b"
@@ -378,8 +378,8 @@ FROM (
     SELECT "m"."Id", "m"."BaseValue", "m"."MiddleValue", NULL AS "SiblingValue", NULL AS "LeafValue", 'MiddleEntity' AS "Discriminator"
     FROM "MiddleEntity" AS "m"
     UNION ALL
-    SELECT "s0"."Id", "s0"."BaseValue", NULL AS "MiddleValue", "s0"."SiblingValue", NULL AS "LeafValue", 'SiblingEntity' AS "Discriminator"
-    FROM "SiblingEntity" AS "s0"
+    SELECT "s"."Id", "s"."BaseValue", NULL AS "MiddleValue", "s"."SiblingValue", NULL AS "LeafValue", 'SiblingEntity' AS "Discriminator"
+    FROM "SiblingEntity" AS "s"
     UNION ALL
     SELECT "l"."Id", "l"."BaseValue", "l"."MiddleValue", NULL AS "SiblingValue", "l"."LeafValue", 'LeafEntity' AS "Discriminator"
     FROM "LeafEntity" AS "l"
@@ -389,8 +389,8 @@ LEFT JOIN (
     FROM "OwnedReferencePart1" AS "o"
     INNER JOIN "OwnedReferencePart4" AS "o0" ON "o"."LeafEntityId" = "o0"."LeafEntityId" AND "o"."Id" = "o0"."Id"
     INNER JOIN "OwnedReferencePart3" AS "o1" ON "o"."LeafEntityId" = "o1"."LeafEntityId" AND "o"."Id" = "o1"."Id"
-) AS "s" ON "t"."Id" = "s"."LeafEntityId"
-ORDER BY "t"."Id", "s"."LeafEntityId"
+) AS "s0" ON "t"."Id" = "s0"."LeafEntityId"
+ORDER BY "t"."Id", "s0"."LeafEntityId"
 """);
     }
 }

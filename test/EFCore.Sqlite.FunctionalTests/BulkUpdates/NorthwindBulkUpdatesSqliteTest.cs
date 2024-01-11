@@ -231,12 +231,12 @@ WHERE EXISTS (
     INNER JOIN "Orders" AS "o1" ON "o0"."OrderID" = "o1"."OrderID"
     WHERE "o1"."OrderID" IN (
         SELECT (
-            SELECT "o2"."OrderID"
-            FROM "Orders" AS "o2"
-            WHERE "o3"."CustomerID" = "o2"."CustomerID" OR ("o3"."CustomerID" IS NULL AND "o2"."CustomerID" IS NULL)
+            SELECT "o3"."OrderID"
+            FROM "Orders" AS "o3"
+            WHERE "o2"."CustomerID" = "o3"."CustomerID" OR ("o2"."CustomerID" IS NULL AND "o3"."CustomerID" IS NULL)
             LIMIT 1)
-        FROM "Orders" AS "o3"
-        GROUP BY "o3"."CustomerID"
+        FROM "Orders" AS "o2"
+        GROUP BY "o2"."CustomerID"
         HAVING COUNT(*) > 9
     ) AND "o0"."OrderID" = "o"."OrderID" AND "o0"."ProductID" = "o"."ProductID")
 """);
