@@ -3085,10 +3085,10 @@ WHERE [l0].[Id] IS NOT NULL
 SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id], [l].[OneToMany_Required_Self_Inverse1Id], [l].[OneToOne_Optional_Self1Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [l0].[Name] NOT IN (
+    SELECT [n].[value]
     FROM OPENJSON(@__names_0) WITH ([value] nvarchar(max) '$') AS [n]
-    WHERE [n].[value] = [l0].[Name] OR ([n].[value] IS NULL AND [l0].[Name] IS NULL))
+) OR [l0].[Name] IS NULL
 """);
     }
 

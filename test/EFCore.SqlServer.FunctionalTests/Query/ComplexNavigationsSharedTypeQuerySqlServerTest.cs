@@ -5433,10 +5433,10 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [t].[Level2_Name] NOT IN (
+    SELECT [n].[value]
     FROM OPENJSON(@__names_0) WITH ([value] nvarchar(max) '$') AS [n]
-    WHERE [n].[value] = [t].[Level2_Name] OR ([n].[value] IS NULL AND [t].[Level2_Name] IS NULL))
+) OR [t].[Level2_Name] IS NULL
 """);
     }
 

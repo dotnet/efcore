@@ -2074,10 +2074,10 @@ WHERE [o].[OrderID] = 10274
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[City] IN (
+    SELECT [c0].[value]
     FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(15) '$') AS [c0]
-    WHERE [c0].[value] = [c].[City] OR ([c0].[value] IS NULL AND [c].[City] IS NULL))
+)
 """);
     }
 

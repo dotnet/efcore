@@ -27,6 +27,9 @@ public class SqlNullabilityProcessor
     private static readonly bool UseOldBehavior32208 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32208", out var enabled32208) && enabled32208;
 
+    private static readonly bool UseOldBehavior32574 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32574", out var enabled32574) && enabled32574;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="SqlNullabilityProcessor" /> class.
     /// </summary>
@@ -706,7 +709,7 @@ public class SqlNullabilityProcessor
                     return inExpression;
 
                 case (true, false):
-                {
+                    NullableItemWithNonNullableProjection:
                     // If the item is actually null (not just nullable) and the projection is non-nullable, just return false immediately:
                     // WHERE NULL IN (SELECT NonNullable FROM foo) -> false
                     if (IsNull(item))
@@ -721,7 +724,6 @@ public class SqlNullabilityProcessor
                     return allowOptimizedExpansion
                         ? inExpression
                         : _sqlExpressionFactory.AndAlso(inExpression, _sqlExpressionFactory.IsNotNull(item));
-                }
 
                 case (false, true):
                 {
@@ -732,6 +734,14 @@ public class SqlNullabilityProcessor
                     if (allowOptimizedExpansion)
                     {
                         return inExpression;
+                    }
+
+                    // If the subquery happens to be a primitive collection (e.g. OPENJSON), pull out the null values from the parameter.
+                    // Since the item is non-nullable, it can never match those null values, and all they do is cause the IN expression
+                    // to return NULL if the item isn't found. So just remove them.
+                    if (!UseOldBehavior32574 && TryMakeNonNullable(subquery, out var nonNullableSubquery, out _))
+                    {
+                        return inExpression.Update(item, nonNullableSubquery);
                     }
 
                     // On SQL Server, EXISTS isn't less efficient than IN, and the additional COALESCE (and CASE/WHEN which it requires)
@@ -745,13 +755,46 @@ public class SqlNullabilityProcessor
                 }
 
                 case (true, true):
-                    TransformToExists:
-                    // Worst case: both sides are nullable; there's no way to distinguish the item was found or not.
-                    // We rewrite to an EXISTS subquery where we can generate a precise predicate to check for what we need. Note that this
-                    // performs (significantly) worse than an IN expression, since it involves a correlated subquery.
+                    // Worst case: both sides are nullable; that means that with IN, there's no way to distinguish between:
+                    // a) The item was NULL and was found (e.g. NULL IN (1, 2, NULL) should yield true), and
+                    // b) The item wasn't found (e.g. 3 IN (1, 2, NULL) should yield false)
 
-                    // We'll need to mutate the subquery to introduce the predicate inside it, but it might be referenced by other places in
-                    // the tree, so we create a copy to work on.
+                    // As a last resort, we can rewrite to an EXISTS subquery where we can generate a precise predicate to check for what we
+                    // need. This unfortunately performs (significantly) worse than an IN expression, since it involves a correlated
+                    // subquery, and can cause indexes to not get used.
+
+                    // But before doing this, we check whether the subquery represents a simple parameterized collection (e.g. a bare
+                    // OPENJSON call over a parameter in SQL Server), and if it is, rewrite the parameter to remove nulls so we can keep
+                    // using IN.
+                    if (!UseOldBehavior32574 && TryMakeNonNullable(subquery, out var nonNullableSubquery2, out var foundNull))
+                    {
+                        inExpression = inExpression.Update(item, nonNullableSubquery2);
+
+                        if (!foundNull.Value)
+                        {
+                            // There weren't any actual nulls inside the parameterized collection - we can jump to the case which handles
+                            // that.
+                            goto NullableItemWithNonNullableProjection;
+                        }
+
+                        // Nulls were found inside the parameterized collection, and removed. If the item is a null constant, just convert
+                        // the whole thing to true.
+                        if (IsNull(item))
+                        {
+                            return _sqlExpressionFactory.Constant(true, inExpression.TypeMapping);
+                        }
+
+                        // Otherwise we now need to compensate for the removed nulls outside, by adding OR item IS NULL.
+                        // Note that this is safe in negated (non-optimized) contexts:
+                        // WHERE item NOT IN ("foo", "bar") AND item IS NOT NULL
+                        // When item is NULL, the item IS NOT NULL clause causes the whole thing to return false. Otherwise that clause
+                        // can be ignored, and we have non-null item IN non-null list-of-values.
+                        return _sqlExpressionFactory.OrElse(inExpression, _sqlExpressionFactory.IsNull(item));
+                    }
+
+                    TransformToExists:
+                    // We unfortunately need to rewrite to EXISTS. We'll need to mutate the subquery to introduce the predicate inside it,
+                    // but it might be referenced by other places in the tree, so we create a copy to work on.
 
                     // No need for a projection with EXISTS, clear it to get SELECT 1
                     subquery = subquery.Update(
@@ -1959,6 +2002,133 @@ public class SqlNullabilityProcessor
             return negated.HasValue;
         }
     }
+
+    /// <summary>
+    ///     Attempts to convert the given <paramref name="selectExpression" />, which has a nullable projection, to an identical expression
+    ///     which does not have a nullable projection. This is used to extract NULLs out of e.g. the parameter argument of SQL Server
+    ///     OPENJSON, in order to allow a more efficient translation.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual bool TryMakeNonNullable(
+        SelectExpression selectExpression,
+        [NotNullWhen(true)] out SelectExpression? rewrittenSelectExpression,
+        [NotNullWhen(true)] out bool? foundNull)
+    {
+        if (selectExpression is
+            {
+                Tables: [var collectionTable],
+                GroupBy: [],
+                Having: null,
+                Limit: null,
+                Offset: null,
+                Predicate: null,
+                // Note that a orderings and distinct are OK - they don't interact with our null removal.
+                // We exclude the predicate since it may actually filter out nulls
+                Projection: [{ Expression: ColumnExpression projectedColumn }] projection
+            }
+            && projectedColumn.Table == collectionTable
+            && IsCollectionTable(collectionTable, out var collection)
+            && collection is SqlParameterExpression collectionParameter
+            && ParameterValues[collectionParameter.Name] is IList values)
+        {
+            // We're looking at a parameter beyond its simple nullability, so we can't use the 2nd-level cache for this query.
+            DoNotCache();
+
+            IList? processedValues = null;
+
+            for (var i = 0; i < values.Count; i++)
+            {
+                var value = values[i];
+
+                if (value is null)
+                {
+                    if (processedValues is null)
+                    {
+                        var elementClrType = values.GetType().GetSequenceType();
+                        processedValues = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementClrType), values.Count)!;
+                        for (var j = 0; j < i; j++)
+                        {
+                            processedValues.Add(values[j]!);
+                        }
+                    }
+
+                    // Skip the value
+                    continue;
+                }
+
+                processedValues?.Add(value);
+            }
+
+            if (processedValues is null)
+            {
+                // No null was found in the parameter's elements - the select expression is already non-nullable.
+                // TODO: We should change the project column to be non-nullable, but it's too closed down for that.
+                rewrittenSelectExpression = selectExpression;
+                foundNull = false;
+                return true;
+            }
+
+            foundNull = true;
+
+            // TODO: We currently only have read-only access to the parameter values in the nullability processor (and in all of the
+            // 2nd-level query pipeline); to need to flow the mutable dictionary in. Note that any modification of parameter values (as
+            // here) must immediately entail DoNotCache().
+            Check.DebugAssert(ParameterValues is Dictionary<string, object?>, "ParameterValues isn't a Dictionary");
+            if (ParameterValues is not Dictionary<string, object?> mutableParameterValues)
+            {
+                rewrittenSelectExpression = null;
+                foundNull = null;
+                return false;
+            }
+
+            var rewrittenParameter = new SqlParameterExpression(
+                collectionParameter.Name + "_without_nulls", collectionParameter.Type, collectionParameter.TypeMapping);
+            mutableParameterValues[rewrittenParameter.Name] = processedValues;
+            var rewrittenCollectionTable = UpdateParameterCollection(collectionTable, rewrittenParameter);
+
+            // We clone the select expression since Update below doesn't create a pure copy, mutating the original as well (because of
+            // TableReferenceExpression). TODO: Remove this after #31327.
+#pragma warning disable EF1001
+            rewrittenSelectExpression = selectExpression.Clone();
+#pragma warning restore EF1001
+
+            rewrittenSelectExpression = rewrittenSelectExpression.Update(
+                projection, // TODO: We should change the project column to be non-nullable, but it's too closed down for that.
+                new[] { rewrittenCollectionTable },
+                selectExpression.Predicate,
+                selectExpression.GroupBy,
+                selectExpression.Having,
+                selectExpression.Orderings,
+                selectExpression.Limit,
+                selectExpression.Offset);
+
+            return true;
+        }
+
+        rewrittenSelectExpression = null;
+        foundNull = null;
+        return false;
+    }
+
+    /// <summary>
+    ///     A provider hook for identifying a <see cref="TableExpressionBase" /> which represents a collection, e.g. OPENJSON on SQL Server.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual bool IsCollectionTable(TableExpressionBase table, [NotNullWhen(true)] out Expression? collection)
+    {
+        collection = null;
+        return false;
+    }
+
+    /// <summary>
+    ///     Given a <see cref="TableExpressionBase" /> which was previously identified to be a parameterized collection table (e.g.
+    ///     OPENJSON on SQL Server, see <see cref="IsCollectionTable" />), replaces the parameter for that table.
+    /// </summary>
+    [EntityFrameworkInternal]
+    protected virtual TableExpressionBase UpdateParameterCollection(
+        TableExpressionBase table,
+        SqlParameterExpression newCollectionParameter)
+        => throw new InvalidOperationException();
 
     private SqlExpression ProcessNullNotNull(SqlUnaryExpression sqlUnaryExpression, bool operandNullable)
     {

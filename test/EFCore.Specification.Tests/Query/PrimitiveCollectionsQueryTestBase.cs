@@ -167,58 +167,117 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_ints_Contains(bool async)
+    public virtual async Task Parameter_collection_of_ints_Contains_int(bool async)
     {
         var ints = new[] { 10, 999 };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.Int)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.Int)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
+    public virtual async Task Parameter_collection_of_ints_Contains_nullable_int(bool async)
+    {
+        var ints = new int?[] { 10, 999 };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints.Contains(c.NullableInt)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !ints.Contains(c.NullableInt)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
     {
         var nullableInts = new int?[] { 10, 999 };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.Int)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
+    public virtual async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
     {
         var nullableInts = new int?[] { null, 999 };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !nullableInts.Contains(c.NullableInt)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_strings_Contains_non_nullable_string(bool async)
+    public virtual async Task Parameter_collection_of_strings_Contains_string(bool async)
     {
         var strings = new[] { "10", "999" };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.String)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.String)));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
+    public virtual async Task Parameter_collection_of_strings_Contains_nullable_string(bool async)
+    {
+        var strings = new[] { "10", "999" };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_nullable_strings_Contains_string(bool async)
+    {
+        var strings = new[] { "10", null };
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.String)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.String)));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Parameter_collection_of_nullable_strings_Contains_nullable_string(bool async)
     {
         var strings = new[] { "999", null };
 
-        return AssertQuery(
+        await AssertQuery(
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => strings.Contains(c.NullableString)));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => !strings.Contains(c.NullableString)));
     }
+
+    // See more nullability-related tests in NullSemanticsQueryTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
