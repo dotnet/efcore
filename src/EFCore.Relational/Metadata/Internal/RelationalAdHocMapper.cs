@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 #pragma warning disable EF1001 // AdHocMapper should be made public
 public class RelationalAdHocMapper : AdHocMapper
 {
+    private static readonly bool UseOldBehavior32680 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32680", out var enabled32680) && enabled32680;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -33,6 +36,11 @@ public class RelationalAdHocMapper : AdHocMapper
     /// </summary>
     public override ConventionSet BuildConventionSet()
     {
+        if (UseOldBehavior32680)
+        {
+            return base.BuildConventionSet();
+        }
+
         var conventionSet = base.BuildConventionSet();
         conventionSet.Remove(typeof(RelationalDbFunctionAttributeConvention));
         conventionSet.Remove(typeof(TableNameFromDbSetConvention));
