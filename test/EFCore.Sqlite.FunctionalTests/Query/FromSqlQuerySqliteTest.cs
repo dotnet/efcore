@@ -19,11 +19,11 @@ public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteF
 
         AssertSql(
             """
-SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM (
     SELECT * FROM "Customers"
-) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+) AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'z') > 0
 """);
     }
 
@@ -32,14 +32,17 @@ WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
         var queryString = await base.FromSqlRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+            """
+            .param set p0 'London'
+            .param set @__contactTitle_1 'Sales Representative'
 
-SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
-FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+            SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+            FROM (
+                SELECT * FROM "Customers" WHERE "City" = @p0
+            ) AS "c"
+            WHERE "c"."ContactTitle" = @__contactTitle_1
+            """,
+            queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }
@@ -66,14 +69,14 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
 
         AssertSql(
             """
-SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM (
     WITH "Customers2" AS (
         SELECT * FROM "Customers"
     )
     SELECT * FROM "Customers2"
-) AS "m"
-WHERE "m"."ContactName" IS NOT NULL AND instr("m"."ContactName", 'z') > 0
+) AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND instr("c"."ContactName", 'z') > 0
 """);
     }
 

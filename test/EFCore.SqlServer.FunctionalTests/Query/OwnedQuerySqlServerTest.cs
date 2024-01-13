@@ -1340,20 +1340,20 @@ ORDER BY [o].[PersonAddress_PlaceType], [o].[Id], [t].[ClientId], [t].[Id], [t].
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[Discriminator], [m].[Name], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o].[PersonAddress_AddressLine], [o].[PersonAddress_PlaceType], [o].[PersonAddress_ZipCode], [o].[PersonAddress_Country_Name], [o].[PersonAddress_Country_PlanetId], [o0].[BranchAddress_BranchName], [o0].[BranchAddress_PlaceType], [o0].[BranchAddress_Country_Name], [o0].[BranchAddress_Country_PlanetId], [o1].[LeafBAddress_LeafBType], [o1].[LeafBAddress_PlaceType], [o1].[LeafBAddress_Country_Name], [o1].[LeafBAddress_Country_PlanetId], [o2].[LeafAAddress_LeafType], [o2].[LeafAAddress_PlaceType], [o2].[LeafAAddress_Country_Name], [o2].[LeafAAddress_Country_PlanetId]
+SELECT [o].[Id], [o].[Discriminator], [o].[Name], [o0].[Id], [o1].[Id], [o2].[Id], [o3].[Id], [t].[ClientId], [t].[Id], [t].[OrderDate], [t].[OrderClientId], [t].[OrderId], [t].[Id0], [t].[Detail], [o0].[PersonAddress_AddressLine], [o0].[PersonAddress_PlaceType], [o0].[PersonAddress_ZipCode], [o0].[PersonAddress_Country_Name], [o0].[PersonAddress_Country_PlanetId], [o1].[BranchAddress_BranchName], [o1].[BranchAddress_PlaceType], [o1].[BranchAddress_Country_Name], [o1].[BranchAddress_Country_PlanetId], [o2].[LeafBAddress_LeafBType], [o2].[LeafBAddress_PlaceType], [o2].[LeafBAddress_Country_Name], [o2].[LeafBAddress_Country_PlanetId], [o3].[LeafAAddress_LeafType], [o3].[LeafAAddress_PlaceType], [o3].[LeafAAddress_Country_Name], [o3].[LeafAAddress_Country_PlanetId]
 FROM (
     SELECT * FROM "OwnedPerson"
-) AS [m]
-LEFT JOIN [OwnedPerson] AS [o] ON [m].[Id] = [o].[Id]
-LEFT JOIN [OwnedPerson] AS [o0] ON [m].[Id] = [o0].[Id]
-LEFT JOIN [OwnedPerson] AS [o1] ON [m].[Id] = [o1].[Id]
-LEFT JOIN [OwnedPerson] AS [o2] ON [m].[Id] = [o2].[Id]
+) AS [o]
+LEFT JOIN [OwnedPerson] AS [o0] ON [o].[Id] = [o0].[Id]
+LEFT JOIN [OwnedPerson] AS [o1] ON [o].[Id] = [o1].[Id]
+LEFT JOIN [OwnedPerson] AS [o2] ON [o].[Id] = [o2].[Id]
+LEFT JOIN [OwnedPerson] AS [o3] ON [o].[Id] = [o3].[Id]
 LEFT JOIN (
-    SELECT [o3].[ClientId], [o3].[Id], [o3].[OrderDate], [o4].[OrderClientId], [o4].[OrderId], [o4].[Id] AS [Id0], [o4].[Detail]
-    FROM [Order] AS [o3]
-    LEFT JOIN [OrderDetail] AS [o4] ON [o3].[ClientId] = [o4].[OrderClientId] AND [o3].[Id] = [o4].[OrderId]
-) AS [t] ON [m].[Id] = [t].[ClientId]
-ORDER BY [m].[Id], [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
+    SELECT [o4].[ClientId], [o4].[Id], [o4].[OrderDate], [o5].[OrderClientId], [o5].[OrderId], [o5].[Id] AS [Id0], [o5].[Detail]
+    FROM [Order] AS [o4]
+    LEFT JOIN [OrderDetail] AS [o5] ON [o4].[ClientId] = [o5].[OrderClientId] AND [o4].[Id] = [o5].[OrderId]
+) AS [t] ON [o].[Id] = [t].[ClientId]
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [o3].[Id], [t].[ClientId], [t].[Id], [t].[OrderClientId], [t].[OrderId]
 """);
     }
 

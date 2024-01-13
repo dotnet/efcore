@@ -264,11 +264,11 @@ WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
             """
 @__ef_filter__TenantPrefix_0_startswith='B%' (Size = 40)
 
-SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM (
     select * from Customers
-) AS [m]
-WHERE [m].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
+) AS [c]
+WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
 """);
     }
 
@@ -286,15 +286,15 @@ WHERE [m].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
             """
 @__ef_filter__TenantPrefix_0_startswith='B%' (Size = 40)
 
-SELECT [m].[OrderID], [m].[CustomerID], [m].[EmployeeID], [m].[OrderDate]
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM (
     select * from Orders
-) AS [m]
+) AS [o]
 LEFT JOIN (
     SELECT [c].[CustomerID], [c].[CompanyName]
     FROM [Customers] AS [c]
     WHERE [c].[CompanyName] LIKE @__ef_filter__TenantPrefix_0_startswith ESCAPE N'\'
-) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
+) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
 WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 """);
     }

@@ -483,8 +483,8 @@ WHERE EXISTS (
         SELECT "OrderID", "ProductID", "UnitPrice", "Quantity", "Discount"
         FROM "Order Details"
         WHERE "OrderID" < 10300
-    ) AS [m]
-    WHERE [m].[OrderID] = [o].[OrderID] AND [m].[ProductID] = [o].[ProductID])
+    ) AS [o0]
+    WHERE [o0].[OrderID] = [o].[OrderID] AND [o0].[ProductID] = [o].[ProductID])
 """);
     }
 

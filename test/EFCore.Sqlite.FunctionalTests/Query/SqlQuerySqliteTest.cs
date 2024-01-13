@@ -19,11 +19,11 @@ public class SqlQuerySqliteTest : SqlQueryTestBase<NorthwindQuerySqliteFixture<N
 
         AssertSql(
             """
-SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."CustomerID", "m"."Fax", "m"."Phone", "m"."Region", "m"."PostalCode"
+SELECT "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."CustomerID", "c"."Fax", "c"."Phone", "c"."Region", "c"."PostalCode"
 FROM (
     SELECT * FROM "Customers"
-) AS "m"
-WHERE instr("m"."ContactName", 'z') > 0
+) AS "c"
+WHERE instr("c"."ContactName", 'z') > 0
 """);
     }
 
@@ -32,14 +32,17 @@ WHERE instr("m"."ContactName", 'z') > 0
         var queryString = await base.SqlQueryRaw_queryable_with_parameters_and_closure(async);
 
         Assert.Equal(
-            @".param set p0 'London'
-.param set @__contactTitle_1 'Sales Representative'
+            """
+            .param set p0 'London'
+            .param set @__contactTitle_1 'Sales Representative'
 
-SELECT ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""CustomerID"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""Region"", ""m"".""PostalCode""
-FROM (
-    SELECT * FROM ""Customers"" WHERE ""City"" = @p0
-) AS ""m""
-WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEndingDifferences: true);
+            SELECT "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."CustomerID", "c"."Fax", "c"."Phone", "c"."Region", "c"."PostalCode"
+            FROM (
+                SELECT * FROM "Customers" WHERE "City" = @p0
+            ) AS "c"
+            WHERE "c"."ContactTitle" = @__contactTitle_1
+            """,
+            queryString, ignoreLineEndingDifferences: true);
 
         return queryString;
     }
@@ -66,14 +69,14 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
 
         AssertSql(
             """
-SELECT "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."CustomerID", "m"."Fax", "m"."Phone", "m"."Region", "m"."PostalCode"
+SELECT "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."CustomerID", "c"."Fax", "c"."Phone", "c"."Region", "c"."PostalCode"
 FROM (
     WITH "Customers2" AS (
         SELECT * FROM "Customers"
     )
     SELECT * FROM "Customers2"
-) AS "m"
-WHERE instr("m"."ContactName", 'z') > 0
+) AS "c"
+WHERE instr("c"."ContactName", 'z') > 0
 """);
     }
 

@@ -104,7 +104,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                     _sqlExpressionFactory.Select(
                         fromSqlQueryRootExpression.EntityType,
                         new FromSqlExpression(
-                            fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table,
+                            fromSqlQueryRootExpression.EntityType.GetTableMappings().SingleOrDefault()?.Table
+                            ?? fromSqlQueryRootExpression.EntityType.GetDefaultMappings().Single().Table,
                             fromSqlQueryRootExpression.Sql,
                             fromSqlQueryRootExpression.Argument)));
 

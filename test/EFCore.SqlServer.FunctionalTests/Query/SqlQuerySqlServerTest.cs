@@ -49,11 +49,11 @@ SELECT "Region", "PostalCode", "PostalCode" AS "Foo", "Phone", "Fax", "CustomerI
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -63,7 +63,7 @@ WHERE [m].[ContactName] LIKE N'%z%'
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
 
         
@@ -71,8 +71,8 @@ FROM (
 
     SELECT
     * FROM "Customers"
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -82,11 +82,11 @@ WHERE [m].[ContactName] LIKE N'%z%'
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -98,11 +98,11 @@ WHERE [m].[ContactName] LIKE N'%z%'
             """
 customer='CONSH' (Nullable = false) (Size = 5)
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "CustomerID" = @customer
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -114,11 +114,11 @@ WHERE [m].[ContactName] LIKE N'%z%'
             """
 p0='CONSH' (Nullable = false) (Size = 5)
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "CustomerID" = @p0
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -128,11 +128,11 @@ WHERE [m].[ContactName] LIKE N'%z%'
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "CustomerID" = N'CONSH'
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
+) AS [c]
+WHERE [c].[ContactName] LIKE N'%z%'
 """);
     }
 
@@ -142,15 +142,15 @@ WHERE [m].[ContactName] LIKE N'%z%'
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [c]
+WHERE [c].[CustomerID] IN (
+    SELECT [o].[CustomerID]
     FROM (
         SELECT * FROM "Orders"
-    ) AS [m0]
+    ) AS [o]
 )
 """);
     }
@@ -161,14 +161,14 @@ WHERE [m].[CustomerID] IN (
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders"
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
@@ -181,14 +181,14 @@ WHERE [m].[CustomerID] = [m0].[CustomerID]
 p0='1997-01-01T00:00:00.0000000'
 p1='1998-01-01T00:00:00.0000000'
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders" WHERE "OrderDate" BETWEEN @p0 AND @p1
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
@@ -202,14 +202,14 @@ p0='London' (Size = 4000)
 p1='1997-01-01T00:00:00.0000000'
 p2='1998-01-01T00:00:00.0000000'
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders" WHERE "OrderDate" BETWEEN @p1 AND @p2
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """,
             //
             """
@@ -217,14 +217,14 @@ p0='Berlin' (Size = 4000)
 p1='1998-04-01T00:00:00.0000000'
 p2='1998-05-01T00:00:00.0000000'
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders" WHERE "OrderDate" BETWEEN @p1 AND @p2
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
@@ -246,12 +246,12 @@ WHERE "City" = 'London'
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT *
     FROM "Customers"
-) AS [m]
-WHERE [m].[City] = N'London'
+) AS [c]
+WHERE [c].[City] = N'London'
 """);
     }
 
@@ -318,14 +318,14 @@ p0='London' (Size = 4000)
 p1='1997-01-01T00:00:00.0000000'
 p2='1998-01-01T00:00:00.0000000'
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders" WHERE "OrderDate" BETWEEN @p1 AND @p2
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """,
             //
             """
@@ -333,14 +333,14 @@ p0='Berlin' (Size = 4000)
 p1='1998-04-01T00:00:00.0000000'
 p2='1998-05-01T00:00:00.0000000'
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode], [m0].[CustomerID], [m0].[EmployeeID], [m0].[Freight], [m0].[OrderDate], [m0].[OrderID], [m0].[RequiredDate], [m0].[ShipAddress], [m0].[ShipCity], [m0].[ShipCountry], [m0].[ShipName], [m0].[ShipPostalCode], [m0].[ShipRegion], [m0].[ShipVia], [m0].[ShippedDate]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode], [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
-) AS [m]
+) AS [c]
 CROSS JOIN (
     SELECT * FROM "Orders" WHERE "OrderDate" BETWEEN @p1 AND @p2
-) AS [m0]
-WHERE [m].[CustomerID] = [m0].[CustomerID]
+) AS [o]
+WHERE [c].[CustomerID] = [o].[CustomerID]
 """);
     }
 
@@ -365,11 +365,11 @@ SELECT * FROM "Employees" WHERE "ReportsTo" = @p0 OR ("ReportsTo" IS NULL AND @p
 p0='London' (Size = 4000)
 @__contactTitle_1='Sales Representative' (Size = 30)
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @p0
-) AS [m]
-WHERE [m].[ContactTitle] = @__contactTitle_1
+) AS [c]
+WHERE [c].[ContactTitle] = @__contactTitle_1
 """);
 
         return null;
@@ -425,13 +425,13 @@ SELECT * FROM "Customers"
 
         AssertSql(
             """
-SELECT [m].[ProductName]
+SELECT [u].[ProductName]
 FROM (
     SELECT *
     FROM "Products"
     WHERE "Discontinued" <> CAST(1 AS bit)
     AND (("UnitsInStock" + "UnitsOnOrder") < "ReorderLevel")
-) AS [m]
+) AS [u]
 """);
     }
 
@@ -454,12 +454,12 @@ SELECT * FROM "Customers"
         await base.SqlQueryRaw_composed_with_predicate(async);
 
         AssertSql(
-"""
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+            """
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
-WHERE SUBSTRING([m].[ContactName], 0 + 1, 1) = SUBSTRING([m].[CompanyName], 0 + 1, 1)
+) AS [c]
+WHERE SUBSTRING([c].[ContactName], 0 + 1, 1) = SUBSTRING([c].[CompanyName], 0 + 1, 1)
 """);
     }
 
@@ -469,11 +469,11 @@ WHERE SUBSTRING([m].[ContactName], 0 + 1, 1) = SUBSTRING([m].[CompanyName], 0 + 
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
-) AS [m]
-WHERE [m].[ContactName] = [m].[CompanyName]
+) AS [c]
+WHERE [c].[ContactName] = [c].[CompanyName]
 """);
     }
 
@@ -570,25 +570,25 @@ SELECT * FROM "Customers" WHERE "CustomerID" = @somename
             """
 p0='10300'
 
-SELECT [m].[OrderID]
+SELECT [o].[OrderID]
 FROM (
     SELECT * FROM "Orders" WHERE "OrderID" >= @p0
-) AS [m]
+) AS [o]
 """,
             //
             """
 @__max_1='10400'
 p0='10300'
 
-SELECT [m].[OrderID]
+SELECT [o].[OrderID]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[OrderID] <= @__max_1 AND [m].[OrderID] IN (
-    SELECT [m0].[OrderID]
+) AS [o]
+WHERE [o].[OrderID] <= @__max_1 AND [o].[OrderID] IN (
+    SELECT [o0].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
-    ) AS [m0]
+    ) AS [o0]
 )
 """,
             //
@@ -596,15 +596,15 @@ WHERE [m].[OrderID] <= @__max_1 AND [m].[OrderID] IN (
 @__max_1='10400'
 p0='10300'
 
-SELECT [m].[OrderID]
+SELECT [o].[OrderID]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[OrderID] <= @__max_1 AND [m].[OrderID] IN (
-    SELECT [m0].[OrderID]
+) AS [o]
+WHERE [o].[OrderID] <= @__max_1 AND [o].[OrderID] IN (
+    SELECT [o0].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
-    ) AS [m0]
+    ) AS [o0]
 )
 """);
     }
@@ -627,15 +627,15 @@ SELECT * FROM "Orders" WHERE "OrderID" < @p0
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = 'London'
-) AS [m]
+) AS [c]
 UNION ALL
-SELECT [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[CustomerID], [m0].[Fax], [m0].[Phone], [m0].[Region], [m0].[PostalCode]
+SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[CustomerID], [c0].[Fax], [c0].[Phone], [c0].[Region], [c0].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = 'Berlin'
-) AS [m0]
+) AS [c0]
 """);
     }
 
@@ -645,12 +645,12 @@ FROM (
 
         AssertSql(
             """
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT
     * FROM "Customers"
-) AS [m]
-WHERE [m].[City] = N'Seattle'
+) AS [c]
+WHERE [c].[City] = N'Seattle'
 """);
     }
 
@@ -662,15 +662,15 @@ WHERE [m].[City] = N'Seattle'
             """
 @city='London' (Nullable = false) (Size = 6)
 
-SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
+SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
-    ) AS [m0]
+    ) AS [c]
 )
 """);
     }
@@ -683,15 +683,15 @@ WHERE [m].[CustomerID] IN (
             """
 p0='London' (Nullable = false) (Size = 6)
 
-SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
+SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0
-    ) AS [m0]
+    ) AS [c]
 )
 """);
     }
@@ -704,15 +704,15 @@ WHERE [m].[CustomerID] IN (
             """
 @city='London' (Nullable = false) (Size = 6)
 
-SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
+SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
-    ) AS [m0]
+    ) AS [c]
 )
 """);
     }
@@ -726,15 +726,15 @@ WHERE [m].[CustomerID] IN (
 p0='London' (Size = 4000)
 @title='Sales Representative' (Nullable = false) (Size = 20)
 
-SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
+SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @title
-    ) AS [m0]
+    ) AS [c]
 )
 """,
             //
@@ -742,15 +742,15 @@ WHERE [m].[CustomerID] IN (
 @city='London' (Nullable = false) (Size = 6)
 p1='Sales Representative' (Size = 4000)
 
-SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
+SELECT [o].[CustomerID], [o].[EmployeeID], [o].[Freight], [o].[OrderDate], [o].[OrderID], [o].[RequiredDate], [o].[ShipAddress], [o].[ShipCity], [o].[ShipCountry], [o].[ShipName], [o].[ShipPostalCode], [o].[ShipRegion], [o].[ShipVia], [o].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
-) AS [m]
-WHERE [m].[CustomerID] IN (
-    SELECT [m0].[CustomerID]
+) AS [o]
+WHERE [o].[CustomerID] IN (
+    SELECT [c].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p1
-    ) AS [m0]
+    ) AS [c]
 )
 """);
     }
@@ -763,15 +763,15 @@ WHERE [m].[CustomerID] IN (
             """
 city='Seattle' (Nullable = false) (Size = 7)
 
-SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
+SELECT [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[CustomerID], [c].[Fax], [c].[Phone], [c].[Region], [c].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @city
-) AS [m]
+) AS [c]
 INTERSECT
-SELECT [m0].[Address], [m0].[City], [m0].[CompanyName], [m0].[ContactName], [m0].[ContactTitle], [m0].[Country], [m0].[CustomerID], [m0].[Fax], [m0].[Phone], [m0].[Region], [m0].[PostalCode]
+SELECT [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[CustomerID], [c0].[Fax], [c0].[Phone], [c0].[Region], [c0].[PostalCode]
 FROM (
     SELECT * FROM "Customers" WHERE "City" = @city
-) AS [m0]
+) AS [c0]
 """);
     }
 

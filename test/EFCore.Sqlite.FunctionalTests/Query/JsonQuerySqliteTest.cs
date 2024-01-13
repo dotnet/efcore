@@ -199,10 +199,10 @@ WHERE EXISTS (
             """
 prm='1' (DbType = String)
 
-SELECT "m"."Id", "m"."EntityBasicId", "m"."Name", "m"."OwnedCollectionRoot", "m"."OwnedReferenceRoot"
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM (
     SELECT * FROM "JsonEntitiesBasic" AS j WHERE "j"."Id" = @prm
-) AS "m"
+) AS "j"
 """);
     }
 

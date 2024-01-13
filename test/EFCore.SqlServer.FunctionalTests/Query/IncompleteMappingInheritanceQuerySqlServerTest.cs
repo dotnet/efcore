@@ -64,11 +64,11 @@ WHERE [d].[Discriminator] = 3
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[CountryId], [m].[Discriminator], [m].[Name], [m].[Species], [m].[EagleId], [m].[IsFlightless], [m].[Group], [m].[FoundOn]
+SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM (
     select * from "Animals"
-) AS [m]
-WHERE [m].[Discriminator] IN (N'Eagle', N'Kiwi')
+) AS [a]
+WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
 """);
     }
 
@@ -78,11 +78,11 @@ WHERE [m].[Discriminator] IN (N'Eagle', N'Kiwi')
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[CountryId], [m].[Discriminator], [m].[Name], [m].[Species], [m].[EagleId], [m].[IsFlightless], [m].[Group]
+SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group]
 FROM (
     select * from "Animals"
-) AS [m]
-WHERE [m].[Discriminator] = N'Eagle'
+) AS [a]
+WHERE [a].[Discriminator] = N'Eagle'
 """);
     }
 
@@ -558,11 +558,11 @@ ORDER BY [a].[Name]
 
         AssertSql(
             """
-SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [m].[CountryId], [m].[Discriminator], [m].[Name], [m].[EagleId], [m].[IsFlightless], [m].[Group], [m].[FoundOn]
+SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
 FROM [Animals] AS [a]
 INNER JOIN (
     Select * from "Animals"
-) AS [m] ON [a].[Name] = [m].[Name]
+) AS [a0] ON [a].[Name] = [a0].[Name]
 WHERE [a].[Discriminator] = N'Eagle'
 """);
     }

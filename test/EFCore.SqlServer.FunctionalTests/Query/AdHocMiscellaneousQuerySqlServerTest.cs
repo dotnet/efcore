@@ -786,17 +786,17 @@ WHERE [d].[SmallDateTime] IN (
             Assert.Equal(Context19206.TestType19206.Integration, item.t2.Type);
 
             AssertSql(
-"""
+                """
 p0='0'
 p1='1'
 
-SELECT [m].[Id], [m].[Type], [m0].[Id], [m0].[Type]
+SELECT [t].[Id], [t].[Type], [t0].[Id], [t0].[Type]
 FROM (
     Select * from Tests Where Type = @p0
-) AS [m]
+) AS [t]
 CROSS JOIN (
     Select * from Tests Where Type = @p1
-) AS [m0]
+) AS [t0]
 """);
         }
     }
@@ -1083,10 +1083,10 @@ p0='1'
 SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
 FROM [DemoEntities] AS [d]
 WHERE [d].[Id] IN (
-    SELECT [m].[Id]
+    SELECT [d0].[Id]
     FROM (
         SELECT * FROM DemoEntities WHERE Id = @p0
-    ) AS [m]
+    ) AS [d0]
 )
 GROUP BY [d].[Id]
 """);

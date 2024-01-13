@@ -2733,10 +2733,10 @@ WHERE CAST(JSON_VALUE([j].[Reference], '$.StringYNConvertedToBool') AS bit) = CA
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[EntityBasicId], [m].[Name], [m].[OwnedCollectionRoot], [m].[OwnedReferenceRoot]
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM (
     SELECT * FROM "JsonEntitiesBasic" AS j
-) AS [m]
+) AS [j]
 """);
     }
 
@@ -2756,10 +2756,10 @@ FROM (
             """
 prm='1'
 
-SELECT [m].[Id], [m].[EntityBasicId], [m].[Name], [m].[OwnedCollectionRoot], [m].[OwnedReferenceRoot]
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM (
     SELECT * FROM "JsonEntitiesBasic" AS j WHERE "j"."Id" = @prm
-) AS [m]
+) AS [j]
 """);
     }
 
@@ -2771,10 +2771,10 @@ FROM (
 
         AssertSql(
             """
-SELECT JSON_QUERY([m].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [m].[Id]
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[Id]
 FROM (
     SELECT * FROM "JsonEntitiesBasic" AS j
-) AS [m]
+) AS [j]
 """);
     }
 
@@ -2786,10 +2786,10 @@ FROM (
 
         AssertSql(
             """
-SELECT JSON_QUERY([m].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [m].[Id]
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[Id]
 FROM (
     SELECT * FROM "JsonEntitiesBasic" AS j
-) AS [m]
+) AS [j]
 """);
     }
 
@@ -2801,10 +2801,10 @@ FROM (
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Fraction], [m].[CollectionOnBase], [m].[ReferenceOnBase], [m].[CollectionOnDerived], [m].[ReferenceOnDerived]
+SELECT [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
 FROM (
     SELECT * FROM "JsonEntitiesInheritance" AS j
-) AS [m]
+) AS [j]
 """);
     }
 
@@ -2816,11 +2816,11 @@ FROM (
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Fraction], [m].[CollectionOnBase], [m].[ReferenceOnBase], [m].[CollectionOnDerived], [m].[ReferenceOnDerived]
+SELECT [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
 FROM (
     SELECT * FROM "JsonEntitiesInheritance" AS j
-) AS [m]
-WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
+) AS [j]
+WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
 """);
     }
 
@@ -2832,11 +2832,11 @@ WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
 
         AssertSql(
             """
-SELECT [m].[ReferenceOnBase], [m].[Id]
+SELECT [j].[ReferenceOnBase], [j].[Id]
 FROM (
     SELECT * FROM "JsonEntitiesInheritance" AS j
-) AS [m]
-ORDER BY [m].[Id]
+) AS [j]
+ORDER BY [j].[Id]
 """);
     }
 
@@ -2848,12 +2848,12 @@ ORDER BY [m].[Id]
 
         AssertSql(
             """
-SELECT [m].[CollectionOnDerived], [m].[Id]
+SELECT [j].[CollectionOnDerived], [j].[Id]
 FROM (
     SELECT * FROM "JsonEntitiesInheritance" AS j
-) AS [m]
-WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
-ORDER BY [m].[Id]
+) AS [j]
+WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
+ORDER BY [j].[Id]
 """);
     }
 

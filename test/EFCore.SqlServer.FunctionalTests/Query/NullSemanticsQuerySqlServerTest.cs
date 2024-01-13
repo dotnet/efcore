@@ -1553,11 +1553,11 @@ WHERE @__p_0 = CAST(1 AS bit)
 
         AssertSql(
             """
-SELECT [m].[Id], [m].[BoolA], [m].[BoolB], [m].[BoolC], [m].[IntA], [m].[IntB], [m].[IntC], [m].[NullableBoolA], [m].[NullableBoolB], [m].[NullableBoolC], [m].[NullableIntA], [m].[NullableIntB], [m].[NullableIntC], [m].[NullableStringA], [m].[NullableStringB], [m].[NullableStringC], [m].[StringA], [m].[StringB], [m].[StringC]
+SELECT [e].[Id], [e].[BoolA], [e].[BoolB], [e].[BoolC], [e].[IntA], [e].[IntB], [e].[IntC], [e].[NullableBoolA], [e].[NullableBoolB], [e].[NullableBoolC], [e].[NullableIntA], [e].[NullableIntB], [e].[NullableIntC], [e].[NullableStringA], [e].[NullableStringB], [e].[NullableStringC], [e].[StringA], [e].[StringB], [e].[StringC]
 FROM (
     SELECT * FROM "Entities1"
-) AS [m]
-WHERE [m].[StringA] = [m].[StringB]
+) AS [e]
+WHERE [e].[StringA] = [e].[StringB]
 """);
     }
 
