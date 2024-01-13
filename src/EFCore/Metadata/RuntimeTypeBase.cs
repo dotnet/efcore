@@ -258,7 +258,7 @@ public abstract class RuntimeTypeBase : RuntimeAnnotatableBase, IRuntimeTypeBase
         => _properties.TryGetValue(name, out var property)
             ? property
             : null;
-    
+
     /// <summary>
     ///     Gets all scalar properties declared on this type.
     /// </summary>
