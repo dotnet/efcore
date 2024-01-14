@@ -40,7 +40,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private readonly SqlAliasManager _sqlAliasManager;
 
-    private bool _mutable = true;
+    internal bool IsMutable { get; private set; } = true;
     private Dictionary<ProjectionMember, Expression> _projectionMapping = new();
     private List<Expression> _clientProjections = [];
     private readonly List<string?> _aliasForClientProjections = [];
@@ -332,7 +332,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 discriminatorColumnName));
                         discriminatorValues.Add(concreteEntityType.ShortName());
                         subSelectExpressions.Add(selectExpression);
-                        selectExpression._mutable = false;
+                        selectExpression.IsMutable = false;
                     }
 
                     var tableAlias = _sqlAliasManager.GenerateTableAlias("table");
@@ -909,12 +909,12 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// </summary>
     public void ApplyProjection()
     {
-        if (!_mutable)
+        if (!IsMutable)
         {
             throw new InvalidOperationException("Applying projection on already finalized select expression");
         }
 
-        _mutable = false;
+        IsMutable = false;
         if (_clientProjections.Count > 0)
         {
             for (var i = 0; i < _clientProjections.Count; i++)
@@ -997,12 +997,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         ResultCardinality resultCardinality,
         QuerySplittingBehavior querySplittingBehavior)
     {
-        if (!_mutable)
+        if (!IsMutable)
         {
             throw new InvalidOperationException("Applying projection on already finalized select expression");
         }
 
-        _mutable = false;
+        IsMutable = false;
         if (shaperExpression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
         {
             // This is final GroupBy operation
@@ -1241,7 +1241,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 // Needs to happen after converting final GroupBy so we clone correct form.
                 baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
                 // We mark this as mutable because the split query will combine into this and take it over.
-                baseSelectExpression._mutable = true;
+                baseSelectExpression.IsMutable = true;
                 if (resultCardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
                 {
                     // Update limit since split queries don't need limit 2
@@ -1274,7 +1274,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     if (cloningExpressionVisitor != null)
                     {
                         baseSelectExpression = (SelectExpression)cloningExpressionVisitor.Visit(this);
-                        baseSelectExpression._mutable = true;
+                        baseSelectExpression.IsMutable = true;
                         baseSelectExpression._projection.Clear();
                     }
                 }
@@ -2612,8 +2612,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         select2._projectionMapping.Clear();
 
         // Mark both inner subqueries as immutable
-        select1._mutable = false;
-        select2._mutable = false;
+        select1.IsMutable = false;
+        select2.IsMutable = false;
 
         // We should apply _identifiers only when it is distinct and actual select expression had identifiers.
         if (distinct
@@ -2799,7 +2799,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var alias = _sqlAliasManager.GenerateTableAlias("empty");
         var dummySelectExpression = new SelectExpression(alias, _sqlAliasManager);
         dummySelectExpression._projection.Add(new ProjectionExpression(nullSqlExpression, "empty"));
-        dummySelectExpression._mutable = false;
+        dummySelectExpression.IsMutable = false;
 
         if (Orderings.Any()
             || Limit != null
@@ -3931,7 +3931,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             Having = Having,
             Offset = Offset,
             Limit = Limit,
-            _mutable = false
+            IsMutable = false
         };
         _tables.Clear();
         _groupBy.Clear();
@@ -4315,7 +4315,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             IsDistinct = IsDistinct,
             Tags = Tags,
             _projectionMapping = newProjectionMappings,
-            _mutable = _mutable
+            IsMutable = IsMutable
         };
 
         // The below contain ColumnExpressions which need to be recreated if a table's alias is modified during cloning
@@ -4344,127 +4344,10 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    // TODO: Look into TPC handling and possibly clean this up, #32873
     [EntityFrameworkInternal]
-    public SelectExpression PruneToplevel(SqlTreePruner pruningVisitor)
-    {
-        // TODO: This doesn't belong in pruning, take a deeper look at how we manage TPC etc.
-        var select = (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_sqlAliasManager).Visit(this);
-        select.Prune(pruningVisitor, pruneProjection: false);
-        return select;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    public void Prune(SqlTreePruner pruningVisitor, bool pruneProjection)
-    {
-        Check.DebugAssert(!IsMutable, "Mutable SelectExpression found when pruning");
-
-        var referencedColumnMap = pruningVisitor.ReferencedColumnMap;
-        // Prune the projection; any projected alias that isn't referenced on us from the outside can be removed. We avoid doing that when:
-        // 1. The caller requests we don't (top-level select, scalar subquery, select within a set operation where the other is distinct -
-        //     projection must be preserved as-is)
-        // 2. The select has distinct (removing a projection changes which rows get projected out)
-        var prunedProjection = _projection;
-        if (pruneProjection && !IsDistinct && ((Alias ?? pruningVisitor.CurrentTableAlias) is string currentTableAlias))
-        {
-            if (referencedColumnMap.TryGetValue(currentTableAlias, out var referencedProjectionAliases))
-            {
-                for (var i = _projection.Count - 1; i >= 0; i--)
-                {
-                    if (!referencedProjectionAliases.Contains(_projection[i].Alias))
-                    {
-                        _projection.RemoveAt(i);
-                    }
-                }
-            }
-            else
-            {
-                _projection.Clear();
-            }
-        }
-
-        // When visiting the select's tables, we track the alias so that we know it when processing nested table expressions (e.g. within
-        // set operations); make sure that when visiting other clauses (e.g. predicate), the tracked table alias is null.
-        var parentTableAlias = pruningVisitor.CurrentTableAlias;
-        pruningVisitor.CurrentTableAlias = null;
-
-        // First visit all the non-table clauses of the SelectExpression - this will populate referencedColumnMap with all columns
-        // referenced on all tables.
-        if (pruningVisitor.VisitAndConvert(prunedProjection) is var newProjection && newProjection != _projection)
-        {
-            _projection.Clear();
-            _projection.AddRange(newProjection);
-        }
-
-        Predicate = (SqlExpression?)pruningVisitor.Visit(Predicate);
-
-        if (pruningVisitor.VisitAndConvert(_groupBy) is var newGroupBy && newGroupBy != _groupBy)
-        {
-            _groupBy.Clear();
-            _groupBy.AddRange(newGroupBy);
-        }
-
-        Having = (SqlExpression?)pruningVisitor.Visit(Having);
-
-        if (pruningVisitor.VisitAndConvert(_orderings) is var newOrderings && newOrderings != _orderings)
-        {
-            _orderings.Clear();
-            _orderings.AddRange(newOrderings);
-        }
-
-        Offset = (SqlExpression?)pruningVisitor.Visit(Offset);
-        Limit = (SqlExpression?)pruningVisitor.Visit(Limit);
-
-        // TODO: This should happen earlier, not as part of pruning.
-        _identifier.Clear();
-        _childIdentifiers.Clear();
-
-        foreach (var kvp in _tpcDiscriminatorValues)
-        {
-            var newColumn = pruningVisitor.Visit(kvp.Value.Item1);
-            Check.DebugAssert(newColumn == kvp.Value.Item1, "TPC discriminator column replaced during pruning");
-        }
-
-        // We've visited the entire select expression except for the table, and now have referencedColumnMap fully populated with column
-        // references to all its tables.
-        // Go over the tables, removing any which aren't referenced anywhere (and are prunable).
-        // We do this in backwards order, so that later joins referencing earlier tables in the predicate don't cause the earlier tables
-        // to be preserved.
-        for (var i = _tables.Count - 1; i >= 0; i--)
-        {
-            var table = _tables[i];
-            var alias = table.GetRequiredAlias();
-
-            if (!referencedColumnMap.ContainsKey(alias)
-                // Note that we only prune joins; pruning the main is more complex because other tables need to unwrap joins to be main.
-                // We also only prune joins explicitly marked as prunable; otherwise e.g. an inner join may be needed to filter out rows
-                // even if no column references it.
-                && table is JoinExpressionBase { IsPrunable: true })
-            {
-                _tables.RemoveAt(i);
-                continue;
-            }
-
-            // The table wasn't pruned - visit it. This may add references to a previous table, causing it to be preserved (e.g. if it's
-            // referenced from the join predicate), or just prune something inside (e.g. a subquery table).
-            // Note that we track the table's alias in CurrentTableAlias, in case it contains nested selects (i.e. within set operations),
-            // which don't have their own alias.
-            pruningVisitor.CurrentTableAlias = alias;
-            var newTable = (TableExpressionBase)pruningVisitor.Visit(table);
-
-            if (newTable != table)
-            {
-                _tables[i] = newTable;
-            }
-        }
-
-        pruningVisitor.CurrentTableAlias = parentTableAlias;
-    }
+    public SelectExpression RemoveTpcTableExpression()
+        => (SelectExpression)new TpcTableExpressionRemovingExpressionVisitor(_sqlAliasManager).Visit(this);
 
     private Dictionary<ProjectionMember, int> ConvertProjectionMappingToClientProjections(
         Dictionary<ProjectionMember, Expression> projectionMapping,
@@ -4606,7 +4489,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        if (_mutable)
+        if (IsMutable)
         {
             VisitList(_tables, inPlace: true, out _);
 
@@ -4774,7 +4657,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                     Limit = limit,
                     IsDistinct = IsDistinct,
                     Tags = Tags,
-                    _mutable = false
+                    IsMutable = false
                 };
                 foreach (var kvp in newTpcDiscriminatorValues)
                 {
@@ -4857,7 +4740,22 @@ public sealed partial class SelectExpression : TableExpressionBase
         SqlExpression? limit,
         SqlExpression? offset)
     {
-        Check.DebugAssert(!_mutable, "SelectExpression shouldn't be mutable when calling this method.");
+        if (IsMutable)
+        {
+            throw new InvalidOperationException(RelationalStrings.SelectExpressionUpdateNotSupportedWhileMutable);
+        }
+
+        if (projections == Projection
+            && tables == Tables
+            && predicate == Predicate
+            && groupBy == GroupBy
+            && having == Having
+            && orderings == Orderings
+            && limit == Limit
+            && offset == Offset)
+        {
+            return this;
+        }
 
         var projectionMapping = new Dictionary<ProjectionMember, Expression>();
         foreach (var (projectionMember, expression) in _projectionMapping)
@@ -4865,9 +4763,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             projectionMapping[projectionMember] = expression;
         }
 
-        // TODO: This assumes that no tables were added or removed (e.g. pruning). Update should be usable for that case.
-        // TODO: This always creates a new expression. It should check if anything changed instead (#31276), allowing us to remove "changed"
-        // tracking from calling code.
         var newSelectExpression = new SelectExpression(
             Alias, projections.ToList(), tables.ToList(), groupBy.ToList(), orderings.ToList(), Annotations, _sqlAliasManager)
         {
@@ -4879,7 +4774,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit = limit,
             IsDistinct = IsDistinct,
             Tags = Tags,
-            _mutable = false
+            IsMutable = false
         };
 
         // We don't copy identifiers because when we are doing reconstruction so projection is already applied.
@@ -4895,7 +4790,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <inheritdoc />
     public override SelectExpression WithAlias(string newAlias)
     {
-        Check.DebugAssert(!_mutable, "Can't change alias on mutable SelectExpression");
+        Check.DebugAssert(!IsMutable, "Can't change alias on mutable SelectExpression");
 
         return new SelectExpression(newAlias, _projection, _tables, _groupBy, _orderings, Annotations, _sqlAliasManager)
         {
@@ -4907,7 +4802,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             Limit = Limit,
             IsDistinct = IsDistinct,
             Tags = Tags,
-            _mutable = false
+            IsMutable = false
         };
     }
 
@@ -5072,25 +4967,81 @@ public sealed partial class SelectExpression : TableExpressionBase
                 || obj is SelectExpression selectExpression
                 && Equals(selectExpression));
 
+    // Note that we vary our Equals/GetHashCode logic based on whether the SelectExpression is mutable or not; in the former case we use
+    // reference logic, whereas once the expression becomes immutable (after translation), we switch to value logic.
+    // This isn't a good state of affairs (e.g. it's impossible to keep a SelectExpression - or any expression containing one - as a
+    // dictionary key across the state change from mutable to immutable (we fortunately don't do that).
     private bool Equals(SelectExpression selectExpression)
-        /*
-         * This is intentionally reference equals.
-         * SelectExpression can appear at 2 levels,
-         * 1. Top most level which is always same reference when translation phase, post-translation it can change in
-         * ShapedQueryExpression where it would cause reconstruction. Reconstruction is cheaper than computing whole Equals
-         * 2. Nested level component inside top level SelectExpression where it could change the reference and reconstruct SQL tree.
-         * Since we assign unique aliases to components, 2 different SelectExpression would never match. And only positive case could
-         * happen when it is reference equal.
-         * If inner changed with in-place mutation then reference would be same, if inner changed with no mutation then it will cause
-         * reconstruction causing different reference.
-         */
-        => ReferenceEquals(this, selectExpression);
+        => IsMutable
+            ? ReferenceEquals(this, selectExpression)
+            : base.Equals(selectExpression)
+            && Tables.SequenceEqual(selectExpression.Tables)
+            && (Predicate is null && selectExpression.Predicate is null
+                || Predicate is not null && Predicate.Equals(selectExpression.Predicate))
+            && GroupBy.SequenceEqual(selectExpression.GroupBy)
+            && (Having is null && selectExpression.Having is null
+                || Having is not null && Having.Equals(selectExpression.Having))
+            && Projection.SequenceEqual(selectExpression.Projection)
+            && Orderings.SequenceEqual(selectExpression.Orderings)
+            && (Limit is null && selectExpression.Limit is null
+                || Limit is not null && Limit.Equals(selectExpression.Limit))
+            && (Offset is null && selectExpression.Offset is null
+                || Offset is not null && Offset.Equals(selectExpression.Offset));
 
+    // ReSharper disable NonReadonlyMemberInGetHashCode
     /// <inheritdoc />
     public override int GetHashCode()
-        // Since equality above is reference equality, hash code can also be based on reference.
-        => RuntimeHelpers.GetHashCode(this);
+    {
+        if (IsMutable)
+        {
+            return RuntimeHelpers.GetHashCode(this);
+        }
 
-    internal bool IsMutable
-        => _mutable;
+        var hash = new HashCode();
+        hash.Add(base.GetHashCode());
+
+        foreach (var table in Tables)
+        {
+            hash.Add(table);
+        }
+
+        if (Predicate is not null)
+        {
+            hash.Add(Predicate);
+        }
+
+        foreach (var groupingKey in GroupBy)
+        {
+            hash.Add(groupingKey);
+        }
+
+        if (Having is not null)
+        {
+            hash.Add(Having);
+        }
+
+        foreach (var projection in Projection)
+        {
+            hash.Add(projection);
+        }
+
+        foreach (var ordering in Orderings)
+        {
+            hash.Add(ordering);
+        }
+
+        if (Limit is not null)
+        {
+            hash.Add(Limit);
+        }
+
+        if (Offset is not null)
+        {
+            hash.Add(Offset);
+        }
+
+        return hash.ToHashCode();
+
+    }
+    // ReSharper restore NonReadonlyMemberInGetHashCode
 }

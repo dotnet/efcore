@@ -27,9 +27,7 @@ public class SqlServerSqlTreePruner : SqlTreePruner
             case SqlServerOpenJsonExpression { ColumnInfos: IReadOnlyList<ColumnInfo> columnInfos } openJson:
                 var visitedJson = (SqlExpression)Visit(openJson.JsonExpression);
 
-#pragma warning disable EF1001 // ReferencedColumnMap is pubternal; should be made protected
                 if (ReferencedColumnMap.TryGetValue(openJson.Alias, out var referencedAliases))
-#pragma warning restore EF1001
                 {
                     List<ColumnInfo>? newColumnInfos = null;
 

@@ -251,7 +251,6 @@ public class SqlNullabilityProcessor
     /// <returns>An optimized select expression.</returns>
     protected virtual SelectExpression Visit(SelectExpression selectExpression)
     {
-        var changed = false;
         var projections = (List<ProjectionExpression>)selectExpression.Projection;
         for (var i = 0; i < selectExpression.Projection.Count; i++)
         {
@@ -265,8 +264,6 @@ public class SqlNullabilityProcessor
                 {
                     projections.Add(selectExpression.Projection[j]);
                 }
-
-                changed = true;
             }
 
             if (projections != selectExpression.Projection)
@@ -288,8 +285,6 @@ public class SqlNullabilityProcessor
                 {
                     tables.Add(selectExpression.Tables[j]);
                 }
-
-                changed = true;
             }
 
             if (tables != selectExpression.Tables)
@@ -299,12 +294,10 @@ public class SqlNullabilityProcessor
         }
 
         var predicate = Visit(selectExpression.Predicate, allowOptimizedExpansion: true, out _);
-        changed |= predicate != selectExpression.Predicate;
 
         if (IsTrue(predicate))
         {
             predicate = null;
-            changed = true;
         }
 
         var groupBy = (List<SqlExpression>)selectExpression.GroupBy;
@@ -320,8 +313,6 @@ public class SqlNullabilityProcessor
                 {
                     groupBy.Add(selectExpression.GroupBy[j]);
                 }
-
-                changed = true;
             }
 
             if (groupBy != selectExpression.GroupBy)
@@ -331,12 +322,10 @@ public class SqlNullabilityProcessor
         }
 
         var having = Visit(selectExpression.Having, allowOptimizedExpansion: true, out _);
-        changed |= having != selectExpression.Having;
 
         if (IsTrue(having))
         {
             having = null;
-            changed = true;
         }
 
         var orderings = (List<OrderingExpression>)selectExpression.Orderings;
@@ -352,8 +341,6 @@ public class SqlNullabilityProcessor
                 {
                     orderings.Add(selectExpression.Orderings[j]);
                 }
-
-                changed = true;
             }
 
             if (orderings != selectExpression.Orderings)
@@ -363,15 +350,10 @@ public class SqlNullabilityProcessor
         }
 
         var offset = Visit(selectExpression.Offset, out _);
-        changed |= offset != selectExpression.Offset;
 
         var limit = Visit(selectExpression.Limit, out _);
-        changed |= limit != selectExpression.Limit;
 
-        return changed
-            ? selectExpression.Update(
-                projections, tables, predicate, groupBy, having, orderings, limit, offset)
-            : selectExpression;
+        return selectExpression.Update(projections, tables, predicate, groupBy, having, orderings, limit, offset);
     }
 
     /// <summary>

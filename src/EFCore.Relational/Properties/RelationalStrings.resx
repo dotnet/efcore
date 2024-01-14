@@ -1017,6 +1017,9 @@
   <data name="SetOperationOverDifferentStructuralTypes" xml:space="preserve">
     <value>Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').</value>
   </data>
+  <data name="SelectExpressionUpdateNotSupportedWhileMutable" xml:space="preserve">
+    <value>SelectExpression.Update() is not supported while the expression is in mutable state.</value>
+  </data>
   <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
     <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
   </data>
