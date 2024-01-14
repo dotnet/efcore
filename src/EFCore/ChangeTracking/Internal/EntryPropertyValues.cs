@@ -94,7 +94,7 @@ public abstract class EntryPropertyValues : PropertyValues
 
         foreach (var property in Properties)
         {
-            SetValueInternal(property, propertyValues[property.Name]);
+            SetValueInternal(property, propertyValues[property]);
         }
     }
 
@@ -107,7 +107,7 @@ public abstract class EntryPropertyValues : PropertyValues
     public override IReadOnlyList<IProperty> Properties
     {
         [DebuggerStepThrough]
-        get => _properties ??= EntityType.GetProperties().ToList();
+        get => _properties ??= EntityType.GetFlattenedProperties().ToList();
     }
 
     /// <summary>
