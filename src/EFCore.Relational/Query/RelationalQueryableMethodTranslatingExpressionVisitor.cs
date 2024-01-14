@@ -936,7 +936,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
         => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateGreatest(values, resultType, out var greatestExpression)
+            && _sqlExpressionFactory.TryCreateGreatest(values, resultType.UnwrapNullableType(), out var greatestExpression)
                 ? source.Update(_sqlExpressionFactory.Select(greatestExpression), source.ShaperExpression)
                 : TranslateAggregateWithSelector(
                     source, selector, t => QueryableMethods.MaxWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
@@ -944,7 +944,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMin(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
         => TryExtractBareInlineCollectionValues(source, out var values)
-            && _sqlExpressionFactory.TryCreateLeast(values, resultType, out var leastExpression)
+            && _sqlExpressionFactory.TryCreateLeast(values, resultType.UnwrapNullableType(), out var leastExpression)
                 ? source.Update(_sqlExpressionFactory.Select(leastExpression), source.ShaperExpression)
                 : TranslateAggregateWithSelector(
                     source, selector, t => QueryableMethods.MinWithoutSelector.MakeGenericMethod(t), throwWhenEmpty: true, resultType);
