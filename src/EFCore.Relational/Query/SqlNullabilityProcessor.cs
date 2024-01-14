@@ -77,7 +77,7 @@ public class SqlNullabilityProcessor
         var result = queryExpression switch
         {
             SelectExpression selectExpression => (Expression)Visit(selectExpression),
-            DeleteExpression deleteExpression => deleteExpression.Update(Visit(deleteExpression.SelectExpression)),
+            DeleteExpression deleteExpression => deleteExpression.Update(deleteExpression.Table, Visit(deleteExpression.SelectExpression)),
             UpdateExpression updateExpression => VisitUpdate(updateExpression),
             _ => throw new InvalidOperationException(),
         };

@@ -168,8 +168,6 @@ public class SqlAliasManager
 
     private sealed class TableAliasRewriter(IReadOnlyDictionary<string, string> aliasRewritingMap) : ExpressionVisitor
     {
-        private readonly HashSet<TableExpressionBase> _visitedTables = new(ReferenceEqualityComparer.Instance);
-
         internal static Expression Rewrite(Expression expression, IReadOnlyDictionary<string, string> aliasRewritingMap)
             => new TableAliasRewriter(aliasRewritingMap).Visit(expression);
 
@@ -182,20 +180,9 @@ public class SqlAliasManager
 
                 // Note that this skips joins (which wrap the table that has the actual alias), as well as the top-level select
                 case TableExpressionBase { Alias: string alias } table:
-                    // TODO: Needed only because TableExpressionBase is still mutable with regards to its alias - remove after that's gone.
-                    if (!_visitedTables.Add(table))
-                    {
-                        return table;
-                    }
-
                     if (aliasRewritingMap.TryGetValue(alias, out var newAlias))
                     {
-                        // TODO: TableExpressionBase is still mutable with regards to its alias - this needs to change.
-                        // TODO: This visitor needs to replace the table in the usual way; but we don't currently have a good way of
-                        // TODO: recreating a new TableExpressionBase implementation with a different alias.
-                        // TODO: Either add a mandatory, abstract non-destructive ChangeAlias to TableExpressionBase, or ideally,
-                        // TODO: refactor things to split the alias out of TableExpressionBase altogether.
-                        table.Alias = newAlias;
+                        table = table.WithAlias(newAlias);
                     }
 
                     return base.VisitExtension(table);

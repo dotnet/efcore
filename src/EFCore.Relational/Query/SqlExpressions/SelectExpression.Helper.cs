@@ -469,10 +469,9 @@ public sealed partial class SelectExpression
                     // Any non-column projection means some composition which cannot be removed
                     && selectExpression.Projection.All(e => e.Expression is ColumnExpression);
 
-                foreach (var kvp in selectExpression._tpcDiscriminatorValues)
+                foreach (var (tpcTablesExpression, (_, discriminatorValues)) in selectExpression._tpcDiscriminatorValues)
                 {
-                    var tpcTablesExpression = kvp.Key;
-                    var subSelectExpressions = tpcTablesExpression.Prune(kvp.Value.Item2).SelectExpressions;
+                    var subSelectExpressions = tpcTablesExpression.Prune(discriminatorValues).SelectExpressions;
                     var firstSelectExpression = subSelectExpressions[0]; // There will be at least one.
 
                     int[]? reindexingMap = null;
@@ -534,12 +533,15 @@ public sealed partial class SelectExpression
 
                     if (identitySelect)
                     {
-                        result.Alias = selectExpression.Alias;
                         if (selectExpression.Alias == null)
                         {
                             // If top-level them copy over bindings for shaper
                             result._projectionMapping = selectExpression._projectionMapping;
                             result._clientProjections = selectExpression._clientProjections;
+                        }
+                        else
+                        {
+                            result = result.WithAlias(selectExpression.Alias);
                         }
 
                         // Since identity select implies only 1 table so we can return without worrying about another iteration.
@@ -547,14 +549,12 @@ public sealed partial class SelectExpression
                         return result;
                     }
 
-                    {
-                        result.Alias = tpcTablesExpression.Alias;
-                        var tableIndex =
-                            selectExpression._tables.FindIndex(teb => ReferenceEquals(teb.UnwrapJoin(), tpcTablesExpression));
-                        var table = selectExpression._tables[tableIndex];
-                        selectExpression._tables[tableIndex] = (TableExpressionBase)ReplacingExpressionVisitor.Replace(
-                            tpcTablesExpression, result, table);
-                    }
+                    result = result.WithAlias(tpcTablesExpression.Alias);
+                    var tableIndex =
+                        selectExpression._tables.FindIndex(teb => ReferenceEquals(teb.UnwrapJoin(), tpcTablesExpression));
+                    var table = selectExpression._tables[tableIndex];
+                    selectExpression._tables[tableIndex] = (TableExpressionBase)ReplacingExpressionVisitor.Replace(
+                        tpcTablesExpression, result, table);
                 }
 
                 selectExpression._tpcDiscriminatorValues.Clear();

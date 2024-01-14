@@ -20,7 +20,7 @@ public abstract class JoinExpressionBase : TableExpressionBase
     /// <param name="table">A table source to join with.</param>
     /// <param name="prunable">Whether this join expression may be pruned if nothing references a column on it.</param>
     /// <param name="annotations">A collection of annotations associated with this expression.</param>
-    protected JoinExpressionBase(TableExpressionBase table, bool prunable, IEnumerable<IAnnotation>? annotations = null)
+    protected JoinExpressionBase(TableExpressionBase table, bool prunable, IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(alias: null, annotations)
     {
         Table = table;
@@ -51,6 +51,13 @@ public abstract class JoinExpressionBase : TableExpressionBase
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
         => (TableExpressionBase)VisitChildren(cloningExpressionVisitor);
+
+    /// <summary>
+    ///     The implementation of <see cref="WithAlias" /> for join expressions always throws, since the alias on joins is always
+    ///     <see langword="null" />. Set the alias on the enclosed table expression instead.
+    /// </summary>
+    public override TableExpressionBase WithAlias(string newAlias)
+        => throw new InvalidOperationException(RelationalStrings.CannotSetAliasOnJoin);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
