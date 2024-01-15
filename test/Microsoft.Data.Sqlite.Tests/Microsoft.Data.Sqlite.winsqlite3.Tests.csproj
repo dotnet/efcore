@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="2.1.7-pre20231117161811" />
+    <PackageReference Include="SQLitePCLRaw.bundle_winsqlite3" Version="2.1.7" />
   </ItemGroup>
 
 </Project>
