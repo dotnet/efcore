@@ -104,8 +104,8 @@ FROM (
     SELECT "a"."Id"
     FROM "Animals" AS "a"
     WHERE "a"."CountryId" = 1 AND "a"."Name" = 'Great spotted kiwi'
-) AS "t"
-WHERE "a0"."Id" = "t"."Id"
+) AS "s"
+WHERE "a0"."Id" = "s"."Id"
 """);
     }
 

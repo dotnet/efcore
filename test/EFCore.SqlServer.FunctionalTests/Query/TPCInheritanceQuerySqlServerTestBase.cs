@@ -73,19 +73,19 @@ ORDER BY [c].[Name], [c].[Id]
 
         AssertSql(
             """
-SELECT [t0].[Id], [t0].[CountryId], [t0].[Name], [t0].[Species], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
+SELECT [e0].[Id], [e0].[CountryId], [e0].[Name], [e0].[Species], [e0].[EagleId], [e0].[IsFlightless], [e0].[Group], [t].[Id], [t].[CountryId], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn], [t].[Discriminator]
 FROM (
     SELECT TOP(2) [e].[Id], [e].[CountryId], [e].[Name], [e].[Species], [e].[EagleId], [e].[IsFlightless], [e].[Group]
     FROM [Eagle] AS [e]
-) AS [t0]
+) AS [e0]
 LEFT JOIN (
-    SELECT [e0].[Id], [e0].[CountryId], [e0].[Name], [e0].[Species], [e0].[EagleId], [e0].[IsFlightless], [e0].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
-    FROM [Eagle] AS [e0]
+    SELECT [e1].[Id], [e1].[CountryId], [e1].[Name], [e1].[Species], [e1].[EagleId], [e1].[IsFlightless], [e1].[Group], NULL AS [FoundOn], N'Eagle' AS [Discriminator]
+    FROM [Eagle] AS [e1]
     UNION ALL
     SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
-) AS [t] ON [t0].[Id] = [t].[EagleId]
-ORDER BY [t0].[Id]
+) AS [t] ON [e0].[Id] = [t].[EagleId]
+ORDER BY [e0].[Id]
 """);
     }
 

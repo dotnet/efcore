@@ -827,12 +827,12 @@ public sealed partial class SelectExpression
                     var result = subSelectExpressions[0];
                     for (var i = 1; i < subSelectExpressions.Count; i++)
                     {
-                        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("t");
                         var source1 = result;
                         var source2 = subSelectExpressions[i];
                         RemapProjections(reindexingMap, source2);
                         var generatedSelectExpression = new SelectExpression(alias: null, _sqlAliasManager);
 
+                        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("union");
                         var unionExpression = new UnionExpression(setOperationAlias, source1, source2, distinct: false);
                         var tableReferenceExpression = new TableReferenceExpression(generatedSelectExpression, setOperationAlias);
                         generatedSelectExpression._tables.Add(unionExpression);

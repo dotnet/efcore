@@ -16,10 +16,10 @@ public class AdHocManyToManyQuerySqlServerTest : AdHocManyToManyQueryRelationalT
 
         AssertSql(
             """
-SELECT [u].[Id] AS [UserId], [t0].[Id] AS [OrgId]
+SELECT [u].[Id] AS [UserId], [s].[Id] AS [OrgId]
 FROM [Users] AS [u]
 CROSS JOIN (
-    SELECT [t].[Id]
+    SELECT [o1].[Id]
     FROM (
         SELECT 1 AS empty
     ) AS [e]
@@ -30,8 +30,8 @@ CROSS JOIN (
             SELECT 1
             FROM [OrganisationUser] AS [o0]
             WHERE [o].[Id] = [o0].[OrganisationId])
-    ) AS [t] ON 1 = 1
-) AS [t0]
+    ) AS [o1] ON 1 = 1
+) AS [s]
 """);
     }
 
@@ -51,21 +51,21 @@ WHERE [m].[Id] = @__p_0
             """
 @__p_0='1'
 
-SELECT [t].[Id], [m].[Id], [t].[Id0], [t0].[Id], [t0].[ManyM_Id], [t0].[ManyN_Id], [t0].[Id0]
+SELECT [s].[Id], [m].[Id], [s].[Id0], [s0].[Id], [s0].[ManyM_Id], [s0].[ManyN_Id], [s0].[Id0]
 FROM [ManyM_DB] AS [m]
 INNER JOIN (
     SELECT [m1].[Id], [m0].[Id] AS [Id0], [m0].[ManyM_Id]
     FROM [ManyMN_DB] AS [m0]
     LEFT JOIN [ManyN_DB] AS [m1] ON [m0].[ManyN_Id] = [m1].[Id]
-) AS [t] ON [m].[Id] = [t].[ManyM_Id]
+) AS [s] ON [m].[Id] = [s].[ManyM_Id]
 LEFT JOIN (
     SELECT [m2].[Id], [m2].[ManyM_Id], [m2].[ManyN_Id], [m3].[Id] AS [Id0]
     FROM [ManyMN_DB] AS [m2]
     INNER JOIN [ManyM_DB] AS [m3] ON [m2].[ManyM_Id] = [m3].[Id]
     WHERE [m3].[Id] = @__p_0
-) AS [t0] ON [t].[Id] = [t0].[ManyN_Id]
+) AS [s0] ON [s].[Id] = [s0].[ManyN_Id]
 WHERE [m].[Id] = @__p_0
-ORDER BY [m].[Id], [t].[Id0], [t].[Id], [t0].[Id]
+ORDER BY [m].[Id], [s].[Id0], [s].[Id], [s0].[Id]
 """,
             //
             """
@@ -79,21 +79,21 @@ WHERE [m].[Id] = @__p_0
             """
 @__p_0='1'
 
-SELECT [t].[Id], [m].[Id], [t].[Id0], [t0].[Id], [t0].[ManyM_Id], [t0].[ManyN_Id], [t0].[Id0]
+SELECT [s].[Id], [m].[Id], [s].[Id0], [s0].[Id], [s0].[ManyM_Id], [s0].[ManyN_Id], [s0].[Id0]
 FROM [ManyN_DB] AS [m]
 INNER JOIN (
     SELECT [m1].[Id], [m0].[Id] AS [Id0], [m0].[ManyN_Id]
     FROM [ManyMN_DB] AS [m0]
     INNER JOIN [ManyM_DB] AS [m1] ON [m0].[ManyM_Id] = [m1].[Id]
-) AS [t] ON [m].[Id] = [t].[ManyN_Id]
+) AS [s] ON [m].[Id] = [s].[ManyN_Id]
 LEFT JOIN (
     SELECT [m2].[Id], [m2].[ManyM_Id], [m2].[ManyN_Id], [m3].[Id] AS [Id0]
     FROM [ManyMN_DB] AS [m2]
     INNER JOIN [ManyN_DB] AS [m3] ON [m2].[ManyN_Id] = [m3].[Id]
     WHERE [m3].[Id] = @__p_0
-) AS [t0] ON [t].[Id] = [t0].[ManyM_Id]
+) AS [s0] ON [s].[Id] = [s0].[ManyM_Id]
 WHERE [m].[Id] = @__p_0
-ORDER BY [m].[Id], [t].[Id0], [t].[Id], [t0].[Id]
+ORDER BY [m].[Id], [s].[Id0], [s].[Id], [s0].[Id]
 """);
     }
 }

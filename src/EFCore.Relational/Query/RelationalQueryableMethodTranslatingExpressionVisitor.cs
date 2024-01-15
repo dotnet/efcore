@@ -200,10 +200,13 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
                         RelationalStrings.SqlQueryUnmappedType(sqlQueryRootExpression.ElementType.DisplayName()));
                 }
 
-                var alias = _sqlAliasManager.GenerateTableAlias("t");
                 var selectExpression = new SelectExpression(
                     _sqlAliasManager,
-                    new FromSqlExpression(alias, sqlQueryRootExpression.Sql, sqlQueryRootExpression.Argument), SqlQuerySingleColumnAlias,
+                    new FromSqlExpression(
+                        _sqlAliasManager.GenerateTableAlias("sql"),
+                        sqlQueryRootExpression.Sql,
+                        sqlQueryRootExpression.Argument),
+                    SqlQuerySingleColumnAlias,
                     sqlQueryRootExpression.Type, typeMapping);
 
                 Expression shaperExpression = new ProjectionBindingExpression(
@@ -287,25 +290,28 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor : Que
         // Attempt to translate access into a primitive collection property (i.e. array column)
         if (_sqlTranslator.TryBindMember(_sqlTranslator.Visit(source), member, out var translatedExpression, out var property)
             && property is IProperty { IsPrimitiveCollection: true } regularProperty
-            && translatedExpression is SqlExpression sqlExpression)
-        {
-            var tableAlias = sqlExpression switch
-            {
-                ColumnExpression c => c.Name,
-                JsonScalarExpression { Path: [.., { PropertyName: string propertyName }] } => propertyName,
-                _ => "j"
-            };
-
-            tableAlias = _sqlAliasManager.GenerateTableAlias(tableAlias);
-
-            if (TranslatePrimitiveCollection(sqlExpression, regularProperty, tableAlias) is
+            && translatedExpression is SqlExpression sqlExpression
+            && TranslatePrimitiveCollection(
+                    sqlExpression, regularProperty, _sqlAliasManager.GenerateTableAlias(GenerateTableAlias(sqlExpression))) is
                 { } primitiveCollectionTranslation)
-            {
-                return primitiveCollectionTranslation;
-            }
+        {
+            return primitiveCollectionTranslation;
         }
 
         return null;
+
+        string GenerateTableAlias(SqlExpression sqlExpression)
+            => sqlExpression switch
+            {
+                ColumnExpression c => c.Name,
+                JsonScalarExpression jsonScalar
+                    => jsonScalar.Path.LastOrDefault(s => s.PropertyName is not null) is PathSegment lastPropertyNameSegment
+                        ? lastPropertyNameSegment.PropertyName!
+                        : GenerateTableAlias(jsonScalar.Json),
+                ScalarSubqueryExpression scalarSubquery => scalarSubquery.Subquery.Projection[0].Alias,
+
+                _ => "collection"
+            };
     }
 
     /// <inheritdoc />

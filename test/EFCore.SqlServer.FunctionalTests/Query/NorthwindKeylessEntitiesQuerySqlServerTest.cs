@@ -260,7 +260,7 @@ FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
     ) AS [m]
     ORDER BY [m].[ContactTitle]
-) AS [t]
+) AS [m0]
 """);
     }
 
@@ -278,7 +278,7 @@ FROM (
     FROM (
         SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
     ) AS [m]
-) AS [t]
+) AS [m0]
 """);
     }
 

@@ -187,17 +187,17 @@ END
         await base.Query_filter_with_pk_fk_optimization();
 
         AssertSql(
-"""
+            """
 SELECT TOP(2) [e].[Id], CASE
-    WHEN [t].[Id] IS NULL THEN CAST(1 AS bit)
+    WHEN [r0].[Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END, [t].[Id], [t].[Public], [e].[RefEntityId]
+END, [r0].[Id], [r0].[Public], [e].[RefEntityId]
 FROM [Entities] AS [e]
 LEFT JOIN (
     SELECT [r].[Id], [r].[Public]
     FROM [RefEntities] AS [r]
     WHERE [r].[Public] = CAST(1 AS bit)
-) AS [t] ON [e].[RefEntityId] = [t].[Id]
+) AS [r0] ON [e].[RefEntityId] = [r0].[Id]
 WHERE [e].[Id] = 1
 """);
     }
@@ -298,27 +298,27 @@ SELECT (
     FROM (
         SELECT DISTINCT [c].[Value1]
         FROM (
-            SELECT [p0].[Child1Id], 1 AS [Key]
-            FROM [Parents] AS [p0]
-        ) AS [t0]
-        LEFT JOIN [Child1] AS [c] ON [t0].[Child1Id] = [c].[Id]
-        WHERE [t].[Key] = [t0].[Key]
-    ) AS [t1]) AS [Test1], (
+            SELECT [p2].[Child1Id], 1 AS [Key]
+            FROM [Parents] AS [p2]
+        ) AS [p1]
+        LEFT JOIN [Child1] AS [c] ON [p1].[Child1Id] = [c].[Id]
+        WHERE [p0].[Key] = [p1].[Key]
+    ) AS [s]) AS [Test1], (
     SELECT COUNT(*)
     FROM (
         SELECT DISTINCT [c0].[Value2]
         FROM (
-            SELECT [p1].[Child2Id], 1 AS [Key]
-            FROM [Parents] AS [p1]
-        ) AS [t2]
-        LEFT JOIN [Child2] AS [c0] ON [t2].[Child2Id] = [c0].[Id]
-        WHERE [t].[Key] = [t2].[Key]
-    ) AS [t3]) AS [Test2]
+            SELECT [p4].[Child2Id], 1 AS [Key]
+            FROM [Parents] AS [p4]
+        ) AS [p3]
+        LEFT JOIN [Child2] AS [c0] ON [p3].[Child2Id] = [c0].[Id]
+        WHERE [p0].[Key] = [p3].[Key]
+    ) AS [s0]) AS [Test2]
 FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]
-) AS [t]
-GROUP BY [t].[Key]
+) AS [p0]
+GROUP BY [p0].[Key]
 """);
     }
 
@@ -331,37 +331,37 @@ GROUP BY [t].[Key]
 SELECT (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [t1].[Value1]
+        SELECT DISTINCT [c0].[Value1]
         FROM (
-            SELECT [p0].[ChildFilter1Id], 1 AS [Key]
-            FROM [Parents] AS [p0]
-        ) AS [t0]
+            SELECT [p2].[ChildFilter1Id], 1 AS [Key]
+            FROM [Parents] AS [p2]
+        ) AS [p1]
         LEFT JOIN (
             SELECT [c].[Id], [c].[Value1]
             FROM [ChildFilter1] AS [c]
             WHERE [c].[Filter1] = N'Filter1'
-        ) AS [t1] ON [t0].[ChildFilter1Id] = [t1].[Id]
-        WHERE [t].[Key] = [t0].[Key]
-    ) AS [t2]) AS [Test1], (
+        ) AS [c0] ON [p1].[ChildFilter1Id] = [c0].[Id]
+        WHERE [p0].[Key] = [p1].[Key]
+    ) AS [s]) AS [Test1], (
     SELECT COUNT(*)
     FROM (
-        SELECT DISTINCT [t4].[Value2]
+        SELECT DISTINCT [c2].[Value2]
         FROM (
-            SELECT [p1].[ChildFilter2Id], 1 AS [Key]
-            FROM [Parents] AS [p1]
-        ) AS [t3]
+            SELECT [p4].[ChildFilter2Id], 1 AS [Key]
+            FROM [Parents] AS [p4]
+        ) AS [p3]
         LEFT JOIN (
-            SELECT [c0].[Id], [c0].[Value2]
-            FROM [ChildFilter2] AS [c0]
-            WHERE [c0].[Filter2] = N'Filter2'
-        ) AS [t4] ON [t3].[ChildFilter2Id] = [t4].[Id]
-        WHERE [t].[Key] = [t3].[Key]
-    ) AS [t5]) AS [Test2]
+            SELECT [c1].[Id], [c1].[Value2]
+            FROM [ChildFilter2] AS [c1]
+            WHERE [c1].[Filter2] = N'Filter2'
+        ) AS [c2] ON [p3].[ChildFilter2Id] = [c2].[Id]
+        WHERE [p0].[Key] = [p3].[Key]
+    ) AS [s0]) AS [Test2]
 FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]
-) AS [t]
-GROUP BY [t].[Key]
+) AS [p0]
+GROUP BY [p0].[Key]
 """);
     }
 
@@ -370,14 +370,14 @@ GROUP BY [t].[Key]
         await base.IsDeleted_query_filter_with_conversion_to_int_works(async);
 
         AssertSql(
-"""
-SELECT [s].[SupplierId], [s].[IsDeleted], [s].[LocationId], [s].[Name], [t].[LocationId], [t].[Address], [t].[IsDeleted]
+            """
+SELECT [s].[SupplierId], [s].[IsDeleted], [s].[LocationId], [s].[Name], [l0].[LocationId], [l0].[Address], [l0].[IsDeleted]
 FROM [Suppliers] AS [s]
 LEFT JOIN (
     SELECT [l].[LocationId], [l].[Address], [l].[IsDeleted]
     FROM [Locations] AS [l]
     WHERE [l].[IsDeleted] = 0
-) AS [t] ON [s].[LocationId] = [t].[LocationId]
+) AS [l0] ON [s].[LocationId] = [l0].[LocationId]
 WHERE [s].[IsDeleted] = 0
 ORDER BY [s].[Name]
 """);

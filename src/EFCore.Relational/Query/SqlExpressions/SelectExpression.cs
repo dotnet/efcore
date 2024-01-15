@@ -361,8 +361,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         selectExpression._mutable = false;
                     }
 
-                    // We only assign unique alias to Tpc
-                    var tableAlias = _sqlAliasManager.GenerateTableAlias("t");
+                    var tableAlias = _sqlAliasManager.GenerateTableAlias("table");
                     var tpcTables = new TpcTablesExpression(tableAlias, entityType, subSelectExpressions);
                     var tpcTableReference = new TableReferenceExpression(this, tableAlias);
                     _tables.Add(tpcTables);
@@ -1118,6 +1117,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 && (containsSingleResult || containsCollection))
             {
                 // SingleResult can lift collection from inner
+                // Note that we create a CloningExpressionVisitor without a SQL alias manager - this means that aliases won't get uniquified
+                // as expressions are being cloned. Since we're cloning here to get a completely separate (split) query, that makes sense
+                // as we don't want aliases to be unique across different queries (but in other contexts, when the cloned fragment gets
+                // integrated back into the same query (e.g. GroupBy) we do want to uniquify aliases).
                 cloningExpressionVisitor = new CloningExpressionVisitor(sqlAliasManager: null);
             }
 
@@ -2581,7 +2584,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.ProjectionMappingCountMismatch);
         }
 
-        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("t");
+        var setOperationAlias = _sqlAliasManager.GenerateTableAlias(setOperationType.ToString());
         var tableReferenceExpression = new TableReferenceExpression(this, setOperationAlias);
 
         foreach (var (projectionMember, expression1, expression2) in select1._projectionMapping.Join(
@@ -3969,7 +3972,10 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <param name="liftOrderings">Whether orderings on the query should be lifted out of the subquery.</param>
     private SqlRemappingVisitor PushdownIntoSubqueryInternal(bool liftOrderings = true)
     {
-        var subqueryAlias = _sqlAliasManager.GenerateTableAlias("t");
+        // If there's just one table in the select being pushed down, bubble up that table's name as the subquery's alias.
+        var subqueryAlias =
+            _sqlAliasManager.GenerateTableAlias(_tables is [{ Alias: string singleTableAlias }] ? singleTableAlias : "subquery");
+
         var subquery = new SelectExpression(
             subqueryAlias, [], _tables.ToList(), _tableReferences.ToList(), _groupBy.ToList(),
             _orderings.ToList(), GetAnnotations(), _sqlAliasManager)

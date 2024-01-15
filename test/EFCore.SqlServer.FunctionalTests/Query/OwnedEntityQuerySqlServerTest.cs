@@ -143,23 +143,23 @@ ORDER BY [u].[Id] DESC
     {
         var contextFactory = await InitializeAsync<Context22340>(seed: c => c.Seed());
         using var context = contextFactory.CreateContext();
-        var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault(); 
+        var masterTrunk = context.MasterTrunk.OrderBy(e => EF.Property<string>(e, "Id")).FirstOrDefault();
 
         Assert.NotNull(masterTrunk);
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [f0].[Amount], [f0].[Code], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id], [s0].[Amount], [s0].[Code]
+SELECT [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [f0].[Amount], [f0].[Code], [s0].[CurrencyBag22340MasterTrunk22340Id], [s0].[Id], [s0].[Amount], [s0].[Code]
 FROM (
     SELECT TOP(1) [m].[Id], [f].[MasterTrunk22340Id], [s].[MasterTrunk22340Id] AS [MasterTrunk22340Id0]
     FROM [MasterTrunk] AS [m]
     LEFT JOIN [FungibleBag] AS [f] ON [m].[Id] = [f].[MasterTrunk22340Id]
     LEFT JOIN [StaticBag] AS [s] ON [m].[Id] = [s].[MasterTrunk22340Id]
     ORDER BY [m].[Id]
-) AS [t]
-LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [t].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
-LEFT JOIN [StaticBag_Currencies] AS [s0] ON [t].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
-ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]
+) AS [s1]
+LEFT JOIN [FungibleBag_Currencies] AS [f0] ON [s1].[MasterTrunk22340Id] = [f0].[CurrencyBag22340MasterTrunk22340Id]
+LEFT JOIN [StaticBag_Currencies] AS [s0] ON [s1].[MasterTrunk22340Id0] = [s0].[CurrencyBag22340MasterTrunk22340Id]
+ORDER BY [s1].[Id], [s1].[MasterTrunk22340Id], [s1].[MasterTrunk22340Id0], [f0].[CurrencyBag22340MasterTrunk22340Id], [f0].[Id], [s0].[CurrencyBag22340MasterTrunk22340Id]
 """);
     }
 
@@ -258,16 +258,16 @@ ORDER BY [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id]
 """,
                 //
                 """
-SELECT [d].[Id], [d].[Owner23211Id], [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
+SELECT [d].[Id], [d].[Owner23211Id], [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 FROM (
     SELECT TOP(1) [o].[Id], [o0].[Owner23211Id], [o1].[Owner23211Id] AS [Owner23211Id0]
     FROM [Owner23211] AS [o]
     LEFT JOIN [Owned1_23211] AS [o0] ON [o].[Id] = [o0].[Owner23211Id]
     LEFT JOIN [Owned2_23211] AS [o1] ON [o].[Id] = [o1].[Owner23211Id]
     ORDER BY [o].[Id]
-) AS [t]
-INNER JOIN [Dependent23211] AS [d] ON [t].[Id] = [d].[Owner23211Id]
-ORDER BY [t].[Id], [t].[Owner23211Id], [t].[Owner23211Id0]
+) AS [s]
+INNER JOIN [Dependent23211] AS [d] ON [s].[Id] = [d].[Owner23211Id]
+ORDER BY [s].[Id], [s].[Owner23211Id], [s].[Owner23211Id0]
 """);
         }
 
@@ -290,15 +290,15 @@ ORDER BY [s].[Id], [o].[SecondOwner23211Id]
 """,
                 //
                 """
-SELECT [s0].[Id], [s0].[SecondOwner23211Id], [t].[Id], [t].[SecondOwner23211Id]
+SELECT [s0].[Id], [s0].[SecondOwner23211Id], [s1].[Id], [s1].[SecondOwner23211Id]
 FROM (
     SELECT TOP(1) [s].[Id], [o].[SecondOwner23211Id]
     FROM [SecondOwner23211] AS [s]
     LEFT JOIN [Owned23211] AS [o] ON [s].[Id] = [o].[SecondOwner23211Id]
     ORDER BY [s].[Id]
-) AS [t]
-INNER JOIN [SecondDependent23211] AS [s0] ON [t].[Id] = [s0].[SecondOwner23211Id]
-ORDER BY [t].[Id], [t].[SecondOwner23211Id]
+) AS [s1]
+INNER JOIN [SecondDependent23211] AS [s0] ON [s1].[Id] = [s0].[SecondOwner23211Id]
+ORDER BY [s1].[Id], [s1].[SecondOwner23211Id]
 """);
         }
     }
@@ -424,14 +424,14 @@ ORDER BY [p].[Id]
 
         AssertSql(
             """
-SELECT [t1].[Id], [t1].[FirstValueObject_Value], [t3].[Id], [t3].[AggregateId], [t3].[FourthValueObject_Value], [t3].[Id0], [t3].[AnyValue], [t3].[SecondValueObjectId], [t3].[Id1], [t3].[SecondValueObjectId0], [t3].[FourthValueObject_Value0], [t3].[Id00], [t3].[AnyValue0], [t3].[ThirdValueObjectId]
+SELECT [a0].[Id], [a0].[FirstValueObject_Value], [s2].[Id], [s2].[AggregateId], [s2].[FourthValueObject_Value], [s2].[Id0], [s2].[AnyValue], [s2].[SecondValueObjectId], [s2].[Id1], [s2].[SecondValueObjectId0], [s2].[FourthValueObject_Value0], [s2].[Id00], [s2].[AnyValue0], [s2].[ThirdValueObjectId]
 FROM (
     SELECT TOP(1) [a].[Id], [a].[FirstValueObject_Value]
     FROM [Aggregate] AS [a]
     ORDER BY [a].[Id] DESC
-) AS [t1]
+) AS [a0]
 LEFT JOIN (
-    SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [s0].[Id] AS [Id0], [s0].[AnyValue], [s0].[SecondValueObjectId], [t2].[Id] AS [Id1], [t2].[SecondValueObjectId] AS [SecondValueObjectId0], [t2].[FourthValueObject_Value] AS [FourthValueObject_Value0], [t2].[Id0] AS [Id00], [t2].[AnyValue] AS [AnyValue0], [t2].[ThirdValueObjectId]
+    SELECT [s].[Id], [s].[AggregateId], [s].[FourthValueObject_Value], [s0].[Id] AS [Id0], [s0].[AnyValue], [s0].[SecondValueObjectId], [s1].[Id] AS [Id1], [s1].[SecondValueObjectId] AS [SecondValueObjectId0], [s1].[FourthValueObject_Value] AS [FourthValueObject_Value0], [s1].[Id0] AS [Id00], [s1].[AnyValue] AS [AnyValue0], [s1].[ThirdValueObjectId]
     FROM [SecondValueObject] AS [s]
     LEFT JOIN [SecondValueObject_FifthValueObjects] AS [s0] ON CASE
         WHEN [s].[FourthValueObject_Value] IS NOT NULL THEN [s].[Id]
@@ -442,11 +442,11 @@ LEFT JOIN (
         LEFT JOIN [ThirdValueObject_FifthValueObjects] AS [t0] ON CASE
             WHEN [t].[FourthValueObject_Value] IS NOT NULL THEN [t].[Id]
         END = [t0].[ThirdValueObjectId]
-    ) AS [t2] ON [s].[Id] = [t2].[SecondValueObjectId]
-) AS [t3] ON CASE
-    WHEN [t1].[FirstValueObject_Value] IS NOT NULL THEN [t1].[Id]
-END = [t3].[AggregateId]
-ORDER BY [t1].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1]
+    ) AS [s1] ON [s].[Id] = [s1].[SecondValueObjectId]
+) AS [s2] ON CASE
+    WHEN [a0].[FirstValueObject_Value] IS NOT NULL THEN [a0].[Id]
+END = [s2].[AggregateId]
+ORDER BY [a0].[Id] DESC, [s2].[Id], [s2].[Id0], [s2].[Id1]
 """);
     }
 
@@ -456,26 +456,26 @@ ORDER BY [t1].[Id] DESC, [t3].[Id], [t3].[Id0], [t3].[Id1]
 
         AssertSql(
             """
-SELECT [e].[Id], [t0].[Id], [t0].[EntityId], [t0].[Owned_IsDeleted], [t0].[Owned_Value], [t0].[Type], [t0].[c], [t2].[Id], [t2].[EntityId], [t2].[Owned_IsDeleted], [t2].[Owned_Value], [t2].[Type], [t2].[c]
+SELECT [e].[Id], [c2].[Id], [c2].[EntityId], [c2].[Owned_IsDeleted], [c2].[Owned_Value], [c2].[Type], [c2].[c], [c4].[Id], [c4].[EntityId], [c4].[Owned_IsDeleted], [c4].[Owned_Value], [c4].[Type], [c4].[c]
 FROM [Entities] AS [e]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[EntityId], [t].[Owned_IsDeleted], [t].[Owned_Value], [t].[Type], [t].[c]
+    SELECT [c1].[Id], [c1].[EntityId], [c1].[Owned_IsDeleted], [c1].[Owned_Value], [c1].[Type], [c1].[c]
     FROM (
         SELECT [c].[Id], [c].[EntityId], [c].[Owned_IsDeleted], [c].[Owned_Value], [c].[Type], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [c].[EntityId] ORDER BY [c].[EntityId], [c].[Id]) AS [row]
         FROM [Child] AS [c]
         WHERE [c].[Type] = 1
-    ) AS [t]
-    WHERE [t].[row] <= 1
-) AS [t0] ON [e].[Id] = [t0].[EntityId]
+    ) AS [c1]
+    WHERE [c1].[row] <= 1
+) AS [c2] ON [e].[Id] = [c2].[EntityId]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[EntityId], [t1].[Owned_IsDeleted], [t1].[Owned_Value], [t1].[Type], [t1].[c]
+    SELECT [c3].[Id], [c3].[EntityId], [c3].[Owned_IsDeleted], [c3].[Owned_Value], [c3].[Type], [c3].[c]
     FROM (
         SELECT [c0].[Id], [c0].[EntityId], [c0].[Owned_IsDeleted], [c0].[Owned_Value], [c0].[Type], 1 AS [c], ROW_NUMBER() OVER(PARTITION BY [c0].[EntityId] ORDER BY [c0].[EntityId], [c0].[Id]) AS [row]
         FROM [Child] AS [c0]
         WHERE [c0].[Type] = 2
-    ) AS [t1]
-    WHERE [t1].[row] <= 1
-) AS [t2] ON [e].[Id] = [t2].[EntityId]
+    ) AS [c3]
+    WHERE [c3].[row] <= 1
+) AS [c4] ON [e].[Id] = [c4].[EntityId]
 """);
     }
 
@@ -484,8 +484,8 @@ LEFT JOIN (
         await base.Can_auto_include_navigation_from_model();
 
         AssertSql(
-"""
-SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [t].[Id], [t].[ParentId], [t].[OtherSideId]
+            """
+SELECT [p].[Id], [r].[Id], [c].[Id], [c].[ParentId], [p].[OwnedReference_Id], [r].[ParentId], [s].[Id], [s].[ParentId], [s].[OtherSideId]
 FROM [Parents] AS [p]
 LEFT JOIN [Reference] AS [r] ON [p].[Id] = [r].[ParentId]
 LEFT JOIN [Collection] AS [c] ON [p].[Id] = [c].[ParentId]
@@ -493,11 +493,11 @@ LEFT JOIN (
     SELECT [o].[Id], [j].[ParentId], [j].[OtherSideId]
     FROM [JoinEntity] AS [j]
     INNER JOIN [OtherSide] AS [o] ON [j].[OtherSideId] = [o].[Id]
-) AS [t] ON [p].[Id] = [t].[ParentId]
-ORDER BY [p].[Id], [r].[Id], [c].[Id], [t].[ParentId], [t].[OtherSideId]
+) AS [s] ON [p].[Id] = [s].[ParentId]
+ORDER BY [p].[Id], [r].[Id], [c].[Id], [s].[ParentId], [s].[OtherSideId]
 """,
-                //
-                """
+            //
+            """
 SELECT [p].[Id], [p].[OwnedReference_Id]
 FROM [Parents] AS [p]
 """);
@@ -529,16 +529,16 @@ ORDER BY [r].[Id], [m].[Id], [m0].[Id]
 """,
             //
             """
-SELECT [l0].[ModdleAId], [l0].[UnitThreshold], [t].[Id], [t].[Id0], [t].[Id1]
+SELECT [l0].[ModdleAId], [l0].[UnitThreshold], [s].[Id], [s].[Id0], [s].[Id1]
 FROM (
     SELECT TOP(1) [r].[Id], [m].[Id] AS [Id0], [m0].[Id] AS [Id1]
     FROM [Root] AS [r]
     LEFT JOIN [MiddleB] AS [m] ON [r].[Id] = [m].[RootId]
     LEFT JOIN [ModdleA] AS [m0] ON [r].[Id] = [m0].[RootId]
     WHERE [r].[Id] = 3
-) AS [t]
-INNER JOIN [Leaf] AS [l0] ON [t].[Id1] = [l0].[ModdleAId]
-ORDER BY [t].[Id], [t].[Id0], [t].[Id1]
+) AS [s]
+INNER JOIN [Leaf] AS [l0] ON [s].[Id1] = [l0].[ModdleAId]
+ORDER BY [s].[Id], [s].[Id0], [s].[Id1]
 """);
     }
 
@@ -576,17 +576,17 @@ ORDER BY [w].[Id], [w0].[WarehouseCode]
         await base.Accessing_scalar_property_in_derived_type_projection_does_not_load_owned_navigations();
 
         AssertSql(
-"""
-SELECT [t0].[Id], [t0].[OtherEntityData]
+            """
+SELECT [o1].[Id], [o1].[OtherEntityData]
 FROM [BaseEntities] AS [b]
 LEFT JOIN (
-    SELECT [t].[Id], [t].[OtherEntityData]
+    SELECT [o0].[Id], [o0].[OtherEntityData]
     FROM (
         SELECT [o].[Id], [o].[OtherEntityData], ROW_NUMBER() OVER(PARTITION BY [o].[OtherEntityData] ORDER BY [o].[Id]) AS [row]
         FROM [OtherEntities] AS [o]
-    ) AS [t]
-    WHERE [t].[row] <= 1
-) AS [t0] ON [b].[Data] = [t0].[OtherEntityData]
+    ) AS [o0]
+    WHERE [o0].[row] <= 1
+) AS [o1] ON [b].[Data] = [o1].[OtherEntityData]
 """);
     }
 
@@ -710,15 +710,15 @@ FROM [RotRutCases] AS [r]
         await base.Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(async);
 
         AssertSql(
-"""
-SELECT [m].[Id], [m].[Name], [m].[RulerOf], [t].[Id], [t].[Affiliation], [t].[Name], [t].[MagusId], [t].[Name0]
+            """
+SELECT [m].[Id], [m].[Name], [m].[RulerOf], [m1].[Id], [m1].[Affiliation], [m1].[Name], [m1].[MagusId], [m1].[Name0]
 FROM [Monarchs] AS [m]
 INNER JOIN (
-    SELECT [m0].[Id], [m0].[Affiliation], [m0].[Name], [m1].[MagusId], [m1].[Name] AS [Name0]
+    SELECT [m0].[Id], [m0].[Affiliation], [m0].[Name], [m2].[MagusId], [m2].[Name] AS [Name0]
     FROM [Magi] AS [m0]
-    LEFT JOIN [MagicTools] AS [m1] ON [m0].[Id] = [m1].[MagusId]
+    LEFT JOIN [MagicTools] AS [m2] ON [m0].[Id] = [m2].[MagusId]
     WHERE [m0].[Name] LIKE N'%Bayaz%'
-) AS [t] ON [m].[RulerOf] = [t].[Affiliation]
+) AS [m1] ON [m].[RulerOf] = [m1].[Affiliation]
 """);
     }
 }

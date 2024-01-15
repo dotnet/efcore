@@ -80,8 +80,8 @@ WHERE EXISTS (
     FROM (
         SELECT "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
-    ) AS "t"
-    WHERE "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' = 'e1_r_c1_r')
+    ) AS "o0"
+    WHERE "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' = 'e1_r_c1_r')
 """);
     }
 
@@ -94,13 +94,13 @@ WHERE EXISTS (
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
-    SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething'
+    SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething'
     FROM (
         SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
         FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
-    ) AS "t"
-    WHERE "t"."Enum" = -3
-    ORDER BY "t"."key"
+    ) AS "o0"
+    WHERE "o0"."Enum" = -3
+    ORDER BY "o0"."key"
     LIMIT 1 OFFSET 0) = 'e1_r_c2_r'
 """);
     }
@@ -114,17 +114,17 @@ WHERE (
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
-    SELECT "t0"."c"
+    SELECT "o1"."c"
     FROM (
-        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "t"."key" AS "key0"
+        SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "o0"."key" AS "key0"
         FROM (
             SELECT "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf", "o"."key"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
-        ) AS "t"
-        ORDER BY "t"."key"
+        ) AS "o0"
+        ORDER BY "o0"."key"
         LIMIT -1 OFFSET 1
-    ) AS "t0"
-    ORDER BY "t0"."key0"
+    ) AS "o1"
+    ORDER BY "o1"."key0"
     LIMIT 1 OFFSET 0) = 'e1_r_c2_r'
 """);
     }
@@ -138,17 +138,17 @@ WHERE (
 SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
 FROM "JsonEntitiesBasic" AS "j"
 WHERE (
-    SELECT "t0"."c"
+    SELECT "o1"."c"
     FROM (
-        SELECT "t"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "t"."Date" AS "c0"
+        SELECT "o0"."OwnedReferenceLeaf" ->> 'SomethingSomething' AS "c", "o0"."Date" AS "c0"
         FROM (
             SELECT "o"."value" ->> 'Date' AS "Date", "o"."value" ->> 'Enum' AS "Enum", "o"."value" ->> 'Fraction' AS "Fraction", "o"."value" ->> 'OwnedReferenceLeaf' AS "OwnedReferenceLeaf"
             FROM json_each("j"."OwnedReferenceRoot", '$.OwnedCollectionBranch') AS "o"
-        ) AS "t"
-        ORDER BY "t"."Date" DESC
+        ) AS "o0"
+        ORDER BY "o0"."Date" DESC
         LIMIT -1 OFFSET 1
-    ) AS "t0"
-    ORDER BY "t0"."c0" DESC
+    ) AS "o1"
+    ORDER BY "o1"."c0" DESC
     LIMIT 1 OFFSET 0) = 'e1_r_c1_r'
 """);
     }
@@ -166,13 +166,13 @@ WHERE EXISTS (
     FROM (
         SELECT "o"."value" ->> 'OwnedCollectionBranch' AS "OwnedCollectionBranch"
         FROM json_each("j"."OwnedCollectionRoot", '$') AS "o"
-    ) AS "t"
+    ) AS "o0"
     WHERE (
         SELECT COUNT(*)
         FROM (
             SELECT 1
-            FROM json_each("t"."OwnedCollectionBranch", '$') AS "o0"
-        ) AS "t0") = 2)
+            FROM json_each("o0"."OwnedCollectionBranch", '$') AS "o1"
+        ) AS "o2") = 2)
 """);
     }
 

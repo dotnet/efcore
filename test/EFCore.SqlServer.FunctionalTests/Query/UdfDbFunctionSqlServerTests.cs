@@ -677,13 +677,13 @@ ORDER BY [c].[Id]
 
         AssertSql(
             """
-SELECT [c].[Id], [t].[OrderId], [t].[CustomerId], [t].[OrderDate]
+SELECT [c].[Id], [g0].[OrderId], [g0].[CustomerId], [g0].[OrderDate]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [g].[OrderId], [g].[CustomerId], [g].[OrderDate]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     WHERE DATEPART(day, [g].[OrderDate]) = 21
-) AS [t]
+) AS [g0]
 ORDER BY [c].[Id]
 """);
     }
@@ -700,7 +700,7 @@ INNER JOIN (
     SELECT [g].[OrderId]
     FROM [Customers] AS [c]
     CROSS APPLY [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
-) AS [t] ON [o].[Id] = [t].[OrderId]
+) AS [s] ON [o].[Id] = [s].[OrderId]
 """);
     }
 
@@ -876,14 +876,14 @@ WHERE [c].[Id] = @__custId_1
 
         AssertSql(
             """
-SELECT [c].[Id], [t].[CustomerName], [t].[OrderId], [t].[Id]
+SELECT [c].[Id], [s].[CustomerName], [s].[OrderId], [s].[Id]
 FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT [c0].[LastName] AS [CustomerName], [g].[OrderId], [c0].[Id]
     FROM [dbo].[GetOrdersWithMultipleProducts]([c].[Id]) AS [g]
     INNER JOIN [Customers] AS [c0] ON [g].[CustomerId] = [c0].[Id]
-) AS [t]
-ORDER BY [c].[Id], [t].[OrderId]
+) AS [s]
+ORDER BY [c].[Id], [s].[OrderId]
 """);
     }
 

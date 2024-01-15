@@ -866,7 +866,7 @@ WHERE (
         FROM OPENJSON([p].[Ints]) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t]) = 2
+    ) AS [i0]) = 2
 """);
     }
 
@@ -946,7 +946,7 @@ WHERE (
     FROM (
         SELECT DISTINCT [i].[value]
         FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
-    ) AS [t]) = 3
+    ) AS [i0]) = 3
 """);
     }
 
@@ -1024,7 +1024,7 @@ WHERE (
         UNION ALL
         SELECT 1 AS empty
         FROM OPENJSON([p].[Ints]) AS [i0]
-    ) AS [t]) = 2
+    ) AS [u]) = 2
 """);
     }
 
@@ -1046,7 +1046,7 @@ WHERE (
         UNION
         SELECT [i0].[value]
         FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i0]
-    ) AS [t]) = 2
+    ) AS [u]) = 2
 """);
     }
 
@@ -1066,7 +1066,7 @@ WHERE (
         INTERSECT
         SELECT [v].[Value] AS [value]
         FROM (VALUES (CAST(11 AS int)), (111)) AS [v]([Value])
-    ) AS [t]) = 2
+    ) AS [i0]) = 2
 """);
     }
 
@@ -1086,8 +1086,8 @@ WHERE (
         EXCEPT
         SELECT [i].[value] AS [Value]
         FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
-    ) AS [t]
-    WHERE [t].[Value] % 2 = 1) = 2
+    ) AS [e]
+    WHERE [e].[Value] % 2 = 1) = 2
 """);
     }
 
@@ -1144,17 +1144,17 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [t].[value]
+        SELECT [i1].[value]
         FROM (
             SELECT CAST([i].[value] AS int) AS [value]
             FROM OPENJSON(@__ints) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS
-        ) AS [t]
+        ) AS [i1]
         UNION
         SELECT [i0].[value]
         FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i0]
-    ) AS [t0]) = 3
+    ) AS [u]) = 3
 """);
     }
 
@@ -1176,7 +1176,7 @@ WHERE (
         UNION
         SELECT [i].[value]
         FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
-    ) AS [t]) = 3
+    ) AS [u]) = 3
 """);
     }
 
@@ -1196,21 +1196,21 @@ WHERE (
         SELECT [s].[value]
         FROM OPENJSON(@__Skip_0) WITH ([value] int '$') AS [s]
         UNION
-        SELECT [t1].[value]
+        SELECT [i2].[value]
         FROM (
-            SELECT TOP(20) [t0].[value]
+            SELECT TOP(20) [i1].[value]
             FROM (
-                SELECT DISTINCT [t].[value]
+                SELECT DISTINCT [i0].[value]
                 FROM (
                     SELECT [i].[value]
                     FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
                     ORDER BY [i].[value]
                     OFFSET 1 ROWS
-                ) AS [t]
-            ) AS [t0]
-            ORDER BY [t0].[value] DESC
-        ) AS [t1]
-    ) AS [t2]) = 3
+                ) AS [i0]
+            ) AS [i1]
+            ORDER BY [i1].[value] DESC
+        ) AS [i2]
+    ) AS [u]) = 3
 """);
     }
 
@@ -1239,8 +1239,8 @@ WHERE (
         FROM OPENJSON(@__ints) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t]
-    WHERE [t].[value0] > [p].[Id]) = 1
+    ) AS [i0]
+    WHERE [i0].[value0] > [p].[Id]) = 1
 """);
     }
 
@@ -1264,17 +1264,17 @@ FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT [t].[value]
+        SELECT [i1].[value]
         FROM (
             SELECT CAST([i].[value] AS int) AS [value]
             FROM OPENJSON([p].[Ints]) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS
-        ) AS [t]
+        ) AS [i1]
         UNION
         SELECT [i0].[value]
         FROM OPENJSON(@__ints_0) WITH ([value] int '$') AS [i0]
-    ) AS [t0]) = 3
+    ) AS [u]) = 3
 """);
     }
 
@@ -1309,14 +1309,14 @@ ORDER BY [p].[Id], CAST([i].[value] AS int) DESC
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value], [t].[key]
+SELECT [p].[Id], [d0].[value], [d0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([d].[value] AS datetime2) AS [value], [d].[key], CAST([d].[key] AS int) AS [c]
     FROM OPENJSON([p].[DateTimes]) AS [d]
     WHERE DATEPART(day, CAST([d].[value] AS datetime2)) <> 1
-) AS [t]
-ORDER BY [p].[Id], [t].[c]
+) AS [d0]
+ORDER BY [p].[Id], [d0].[c]
 """);
     }
 
@@ -1326,14 +1326,14 @@ ORDER BY [p].[Id], [t].[c]
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value], [t].[key]
+SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT TOP(20) CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
     FROM OPENJSON([p].[NullableInts]) AS [n]
     ORDER BY CAST([n].[key] AS int)
-) AS [t]
-ORDER BY [p].[Id], [t].[c]
+) AS [n0]
+ORDER BY [p].[Id], [n0].[c]
 """);
     }
 
@@ -1343,15 +1343,15 @@ ORDER BY [p].[Id], [t].[c]
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value], [t].[key]
+SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key]
     FROM OPENJSON([p].[NullableInts]) AS [n]
     ORDER BY CAST([n].[value] AS int)
     OFFSET 1 ROWS
-) AS [t]
-ORDER BY [p].[Id], [t].[value]
+) AS [n0]
+ORDER BY [p].[Id], [n0].[value]
 """);
     }
 
@@ -1361,15 +1361,15 @@ ORDER BY [p].[Id], [t].[value]
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value], [t].[key]
+SELECT [p].[Id], [n0].[value], [n0].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
     FROM OPENJSON([p].[NullableInts]) AS [n]
     ORDER BY CAST([n].[key] AS int)
     OFFSET 2 ROWS
-) AS [t]
-ORDER BY [p].[Id], [t].[c]
+) AS [n0]
+ORDER BY [p].[Id], [n0].[c]
 """);
     }
 
@@ -1379,12 +1379,12 @@ ORDER BY [p].[Id], [t].[c]
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value]
+SELECT [p].[Id], [i0].[value]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT DISTINCT [i].[value]
     FROM OPENJSON([p].[Ints]) WITH ([value] int '$') AS [i]
-) AS [t]
+) AS [i0]
 ORDER BY [p].[Id]
 """);
     }
@@ -1402,14 +1402,14 @@ ORDER BY [p].[Id]
 
         AssertSql(
             """
-SELECT [t].[Id], CAST([i].[value] AS int) AS [value], [i].[key]
+SELECT [p0].[Id], CAST([i].[value] AS int) AS [value], [i].[key]
 FROM (
     SELECT TOP(1) [p].[Id], [p].[Ints]
     FROM [PrimitiveCollectionsEntity] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-OUTER APPLY OPENJSON([t].[Ints]) AS [i]
-ORDER BY [t].[Id], CAST([i].[key] AS int)
+) AS [p0]
+OUTER APPLY OPENJSON([p0].[Ints]) AS [i]
+ORDER BY [p0].[Id], CAST([i].[key] AS int)
 """);
     }
 
@@ -1419,19 +1419,19 @@ ORDER BY [t].[Id], CAST([i].[key] AS int)
 
         AssertSql(
             """
-SELECT [p].[Id], [t].[value], [t].[key], [t0].[value], [t0].[key]
+SELECT [p].[Id], [n1].[value], [n1].[key], [n2].[value], [n2].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY (
     SELECT CAST([n].[value] AS int) AS [value], [n].[key], CAST([n].[key] AS int) AS [c]
     FROM OPENJSON([p].[NullableInts]) AS [n]
     WHERE 0 = 1
-) AS [t]
+) AS [n1]
 OUTER APPLY (
     SELECT CAST([n0].[value] AS int) AS [value], [n0].[key], CAST([n0].[key] AS int) AS [c]
     FROM OPENJSON([p].[NullableInts]) AS [n0]
     WHERE [n0].[value] IS NULL
-) AS [t0]
-ORDER BY [p].[Id], [t].[c], [t].[key], [t0].[c]
+) AS [n2]
+ORDER BY [p].[Id], [n1].[c], [n1].[key], [n2].[c]
 """);
     }
 
@@ -1441,7 +1441,7 @@ ORDER BY [p].[Id], [t].[c], [t].[key], [t0].[c]
 
         AssertSql(
             """
-SELECT [p].[Id], CAST([i].[value] AS int) AS [value], [i].[key], CAST([i0].[value] AS int) AS [value], [i0].[key], [t].[value], [t].[key], [t0].[value], [t0].[key]
+SELECT [p].[Id], CAST([i].[value] AS int) AS [value], [i].[key], CAST([i0].[value] AS int) AS [value], [i0].[key], [d1].[value], [d1].[key], [d2].[value], [d2].[key]
 FROM [PrimitiveCollectionsEntity] AS [p]
 OUTER APPLY OPENJSON([p].[Ints]) AS [i]
 OUTER APPLY OPENJSON([p].[Ints]) AS [i0]
@@ -1449,13 +1449,13 @@ OUTER APPLY (
     SELECT CAST([d].[value] AS datetime2) AS [value], [d].[key], CAST([d].[key] AS int) AS [c]
     FROM OPENJSON([p].[DateTimes]) AS [d]
     WHERE DATEPART(day, CAST([d].[value] AS datetime2)) <> 1
-) AS [t]
+) AS [d1]
 OUTER APPLY (
     SELECT CAST([d0].[value] AS datetime2) AS [value], [d0].[key], CAST([d0].[key] AS int) AS [c]
     FROM OPENJSON([p].[DateTimes]) AS [d0]
     WHERE CAST([d0].[value] AS datetime2) > '2000-01-01T00:00:00.0000000'
-) AS [t0]
-ORDER BY [p].[Id], CAST([i].[key] AS int), [i].[key], CAST([i0].[value] AS int) DESC, [i0].[key], [t].[c], [t].[key], [t0].[c]
+) AS [d2]
+ORDER BY [p].[Id], CAST([i].[key] AS int), [i].[key], CAST([i0].[value] AS int) DESC, [i0].[key], [d1].[c], [d1].[key], [d2].[c]
 """);
     }
 

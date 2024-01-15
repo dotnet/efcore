@@ -933,14 +933,14 @@ GROUP BY "c"."City"
 
         AssertSql(
             """
-SELECT "t"."City", "c0"."CustomerID"
+SELECT "c1"."City", "c0"."CustomerID"
 FROM (
     SELECT "c"."City"
     FROM "Customers" AS "c"
     GROUP BY "c"."City"
-) AS "t"
-LEFT JOIN "Customers" AS "c0" ON "t"."City" = "c0"."City"
-ORDER BY "t"."City", "c0"."CustomerID" DESC
+) AS "c1"
+LEFT JOIN "Customers" AS "c0" ON "c1"."City" = "c0"."City"
+ORDER BY "c1"."City", "c0"."CustomerID" DESC
 """);
     }
 

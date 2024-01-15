@@ -343,18 +343,18 @@ WHERE [p].[Genus] = 0
 
         AssertSql(
             """
-SELECT [t].[Id], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t0].[Id], [t0].[CountryId], [t0].[Discriminator], [t0].[Name], [t0].[Species], [t0].[EagleId], [t0].[IsFlightless], [t0].[Group], [t0].[FoundOn]
+SELECT [a1].[Id], [a1].[CountryId], [a1].[Discriminator], [a1].[Name], [a1].[Species], [a1].[EagleId], [a1].[IsFlightless], [a1].[Group], [a2].[Id], [a2].[CountryId], [a2].[Discriminator], [a2].[Name], [a2].[Species], [a2].[EagleId], [a2].[IsFlightless], [a2].[Group], [a2].[FoundOn]
 FROM (
     SELECT TOP(2) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] = N'Eagle'
-) AS [t]
+) AS [a1]
 LEFT JOIN (
     SELECT [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
     FROM [Animals] AS [a0]
     WHERE [a0].[Discriminator] IN (N'Eagle', N'Kiwi')
-) AS [t0] ON [t].[Id] = [t0].[EagleId]
-ORDER BY [t].[Id]
+) AS [a2] ON [a1].[Id] = [a2].[EagleId]
+ORDER BY [a1].[Id]
 """);
     }
 
@@ -364,13 +364,13 @@ ORDER BY [t].[Id]
 
         AssertSql(
             """
-SELECT [c].[Id], [c].[Name], [t].[Id], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[Group], [t].[FoundOn]
+SELECT [c].[Id], [c].[Name], [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[Group], [a0].[FoundOn]
 FROM [Countries] AS [c]
 LEFT JOIN (
     SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
-) AS [t] ON [c].[Id] = [t].[CountryId]
+) AS [a0] ON [c].[Id] = [a0].[CountryId]
 ORDER BY [c].[Name], [c].[Id]
 """);
     }
@@ -508,14 +508,14 @@ WHERE ([t].[FoundOn] = CAST(0 AS tinyint)) AND [t].[FoundOn] IS NOT NULL
             """
 @__p_0='5'
 
-SELECT DISTINCT [t].[Id], [t].[CountryId], [t].[Discriminator], [t].[Name], [t].[Species], [t].[EagleId], [t].[IsFlightless], [t].[FoundOn]
+SELECT DISTINCT [a0].[Id], [a0].[CountryId], [a0].[Discriminator], [a0].[Name], [a0].[Species], [a0].[EagleId], [a0].[IsFlightless], [a0].[FoundOn]
 FROM (
     SELECT TOP(@__p_0) [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
     FROM [Animals] AS [a]
     WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
     ORDER BY [a].[Species]
-) AS [t]
-WHERE [t].[Discriminator] = N'Kiwi'
+) AS [a0]
+WHERE [a0].[Discriminator] = N'Kiwi'
 """);
     }
 

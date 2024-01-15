@@ -212,25 +212,25 @@ ORDER BY [p].[Id]
 """,
             //
             """
-SELECT [c].[Id], [c].[ParentId], [t].[Id]
+SELECT [c].[Id], [c].[ParentId], [p0].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [Child] AS [c] ON [t].[Id] = [c].[ParentId]
-ORDER BY [t].[Id]
+) AS [p0]
+INNER JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
 """,
             //
             """
-SELECT [a].[Id], [a].[ParentId], [t0].[Id]
+SELECT [a].[Id], [a].[ParentId], [p1].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t0]
-INNER JOIN [AnotherChild] AS [a] ON [t0].[Id] = [a].[ParentId]
-ORDER BY [t0].[Id]
+) AS [p1]
+INNER JOIN [AnotherChild] AS [a] ON [p1].[Id] = [a].[ParentId]
+ORDER BY [p1].[Id]
 """,
             //
             """
@@ -240,25 +240,25 @@ ORDER BY [p].[Id]
 """,
             //
             """
-SELECT [c].[Id], [c].[ParentId], [t].[Id]
+SELECT [c].[Id], [c].[ParentId], [p0].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t]
-INNER JOIN [Child] AS [c] ON [t].[Id] = [c].[ParentId]
-ORDER BY [t].[Id]
+) AS [p0]
+INNER JOIN [Child] AS [c] ON [p0].[Id] = [c].[ParentId]
+ORDER BY [p0].[Id]
 """,
             //
             """
-SELECT [a].[Id], [a].[ParentId], [t0].[Id]
+SELECT [a].[Id], [a].[ParentId], [p1].[Id]
 FROM (
     SELECT TOP(1) [p].[Id]
     FROM [Parents] AS [p]
     ORDER BY [p].[Id]
-) AS [t0]
-INNER JOIN [AnotherChild] AS [a] ON [t0].[Id] = [a].[ParentId]
-ORDER BY [t0].[Id]
+) AS [p1]
+INNER JOIN [AnotherChild] AS [a] ON [p1].[Id] = [a].[ParentId]
+ORDER BY [p1].[Id]
 """);
     }
 
