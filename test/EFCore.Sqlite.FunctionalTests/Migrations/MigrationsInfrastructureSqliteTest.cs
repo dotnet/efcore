@@ -102,6 +102,33 @@ VALUES ('00000000000005_Migration5', '7.0.0-test');
 
 COMMIT;
 
+BEGIN TRANSACTION;
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+Value With
+
+GO
+
+Empty Lines
+GO')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
+
+COMMIT;
+
 
 """,
                 Sql,
@@ -145,6 +172,25 @@ Empty Lines')
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
 VALUES ('00000000000005_Migration5', '7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', 'GO
+Value With
+
+Empty Lines')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000006_Migration6', '7.0.0-test');
+
+INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', 'GO
+Value With
+
+GO
+
+Empty Lines
+GO')
+
+INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+VALUES ('00000000000007_Migration7', '7.0.0-test');
 
 
 """,
