@@ -25,18 +25,18 @@ WHERE [t].[Nombre] LIKE '%lla%'
         await base.Projecting_correlated_collection_along_with_non_mapped_property();
 
         AssertSql(
-"""
-SELECT [b].[Id], [t].[Id], [t].[BlogId], [t].[Name]
+            """
+SELECT [b].[Id], [p0].[Id], [p0].[BlogId], [p0].[Name]
 FROM [Blogs] AS [b]
 LEFT JOIN (
     SELECT [p].[Id], [p].[BlogId], [p].[Name]
     FROM [Posts] AS [p]
     WHERE [p].[Name] LIKE N'%2%'
-) AS [t] ON [b].[Id] = [t].[BlogId]
+) AS [p0] ON [b].[Id] = [p0].[BlogId]
 ORDER BY [b].[Id]
 """,
-                //
-                """
+            //
+            """
 SELECT [b].[Id], (
     SELECT TOP(1) [p].[Name]
     FROM [Posts] AS [p]

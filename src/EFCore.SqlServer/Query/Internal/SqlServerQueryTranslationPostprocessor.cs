@@ -29,7 +29,7 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
     public SqlServerQueryTranslationPostprocessor(
         QueryTranslationPostprocessorDependencies dependencies,
         RelationalQueryTranslationPostprocessorDependencies relationalDependencies,
-        QueryCompilationContext queryCompilationContext,
+        SqlServerQueryCompilationContext queryCompilationContext,
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies, relationalDependencies, queryCompilationContext)
     {

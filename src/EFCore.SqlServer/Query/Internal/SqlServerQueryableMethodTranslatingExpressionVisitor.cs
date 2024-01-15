@@ -81,7 +81,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
         {
-            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(queryRootExpression.EntityType);
+#pragma warning disable EF1001
+            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(
+                queryRootExpression.EntityType, _queryCompilationContext.SqlAliasManager);
+#pragma warning restore EF1001
             Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
             {
                 TemporalAllQueryRootExpression => te => te
@@ -268,6 +271,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
+            _queryCompilationContext.SqlAliasManager,
             openJsonExpression,
             columnName: "value",
             columnType: elementClrType,
@@ -325,7 +329,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // Calculate the table alias for the OPENJSON expression based on the last named path segment
         // (or the JSON column name if there are none)
         var lastNamedPathSegment = jsonQueryExpression.Path.LastOrDefault(ps => ps.PropertyName is not null);
-        var tableAlias = char.ToLowerInvariant((lastNamedPathSegment.PropertyName ?? jsonQueryExpression.JsonColumn.Name)[0]).ToString();
+        var tableAlias =
+            _queryCompilationContext.SqlAliasManager.GenerateTableAlias(
+                lastNamedPathSegment.PropertyName ?? jsonQueryExpression.JsonColumn.Name);
 
         // We now add all of projected entity's the properties and navigations into the OPENJSON's WITH clause. Note that navigations
         // get AS JSON, which projects out the JSON sub-document for them as text, which can be further navigated into.
@@ -371,6 +377,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
+            _queryCompilationContext.SqlAliasManager,
             jsonQueryExpression,
             openJsonExpression,
             "key",
@@ -447,7 +454,9 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             && projectionColumnTable == openJsonExpression)
         {
             var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
-            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(newInExpression));
+#pragma warning disable EF1001
+            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(newInExpression, _queryCompilationContext.SqlAliasManager));
+#pragma warning restore EF1001
         }
 
         return translatedSource;
@@ -530,7 +539,10 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                         projection.TypeMapping,
                         projectionColumn.IsNullable);
 
-                    return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation));
+#pragma warning disable EF1001
+                    return source.UpdateQueryExpression(
+                        _sqlExpressionFactory.Select(translation, _queryCompilationContext.SqlAliasManager));
+#pragma warning restore EF1001
                 }
             }
         }

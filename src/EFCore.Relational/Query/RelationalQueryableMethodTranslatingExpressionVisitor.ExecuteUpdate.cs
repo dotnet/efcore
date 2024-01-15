@@ -131,8 +131,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     case ColumnExpression column:
                     {
                         if (!IsColumnOnSameTable(column, propertySelector)
-                            || TranslateSqlSetterValueSelector(source, valueSelector, column, selectExpression) is not SqlExpression
-                                translatedValueSelector)
+                            || TranslateSqlSetterValueSelector(source, valueSelector, column) is not SqlExpression translatedValueSelector)
                         {
                             return false;
                         }
@@ -213,8 +212,8 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                     }
 
                     var rewrittenValueSelector = CreatePropertyAccessExpression(valueExpression, property);
-                    if (TranslateSqlSetterValueSelector(source, rewrittenValueSelector, column, selectExpression) is not SqlExpression
-                        translatedValueSelector)
+                    if (TranslateSqlSetterValueSelector(
+                            source, rewrittenValueSelector, column) is not SqlExpression translatedValueSelector)
                     {
                         return false;
                     }
@@ -338,20 +337,17 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
         SqlExpression? TranslateSqlSetterValueSelector(
             ShapedQueryExpression source,
             Expression valueSelector,
-            ColumnExpression column,
-            SelectExpression selectExpression)
+            ColumnExpression column)
         {
-            if (TranslateSetterValueSelector(source, valueSelector, column.Type) is not SqlExpression translatedSelector)
+            if (TranslateSetterValueSelector(source, valueSelector, column.Type) is SqlExpression translatedSelector)
             {
-                AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
-                return null;
+                // Apply the type mapping of the column (translated from the property selector above) to the value
+                translatedSelector = _sqlExpressionFactory.ApplyTypeMapping(translatedSelector, column.TypeMapping);
+                return translatedSelector;
             }
 
-            // Apply the type mapping of the column (translated from the property selector above) to the value,
-            // and apply alias uniquification to it.
-            translatedSelector = _sqlExpressionFactory.ApplyTypeMapping(translatedSelector, column.TypeMapping);
-            translatedSelector = selectExpression.AssignUniqueAliases(translatedSelector);
-            return translatedSelector;
+            AddTranslationErrorDetails(RelationalStrings.InvalidValueInSetProperty(valueSelector.Print()));
+            return null;
         }
 
         Expression? TranslateSetterValueSelector(ShapedQueryExpression source, Expression valueSelector, Type propertyType)

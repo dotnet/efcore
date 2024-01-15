@@ -701,22 +701,24 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => new(Expression.Constant(value, type), typeMapping);
 
     /// <inheritdoc />
-    public virtual SelectExpression Select(SqlExpression? projection)
-        => new(projection);
+    [EntityFrameworkInternal]
+    public virtual SelectExpression Select(SqlExpression? projection, SqlAliasManager sqlAliasManager)
+        => new(projection, sqlAliasManager);
 
     /// <inheritdoc />
-    public virtual SelectExpression Select(IEntityType entityType)
+    [EntityFrameworkInternal]
+    public virtual SelectExpression Select(IEntityType entityType, SqlAliasManager sqlAliasManager)
     {
-        var selectExpression = new SelectExpression(entityType, this);
+        var selectExpression = new SelectExpression(entityType, this, sqlAliasManager);
         AddConditions(selectExpression, entityType);
 
         return selectExpression;
     }
 
     /// <inheritdoc />
-    public virtual SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase)
+    public virtual SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase, SqlAliasManager sqlAliasManager)
     {
-        var selectExpression = new SelectExpression(entityType, tableExpressionBase);
+        var selectExpression = new SelectExpression(entityType, tableExpressionBase, sqlAliasManager);
         AddConditions(selectExpression, entityType);
 
         return selectExpression;

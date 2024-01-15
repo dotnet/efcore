@@ -58,9 +58,10 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression
     /// <summary>
     ///     Creates a new object that is a copy of the current instance.
     /// </summary>
+    /// <param name="alias">The alias to be used by the cloned table.</param>
     /// <param name="cloningExpressionVisitor">The cloning expression for further visitation of nested nodes.</param>
     /// <returns>A new object that is a copy of this instance.</returns>
-    public abstract TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor);
+    public abstract TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor);
 
     /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.

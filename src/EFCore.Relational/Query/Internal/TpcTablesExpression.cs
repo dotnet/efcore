@@ -109,11 +109,11 @@ public sealed class TpcTablesExpression : TableExpressionBase
         => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         // Deep clone
         var subSelectExpressions = SelectExpressions.Select(cloningExpressionVisitor.Visit).ToList<SelectExpression>();
-        var newTpcTable = new TpcTablesExpression(Alias, EntityType, subSelectExpressions);
+        var newTpcTable = new TpcTablesExpression(alias, EntityType, subSelectExpressions);
         foreach (var annotation in GetAnnotations())
         {
             newTpcTable.AddAnnotation(annotation.Name, annotation.Value);

@@ -79,7 +79,7 @@ public class ValuesExpression : TableExpressionBase
         => new ValuesExpression(Alias, RowValues, ColumnNames, annotations);
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newRowValues = new RowValueExpression[RowValues.Count];
 
@@ -88,7 +88,7 @@ public class ValuesExpression : TableExpressionBase
             newRowValues[i] = (RowValueExpression)cloningExpressionVisitor.Visit(RowValues[i]);
         }
 
-        return new ValuesExpression(Alias, newRowValues, ColumnNames, GetAnnotations());
+        return new ValuesExpression(alias, newRowValues, ColumnNames, GetAnnotations());
     }
 
     /// <inheritdoc />

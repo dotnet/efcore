@@ -39,14 +39,14 @@ WHERE "o"."OrderDate" IS NOT NULL AND "o"."EmployeeID" IS NOT NULL AND instr(CAS
 @__p_0='10'
 @__p_1='5'
 
-SELECT "t"."CustomerID", "t"."Address", "t"."City", "t"."CompanyName", "t"."ContactName", "t"."ContactTitle", "t"."Country", "t"."Fax", "t"."Phone", "t"."PostalCode", "t"."Region"
+SELECT "c0"."CustomerID", "c0"."Address", "c0"."City", "c0"."CompanyName", "c0"."ContactName", "c0"."ContactTitle", "c0"."Country", "c0"."Fax", "c0"."Phone", "c0"."PostalCode", "c0"."Region"
 FROM (
     SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
     ORDER BY "c"."ContactName"
     LIMIT @__p_0
-) AS "t"
-ORDER BY "t"."ContactName"
+) AS "c0"
+ORDER BY "c0"."ContactName"
 LIMIT -1 OFFSET @__p_1
 """);
     }
@@ -241,7 +241,7 @@ SELECT COUNT(*)
 FROM (
     SELECT DISTINCT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
     FROM "Customers" AS "c"
-) AS "t"
+) AS "c0"
 """);
     }
 
@@ -259,7 +259,7 @@ FROM (
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
     LIMIT -1 OFFSET @__p_0
-) AS "t"
+) AS "c0"
 """);
     }
 
@@ -277,7 +277,7 @@ FROM (
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
     LIMIT @__p_0
-) AS "t"
+) AS "c0"
 """);
     }
 
@@ -294,7 +294,7 @@ FROM (
     SELECT 1
     FROM "Customers" AS "c"
     LIMIT -1 OFFSET @__p_0
-) AS "t"
+) AS "c0"
 """);
     }
 
@@ -311,7 +311,7 @@ FROM (
     SELECT 1
     FROM "Customers" AS "c"
     LIMIT @__p_0
-) AS "t"
+) AS "c0"
 """);
     }
 
@@ -437,19 +437,6 @@ FROM "Orders" AS "o"
 
     public override Task Max_on_empty_sequence_throws(bool async)
         => Assert.ThrowsAsync<InvalidOperationException>(() => base.Max_on_empty_sequence_throws(async));
-
-    public override async Task Parameter_collection_Contains_with_projection_and_ordering(bool async)
-    {
-#if DEBUG
-        // GroupBy debug assert. Issue #26104.
-        Assert.StartsWith(
-            "Missing alias in the list",
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Parameter_collection_Contains_with_projection_and_ordering(async))).Message);
-#else
-        await base.Parameter_collection_Contains_with_projection_and_ordering(async);
-#endif
-    }
 
     [ConditionalFact]
     public async Task Single_Predicate_Cancellation()

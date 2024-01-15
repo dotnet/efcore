@@ -846,7 +846,7 @@ WHERE (
         FROM json_each("p"."Ints") AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
-    ) AS "t") = 2
+    ) AS "i0") = 2
 """);
     }
 
@@ -925,7 +925,7 @@ WHERE (
     FROM (
         SELECT DISTINCT "i"."value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t") = 3
+    ) AS "i0") = 3
 """);
     }
 
@@ -1000,7 +1000,7 @@ WHERE (
         UNION ALL
         SELECT 1
         FROM json_each("p"."Ints") AS "i0"
-    ) AS "t") = 2
+    ) AS "u") = 2
 """);
     }
 
@@ -1022,7 +1022,7 @@ WHERE (
         UNION
         SELECT "i0"."value"
         FROM json_each(@__ints_0) AS "i0"
-    ) AS "t") = 2
+    ) AS "u") = 2
 """);
     }
 
@@ -1041,7 +1041,7 @@ WHERE (
         FROM json_each("p"."Ints") AS "i"
         INTERSECT
         SELECT CAST(11 AS INTEGER) AS "Value" UNION ALL VALUES (111)
-    ) AS "t") = 2
+    ) AS "i0") = 2
 """);
     }
 
@@ -1060,8 +1060,8 @@ WHERE (
         EXCEPT
         SELECT "i"."value" AS "Value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t"
-    WHERE "t"."Value" % 2 = 1) = 2
+    ) AS "e"
+    WHERE "e"."Value" % 2 = 1) = 2
 """);
     }
 
@@ -1122,8 +1122,8 @@ WHERE (
         FROM json_each(@__ints) AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
-    ) AS "t"
-    WHERE "t"."value0" > "p"."Id") = 1
+    ) AS "i0"
+    WHERE "i0"."value0" > "p"."Id") = 1
 """);
     }
 
@@ -1147,17 +1147,17 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "t"."value"
+        SELECT "i1"."value"
         FROM (
             SELECT "i"."value"
             FROM json_each(@__ints) AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
-        ) AS "t"
+        ) AS "i1"
         UNION
         SELECT "i0"."value"
         FROM json_each("p"."Ints") AS "i0"
-    ) AS "t0") = 3
+    ) AS "u") = 3
 """);
     }
 
@@ -1179,7 +1179,7 @@ WHERE (
         UNION
         SELECT "i"."value"
         FROM json_each("p"."Ints") AS "i"
-    ) AS "t") = 3
+    ) AS "u") = 3
 """);
     }
 
@@ -1199,22 +1199,22 @@ WHERE (
         SELECT "s"."value"
         FROM json_each(@__Skip_0) AS "s"
         UNION
-        SELECT "t1"."value"
+        SELECT "i2"."value"
         FROM (
-            SELECT "t0"."value"
+            SELECT "i1"."value"
             FROM (
-                SELECT DISTINCT "t2"."value"
+                SELECT DISTINCT "i0"."value"
                 FROM (
                     SELECT "i"."value"
                     FROM json_each("p"."Ints") AS "i"
                     ORDER BY "i"."value"
                     LIMIT -1 OFFSET 1
-                ) AS "t2"
-            ) AS "t0"
-            ORDER BY "t0"."value" DESC
+                ) AS "i0"
+            ) AS "i1"
+            ORDER BY "i1"."value" DESC
             LIMIT 20
-        ) AS "t1"
-    ) AS "t") = 3
+        ) AS "i2"
+    ) AS "u") = 3
 """);
     }
 
@@ -1238,17 +1238,17 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "t"."value"
+        SELECT "i1"."value"
         FROM (
             SELECT "i"."value"
             FROM json_each("p"."Ints") AS "i"
             ORDER BY "i"."key"
             LIMIT -1 OFFSET 1
-        ) AS "t"
+        ) AS "i1"
         UNION
         SELECT "i0"."value"
         FROM json_each(@__ints_0) AS "i0"
-    ) AS "t0") = 3
+    ) AS "u") = 3
 """);
     }
 

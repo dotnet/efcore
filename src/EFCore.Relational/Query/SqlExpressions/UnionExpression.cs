@@ -66,6 +66,14 @@ public class UnionExpression : SetOperationBase
         => new UnionExpression(Alias, Source1, Source2, IsDistinct, annotations);
 
     /// <inheritdoc />
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
+        => new UnionExpression(
+            alias!,
+            (SelectExpression)cloningExpressionVisitor.Visit(Source1),
+            (SelectExpression)cloningExpressionVisitor.Visit(Source2),
+            IsDistinct);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("(");

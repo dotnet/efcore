@@ -335,8 +335,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = N'a') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = N'a') = 2
 """);
     }
 
@@ -356,8 +356,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = 1) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = 1) = 2
 """);
     }
 
@@ -377,8 +377,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = CAST(1 AS bigint)) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS bigint)) = 2
 """);
     }
 
@@ -398,8 +398,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = CAST(1 AS smallint)) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS smallint)) = 2
 """);
     }
 
@@ -424,8 +424,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = 1.0E0) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = 1.0E0) = 2
 """);
     }
 
@@ -445,8 +445,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = CAST(1 AS real)) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS real)) = 2
 """);
     }
 
@@ -466,8 +466,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = 1.0) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = 1.0) = 2
 """);
     }
 
@@ -487,8 +487,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = '2023-01-01T12:30:00.0000000') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = '2023-01-01T12:30:00.0000000') = 2
 """);
     }
 
@@ -508,8 +508,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = '2023-01-01') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = '2023-01-01') = 2
 """);
     }
 
@@ -529,8 +529,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = '12:30:00') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = '12:30:00') = 2
 """);
     }
 
@@ -552,8 +552,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = '2023-01-01T12:30:00.0000000+02:00') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = '2023-01-01T12:30:00.0000000+02:00') = 2
 """);
     }
 
@@ -573,8 +573,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = CAST(1 AS bit)) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = CAST(1 AS bit)) = 2
 """);
     }
 
@@ -596,8 +596,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = 'dc8c903d-d655-4144-a0fd-358099d40ae1') = 2
+    ) AS [s0]
+    WHERE [s0].[value] = 'dc8c903d-d655-4144-a0fd-358099d40ae1') = 2
 """);
     }
 
@@ -626,8 +626,8 @@ WHERE (
         FROM OPENJSON([t].[SomeArray]) AS [s]
         ORDER BY CAST([s].[key] AS int)
         OFFSET 1 ROWS
-    ) AS [t0]
-    WHERE [t0].[value] = 0) = 2
+    ) AS [s0]
+    WHERE [s0].[value] = 0) = 2
 """);
     }
 

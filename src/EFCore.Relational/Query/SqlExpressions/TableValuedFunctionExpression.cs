@@ -19,11 +19,12 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <summary>
     ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
     /// </summary>
+    /// <param name="alias">An alias for the table.</param>
     /// <param name="storeFunction">The <see cref="IStoreFunction" /> associated this function.</param>
     /// <param name="arguments">The arguments of the function.</param>
-    public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
+    public TableValuedFunctionExpression(string alias, IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
         : this(
-            storeFunction.Name[..1].ToLowerInvariant(),
+            alias,
             storeFunction.Name,
             storeFunction.Schema,
             storeFunction.IsBuiltIn,
@@ -36,21 +37,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <summary>
     ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
     /// </summary>
-    /// <param name="name">The name of the function.</param>
-    /// <param name="arguments">The arguments of the function.</param>
-    /// <param name="annotations">A collection of annotations associated with this expression.</param>
-    public TableValuedFunctionExpression(
-        string name,
-        IReadOnlyList<SqlExpression> arguments,
-        IEnumerable<IAnnotation>? annotations = null)
-        : this(name[..1].ToLowerInvariant(), name, schema: null, builtIn: true, arguments, annotations)
-    {
-    }
-
-    /// <summary>
-    ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
-    /// </summary>
-    /// <param name="alias">A string alias for the table source.</param>
+    /// <param name="alias">An alias for the table.</param>
     /// <param name="name">The name of the function.</param>
     /// <param name="arguments">The arguments of the function.</param>
     /// <param name="annotations">A collection of annotations associated with this expression.</param>
@@ -144,7 +131,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
             : this;
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
     {
         var newArguments = new SqlExpression[Arguments.Count];
         for (var i = 0; i < newArguments.Length; i++)
@@ -153,8 +140,8 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
         }
 
         var newTableValuedFunctionExpression = StoreFunction is null
-            ? new TableValuedFunctionExpression(Alias, Name, newArguments)
-            : new TableValuedFunctionExpression(StoreFunction, newArguments) { Alias = Alias };
+            ? new TableValuedFunctionExpression(alias!, Name, newArguments)
+            : new TableValuedFunctionExpression(alias!, StoreFunction, newArguments);
 
         foreach (var annotation in GetAnnotations())
         {

@@ -984,7 +984,7 @@ end
         q2.ToList();
 
         AssertSql(
-"""
+            """
 @__p_0='10'
 
 SELECT (
@@ -995,9 +995,9 @@ FROM (
     SELECT TOP(@__p_0) [m].[Id], [m].[PersonId], [m].[Timestamp]
     FROM [Message] AS [m]
     ORDER BY [m].[Id]
-) AS [t]
-CROSS APPLY [dbo].[GetPersonStatusAsOf]([t].[PersonId], [t].[Timestamp]) AS [g]
-ORDER BY [t].[Id]
+) AS [m0]
+CROSS APPLY [dbo].[GetPersonStatusAsOf]([m0].[PersonId], [m0].[Timestamp]) AS [g]
+ORDER BY [m0].[Id]
 """);
     }
 
@@ -1647,7 +1647,7 @@ FROM [Entities] AS [e]
         await base.Union_and_insert_works_correctly_together();
 
         AssertSql(
-"""
+            """
 @__id1_0='1'
 @__id2_1='2'
 
@@ -1655,12 +1655,12 @@ SELECT [t].[Id]
 FROM [Tables1] AS [t]
 WHERE [t].[Id] = @__id1_0
 UNION
-SELECT [t1].[Id]
-FROM [Tables2] AS [t1]
-WHERE [t1].[Id] = @__id2_1
+SELECT [t0].[Id]
+FROM [Tables2] AS [t0]
+WHERE [t0].[Id] = @__id2_1
 """,
-                //
-                """
+            //
+            """
 SET NOCOUNT ON;
 INSERT INTO [Tables1]
 OUTPUT INSERTED.[Id]
@@ -1846,57 +1846,57 @@ FROM [Blogs] AS [b]
         await base.GroupJoin_Anonymous_projection_GroupBy_Aggregate_join_elimination();
 
         AssertSql(
-"""
-SELECT [t0].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
+            """
+SELECT [t1].[AnotherEntity11818_Name] AS [Key], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name]
 """,
-                //
-                """
-SELECT [t0].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
+            //
+            """
+SELECT [t1].[AnotherEntity11818_Name] AS [MyKey], COUNT(*) + 5 AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t2] ON [t].[Id] = CASE
-    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
+    SELECT [t2].[Id], [t2].[MaumarEntity11818_Exists], [t2].[MaumarEntity11818_Name]
+    FROM [Table] AS [t2]
+    WHERE [t2].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """,
-                //
-                """
-SELECT TOP(1) [t0].[AnotherEntity11818_Name] AS [MyKey], [t2].[MaumarEntity11818_Name] AS [cnt]
+            //
+            """
+SELECT TOP(1) [t1].[AnotherEntity11818_Name] AS [MyKey], [t3].[MaumarEntity11818_Name] AS [cnt]
 FROM [Table] AS [t]
 LEFT JOIN (
-    SELECT [t1].[Id], [t1].[Exists], [t1].[AnotherEntity11818_Name]
-    FROM [Table] AS [t1]
-    WHERE [t1].[Exists] IS NOT NULL
-) AS [t0] ON [t].[Id] = CASE
-    WHEN [t0].[Exists] IS NOT NULL THEN [t0].[Id]
+    SELECT [t0].[Id], [t0].[Exists], [t0].[AnotherEntity11818_Name]
+    FROM [Table] AS [t0]
+    WHERE [t0].[Exists] IS NOT NULL
+) AS [t1] ON [t].[Id] = CASE
+    WHEN [t1].[Exists] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
-    SELECT [t3].[Id], [t3].[MaumarEntity11818_Exists], [t3].[MaumarEntity11818_Name]
-    FROM [Table] AS [t3]
-    WHERE [t3].[MaumarEntity11818_Exists] IS NOT NULL
-) AS [t2] ON [t].[Id] = CASE
-    WHEN [t2].[MaumarEntity11818_Exists] IS NOT NULL THEN [t2].[Id]
+    SELECT [t2].[Id], [t2].[MaumarEntity11818_Exists], [t2].[MaumarEntity11818_Name]
+    FROM [Table] AS [t2]
+    WHERE [t2].[MaumarEntity11818_Exists] IS NOT NULL
+) AS [t3] ON [t].[Id] = CASE
+    WHEN [t3].[MaumarEntity11818_Exists] IS NOT NULL THEN [t3].[Id]
 END
-GROUP BY [t0].[AnotherEntity11818_Name], [t2].[MaumarEntity11818_Name]
+GROUP BY [t1].[AnotherEntity11818_Name], [t3].[MaumarEntity11818_Name]
 """);
     }
 
@@ -2094,7 +2094,7 @@ INNER JOIN (
     FROM [OrderItems] AS [o0]
     WHERE [o0].[OrderId] = @__orderId_0
     GROUP BY [o0].[OrderId]
-) AS [t] ON [o].[OrderId] = [t].[Key]
+) AS [o1] ON [o].[OrderId] = [o1].[Key]
 WHERE [o].[OrderId] = @__orderId_0
 ORDER BY [o].[OrderId]
 """);
@@ -2105,14 +2105,14 @@ ORDER BY [o].[OrderId]
         await base.Enum_with_value_converter_matching_take_value(async);
 
         AssertSql(
-"""
+            """
 @__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
 @__p_0='1'
 
 SELECT [o1].[Id], COALESCE((
-    SELECT TOP(1) [o2].[Price]
-    FROM [OrderItems] AS [o2]
-    WHERE [o1].[Id] = [o2].[OrderId] AND [o2].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
+    SELECT TOP(1) [o3].[Price]
+    FROM [OrderItems] AS [o3]
+    WHERE [o1].[Id] = [o3].[OrderId] AND [o3].[Type] = @__orderItemType_1), 0.0E0) AS [SpecialSum]
 FROM (
     SELECT TOP(@__p_0) [o].[Id]
     FROM [Orders] AS [o]
@@ -2121,9 +2121,9 @@ FROM (
         FROM [OrderItems] AS [o0]
         WHERE [o].[Id] = [o0].[OrderId])
     ORDER BY [o].[Id]
-) AS [t]
-INNER JOIN [Orders] AS [o1] ON [t].[Id] = [o1].[Id]
-ORDER BY [t].[Id]
+) AS [o2]
+INNER JOIN [Orders] AS [o1] ON [o2].[Id] = [o1].[Id]
+ORDER BY [o2].[Id]
 """);
     }
 
@@ -2229,19 +2229,19 @@ WHERE EXISTS (
         await base.SelectMany_where_Select(async);
 
         AssertSql(
-"""
-SELECT [t0].[SomeNullableDateTime]
+            """
+SELECT [c1].[SomeNullableDateTime]
 FROM [Parents] AS [p]
 INNER JOIN (
-    SELECT [t].[ParentId], [t].[SomeNullableDateTime], [t].[SomeOtherNullableDateTime]
+    SELECT [c0].[ParentId], [c0].[SomeNullableDateTime], [c0].[SomeOtherNullableDateTime]
     FROM (
         SELECT [c].[ParentId], [c].[SomeNullableDateTime], [c].[SomeOtherNullableDateTime], ROW_NUMBER() OVER(PARTITION BY [c].[ParentId] ORDER BY [c].[SomeInteger]) AS [row]
         FROM [Child] AS [c]
         WHERE [c].[SomeNullableDateTime] IS NULL
-    ) AS [t]
-    WHERE [t].[row] <= 1
-) AS [t0] ON [p].[Id] = [t0].[ParentId]
-WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL
+    ) AS [c0]
+    WHERE [c0].[row] <= 1
+) AS [c1] ON [p].[Id] = [c1].[ParentId]
+WHERE [c1].[SomeOtherNullableDateTime] IS NOT NULL
 """);
     }
 
@@ -2284,7 +2284,7 @@ WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0
         await base.Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(async);
 
         AssertSql(
-"""
+            """
 @__p_0='123456'
 
 SELECT TOP(@__p_0) [t].[JSON]
@@ -2295,7 +2295,7 @@ INNER JOIN (
     WHERE [i].[Parcel] = N'some condition'
     GROUP BY [i].[Parcel], [i].[RowId]
     HAVING COUNT(*) = 1
-) AS [t0] ON [t].[ParcelNumber] = [t0].[Parcel]
+) AS [i0] ON [t].[ParcelNumber] = [i0].[Parcel]
 WHERE [t].[TableId] = 123
 ORDER BY [t].[ParcelNumber]
 """);

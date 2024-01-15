@@ -15,13 +15,13 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 /// </remarks>
 public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
 {
-    internal TableExpression(ITableBase table)
-        : this(table, annotations: null)
+    internal TableExpression(string alias, ITableBase table)
+        : this(alias, table, annotations: null)
     {
     }
 
-    private TableExpression(ITableBase table, IEnumerable<IAnnotation>? annotations)
-        : base(alias: table.Name[..1].ToLowerInvariant(), annotations)
+    private TableExpression(string alias, ITableBase table, IEnumerable<IAnnotation>? annotations)
+        : base(alias, annotations)
     {
         Name = table.Name;
         Schema = table.Schema;
@@ -31,12 +31,8 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The name of the table or view.
@@ -55,7 +51,7 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
 
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new TableExpression(Table, annotations) { Alias = Alias };
+        => new TableExpression(Alias, Table, annotations);
 
     /// <inheritdoc />
     ITableBase ITableBasedExpression.Table
@@ -76,8 +72,8 @@ public sealed class TableExpression : TableExpressionBase, ITableBasedExpression
     }
 
     /// <inheritdoc />
-    public override TableExpressionBase Clone(ExpressionVisitor cloningExpressionVisitor)
-        => CreateWithAnnotations(GetAnnotations());
+    public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
+        => new TableExpression(alias!, Table, GetAnnotations());
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

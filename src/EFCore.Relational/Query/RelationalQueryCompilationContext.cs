@@ -28,6 +28,7 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     {
         RelationalDependencies = relationalDependencies;
         QuerySplittingBehavior = RelationalOptionsExtension.Extract(ContextOptions).QuerySplittingBehavior;
+        SqlAliasManager = relationalDependencies.SqlAliasManagerFactory.Create();
     }
 
     /// <summary>
@@ -41,4 +42,9 @@ public class RelationalQueryCompilationContext : QueryCompilationContext
     ///     will be used.
     /// </summary>
     public virtual QuerySplittingBehavior? QuerySplittingBehavior { get; internal set; }
+
+    /// <summary>
+    ///     A manager for SQL aliases, capable of generate uniquified table aliases.
+    /// </summary>
+    public virtual SqlAliasManager SqlAliasManager { get; }
 }
