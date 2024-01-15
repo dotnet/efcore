@@ -18,6 +18,18 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
             context => context.Set<Owner>(), rowsAffectedCount: 0);
     }
 
+    // Composing the OrderBy().Skip() operators causes the query to not be natively translatable as a simple DELETE (in most databases),
+    // causing a subquery pushdown (WHERE Id IN (...)).
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_with_owned_collection_and_non_natively_translatable_query(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(onModelCreating: mb => mb.Entity<Owner>().Ignore(e => e.OwnedReference));
+        await AssertDelete(
+            async, contextFactory.CreateContext,
+            context => context.Set<Owner>().OrderBy(o => o.Title).Skip(1), rowsAffectedCount: 0);
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
