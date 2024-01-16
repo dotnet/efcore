@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
 
@@ -214,6 +215,46 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
         public byte Id { get; set; }
         public string Lucy { get; set; }
+    }
+
+    [ConditionalFact] // Issue #29931
+    public void Can_use_SqlQuery_when_context_has_DbFunction()
+    {
+        using var testDatabase = SqlServerTestStore.CreateInitialized(DatabaseName);
+        var options = Fixture.CreateOptions(testDatabase);
+        using (var context = new DbFunctionContext(options))
+        {
+            var result = context.Database
+                .SqlQueryRaw<RawResult>("SELECT Name from sys.databases")
+                .OrderBy(d => d.Name)
+                .ToList();
+        }
+    }
+
+    private class DbFunctionContext(DbContextOptions options) : DbContext(options)
+    {
+        [DbFunction("tvp", "dbo")]
+        public IQueryable<TvpResult> Tvp(int? storeid)
+            => FromExpression(() => Tvp(storeid));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<TvpResult>().HasNoKey();
+    }
+
+    private class TvpResult
+    {
+        public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Total { get; set; }
+    }
+
+    private class RawResult
+    {
+        public string Name { get; set; }
     }
 
     [ConditionalFact]

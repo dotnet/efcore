@@ -29,43 +29,46 @@ public class AdHocMapper : IAdHocMapper
         _modelCreationDependencies = modelCreationDependencies;
     }
 
-    private ConventionSet ConventionSet
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConventionSet BuildConventionSet()
     {
-        get
-        {
-            if (_conventionSet == null)
-            {
-                _conventionSet = _modelCreationDependencies.ConventionSetBuilder.CreateConventionSet();
-                _conventionSet.Remove(typeof(DbSetFindingConvention));
-                _conventionSet.Remove(typeof(RelationshipDiscoveryConvention));
-                _conventionSet.Remove(typeof(KeyDiscoveryConvention));
-                _conventionSet.Remove(typeof(CascadeDeleteConvention));
-                _conventionSet.Remove(typeof(ChangeTrackingStrategyConvention));
-                _conventionSet.Remove(typeof(DeleteBehaviorAttributeConvention));
-                _conventionSet.Remove(typeof(ForeignKeyAttributeConvention));
-                _conventionSet.Remove(typeof(ForeignKeyIndexConvention));
-                _conventionSet.Remove(typeof(ForeignKeyPropertyDiscoveryConvention));
-                _conventionSet.Remove(typeof(IndexAttributeConvention));
-                _conventionSet.Remove(typeof(KeyAttributeConvention));
-                _conventionSet.Remove(typeof(KeylessAttributeConvention));
-                _conventionSet.Remove(typeof(ManyToManyJoinEntityTypeConvention));
-                _conventionSet.Remove(typeof(RequiredNavigationAttributeConvention));
-                _conventionSet.Remove(typeof(NavigationBackingFieldAttributeConvention));
-                _conventionSet.Remove(typeof(InversePropertyAttributeConvention));
-                _conventionSet.Remove(typeof(NavigationEagerLoadingConvention));
-                _conventionSet.Remove(typeof(NonNullableNavigationConvention));
-                _conventionSet.Remove(typeof(NotMappedTypeAttributeConvention));
-                _conventionSet.Remove(typeof(OwnedAttributeConvention));
-                _conventionSet.Remove(typeof(QueryFilterRewritingConvention));
-                _conventionSet.Remove(typeof(ServicePropertyDiscoveryConvention));
-                _conventionSet.Remove(typeof(ValueGenerationConvention));
-                _conventionSet.Remove(typeof(BaseTypeDiscoveryConvention));
-                _conventionSet.Remove(typeof(DiscriminatorConvention));
-            }
+        var conventionSet = _modelCreationDependencies.ConventionSetBuilder.CreateConventionSet();
+        conventionSet.Remove(typeof(DbSetFindingConvention));
+        conventionSet.Remove(typeof(RelationshipDiscoveryConvention));
+        conventionSet.Remove(typeof(KeyDiscoveryConvention));
+        conventionSet.Remove(typeof(CascadeDeleteConvention));
+        conventionSet.Remove(typeof(ChangeTrackingStrategyConvention));
+        conventionSet.Remove(typeof(DeleteBehaviorAttributeConvention));
+        conventionSet.Remove(typeof(ForeignKeyAttributeConvention));
+        conventionSet.Remove(typeof(ForeignKeyIndexConvention));
+        conventionSet.Remove(typeof(ForeignKeyPropertyDiscoveryConvention));
+        conventionSet.Remove(typeof(IndexAttributeConvention));
+        conventionSet.Remove(typeof(KeyAttributeConvention));
+        conventionSet.Remove(typeof(KeylessAttributeConvention));
+        conventionSet.Remove(typeof(ManyToManyJoinEntityTypeConvention));
+        conventionSet.Remove(typeof(RequiredNavigationAttributeConvention));
+        conventionSet.Remove(typeof(NavigationBackingFieldAttributeConvention));
+        conventionSet.Remove(typeof(InversePropertyAttributeConvention));
+        conventionSet.Remove(typeof(NavigationEagerLoadingConvention));
+        conventionSet.Remove(typeof(NonNullableNavigationConvention));
+        conventionSet.Remove(typeof(NotMappedTypeAttributeConvention));
+        conventionSet.Remove(typeof(OwnedAttributeConvention));
+        conventionSet.Remove(typeof(QueryFilterRewritingConvention));
+        conventionSet.Remove(typeof(ServicePropertyDiscoveryConvention));
+        conventionSet.Remove(typeof(ValueGenerationConvention));
+        conventionSet.Remove(typeof(BaseTypeDiscoveryConvention));
+        conventionSet.Remove(typeof(DiscriminatorConvention));
 
-            return _conventionSet;
-        }
+        return conventionSet;
     }
+
+    private ConventionSet ConventionSet
+        => (_conventionSet ??= BuildConventionSet());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
