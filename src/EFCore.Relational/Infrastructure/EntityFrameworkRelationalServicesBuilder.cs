@@ -224,7 +224,8 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
             .AddDependencyScoped<RelationalConnectionDependencies>()
             .AddDependencyScoped<RelationalDatabaseDependencies>()
             .AddDependencyScoped<RelationalQueryContextDependencies>()
-            .AddDependencyScoped<RelationalQueryCompilationContextDependencies>();
+            .AddDependencyScoped<RelationalQueryCompilationContextDependencies>()
+            .AddDependencyScoped<RelationalAdHocMapperDependencies>();
 
         return base.TryAddCoreServices();
     }

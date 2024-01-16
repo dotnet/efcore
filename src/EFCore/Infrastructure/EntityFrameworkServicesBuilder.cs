@@ -347,7 +347,8 @@ public class EntityFrameworkServicesBuilder
             .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
             .AddDependencyScoped<DatabaseDependencies>()
             .AddDependencyScoped<ModelDependencies>()
-            .AddDependencyScoped<ModelCreationDependencies>();
+            .AddDependencyScoped<ModelCreationDependencies>()
+            .AddDependencyScoped<AdHocMapperDependencies>();
 
         ServiceCollectionMap.TryAddSingleton<IRegisteredServices>(
             new RegisteredServices(ServiceCollectionMap.ServiceCollection.Select(s => s.ServiceType)));
