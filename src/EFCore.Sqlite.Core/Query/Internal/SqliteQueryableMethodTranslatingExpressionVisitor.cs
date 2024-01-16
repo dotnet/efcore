@@ -98,7 +98,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     _sqlExpressionFactory.Constant(0));
 
 #pragma warning disable EF1001
-            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation, _sqlAliasManager));
+            return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
         }
 
@@ -195,7 +195,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 typeof(int));
 
 #pragma warning disable EF1001
-            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation, _sqlAliasManager));
+            return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
         }
 
@@ -232,17 +232,19 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         // collection).
         var isElementNullable = property?.GetElementType()!.IsNullable;
 
+        var keyColumnTypeMapping = _typeMappingSource.FindMapping(typeof(int))!;
+
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
-            _sqlAliasManager,
-            jsonEachExpression,
-            columnName: "value",
-            columnType: elementClrType,
-            columnTypeMapping: elementTypeMapping,
-            isElementNullable,
-            identifierColumnName: "key",
-            identifierColumnType: typeof(int),
-            identifierColumnTypeMapping: _typeMappingSource.FindMapping(typeof(int)));
+            [jsonEachExpression],
+            new ColumnExpression(
+                "value",
+                tableAlias,
+                elementClrType.UnwrapNullableType(),
+                elementTypeMapping,
+                isElementNullable ?? elementClrType.IsNullableType()),
+            identifier: [(new ColumnExpression("key", tableAlias, typeof(int), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            _sqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         // If we have a collection column, we know the type mapping at this point (as opposed to parameters, whose type mapping will get
@@ -319,8 +321,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var jsonEachExpression = new JsonEachExpression(tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        var selectExpression = new SelectExpression(
-            _sqlAliasManager,
+        var selectExpression = CreateSelect(
             jsonQueryExpression,
             jsonEachExpression,
             "key",
@@ -398,8 +399,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         var subquery = selectExpression.Tables[0];
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        var newOuterSelectExpression = new SelectExpression(
-            _sqlAliasManager,
+        var newOuterSelectExpression = CreateSelect(
             jsonQueryExpression,
             subquery,
             "key",
@@ -498,7 +498,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 }
 
 #pragma warning disable EF1001
-                return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation, _sqlAliasManager));
+                return source.UpdateQueryExpression(new SelectExpression(translation, _sqlAliasManager));
 #pragma warning restore EF1001
             }
         }

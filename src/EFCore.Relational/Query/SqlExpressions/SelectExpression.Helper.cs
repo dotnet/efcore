@@ -520,20 +520,18 @@ public sealed partial class SelectExpression
                         var source1 = result;
                         var source2 = subSelectExpressions[i];
                         RemapProjections(reindexingMap, source2);
-                        var generatedSelectExpression = new SelectExpression(alias: null, _sqlAliasManager);
 
                         var setOperationAlias = _sqlAliasManager.GenerateTableAlias("union");
                         var unionExpression = new UnionExpression(setOperationAlias, source1, source2, distinct: false);
-                        generatedSelectExpression._tables.Add(unionExpression);
+                        var projections = new List<ProjectionExpression>();
                         foreach (var projection in result.Projection)
                         {
-                            generatedSelectExpression._projection.Add(
+                            projections.Add(
                                 new ProjectionExpression(
                                     CreateColumnExpression(projection, setOperationAlias), projection.Alias));
                         }
 
-                        generatedSelectExpression.IsMutable = false;
-                        result = generatedSelectExpression;
+                        result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
                     }
 
                     if (identitySelect)
