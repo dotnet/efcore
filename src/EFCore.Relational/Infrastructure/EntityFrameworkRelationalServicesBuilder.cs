@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -185,6 +186,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalParameterBasedSqlProcessorFactory, RelationalParameterBasedSqlProcessorFactory>();
         TryAdd<IRelationalQueryStringFactory, RelationalQueryStringFactory>();
         TryAdd<IQueryCompilationContextFactory, RelationalQueryCompilationContextFactory>();
+        TryAdd<IAdHocMapper, RelationalAdHocMapper>();
 
         ServiceCollectionMap.GetInfrastructure()
             .AddDependencySingleton<RelationalSqlGenerationHelperDependencies>()
