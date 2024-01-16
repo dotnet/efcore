@@ -248,6 +248,16 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     }
 
     /// <summary>
+    ///     Gets all entity types defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <returns>All entity types defined in the model.</returns>
+    private IEnumerable<RuntimeEntityType> GetEntityTypes()
+        => _entityTypes.Values.OrderBy(e => e.Name, StringComparer.Ordinal);
+
+    /// <summary>
     ///     Adds configuration for a scalar type.
     /// </summary>
     /// <param name="clrType">The type of value the property will hold.</param>
@@ -392,12 +402,12 @@ public class RuntimeModel : RuntimeAnnotatableBase, IRuntimeModel
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyEntityType> IReadOnlyModel.GetEntityTypes()
-        => _entityTypes.Values.OrderBy(e => e.Name, StringComparer.Ordinal);
+        => GetEntityTypes();
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IEntityType> IModel.GetEntityTypes()
-        => _entityTypes.Values.OrderBy(e => e.Name, StringComparer.Ordinal);
+        => GetEntityTypes();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

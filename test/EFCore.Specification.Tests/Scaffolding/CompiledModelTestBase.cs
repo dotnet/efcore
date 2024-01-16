@@ -1233,6 +1233,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
+        IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         => Test<DbContext>(
@@ -1243,6 +1244,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             options,
             addServices,
             addDesignTimeServices,
+            additionalSourceFiles,
             expectedExceptionMessage,
             testName);
 
@@ -1254,6 +1256,7 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
         CompiledModelCodeGenerationOptions? options = null,
         Func<IServiceCollection, IServiceCollection>? addServices = null,
         Func<IServiceCollection, IServiceCollection>? addDesignTimeServices = null,
+        IEnumerable<ScaffoldedFile>? additionalSourceFiles = null,
         string? expectedExceptionMessage = null,
         [CallerMemberName] string testName = "")
         where TContext : DbContext
@@ -1300,10 +1303,18 @@ public abstract class CompiledModelTestBase : NonSharedModelTestBase
             model,
             options);
 
+        if (additionalSourceFiles != null)
+        {
+            scaffoldedFiles = scaffoldedFiles.Concat(additionalSourceFiles).ToArray();
+        }
+
         var compiledModel = CompileModel(scaffoldedFiles, options, context);
         assertModel?.Invoke(compiledModel);
 
-        TestHelpers.ModelAsserter.AssertEqual(context.Model, compiledModel);
+        if (additionalSourceFiles == null)
+        {
+            TestHelpers.ModelAsserter.AssertEqual(context.Model, compiledModel);
+        }
 
         if (useContext != null)
         {
