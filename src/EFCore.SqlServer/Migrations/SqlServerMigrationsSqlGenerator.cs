@@ -1415,11 +1415,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         var batchBuilder = new StringBuilder();
         foreach (var line in preBatched)
         {
-            if (string.IsNullOrWhiteSpace(line))
-            {
-                continue;
-            }
-
             var trimmed = line.TrimStart();
             if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase)
                 && (UseOldBehavior32457
