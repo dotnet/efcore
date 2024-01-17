@@ -72,7 +72,32 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
             x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
-            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
+            x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
+            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
+    }
+
+    [ConditionalFact]
+    public virtual void Can_apply_range_of_migrations()
+    {
+        using var db = Fixture.CreateContext();
+        db.Database.EnsureDeleted();
+
+        GiveMeSomeTime(db);
+
+        var migrator = db.GetService<IMigrator>();
+        migrator.Migrate("Migration6");
+
+        var history = db.GetService<IHistoryRepository>();
+        Assert.Collection(
+            history.GetAppliedMigrations(),
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+            x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
+            x => Assert.Equal("00000000000006_Migration6", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -100,9 +125,8 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        db.Database.Migrate();
-
         var migrator = db.GetService<IMigrator>();
+        migrator.Migrate("Migration5");
         migrator.Migrate(Migration.InitialDatabase);
 
         var history = db.GetService<IHistoryRepository>();
@@ -117,15 +141,17 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
 
         GiveMeSomeTime(db);
 
-        db.Database.Migrate();
-
         var migrator = db.GetService<IMigrator>();
-        migrator.Migrate("Migration1");
+        migrator.Migrate("Migration5");
+        migrator.Migrate("Migration4");
 
         var history = db.GetService<IHistoryRepository>();
         Assert.Collection(
             history.GetAppliedMigrations(),
-            x => Assert.Equal("00000000000001_Migration1", x.MigrationId));
+            x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
+            x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
+            x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -144,7 +170,10 @@ public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture
             x => Assert.Equal("00000000000001_Migration1", x.MigrationId),
             x => Assert.Equal("00000000000002_Migration2", x.MigrationId),
             x => Assert.Equal("00000000000003_Migration3", x.MigrationId),
-            x => Assert.Equal("00000000000004_Migration4", x.MigrationId));
+            x => Assert.Equal("00000000000004_Migration4", x.MigrationId),
+            x => Assert.Equal("00000000000005_Migration5", x.MigrationId),
+            x => Assert.Equal("00000000000006_Migration6", x.MigrationId),
+            x => Assert.Equal("00000000000007_Migration7", x.MigrationId));
     }
 
     [ConditionalFact]
@@ -346,6 +375,7 @@ public abstract class
     public class Foo
     {
         public int Id { get; set; }
+        public string Description { get; set; }
     }
 
     [DbContext(typeof(MigrationsContext))]
@@ -359,7 +389,7 @@ public abstract class
             migrationBuilder
                 .CreateTable(
                     name: "Table1",
-                    columns: x => new { Id = x.Column<int>(), Foo = x.Column<int>() })
+                    columns: x => new { Id = x.Column<int>(), Foo = x.Column<int>(), Description = x.Column<string>() })
                 .PrimaryKey(
                     name: "PK_Table1",
                     columns: x => x.Id);
@@ -439,6 +469,74 @@ public abstract class
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000005_Migration5")]
+    private class Migration5 : Migration
+    {
+        public const string TestValue = """
+            Value With
+
+            Empty Lines
+            """;
+
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-1, ' ', '{TestValue}')");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000006_Migration6")]
+    private class Migration6 : Migration
+    {
+        public const string TestValue = """
+            GO
+            Value With
+
+            Empty Lines
+            """;
+
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-2, ' ', '{TestValue}')");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+
+        }
+    }
+
+    [DbContext(typeof(MigrationsContext))]
+    [Migration("00000000000007_Migration7")]
+    private class Migration7 : Migration
+    {
+        public const string TestValue = """
+            GO
+            Value With
+
+            GO
+
+            Empty Lines
+            GO
+            """;
+
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.Sql($"INSERT INTO Table1 (Id, Bar, Description) VALUES (-3, ' ', '{TestValue}')");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+
         }
     }
 }
