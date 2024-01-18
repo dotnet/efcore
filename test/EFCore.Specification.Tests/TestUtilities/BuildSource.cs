@@ -60,7 +60,7 @@ public class BuildSource
 
         var targetPath = Path.Combine(TargetDir ?? Path.GetTempPath(), projectName + ".dll");
 
-        using (var stream = File.OpenWrite(targetPath))
+        using (var stream = File.Create(targetPath))
         {
             var result = compilation.Emit(stream);
             if (!result.Success)

@@ -53,16 +53,22 @@ internal class Project
 
         Directory.CreateDirectory(buildExtensionsDir);
 
+        byte[] efTargets;
+        using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
+                   "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
+        {
+            efTargets = new byte[input.Length];
+            input.Read(efTargets);
+        }
+
         var efTargetsPath = Path.Combine(
             buildExtensionsDir,
             Path.GetFileName(file) + ".EntityFrameworkCore.targets");
-        using (var input = typeof(Resources).Assembly.GetManifestResourceStream(
-                   "Microsoft.EntityFrameworkCore.Tools.Resources.EntityFrameworkCore.targets")!)
-        using (var output = File.OpenWrite(efTargetsPath))
+        // Avoid touching the targets file, if it matches what we need, to enable incremental builds
+        if (!File.Exists(efTargetsPath) || !File.ReadAllBytes(efTargetsPath).SequenceEqual(efTargets))
         {
-            // NB: Copy always in case it changes
             Reporter.WriteVerbose(Resources.WritingFile(efTargetsPath));
-            input.CopyTo(output);
+            File.WriteAllBytes(efTargetsPath, efTargets);
         }
 
         IDictionary<string, string> metadata;
