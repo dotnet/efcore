@@ -16,13 +16,29 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </summary>
 public class SqlTreePruner : ExpressionVisitor
 {
-    private readonly Dictionary<TableExpressionBase, HashSet<string>> _referencedColumnMap = new(ReferenceEqualityComparer.Instance);
+    private readonly Dictionary<string, HashSet<string>> _referencedColumnMap = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
-    /// Maps tables to the list of column aliases found referenced on them.
+    /// Maps table aliases to the list of column aliases found referenced on them.
     /// </summary>
+    // TODO: Make this protected after SelectExpression.Prune is moved into this visitor
     [EntityFrameworkInternal]
-    public virtual IReadOnlyDictionary<TableExpressionBase, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
+    public virtual IReadOnlyDictionary<string, HashSet<string>> ReferencedColumnMap => _referencedColumnMap;
+
+    /// <summary>
+    ///     When visiting a nested <see cref="TableExpressionBase" /> (e.g. a select within a set operation), this holds the table alias
+    ///     of the top-most table (the one which has the alias referenced by columns). This is needed in order to properly prune the
+    ///     projection of such nested selects, which don't themselves have an alias.
+    /// </summary>
+    /// <remarks>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </remarks>
+    // TODO: Make this protected after SelectExpression.Prune is moved into this visitor
+    [EntityFrameworkInternal]
+    public virtual string? CurrentTableAlias { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,11 +47,7 @@ public class SqlTreePruner : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Expression Prune(Expression expression)
-    {
-        _referencedColumnMap.Clear();
-
-        return Visit(expression);
-    }
+        => Visit(expression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -48,11 +60,13 @@ public class SqlTreePruner : ExpressionVisitor
         switch (node)
         {
             case ShapedQueryExpression shapedQueryExpression:
+                _referencedColumnMap.Clear();
                 return shapedQueryExpression.Update(
                     ((SelectExpression)shapedQueryExpression.QueryExpression).PruneToplevel(this),
                     Visit(shapedQueryExpression.ShaperExpression));
 
             case RelationalSplitCollectionShaperExpression relationalSplitCollectionShaperExpression:
+                _referencedColumnMap.Clear();
                 return relationalSplitCollectionShaperExpression.Update(
                     relationalSplitCollectionShaperExpression.ParentIdentifier,
                     relationalSplitCollectionShaperExpression.ChildIdentifier,
@@ -75,7 +89,7 @@ public class SqlTreePruner : ExpressionVisitor
 
             // For any column we encounter, register it in the referenced column map, which records the aliases referenced on each table.
             case ColumnExpression column:
-                RegisterTable(column.Table.UnwrapJoin(), column);
+                RegisterTable(column.TableAlias, column);
 
                 return column;
 
@@ -121,18 +135,7 @@ public class SqlTreePruner : ExpressionVisitor
                 return base.VisitExtension(node);
         }
 
-        void RegisterTable(TableExpressionBase table, ColumnExpression column)
-        {
-            _referencedColumnMap.GetOrAddNew(table).Add(column.Name);
-
-            // If the table is a set operation, we need to recurse and register the contained tables as well.
-            // This is because when we visit a select inside a set operation, we need to be able to know who's referencing our
-            // projection from the outside (in order to prune unreferenced projections).
-            if (table is SetOperationBase setOperation)
-            {
-                RegisterTable(setOperation.Source1, column);
-                RegisterTable(setOperation.Source2, column);
-            }
-        }
+        void RegisterTable(string tableAlias, ColumnExpression column)
+            => _referencedColumnMap.GetOrAddNew(tableAlias).Add(column.Name);
     }
 }

@@ -44,7 +44,7 @@ public sealed partial class SelectExpression
             }
 
             if (expression is ColumnExpression columnExpression
-                && _outerSelectExpression.ContainsTableReference(columnExpression))
+                && _outerSelectExpression.ContainsReferencedTable(columnExpression))
             {
                 _containsOuterReference = true;
 
@@ -155,25 +155,17 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class SqlRemappingVisitor : ExpressionVisitor
+    private sealed class SqlRemappingVisitor(
+        Dictionary<SqlExpression, ColumnExpression> mappings,
+        SelectExpression subquery,
+        string tableAlias)
+        : ExpressionVisitor
     {
-        private readonly SelectExpression _subquery;
-        private readonly TableReferenceExpression _tableReferenceExpression;
-        private readonly Dictionary<SqlExpression, ColumnExpression> _mappings;
-        private readonly HashSet<SqlExpression> _correlatedTerms;
-        private bool _groupByDiscovery;
-
-        public SqlRemappingVisitor(
-            Dictionary<SqlExpression, ColumnExpression> mappings,
-            SelectExpression subquery,
-            TableReferenceExpression tableReferenceExpression)
-        {
-            _subquery = subquery;
-            _tableReferenceExpression = tableReferenceExpression;
-            _mappings = mappings;
-            _groupByDiscovery = subquery._groupBy.Count > 0;
-            _correlatedTerms = new HashSet<SqlExpression>(ReferenceEqualityComparer.Instance);
-        }
+        private readonly SelectExpression _subquery = subquery;
+        private readonly string _tableAlias = tableAlias;
+        private readonly Dictionary<SqlExpression, ColumnExpression> _mappings = mappings;
+        private readonly HashSet<SqlExpression> _correlatedTerms = new(ReferenceEqualityComparer.Instance);
+        private bool _groupByDiscovery = subquery._groupBy.Count > 0;
 
         [return: NotNullIfNotNull("sqlExpression")]
         public SqlExpression? Remap(SqlExpression? sqlExpression)
@@ -204,8 +196,7 @@ public sealed partial class SelectExpression
                     return outer;
 
                 case ColumnExpression columnExpression
-                    when _groupByDiscovery
-                    && _subquery.ContainsTableReference(columnExpression):
+                    when _groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
                     _correlatedTerms.Add(columnExpression);
                     return columnExpression;
 
@@ -213,14 +204,13 @@ public sealed partial class SelectExpression
                     when !_groupByDiscovery
                     && sqlExpression is not SqlConstantExpression and not SqlParameterExpression
                     && _correlatedTerms.Contains(sqlExpression):
-                    var outerColumn = _subquery.GenerateOuterColumn(_tableReferenceExpression, sqlExpression);
+                    var outerColumn = _subquery.GenerateOuterColumn(_tableAlias, sqlExpression);
                     _mappings[sqlExpression] = outerColumn;
                     return outerColumn;
 
                 case ColumnExpression columnExpression
-                    when !_groupByDiscovery
-                    && _subquery.ContainsTableReference(columnExpression):
-                    var outerColumn1 = _subquery.GenerateOuterColumn(_tableReferenceExpression, columnExpression);
+                    when !_groupByDiscovery && _subquery.ContainsReferencedTable(columnExpression):
+                    var outerColumn1 = _subquery.GenerateOuterColumn(_tableAlias, columnExpression);
                     _mappings[columnExpression] = outerColumn1;
                     return outerColumn1;
 
@@ -270,76 +260,6 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TableReferenceUpdatingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly SelectExpression _oldSelect;
-        private readonly SelectExpression _newSelect;
-
-        public TableReferenceUpdatingExpressionVisitor(SelectExpression oldSelect, SelectExpression newSelect)
-        {
-            _oldSelect = oldSelect;
-            _newSelect = newSelect;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (expression is TableReferenceExpression tableReferenceExpression)
-            {
-                tableReferenceExpression.UpdateTableReference(_oldSelect, _newSelect);
-            }
-
-            return base.Visit(expression);
-        }
-    }
-
-    // Note: this is conceptually the same as ColumnExpressionReplacingExpressionVisitor; I duplicated it since this is for a patch,
-    // and we want to limit the potential risk (note that this calls the special SelectExpression.VisitChildren() with updateColumns: false,
-    // to avoid infinite recursion).
-    private sealed class ColumnTableReferenceUpdater : ExpressionVisitor
-    {
-        private readonly SelectExpression _oldSelect;
-        private readonly SelectExpression _newSelect;
-
-        public ColumnTableReferenceUpdater(SelectExpression oldSelect, SelectExpression newSelect)
-        {
-            _oldSelect = oldSelect;
-            _newSelect = newSelect;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (expression is ConcreteColumnExpression columnExpression
-                && _oldSelect._tableReferences.Find(t => ReferenceEquals(t.Table, columnExpression.Table)) is TableReferenceExpression
-                    oldTableReference
-                && _newSelect._tableReferences.Find(t => t.Alias == columnExpression.TableAlias) is TableReferenceExpression
-                    newTableReference
-                && newTableReference != oldTableReference)
-            {
-                return new ConcreteColumnExpression(
-                    columnExpression.Name,
-                    newTableReference,
-                    columnExpression.Type,
-                    columnExpression.TypeMapping!,
-                    columnExpression.IsNullable);
-            }
-
-            return base.Visit(expression);
-        }
-
-        protected override Expression VisitExtension(Expression node)
-        {
-            if (node is SelectExpression select)
-            {
-                Check.DebugAssert(!select._mutable, "Visiting mutable select expression in ColumnTableReferenceUpdater");
-                return select.VisitChildren(this, updateColumns: false);
-            }
-
-            return base.VisitExtension(node);
-        }
-    }
-
     private sealed class IdentifierComparer : IEqualityComparer<(ColumnExpression Column, ValueComparer Comparer)>
     {
         public bool Equals((ColumnExpression Column, ValueComparer Comparer) x, (ColumnExpression Column, ValueComparer Comparer) y)
@@ -347,102 +267,6 @@ public sealed partial class SelectExpression
 
         public int GetHashCode((ColumnExpression Column, ValueComparer Comparer) obj)
             => obj.Column.GetHashCode();
-    }
-
-    private sealed class ConcreteColumnExpression : ColumnExpression
-    {
-        private readonly TableReferenceExpression _table;
-
-        public ConcreteColumnExpression(IProperty property, IColumnBase column, TableReferenceExpression table, bool nullable)
-            : this(
-                column.Name,
-                table,
-                property.ClrType.UnwrapNullableType(),
-                column.PropertyMappings.First(m => m.Property == property).TypeMapping,
-                nullable || column.IsNullable)
-        {
-        }
-
-        public ConcreteColumnExpression(ProjectionExpression subqueryProjection, TableReferenceExpression table)
-            : this(
-                subqueryProjection.Alias, table,
-                subqueryProjection.Type, subqueryProjection.Expression.TypeMapping!,
-                IsNullableProjection(subqueryProjection))
-        {
-        }
-
-        private static bool IsNullableProjection(ProjectionExpression projectionExpression)
-            => projectionExpression.Expression switch
-            {
-                ColumnExpression columnExpression => columnExpression.IsNullable,
-                SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                _ => true
-            };
-
-        public ConcreteColumnExpression(
-            string name,
-            TableReferenceExpression table,
-            Type type,
-            RelationalTypeMapping? typeMapping,
-            bool nullable)
-            : base(type, typeMapping)
-        {
-            Name = name;
-            _table = table;
-            IsNullable = nullable;
-        }
-
-        public override string Name { get; }
-
-        public override TableExpressionBase Table
-            => _table.Table;
-
-        public override string TableAlias
-            => _table.Alias;
-
-        public override bool IsNullable { get; }
-
-        /// <inheritdoc />
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            // We only need to visit the table reference expression since TableReferenceUpdatingExpressionVisitor may need to modify it; it
-            // mutates TableReferenceExpression (a new TableReferenceExpression is never returned).
-            var newTable = (TableReferenceExpression)visitor.Visit(_table);
-            Check.DebugAssert(newTable == _table, $"New {nameof(TableReferenceExpression)} returned during visitation!");
-
-            return this;
-        }
-
-        public override ConcreteColumnExpression MakeNullable()
-            => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping, true);
-
-        public override SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
-            => new ConcreteColumnExpression(Name, _table, Type, typeMapping, IsNullable);
-
-        internal void Verify(IReadOnlyList<TableReferenceExpression> tableReferences)
-        {
-            if (!tableReferences.Contains(_table, ReferenceEqualityComparer.Instance))
-            {
-                throw new InvalidOperationException("Dangling column.");
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is ConcreteColumnExpression concreteColumnExpression
-                    && Equals(concreteColumnExpression));
-
-        private bool Equals(ConcreteColumnExpression concreteColumnExpression)
-            => base.Equals(concreteColumnExpression)
-                && Name == concreteColumnExpression.Name
-                && _table.Equals(concreteColumnExpression._table)
-                && IsNullable == concreteColumnExpression.IsNullable;
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), Name, _table, IsNullable);
     }
 
     private struct SingleCollectionInfo
@@ -580,175 +404,38 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class SelectExpressionVerifyingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly List<TableReferenceExpression> _tableReferencesInScope = [];
-
-        public SelectExpressionVerifyingExpressionVisitor(IEnumerable<TableReferenceExpression> tableReferencesInScope)
-        {
-            _tableReferencesInScope.AddRange(tableReferencesInScope);
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            switch (expression)
-            {
-                case SelectExpression selectExpression:
-                    foreach (var tableReference in selectExpression._tableReferences)
-                    {
-                        tableReference.Verify(selectExpression);
-                    }
-
-                    var currentLevelTableReferences = new List<TableReferenceExpression>();
-                    for (var i = 0; i < selectExpression._tables.Count; i++)
-                    {
-                        var table = selectExpression._tables[i];
-                        var tableReference = selectExpression._tableReferences[i];
-                        switch (table)
-                        {
-                            case PredicateJoinExpressionBase predicateJoinExpressionBase:
-                                Verify(predicateJoinExpressionBase.Table, _tableReferencesInScope);
-                                currentLevelTableReferences.Add(tableReference);
-                                Verify(
-                                    predicateJoinExpressionBase.JoinPredicate,
-                                    _tableReferencesInScope.Concat(currentLevelTableReferences));
-                                break;
-
-                            case SelectExpression innerSelectExpression:
-                                Verify(innerSelectExpression, _tableReferencesInScope);
-                                break;
-
-                            case CrossApplyExpression crossApplyExpression:
-                                Verify(crossApplyExpression, _tableReferencesInScope.Concat(currentLevelTableReferences));
-                                break;
-
-                            case OuterApplyExpression outerApplyExpression:
-                                Verify(outerApplyExpression, _tableReferencesInScope.Concat(currentLevelTableReferences));
-                                break;
-
-                            case JoinExpressionBase joinExpressionBase:
-                                Verify(joinExpressionBase.Table, _tableReferencesInScope);
-                                break;
-
-                            case SetOperationBase setOperationBase:
-                                Verify(setOperationBase.Source1, _tableReferencesInScope);
-                                Verify(setOperationBase.Source2, _tableReferencesInScope);
-                                break;
-                        }
-
-                        if (table is not PredicateJoinExpressionBase)
-                        {
-                            currentLevelTableReferences.Add(tableReference);
-                        }
-                    }
-
-                    _tableReferencesInScope.AddRange(currentLevelTableReferences);
-
-                    foreach (var projection in selectExpression._projection)
-                    {
-                        Visit(projection);
-                    }
-
-                    foreach (var keyValuePair in selectExpression._projectionMapping)
-                    {
-                        Visit(keyValuePair.Value);
-                    }
-
-                    foreach (var clientProjection in selectExpression._clientProjections)
-                    {
-                        Visit(clientProjection);
-                    }
-
-                    foreach (var grouping in selectExpression._groupBy)
-                    {
-                        Visit(grouping);
-                    }
-
-                    foreach (var ordering in selectExpression._orderings)
-                    {
-                        Visit(ordering);
-                    }
-
-                    Visit(selectExpression.Predicate);
-                    Visit(selectExpression.Having);
-                    Visit(selectExpression.Offset);
-                    Visit(selectExpression.Limit);
-
-                    foreach (var identifier in selectExpression._identifier)
-                    {
-                        Visit(identifier.Column);
-                    }
-
-                    foreach (var childIdentifier in selectExpression._childIdentifiers)
-                    {
-                        Visit(childIdentifier.Column);
-                    }
-
-                    return selectExpression;
-
-                case ConcreteColumnExpression concreteColumnExpression:
-                    concreteColumnExpression.Verify(_tableReferencesInScope);
-                    return concreteColumnExpression;
-
-                case ShapedQueryExpression shapedQueryExpression:
-                    Verify(shapedQueryExpression.QueryExpression, _tableReferencesInScope);
-                    return shapedQueryExpression;
-            }
-
-            return base.Visit(expression);
-        }
-
-        private static void Verify(Expression expression, IEnumerable<TableReferenceExpression> tableReferencesInScope)
-            => new SelectExpressionVerifyingExpressionVisitor(tableReferencesInScope)
-                .Visit(expression);
-    }
-
     // We sometimes clone when the result will be integrated in the same query tree (e.g. GroupBy - this needs to be reviewed and hopefully
     // improved); for those cases SqlAliasManager is passed in and ensures unique table aliases across the entire query.
     // But for split query, we clone in order to create a completely separate query, in which case we don't want unique aliases - and so
     // SqlAliasManager isn't passed in.
     private sealed class CloningExpressionVisitor(SqlAliasManager? sqlAliasManager) : ExpressionVisitor
     {
+        private readonly Dictionary<string, string> _tableAliasMap = new();
+
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
-            => expression switch
-            {
-                TableExpressionBase table
-                    => table.Clone(
-                        sqlAliasManager is null || table.Alias is null
-                            ? table.Alias
-                            : sqlAliasManager.GenerateTableAlias(table.Alias), this),
-
-                _ => base.Visit(expression)
-            };
-    }
-
-    private sealed class ColumnExpressionReplacingExpressionVisitor : ExpressionVisitor
-    {
-        private readonly SelectExpression _oldSelectExpression;
-        private readonly List<TableReferenceExpression> _newTableReferences;
-
-        public ColumnExpressionReplacingExpressionVisitor(
-            SelectExpression oldSelectExpression,
-            IEnumerable<TableReferenceExpression> newTableReferences)
         {
-            _oldSelectExpression = oldSelectExpression;
-            _newTableReferences = newTableReferences.ToList();
-        }
+            switch (expression)
+            {
+                case TableExpressionBase table:
+                {
+                    if (sqlAliasManager is null || table.Alias is null)
+                    {
+                        return table.Clone(table.Alias, this);
+                    }
 
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-            => expression is ConcreteColumnExpression concreteColumnExpression
-                && _oldSelectExpression.Tables.IndexOf(concreteColumnExpression.Table) is var index
-                && index > -1
-                    ? new ConcreteColumnExpression(
-                        concreteColumnExpression.Name,
-                        _newTableReferences[index],
-                        concreteColumnExpression.Type,
-                        concreteColumnExpression.TypeMapping!,
-                        concreteColumnExpression.IsNullable)
-                    : base.Visit(expression);
+                    var newTableAlias = sqlAliasManager.GenerateTableAlias(table.Alias);
+                    _tableAliasMap[table.Alias] = newTableAlias;
+                    return table.Clone(newTableAlias, this);
+                }
+
+                case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):
+                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
+
+                default:
+                    return base.Visit(expression);
+            }
+        }
     }
 
     private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
@@ -785,8 +472,7 @@ public sealed partial class SelectExpression
                 foreach (var kvp in selectExpression._tpcDiscriminatorValues)
                 {
                     var tpcTablesExpression = kvp.Key;
-                    var subSelectExpressions = tpcTablesExpression.Prune(kvp.Value.Item2).SelectExpressions
-                        .Select(AssignUniqueAliasToTable).ToList();
+                    var subSelectExpressions = tpcTablesExpression.Prune(kvp.Value.Item2).SelectExpressions;
                     var firstSelectExpression = subSelectExpressions[0]; // There will be at least one.
 
                     int[]? reindexingMap = null;
@@ -834,14 +520,12 @@ public sealed partial class SelectExpression
 
                         var setOperationAlias = _sqlAliasManager.GenerateTableAlias("union");
                         var unionExpression = new UnionExpression(setOperationAlias, source1, source2, distinct: false);
-                        var tableReferenceExpression = new TableReferenceExpression(generatedSelectExpression, setOperationAlias);
                         generatedSelectExpression._tables.Add(unionExpression);
-                        generatedSelectExpression._tableReferences.Add(tableReferenceExpression);
                         foreach (var projection in result.Projection)
                         {
                             generatedSelectExpression._projection.Add(
                                 new ProjectionExpression(
-                                    new ConcreteColumnExpression(projection, tableReferenceExpression), projection.Alias));
+                                    CreateColumnExpression(projection, setOperationAlias), projection.Alias));
                         }
 
                         generatedSelectExpression._mutable = false;
@@ -866,21 +550,10 @@ public sealed partial class SelectExpression
                     {
                         result.Alias = tpcTablesExpression.Alias;
                         var tableIndex =
-                            selectExpression._tables.FindIndex(teb => ReferenceEquals(UnwrapJoinExpression(teb), tpcTablesExpression));
+                            selectExpression._tables.FindIndex(teb => ReferenceEquals(teb.UnwrapJoin(), tpcTablesExpression));
                         var table = selectExpression._tables[tableIndex];
                         selectExpression._tables[tableIndex] = (TableExpressionBase)ReplacingExpressionVisitor.Replace(
                             tpcTablesExpression, result, table);
-                    }
-
-                    SelectExpression AssignUniqueAliasToTable(SelectExpression se)
-                    {
-                        // we assign unique alias to inner tables here so that we can avoid wasting aliases on pruned tables
-                        var table = se._tables[0];
-                        var alias = _sqlAliasManager.GenerateTableAlias(table.Alias!);
-                        table.Alias = alias;
-                        se._tableReferences[0].Alias = alias;
-
-                        return se;
                     }
                 }
 

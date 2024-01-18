@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -169,7 +168,7 @@ public class SqlAliasManager
 
     private sealed class TableAliasRewriter(IReadOnlyDictionary<string, string> aliasRewritingMap) : ExpressionVisitor
     {
-        private readonly HashSet<TableReferenceExpression> _visitedTableReferences = new(ReferenceEqualityComparer.Instance);
+        private readonly HashSet<TableExpressionBase> _visitedTables = new(ReferenceEqualityComparer.Instance);
 
         internal static Expression Rewrite(Expression expression, IReadOnlyDictionary<string, string> aliasRewritingMap)
             => new TableAliasRewriter(aliasRewritingMap).Visit(expression);
@@ -181,21 +180,28 @@ public class SqlAliasManager
                 case ShapedQueryExpression shapedQuery:
                     return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
 
-                case SelectExpression select:
-                    for (var i = 0; i < select.Tables.Count; i++)
+                // Note that this skips joins (which wrap the table that has the actual alias), as well as the top-level select
+                case TableExpressionBase { Alias: string alias } table:
+                    // TODO: Needed only because TableExpressionBase is still mutable with regards to its alias - remove after that's gone.
+                    if (!_visitedTables.Add(table))
                     {
-                        var table = select.Tables[i];
-
-                        if (aliasRewritingMap.TryGetValue(table.UnwrapJoin().Alias!, out var newAlias))
-                        {
-                            // TableReferenceExpression instances can (currently) be shared by multiple SelectExpression instances in the
-                            // same tree. We don't want to the same one multiple times, so we track the ones we already visited.
-                            // This will all go away soon as we get rid of TableReferenceExpression altogether.
-                            select.ChangeTableAlias(i, newAlias, _visitedTableReferences);
-                        }
+                        return table;
                     }
 
-                    return base.VisitExtension(node);
+                    if (aliasRewritingMap.TryGetValue(alias, out var newAlias))
+                    {
+                        // TODO: TableExpressionBase is still mutable with regards to its alias - this needs to change.
+                        // TODO: This visitor needs to replace the table in the usual way; but we don't currently have a good way of
+                        // TODO: recreating a new TableExpressionBase implementation with a different alias.
+                        // TODO: Either add a mandatory, abstract non-destructive ChangeAlias to TableExpressionBase, or ideally,
+                        // TODO: refactor things to split the alias out of TableExpressionBase altogether.
+                        table.Alias = newAlias;
+                    }
+
+                    return base.VisitExtension(table);
+
+                case ColumnExpression column when aliasRewritingMap.TryGetValue(column.TableAlias, out var newTableAlias):
+                    return new ColumnExpression(column.Name, newTableAlias, column.Type, column.TypeMapping, column.IsNullable);
 
                 default:
                     return base.VisitExtension(node);
