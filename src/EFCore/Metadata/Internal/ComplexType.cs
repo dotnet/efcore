@@ -43,7 +43,7 @@ public class ComplexType : TypeBase, IMutableComplexType, IConventionComplexType
     {
         if (!type.IsValidComplexType())
         {
-            throw new ArgumentException(CoreStrings.InvalidComplexType(type));
+            //throw new ArgumentException(CoreStrings.InvalidComplexType(type));
         }
 
         if (EntityType.DynamicProxyGenAssemblyName.Equals(

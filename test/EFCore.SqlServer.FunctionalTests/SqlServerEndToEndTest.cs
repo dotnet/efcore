@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable StringStartsWithIsCultureSpecific
 // ReSharper disable VirtualMemberCallInConstructor
@@ -12,6 +13,82 @@ using System.Runtime.CompilerServices;
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
+
+public class Scratch
+{
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public Scratch(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
+    [ConditionalFact]
+    public void Main()
+    {
+        var now = new DateTimeOffset(new DateTime(1973, 9, 3, 10, 11, 12), TimeSpan.FromHours(-4));
+
+        using (var context = new SomeDbContext())
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+
+            context.Add(new Foo { Date = now });
+
+            context.SaveChanges();
+        }
+
+        using (var context = new SomeDbContext())
+        {
+            var dateTimeOffset = context.Set<Foo>().Single().Date;
+            Assert.Equal(now, dateTimeOffset);
+        }
+    }
+
+    public class SomeDbContext : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder
+                .UseSqlServer(@"Data Source=localhost;Database=One;Integrated Security=True;TrustServerCertificate=true")
+                .LogTo(Console.WriteLine, LogLevel.Information)
+                .EnableSensitiveDataLogging();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Foo>().ComplexProperty(
+                e => e.Date, b =>
+                {
+                    var timeProperty = b.Property(e => e.UtcDateTime).HasField("_dateTime").Metadata;
+                    var offsetProperty = b.Property<short>("_offsetMinutes").Metadata;
+
+                    var complexType = (ComplexType)b.Metadata.ComplexType;
+                    complexType.ConstructorBinding = new ConstructorBinding(
+                        typeof(DateTimeOffset)
+                            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                            .Single(
+                                c =>
+                                {
+                                    var parameters = c.GetParameters();
+                                    return parameters.Length == 2
+                                        && parameters[0].Name == "validOffsetMinutes"
+                                        && parameters[1].Name == "validDateTime";
+                                }),
+                        new[]
+                        {
+                            new PropertyParameterBinding((IProperty)offsetProperty),
+                            new PropertyParameterBinding((IProperty)timeProperty)
+                        });
+                });
+        }
+    }
+
+
+    public class Foo
+    {
+        public int Id { get; set; }
+        public DateTimeOffset Date { get; set; }
+    }
+}
 
 public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 {

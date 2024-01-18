@@ -263,17 +263,20 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             namedIndexCount: entityType.GetDeclaredProperties().Count(i => i.Name != null),
             keyCount: entityType.GetDeclaredKeys().Count());
 
-    private static ParameterBinding Create(ParameterBinding parameterBinding, RuntimeEntityType entityType)
-        => parameterBinding.With(
+    private static ParameterBinding Create(ParameterBinding parameterBinding, RuntimeTypeBase typeBase)
+    {
+        var entityType = typeBase as IEntityType;
+        return parameterBinding.With(
             parameterBinding.ConsumedProperties.Select(
                 property =>
-                    (entityType.FindProperty(property.Name)
-                        ?? entityType.FindServiceProperty(property.Name)
-                        ?? entityType.FindNavigation(property.Name)
-                        ?? (IPropertyBase?)entityType.FindSkipNavigation(property.Name))!).ToArray());
+                    (typeBase.FindProperty(property.Name)
+                        ?? entityType?.FindServiceProperty(property.Name)
+                        ?? entityType?.FindNavigation(property.Name)
+                        ?? (IPropertyBase?)entityType?.FindSkipNavigation(property.Name))!).ToArray());
+    }
 
-    private static InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeEntityType entityType)
-        => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, entityType)).ToList());
+    private static InstantiationBinding? Create(InstantiationBinding? instantiationBinding, RuntimeTypeBase typeBase)
+        => instantiationBinding?.With(instantiationBinding.ParameterBindings.Select(binding => Create(binding, typeBase)).ToList());
 
     /// <summary>
     ///     Updates the entity type annotations that will be set on the read-only object.
@@ -559,6 +562,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         CreateAnnotations(
             complexType, runtimeComplexType, static (convention, annotations, source, target, runtime) =>
                 convention.ProcessComplexTypeAnnotations(annotations, source, target, runtime));
+
+        runtimeComplexType.ConstructorBinding = Create(complexType.ConstructorBinding, runtimeComplexType);
+
         return runtimeComplexProperty;
     }
 
