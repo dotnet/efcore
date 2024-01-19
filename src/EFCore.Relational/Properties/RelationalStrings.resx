@@ -136,6 +136,9 @@
   <data name="CannotProjectNullableComplexType" xml:space="preserve">
     <value>You are attempting to project out complex type '{complexType}' via an optional navigation; that is currently not supported. Either project out the complex type in a non-optional context, or project the containing entity type along with the complex type.</value>
   </data>
+  <data name="CannotSetAliasOnJoin" xml:space="preserve">
+    <value>Join expressions have no aliases; set the alias on the enclosed table expression.</value>
+  </data>
   <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
     <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
   </data>
@@ -926,6 +929,9 @@
   </data>
   <data name="NoActiveTransaction" xml:space="preserve">
     <value>The connection does not have any active transactions.</value>
+  </data>
+  <data name="NoAliasOnTable" xml:space="preserve">
+    <value>No alias is defined on table: '{table}'.</value>
   </data>
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>

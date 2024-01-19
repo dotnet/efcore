@@ -29,7 +29,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
         TableExpressionBase table,
         SqlExpression joinPredicate,
         bool prunable,
-        IEnumerable<IAnnotation>? annotations = null)
+        IReadOnlyDictionary<string, IAnnotation>? annotations = null)
         : base(table, joinPredicate, prunable, annotations)
     {
     }
@@ -43,7 +43,7 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override LeftJoinExpression Update(TableExpressionBase table, SqlExpression joinPredicate)
         => table != Table || joinPredicate != JoinPredicate
-            ? new LeftJoinExpression(table, joinPredicate, IsPrunable, GetAnnotations())
+            ? new LeftJoinExpression(table, joinPredicate, IsPrunable, Annotations)
             : this;
 
     /// <summary>
@@ -54,12 +54,12 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override LeftJoinExpression Update(TableExpressionBase table)
         => table != Table
-            ? new LeftJoinExpression(table, JoinPredicate, IsPrunable, GetAnnotations())
+            ? new LeftJoinExpression(table, JoinPredicate, IsPrunable, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new LeftJoinExpression(Table, JoinPredicate, IsPrunable, annotations);
+    protected override LeftJoinExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Table, JoinPredicate, IsPrunable, annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

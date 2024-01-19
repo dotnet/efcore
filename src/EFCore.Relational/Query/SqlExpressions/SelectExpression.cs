@@ -46,8 +46,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     private readonly List<string?> _aliasForClientProjections = [];
     private CloningExpressionVisitor? _cloningExpressionVisitor;
 
-    private SortedDictionary<string, IAnnotation>? _annotations;
-
     // We need to remember identifiers before GroupBy in case it is final GroupBy and element selector has a collection
     // This state doesn't need to propagate
     // It should be only at top-level otherwise GroupBy won't be final operator.
@@ -61,24 +59,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         List<TableExpressionBase> tables,
         List<SqlExpression> groupBy,
         List<OrderingExpression> orderings,
-        IEnumerable<IAnnotation> annotations,
+        IReadOnlyDictionary<string, IAnnotation>? annotations,
         SqlAliasManager sqlAliasManager)
-        : base(alias)
+        : base(alias, annotations)
     {
         _projection = projections;
         _tables = tables;
         _groupBy = groupBy;
         _orderings = orderings;
-
-        if (annotations != null)
-        {
-            _annotations = new SortedDictionary<string, IAnnotation>();
-            foreach (var annotation in annotations)
-            {
-                _annotations[annotation.Name] = annotation;
-            }
-        }
-
         _sqlAliasManager = sqlAliasManager;
     }
 
@@ -2466,7 +2454,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         // TODO: Introduce clone method? See issue#24460
         var select1 = new SelectExpression(
-            alias: null, projections: [], _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), GetAnnotations(), _sqlAliasManager)
+            alias: null, projections: [], _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), Annotations, _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -3936,7 +3924,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             _sqlAliasManager.GenerateTableAlias(_tables is [{ Alias: string singleTableAlias }] ? singleTableAlias : "subquery");
 
         var subquery = new SelectExpression(
-            subqueryAlias, [], _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), GetAnnotations(), _sqlAliasManager)
+            subqueryAlias, [], _tables.ToList(), _groupBy.ToList(), _orderings.ToList(), Annotations, _sqlAliasManager)
         {
             IsDistinct = IsDistinct,
             Predicate = Predicate,
@@ -4318,7 +4306,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var limit = (SqlExpression?)cloningExpressionVisitor.Visit(Limit);
 
         var newSelectExpression = new SelectExpression(
-            alias, newProjections, newTables, newGroupBy, newOrderings, GetAnnotations(), _sqlAliasManager)
+            alias, newProjections, newTables, newGroupBy, newOrderings, Annotations, _sqlAliasManager)
         {
             Predicate = predicate,
             Having = havingExpression,
@@ -4776,7 +4764,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (changed)
             {
                 var newSelectExpression = new SelectExpression(
-                    Alias, newProjections, newTables, newGroupBy, newOrderings, GetAnnotations(), _sqlAliasManager)
+                    Alias, newProjections, newTables, newGroupBy, newOrderings, Annotations, _sqlAliasManager)
                 {
                     _clientProjections = _clientProjections,
                     _projectionMapping = _projectionMapping,
@@ -4881,7 +4869,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         // TODO: This always creates a new expression. It should check if anything changed instead (#31276), allowing us to remove "changed"
         // tracking from calling code.
         var newSelectExpression = new SelectExpression(
-            Alias, projections.ToList(), tables.ToList(), groupBy.ToList(), orderings.ToList(), GetAnnotations(), _sqlAliasManager)
+            Alias, projections.ToList(), tables.ToList(), groupBy.ToList(), orderings.ToList(), Annotations, _sqlAliasManager)
         {
             _projectionMapping = projectionMapping,
             _clientProjections = _clientProjections.ToList(),
@@ -4901,33 +4889,27 @@ public sealed partial class SelectExpression : TableExpressionBase
     }
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => throw new NotImplementedException("inconceivable");
+    protected override SelectExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => throw new UnreachableException("inconceivable");
 
     /// <inheritdoc />
-    public override TableExpressionBase AddAnnotation(string name, object? value)
+    public override SelectExpression WithAlias(string newAlias)
     {
-        var oldAnnotation = FindAnnotation(name);
-        if (oldAnnotation != null)
+        Check.DebugAssert(!_mutable, "Can't change alias on mutable SelectExpression");
+
+        return new SelectExpression(newAlias, _projection, _tables, _groupBy, _orderings, Annotations, _sqlAliasManager)
         {
-            return Equals(oldAnnotation.Value, value)
-                ? this
-                : throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, this.Print()));
-        }
-
-        _annotations ??= new SortedDictionary<string, IAnnotation>();
-        _annotations[name] = new Annotation(name, value);
-
-        return this;
+            _projectionMapping = _projectionMapping,
+            _clientProjections = _clientProjections.ToList(),
+            Predicate = Predicate,
+            Having = Having,
+            Offset = Offset,
+            Limit = Limit,
+            IsDistinct = IsDistinct,
+            Tags = Tags,
+            _mutable = false
+        };
     }
-
-    /// <inheritdoc />
-    public override IAnnotation? FindAnnotation(string name)
-        => _annotations?.GetValueOrDefault(name);
-
-    /// <inheritdoc />
-    public override IEnumerable<IAnnotation> GetAnnotations()
-        => _annotations?.Values ?? Enumerable.Empty<IAnnotation>();
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

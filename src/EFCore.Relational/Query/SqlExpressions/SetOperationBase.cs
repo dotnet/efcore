@@ -45,7 +45,7 @@ public abstract class SetOperationBase : TableExpressionBase
         SelectExpression source1,
         SelectExpression source2,
         bool distinct,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         IsDistinct = distinct;
@@ -56,12 +56,8 @@ public abstract class SetOperationBase : TableExpressionBase
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     The bool value indicating whether result will remove duplicate rows.

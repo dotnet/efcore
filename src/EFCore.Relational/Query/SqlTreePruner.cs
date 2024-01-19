@@ -74,7 +74,7 @@ public class SqlTreePruner : ExpressionVisitor
                     Visit(relationalSplitCollectionShaperExpression.InnerShaper));
 
             case DeleteExpression deleteExpression:
-                return deleteExpression.Update(deleteExpression.SelectExpression.PruneToplevel(this));
+                return deleteExpression.Update(deleteExpression.Table, deleteExpression.SelectExpression.PruneToplevel(this));
 
             case UpdateExpression updateExpression:
                 // Note that we must visit the setters before we visit the select, since the setters can reference tables inside it.

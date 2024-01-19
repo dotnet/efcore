@@ -34,7 +34,7 @@ public sealed class TpcTablesExpression : TableExpressionBase
         string? alias,
         IEntityType entityType,
         IReadOnlyList<SelectExpression> subSelectExpressions,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, annotations)
     {
         EntityType = entityType;
@@ -47,12 +47,8 @@ public sealed class TpcTablesExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [NotNull]
-    public override string? Alias
-    {
-        get => base.Alias!;
-        internal set => base.Alias = value;
-    }
+    public override string Alias
+        => base.Alias!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -86,7 +82,7 @@ public sealed class TpcTablesExpression : TableExpressionBase
 
         Check.DebugAssert(subSelectExpressions.Count > 0, "TPC must have at least 1 table selected.");
 
-        return new TpcTablesExpression(Alias, EntityType, subSelectExpressions, GetAnnotations());
+        return new TpcTablesExpression(Alias, EntityType, subSelectExpressions, Annotations);
     }
 
     /// <summary>
@@ -105,8 +101,12 @@ public sealed class TpcTablesExpression : TableExpressionBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new TpcTablesExpression(Alias, EntityType, SelectExpressions, annotations);
+    protected override TpcTablesExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Alias, EntityType, SelectExpressions, annotations);
+
+    /// <inheritdoc />
+    public override TpcTablesExpression WithAlias(string newAlias)
+        => new(newAlias, EntityType, SelectExpressions, Annotations);
 
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)

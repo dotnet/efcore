@@ -35,7 +35,7 @@ public class UnionExpression : SetOperationBase
         SelectExpression source1,
         SelectExpression source2,
         bool distinct,
-        IEnumerable<IAnnotation>? annotations)
+        IReadOnlyDictionary<string, IAnnotation>? annotations)
         : base(alias, source1, source2, distinct, annotations)
     {
     }
@@ -58,12 +58,12 @@ public class UnionExpression : SetOperationBase
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public override UnionExpression Update(SelectExpression source1, SelectExpression source2)
         => source1 != Source1 || source2 != Source2
-            ? new UnionExpression(Alias, source1, source2, IsDistinct, GetAnnotations())
+            ? new UnionExpression(Alias, source1, source2, IsDistinct, Annotations)
             : this;
 
     /// <inheritdoc />
-    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new UnionExpression(Alias, Source1, Source2, IsDistinct, annotations);
+    protected override UnionExpression WithAnnotations(IReadOnlyDictionary<string, IAnnotation> annotations)
+        => new(Alias, Source1, Source2, IsDistinct, annotations);
 
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
@@ -72,6 +72,10 @@ public class UnionExpression : SetOperationBase
             (SelectExpression)cloningExpressionVisitor.Visit(Source1),
             (SelectExpression)cloningExpressionVisitor.Visit(Source2),
             IsDistinct);
+
+    /// <inheritdoc />
+    public override UnionExpression WithAlias(string newAlias)
+        => new(newAlias, Source1, Source2, IsDistinct);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
