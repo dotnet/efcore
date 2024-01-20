@@ -24,7 +24,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 ///         for more information and examples.
 ///     </para>
 /// </remarks>
-public interface ICommandBatchPreparer
+public interface ICommandBatchPreparer : IResettableService
 {
     /// <summary>
     ///     Creates the command batches needed to insert/update/delete the entities represented by the given

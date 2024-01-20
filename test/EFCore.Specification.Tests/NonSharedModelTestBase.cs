@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
 {
-    public static IEnumerable<object[]> IsAsyncData = new object[][] { [false], [true] };
+    public static IEnumerable<object[]> IsAsyncData = [[false], [true]];
 
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
@@ -106,7 +106,7 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
         addServices?.Invoke(services);
 
         services = usePooling
-            ? services.AddDbContextPool(typeof(TContext), (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring))
+            ? services.AddPooledDbContextFactory(typeof(TContext), (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring))
             : services.AddDbContext(
                 typeof(TContext),
                 (s, b) => ConfigureOptions(useServiceProvider ? s : null, b, onConfiguring),
@@ -180,8 +180,8 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
             UsePooling = usePooling;
             if (usePooling)
             {
-                ContextPool ??= (IDbContextPool)ServiceProvider
-                    .GetRequiredService(typeof(IDbContextPool<>).MakeGenericType(typeof(TContext)));
+                PooledContextFactory = (IDbContextFactory<TContext>)ServiceProvider
+                    .GetRequiredService(typeof(IDbContextFactory<TContext>));
             }
 
             TestStore = testStore;
@@ -189,12 +189,14 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
 
         public IServiceProvider ServiceProvider { get; }
         protected virtual bool UsePooling { get; }
-        private IDbContextPool ContextPool { get; }
+
+        private IDbContextFactory<TContext> PooledContextFactory { get; }
+
         public TestStore TestStore { get; }
 
         public virtual TContext CreateContext()
             => UsePooling
-                ? (TContext)new DbContextLease(ContextPool, standalone: true).Context
+                ? PooledContextFactory.CreateDbContext()
                 : (TContext)ServiceProvider.GetRequiredService(typeof(TContext));
     }
 }
