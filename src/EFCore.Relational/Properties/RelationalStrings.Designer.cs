@@ -1552,6 +1552,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     SelectExpression.Update() is not supported while the expression is in mutable state.
+        /// </summary>
+        public static string SelectExpressionUpdateNotSupportedWhileMutable
+            => GetString("SelectExpressionUpdateNotSupportedWhileMutable");
+
+        /// <summary>
         ///     Set operations over different entity or complex types are not supported ('{type1}' and '{type2}').
         /// </summary>
         public static string SetOperationOverDifferentStructuralTypes(object? type1, object? type2)

@@ -527,7 +527,7 @@ public sealed partial class SelectExpression
                                     CreateColumnExpression(projection, setOperationAlias), projection.Alias));
                         }
 
-                        generatedSelectExpression._mutable = false;
+                        generatedSelectExpression.IsMutable = false;
                         result = generatedSelectExpression;
                     }
 

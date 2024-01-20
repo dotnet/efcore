@@ -104,7 +104,7 @@ public sealed class UpdateExpression : Expression, IPrintableExpression
 
         return selectExpression == SelectExpression && table == Table && columnValueSetters is null
             ? this
-            : new UpdateExpression(Table, selectExpression, columnValueSetters ?? ColumnValueSetters);
+            : new UpdateExpression(table, selectExpression, columnValueSetters ?? ColumnValueSetters);
     }
 
     /// <summary>
