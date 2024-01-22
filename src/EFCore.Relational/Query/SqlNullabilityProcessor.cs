@@ -250,25 +250,39 @@ public class SqlNullabilityProcessor
     /// <param name="selectExpression">A select expression to visit.</param>
     /// <returns>An optimized select expression.</returns>
     protected virtual SelectExpression Visit(SelectExpression selectExpression)
+        => Visit(selectExpression, visitProjection: true);
+
+    /// <summary>
+    ///     Visits a <see cref="SelectExpression" />.
+    /// </summary>
+    /// <param name="selectExpression">A select expression to visit.</param>
+    /// <param name="visitProjection">Allows skipping visiting the projection, for when it will be visited outside.</param>
+    /// <returns>An optimized select expression.</returns>
+    protected virtual SelectExpression Visit(SelectExpression selectExpression, bool visitProjection)
     {
         var projections = (List<ProjectionExpression>)selectExpression.Projection;
-        for (var i = 0; i < selectExpression.Projection.Count; i++)
+        if (visitProjection)
         {
-            var item = selectExpression.Projection[i];
-            var projection = item.Update(Visit(item.Expression, out _));
-            if (projection != item
-                && projections == selectExpression.Projection)
+            for (var i = 0; i < selectExpression.Projection.Count; i++)
             {
-                projections = [];
-                for (var j = 0; j < i; j++)
+                var item = selectExpression.Projection[i];
+                var projection = item.Update(Visit(item.Expression, out _));
+                if (projection != item
+                    && projections == selectExpression.Projection)
                 {
-                    projections.Add(selectExpression.Projection[j]);
-                }
-            }
+                    projections = [];
+                    for (var j = 0; j < i; j++)
+                    {
+                        projections.Add(selectExpression.Projection[j]);
+                    }
 
-            if (projections != selectExpression.Projection)
-            {
-                projections.Add(projection);
+
+                }
+
+                if (projections != selectExpression.Projection)
+                {
+                    projections.Add(projection);
+                }
             }
         }
 
@@ -635,7 +649,15 @@ public class SqlNullabilityProcessor
 
         if (inExpression.Subquery != null)
         {
-            var subquery = Visit(inExpression.Subquery);
+            if (inExpression.Subquery.Projection is not [{ Expression: var subqueryProjection }])
+            {
+                // We don't currently support more than one projection in an IN subquery; but that's supported by SQL and may be supported
+                // in the future (e.g. WHERE (x,y) IN ((1,2), (3,4))).
+                throw new UnreachableException("Subqueries with multiple projections not yet supported in IN");
+            }
+
+            // There's a single column being projected out of the IN subquery; visit it separately so we get nullability info out.
+            var subquery = Visit(inExpression.Subquery, visitProjection: false);
 
             // a IN (SELECT * FROM table WHERE false) => false
             if (IsFalse(subquery.Predicate))
@@ -645,25 +667,12 @@ public class SqlNullabilityProcessor
                 return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
             }
 
-            // Check whether the subquery projects out a nullable value; note that we unwrap any casts to get to the underlying
-            // ColumnExpression (since casts don't affect nullability).
-            // Note: we could broaden the optimization if we knew the nullability of the projection but we don't keep that information and
-            // we want to avoid double visitation
-            var subqueryProjection = subquery.Projection.Single().Expression;
-
-            inExpression = inExpression.Update(item, subquery);
-
-            var unwrappedSubqueryProjection = subqueryProjection;
-            while (unwrappedSubqueryProjection is SqlUnaryExpression
-                   {
-                       OperatorType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: var operand
-                   })
-            {
-                unwrappedSubqueryProjection = operand;
-            }
-
-            var projectionNullable =
-                unwrappedSubqueryProjection is not ColumnExpression { IsNullable: false } and not SqlConstantExpression { Value: null };
+            var projectionExpression = Visit(subqueryProjection, allowOptimizedExpansion, out var projectionNullable);
+            inExpression = inExpression.Update(
+                item, subquery.Update(
+                    [subquery.Projection[0].Update(projectionExpression)],
+                    subquery.Tables, subquery.Predicate, subquery.GroupBy, subquery.Having, subquery.Orderings, subquery.Limit,
+                    subquery.Offset));
 
             if (UseRelationalNulls)
             {
@@ -1140,6 +1149,9 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
+        // Note that even if the subquery's projection is non-nullable, the scalar subquery still returns NULL if no rows are found
+        // (e.g. SELECT (SELECT 1 WHERE 1 = 2) IS NULL), so a scalar subquery is always nullable. Compare this with IN, where if the
+        // subquery's projection is non-nullable, we can optimize based on that.
         nullable = true;
 
         return scalarSubqueryExpression.Update(Visit(scalarSubqueryExpression.Subquery));
