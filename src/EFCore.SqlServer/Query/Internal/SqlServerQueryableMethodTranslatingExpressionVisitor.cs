@@ -81,10 +81,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     {
         if (extensionExpression is TemporalQueryRootExpression queryRootExpression)
         {
-#pragma warning disable EF1001
-            var selectExpression = RelationalDependencies.SqlExpressionFactory.Select(
-                queryRootExpression.EntityType, _queryCompilationContext.SqlAliasManager);
-#pragma warning restore EF1001
+            var selectExpression = CreateSelect(queryRootExpression.EntityType);
             Func<TableExpression, TableExpressionBase> annotationApplyingFunc = queryRootExpression switch
             {
                 TemporalAllQueryRootExpression => te => te
@@ -269,17 +266,18 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // collection).
         var isElementNullable = property?.GetElementType()!.IsNullable;
 
+        var keyColumnTypeMapping = _typeMappingSource.FindMapping("nvarchar(4000)")!;
 #pragma warning disable EF1001 // Internal EF Core API usage.
         var selectExpression = new SelectExpression(
-            _queryCompilationContext.SqlAliasManager,
-            openJsonExpression,
-            columnName: "value",
-            columnType: elementClrType,
-            columnTypeMapping: elementTypeMapping,
-            isElementNullable,
-            identifierColumnName: "key",
-            identifierColumnType: typeof(string),
-            identifierColumnTypeMapping: _typeMappingSource.FindMapping("nvarchar(4000)"));
+            [openJsonExpression],
+            new ColumnExpression(
+                "value",
+                tableAlias,
+                elementClrType.UnwrapNullableType(),
+                elementTypeMapping,
+                isElementNullable ?? elementClrType.IsNullableType()),
+            identifier: [(new ColumnExpression("key", tableAlias, typeof(string), keyColumnTypeMapping, nullable: false), keyColumnTypeMapping.Comparer)],
+            _queryCompilationContext.SqlAliasManager);
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
         // OPENJSON doesn't guarantee the ordering of the elements coming out; when using OPENJSON without WITH, a [key] column is returned
@@ -338,7 +336,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         var columnInfos = new List<SqlServerOpenJsonExpression.ColumnInfo>();
 
         // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
-        foreach (var property in GetAllPropertiesInHierarchy(jsonQueryExpression.EntityType))
+        foreach (var property in jsonQueryExpression.EntityType.GetAllPropertiesInHierarchy())
         {
             if (property.GetJsonPropertyName() is string jsonPropertyName)
             {
@@ -353,7 +351,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             }
         }
 
-        foreach (var navigation in GetAllNavigationsInHierarchy(jsonQueryExpression.EntityType)
+        foreach (var navigation in jsonQueryExpression.EntityType.GetAllNavigationsInHierarchy()
                      .Where(
                          n => n.ForeignKey.IsOwnership
                              && n.TargetEntityType.IsMappedToJson()
@@ -376,8 +374,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path, columnInfos);
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
-        var selectExpression = new SelectExpression(
-            _queryCompilationContext.SqlAliasManager,
+        var selectExpression = CreateSelect(
             jsonQueryExpression,
             openJsonExpression,
             "key",
@@ -408,15 +405,6 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     new ProjectionMember(),
                     typeof(ValueBuffer)),
                 false));
-
-        // TODO: Move these to IEntityType?
-        static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredProperties());
-
-        static IEnumerable<INavigation> GetAllNavigationsInHierarchy(IEntityType entityType)
-            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                .SelectMany(t => t.GetDeclaredNavigations());
     }
 
     /// <summary>
@@ -455,7 +443,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         {
             var newInExpression = _sqlExpressionFactory.In(translatedItem, parameter);
 #pragma warning disable EF1001
-            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(newInExpression, _queryCompilationContext.SqlAliasManager));
+            return source.UpdateQueryExpression(new SelectExpression(newInExpression, _queryCompilationContext.SqlAliasManager));
 #pragma warning restore EF1001
         }
 
@@ -541,7 +529,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
 
 #pragma warning disable EF1001
                     return source.UpdateQueryExpression(
-                        _sqlExpressionFactory.Select(translation, _queryCompilationContext.SqlAliasManager));
+                        new SelectExpression(translation, _queryCompilationContext.SqlAliasManager));
 #pragma warning restore EF1001
                 }
             }

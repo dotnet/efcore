@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -458,33 +460,6 @@ public interface ISqlExpressionFactory
     /// <param name="sql">A string token to print in SQL tree.</param>
     /// <returns>An expression representing a SQL token.</returns>
     SqlFragmentExpression Fragment(string sql);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    SelectExpression Select(SqlExpression? projection, SqlAliasManager sqlAliasManager);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    SelectExpression Select(IEntityType entityType, SqlAliasManager sqlAliasManager);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    SelectExpression Select(IEntityType entityType, TableExpressionBase tableExpressionBase, SqlAliasManager sqlAliasManager);
 
     /// <summary>
     ///     Attempts to creates a new expression that returns the smallest value from a list of expressions, e.g. an invocation of the
