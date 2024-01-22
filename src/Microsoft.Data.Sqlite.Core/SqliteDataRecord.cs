@@ -390,7 +390,7 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                //Debug.Assert(rowIdForOrdinal!=null);
+                Debug.Assert(rowIdForOrdinal!=null);
             }
 
             if (rowIdForOrdinal == null)
