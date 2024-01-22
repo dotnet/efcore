@@ -1147,13 +1147,28 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             {
                 var concreteEntityTypes = derivedType.GetConcreteDerivedTypesInclusive().ToList();
                 var discriminatorColumn = BindProperty(typeReference, discriminatorProperty);
+
+                // Apply any value conversion to the discriminator values.
+                // Note that this is important also to get the correct SqlConstantExpression.Type, which needs to be the provider type
+                // rather than the model type; this is in line with how we translate constants everywhere else, and is important in order
+                // for comparison logic between constants to function correctly (see #32865).
+                var converter = discriminatorColumn.TypeMapping?.Converter?.ConvertToProvider;
+
                 return concreteEntityTypes.Count == 1
                     ? _sqlExpressionFactory.Equal(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
+                        _sqlExpressionFactory.Constant(GetDiscriminatorValue(concreteEntityTypes[0])))
                     : _sqlExpressionFactory.In(
                         discriminatorColumn,
-                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
+                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(GetDiscriminatorValue(et))).ToArray());
+
+                object? GetDiscriminatorValue(IEntityType entityType)
+                    => entityType.GetDiscriminatorValue() switch
+                    {
+                        object value when converter is not null => converter(value),
+                        object value => value,
+                        null => null
+                    };
             }
 
             return _sqlExpressionFactory.Constant(true);

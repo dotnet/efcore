@@ -806,14 +806,23 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         {
             var discriminatorColumn = GetMappedProjection(selectExpression).BindProperty(discriminatorProperty);
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
+            var converter = discriminatorColumn.TypeMapping?.Converter?.ConvertToProvider;
             var predicate = concreteEntityTypes.Count == 1
-                ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                : In(discriminatorColumn, concreteEntityTypes.Select(et => Constant(et.GetDiscriminatorValue())).ToArray());
+                ? (SqlExpression)Equal(discriminatorColumn, Constant(GetDiscriminatorValue(concreteEntityTypes[0])))
+                : In(discriminatorColumn, concreteEntityTypes.Select(et => Constant(GetDiscriminatorValue(et))).ToArray());
 
             selectExpression.ApplyPredicate(predicate);
 
             // If discriminator predicate is added then it will also serve as condition for existence of dependents in table sharing
             return;
+
+            object? GetDiscriminatorValue(IEntityType entityType)
+                => entityType.GetDiscriminatorValue() switch
+                {
+                    object value when converter is not null => converter(value),
+                    object value => value,
+                    null => null
+                };
         }
 
         // Keyless entities cannot be table sharing

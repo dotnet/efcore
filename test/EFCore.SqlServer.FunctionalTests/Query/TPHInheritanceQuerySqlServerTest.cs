@@ -226,6 +226,22 @@ WHERE [p].[Genus] = 0
 """);
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task OfType_on_enum_discriminator_with_Where_on_same_discriminator(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Plant>().OfType<Rose>().Where(p => p.Genus == PlantGenus.Rose));
+
+        AssertSql(
+            """
+SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
+FROM [Plants] AS [p]
+WHERE [p].[Genus] = 0
+""");
+    }
+
     public override async Task Can_query_all_animals(bool async)
     {
         await base.Can_query_all_animals(async);
