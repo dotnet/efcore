@@ -321,14 +321,9 @@ public sealed partial class SelectExpression
         public Expression ShaperExpression { get; }
     }
 
-    private sealed class ClientProjectionRemappingExpressionVisitor : ExpressionVisitor
+    private sealed class ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap) : ExpressionVisitor
     {
-        private readonly List<object> _clientProjectionIndexMap;
-
-        public ClientProjectionRemappingExpressionVisitor(List<object> clientProjectionIndexMap)
-        {
-            _clientProjectionIndexMap = clientProjectionIndexMap;
-        }
+        private readonly List<object> _clientProjectionIndexMap = clientProjectionIndexMap;
 
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
@@ -445,125 +440,149 @@ public sealed partial class SelectExpression
 
     private sealed class TpcTableExpressionRemovingExpressionVisitor : ExpressionVisitor
     {
-        private readonly SqlAliasManager _sqlAliasManager;
-
-        public TpcTableExpressionRemovingExpressionVisitor(SqlAliasManager sqlAliasManager)
+        protected override Expression VisitExtension(Expression expression)
         {
-            _sqlAliasManager = sqlAliasManager;
-        }
-
-        [return: NotNullIfNotNull("expression")]
-        public override Expression? Visit(Expression? expression)
-        {
-            if (expression is SelectExpression { _tpcDiscriminatorValues.Count: > 0 } selectExpression)
+            if (expression is not SelectExpression selectExpression)
             {
-                // If selectExpression doesn't have any other component and only TPC tables then we can lift it
-                // We ignore projection here because if this selectExpression has projection from inner TPC
-                // Then TPC will have superset of projection
-                var identitySelect = selectExpression is
-                    {
-                        Tables.Count: 1,
-                        Predicate: null,
-                        Orderings: [],
-                        Limit: null,
-                        Offset: null,
-                        IsDistinct: false,
-                        GroupBy: [],
-                        Having: null
-                    }
-                    // Any non-column projection means some composition which cannot be removed
-                    && selectExpression.Projection.All(e => e.Expression is ColumnExpression);
-
-                foreach (var (tpcTablesExpression, (_, discriminatorValues)) in selectExpression._tpcDiscriminatorValues)
-                {
-                    var subSelectExpressions = tpcTablesExpression.Prune(discriminatorValues).SelectExpressions;
-                    var firstSelectExpression = subSelectExpressions[0]; // There will be at least one.
-
-                    int[]? reindexingMap = null;
-                    if (identitySelect && selectExpression.Alias == null)
-                    {
-                        // Alias would be null when it is Exists/In like query or top level
-                        // In Exists like query there is no projection
-                        // In InExpression with subquery there will be only 1 projection
-                        // In top-level the ordering of projection matters for shaper
-                        // So for all cases in case of identity select when we are doing the lift, we need to remap projections
-                        reindexingMap = new int[selectExpression.Projection.Count];
-                        var innerProjections = firstSelectExpression.Projection.Select(e => e.Alias).ToList();
-                        var identityMap = true;
-                        for (var i = 0; i < selectExpression.Projection.Count; i++)
-                        {
-                            var newIndex = innerProjections.FindIndex(
-                                e => string.Equals(e, selectExpression.Projection[i].Alias, StringComparison.Ordinal));
-                            if (newIndex == -1)
-                            {
-                                // If for whatever reason outer has additional projection which cannot be remapped we avoid lift
-                                identitySelect = false;
-                                reindexingMap = null;
-                                break;
-                            }
-
-                            identityMap &= (i == newIndex);
-                            reindexingMap[i] = newIndex;
-                        }
-
-                        if (identityMap)
-                        {
-                            // If projection is same on outer/inner we don't need remapping
-                            reindexingMap = null;
-                        }
-                    }
-
-                    RemapProjections(reindexingMap, firstSelectExpression);
-                    var result = subSelectExpressions[0];
-                    for (var i = 1; i < subSelectExpressions.Count; i++)
-                    {
-                        var source1 = result;
-                        var source2 = subSelectExpressions[i];
-                        RemapProjections(reindexingMap, source2);
-
-                        var setOperationAlias = _sqlAliasManager.GenerateTableAlias("union");
-                        var unionExpression = new UnionExpression(setOperationAlias, source1, source2, distinct: false);
-                        var projections = new List<ProjectionExpression>();
-                        foreach (var projection in result.Projection)
-                        {
-                            projections.Add(
-                                new ProjectionExpression(
-                                    CreateColumnExpression(projection, setOperationAlias), projection.Alias));
-                        }
-
-                        result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
-                    }
-
-                    if (identitySelect)
-                    {
-                        if (selectExpression.Alias == null)
-                        {
-                            // If top-level them copy over bindings for shaper
-                            result._projectionMapping = selectExpression._projectionMapping;
-                            result._clientProjections = selectExpression._clientProjections;
-                        }
-                        else
-                        {
-                            result = result.WithAlias(selectExpression.Alias);
-                        }
-
-                        // Since identity select implies only 1 table so we can return without worrying about another iteration.
-                        // Identity select shouldn't require base visit.
-                        return result;
-                    }
-
-                    result = result.WithAlias(tpcTablesExpression.Alias);
-                    var tableIndex =
-                        selectExpression._tables.FindIndex(teb => ReferenceEquals(teb.UnwrapJoin(), tpcTablesExpression));
-                    var table = selectExpression._tables[tableIndex];
-                    selectExpression._tables[tableIndex] = (TableExpressionBase)ReplacingExpressionVisitor.Replace(
-                        tpcTablesExpression, result, table);
-                }
-
-                selectExpression._tpcDiscriminatorValues.Clear();
+                return base.VisitExtension(expression);
             }
 
-            return base.Visit(expression);
+            // If selectExpression doesn't have any other component and only TPC tables then we can lift it
+            // We ignore projection here because if this selectExpression has projection from inner TPC
+            // Then TPC will have superset of projection
+            var identitySelect = selectExpression is
+                {
+                    Tables: [TpcTablesExpression],
+                    Predicate: null,
+                    Orderings: [],
+                    Limit: null,
+                    Offset: null,
+                    IsDistinct: false,
+                    GroupBy: [],
+                    Having: null
+                }
+                // Any non-column projection means some composition which cannot be removed
+                && selectExpression.Projection.All(e => e.Expression is ColumnExpression);
+
+            TableExpressionBase[]? visitedTables = null;
+            for (var i = 0; i < selectExpression.Tables.Count; i++)
+            {
+                var table = selectExpression.Tables[i];
+                if (table.UnwrapJoin() is not TpcTablesExpression tpcTablesExpression)
+                {
+                    // Note that we don't visit non-TpcTablesExpressions - we'll be calling base.VisitExtension at the end.
+                    if (visitedTables is not null)
+                    {
+                        visitedTables[i] = table;
+                    }
+
+                    continue;
+                }
+
+                if (visitedTables is null)
+                {
+                    visitedTables = new TableExpressionBase[selectExpression.Tables.Count];
+                    for (var j = 0; j < i; j++)
+                    {
+                        visitedTables[j] = selectExpression.Tables[j];
+                    }
+                }
+
+                var subSelectExpressions = tpcTablesExpression.Prune(tpcTablesExpression.DiscriminatorValues).SelectExpressions;
+                var firstSelectExpression = subSelectExpressions[0]; // There will be at least one.
+
+                int[]? reindexingMap = null;
+                if (identitySelect && selectExpression.Alias == null)
+                {
+                    // Alias would be null when it is Exists/In like query or top level
+                    // In Exists like query there is no projection
+                    // In InExpression with subquery there will be only 1 projection
+                    // In top-level the ordering of projection matters for shaper
+                    // So for all cases in case of identity select when we are doing the lift, we need to remap projections
+                    reindexingMap = new int[selectExpression.Projection.Count];
+                    var innerProjections = firstSelectExpression.Projection.Select(e => e.Alias).ToList();
+                    var identityMap = true;
+                    for (var j = 0; j < selectExpression.Projection.Count; j++)
+                    {
+                        var newIndex = innerProjections.FindIndex(
+                            e => string.Equals(e, selectExpression.Projection[j].Alias, StringComparison.Ordinal));
+                        if (newIndex == -1)
+                        {
+                            // If for whatever reason outer has additional projection which cannot be remapped we avoid lift
+                            identitySelect = false;
+                            reindexingMap = null;
+                            break;
+                        }
+
+                        identityMap &= (j == newIndex);
+                        reindexingMap[j] = newIndex;
+                    }
+
+                    if (identityMap)
+                    {
+                        // If projection is same on outer/inner we don't need remapping
+                        reindexingMap = null;
+                    }
+                }
+
+                RemapProjections(reindexingMap, firstSelectExpression);
+                var result = subSelectExpressions[0];
+                for (var j = 1; j < subSelectExpressions.Count; j++)
+                {
+                    var source1 = result;
+                    var source2 = subSelectExpressions[j];
+                    RemapProjections(reindexingMap, source2);
+
+                    // Note that we give the same alias to the union as to the (final) wrapping SelectExpression below.
+                    // In the end SQL, as this is a simple set operation, all select expressions get elided - but this still isn't ideal.
+                    var unionExpression = new UnionExpression(tpcTablesExpression.Alias, source1, source2, distinct: false);
+                    var projections = new List<ProjectionExpression>();
+                    foreach (var projection in result.Projection)
+                    {
+                        projections.Add(
+                            new ProjectionExpression(
+                                CreateColumnExpression(projection, tpcTablesExpression.Alias), projection.Alias));
+                    }
+
+                    result = CreateImmutable(alias: null!, tables: [unionExpression], projections);
+                }
+
+                if (identitySelect)
+                {
+                    if (selectExpression.Alias == null)
+                    {
+                        // If top-level them copy over bindings for shaper
+                        result._projectionMapping = selectExpression._projectionMapping;
+                        result._clientProjections = selectExpression._clientProjections;
+                    }
+                    else
+                    {
+                        result = result.WithAlias(selectExpression.Alias);
+                    }
+
+                    // Since identity select implies only 1 table so we can return without worrying about another iteration.
+                    // Identity select shouldn't require base visit.
+                    return result;
+                }
+
+                result = result.WithAlias(tpcTablesExpression.Alias);
+                var resultTable = (TableExpressionBase)ReplacingExpressionVisitor.Replace(tpcTablesExpression, result, tpcTablesExpression);
+
+                visitedTables[i] = table is JoinExpressionBase join
+                    ? join.Update(resultTable)
+                    : result;
+            }
+
+            return base.VisitExtension(
+                selectExpression.Update(
+                    selectExpression.Projection,
+                    visitedTables ?? selectExpression.Tables,
+                    selectExpression.Predicate,
+                    selectExpression.GroupBy,
+                    selectExpression.Having,
+                    selectExpression.Orderings,
+                    selectExpression.Limit,
+                    selectExpression.Offset));
         }
 
         private void RemapProjections(int[]? map, SelectExpression selectExpression)
