@@ -117,15 +117,16 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         var constructorExpression = constructorBinding.CreateConstructorExpression(bindingInfo);
 
-        if (_materializationInterceptor == null)
+        if (_materializationInterceptor == null
+            // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
+            // don't get intercepted.
+            || structuralType is not IEntityType)
         {
             return properties.Count == 0 && blockExpressions.Count == 0
                 ? constructorExpression
                 : CreateMaterializeExpression(blockExpressions, instanceVariable, constructorExpression, properties, bindingInfo);
         }
 
-        // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
-        // don't get intercepted.
         return CreateInterceptionMaterializeExpression(
             structuralType,
             properties,
