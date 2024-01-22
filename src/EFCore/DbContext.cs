@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -54,7 +55,7 @@ public class DbContext :
 {
     private readonly DbContextOptions _options;
 
-    private IDictionary<(Type Type, string? Name), object>? _sets;
+    private Dictionary<(Type Type, string? Name), object>? _sets;
     private IDbContextServices? _contextServices;
     private IDbContextDependencies? _dbContextDependencies;
     private DatabaseFacade? _database;
@@ -141,7 +142,13 @@ public class DbContext :
         {
             CheckDisposed();
 
-            return _database ??= new DatabaseFacade(this);
+            if (_database == null)
+            {
+                _database = new DatabaseFacade(this);
+                _cachedResettableServices?.Add(_database);
+            }
+
+            return _database;
         }
     }
 
@@ -152,7 +159,18 @@ public class DbContext :
     ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     /// </remarks>
     public virtual ChangeTracker ChangeTracker
-        => _changeTracker ??= InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create();
+    {
+        get
+        {
+            if (_changeTracker == null)
+            {
+                _changeTracker = InternalServiceProvider.GetRequiredService<IChangeTrackerFactory>().Create();
+                _cachedResettableServices?.Add(_changeTracker);
+            }
+
+            return _changeTracker;
+        }
+    }
 
     /// <summary>
     ///     The metadata about the shape of entities, the relationships between them, and how they map to the database.
@@ -882,7 +900,6 @@ public class DbContext :
             || _configurationSnapshot.HasChangeTrackerConfiguration)
         {
             var changeTracker = ChangeTracker;
-            ((IResettableService)changeTracker).ResetState();
             changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
             if (_configurationSnapshot.QueryTrackingBehavior.HasValue)
             {
@@ -1018,9 +1035,18 @@ public class DbContext :
             _cachedResettableServices = resettableServices;
         }
 
-        if (_sets is not null)
+        if (_changeTracker != null)
+        {
+            resettableServices.Add(_changeTracker);
+        }
+        else if (_sets is not null)
         {
             resettableServices.AddRange(_sets.Values.OfType<IResettableService>());
+        }
+
+        if (_database != null)
+        {
+            resettableServices.Add(_database);
         }
 
         return resettableServices;
@@ -1081,6 +1107,12 @@ public class DbContext :
         {
             if (contextShouldBeDisposed)
             {
+                if (_contextServices != null)
+                {
+                    // Make sure to create the model before the context is marked as disposed
+                    // This is necessary for the corner case where a pooled context is used only for design-time operations
+                    var _ = Model;
+                }
                 _disposed = true;
                 _lease = DbContextLease.InactiveLease;
             }

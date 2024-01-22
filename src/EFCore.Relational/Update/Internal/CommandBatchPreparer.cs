@@ -1334,6 +1334,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
+    /// <inheritdoc/>
+    void IResettableService.ResetState() => _modificationCommandGraph.Clear();
+
+    /// <inheritdoc/>
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    {
+        ((IResettableService)this).ResetState();
+
+        return Task.CompletedTask;
+    }
+
     private sealed record class CommandDependency
     {
         public CommandDependency(IAnnotatable metadata, bool breakable = false)

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
@@ -152,6 +151,7 @@ public class EntityFrameworkRelationalServicesBuilder : EntityFrameworkServicesB
         TryAdd<IRelationalCommandBuilderFactory, RelationalCommandBuilderFactory>();
         TryAdd<IRawSqlCommandBuilder, RawSqlCommandBuilder>();
         TryAdd<ICommandBatchPreparer, CommandBatchPreparer>();
+        TryAdd<IResettableService, ICommandBatchPreparer>(p => p.GetRequiredService<ICommandBatchPreparer>());
         TryAdd<IModificationCommandFactory, ModificationCommandFactory>();
         TryAdd<IMigrationsModelDiffer, MigrationsModelDiffer>();
         TryAdd<IMigrationsSqlGenerator, MigrationsSqlGenerator>();
