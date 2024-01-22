@@ -408,7 +408,7 @@ public sealed partial class SelectExpression
     // improved); for those cases SqlAliasManager is passed in and ensures unique table aliases across the entire query.
     // But for split query, we clone in order to create a completely separate query, in which case we don't want unique aliases - and so
     // SqlAliasManager isn't passed in.
-    private sealed class CloningExpressionVisitor(SqlAliasManager? sqlAliasManager) : ExpressionVisitor
+    private sealed class CloningExpressionVisitor(SqlAliasManager? sqlAliasManager, bool cloneClientProjections = true) : ExpressionVisitor
     {
         private readonly Dictionary<string, string> _tableAliasMap = new();
 
@@ -417,16 +417,21 @@ public sealed partial class SelectExpression
         {
             switch (expression)
             {
+                case ShapedQueryExpression shapedQuery:
+                    return shapedQuery.UpdateQueryExpression(Visit(shapedQuery.QueryExpression));
+
                 case TableExpressionBase table:
                 {
-                    if (sqlAliasManager is null || table.Alias is null)
+                    var newTableAlias = table.Alias;
+                    if (sqlAliasManager is not null && table.Alias is not null)
                     {
-                        return table.Clone(table.Alias, this);
+                        newTableAlias = sqlAliasManager.GenerateTableAlias(table.Alias);
+                        _tableAliasMap[table.Alias] = newTableAlias;
                     }
 
-                    var newTableAlias = sqlAliasManager.GenerateTableAlias(table.Alias);
-                    _tableAliasMap[table.Alias] = newTableAlias;
-                    return table.Clone(newTableAlias, this);
+                    return table is SelectExpression select
+                        ? select.Clone(newTableAlias, this, cloneClientProjections)
+                        : table.Clone(newTableAlias, this);
                 }
 
                 case ColumnExpression column when _tableAliasMap.TryGetValue(column.TableAlias, out var newTableAlias):

@@ -1082,11 +1082,15 @@ public sealed partial class SelectExpression : TableExpressionBase
                 && (containsSingleResult || containsCollection))
             {
                 // SingleResult can lift collection from inner
+
+                // Specifically for here, we want to avoid cloning the client projection; if we do, when applying the projection on the
+                // cloned inner query we go into an endless recursion.
+
                 // Note that we create a CloningExpressionVisitor without a SQL alias manager - this means that aliases won't get uniquified
                 // as expressions are being cloned. Since we're cloning here to get a completely separate (split) query, that makes sense
                 // as we don't want aliases to be unique across different queries (but in other contexts, when the cloned fragment gets
                 // integrated back into the same query (e.g. GroupBy) we do want to uniquify aliases).
-                cloningExpressionVisitor = new CloningExpressionVisitor(sqlAliasManager: null);
+                cloningExpressionVisitor = new CloningExpressionVisitor(sqlAliasManager: null, cloneClientProjections: false);
             }
 
             var earlierClientProjectionCount = _clientProjections.Count;
@@ -4282,6 +4286,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     /// <inheritdoc />
     public override TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor)
+        => Clone(alias, cloningExpressionVisitor, cloneClientProjections: true);
+
+    private TableExpressionBase Clone(string? alias, ExpressionVisitor cloningExpressionVisitor, bool cloneClientProjections)
     {
         var newTables = _tables.Select(cloningExpressionVisitor.Visit).ToList<TableExpressionBase>();
         var tpcTablesMap = _tables.Select(TableExpressionExtensions.UnwrapJoin).Zip(newTables.Select(TableExpressionExtensions.UnwrapJoin))
@@ -4293,6 +4300,10 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             newProjectionMappings[projectionMember] = cloningExpressionVisitor.Visit(value);
         }
+
+        var newClientProjections = cloneClientProjections
+            ? _clientProjections.Select(p => cloningExpressionVisitor.Visit(p)).ToList()
+            : [];
 
         var newProjections = _projection.Select(cloningExpressionVisitor.Visit).ToList<ProjectionExpression>();
 
@@ -4315,6 +4326,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             IsDistinct = IsDistinct,
             Tags = Tags,
             _projectionMapping = newProjectionMappings,
+            _clientProjections = newClientProjections,
             IsMutable = IsMutable
         };
 
