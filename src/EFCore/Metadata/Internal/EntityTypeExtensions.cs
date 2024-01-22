@@ -309,7 +309,7 @@ public static class EntityTypeExtensions
     {
         Check.NotNull(property, nameof(property));
 
-        if ((property.DeclaringType as IEntityType)?.IsAssignableFrom(entityType) != true)
+        if (!property.DeclaringType.ContainingEntityType.IsAssignableFrom(entityType))
         {
             throw new InvalidOperationException(
                 CoreStrings.PropertyDoesNotBelong(property.Name, property.DeclaringType.DisplayName(), entityType.DisplayName()));
