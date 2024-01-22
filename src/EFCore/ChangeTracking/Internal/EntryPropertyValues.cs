@@ -130,8 +130,8 @@ public abstract class EntryPropertyValues : PropertyValues
     /// </summary>
     public override object? this[IProperty property]
     {
-        get => GetValueInternal(EntityType.CheckPropertyBelongsToType(property));
-        set => SetValueInternal(EntityType.CheckPropertyBelongsToType(property), value);
+        get => GetValueInternal(EntityType.CheckContains(property));
+        set => SetValueInternal(EntityType.CheckContains(property), value);
     }
 
     /// <summary>

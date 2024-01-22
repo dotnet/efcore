@@ -132,8 +132,8 @@ public class ArrayPropertyValues : PropertyValues
     /// </summary>
     public override object? this[IProperty property]
     {
-        get => _values[EntityType.CheckPropertyBelongsToType(property).GetIndex()];
-        set => SetValue(EntityType.CheckPropertyBelongsToType(property).GetIndex(), value);
+        get => _values[EntityType.CheckContains(property).GetIndex()];
+        set => SetValue(EntityType.CheckContains(property).GetIndex(), value);
     }
 
     /// <summary>

@@ -303,7 +303,7 @@ public static class EntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IProperty CheckPropertyBelongsToType(
+    public static IProperty CheckContains(
         this IEntityType entityType,
         IProperty property)
     {
