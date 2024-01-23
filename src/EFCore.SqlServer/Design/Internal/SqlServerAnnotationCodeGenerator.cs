@@ -91,6 +91,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerKeyBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerKeyBuilderExtensions.IsClustered), [typeof(KeyBuilder), typeof(bool)])!;
 
+    private static readonly MethodInfo KeyHasFillFactorMethodInfo
+        = typeof(SqlServerKeyBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerKeyBuilderExtensions.HasFillFactor), [typeof(KeyBuilder), typeof(int)])!;
+
     private static readonly MethodInfo TableIsTemporalMethodInfo
         = typeof(SqlServerTableBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerTableBuilderExtensions.IsTemporal), [typeof(TableBuilder), typeof(bool)])!;
@@ -328,11 +332,16 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
-        => annotation.Name == SqlServerAnnotationNames.Clustered
-            ? (bool)annotation.Value! == false
+        => annotation.Name switch
+        {
+            SqlServerAnnotationNames.Clustered => (bool)annotation.Value! == false
                 ? new MethodCallCodeFragment(KeyIsClusteredMethodInfo, false)
-                : new MethodCallCodeFragment(KeyIsClusteredMethodInfo)
-            : null;
+                : new MethodCallCodeFragment(KeyIsClusteredMethodInfo),
+
+            SqlServerAnnotationNames.FillFactor => new MethodCallCodeFragment(KeyHasFillFactorMethodInfo, annotation.Value),
+
+            _ => null
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

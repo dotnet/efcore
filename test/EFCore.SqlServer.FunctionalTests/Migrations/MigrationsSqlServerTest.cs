@@ -2787,6 +2787,51 @@ ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY NONCLUSTERED ([SomeF
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_primary_key_with_fill_factor()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450),
+            builder => { },
+            builder => builder.Entity("People").HasKey("SomeField").HasFillFactor(80),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var primaryKey = table.PrimaryKey;
+                Assert.NotNull(primaryKey);
+                Assert.Equal(80, primaryKey[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD CONSTRAINT [PK_People] PRIMARY KEY ([SomeField]) WITH (FILLFACTOR = 80);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_alternate_key_with_fill_factor()
+    {
+        await Test(
+            builder => {
+                builder.Entity("People").Property<string>("SomeField").IsRequired().HasMaxLength(450);
+                builder.Entity("People").Property<string>("SomeOtherField").IsRequired().HasMaxLength(450);
+                },
+            builder => { },
+            builder => builder.Entity("People").HasAlternateKey(["SomeField", "SomeOtherField"]).HasFillFactor(80),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var uniqueConstraint = table.UniqueConstraints.FirstOrDefault();
+                Assert.NotNull(uniqueConstraint);
+                Assert.Equal(80, uniqueConstraint[SqlServerAnnotationNames.FillFactor]);
+            });
+
+        AssertSql(
+            """
+ALTER TABLE [People] ADD CONSTRAINT [AK_People_SomeField_SomeOtherField] UNIQUE ([SomeField], [SomeOtherField]) WITH (FILLFACTOR = 80);
+""");
+    }
+
     public override async Task Drop_primary_key_int()
     {
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => base.Drop_primary_key_int());

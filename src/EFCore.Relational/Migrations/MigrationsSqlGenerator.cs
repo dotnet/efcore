@@ -238,7 +238,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append("ALTER TABLE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
             .Append(" ADD ");
+
         PrimaryKeyConstraint(operation, model, builder);
+
+        KeyOptions(operation, builder);
 
         if (terminate)
         {
@@ -263,7 +266,11 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append("ALTER TABLE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
             .Append(" ADD ");
+
         UniqueConstraint(operation, model, builder);
+
+        KeyOptions(operation, builder);
+
         builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         EndStatement(builder);
     }
@@ -1669,6 +1676,15 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder.Append("(")
             .Append(operation.Sql)
             .Append(")");
+    }
+
+    /// <summary>
+    ///     Generates a SQL fragment for extras where options of an key from a <see cref="AddPrimaryKeyOperation" /> or <see cref="AddUniqueConstraintOperation" />.
+    /// </summary>
+    /// <param name="operation">The operation.</param>
+    /// <param name="builder">The command builder to use to add the SQL fragment.</param>
+    protected virtual void KeyOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
+    {
     }
 
     /// <summary>
