@@ -241,7 +241,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         PrimaryKeyConstraint(operation, model, builder);
 
-        KeyOptions(operation, builder);
+        KeyWithOptions(operation, builder);
 
         if (terminate)
         {
@@ -269,7 +269,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
         UniqueConstraint(operation, model, builder);
 
-        KeyOptions(operation, builder);
+        KeyWithOptions(operation, builder);
 
         builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         EndStatement(builder);
@@ -1679,11 +1679,12 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
     }
 
     /// <summary>
-    ///     Generates a SQL fragment for extras where options of an key from a <see cref="AddPrimaryKeyOperation" /> or <see cref="AddUniqueConstraintOperation" />.
+    ///     Generates a SQL fragment for extra with options of a key from a
+    ///     <see cref="AddPrimaryKeyOperation" /> or <see cref="AddUniqueConstraintOperation" />.
     /// </summary>
     /// <param name="operation">The operation.</param>
     /// <param name="builder">The command builder to use to add the SQL fragment.</param>
-    protected virtual void KeyOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
+    protected virtual void KeyWithOptions(MigrationOperation operation, MigrationCommandListBuilder builder)
     {
     }
 
