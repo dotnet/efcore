@@ -24,6 +24,9 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     public static readonly bool UseOldBehavior31866 =
         AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31866", out var enabled31866) && enabled31866;
 
+    internal static readonly bool UseOldBehavior32701 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32701", out var enabled32701) && enabled32701;
+
     private static readonly MethodInfo InjectableServiceInjectedMethod
         = typeof(IInjectableService).GetMethod(nameof(IInjectableService.Injected))!;
 
@@ -120,7 +123,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
         if (_materializationInterceptor == null
             // TODO: This currently applies the materialization interceptor only on the root structural type - any contained complex types
             // don't get intercepted.
-            || structuralType is not IEntityType)
+            || (structuralType is not IEntityType && !UseOldBehavior32701))
         {
             return properties.Count == 0 && blockExpressions.Count == 0
                 ? constructorExpression
