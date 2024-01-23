@@ -749,7 +749,7 @@ FROM [ValuedCustomer] AS [v0]
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                 """
-SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
 FROM [Customer] AS [c]
 WHERE [c].[ShippingAddress_ZipCode] = 7728
 """),
@@ -762,9 +762,9 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
                 $"""
-                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_Tags], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_Tags], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
                 FROM (
-                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
                     FROM [Customer] AS [c]
                     ORDER BY [c].[Id]
                     OFFSET {1} ROWS
@@ -784,9 +784,9 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSql(
                 $"""
-                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_Tags], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_Tags], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
+                SELECT DISTINCT [t].[Id], [t].[Name], [t].[BillingAddress_AddressLine1], [t].[BillingAddress_AddressLine2], [t].[BillingAddress_ZipCode], [t].[BillingAddress_Country_Code], [t].[BillingAddress_Country_FullName], [t].[ShippingAddress_AddressLine1], [t].[ShippingAddress_AddressLine2], [t].[ShippingAddress_ZipCode], [t].[ShippingAddress_Country_Code], [t].[ShippingAddress_Country_FullName]
                 FROM (
-                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_Tags], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                    SELECT [c].[Id], [c].[Name], [c].[BillingAddress_AddressLine1], [c].[BillingAddress_AddressLine2], [c].[BillingAddress_ZipCode], [c].[BillingAddress_Country_Code], [c].[BillingAddress_Country_FullName], [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
                     FROM [Customer] AS [c]
                     ORDER BY [c].[Id]
                     OFFSET {1} ROWS
@@ -804,7 +804,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                 """
-                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
                 FROM [Customer] AS [c]
                 """).Select(c => c.ShippingAddress),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress));
@@ -840,8 +840,9 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                 """
-                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
                 FROM [Customer] AS [c]
+                WHERE [c].[ShippingAddress_ZipCode] = 7728
                 """).Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Where(a => a.ZipCode == 07728));
 
@@ -852,7 +853,7 @@ WHERE [c].[ShippingAddress_ZipCode] = 7728
             async,
             ss => ((DbSet<Customer>)ss.Set<Customer>()).FromSqlRaw(
                 """
-                SELECT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_Tags], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
+                SELECT DISTINCT [c].[ShippingAddress_AddressLine1], [c].[ShippingAddress_AddressLine2], [c].[ShippingAddress_ZipCode], [c].[ShippingAddress_Country_Code], [c].[ShippingAddress_Country_FullName]
                 FROM [Customer] AS [c]
                 """).Select(c => c.ShippingAddress).Distinct(),
             ss => ss.Set<Customer>().Select(c => c.ShippingAddress).Distinct());

@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class RelationalModel : Annotatable, IRelationalModel
 {
+    internal static readonly bool UseOldBehavior32699 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32699", out var enabled32699) && enabled32699;
+
     private bool _isReadOnly;
 
     /// <summary>
@@ -341,7 +344,39 @@ public class RelationalModel : Annotatable, IRelationalModel
             }
             else
             {
-                CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc);
+                if (UseOldBehavior32699)
+                {
+                    foreach (var property in entityType.GetProperties())
+                    {
+                        var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringType == mappedType
+                            ? property.GetColumnName()
+                            : null;
+                        if (columnName == null)
+                        {
+                            continue;
+                        }
+
+                        var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
+                        if (column == null)
+                        {
+                            column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                            {
+                                IsNullable = property.IsColumnNullable()
+                            };
+                            defaultTable.Columns.Add(columnName, column);
+                        }
+                        else if (!property.IsColumnNullable())
+                        {
+                            column.IsNullable = false;
+                        }
+
+                        CreateColumnMapping(column, property, tableMapping);
+                    }
+                }
+                else
+                {
+                    CreateDefaultColumnMapping(entityType, mappedType, defaultTable, tableMapping, isTph, isTpc);
+                }
             }
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -401,7 +436,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
         {
             var complexType = complexProperty.ComplexType;
-            tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: null);
+            tableMapping = new TableMappingBase<ColumnMappingBase>(complexType, defaultTable, includesDerivedTypes: false);
 
             CreateDefaultColumnMapping(complexType, complexType, defaultTable, tableMapping, isTph, isTpc);
 

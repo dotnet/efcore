@@ -3203,7 +3203,12 @@ public sealed partial class SelectExpression : TableExpressionBase
         // We do not support complex type splitting, so we will only ever have a single table/view mapping to it.
         // See Issue #32853 and Issue #31248
         var complexTypeTable = complexProperty.ComplexType.GetViewOrTableMappings().Single().Table;
-        if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out var tableReferenceExpression))
+        TableReferenceExpression? tableReferenceExpression;
+        if (RelationalModel.UseOldBehavior32699)
+        {
+            tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
+        }
+        else if (!containerProjection.TableMap.TryGetValue(complexTypeTable, out tableReferenceExpression))
         {
             complexTypeTable = complexProperty.ComplexType.GetDefaultMappings().Single().Table;
             tableReferenceExpression = containerProjection.TableMap[complexTypeTable];
