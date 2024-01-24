@@ -378,8 +378,7 @@ public class RelationalDatabaseFacadeExtensionsTest
                 .AddSingleton<IHistoryRepository>(repository)
                 .AddSingleton<IMigrationsAssembly>(migrationsAssembly));
 
-        Assert.Equal(
-            new[] { "00000000000003_Three" },
+        Assert.Equal(["00000000000003_Three"],
             async
                 ? await context.Database.GetPendingMigrationsAsync()
                 : context.Database.GetPendingMigrations());
@@ -412,7 +411,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(new List<object>(), commandBuilder.Parameters);
+        Assert.Equal([], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -429,7 +428,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             if (cancellation)
             {
                 var cancellationToken = new CancellationToken();
-                await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, 2 }, cancellationToken);
+                await context.Database.ExecuteSqlRawAsync("<Some query>", [1, 2], cancellationToken);
             }
             else
             {
@@ -442,8 +441,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1, 2 }, commandBuilder.Parameters);
+        Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -464,8 +462,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1, 2 }, commandBuilder.Parameters);
+        Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -482,7 +479,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             if (cancellation)
             {
                 var cancellationToken = new CancellationToken();
-                await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1, "Cheese" }, cancellationToken);
+                await context.Database.ExecuteSqlRawAsync("<Some query>", [1, "Cheese"], cancellationToken);
             }
             else
             {
@@ -495,8 +492,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1, "Cheese" }, commandBuilder.Parameters);
+        Assert.Equal([1, "Cheese"], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -514,7 +510,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             {
                 var cancellationToken = new CancellationToken();
                 await context.Database.ExecuteSqlRawAsync(
-                    "<Some query>", new List<object> { 1, 2 }, cancellationToken);
+                    "<Some query>", [1, 2], cancellationToken);
             }
             else
             {
@@ -529,8 +525,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1, 2 }, commandBuilder.Parameters);
+        Assert.Equal([1, 2], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -548,7 +543,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             {
                 var cancellationToken = new CancellationToken();
                 await context.Database.ExecuteSqlRawAsync(
-                    "<Some query>", new List<object> { 1, "Pickle" }, cancellationToken);
+                    "<Some query>", [1, "Pickle"], cancellationToken);
             }
             else
             {
@@ -563,8 +558,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1, "Pickle" }, commandBuilder.Parameters);
+        Assert.Equal([1, "Pickle"], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -581,7 +575,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             if (cancellation)
             {
                 var cancellationToken = new CancellationToken();
-                await context.Database.ExecuteSqlRawAsync("<Some query>", new object[] { 1 }, cancellationToken);
+                await context.Database.ExecuteSqlRawAsync("<Some query>", [1], cancellationToken);
             }
             else
             {
@@ -594,8 +588,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { 1 }, commandBuilder.Parameters);
+        Assert.Equal([1], commandBuilder.Parameters);
     }
 
     [ConditionalTheory]
@@ -625,8 +618,7 @@ public class RelationalDatabaseFacadeExtensionsTest
         }
 
         Assert.Equal("<Some query>", commandBuilder.Sql);
-        Assert.Equal(
-            new List<object> { "Branston" }, commandBuilder.Parameters);
+        Assert.Equal(["Branston"], commandBuilder.Parameters);
     }
 
     private class ThudContext : DbContext
@@ -653,6 +645,9 @@ public class RelationalDatabaseFacadeExtensionsTest
             => throw new NotImplementedException();
 
         public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
+            => throw new NotImplementedException();
+
+        public RawSqlCommand Build(string sql, IEnumerable<object> parameters, IModel model)
         {
             Sql = sql;
             Parameters = parameters;

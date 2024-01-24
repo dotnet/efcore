@@ -204,9 +204,13 @@ public class SqlServerSequenceValueGeneratorTest
         public IRelationalCommand Build(string sql)
             => new FakeRelationalCommand(this);
 
+        public RawSqlCommand Build(string sql, IEnumerable<object> parameters)
+            => throw new NotImplementedException();
+
         public RawSqlCommand Build(
             string sql,
-            IEnumerable<object> parameters)
+            IEnumerable<object> parameters,
+            IModel model)
             => new(new FakeRelationalCommand(this), new Dictionary<string, object>());
 
         private class FakeRelationalCommand(FakeRawSqlCommandBuilder commandBuilder) : IRelationalCommand

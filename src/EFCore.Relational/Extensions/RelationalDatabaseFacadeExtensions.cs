@@ -297,7 +297,7 @@ public static class RelationalDatabaseFacadeExtensions
         try
         {
             var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
-                .Build(sql, parameters);
+                .Build(sql, parameters, databaseFacade.GetService<IModel>());
 
             return rawSqlCommand
                 .RelationalCommand
@@ -613,7 +613,7 @@ public static class RelationalDatabaseFacadeExtensions
         try
         {
             var rawSqlCommand = facadeDependencies.RawSqlCommandBuilder
-                .Build(sql, parameters);
+                .Build(sql, parameters, databaseFacade.GetService<IModel>());
 
             return await rawSqlCommand
                 .RelationalCommand

@@ -361,7 +361,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
         // The index expression isn't inferred and is always just an int. Apply the default type mapping to it.
         var indexWithTypeMapping = ApplyDefaultTypeMapping(index);
-        var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : new[] { new PathSegment(indexWithTypeMapping) };
+        var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : [new PathSegment(indexWithTypeMapping)];
 
         // If a type mapping is being applied from the outside, it applies to the element resulting from the array indexing operation;
         // we can infer the array's type mapping from it. Otherwise there's nothing to do but apply the default type mapping to the array.
@@ -371,7 +371,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 ApplyDefaultTypeMapping(array),
                 newPath,
                 jsonScalarExpression.Type,
-                _typeMappingSource.FindMapping(jsonScalarExpression.Type),
+                _typeMappingSource.FindMapping(jsonScalarExpression.Type, Dependencies.Model),
                 jsonScalarExpression.IsNullable);
         }
 
@@ -494,7 +494,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             typeMappedArguments,
             nullable: true,
             // COALESCE is handled separately since it's only nullable if *all* arguments are null
-            argumentsPropagateNullability: new[] { false, false },
+            argumentsPropagateNullability: [false, false],
             resultType,
             inferredTypeMapping);
     }

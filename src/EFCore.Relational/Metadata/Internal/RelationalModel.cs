@@ -600,7 +600,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
 
-            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
+            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement), mappedType.Model)!;
             var jsonColumn = createColumn(containerColumnName, tableBase, jsonColumnTypeMapping);
             tableBase.Columns.Add(containerColumnName, jsonColumn);
             jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
@@ -1268,7 +1268,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     storeStoredProcedure = new StoreStoredProcedure(storedProcedure.Name, storedProcedure.Schema, databaseModel);
                     if (storedProcedure.IsRowsAffectedReturned)
                     {
-                        var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int))!;
+                        var typeMapping = relationalTypeMappingSource.FindMapping(typeof(int), databaseModel.Model)!;
                         storeStoredProcedure.ReturnValue = new StoreStoredProcedureReturnValue(
                             "",
                             typeMapping.StoreType,
