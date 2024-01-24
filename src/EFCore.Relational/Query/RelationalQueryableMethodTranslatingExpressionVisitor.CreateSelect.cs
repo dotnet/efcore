@@ -218,8 +218,7 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                             subSelectExpressions.Add(SelectExpression.CreateImmutable(alias: null!, [tableExpression], projections));
                         }
 
-                        var tpcTableAlias = _sqlAliasManager.GenerateTableAlias("t");
-                        var tpcTables = new TpcTablesExpression(tpcTableAlias, entityType, subSelectExpressions);
+                        var tpcTableAlias = _sqlAliasManager.GenerateTableAlias("union");
 
                         var firstSelectExpression = subSelectExpressions[0];
                         var columns = new Dictionary<IProperty, ColumnExpression>();
@@ -236,18 +235,15 @@ public partial class RelationalQueryableMethodTranslatingExpressionVisitor
                         }
 
                         var discriminatorColumn = CreateColumnExpression(firstSelectExpression.Projection[^1], tpcTableAlias);
-                        var tpcDiscriminatorValues = new Dictionary<TpcTablesExpression, (ColumnExpression, List<string>)>
-                        {
-                            [tpcTables] = (discriminatorColumn, discriminatorValues)
-                        };
+                        var tpcTables = new TpcTablesExpression(
+                            tpcTableAlias, entityType, subSelectExpressions, discriminatorColumn, discriminatorValues);
                         var tableMap = tables.ToDictionary(t => t, _ => tpcTableAlias);
 
                         return new SelectExpression(
                             [tpcTables],
                             new StructuralTypeProjectionExpression(entityType, columns, tableMap, nullable: false, discriminatorColumn),
                             identifier,
-                            _sqlAliasManager,
-                            tpcDiscriminatorValues);
+                            _sqlAliasManager);
                     }
                 }
 

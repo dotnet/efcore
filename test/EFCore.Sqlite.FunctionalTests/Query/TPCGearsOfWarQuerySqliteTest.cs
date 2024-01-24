@@ -371,16 +371,16 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
 WHERE (
-    SELECT "t"."Nickname"
+    SELECT "u"."Nickname"
     FROM (
         SELECT "g"."Nickname", "g"."SquadId"
         FROM "Gears" AS "g"
         UNION ALL
         SELECT "o"."Nickname", "o"."SquadId"
         FROM "Officers" AS "o"
-    ) AS "t"
-    WHERE "s"."Id" = "t"."SquadId"
-    ORDER BY "t"."Nickname"
+    ) AS "u"
+    WHERE "s"."Id" = "u"."SquadId"
+    ORDER BY "u"."Nickname"
     LIMIT 1 OFFSET "s"."Id") = 'Cole Train'
 """);
     }

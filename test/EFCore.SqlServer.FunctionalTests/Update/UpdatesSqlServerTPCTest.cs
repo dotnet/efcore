@@ -39,14 +39,14 @@ VALUES (@p0, @p1);");
 
         AssertSql(
             """
-SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+SELECT TOP(2) [u].[Id], [u].[Name], [u].[PrincipalId], [u].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
     FROM [Categories] AS [c]
     UNION ALL
     SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
     FROM [SpecialCategory] AS [s]
-) AS [t]
+) AS [u]
 """,
             //
             """
@@ -69,14 +69,14 @@ WHERE [Id] = @p1;
 """,
             //
             """
-SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+SELECT TOP(2) [u].[Id], [u].[Name], [u].[PrincipalId], [u].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
     FROM [Categories] AS [c]
     UNION ALL
     SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
     FROM [SpecialCategory] AS [s]
-) AS [t]
+) AS [u]
 """,
             //
             """

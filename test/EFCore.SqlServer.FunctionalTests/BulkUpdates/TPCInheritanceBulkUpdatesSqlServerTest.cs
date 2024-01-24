@@ -47,8 +47,8 @@ WHERE (
         UNION ALL
         SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
-    ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+    ) AS [u]
+    WHERE [c].[Id] = [u].[CountryId] AND [u].[CountryId] > 0) > 0
 """);
     }
 
@@ -65,8 +65,8 @@ WHERE (
     FROM (
         SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
-    ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+    ) AS [u]
+    WHERE [c].[Id] = [u].[CountryId] AND [u].[CountryId] > 0) > 0
 """);
     }
 
@@ -167,8 +167,8 @@ WHERE (
         UNION ALL
         SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
-    ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+    ) AS [u]
+    WHERE [c].[Id] = [u].[CountryId] AND [u].[CountryId] > 0) > 0
 """);
     }
 
@@ -199,8 +199,8 @@ WHERE (
     FROM (
         SELECT [k].[CountryId]
         FROM [Kiwi] AS [k]
-    ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+    ) AS [u]
+    WHERE [c].[Id] = [u].[CountryId] AND [u].[CountryId] > 0) > 0
 """);
     }
 
