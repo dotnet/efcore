@@ -1385,6 +1385,48 @@ END IN (
     """);
     }
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)] // Issue #32896
+    public async Task Empty_string_used_for_primitive_collection_throws(bool async)
+    {
+        await using var connection = new SqliteConnection("DataSource=:memory:");
+        await connection.OpenAsync();
+
+        await using var context = new SimpleContext(connection);
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        await context.Database.ExecuteSqlRawAsync("INSERT INTO SimpleEntities (List) VALUES ('');");
+
+        var set = context.SimpleEntities;
+
+        var message = await Assert.ThrowsAsync<InvalidOperationException>(
+            async () =>
+            {
+                if (async)
+                {
+                    await set.FirstAsync();
+                }
+                else
+                {
+                    set.First();
+                }
+            });
+
+        Assert.Equal(CoreStrings.EmptyJsonString, message.Message);
+    }
+
+    public class SimpleContext(SqliteConnection connection) : DbContext
+    {
+        public DbSet<SimpleEntity> SimpleEntities => Set<SimpleEntity>();
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlite(connection);
+    }
+
+    public record SimpleEntity(int Id, IEnumerable<string> List);
+
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
