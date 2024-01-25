@@ -11,6 +11,9 @@ public class SqlServerOnDeleteConventionTest
         using var context = new SkippyDbContext();
         var model = context.Model;
         Assert.Equal(["ArenaPropensity", "Arena", "Propensity"], model.GetEntityTypes().Select(e => e.ShortName()));
+        Assert.Equal(
+            [DeleteBehavior.Cascade, DeleteBehavior.ClientCascade],
+            model.GetEntityTypes().Single(e => e.ShortName() == "ArenaPropensity").GetForeignKeys().Select(k => k.DeleteBehavior));
     }
 
     public class SkippyDbContext : DbContext
