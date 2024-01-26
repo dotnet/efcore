@@ -486,6 +486,9 @@
   <data name="EmptyComplexType" xml:space="preserve">
     <value>Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.</value>
   </data>
+  <data name="EmptyJsonString" xml:space="preserve">
+    <value>The empty string is not valid JSON.</value>
+  </data>
   <data name="EntityEqualityOnCompositeKeyEntitySubqueryNotSupported" xml:space="preserve">
     <value>Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.</value>
   </data>

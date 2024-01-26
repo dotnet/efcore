@@ -994,6 +994,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 complexType);
 
         /// <summary>
+        ///     The empty string is not valid JSON.
+        /// </summary>
+        public static string EmptyJsonString
+            => GetString("EmptyJsonString");
+
+        /// <summary>
         ///     Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.
         /// </summary>
         public static string EntityEqualityOnCompositeKeyEntitySubqueryNotSupported(object? comparisonOperator, object? entityType)
