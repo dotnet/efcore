@@ -320,7 +320,7 @@ public interface ICSharpHelper
     string Fragment(AttributeCodeFragment fragment);
 
     /// <summary>
-    ///     Generates a comma-sepearated argument list of values.
+    ///     Generates a comma-separated argument list of values.
     /// </summary>
     /// <param name="values">The values.</param>
     /// <returns>The argument list.</returns>
@@ -337,6 +337,8 @@ public interface ICSharpHelper
     ///     Translates a node representing a statement into source code that would produce it.
     /// </summary>
     /// <param name="node">The node to be translated.</param>
+    /// <param name="constantReplacements">Collection of translations for statically known instances.</param>
+    /// <param name="memberAccessReplacements">Collection of translations for non-public member accesses.</param>
     /// <param name="collectedNamespaces">Any namespaces required by the translated code will be added to this set.</param>
     /// <returns>Source code that would produce <paramref name="node" />.</returns>
     /// <remarks>
@@ -346,7 +348,10 @@ public interface ICSharpHelper
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     [EntityFrameworkInternal]
-    string Statement(Expression node, ISet<string> collectedNamespaces);
+    string Statement(Expression node,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
+        ISet<string> collectedNamespaces);
 
     /// <summary>
     ///     Translates a node representing an expression into source code that would produce it.

@@ -356,7 +356,31 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
         {
             if (assignment.Left is MemberExpression { Member: FieldInfo { IsPublic: false } } member)
             {
-                TranslateNonPublicFieldAssignment(member, assignment.Right, kind);
+                // For compound assignment operators, apply the appropriate operator before translating
+                if (kind != SyntaxKind.SimpleAssignmentExpression)
+                {
+                    var expandedRight = kind switch
+                    {
+                        SyntaxKind.AddAssignmentExpression => E.Add(assignment.Left, assignment.Right),
+                        SyntaxKind.MultiplyAssignmentExpression => E.Multiply(assignment.Left, assignment.Right),
+                        SyntaxKind.DivideAssignmentExpression => E.Divide(assignment.Left, assignment.Right),
+                        SyntaxKind.ModuloAssignmentExpression => E.Modulo(assignment.Left, assignment.Right),
+                        SyntaxKind.SubtractAssignmentExpression => E.Subtract(assignment.Left, assignment.Right),
+                        SyntaxKind.AndAssignmentExpression => E.And(assignment.Left, assignment.Right),
+                        SyntaxKind.OrAssignmentExpression => E.Or(assignment.Left, assignment.Right),
+                        SyntaxKind.ExclusiveOrAssignmentExpression => E.ExclusiveOr(assignment.Left, assignment.Right),
+                        SyntaxKind.LeftShiftAssignmentExpression => E.LeftShift(assignment.Left, assignment.Right),
+                        SyntaxKind.RightShiftAssignmentExpression => E.RightShift(assignment.Left, assignment.Right),
+
+                        _ => throw new UnreachableException()
+                    };
+
+                    Result = Translate<ExpressionSyntax>(E.Assign(assignment.Left, expandedRight));
+
+                    return assignment;
+                }
+
+                TranslateNonPublicFieldAssignment(member, assignment.Right);
 
                 return assignment;
             }
@@ -917,6 +941,13 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     /// </summary>
     protected virtual ExpressionSyntax GenerateValue(object? value)
     {
+        if (_constantReplacements != null
+            && value != null
+            && _constantReplacements.TryGetValue(value, out var instance))
+        {
+            return instance;
+        }
+
         return value switch
         {
             int or long or uint or ulong or short or sbyte or ushort or byte or double or float or decimal or char
@@ -1038,10 +1069,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
             //TODO: Handle PropertyInfo
 
-            _ => _constantReplacements != null
-                && _constantReplacements.TryGetValue(value, out var instance)
-                ? instance
-                : GenerateUnknownValue(value)
+            _ => GenerateUnknownValue(value)
         };
 
         ExpressionSyntax HandleEnum(Enum e)
@@ -1137,7 +1165,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
 
         throw new NotSupportedException(
             $"Encountered a constant of unsupported type '{value.GetType().Name}'. Only primitive constant nodes are supported."
-            + Environment.NewLine + value.ToString());
+            + Environment.NewLine + value);
     }
 
     /// <inheritdoc />
@@ -1545,39 +1573,12 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value, SyntaxKind kind)
+    protected virtual void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value)
     {
         // LINQ expression trees can directly access private members, but C# code cannot, use SetValue instead.
-
         if (member.Expression is null)
         {
             throw new NotImplementedException("Private static field assignment");
-        }
-
-        // If we have a simple assignment, use the RHS directly (fieldInfo.SetValue(lValue, rValue)).
-        // For compound assignment operators, apply the appropriate operator (fieldInfo.setValue(lValue, rValue + lValue)
-        var translatedRight = Translate<ExpressionSyntax>(value);
-
-        if (kind != SyntaxKind.SimpleAssignmentExpression)
-        {
-            var nonAssignmentOperator = kind switch
-            {
-                SyntaxKind.AddAssignmentExpression => SyntaxKind.AddExpression,
-                SyntaxKind.MultiplyAssignmentExpression => SyntaxKind.MultiplyExpression,
-                SyntaxKind.DivideAssignmentExpression => SyntaxKind.DivideExpression,
-                SyntaxKind.ModuloAssignmentExpression => SyntaxKind.ModuloExpression,
-                SyntaxKind.SubtractAssignmentExpression => SyntaxKind.SubtractExpression,
-                SyntaxKind.AndAssignmentExpression => SyntaxKind.BitwiseAndExpression,
-                SyntaxKind.OrAssignmentExpression => SyntaxKind.BitwiseOrExpression,
-                SyntaxKind.LeftShiftAssignmentExpression => SyntaxKind.LeftShiftExpression,
-                SyntaxKind.RightShiftAssignmentExpression => SyntaxKind.RightShiftExpression,
-                SyntaxKind.ExclusiveOrAssignmentExpression => SyntaxKind.ExclusiveOrExpression,
-
-                _ => throw new UnreachableException()
-            };
-
-            var translatedLeft = Translate<ExpressionSyntax>(member);
-            translatedRight = BinaryExpression(nonAssignmentOperator, translatedLeft, translatedRight);
         }
 
         Result = InvocationExpression(
@@ -1586,7 +1587,7 @@ public class LinqToCSharpSyntaxTranslator : ExpressionVisitor
                 GenerateValue(member.Member),
                 IdentifierName(nameof(FieldInfo.SetValue))),
             ArgumentList(
-                SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)), Argument(translatedRight) })));
+                SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)), Argument(Translate<ExpressionSyntax>(value)) })));
     }
 
     /// <inheritdoc />

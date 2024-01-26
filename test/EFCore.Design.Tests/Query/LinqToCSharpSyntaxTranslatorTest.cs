@@ -133,6 +133,30 @@ public class LinqToCSharpSyntaxTranslatorTest(ITestOutputHelper testOutputHelper
             $"""typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).SetValue(blog, (int)typeof(LinqToCSharpSyntaxTranslatorTest.Blog).GetField("_privateField", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly).GetValue(blog) {op} 3)""");
 
     [Theory]
+    [InlineData(ExpressionType.AddAssign, "+")]
+    [InlineData(ExpressionType.MultiplyAssign, "*")]
+    [InlineData(ExpressionType.DivideAssign, "/")]
+    [InlineData(ExpressionType.ModuloAssign, "%")]
+    [InlineData(ExpressionType.SubtractAssign, "-")]
+    [InlineData(ExpressionType.AndAssign, "&")]
+    [InlineData(ExpressionType.OrAssign, "|")]
+    [InlineData(ExpressionType.LeftShiftAssign, "<<")]
+    [InlineData(ExpressionType.RightShiftAssign, ">>")]
+    [InlineData(ExpressionType.ExclusiveOrAssign, "^")]
+    public void Private_instance_field_AssignOperators_with_replacements(ExpressionType expressionType, string op)
+        => AssertExpression(
+            MakeBinary(
+                expressionType,
+                Field(Parameter(typeof(Blog), "blog"), "_privateField"),
+                Constant(3)),
+            $"""WritePrivateField(blog, ReadPrivateField(blog) {op} Three)""",
+            new Dictionary<object, string>() { { 3, "Three" } },
+            new Dictionary<MemberAccess, string>() {
+                { new MemberAccess(BlogPrivateField, assignment: true), "WritePrivateField" },
+                { new MemberAccess(BlogPrivateField, assignment: false), "ReadPrivateField" }
+                });
+
+    [Theory]
     [InlineData(ExpressionType.Negate, "-i")]
     [InlineData(ExpressionType.NegateChecked, "-i")]
     [InlineData(ExpressionType.Not, "~i")]
@@ -1866,13 +1890,19 @@ catch
 
     // TODO: try/catch expressions
 
-    private void AssertStatement(Expression expression, string expected)
-        => AssertCore(expression, isStatement: true, expected);
+    private void AssertStatement(Expression expression, string expected,
+        Dictionary<object, string>? constantReplacements = null,
+        Dictionary<MemberAccess, string>? memberAccessReplacements = null)
+        => AssertCore(expression, isStatement: true, expected, constantReplacements, memberAccessReplacements);
 
-    private void AssertExpression(Expression expression, string expected)
-        => AssertCore(expression, isStatement: false, expected);
+    private void AssertExpression(Expression expression, string expected,
+        Dictionary<object, string>? constantReplacements = null,
+        Dictionary<MemberAccess, string>? memberAccessReplacements = null)
+        => AssertCore(expression, isStatement: false, expected, constantReplacements, memberAccessReplacements);
 
-    private void AssertCore(Expression expression, bool isStatement, string expected)
+    private void AssertCore(Expression expression, bool isStatement, string expected,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements)
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
@@ -1881,8 +1911,8 @@ catch
         var translator = new CSharpHelper(typeMappingSource);
         var namespaces = new HashSet<string>();
         var actual = isStatement
-            ? translator.Statement(expression, namespaces)
-            : translator.Expression(expression, null, null, namespaces);
+            ? translator.Statement(expression, constantReplacements, memberAccessReplacements, namespaces)
+            : translator.Expression(expression, constantReplacements, memberAccessReplacements, namespaces);
 
         if (_outputExpressionTrees)
         {
@@ -1963,6 +1993,10 @@ catch
 
     public static int MethodWithSixParams(int a, int b, int c, int d, int e, int f)
         => a + b + c + d + e + f;
+
+
+    private static readonly FieldInfo BlogPrivateField
+        = typeof(Blog).GetField("_privateField", BindingFlags.NonPublic | BindingFlags.Instance)!;
 
     private class Blog
     {

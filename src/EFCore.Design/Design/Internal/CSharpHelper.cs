@@ -1553,8 +1553,40 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Statement(Expression node, ISet<string> collectedNamespaces)
-        => ToSourceCode(_translator.TranslateStatement(node, null, null, collectedNamespaces));
+    public virtual string Statement(
+        Expression node,
+        Dictionary<object, string>? constantReplacements,
+        Dictionary<MemberAccess, string>? memberAccessReplacements,
+        ISet<string> collectedNamespaces)
+    {
+        Dictionary<object, ExpressionSyntax>? constantReplacementExpressions = null;
+        if (constantReplacements != null)
+        {
+            constantReplacementExpressions = [];
+
+            foreach (var instancePair in constantReplacements)
+            {
+                constantReplacementExpressions[instancePair.Key] = SyntaxFactory.IdentifierName(instancePair.Value);
+            }
+        }
+
+        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacementExpressions = null;
+        if (memberAccessReplacements != null)
+        {
+            memberAccessReplacementExpressions = [];
+
+            foreach (var methodPair in memberAccessReplacements)
+            {
+                memberAccessReplacementExpressions[methodPair.Key] = SyntaxFactory.IdentifierName(methodPair.Value);
+            }
+        }
+
+        return ToSourceCode(_translator.TranslateStatement(
+            node,
+            constantReplacementExpressions,
+            memberAccessReplacementExpressions,
+            collectedNamespaces));
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
