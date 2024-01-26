@@ -321,6 +321,30 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             DropIndexes(indexesToRebuild, builder);
         }
 
+        // Handle change of identity seed value
+        if (IsIdentity(operation))
+        {
+            Check.DebugAssert(IsIdentity(operation.OldColumn), "Unsupported column change to identity");
+
+            var oldSeed = 1;
+            if (TryParseIdentitySeedIncrement(operation, out var newSeed, out _)
+                && (operation.OldColumn[SqlServerAnnotationNames.Identity] is null
+                    || TryParseIdentitySeedIncrement(operation.OldColumn, out oldSeed, out _))
+                && newSeed != oldSeed)
+            {
+                var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
+                var table = stringTypeMapping.GenerateSqlLiteral(
+                    Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema));
+
+                builder
+                    .Append($"DBCC CHECKIDENT({table}, RESEED, {newSeed})")
+                    .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            }
+        }
+
+        var newAnnotations = operation.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+        var oldAnnotations = operation.OldColumn.GetAnnotations().Where(a => a.Name != SqlServerAnnotationNames.Identity);
+
         var alterStatementNeeded = narrowed
             || !oldColumnSupported
             || operation.ClrType != operation.OldColumn.ClrType
@@ -333,7 +357,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             || operation.IsRowVersion != operation.OldColumn.IsRowVersion
             || operation.IsNullable != operation.OldColumn.IsNullable
             || operation.Collation != operation.OldColumn.Collation
-            || HasDifferences(operation.GetAnnotations(), operation.OldColumn.GetAnnotations());
+            || HasDifferences(newAnnotations, oldAnnotations);
 
         var (oldDefaultValue, oldDefaultValueSql) = (operation.OldColumn.DefaultValue, operation.OldColumn.DefaultValueSql);
 
@@ -2272,6 +2296,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         => operation[SqlServerAnnotationNames.Identity] != null
             || operation[SqlServerAnnotationNames.ValueGenerationStrategy] as SqlServerValueGenerationStrategy?
             == SqlServerValueGenerationStrategy.IdentityColumn;
+
+    private static bool TryParseIdentitySeedIncrement(ColumnOperation operation, out int seed, out int increment)
+    {
+        if (operation[SqlServerAnnotationNames.Identity] is string seedIncrement
+            && seedIncrement.Split(",") is [var seedString, var incrementString]
+            && int.TryParse(seedString, out var seedParsed)
+            && int.TryParse(incrementString, out var incrementParsed))
+        {
+            (seed, increment) = (seedParsed, incrementParsed);
+            return true;
+        }
+
+        (seed, increment) = (0, 0);
+        return false;
+    }
 
     private void GenerateExecWhenIdempotent(
         MigrationCommandListBuilder builder,
