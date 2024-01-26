@@ -41,7 +41,7 @@ public class ValueGeneratorCache : IValueGeneratorCache
     /// </summary>
     protected virtual ValueGeneratorCacheDependencies Dependencies { get; }
 
-    private readonly ConcurrentDictionary<CacheKey, ValueGenerator> _cache = new();
+    private readonly ConcurrentDictionary<CacheKey, ValueGenerator?> _cache = new();
 
     private readonly struct CacheKey : IEquatable<CacheKey>
     {
@@ -79,10 +79,10 @@ public class ValueGeneratorCache : IValueGeneratorCache
     /// </param>
     /// <param name="factory">Factory to create a new value generator if one is not present in the cache.</param>
     /// <returns>The existing or newly created value generator.</returns>
-    public virtual ValueGenerator GetOrAdd(
+    public virtual ValueGenerator? GetOrAdd(
         IProperty property,
         ITypeBase typeBase,
-        Func<IProperty, ITypeBase, ValueGenerator> factory)
+        Func<IProperty, ITypeBase, ValueGenerator?> factory)
         => _cache.GetOrAdd(
                 new CacheKey(property, typeBase), static (ck, p) => p.factory(p.property, p.typeBase), (factory, typeBase, property));
 }

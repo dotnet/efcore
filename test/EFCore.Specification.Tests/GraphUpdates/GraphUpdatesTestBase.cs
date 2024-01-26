@@ -614,6 +614,27 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     b.HasOne(x => x.Brother).WithOne().HasForeignKey<SneakyUncle32084>(x => x.BrotherId);
                     b.Property(e => e.Id).HasValueGenerator<StableGuidGenerator>();
                 });
+
+            modelBuilder.Entity<CompositeKeyWith<int>>(
+                b =>
+                {
+                    b.HasKey(e => new { e.TargetId, e.SourceId, e.PrimaryGroup });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool>>(
+                b =>
+                {
+                    b.HasKey(e => new { e.TargetId, e.SourceId, e.PrimaryGroup });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<CompositeKeyWith<bool?>>(
+                b =>
+                {
+                    b.HasKey(e => new { e.TargetId, e.SourceId, e.PrimaryGroup });
+                    b.Property(e => e.PrimaryGroup).ValueGeneratedOnAdd();
+                });
         }
 
         private class StableGuidGenerator : ValueGenerator<Guid>
@@ -4477,6 +4498,32 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         {
             get => _brother;
             set => SetWithNotify(value, ref _brother);
+        }
+    }
+
+    protected class CompositeKeyWith<T> : NotifyingEntity
+        where T : new()
+    {
+        private Guid _targetId;
+        private Guid _sourceId;
+        private T _primaryGroup;
+
+        public Guid TargetId
+        {
+            get => _targetId;
+            set => SetWithNotify(value, ref _targetId);
+        }
+
+        public Guid SourceId
+        {
+            get => _sourceId;
+            set => SetWithNotify(value, ref _sourceId);
+        }
+
+        public T PrimaryGroup
+        {
+            get => _primaryGroup;
+            set => SetWithNotify(value, ref _primaryGroup);
         }
     }
 

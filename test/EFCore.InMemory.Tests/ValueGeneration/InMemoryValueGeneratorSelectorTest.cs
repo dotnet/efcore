@@ -73,16 +73,14 @@ public class InMemoryValueGeneratorSelectorTest
     }
 
     [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
+    public void Returns_null_for_unsupported_combinations()
     {
         var model = BuildModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
+        var entityType = model.FindEntityType(typeof(AnEntity))!;
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("Float", "AnEntity", "float"),
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Float"), entityType)).Message);
+        Assert.Null(selector.Select(entityType.FindProperty("Float")!, entityType));
     }
 
     private static IModel BuildModel(bool generateValues = true)

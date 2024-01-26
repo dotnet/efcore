@@ -2201,14 +2201,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NotQueryingEnumerable");
 
         /// <summary>
-        ///     The property '{1_entityType}.{0_property}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}' in 'OnModelCreating'.
-        /// </summary>
-        public static string NoValueGenerator(object? property, object? entityType, object? propertyType)
-            => string.Format(
-                GetString("NoValueGenerator", "0_property", "1_entityType", nameof(propertyType)),
-                property, entityType, propertyType);
-
-        /// <summary>
         ///     A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.
         /// </summary>
         public static string NullableKey(object? entityType, object? property)

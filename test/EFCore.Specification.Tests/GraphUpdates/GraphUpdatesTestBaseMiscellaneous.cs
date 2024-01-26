@@ -103,6 +103,66 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateWithSentinelId);
             });
 
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Can_insert_when_bool_PK_in_composite_key_has_sentinel_value(bool async, bool initialValue)
+        => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
+
+    [ConditionalTheory]
+    [InlineData(false, 0)]
+    [InlineData(true, 0)]
+    [InlineData(false, 1)]
+    [InlineData(true, 1)]
+    [InlineData(false, 2)]
+    [InlineData(true, 2)]
+    public virtual Task Can_insert_when_int_PK_in_composite_key_has_sentinel_value(bool async, int initialValue)
+        => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
+
+    [ConditionalTheory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public virtual Task Can_insert_when_nullable_bool_PK_in_composite_key_has_sentinel_value(bool async, bool? initialValue)
+        => Can_insert_when_PK_property_in_composite_key_has_sentinel_value(async, initialValue);
+
+    protected async Task Can_insert_when_PK_property_in_composite_key_has_sentinel_value<T>(bool async, T initialValue)
+        where T : new()
+    {
+        var inserted = new CompositeKeyWith<T>()
+        {
+            SourceId = Guid.NewGuid(),
+            TargetId = Guid.NewGuid(),
+            PrimaryGroup = initialValue
+        };
+
+        await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                if (async)
+                {
+                    await context.AddAsync(inserted);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(inserted);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var queryable = context.Set<CompositeKeyWith<T>>();
+                var loaded = async ? (await queryable.SingleAsync()) : queryable.Single();
+                Assert.Equal(inserted.SourceId, loaded.SourceId);
+                Assert.Equal(inserted.TargetId, loaded.TargetId);
+                Assert.Equal(initialValue, loaded.PrimaryGroup);
+            });
+    }
+
     [ConditionalTheory] // Issue #23043
     [InlineData(false)]
     [InlineData(true)]

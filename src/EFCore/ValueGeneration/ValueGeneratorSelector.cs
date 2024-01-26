@@ -54,8 +54,8 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
-    /// <returns>The value generator to be used.</returns>
-    public virtual ValueGenerator Select(IProperty property, ITypeBase typeBase)
+    /// <returns>The value generator to be used, or <see langword="null"/> if none is available.</returns>
+    public virtual ValueGenerator? Select(IProperty property, ITypeBase typeBase)
         => Cache.GetOrAdd(property, typeBase, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
 
     private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase structuralType)
@@ -84,8 +84,8 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
-    /// <returns>The newly created value generator.</returns>
-    public virtual ValueGenerator Create(IProperty property, ITypeBase typeBase)
+    /// <returns>The newly created value generator, or <see langword="null"/> if none is available.</returns>
+    public virtual ValueGenerator? Create(IProperty property, ITypeBase typeBase)
     {
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
         var generator = FindForType(property, typeBase, propertyType);
@@ -105,8 +105,7 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
             }
         }
 
-        throw new NotSupportedException(
-            CoreStrings.NoValueGenerator(property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
+        return null;
     }
 
     /// <summary>

@@ -153,7 +153,7 @@ public class SqlServerValueGeneratorSelectorTest
     }
 
     [ConditionalFact]
-    public void Throws_for_unsupported_combinations()
+    public void Returns_null_for_unsupported_combinations()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
         builder.Entity<AnEntity>(
@@ -163,13 +163,11 @@ public class SqlServerValueGeneratorSelectorTest
                 b.HasKey(e => e.Random);
             });
         var model = builder.FinalizeModel();
-        var entityType = model.FindEntityType(typeof(AnEntity));
+        var entityType = model.FindEntityType(typeof(AnEntity))!;
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        Assert.Equal(
-            CoreStrings.NoValueGenerator("Random", "AnEntity", "Something"),
-            Assert.Throws<NotSupportedException>(() => selector.Select(entityType.FindProperty("Random"), entityType)).Message);
+        Assert.Null(selector.Select(entityType.FindProperty("Random")!, entityType));
     }
 
     [ConditionalFact]

@@ -1276,9 +1276,6 @@
   <data name="NotQueryingEnumerable" xml:space="preserve">
     <value>The given 'IQueryable' does not support generation of query strings.</value>
   </data>
-  <data name="NoValueGenerator" xml:space="preserve">
-    <value>The property '{1_entityType}.{0_property}' does not have a value set and no value generator is available for properties of type '{propertyType}'. Either set a value for the property before adding the entity or configure a value generator for properties of type '{propertyType}' in 'OnModelCreating'.</value>
-  </data>
   <data name="NullableKey" xml:space="preserve">
     <value>A key on entity type '{entityType}' cannot contain the property '{property}' because it is nullable/optional. All properties on which a key is declared must be marked as non-nullable/required.</value>
   </data>

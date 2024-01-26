@@ -35,5 +35,5 @@ public interface IValueGeneratorSelector
     ///     this type may be different from the declaring type for <paramref name="property" />
     /// </param>
     /// <returns>The value generator to be used.</returns>
-    ValueGenerator Select(IProperty property, ITypeBase typeBase);
+    ValueGenerator? Select(IProperty property, ITypeBase typeBase);
 }

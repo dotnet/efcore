@@ -97,16 +97,20 @@ public class ValueGenerationManager : IValueGenerationManager
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
             var valueGenerator = GetValueGenerator(property);
-            if (valueGenerator.GeneratesStableValues)
+            if (valueGenerator != null)
             {
-                hasStableValues = true;
-            }
-            else
-            {
-                hasNonStableValues = true;
+                if (valueGenerator.GeneratesStableValues)
+                {
+                    hasStableValues = true;
+                }
+                else
+                {
+                    hasNonStableValues = true;
+                }
             }
 
-            if (entry.HasExplicitValue(property)
+            if (valueGenerator == null
+                || entry.HasExplicitValue(property)
                 || (!includePrimaryKey
                     && property.IsPrimaryKey()))
             {
@@ -155,16 +159,20 @@ public class ValueGenerationManager : IValueGenerationManager
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
             var valueGenerator = GetValueGenerator(property);
-            if (valueGenerator.GeneratesStableValues)
+            if (valueGenerator != null)
             {
-                hasStableValues = true;
-            }
-            else
-            {
-                hasNonStableValues = true;
+                if (valueGenerator.GeneratesStableValues)
+                {
+                    hasStableValues = true;
+                }
+                else
+                {
+                    hasNonStableValues = true;
+                }
             }
 
-            if (entry.HasExplicitValue(property)
+            if (valueGenerator == null
+                || entry.HasExplicitValue(property)
                 || (!includePrimaryKey
                     && property.IsPrimaryKey()))
             {
@@ -188,7 +196,7 @@ public class ValueGenerationManager : IValueGenerationManager
         return hasStableValues && !hasNonStableValues;
     }
 
-    private ValueGenerator GetValueGenerator(IProperty property)
+    private ValueGenerator? GetValueGenerator(IProperty property)
         => _valueGeneratorSelector.Select(property, property.DeclaringType);
 
     private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)
