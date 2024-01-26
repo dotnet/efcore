@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Storage.Json;
 /// </remarks>
 public abstract class JsonValueReaderWriter
 {
+    private static readonly bool UseOldBehavior32896 =
+        AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue32896", out var enabled32896) && enabled32896;
+
     /// <summary>
     ///     Ensures the external types extend from the generic <see cref="JsonValueReaderWriter{TValue}" />
     /// </summary>
@@ -63,7 +66,8 @@ public abstract class JsonValueReaderWriter
     /// <returns>The read value.</returns>
     public object FromJsonString(string json, object? existingObject = null)
     {
-        if (string.IsNullOrWhiteSpace(json))
+        if (!UseOldBehavior32896
+            && string.IsNullOrWhiteSpace(json))
         {
             throw new InvalidOperationException(CoreStrings.EmptyJsonString);
         }
