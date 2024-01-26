@@ -32,7 +32,7 @@ public class DbSetInitializerTest
     {
         public IReadOnlyList<DbSetProperty> FindSets(Type contextType)
         {
-            var setterFactory = new ClrPropertySetterFactory();
+            var setterFactory = ClrPropertySetterFactory.Instance;
 
             return new[]
             {

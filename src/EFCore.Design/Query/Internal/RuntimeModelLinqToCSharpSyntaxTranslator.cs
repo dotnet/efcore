@@ -1,9 +1,17 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+// ReSharper disable once CheckNamespace
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Editing;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Design.Internal;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+
+namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,9 +19,17 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<string, object?>>
+public class RuntimeModelLinqToCSharpSyntaxTranslator : LinqToCSharpSyntaxTranslator
 {
-    private ShadowValuesFactoryFactory()
+    private Dictionary<MemberAccess, ExpressionSyntax>? _memberAccessReplacements;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public RuntimeModelLinqToCSharpSyntaxTranslator(SyntaxGenerator syntaxGenerator) : base(syntaxGenerator)
     {
     }
 
@@ -23,89 +39,16 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static readonly ShadowValuesFactoryFactory Instance = new();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override int GetPropertyIndex(IPropertyBase propertyBase)
-        => propertyBase.GetShadowIndex();
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override int GetPropertyCount(IRuntimeEntityType entityType)
-        => entityType.ShadowPropertyCount;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override ValueComparer? GetValueComparer(IProperty property)
-        => null;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override MethodInfo? GetValueComparerMethod()
-        => null;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override bool UseEntityVariable
-        => false;
-
-    private static readonly PropertyInfo DictionaryIndexer
-        = typeof(IDictionary<string, object?>).GetRuntimeProperties().Single(p => p.GetIndexParameters().Length > 0);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override Expression CreateReadShadowValueExpression(
-        Expression? parameter,
-        IPropertyBase property)
+    public virtual SyntaxNode TranslateStatement(
+        Expression node,
+        Dictionary<object, ExpressionSyntax>? constantReplacements,
+        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
+        ISet<string> collectedNamespaces)
     {
-        if (parameter == null)
-        {
-            return Expression.Default(property.ClrType);
-        }
-
-        if (parameter is NewArrayExpression newArrayExpression)
-        {
-            var valueExpression = newArrayExpression.Expressions[property.GetShadowIndex()];
-            valueExpression = ((UnaryExpression)valueExpression).Operand; // Unwrap cast
-            return valueExpression.Type == property.ClrType
-                ? valueExpression
-                : Expression.Convert(
-                    valueExpression,
-                    property.ClrType);
-        }
-
-        return Expression.Condition(Expression.Call(parameter, PropertyAccessorsFactory.ContainsKeyMethod, Expression.Constant(property.Name)),
-            Expression.Convert(Expression.MakeIndex(
-                parameter,
-                DictionaryIndexer,
-                new[] { Expression.Constant(property.Name) }),
-                property.ClrType),
-            Expression.Constant(property.Sentinel, property.ClrType));
+        _memberAccessReplacements = memberAccessReplacements;
+        var result = TranslateStatement(node, constantReplacements, collectedNamespaces);
+        _memberAccessReplacements = null;
+        return result;
     }
 
     /// <summary>
@@ -114,8 +57,78 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<IDictionary<str
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression CreateReadValueExpression(
-        Expression? parameter,
-        IPropertyBase property)
-        => CreateReadShadowValueExpression(parameter, property);
+    public virtual SyntaxNode TranslateExpression(
+        Expression node,
+        Dictionary<object, ExpressionSyntax>? constantReplacements,
+        Dictionary<MemberAccess, ExpressionSyntax>? memberAccessReplacements,
+        ISet<string> collectedNamespaces)
+    {
+        _memberAccessReplacements = memberAccessReplacements;
+        var result = TranslateExpression(node, constantReplacements, collectedNamespaces);
+        _memberAccessReplacements = null;
+        return result;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ExpressionSyntax GenerateValue(object? value)
+        => value switch
+        {
+            Snapshot snapshot
+                when snapshot == Snapshot.Empty
+                => MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    Generate(typeof(Snapshot)),
+                    IdentifierName(nameof(Snapshot.Empty))),
+
+            _ => base.GenerateValue(value)
+        };
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void TranslateNonPublicFieldAccess(MemberExpression member)
+    {
+        if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: false), out var methodName) == true)
+        {
+            Result = InvocationExpression(
+                methodName,
+                ArgumentList(SeparatedList(new[] { Argument(Translate<ExpressionSyntax>(member.Expression)) })));
+        }
+        else
+        {
+            base.TranslateNonPublicFieldAccess(member);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void TranslateNonPublicFieldAssignment(MemberExpression member, Expression value)
+    {
+        if (_memberAccessReplacements?.TryGetValue(new MemberAccess(member.Member, assignment: true), out var methodName) == true)
+        {
+            Result = InvocationExpression(
+                methodName,
+                ArgumentList(SeparatedList(new[]
+                    {
+                        Argument(Translate<ExpressionSyntax>(member.Expression)),
+                        Argument(Translate<ExpressionSyntax>(value))
+                    })));
+        }
+        else
+        {
+            base.TranslateNonPublicFieldAssignment(member, value);
+        }
+    }
 }

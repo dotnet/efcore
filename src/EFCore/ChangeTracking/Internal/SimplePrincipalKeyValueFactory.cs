@@ -30,7 +30,7 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
         _property = key.Properties.Single();
         _propertyAccessors = _property.GetPropertyAccessors();
 
-        EqualityComparer = new NoNullsCustomEqualityComparer(_property.GetKeyValueComparer());
+        EqualityComparer = new NoNullsCustomEqualityComparer((ValueComparer<TKey>)_property.GetKeyValueComparer());
     }
 
     /// <summary>
@@ -121,19 +121,17 @@ public class SimplePrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory<TK
 
     private sealed class NoNullsCustomEqualityComparer : IEqualityComparer<TKey>
     {
-        private readonly Func<TKey?, TKey?, bool> _equals;
-        private readonly Func<TKey, int> _hashCode;
+        private readonly ValueComparer<TKey> _comparer;
 
-        public NoNullsCustomEqualityComparer(ValueComparer comparer)
+        public NoNullsCustomEqualityComparer(ValueComparer<TKey> comparer)
         {
-            _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
-            _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
+            _comparer = comparer;
         }
 
         public bool Equals(TKey? x, TKey? y)
-            => _equals(x, y);
+            => _comparer.Equals(x, y);
 
         public int GetHashCode([DisallowNull] TKey obj)
-            => _hashCode(obj);
+            => _comparer.GetHashCode(obj);
     }
 }

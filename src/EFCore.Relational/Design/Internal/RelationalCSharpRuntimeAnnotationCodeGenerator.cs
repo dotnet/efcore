@@ -55,8 +55,7 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 var methods = methodBuilder.ToString();
                 if (!string.IsNullOrEmpty(methods))
                 {
-                    parameters.MethodBuilder.AppendLine()
-                        .AppendLines(methods);
+                    parameters.MethodBuilder.AppendLines(methods);
                 }
             }
         }

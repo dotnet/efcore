@@ -371,9 +371,11 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .Append(codeHelper.Reference(converter.ProviderClrType))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .Append(codeHelper.Expression(converter.ConvertToProviderExpression, parameters.Namespaces))
+                .AppendLines(codeHelper.Expression(converter.ConvertToProviderExpression, null, null, parameters.Namespaces),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .Append(codeHelper.Expression(converter.ConvertFromProviderExpression, parameters.Namespaces));
+                .AppendLines(codeHelper.Expression(converter.ConvertFromProviderExpression, null, null, parameters.Namespaces),
+                    skipFinalNewline: true);
 
             if (converter.ConvertsNulls)
             {
@@ -428,11 +430,14 @@ public class CSharpRuntimeAnnotationCodeGenerator : ICSharpRuntimeAnnotationCode
                 .Append(codeHelper.Reference(comparer.Type))
                 .AppendLine(">(")
                 .IncrementIndent()
-                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(codeHelper.Expression(comparer.EqualsExpression, null, null, parameters.Namespaces),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(codeHelper.Expression(comparer.HashCodeExpression, null, null, parameters.Namespaces),
+                    skipFinalNewline: true)
                 .AppendLine(",")
-                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, parameters.Namespaces), skipFinalNewline: true)
+                .AppendLines(codeHelper.Expression(comparer.SnapshotExpression, null, null, parameters.Namespaces),
+                    skipFinalNewline: true)
                 .Append(")")
                 .DecrementIndent();
         }

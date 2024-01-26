@@ -305,11 +305,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
             ref _collectionAccessor,
             ref _collectionAccessorInitialized,
             this,
-            static navigation =>
-            {
-                navigation.EnsureReadOnly();
-                return new ClrCollectionAccessorFactory().Create(navigation);
-            });
+            static navigation => ClrCollectionAccessorFactory.Instance.Create(navigation));
 
     /// <summary>
     ///     Runs the conventions when an annotation was set or removed.

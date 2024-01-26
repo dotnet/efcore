@@ -136,7 +136,7 @@ public class ValueComparer
         if (typedEquals != null)
         {
             return Expression.Lambda<Func<T?, T?, bool>>(
-                type.IsClass
+                type.IsNullableType()
                     ? Expression.OrElse(
                         Expression.AndAlso(
                             Expression.Equal(param1, Expression.Constant(null, type)),

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -84,48 +85,15 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     /// <inheritdoc />
     public abstract object? Sentinel { get; }
 
-    /// <inheritdoc />
-    IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
-    {
-        [DebuggerStepThrough]
-        get => DeclaringType;
-    }
-
-    /// <inheritdoc />
-    IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _materializationSetter, this, static property =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? new ClrPropertyMaterializationSetterFactory().Create(property)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    PropertyAccessors IRuntimePropertyBase.Accessors
-        => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _accessors, this, static property =>
-                RuntimeFeature.IsDynamicCodeSupported
-                    ? new PropertyAccessorsFactory().Create(property)
-                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
-
-    /// <inheritdoc />
-    PropertyIndexes IRuntimePropertyBase.PropertyIndexes
-    {
-        get => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _indexes, this,
-            static property =>
-            {
-                _ = ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).Counts;
-            });
-        set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
-    }
-
-    /// <inheritdoc />
-    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
-    Type IReadOnlyPropertyBase.ClrType
-    {
-        [DebuggerStepThrough]
-        get => ClrType;
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetPropertyIndexes(int index, int originalValueIndex, int shadowIndex, int relationshipIndex, int storeGenerationIndex)
+        => _indexes = new(index, originalValueIndex, shadowIndex, relationshipIndex, storeGenerationIndex);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -134,8 +102,29 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public virtual void SetAccessors(PropertyAccessors accessors)
-        => _accessors = accessors;
+    public virtual void SetAccessors<TProperty>(
+        Func<InternalEntityEntry, TProperty> currentValueGetter,
+        Func<InternalEntityEntry, TProperty> preStoreGeneratedCurrentValueGetter,
+        Func<InternalEntityEntry, TProperty>? originalValueGetter,
+        Func<InternalEntityEntry, TProperty> relationshipSnapshotGetter,
+        Func<ValueBuffer, object>? valueBufferGetter)
+        => _accessors = new(
+            currentValueGetter,
+            preStoreGeneratedCurrentValueGetter,
+            originalValueGetter,
+            relationshipSnapshotGetter,
+            valueBufferGetter);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual void SetMaterializationSetter<TEntity, TValue>(Action<TEntity, TValue> setter)
+        where TEntity : class
+        => _materializationSetter = new ClrPropertySetter<TEntity, TValue>(setter);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -165,13 +154,60 @@ public abstract class RuntimePropertyBase : RuntimeAnnotatableBase, IRuntimeProp
             getter, hasDefaultValue, structuralTypeGetter, hasStructuralTypeSentinelValue);
 
     /// <inheritdoc />
+    IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
+    {
+        [DebuggerStepThrough]
+        get => DeclaringType;
+    }
+
+    /// <inheritdoc />
+    IClrPropertySetter IRuntimePropertyBase.MaterializationSetter
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _materializationSetter, this, static property =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? ClrPropertyMaterializationSetterFactory.Instance.Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <inheritdoc />
+    PropertyAccessors IRuntimePropertyBase.Accessors
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _accessors, this, static property =>
+                RuntimeFeature.IsDynamicCodeSupported
+                    ? PropertyAccessorsFactory.Instance.Create(property)
+                    : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
+
+    /// <inheritdoc />
+    PropertyIndexes IRuntimePropertyBase.PropertyIndexes
+    {
+        get => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _indexes, this,
+            static property =>
+            {
+                _ = ((IRuntimeEntityType)((IRuntimeTypeBase)property.DeclaringType).ContainingEntityType).Counts;
+            });
+        set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
+    }
+
+    /// <inheritdoc />
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
+    Type IReadOnlyPropertyBase.ClrType
+    {
+        [DebuggerStepThrough]
+        get => ClrType;
+    }
+
+    /// <inheritdoc />
     IClrPropertySetter IRuntimePropertyBase.GetSetter()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _setter, this, static property => new ClrPropertySetterFactory().Create(property));
+            ref _setter, this, static property => RuntimeFeature.IsDynamicCodeSupported
+                ? ClrPropertySetterFactory.Instance.Create(property)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     IClrPropertyGetter IPropertyBase.GetGetter()
         => NonCapturingLazyInitializer.EnsureInitialized(
-            ref _getter, this, static property => new ClrPropertyGetterFactory().Create(property));
+            ref _getter, this, static property => RuntimeFeature.IsDynamicCodeSupported
+                ? ClrPropertyGetterFactory.Instance.Create(property)
+                : throw new InvalidOperationException(CoreStrings.NativeAotNoCompiledModel));
 }

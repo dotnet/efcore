@@ -155,19 +155,15 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected static IEqualityComparer<IReadOnlyList<object?>> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
-        => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToList());
+        => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToArray());
 
     private sealed class CompositeCustomComparer : IEqualityComparer<IReadOnlyList<object?>>
     {
-        private readonly int _valueCount;
-        private readonly Func<object?, object?, bool>[] _equals;
-        private readonly Func<object?, int>[] _hashCodes;
+        private readonly ValueComparer[] _comparers;
 
-        public CompositeCustomComparer(IList<ValueComparer> comparers)
+        public CompositeCustomComparer(ValueComparer[] comparers)
         {
-            _valueCount = comparers.Count;
-            _equals = comparers.Select(c => (Func<object?, object?, bool>)c.Equals).ToArray();
-            _hashCodes = comparers.Select(c => (Func<object?, int>)c.GetHashCode).ToArray();
+            _comparers = comparers;
         }
 
         public bool Equals(IReadOnlyList<object?>? x, IReadOnlyList<object?>? y)
@@ -187,15 +183,15 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
                 return false;
             }
 
-            if (x.Count != _valueCount
-                || y.Count != _valueCount)
+            if (x.Count != _comparers.Length
+                || y.Count != _comparers.Length)
             {
                 return false;
             }
 
-            for (var i = 0; i < _valueCount; i++)
+            for (var i = 0; i < _comparers.Length; i++)
             {
-                if (!_equals[i](x[i], y[i]))
+                if (!_comparers[i].Equals(x[i], y[i]))
                 {
                     return false;
                 }
@@ -212,7 +208,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<IReadOnlyList<obj
             // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < obj.Count; i++)
             {
-                hashCode.Add(_hashCodes[i](obj[i]));
+                hashCode.Add(_comparers[i].GetHashCode(obj[i]));
             }
 
             return hashCode.ToHashCode();

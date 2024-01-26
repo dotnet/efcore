@@ -25,7 +25,7 @@ public class PropertyAccessorsFactoryTest
         var entity = new IndexedClass();
         var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
-        var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propertyA);
+        var propertyAccessors = PropertyAccessorsFactory.Instance.Create((IProperty)propertyA);
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
@@ -52,7 +52,7 @@ public class PropertyAccessorsFactoryTest
         var entity = new NonIndexedClass();
         var entry = new InternalEntityEntry(stateManager, (IEntityType)entityTypeBuilder.Metadata, entity);
 
-        var propertyAccessors = new PropertyAccessorsFactory().Create((IProperty)propA);
+        var propertyAccessors = PropertyAccessorsFactory.Instance.Create((IProperty)propA);
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.CurrentValueGetter)(entry));
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.OriginalValueGetter)(entry));
         Assert.Equal("ValueA", ((Func<InternalEntityEntry, string>)propertyAccessors.PreStoreGeneratedCurrentValueGetter)(entry));
